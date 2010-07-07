@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 bld(
-	features   = 'cc cprogram',
+	features   = 'c cprogram',
 	source     = 'main.c',
 	includes   = '. ..',
 	ccflags    = '-O3',

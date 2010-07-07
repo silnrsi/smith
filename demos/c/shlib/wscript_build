@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 
 bld(
-	features     = 'cc cshlib',
+	features     = 'c cshlib',
 	source       = 'test_shlib.c',
 	vnum         = '1.2.3',
 	target       = 'my_shared_lib')
 
 bld(
-	features     = 'cc cprogram',
+	features     = 'c cprogram',
 	source       = 'main.c',
 	target       = 'test_shared_link',
 	uselib_local = 'my_shared_lib')
