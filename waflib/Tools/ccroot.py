@@ -15,13 +15,13 @@ USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', '
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORK', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
-USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['cstlib']   = USELIB_VARS['cxxstlib']   = set(['ARFLAGS'])
+USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['cstlib']   = USELIB_VARS['cxxstlib']   = set(['ARFLAGS', 'LINKDEPS'])
 
-USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['dshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH'])
-USELIB_VARS['dstlib']   = set(['ARFLAGS'])
+USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['dshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['dstlib']   = set(['ARFLAGS', 'LINKDEPS'])
 
 USELIB_VARS['go'] = set(['GOCFLAGS'])
 USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
