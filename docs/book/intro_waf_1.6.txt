@@ -414,7 +414,7 @@ The method 'create_compiled_tasks' should be used to create tasks that provide '
 
 === apply_uselib_local
 
-The method apply_uselib_local has been changed to take into account static and shared library types. Two base classes for link tasks have been added in the module 'waflib.Tools.ccroot': 'link_task' and 'static_link'. The names correspond to 'features' names to use for the method 'apply_link' from the previous section:
+The method apply_uselib_local has been changed to take into account static and shared library types. Two base classes for link tasks have been added in the module 'waflib.Tools.ccroot': 'link_task' and 'stlink_task'. The names for the subclasses correspond to 'features' names to use for the method 'apply_link' from the previous section:
 
 image::cls.eps["Class hierarchy",width=420]
 
