@@ -413,10 +413,9 @@ def load_tool(tool, tooldir=None):
 		try:
 			__import__(tool)
 			return sys.modules[tool]
-		except ImportError:
-			raise Errors.WafError('Could not load the tool %r in %r' % (tool, sys.path))
-		for d in tooldir:
-			sys.path.remove(d)
+		finally:
+			for d in tooldir:
+				sys.path.remove(d)
 	else:
 		global waf_dir
 		try:
