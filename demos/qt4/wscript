@@ -17,7 +17,7 @@ def configure(conf):
 
 def build(bld):
 	bld(
-		features = 'qt4 cxx cprogram',
+		features = 'qt4 cxx cxxprogram',
 		uselib   = 'QTCORE QTGUI QTOPENGL QTSVG',
 		source   = 'window.cpp glwidget.cpp main.cpp textures.qrc aboutDialog.ui',
 		target   = 'window',

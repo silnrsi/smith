@@ -22,6 +22,6 @@ def build(bld):
 	if bld.cmd != 'clean':
 		from waflib import Logs
 		bld.logger = Logs.make_logger('test.log', 'build')
-		bld.check(header_name='sadlib.h', features='cxx cprogram')
+		bld.check(header_name='sadlib.h', features='cxx cprogram', mandatory=False)
 		bld.logger = None
 
