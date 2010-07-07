@@ -250,15 +250,15 @@ class ConfigurationContext(Context.Context):
 			module = None
 			try:
 				module = Context.load_tool(tool, tooldir)
-			except Exception as e:
+			except ImportError as e:
 				if Options.options.download:
 					module = download_tool(tool)
 					if not module:
-						Logs.error('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
-						raise e
+						self.to_log(e)
+						self.fatal('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 				else:
-					Logs.error('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
-					raise e
+					self.to_log(e)
+					self.fatal('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
 
 			if funs is not None:
 				self.eval_rules(funs)
@@ -330,7 +330,7 @@ class ConfigurationContext(Context.Context):
 				elif ret == CONTINUE:
 					continue
 				else:
-					self.fatal(e)
+					raise e
 
 	def err_handler(self, fun, error):
 		"""error handler for the configuration tests, the default is to let the exceptions rise"""
