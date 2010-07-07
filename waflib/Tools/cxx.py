@@ -6,7 +6,7 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import ccroot
-from waflib.Tools.ccroot import link_task, static_link
+from waflib.Tools.ccroot import link_task, stlink_task
 
 def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)
@@ -31,6 +31,6 @@ class cxxprogram(link_task):
 class cxxshlib(cxxprogram):
 	inst_to = '${LIBDIR}'
 
-class cstlib(static_link):
+class cstlib(stlink_task):
 	pass
 

@@ -6,7 +6,7 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import ccroot
-from waflib.Tools.ccroot import link_task, static_link
+from waflib.Tools.ccroot import link_task, stlink_task
 
 @TaskGen.extension('.c')
 def c_hook(self, node):
@@ -30,6 +30,6 @@ class cprogram(link_task):
 class cshlib(cprogram):
 	inst_to = '${LIBDIR}'
 
-class cstlib(static_link):
+class cstlib(stlink_task):
 	pass
 

@@ -9,7 +9,7 @@ from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
 from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
-from waflib.Tools.ccroot import link_task, static_link
+from waflib.Tools.ccroot import link_task, stlink_task
 
 class d(Task.Task):
 	color   = 'GREEN'
@@ -54,7 +54,7 @@ class dprogram(link_task):
 class dshlib(dprogram):
 	inst_to = '${LIBDIR}'
 
-class dstlib(static_link):
+class dstlib(stlink_task):
 	pass
 
 @extension('.d', '.di', '.D')

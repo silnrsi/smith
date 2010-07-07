@@ -117,7 +117,7 @@ class link_task(Task.Task):
 			target = self.generator.path.find_or_declare(tmp)
 		self.set_outputs(target)
 
-class static_link(link_task):
+class stlink_task(link_task):
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 	def run(self):
 		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
@@ -192,7 +192,7 @@ def apply_uselib_local(self):
 				obj = get(x)
 				obj.post()
 				try:
-					if not isinstance(obj.link_task, static_link):
+					if not isinstance(obj.link_task, stlink_task):
 						tmp.append(x)
 				except AttributeError:
 					Logs.warn('task generator %s has no link task' % x)
@@ -201,7 +201,7 @@ def apply_uselib_local(self):
 		if getattr(y, 'link_task', None):
 
 			link_name = y.target[y.target.rfind(os.sep) + 1:]
-			if isinstance(y.link_task, static_link):
+			if isinstance(y.link_task, stlink_task):
 				env.append_value('STLIB', [link_name])
 			else:
 				# some linkers can link against programs

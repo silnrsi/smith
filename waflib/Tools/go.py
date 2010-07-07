@@ -13,12 +13,12 @@ import os, platform
 
 from waflib import Utils, Task
 from waflib.TaskGen import feature, extension, after
-from waflib.Tools.ccroot import link_task, static_link
+from waflib.Tools.ccroot import link_task, stlink_task
 
 class go(Task.Task):
 	run_str = '${GOC} ${GOCFLAGS} ${CPPPATH_ST:INCPATHS} -o ${TGT} ${SRC}'
 
-class gopackage(static_link):
+class gopackage(stlink_task):
 	run_str = '${GOP} grc ${TGT} ${SRC}'
 
 class goprogram(link_task):
