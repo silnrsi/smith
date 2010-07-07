@@ -54,7 +54,7 @@ def check_inline(self, **kw):
 LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); };'
 
 @conf
-def check_largefile(self, **kw):
+def check_large_file(self, **kw):
 	'''
 	see if large files are supported and define the macro HAVE_LARGEFILE
 	'''
