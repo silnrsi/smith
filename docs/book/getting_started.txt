@@ -1,0 +1,59 @@
+== Getting Started
+
+=== Obtaining Waf
+
+The Waf project is located on http://code.google.com/p/waf[Google Code].
+The current Waf version requires an interpreter for the Python programming language such as http://www.python.org[cPython] 2.3 to 3.1 or http://www.jython.org[Jython] >= 2.5. Note that Waf requires http://docs.python.org/library/bz2.html[bzip2] compression support, which may be unavailable in self-compiled cPython installations.
+
+==== Using the Waf binary
+
+The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into \'waf' if necessary:
+
+[source,shishell]
+---------------
+$ wget http://waf.googlecode.com/files/waf-1.6.0
+$ mv waf-1.6.0 waf && chmod 755 waf
+---------------
+
+==== Generating the Waf binary from the source code
+
+The Waf binary creation requires a Python interpreter in version 2.6 to 3.1. The source code is then processed to support Python 2.3, 2.4 and 2.5.
+
+[source,shishell]
+---------------
+$ wget http://waf.googlecode.com/files/waf-1.6.0.tar.bz2
+$ tar xjvf waf-1.6.0.tar.bz2
+$ cd waf-1.6.0
+$ ./waf-light --make-waf
+---------------
+
+=== Running Waf
+
+The 'waf' script can be used directly from a writeable folder:
+
+[source,shishell]
+---------------
+$ ./waf
+---------------
+
+Or, if the executable permissions are not set properly:
+
+[source,shishell]
+---------------
+$ python waf
+---------------
+
+The 'waf' file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+
+[source,shishell]
+---------------
+$ ls -ld .waf*
+.waf-1.6.0-2c924e3f453eb715218b9cc852291170
+---------------
+
+By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
+
+NOTE: A project containing 'waf', 'jython2.5.jar' and the source code may be used almost anywhere.
+
+WARNING: The 'waf' script must reside in a writable folder to unpack its cache files.
+

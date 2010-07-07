@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+def options(opt):
+	opt.tool_options('compiler_cxx compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cxx compiler_cc flex bison')
+	conf.env.LIB_CALC = ['fl']
+
+def build(bld):
+	# to compile in c or c++ mode, comment/uncomment the appropriate line below:
+	mode = 'cxx'
+	#mode = 'cc'
+
+	tg = bld(
+		features = ['cprogram', mode],
+		source = 'calc.l calc.y main.c',
+		target = 'calc',
+		uselib = 'CALC')
+
+	if mode == 'cxx':
+		import waflib.Tools.cxx as cxx
+		tg.mappings['.c'] = cxx.cxx_hook
+
+		#import waflib.TaskGen
+		#waflib.TaskGen.task_gen.mappings['.c'] = waflib.TaskGen.task_gen.mappings['.cxx']
+		#tg.mappings['.c'] = waflib.TaskGen.task_gen.mappings['.cxx']
+

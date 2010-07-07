@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def configure(conf):
+	conf.check_tool('gcc gas')
+
+def build(bld):
+	bld(
+		features = 'cc cprogram',
+		source   = 'main.c test.S',
+		target   = 'asmtest')
+

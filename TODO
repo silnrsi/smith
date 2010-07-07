@@ -1,0 +1,27 @@
+Waf 1.6
+-------
+
+General
+
+- how to force a full compilation for the configuration?
+- broken conf.check_cfg and problems with default uselib (capital letters)
+- better apis for shell compilation in Task.py and remove misc.py
+- refactor the environment thing ?
+
+Low priority
+
+- refactor the c and d preprocessor functions
+- detect potential deadlocks in the task scheduler
+- detect user typos (the checks have been removed)
+- enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
+
+Potential sub-projects (contributions will be welcome)
+
++ IDE file generator (msvc, codeblocks)
++ CMake file interpreter
++ multiprocess for distributed compilation (vs threads?)
++ autoconf-like configuration library?
+
+Docs
+- show a complete example of c compilation with rules vs task generator code (procedural vs object-oriented)
+

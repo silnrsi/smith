@@ -1,0 +1,214 @@
+== Advanced command definitions
+
+The waf operations (commands) may be extended to perform non-trivial operations easily. This chapter demonstrates several common patterns found in real-world project scripts.
+
+=== Providing a custom command context
+
+The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
+
+[source,python]
+---------------
+def foo(ctx):
+	pass
+
+from waflib import Utils
+class foo_context(Utils.Context):
+	def __init__(self):
+		print("a context for 'foo'")
+---------------
+
+Custom contexts may be provided for the functions 'configure' and 'build'.
+
+
+=== Creating aliases / Injecting new commands
+
+New commands may be injected in the following manner:
+
+[source,python]
+---------------
+from waflib import Scripting
+def foo(ctx):
+	Scripting.commands += ['build', 'clean']
+---------------
+
+Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
+
+[source,python]
+---------------
+VERSION = '0.0.1'
+APPNAME = 'my_testcase'
+
+top = '.'
+out = 'build'
+
+from waflib import Scripting
+
+def test(ctx):
+	lst = 'distclean configure setup build modify build'.split()
+	Scripting.commands += lst
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def setup(ctx):
+	f = open('main.c', 'w')
+	f.write('#include "foo.h"\nint main() {return 0;}\n')
+	f.close()
+
+	f = open('foo.h', 'w')
+	f.write('int k = 32;\n')
+	f.close()
+
+def build(bld):
+	bld(
+		features = 'cc cprogram',
+		source = 'main.c',
+		target='tprog')
+
+def modify(ctx):
+	f = open('foo.h', 'w')
+	f.write('int k = 34;\n')
+	f.close()
+---------------
+
+=== Executing commands as part of another command
+
+In the following scenario, the build files are installed into a temporary directory for packaging. This is different from the `waf dist` command which only packages the source files needed for the project.
+
+Because the context objects usually derive from different classes, it is usually forbidden to call a command from another commands. In the following example, the commands to execute are pushed onto a stack:
+
+[source,python]
+---------------
+top = '.'
+out = 'out'
+
+from waflib import Scripting, Options
+
+def configure(conf):
+	conf.check_tool('gcc')
+
+def build(bld):
+	bld.install_files('/tmp/foo/', 'wscript') <1>
+	bld.new_task_gen(features='cc cprogram', target='foo', source='k.c')
+
+back = False
+def package(ctx): <2>
+	global back
+	Scripting.commands.insert(0, 'package') <3>
+	Scripting.commands.insert(0, 'install') <4>
+	back = Options.options.destdir <5>
+	Options.options.destdir = '/tmp/foo'
+
+def create_package(ctx): <6>
+	global back
+	print("packaging")
+	Options.options.destdir = back <7>
+---------------
+
+<1> Perform the installation
+<2> Users will call 'waf package' to create the package
+<3> Postpone the actual package creation
+<4> Now the next command to execute is the installation, and after the installation, the package creation will be performed
+<5> Change the value of 'destdir' for installing the files into a temporary directory
+<6> Command for creating the package
+<7> Restore the value of 'destdir', in case if more commands are to be executed
+
+Note that the 'destdir' parameter is being passed between commands by means of a global option.
+
+=== Adding a new command from a waf tool
+
+When the top-level wscript is read, it is converted into a python module and kept in memory. To add a new command dynamically,
+it is only necessary to inject the desired function into that module. We will now show how to load a waf tool to count the amount of task generators
+in the project.
+
+The waf tools are loaded once during the configuration and during the build. To ensure that the tool is always loaded, it is necessary to load its options:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('some_tool', tooldir='.')
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='echo "hi"', always=True, name='a')
+	bld(rule='echo "there"', always=True, name='b')
+---------------
+
+Now our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
+
+[source,python]
+---------------
+import os
+from waflib import Utils, ConfigSet, Options, Build
+
+def set_options(opt): <1>
+	pass
+
+def list_targets(ctx): <2>
+	"""return the amount of targets"""
+
+	bld = Build.BuildContext() <3>
+	proj = ConfigSet.ConfigSet(Options.lockfile) <4>
+	bld.load_dirs(proj['top'], proj['out']) <5>
+	bld.load_envs()
+
+	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]]) <6>
+
+	names = set([])
+	for x in bld.all_task_gen: <7>
+		try:
+			names.add(x.name or x.target)
+		except AttributeError:
+			pass
+
+	lst = list(names)
+	lst.sort()
+	for name in lst:
+		print(name)
+Utils.g_module.__dict__['list_targets'] = list_targets <8>
+---------------
+
+<1> The function 'set_options' is called by 'tool_options' above
+<2> The command that will be injected dynamically from this tool
+<3> Declare a build context manually
+<4> Read the project settings
+<5> Initialize the build context
+<6> Read the project files, executing the methods 'build'
+<7> Access the declared task generators stored in the build context attribute 'all_task_gen'
+<8> Bind the function as a new command
+
+The execution output will be the following.
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/home/waf/tmp/nt/build'
+[1/2] echo "hi":
+hi
+[2/2] echo "there":
+there
+Waf: Leaving directory `/home/waf/tmp/nt/build'
+'build' finished successfully (0.015s)
+
+$ waf list_targets
+a
+b
+'list_targets' finished successfully (0.003s)
+
+$ waf --targets=a
+Waf: Entering directory `/home/waf/tmp/nt/build'
+[1/1] a:
+hi
+Waf: Leaving directory `/home/waf/tmp/nt/build'
+'build' finished successfully (0.012s)
+---------------
+
+Note that during the execution of `num_targets`, the task generator definitions have been read but no task was executed.
+

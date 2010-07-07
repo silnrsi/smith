@@ -1,0 +1,35 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+VERSION = '0.0.4'
+APPNAME = 'java_test'
+
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('java')
+	conf.check_java_class('java.io.FileOutputStream')
+	conf.check_java_class('FakeClass')
+
+def build(bld):
+
+	# in the following, the feature 'seq' is used to force a sequential order on the tasks created
+
+	# java
+	#
+	# srcdir: directory containing the sources to compile
+	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
+	bld(features='javac seq', srcdir='src', compat='1.5', sourcepath=['src', 'sup'])
+
+	# jar
+	#
+	# basedir: directory containing the .class files to package
+	# destfile: the destination file
+	bld(features='jar seq', basedir='src', destfile='foo.jar')
+
+	#jaropts = '-C default/src/ .', # can be used to give files
+	#classpath = '..:.', # can be used to set a custom classpath
+	#)
+

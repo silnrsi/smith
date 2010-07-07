@@ -1,0 +1,50 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006 (ita)
+
+VERSION='0.0.1'
+APPNAME='d_test'
+
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_d')
+
+def configure(conf):
+	conf.check_tool('compiler_d')
+	conf.env.LIB_PTHREAD = ['pthread']
+	conf.check_dlibrary()
+
+def build(bld):
+	if bld.env.DLIBRARY != 'tango':
+		bld.add_subdirs('src')
+
+		# here is how to use the object-oriented notation
+		bld(
+			features     = 'd dstlib',
+			source       = 'testlib/code.d',
+			includes     = '.',
+			name         = 'testlib',
+			target       = 'testlib')
+
+		bld(features     = 'd dprogram',
+			source       = 'example.d',
+			target       = 'd_test',
+			uselib_local = 'testlib',
+			uselib       = 'PTHREAD',
+			includes     = '.')
+
+	else:
+		# bad pun hidden
+		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm', includes=[bld.path])
+		bld(features='d dstlib', source='hmm.d', target='hmm')
+
+		#bld(features='d dshlib', source='shared.d', target='sha')
+		# shared libs do not work here:
+		# ldc -relocation-model=pic -L-shared shared.d -offoo
+		# /usr/lib64/gcc/x86_64-suse-linux/4.5/../../../../x86_64-suse-linux/bin/ld:
+		# /disk/comp/ldc/bin/../lib/libtango.a(tango-core-rt-compiler-ldc-object_-O2.o):
+		# relocation R_X86_64_32 against `.rodata.str1.1' can not be used when making a shared object; recompile with -fPIC
+
+

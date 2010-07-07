@@ -1,0 +1,291 @@
+== The configuration system
+
+The configuration step is used to check if the requiremements for working on a project are met. The parameters are then stored for further use.
+
+=== Storing configuration sets
+
+Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within Waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.env['CXXFLAGS'] = ['-O2'] # key-based access
+	conf.env.store('test.txt')
+	conf.env.TEST        = 'test'  # attribute-based access
+
+	new = conf.env.__class__()
+	new.load('test.txt')
+
+	print(new)
+	print("")
+	print(conf.env)
+----------------
+
+The execution will result in the following output:
+
+[source,shishell]
+---------------
+$ waf configure
+'CXXFLAGS' ['-O2']
+'PREFIX' '/usr/local'
+
+'CXXFLAGS' ['-O2']
+'PREFIX' '/usr/local'
+'TEST' 'test'
+
+$ cat test.txt
+CXXFLAGS = ['-O2']
+PREFIX = '/usr/local'
+
+$ cat build/c4che/default.cache.py
+CXXFLAGS = ['-O2']
+PREFIX = '/usr/local'
+TEST = 'test'
+---------------
+
+The default configuration is stored to the cache file named 'default.cache.py'. The configuration set will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
+
+Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.env['CCFLAGS'] = ['-g'] <1>
+	conf.env.CCFLAGS = ['-g'] <2>
+	conf.env.append_value('CXXFLAGS', ['-O2', '-g']) <3>
+	conf.env.append_unique('CCFLAGS', ['-g', '-O2']) <4>
+	conf.env.prepend_value('CCFLAGS', ['-O3']) <5>
+	my_copy = conf.env.copy() <6>
+	print(conf.env) <7>
+
+	from waflib import Utils
+	s = Utils.subst_vars('${PREFIX}/bin', conf.env) <8>
+	print(s)
+
+	conf.env.store('/tmp/env.txt') <9>
+
+	from waflib import ConfigSet
+	env = ConfigSet.ConfigSet()
+	env.load('/tmp/env.txt') <10>
+---------------
+
+<1> Initialize and set the given value by using the key-based notation
+<2> Initialize and set the given value by using the attribute-based notation
+<3> Ensure conf.env.CXXFLAGS is initalized, and add the given values
+<4> Append the elements from the second list that are not already present in conf.env.CCFLAGS
+<5> Insert the values from the second list in first position, preserving the order
+<6> Create a copy
+<7> Format and print the contents
+<8> Substitute the values in a formatted string
+<9> Serialize and store the contents into a file, one key=value by line.
+<10> Instantiate a new ConfigSet and load the contents from a file
+
+Upon execution, the output will be the following:
+
+[source,shishell]
+---------------
+$ waf configure
+'CCFLAGS' ['-O3', '-g', '-O2']
+'CXXFLAGS' ['-O2', '-g']
+'PREFIX' '/usr/local'
+-O3 -g -O2
+---------------
+
+=== Consulting configuration sets during the build
+
+By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example `build/c4che/default.cache.py`). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def set_options(ctx):
+	ctx.add_option('--foo', action='store', default=False, help='Silly test')
+
+def configure(ctx):
+	from waflib import Options
+	ctx.env.FOO = Options.options.foo
+	ctx.find_program('touch', var='TOUCH', mandatory=True) # a configuration helper
+
+def build(ctx):
+	print(ctx.env.TOUCH)
+	print(ctx.env.FOO)
+---------------
+
+All configuration sets are automatically loaded during the build. Upon execution, the output will be similar to the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build --foo=abcd
+'distclean' finished successfully (0.002s)
+Checking for program touch               : ok /usr/bin/touch
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/comp/waf/demos/simple_scenarios/folders/build'
+/usr/bin/touch
+abcd
+Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
+'build' finished successfully (0.003s)
+---------------
+
+=== Launching and catching configuration exceptions
+
+Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
+
+[source,python]
+---------------
+def configure(conf):
+	conf.find_program('test')
+---------------
+
+When a test fails, the exception 'Configure.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
+
+[source,python]
+---------------
+def configure(conf):
+	from waflib import Configure
+	try:
+		conf.find_program('missing_app', mandatory=True)
+	except Configuration.ConfigurationError:
+		pass
+	conf.find_program(['gjc', 'cjg'], mandatory=True)
+---------------
+
+The output will be:
+
+[source,shishell]
+---------------
+$ waf
+Checking for program missing_app         : not found
+Checking for program gjc,cjg             : not found
+ error: The program ['gjc', 'cjg'] could not be found
+---------------
+
+It is sometimes useful to raise such an exception manually by using 'conf.fatal':
+
+[source,python]
+---------------
+def configure(conf):
+	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
+---------------
+
+Which will display the same kind of error
+
+[source,shishell]
+---------------
+$ waf configure
+ error: I'm sorry Dave, I'm afraid I can't do that
+$ echo $?
+1
+---------------
+
+=== Loading Waf tools
+
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `waflib/Tools`. The contributed tools, or the tools in testing phase are located under the folder `waflib/3rdparty`.
+
+Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
+
+[source,python]
+---------------
+from Configure import conf <1>
+
+def configure(conf): <2>
+	print('→ configure from dang!')
+
+@conf
+def test_hello(conf):
+	print('→ test from dang!')
+
+def build_hello(self):
+	print('→ build hello from dang!')
+
+from waflib import Build
+Build.BuildContext.build_hello = build_hello <3>
+---------------
+
+<1> The decorator 'conftest' is used to bind functions as new methods to the 'configuration context class'
+<2> The default detection method to execute when the tool is loaded is called 'configure'
+<3> New methods may be bound at runtime onto various classes, here the build context class
+
+For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+#from waflib import c_config <1>
+
+def configure(conf):
+
+	#from waflib import c_config <2>
+
+	def is_check_cc_present():
+		try:
+			print('→ method conf.check_cc %r' % conf.check_cc) <3>
+		except:
+			print('→ there is no method conf.check_cc')
+
+	is_check_cc_present()
+	conf.check_tool('config_c') <4>
+	is_check_cc_present()
+
+	conf.check_tool('dang', tooldir='.') <5>
+	conf.check_tool('dang', tooldir='.', funs='test_hello') <6>
+	conf.check_tool('dang', tooldir='.') <7>
+
+def build(bld):
+	bld.build_hello() <8>
+---------------
+
+<1> By loading a Waf tool at the root of a script, the detection routines will not be executed (discouraged)
+<2> By loading a Waf tool using 'import', the tool will not be loaded at build time (discouraged)
+<3> Just an example to show if the method 'check_cc' is present on the configuration context class
+<4> Load the tool providing configuration routines for c and c++ support (the method check_cc)
+<5> When tools provide a method named 'configure', it is executed during 'conf.check_tool'
+<6> Use specific functions instead of calling the default
+<7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
+<8> Use the build context method defined in dang.py
+
+Upon execution, the output will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+→ there is no method conf.check_cc
+→ method conf.check_cc (ConfigurationContext.check_cc)
+→ configure from dang!
+→ test from dang!
+'configure' finished successfully (0.003s)
+Waf: Entering directory `/tmp/smallproject/build'
+→ build hello from dang!
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.003s)
+---------------
+
+=== Handling configuration exceptions
+
+An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
+
+[source,python]
+---------------
+from waflib.Configure import conf, BREAK, CONTINUE
+
+@conf
+def error_handler(fun, exc):
+	print('exception %r' % exc)
+	# other optionals return values: CONTINUE or anything else to re-raise the exception
+	return BREAK
+---------------
+
+The following diagram illustrates the test execution loop performed from conf.check_tool
+
+image::conftest{PIC}["Configuration tests"{backend@docbook:,width=250:}]
+

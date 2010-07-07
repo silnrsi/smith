@@ -1,0 +1,231 @@
+== The build phase
+
+The build phase consists in generating the project outputs as build files. It is usually executed after the configuration phase.
+
+=== Declaring new targets
+
+Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
+
+. Execution control: targets are only produced during the calls to the commands 'build' and 'install'
+. Parallel target processing to accelerate the builds: multi-core systems
+. Filesystem abstraction: fetching data from the network
+. Extensibility: adding support for new compilers and new languages from user scripts
+. Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)
+
+These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are two important definitions:
+
+. `Task`: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).
+. `Task generator`: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc
+
+Here is a sample project script to illustrate the concepts:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	obj = ctx(target='test.txt', rule='touch ${TGT}')
+	print('  ' + obj.__class__)
+---------------
+
+The call 'ctx(...)' is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build build clean
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+  class 'TaskGen.task_gen' <1>
+[1/1] test.txt:  -> build/test.txt <2>
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.011s)
+Waf: Entering directory `/tmp/smallproject/build'
+  class 'TaskGen.task_gen' <3>
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.004s)
+  class 'TaskGen.task_gen' <4>
+'clean' finished successfully (0.002s)
+---------------
+
+<1> Print 'obj.__class__'.
+<2> Actual task execution, during the first build.
+<3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
+<4> This print was output during the call to `clean`.
+
+=== Finding folders and files through node objects
+
+In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed from the build context:
+
+. `root`: node representing the root of the file system, or the folder containing the drive letters on win32 systems
+. `path`: node representing the path of the script being read (path to the wscript file)
+
+Nodes are often used for low-level operations such as extending Waf, and direct node manipulation is hardly ever necessary from user scripts.
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(bld):
+	print('current path %r' % bld.path)
+	print('absolute path of the root node: %r' % bld.root.abspath())
+	print('absolute path of the current node: %r' % bld.path.abspath())
+
+	etc = bld.root.find_dir('/etc')
+	var = bld.root.find_dir('/var')
+	print('the node representing /etc %r: ' % etc)
+	print('path from /var to /etc %r' % etc.relpath_gen(var))
+
+	fstab = bld.root.find_resource('/etc/fstab')
+	print('path to /etc/fstab: %r' % fstab.abspath())
+---------------
+
+The following results would be observed upon execution on a unix-like system:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+current path dir:///tmp/smallproject
+absolute path of the root node: '/'
+absolute path of the current node: '/tmp/smallproject'
+the node representing /etc dir:///etc:
+path from /var to /etc '../etc'
+path to /etc/fstab: '/etc/fstab'
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (0.003s)
+---------------
+
+Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(bld):
+	print(bld.path.ant_glob('wsc*'))<1>
+	print(bld.path.ant_glob('w?cr?p?'))<2>
+	print(bld.root<3>.ant_glob('etc/**/g*'<4>, dir=True, src=False, bld=False)) <5>
+---------------
+
+<1> The method ant_glob is called on a node object, and not on the build context
+<2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
+<3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
+<4> The '**' indicates to consider folders recursively. Use with care.
+<5> By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.
+
+The execution output will be similar to the following:
+
+[source,shishell]
+---------------
+$ waf
+Waf: Entering directory `/tmp/smallproject/build'
+wscript
+wscript
+etc/ghostscript etc/gconf etc/gconf/gconf.xml.mandatory etc/gnome-vfs-2.0 etc/gpm etc/gnupg etc/gre.d etc/gdm
+Waf: Leaving directory `/tmp/smallproject/build'
+'build' finished successfully (12.873s)
+---------------
+
+=== Installing files
+
+Three build context methods are provided for installing files:
+
+. install_files: install several files in a folder
+. install_as: install a target with a different name
+. symlink_as: create a symbolic link on the platforms that support it
+
+[source,python]
+---------------
+def build(bld):
+	bld.install_files('${PREFIX}/include', ['a1.h', 'a2.h']) <1>
+	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png') <2>
+	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3') <3>
+
+	env_foo = bld.env.copy()
+	env_foo.PREFIX = '/opt'
+	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <4>
+
+	start_dir = bld.path.find_dir('src/bar')
+	bld.install_files('${PREFIX}/share', ['foo/a1.h'], cwd=start_dir, relative_trick=True) <5>
+
+	bld.install_files('${PREFIX}/share', start_dir.ant_glob('**/*.png'), cwd=start_dir, relative_trick=True) <6>
+---------------
+
+<1> Install various files in the target destination
+<2> Install one file, changing its name
+<3> Create a symbolic link
+<4> Overridding the configuration set ('env' is optional in the three methods install_files, install_as and symlink_as)
+<5> Install src/bar/foo/a1.h as seen from the current script into '$\{PREFIX}/share/foo/a1.h'
+<6> Install the png files recursively, preserving the folder structure read from src/bar/
+
+=== Executing specific routines before or after the build
+
+User functions may be bound to be executed at two key moments during the build command (callbacks):
+
+. immediately before the build starts (bld.add_pre_fun)
+. immediately after the build is completed successfully (bld.add_post_fun)
+
+Here is how to execute a test after the build is finished:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def set_options(ctx):
+	ctx.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def configure(ctx):
+	pass
+
+def pre(ctx): <1>
+	print('before the build is started')
+
+def post(ctx):
+	from waflib import Options, Utils
+	if Options.options.exe: <2>
+		Utils.exec_command('/sbin/ldconfig') <3>
+
+def build(ctx):
+	ctx.add_pre_fun(pre) <4>
+	ctx.add_post_fun(post)
+---------------
+
+<1> The callbacks take the build context as unique parameter 'ctx'
+<2> Access to the command-line options
+<3> A common scenario is to call ldconfig after the files are installed.
+<4> Scheduling the functions for later execution. Remember that in Python, functions are objects too.
+
+Upon execution, the following output will be produced:
+
+[source,shishell]
+---------------
+$ waf distclean configure build --exe
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+Waf: Entering directory `/tmp/smallproject/build'
+before the build is started <1>
+Waf: Leaving directory `/tmp/smallproject/build'
+hello <2>
+'build' finished successfully (0.008s)
+---------------
+
+<1> output of the function bound by 'bld.add_pre_fun'
+<2> output of the function bound by 'bld.add_post_fun'
+

@@ -1,0 +1,116 @@
+
+== Overview of the Waf architecture
+
+The following chapter provides a description of the Waf components and of their interaction.
+
+=== The core library
+
+Waf consists of the following modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` and `waflib/extras` are only extension and are not part of the Waf core.
+
+.The core library
+[options="header"]
+|=================
+|Module    | Role
+|Build     | Defines the build context classes (build, clean, install, uninstall), which holds the data for one build (paths, configuration data)
+|Configure | Contains the configuration context class, which is used for launching configuration tests and writing the configuration settings for the build
+|ConfigSet | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
+|Context   | Contains the base class for all waf commands (context parameters of the Waf commands)
+|Errors    | Exceptions used in the Waf code
+|Logs        | Loggging system
+|Node        | Contains the file system representation class
+|Options     | Provides a custom command-line option processing system based on optparse
+|Runner      | Contains the task execution system (thread-based producer-consumer)
+|Scripting   | Constitutes the entry point of the Waf application, executes the user commands such as build, configuration and installation
+|TaskGen     | Provides the task generator system, and its extension system based on method addition
+|Task        | Contains the task class definitions, and factory functions for creating new task classes
+|Utils       | Contains support functions and classes used by other Waf modules
+|=================
+
+Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. If the module 'Build' is used, then the modules 'Scripting' and 'Configure' are not necessary.
+
+image::core{PIC}["Module dependencies"{backend@docbook:,height=500:}]
+
+=== The context classes
+
+The context classes (which inherit from the class 'Context') are used by the Waf commands. The base class 'Context' may be used directly for the Waf commands that do not have an associated context subclass. The metaclass 'store_context' is used for recording any context subclass created.
+
+image::classes{PIC}["Context classes"{backend@docbook:,width=500:}]
+
+=== Build classes
+
+The structure of the build classes is represented on the following diagram:
+
+image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:}]
+
+==== Build context and persistence
+
+The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
+
+.Build context persistence
+[options="header"]
+|=================
+|Attribute    | Information
+|root| Node representing the root of the file system
+|srcnode| Node representing the source directory
+|bldnode| Node representing the build directory (rarely used)
+|node_deps| Implicit dependencies (dict mapping Node ids)
+|raw_deps| Implicit file dependencies which could not be resolved (dict mapping Node ids to lists of strings)
+|task_sigs| Signature of the tasks previously run (dict mapping a Task id to a hash)
+|=================
+
+==== Parallelization concerns
+
+Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods 'run' and 'install' from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
+
+In particular, direct 'Node' instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
+
+The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer'). It is therefore discouraged to search for files and folder in these methods unless the nodes have already been created. For processing tasks dynamically during the build, it is recommended to use the TaskBase method 'runnable_status' which is executed by the main thread.
+
+Should this be insuficient, the Task method method 'get_out' of the class Parallel should be overridden to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code).
+
+////
+
+=== Execution overview
+
+==== File system access
+
+File system access is performed through an abstraction layer formed by the build context and 'Node' instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
+
+To access a file, the methods 'Node::find_resource', 'Node::find_build' (find an existing resource or declare a build node) and 'Node::find_dir' must be used. While searching for a particular node, the folders are automatically searched once for the files. Old nodes (which do not have a corresponding file) are automatically removed, except for the build nodes. In some cases (lots of files added and removed), it may be necessary to perform a 'Waf clean' to eliminate the information on build files which do not exist anymore.
+
+==== Task classes
+
+The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This often puzzles the programmers used to static languages where new functions or classes cannot be defined at runtime.
+
+The task generators automatically inherit the build context attribute 'bld' when created from bld(...). Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
+
+The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method 'install'.
+
+=== Performance and build accuracy
+
+From the experience with tools such as SCons, users may be concerned about performance and think that all build systems based on interpreted languages such as Python would not scale. We will now describe why this is not the case for Waf and why Waf should be chosen for building very large projects.
+
+==== Comparing Waf against other build systems
+
+Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in `tools/genbench.py`), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory.
+
+For huge projects, calling make recursively is necessary for flexibility, but it hurts performance (launch many processes), and CPU utilization (running tasks in parallel). Make-based build systems such as CMake or Autotools inherit the limitations of Make.
+
+Though Waf uses a similar design as SCons, Waf is about 15 times faster for similar features and without sacrificing build accuracy. The main reasons for this are the following:
+
+. The Waf data structures (file system representation, tasks) have been carefully chosen to minimize memory usage and data duplication
+. For a project of the same size, SCons requires at least 10 times as many function calls
+
+A few benchmarks are maintained at http://freehackers.org/~tnagy/bench.txt[this location]
+
+==== Waf hashing schemes and build accuracy
+
+To rebuild targets when source file change, the file contents are hashed and compared. The hashes are used to identify the tasks, and to retrieve the files from a cache (folder defined by the environment variable 'WAFCACHE'). Besides command-lines, this scheme also takes file dependencies into account: it is more accurate than caching systems such as 'ccache'.
+
+The Waf hashing scheme uses the md5 algorithm provided by the Python distribution. It is fast enough for up to about 100Mb of data and about 10000 files and very safe (virtually no risk of collision).
+
+If more than 100Mb of data is present in the project, it may be necessary to use a faster hashing algorithm. An implementation of the fnv algorithm is present in the Waf distribution, and can replace md5 without really degrading accuracy.
+
+If more than 10000 files are present, it may be necessary to replace the hashing system by a 'file name+size+timestamp hash scheme'. An example is provided in the comment section of the module `Utils.py`. That scheme is more efficient but less accurate: the Waf cache should not be used with this scheme.
+////
+

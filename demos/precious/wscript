@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+
+	# the file precious.c is updated in the source directory
+	# the actual application is produced in the build directory
+
+	node = bld.path.find_resource('precious.c')
+
+	bld(
+		rule='''echo -e "#include <stdio.h>\\nint main(){ printf(\\"%%d\\", $$RANDOM); return 0;}" > ${TGT}''',
+		target=node,
+		update_outputs=True)
+
+	bld.program(
+		source = 'precious.c',
+		target = 'app')
+

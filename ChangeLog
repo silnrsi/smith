@@ -1,0 +1,36 @@
+NEW IN WAF 1.6.0
+----------------
+
+* Python 3 syntax by default (runs unmodified for 2.6, 2.7, 3.0 and 3.1)
+* Environment -> ConfigSet
+* only lists are allowed in ConfigSet
+* Better Node apis
+* Utils.load_tool -> Context.load_tool
+* set_options becomes options
+* only the build-related commands require a configured project
+* new variant system + build context commands
+* removed the pseudo glob in installation methods
+* eliminate find_sources_in_dirs
+* node.__class__.bld → node.ctx
+* bld.new_task_gen(...) disappears, use bld(...)
+* network updates for waf tools
+* accept node objects in the source and includes attributes
+* remove task_gen.allnodes: modify self.source directly
+* merge the include system for c, c++, d, gas and nasm
+* allow top == out (no build directory)
+* merge the Tool/wscript system (detect->configure, set_options->options)
+* new command "waf list" to list the x for "waf build --targets=x"
+* rename apply_core -> process_source
+* rename apply_rule -> process_rule
+* rename Task.TaskBase.classes -> Task.classes
+* the modules Utils.py and Logs.py are now independent from the rest of waf (imports)
+* remove Task.TaskManager and Build.BuildContext.all_task_gen to improve the build group handling
+* remove program_USELIB, shlib_USELIB staticlib_USELIB support
+* use tasks for target installation
+* improve the exception handling (WscriptError was removed, use WafError)
+* let the commands access node objects
+* infer the build directory from the lock filename
+* waf list to list the possible targets
+* waf step --file=main.c
+* post task generators in a lazy manner
+

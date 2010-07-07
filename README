@@ -1,0 +1,31 @@
+WHAT YOU WILL FIND HERE
+-----------------------
+
+The development version of Waf.
+
+HOW TO CREATE THE WAF SCRIPT
+----------------------------
+
+Python 2.6, 2.7, 3.0 or 3.1 is required to generate the waf script.
+Just execute:
+$ ./waf-light configure build
+Or, if you have several python versions installed:
+$ python3 ./waf-light configure build
+
+HOW TO TRY THE EXAMPLES
+-----------------------
+
+Try this:
+$ cp waf demos/c/
+$ cd demos/c/
+$ ./waf configure build
+
+API DOCS
+--------
+
+Use this command:
+epydoc -v -o wafdoc16 --name epydoc --css white waflib/
+
+---------------------------
+Thomas Nagy, 2010 (ita)
+

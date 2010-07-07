@@ -1,0 +1,53 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+import waflib.Configure
+waflib.Configure.autoconfig = True
+
+def options(opt):
+	opt.tool_options('compiler_cc')
+	opt.tool_options('gnu_dirs')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+	conf.check_tool('gnu_dirs')
+	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
+
+	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
+	conf.write_config_header('config.h')
+
+def build(bld):
+
+	bld.env.DEFINES=['WAF=1']
+
+	bld.recurse('program stlib shlib')
+	#bld.install_files('/tmp/foo', 'wscript')
+	#bld.env.PREFIX='/tmp/foo'
+	bld.install_files('${PREFIX}/', 'program/a.h  program/main.c', relative_trick=False)
+	bld.install_as('${PREFIX}/gnigni.txt', 'wscript')
+	bld.symlink_as('${PREFIX}/libfoo.so', 'wscript')
+
+
+	bld.env.FOO =['m', 'ncurses']
+	bld.env.ST = '-L%s'
+	bld(rule='echo ${ST:FOO}', always=True, shell=1)
+
+
+from waflib.Context import Context
+class package_class(Context):
+	"""just a test, try calling 'waf package' """
+	cmd = 'package'
+	fun = 'package'
+
+def package(ctx):
+	print('just a test', ctx.path.ant_glob('wscript'))
+

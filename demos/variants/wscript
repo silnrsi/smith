@@ -1,0 +1,39 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cc_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('compiler_cc')
+
+def configure(conf):
+	conf.check_tool('compiler_cc')
+
+def build(bld):
+	bld(features='cc cprogram', source='main.c', target='app')
+
+	if bld.variant == 'debug':
+		bld.env.append_value('CCFLAGS', ['-O2'])
+
+# ------ new declaration for variants -------
+#
+# calling 'waf clean_debug debug' will build into another output directory
+# note how "bld.variant" is used to detect the current variant
+#
+
+import Build
+class one_variant(Build.BuildContext):
+	cmd = 'debug'
+	variant = 'debug'
+
+class clean_debug(Build.CleanContext):
+	cmd = 'clean_debug'
+	variant = 'debug'
+

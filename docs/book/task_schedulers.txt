@@ -1,0 +1,114 @@
+
+== The scheduler for executing the tasks
+
+Tasks are executed in parallel during the build phase, yet with a few restrictions.
+
+=== The task execution model
+
+Task dependencies and task ordering specify the exact order in which tasks must be executed. When tasks are executed in parallel, different algorithms may be used to improve the compilation times. For example, tasks that are known to last longer may be launched first. Linking tasks that use a lot of ram (in the context of c++ applications) may be launched alone to avoid disk thrashing by saving RAM.
+
+To make this possible, the task execution is organized in the following manner:
+
+image::task_grouping{PIC}["Execution model"{backend@docbook:,width=220:}]
+
+=== Job control
+
+Job control is related to the parallelization algorithms used for launching the tasks. While the aim of parallelization is to maximize the amount of tasks executed in parallel, different algorithms may be used
+
+In the NORMAL ordering, task groups are created, and a topological sort is performed on the task class types. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
+
+image::output-NORMAL{PIC}["NORMAL"{backend@docbook:,width=350:}]
+
+In the JOBCONTROL ordering, groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM.
+
+image::output-JOBCONTROL{PIC}["JOBCONTROL"{backend@docbook:,width=350:}]
+
+In the MAXPARALLEL ordering, Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, it consumes more memory and processing. In practice, Waf may last 20% more on builds when all tasks are up-to-date.
+
+image::output-MAXPARALLEL{PIC}["MAXPARALLEL"{backend@docbook:,width=350:}]
+
+WARNING: Because most task classes use ordering constraints, the maximum parallelization can only be achieved if the constraints between task classes are relaxed, and if all task instances know their predecessors. In the example graph, this was achieved by removing the ordering constraints between the compilation tasks classes and the link tasks classes.
+
+[source,python]
+---------------
+from waflib import Task
+Task.TaskBase.classes['cxx'].ext_out = [] <1>
+
+from waflib import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self): <2>
+    old_refill(self)
+    lst = self.outstanding
+    if lst:
+        for x in lst: <3>
+            for y in lst:
+                for i in x.inputs: <4>
+                    for j in y.outputs:
+                        if i.id == j.id:
+                            x.set_run_after(y) <5>
+Runner.Parallel.refill_task_list = refill_task_list
+---------------
+
+<1> relax the constraints between cxx and cxx_link (in the build section)
+<2> override the definition of Runner.Parallel.refill_task_list
+<3> consider all task instances
+<4> infer the task orderings from input and output nodes
+<5> apply the constraint order
+
+From this, we can immediately notice the following:
+
+. An assumption is made that all tasks have input and output nodes, and that ordering constraints can be deduced from them
+. Deducing the constraints from the input and output nodes exhibits a n^2 behaviour
+
+NOTE: In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.
+
+=== Weak task order constraints
+
+Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called http://en.wikipedia.org/wiki/Job-shop_problem[Job Shop]. In practice this problem can often be reduced to a critical path problem (approximation).
+
+The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
+
+image::duration-1{PIC}["Random order"{backend@docbook:,width=310:}]
+image::duration-2{PIC}["Slowest task first"{backend@docbook:,width=310:}]
+
+Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
+
+[source,python]
+---------------
+from waflib import Runner
+def get_next(self):
+	# reorder the task list by a random function
+	self.outstanding.sort()
+	# return the next task
+	return self.outstanding.pop()
+Runner.Parallel.get_next = get_next
+---------------
+
+If the reordering is not to be performed each time a task is retrieved, the list of task may be reordered when the next group is retrieved:
+
+[source,python]
+---------------
+from waflib import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+	old_refill(self)
+	self.outstanding.sort()
+Runner.Parallel.refill_task_list = refill_task_list
+---------------
+
+It is possible to measure the task execution times by intercepting the function calls. The task execution times may be re-used for optimizing the schedule for subsequent builds:
+
+[source,python]
+---------------
+import time
+from waflib import Task
+old_call_run = Task.TaskBase.call_run
+def new_call_run(self):
+	t1 = time.time()
+	ret = old_call_run(self)
+	t2 = time.time()
+	if not ret: print("execution time %r" % (t2 - t1))
+	return ret
+Task.TaskBase.call_run = new_call_run
+---------------
+

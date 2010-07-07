@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+# encoding: utf-8
+# Tom Wambold tom5760 gmail
+# Thomas Nagy, 2010 (ita)
+
+"""
+if libgmp is present, try building with 'waf --exe'
+"""
+
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
+
+def configure(ctx):
+	ctx.check_tool('go')
+
+	try:
+		ctx.check_tool('gcc')
+		ctx.check_cc(fragment='#include <gmp.h>\nint main() {return 0;}\n', uselib_store='GMP', lib='gmp')
+	except ctx.errors.ConfigurationError:
+		ctx.env.TRY_CGO = False
+	else:
+		ctx.env.TRY_CGO = True
+
+def build(ctx):
+
+	ctx(
+		features = 'go gopackage',
+		target   = 'other',
+		source   = [
+			'other/a.go',
+			#'other/b.go', # using two source files for gopack does not seem to work anymore
+		],
+	)
+
+	ctx(
+		features = 'go goprogram',
+		target   = 'test',
+		uselib_local = 'other',
+		source   = 'main.go',
+		includes = '.',
+	)
+
+	if ctx.env.TRY_CGO:
+		# see http://code.google.com/p/go/issues/detail?id=533
+		# so we have to move the files, grrrrr
+		ctx(name='cgo', rule='${CGO} ${SRC} && mv ${gen.path.abspath()}/${TGT[0].name} ${gen.path.abspath()}/${TGT[1].name} ${TGT[0].parent.abspath()}',
+			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
+			source='gmp.go',
+			shell=True)
+		ctx(features='cc cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), uselib='GMP')
+		ctx.add_group()
+		ctx(features='go goprogram', source='pi.go', target='pi')
+
+
+	from waflib import Options, Utils
+	if ctx.env.TRY_CGO and Options.options.exe:
+		def exe(bld):
+			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/pi', shell=True)
+			p.wait()
+		ctx.add_post_fun(exe)
+

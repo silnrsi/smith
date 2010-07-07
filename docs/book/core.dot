@@ -1,0 +1,30 @@
+digraph G {
+	label="Dependencies between core modules";
+
+	Build -> Runner;
+	Build -> TaskGen;
+	Build -> ConfigSet;
+
+	ConfigSet -> Utils;
+	ConfigSet -> Logs;
+
+	Configure -> Build;
+
+	Context -> Logs;
+	Context -> "Node";
+
+	"Node" -> Utils;
+
+	Options -> Context;
+
+	Runner -> Task;
+
+	Scripting -> Configure;
+
+	TaskGen -> Task;
+
+	Task -> Options;
+
+	Utils -> Errors;
+}
+

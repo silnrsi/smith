@@ -1,0 +1,523 @@
+== Advanced scenarios
+
+This chapter demonstrates a few examples of the waf library for more complicated and less common scenarios.
+
+=== Building the compiler first
+
+The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
+
+. Create the compiler and all its intermediate tasks
+. Re-use the compiler in a second build step
+. The compiler will transform '.src' files into '.cpp' files, which will be processed too
+
+The first thing to do is to write the expected user script:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld( <1>
+		features = 'cxx cprogram',
+		source   = 'comp.cpp',
+		target   = 'comp',
+		name     = 'comp') <2>
+
+	bld.add_group() <3>
+
+	bld(
+		features = 'cxx cprogram',
+		source   = 'main.cpp a.src', <4>
+		target   = 'foo')
+---------------
+
+<1> Build the compiler first, it will result in a binary named 'comp'
+<2> Give this task generator a name to access it by reference easily
+<3> Add a new build group to make certain the compiler is complete before processing the next tasks
+<4> Provide a file 'a.src' to be transformed by 'comp' into 'a.cpp'
+
+The code to support this scenario may be added in the wscript file or into a waf tool:
+
+[source,python]
+---------------
+from waflib import Task
+Task.simple_task_type('src2cpp',
+	'${COMP} ${SRC} ${TGT}', <1>
+	color='PINK', before='cxx') <2>
+
+from waflib.TaskGen import extension
+@extension('.src')
+def process_src(self, node): <3>
+	tg = self.bld.name_to_obj('comp', self.env) <4>
+	tg.post() <5>
+
+	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
+	self.source.append(tsk.outputs[0])
+
+	name = tg.link_task.outputs[0].abspath(tg.env) <7>
+	tsk.env.COMP = name <8>
+---------------
+
+<1> Declare a new task class for processing the source file by our compiler
+<2> The tasks of this class must be executed before c++ tasks
+<3> Files of extension '.src' are to be processed by this method
+<4> Obtain a reference on the task generator producing the compiler
+<5> Ensure that the compiler tasks are created, else calling `waf --targets=foo` would produce an error
+<6> Create the task 'a.src' -> 'a.cpp'
+<7> Get the node corresponding to the program 'comp' and obtain its absolute path
+<8> Bind the path to 'comp' for use in the rule
+
+The compilation results will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build -v
+'distclean' finished successfully (0.004s)
+Checking for program g++,c++             : ok /usr/bin/g++
+Checking for program cpp                 : ok /usr/bin/cpp
+Checking for program ar                  : ok /usr/bin/ar
+Checking for program ranlib              : ok /usr/bin/ranlib
+'configure' finished successfully (0.034s)
+Waf: Entering directory `/tmp/comp/build'
+[1/5] cxx: comp.cpp -> build/comp_1.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'comp_1.o']
+[2/5] cxx_link: build/comp_1.o -> build/comp <1>
+16:22:50 runner system command -> ['/usr/bin/g++', 'comp_1.o', '-o', '/tmp/comp/build/comp']
+[3/5] src2cpp: a.src -> build/a.cpp
+16:22:50 runner system command ->  /tmp/comp/build/comp ../a.src a.cpp <2>
+[4/5] cxx: main.cpp -> build/main_2.o
+16:22:50 runner system command -> ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'main_2.o']
+[5/5] cxx_link: build/main_2.o -> build/foo
+16:22:50 runner system command -> ['/usr/bin/g++', 'main_2.o', '-o', '/tmp/comp/build/foo'] <3>
+Waf: Leaving directory `/tmp/comp/build'
+'build' finished successfully (0.194s)
+---------------
+
+<1> Creation of the 'comp' program
+<2> Use the compiler to generate 'a.cpp'
+<3> Compile and link 'a.cpp' and 'main.cpp' into the program 'foo'
+
+NOTE: In the example above, the task generator 'foo' depends on the tasks created by the task generator 'tg' (get the path to the binary). Calling 'tg.post()' used to force 'tg' to create its tasks, and is only called during the processing of 'foo'. Doing it from the top-level would break the behaviour of `waf --targets=xyz`
+
+=== Mixing extensions and c/c++ features
+
+==== Files processed by a single task generator
+
+Now let's illustrate the @extension decorator on idl file processing. Files with .idl extension are processed to produce .c and .h files (`foo.idl` → `foo.c` + `foo.h`). The .c files must be compiled after being generated.
+
+First, here is the declaration expected in user scripts:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld(
+		features = 'cxx cprogram',
+		source   = 'foo.idl main.cpp',
+		target   = 'myapp'
+		)
+---------------
+
+The file 'foo.idl' is listed as a source. It will be processed to 'foo.cpp' and compiled and linked with 'main.cpp'
+
+Here is the code to support this scenario:
+
+[source,python]
+---------------
+from waflib import Task
+from waflib.TaskGen import extension
+
+Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', color='BLUE', before='cxx') <1>
+
+@extension('.idl')
+def process_idl(self, node):
+	cc_node = node.change_ext('.cpp')
+	self.create_task('idl', [node], [cc_node]) <2>
+	self.source.append(cc_node) <3>
+---------------
+
+<1> The ext_out symbol is to force the idl execution before any c++ file is processed. In practice the rule to use would be like `omniidl -bcxx ${SRC} -C${TGT}`
+<2> Create the task from the '.idl' extension. If the task produces other files (headers, ...), more nodes should be added along with 'cc_node'.
+<3> Reinject the c++ node to the list of nodes to process
+
+The compilation results will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+Checking for program g++,c++             : ok /usr/bin/g++
+Checking for program cpp                 : ok /usr/bin/cpp
+Checking for program ar                  : ok /usr/bin/ar
+Checking for program ranlib              : ok /usr/bin/ranlib
+'configure' finished successfully (0.033s)
+Waf: Entering directory `/tmp/idl/build'
+[1/4] idl: foo.idl -> build/foo.cc
+[2/4] cxx: build/foo.cc -> build/foo_1.o
+[3/4] cxx: main.cpp -> build/main_1.o
+[4/4] cxx_link: build/main_1.o build/foo_1.o -> build/myapp
+Waf: Leaving directory `/tmp/idl/build'
+'build' finished successfully (0.119s)
+---------------
+
+NOTE: The drawback of this declaration is that the source files produced by the idl transformation are used by only one task generator.
+
+==== Resources shared by several task generators
+
+Now suppose that the idl processing outputs will be shared by several task generators. We will first start by writing the expected user script:
+
+[source,python]
+---------------
+top = '.'
+out = 'out'
+
+def configure(ctx):
+	ctx.check_tool('g++')
+
+def build(bld):
+	bld( <1>
+		source     = 'notify.idl',
+		name       = 'idl_gen')
+
+	bld( <2>
+		features   = 'cxx cprogram',
+		source     = 'main.cpp',
+		target     = 'testprog',
+		add_source = 'idl_gen') <3>
+---------------
+
+<1> Process an idl file in a first task generator. Name this task generator 'idl_gen'
+<2> Somewhere else (maybe in another script), another task generator will use the source generated by the idl processing
+<3> Reference the idl processing task generator by the name 'idl_gen'. This declaration is is similar to 'add_objects'
+
+The code to support this scenario will be the following:
+
+[source,python]
+---------------
+from waflib import Task
+from waflib TaskGen import feature, before, extension
+Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', before='cxx') <1>
+
+@extension('.idl')
+def compile_idl(self, node): <2>
+	c_node = node.change_ext('.cpp')
+	self.create_task('idl', node, c_node)
+	self.more_source = [c_node] <3>
+
+@feature('*')
+@before('apply_core')
+def process_add_source(self): <4>
+	if not getattr(self, 'add_source', None):
+		return
+
+	for x in self.to_list(self.add_source): <5>
+		y = self.bld.name_to_obj(x, self.env) <6>
+		y.post() <7>
+
+		if getattr(y, 'more_source', None):
+			self.source.extend(y.more_source) <8>
+---------------
+
+<1> The idl processing must be performed before any c++ task is executed
+<2> This is the standard way to process a file by extension
+<3> Bind the output nodes to a new task generator attribute 'more_source'
+<4> A new task generator method is added to process the attribute 'add_source'
+<5> Process each reference in 'add_source'
+<6> Get the task generator from the reference, and for the current variant. In the example above this is the name 'idl_gen'
+<7> Force the task generator we depend on to create its tasks
+<8> Add the sources from the other task generator to the current list of source
+
+The task execution output will be very similar to the output from the first example:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.001s)
+Checking for program g++,c++             : ok /usr/bin/g++
+Checking for program cpp                 : ok /usr/bin/cpp
+Checking for program ar                  : ok /usr/bin/ar
+Checking for program ranlib              : ok /usr/bin/ranlib
+'configure' finished successfully (0.041s)
+Waf: Entering directory `/home/waf/Descargas/blah/out'
+[1/4] idl: notify.idl -> out/notify.cpp
+[2/4] cxx: out/notify.cpp -> out/notify_2.o
+[3/4] cxx: main.cpp -> out/main_2.o
+[4/4] cxx_link: out/notify_2.o out/main_2.o -> out/testprog
+Waf: Leaving directory `/home/waf/Descargas/blah/out'
+'build' finished successfully (0.124s)
+---------------
+
+NOTE: This technique is used by the waf library for processing the 'add_objects' attribute.
+
+=== Inserting special include flags
+
+A scenario that appears from times to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag \'-I.' in first position (before any other include).
+
+First, a look at the definition of the c++ compilation rule shows that the variable '_CXXINCFLAGS' contains the include flags:
+
+[source,python]
+---------------
+cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx', shell=False)
+---------------
+
+Those include flags are set by the method 'apply_obj_vars_cxx'. The trick is then to modify '_CXXINCFLAGS' after that method has been executed:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('g++')
+
+def build(bld):
+	bld.new_task_gen(features='cxx cprogram', source='main.cpp', target='test')
+
+from waflib.TaskGen import after, feature
+
+@feature('cxx')
+@after('apply_obj_vars_cxx')
+def insert_myflags(self):
+	self.env.prepend_value('_CXXINCFLAGS', '-I.')
+---------------
+
+A related case is how to add the top-level directory containing a configuration header:
+
+[source,python]
+---------------
+@feature('cxx')
+@after('apply_obj_vars_cxx')
+def insert_myflags(self):
+	dir = self.bld.srcnode.relpath_gen(self.path)
+	self.env.prepend_value('_CXXINCFLAGS', '-I' + dir)
+---------------
+
+=== Simple file transformations
+
+The Waf tool 'misc' contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
+
+The following example illustrates how to produce a pkg-config file from a template:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	conf.check_tool('misc')
+
+def build(bld):
+	obj = bld(
+		features = 'subst',
+		source   = 'test.pc.in',
+		target   = 'test.pc')
+	obj.dict     = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
+---------------
+
+Any kind of map will work for 'obj.dict', for example env.get_merged_dict(). The variables must be declared in the template file by enclosing the names between '@ characters' (m4 syntax):
+
+[source,shishell]
+---------------
+Name: test
+Description: @CFLAGS@
+Version: @VERSION@
+Libs: -L${libdir} @LIBS@
+Cflags: -I${includedir} @CFLAGS@
+---------------
+
+The default substitution function may be replaced by changing the attribute 'func' of the task generator.
+
+=== A compiler producing source files with names unknown in advance
+
+The example below demonstrates how to tackle the following requirements:
+
+. A compiler 'produces source files' (.c files) which are to be processed
+. The source file names are *not known in advance*
+. The task must be *run only if necessary*
+. Other tasks *may depend on the tasks* processing the source produced (compile and link the .c files)
+
+The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
+
+[source,python]
+---------------
+VERSION='0.0.1'
+APPNAME='unknown_outputs'
+top = '.'
+out = 'build'
+
+def configure(conf):
+	# used only when configured from the same folder
+	conf.check_tool('gcc')
+	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
+
+def build(bld):
+	staticlib = bld()
+	staticlib.features = 'cc cstaticlib'
+	staticlib.source = 'x.c foo.shpip' <1>
+	staticlib.target='teststaticlib'
+	staticlib.includes = '.'
+
+
+## INTERNAL CODE BELOW ##
+
+import os
+from waflib import TaskGen, Task, Utils, Build, Logs
+from TaskGen import feature, before, after, extension
+
+@after('apply_link')
+@extension('.shpip')
+def process_shpip(self, node): <2>
+	tsk = shpip_task(self.env, generator=self)
+	tsk.task_gen = self
+	tsk.set_inputs(node)
+
+class shpip_task(Task.Task): <3>
+	"""
+	A special task, which finds its outputs once it has run
+	It outputs cpp files that must be compiled too
+	"""
+
+	color = 'PINK'
+	quiet = True <4>
+
+	# important, no link before all shpip are done
+	before = ['cc_link', 'cxx_link', 'ar_link_static']
+
+	def __init__(self, *k, **kw):
+		Task.Task.__init__(self, *k, **kw)
+
+	def run(self): <5>
+		"runs a program that creates cpp files, capture the output to compile them"
+		node = self.inputs[0]
+
+		dir = self.generator.bld.srcnode.bldpath(self.env)
+		cmd = 'cd %s && %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath(self.env))
+		try:
+			# read the contents of the file and create cpp files from it
+			files = os.popen(cmd).read().strip()
+		except:
+			# comment the following line to disable debugging
+			#raise
+			return 1 # error
+
+		# the variable lst should contain a list of paths to the files produced
+		lst = Utils.to_list(files)
+
+		# Waf does not know "magically" what files are produced
+		# In the most general case it may be necessary to run os.listdir() to see them
+		# In this demo the command outputs is giving us this list
+
+		# the files exist in the build dir only so we do not use find_or_declare
+		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
+		self.outputs = build_nodes
+
+		# create the cpp tasks, in the thread
+		self.more_tasks = self.add_cpp_tasks(build_nodes) <6>
+
+		# cache the file names and the task signature
+		node = self.inputs[0]
+		sig = self.signature()
+		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
+
+		return 0 # no error
+
+	def runnable_status(self):
+		# look at the cache, if the shpip task was already run
+		# and if the source has not changed, create the corresponding cpp tasks
+
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
+		tree = self.generator.bld
+		node = self.inputs[0]
+		try: <7>
+			sig = self.signature()
+			key = self.unique_id()
+			deps = tree.raw_deps[key]
+			prev_sig = tree.task_sigs[key][0]
+		except KeyError:
+			pass
+		else:
+			# if the file has not changed, create the cpp tasks
+			if prev_sig == sig:
+				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
+				self.set_outputs(lst)
+				lst = self.add_cpp_tasks(lst) <8>
+				for tsk in lst:
+					generator = self.generator.bld.generator
+					generator.outstanding.append(tsk)
+
+
+		if not self.outputs:
+			return RUN_ME
+
+		# this is a part of Task.Task:runnable_status: first node does not exist -> run
+		# this is necessary after a clean
+		env = self.env
+		node = self.outputs[0]
+		variant = node.variant(env)
+
+		try:
+			time = tree.node_sigs[variant][node.id]
+		except KeyError:
+			Logs.debug("run task #%d - the first node does not exist" % self.idx, 'task')
+			try: new_sig = self.signature()
+			except KeyError:
+				return RUN_ME
+
+			ret = self.can_retrieve_cache(new_sig)
+			return ret and SKIP_ME or RUN_ME
+
+		return SKIP_ME
+
+	def add_cpp_tasks(self, lst): <9>
+		"creates cpp tasks after the build has started"
+		tgen = self.task_gen
+		tsklst = []
+
+		for node in lst:
+			TaskGen.task_gen.mapped['c_hook'](tgen, node)
+			task = tgen.compiled_tasks[-1]
+			task.set_run_after(self)
+
+			# important, no link before compilations are all over
+			try:
+				self.generator.link_task.set_run_after(task)
+			except AttributeError:
+				pass
+
+			tgen.link_task.inputs.append(task.outputs[0])
+			tsklst.append(task)
+
+			# if headers are produced something like this can be done
+			# to add the include paths
+			dir = task.inputs[0].parent
+			# include paths for c++ and c
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
+
+		return tsklst
+---------------
+
+<1> An example. The source line contains a directive 'foo.shpip' which triggers the creation of a shpip task (it does not represent a real file)
+<2> This method is used to create the shpip task when a file ending in '.shpip' is found
+<3> Create the new task type
+<4> Disable the warnings raised because the task has no input and outputs
+<5> Execute the task
+<6> Retrieve the information on the source files created
+<7> Create the c++ tasks used for processing the source files found
+<8> f the tasks are created during a task execution (in an execution thread), the tasks must be re-injected by adding them to the attribute 'more_tasks'
+<9> If the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute 'outstanding' of the scheduler
+
