@@ -119,12 +119,12 @@ def gcc_modifier_platform(conf):
 	if gcc_modifier_func:
 			gcc_modifier_func(conf)
 
-def configure(conf):
-	conf.find_gcc()
-	conf.find_ar()
-	conf.gcc_common_flags()
-	conf.gcc_modifier_platform()
-	conf.cc_load_tools()
-	conf.cc_add_flags()
-	conf.link_add_flags()
-
+configure = '''
+find_gcc
+find_ar
+gcc_common_flags
+gcc_modifier_platform
+cc_load_tools
+cc_add_flags
+link_add_flags
+'''

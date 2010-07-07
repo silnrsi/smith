@@ -54,9 +54,11 @@ def xlc_common_flags(conf):
 	v['LINKFLAGS_cstlib'] = ''
 	v['cstlib_PATTERN']   = 'lib%s.a'
 
-def configure(conf):
-	conf.find_xlc()
-	conf.find_ar()
-	conf.xlc_common_flags()
-	conf.cc_load_tools()
-	conf.cc_add_flags()
+configure = '''
+find_xlc
+find_ar
+xlc_common_flags
+cc_load_tools
+cc_add_flags
+link_add_flags
+'''

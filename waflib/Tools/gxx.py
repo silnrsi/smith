@@ -119,11 +119,12 @@ def gxx_modifier_platform(conf):
 	if gxx_modifier_func:
 			gxx_modifier_func(conf)
 
-def configure(conf):
-	conf.find_gxx()
-	conf.find_ar()
-	conf.gxx_common_flags()
-	conf.gxx_modifier_platform()
-	conf.cxx_load_tools()
-	conf.cxx_add_flags()
-
+configure = '''
+find_gxx
+find_ar
+gxx_common_flags
+gxx_modifier_platform
+cxx_load_tools
+cxx_add_flags
+link_add_flags
+'''
