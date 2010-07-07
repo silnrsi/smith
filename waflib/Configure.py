@@ -242,11 +242,9 @@ class ConfigurationContext(Context.Context):
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
 
-			self.to_log('import %s (%r & %r)' % (tool, tooldir, funs))
-
 			mag = (tool, id(self.env), funs)
 			if mag in self.tool_cache:
-				self.to_log('(tool %s is already loaded)' % tool)
+				self.to_log('(tool %s is already loaded, skipping)' % tool)
 				continue
 			self.tool_cache.append(mag)
 
@@ -257,11 +255,13 @@ class ConfigurationContext(Context.Context):
 				if Options.options.download:
 					module = download_tool(tool)
 					if not module:
-						self.to_log(e)
 						self.fatal('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 				else:
-					self.to_log(e)
 					self.fatal('Could not load the tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
+			except Exception as e:
+				self.to_log('check_tool %r (%r & %r)' % (tool, tooldir, funs))
+				self.to_log(str(e))
+				raise e
 
 			if funs is not None:
 				self.eval_rules(funs)
@@ -380,6 +380,7 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 @conf
 def fatal(self, msg):
 	"""raise a configuration error"""
+	self.to_log('from %s: %s' % (self.path.abspath(), msg))
 	try:
 		msg = '%s\n(read %s for more information)' % (msg, self.logger.handlers[0].baseFilename)
 	except:
