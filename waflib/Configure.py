@@ -260,7 +260,7 @@ class ConfigurationContext(Context.Context):
 					self.fatal('Could not load the tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
 			except Exception as e:
 				self.to_log('check_tool %r (%r & %r)' % (tool, tooldir, funs))
-				self.to_log(str(e))
+				self.to_log(Utils.ex_stack())
 				raise e
 
 			if funs is not None:
