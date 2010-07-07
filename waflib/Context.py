@@ -405,6 +405,7 @@ def load_tool(tool, tooldir=None):
 	"""
 	tool = tool.replace('++', 'xx')
 	tool = tool.replace('java', 'javaw')
+	tool = tool.replace('compiler_cc', 'compiler_c')
 
 	if tooldir:
 		assert isinstance(tooldir, list)
