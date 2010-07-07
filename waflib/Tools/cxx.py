@@ -8,9 +8,9 @@ from waflib import TaskGen, Task, Utils
 from waflib.Tools import ccroot
 from waflib.Tools.ccroot import link_task, static_link
 
-@TaskGen.extension('.cpp', '.cc', '.cxx', '.C', '.c++')
 def cxx_hook(self, node):
 	return self.create_compiled_task('cxx', node)
+TaskGen.extension('.cpp','.cc','.cxx','.C','.c++')(cxx_hook) # leave like this for python 2.3
 
 if not '.c' in TaskGen.task_gen.mappings:
 	TaskGen.task_gen.mappings['.c'] = TaskGen.task_gen.mappings['.cpp']
