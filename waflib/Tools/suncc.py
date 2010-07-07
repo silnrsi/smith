@@ -21,7 +21,7 @@ def find_scc(conf):
 	try:
 		if not conf.cmd_and_log('%s -flags' % cc):
 			conf.fatal('suncc %r was not found' % cc)
-	except conf.errors.ValueError:
+	except ValueError:
 		conf.fatal('suncc -flags could not be executed')
 
 	v['CC']  = cc
