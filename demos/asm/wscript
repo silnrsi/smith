@@ -6,7 +6,7 @@ def configure(conf):
 
 def build(bld):
 	bld(
-		features = 'cc cprogram',
+		features = 'c cprogram',
 		source   = 'main.c test.S',
 		target   = 'asmtest')
 

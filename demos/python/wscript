@@ -32,13 +32,13 @@ def build(bld):
 
 	# then a c extension module
 	bld(
-		features = 'cc cshlib pyext',
+		features = 'c cshlib pyext',
 		source = 'spammodule.c',
 		target = 'spam')
 
 	# then a c program
 	bld(
-		features = 'cc cprogram pyembed',
+		features = 'c cprogram pyembed',
 		source = 'test.c',
 		target = 'test')
 

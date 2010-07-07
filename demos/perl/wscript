@@ -33,7 +33,7 @@ def build(bld):
 
 	# Build a perl extension module
 	obj = bld(
-		features = 'cc cshlib perlext',
+		features = 'c cshlib perlext',
 		source = 'Mytest.xs',
 		target = 'Mytest',
 		install_path = '${ARCHDIR_PERL}/auto')

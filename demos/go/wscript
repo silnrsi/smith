@@ -50,7 +50,7 @@ def build(ctx):
 			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
 			source='gmp.go',
 			shell=True)
-		ctx(features='cc cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), uselib='GMP')
+		ctx(features='c cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), uselib='GMP')
 		ctx.add_group()
 		ctx(features='go goprogram', source='pi.go', target='pi')
 

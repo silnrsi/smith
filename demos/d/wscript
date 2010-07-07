@@ -8,7 +8,7 @@ APPNAME='d_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_d')
 
 def configure(conf):
