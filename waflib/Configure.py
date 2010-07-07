@@ -382,7 +382,7 @@ def fatal(self, msg):
 	"""raise a configuration error"""
 	self.to_log('from %s: %s' % (self.path.abspath(), msg))
 	try:
-		msg = '%s\n(read %s for more information)' % (msg, self.logger.handlers[0].baseFilename)
+		msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
 	except:
 		pass
 	raise self.errors.ConfigurationError(msg)
