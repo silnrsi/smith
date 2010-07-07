@@ -242,8 +242,11 @@ class ConfigurationContext(Context.Context):
 			# avoid loading the same tool more than once with the same functions
 			# used by composite projects
 
+			self.to_log('import %s (%r & %r)' % (tool, tooldir, funs))
+
 			mag = (tool, id(self.env), funs)
 			if mag in self.tool_cache:
+				self.to_log('(tool %s is already loaded)' % tool)
 				continue
 			self.tool_cache.append(mag)
 
@@ -258,7 +261,7 @@ class ConfigurationContext(Context.Context):
 						self.fatal('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 				else:
 					self.to_log(e)
-					self.fatal('Could not load the tool %r in %r (try the --download option?):\n%s' % (tool, sys.path, e))
+					self.fatal('Could not load the tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
 
 			if funs is not None:
 				self.eval_rules(funs)
