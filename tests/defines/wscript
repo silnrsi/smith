@@ -3,26 +3,47 @@
 top = '.'
 out = 'build'
 
+from waflib import Node, Build, Utils, Logs
+
+def tt(msg, expected, result):
+	color = 'RED'
+	if result == expected:
+		color = 'GREEN'
+	Logs.pprint(color, msg.ljust(20) + " %r" % result)
+
+
+FRAG1 = '''#include <stdio.h>\nint main() { printf(somestring); return 0; }\n'''
+FRAG2 = '''#ifdef MMM\nint main() { return 0; }\n#endif\n'''
+
 def options(opt):
 	opt.tool_options('compiler_c')
 
 def configure(conf):
+	"""the configuration should not raise any assert"""
+
 	conf.check_tool('compiler_c')
 
 	conf.define('AAA', 1)
-	assert(repr(conf.env.DEFINES) == "['AAA=1']")
+	tt('define AAA', "['AAA=1']", repr(conf.env.DEFINES))
 
 	conf.undefine('AAA')
-	assert(not conf.env.DEFINES)
-
+	tt('undefine AAA', [], conf.env.DEFINES)
 
 	conf.define('BB', 32)
 	conf.define('CC', 'test')
 	conf.define('inline', 'inline', quote=False)
 
-	print conf.env.DEFINES
 	conf.write_config_header()
-	assert(not conf.env.DEFINES)
+	tt('empty config header', [], conf.env.DEFINES)
+
+	conf.define('somestring', 'test')
+	conf.check(fragment=FRAG1, define_name='MMM', mandatory=False)
+	tt('is_defined(MMM)', True, conf.is_defined('MMM'))
+	conf.check(fragment=FRAG2, define_name='NNN', mandatory=False)
+	tt('defines are propagated to tests', True, conf.is_defined('NNN'))
+
+	conf.write_config_header(remove=False)
+	tt('defines are not removed', 3, len(conf.env.DEFINES))
 
 def build(bld):
 	pass

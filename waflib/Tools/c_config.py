@@ -582,7 +582,7 @@ def have_define(self, name):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', guard='', top=False, env=None, remove_from_env=True):
+def write_config_header(self, configfile='', guard='', top=False, env=None, remove=True):
 	"""
 	save the defines into a file
 	with configfile=foo/bar.h and a script in folder xyz
@@ -611,7 +611,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	# config files are not removed on "waf clean"
 	env.append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
 
-	if remove_from_env:
+	if remove:
 		env['DEFINES'] = []
 
 @conf
