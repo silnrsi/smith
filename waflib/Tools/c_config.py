@@ -553,6 +553,8 @@ def undefine(self, key):
 def define_cond(self, key, val):
 	"""Conditionally define a name.
 	Formally equivalent to: if val: define(name, 1) else: undefine(name)"""
+	assert key and isinstance(key, str)
+
 	if val:
 		self.define(key, 1)
 	else:
@@ -561,6 +563,8 @@ def define_cond(self, key, val):
 @conf
 def is_defined(self, key):
 	"is something defined?"
+	assert key and isinstance(key, str)
+
 	ban = key + '='
 	for x in self.env['DEFINES']:
 		if x.startswith(ban):
@@ -570,6 +574,8 @@ def is_defined(self, key):
 @conf
 def get_define(self, key):
 	"get the value of a previously stored define"
+	assert key and isinstance(key, str)
+
 	ban = key + '='
 	for x in self.env['DEFINES']:
 		if x.startswith(ban):
@@ -577,9 +583,9 @@ def get_define(self, key):
 	return None
 
 @conf
-def have_define(self, name):
+def have_define(self, key):
 	"prefix the define with 'HAVE_' and make sure it has valid characters."
-	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
+	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(key)
 
 @conf
 def write_config_header(self, configfile='', guard='', top=False, env=None, remove=True):

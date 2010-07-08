@@ -45,6 +45,8 @@ def configure(conf):
 	conf.write_config_header(remove=False)
 	tt('defines are not removed', 3, len(conf.env.DEFINES))
 
+	tt('have_define', 'HAVE_FOO', conf.have_define('FOO'))
+
 def build(bld):
 	pass
 
