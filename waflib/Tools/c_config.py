@@ -633,6 +633,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	if remove:
 		for key in self.env[DEFKEYS]:
 			self.undefine(key)
+		self.env[DEFKEYS] = []
 
 @conf
 def get_config_header(self):
