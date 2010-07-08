@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+def options(opt):
+	opt.tool_options('compiler_c')
+
+def configure(conf):
+	conf.check_tool('compiler_c')
+
+	conf.define('AAA')
+	conf.undefine('AAA')
+	assert(not conf.env.DEFINES)
+
+def build(bld):
+	pass
