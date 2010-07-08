@@ -172,12 +172,17 @@ class ConfigSet(object):
 
 	def store(self, filename):
 		"Write the variables into a file"
-		file = open(filename, 'w')
-		merged_table = self.get_merged_dict()
-		keys = list(merged_table.keys())
-		keys.sort()
-		for k in keys: file.write('%s = %r\n' % (k, merged_table[k]))
-		file.close()
+		f = None
+		try:
+			f = open(filename, 'w')
+			merged_table = self.get_merged_dict()
+			keys = list(merged_table.keys())
+			keys.sort()
+			for k in keys:
+				f.write('%s = %r\n' % (k, merged_table[k]))
+		finally:
+			if f:
+				f.close()
 
 	def load(self, filename):
 		"Retrieve the variables from a file"
