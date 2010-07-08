@@ -536,7 +536,15 @@ def define(self, key, val, quote=True):
 	else:
 		s = quote and '%s="%s"' or '%s=%s'
 	app = s % (key, str(val))
-	self.env.append_value('DEFINES', app)
+
+	ban = key + '='
+	lst = self.env['DEFINES']
+	for x in lst:
+		if x.startswith(ban):
+			lst[lst.index(x)] = app
+			break
+	else:
+		self.env.append_value('DEFINES', app)
 
 @conf
 def undefine(self, key):

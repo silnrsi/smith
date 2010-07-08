@@ -47,6 +47,12 @@ def configure(conf):
 
 	tt('have_define', 'HAVE_FOO', conf.have_define('FOO'))
 
+	conf.env.DEFINES = []
+	conf.define('AAA', 1)
+	conf.define('AAA', 2)
+	tt('AAA', '2', conf.get_define('AAA'))
+	tt('defines count', 1, len(conf.env.DEFINES))
+
 def build(bld):
 	pass
 
