@@ -42,7 +42,8 @@ def configure(conf):
 	conf.check(fragment=FRAG2, define_name='NNN', mandatory=False)
 	tt('defines are propagated to tests', True, conf.is_defined('NNN'))
 
-	conf.write_config_header(remove=False)
+	conf.undefine('AAA')
+	conf.write_config_header('config.2.h', remove=False)
 	tt('defines are not removed', 3, len(conf.env.DEFINES))
 
 	tt('have_define', 'HAVE_FOO', conf.have_define('FOO'))

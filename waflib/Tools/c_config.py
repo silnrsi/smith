@@ -523,6 +523,8 @@ def check_cc(self, *k, **kw):
 	kw['compiler'] = 'c'
 	return self.check(*k, **kw)
 
+DEFKEYS = 'definez'
+
 @conf
 def define(self, key, val, quote=True):
 	"""
@@ -546,6 +548,8 @@ def define(self, key, val, quote=True):
 	else:
 		self.env.append_value('DEFINES', app)
 
+	self.env.append_unique(DEFKEYS, key)
+
 @conf
 def undefine(self, key):
 	"""
@@ -556,6 +560,7 @@ def undefine(self, key):
 	ban = key + '='
 	lst = [x for x in self.env['DEFINES'] if not x.startswith(ban)]
 	self.env['DEFINES'] = lst
+	self.env.append_unique(DEFKEYS, key)
 
 @conf
 def define_cond(self, key, val):
@@ -613,7 +618,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	node.parent.mkdir()
 
 	lst = []
-	lst.append('/* Configuration header created by Waf - do not edit */')
+	lst.append('/* Configuration header created by Waf - do not edit */\n')
 	lst.append('#ifndef %s\n#define %s\n' % (waf_guard, waf_guard))
 	lst.append(self.get_config_header())
 	lst.append('\n#endif /* %s */\n' % waf_guard)
@@ -626,26 +631,20 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	env.append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
 
 	if remove:
-		env['DEFINES'] = []
+		for key in self.env[DEFKEYS]:
+			self.undefine(key)
 
 @conf
 def get_config_header(self):
 	"""Fill-in the contents of the config header. Override when you need to write your own config header."""
-	config_header = []
-
-	tbl = self.env['DEFINES']
-	for x in tbl:
-		key = x.split('=')[0]
-		val = x[len(key):]
-
-		if not val:
-			config_header.append('#define %s' % key)
+	lst = []
+	for key in self.env[DEFKEYS]:
+		if self.is_defined(key):
+			val = self.get_define(key)
+			lst.append('#define %s %s' % (key, val))
 		else:
-			config_header.append('#define %s %s' % (key, val[1:]))
-
-		# TODO undef?
-
-	return "\n".join(config_header)
+			lst.append('/* #undef %s */' % key)
+	return "\n".join(lst)
 
 @conf
 def cc_add_flags(conf):
