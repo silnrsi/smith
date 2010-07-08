@@ -13,7 +13,7 @@ The Waf projects are structured based on the following concepts:
 When Waf is launched, it looks for the top-level project file, which are Python scripts. A valid Waf project requires at least a top-level Waf script file (named 'wscript' without any extension) containing the three following elements:
 
 . top: string representing the project directory. In general, top is set to \'.\', except for some proprietary projects where the wscript cannot be added to the top-level, top may be set to \'../..' or even some other folder such as '/checkout/perforce/project'
-. out: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as \'.' or \'..'.
+. out: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as \'.' or \'..\'.
 . configure: function called for setting up a project (also known as a 'Waf command').
 
 The Waf script will always look for one valid top-level project file first before considering other project files.
@@ -235,7 +235,7 @@ from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
 
-=== Splitting a project into several files
+=== Splitting a project over several folders
 
 Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
 
@@ -263,7 +263,7 @@ def ping(ctx):
 	ctx.recurse('src')
 ---------------
 
-Since the folder 'src' is not a redistributable project, it is not necessary to duplicate the variables _top_ and _out_.
+Since the folder 'src' is not meant to be redistributed as a standalone project, it is not necessary to duplicate the variables _top_ and _out_.
 
 [source,python]
 ---------------

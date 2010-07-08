@@ -110,5 +110,9 @@ Set the following values in asciidoc-dblatex.xsl:
   <xsl:param name="doc.publisher.show">0</xsl:param>
   ...
   <xsl:param name="latex.output.revhistory">0</xsl:param>
+
+And for vim highlighting:
+cp vim/syntax/asciidoc.vim /usr/share/vim/site/syntax/
+cp vim/ftdetect/asciidoc_filetype.vim /usr/share/vim/site/ftdetect/
 """
 
