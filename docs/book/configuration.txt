@@ -1,6 +1,6 @@
 == The configuration system
 
-The configuration step is used to check if the requiremements for working on a project are met. The parameters are then stored for further use.
+The configuration step is used to check if the requiremements for working on a project are met. The parameters are then stored for use by other commands, such as the build command.
 
 === Storing configuration sets
 
@@ -12,19 +12,25 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.env['CXXFLAGS'] = ['-O2'] # key-based access
-	conf.env.store('test.txt')
-	conf.env.TEST        = 'test'  # attribute-based access
+	conf.env['CXXFLAGS'] = ['-O2'] <1>
+	conf.env.store('test.txt') <2>
+	conf.env.TEST        = 'test' <3>
 
-	new = conf.env.__class__()
-	new.load('test.txt')
+	new = conf.env.__class__() <4>
+	new.load('test.txt') <5>
 
 	print(new)
 	print("")
 	print(conf.env)
 ----------------
 
-The execution will result in the following output:
+<1> Key-based access
+<2> Store the configuration set in the file `test.txt`
+<3> Attribute-based access (the two forms are equivalent)
+<4> Create a new configuration set, avoiding using the import
+<5> Load the configuration set contents form the file `test.txt`
+
+The execution will produce the following output:
 
 [source,shishell]
 ---------------
@@ -97,7 +103,7 @@ $ waf configure
 -O3 -g -O2
 ---------------
 
-=== Consulting configuration sets during the build
+=== Using configuration sets during the build
 
 By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example `build/c4che/default.cache.py`). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 
@@ -144,7 +150,7 @@ def configure(conf):
 	conf.find_program('test')
 ---------------
 
-When a test fails, the exception 'Configure.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
+When a test fails, the exception 'waflib.Errors.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
 
 [source,python]
 ---------------
