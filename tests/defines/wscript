@@ -15,6 +15,15 @@ def configure(conf):
 	conf.undefine('AAA')
 	assert(not conf.env.DEFINES)
 
+
+	conf.define('BB', 32)
+	conf.define('CC', 'test')
+	conf.define('inline', 'inline', quote=False)
+
+	print conf.env.DEFINES
+	conf.write_config_header()
+	assert(not conf.env.DEFINES)
+
 def build(bld):
 	pass
 

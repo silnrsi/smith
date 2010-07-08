@@ -619,17 +619,18 @@ def get_config_header(self):
 	"""Fill-in the contents of the config header. Override when you need to write your own config header."""
 	config_header = []
 
-	tbl = self.env[DEFINES] or Utils.ordered_dict()
-	for key in tbl.allkeys:
-		value = tbl[key]
-		if value is None:
+	tbl = self.env['DEFINES']
+	for x in tbl:
+		key = x.split('=')[0]
+		val = x[len(key):]
+
+		if not val:
 			config_header.append('#define %s' % key)
-		elif value is UNDEFINED:
-			config_header.append('/* #undef %s */' % key)
-		elif isinstance(value, str):
-			config_header.append('#define %s %s' % (key, repr(value)[1:-1]))
 		else:
-			config_header.append('#define %s %s' % (key, value))
+			config_header.append('#define %s %s' % (key, val[1:]))
+
+		# TODO undef?
+
 	return "\n".join(config_header)
 
 @conf
