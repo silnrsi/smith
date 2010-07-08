@@ -524,71 +524,56 @@ def check_cc(self, *k, **kw):
 	return self.check(*k, **kw)
 
 @conf
-def define(self, define, value, quote=1):
-	"""store a single define and its state into an internal list for later
-	   writing to a config header file.  Value can only be
-	   a string or int; other types not supported.  String
-	   values will appear properly quoted in the generated
-	   header file."""
-	assert define and isinstance(define, str)
+def define(self, key, val, quote=True):
+	"""
+	store a single define and its state into a list
+	the value can be a string or an int
+	"""
+	assert key and isinstance(key, str)
 
-	# ordered_dict is for writing the configuration header in order
-	tbl = self.env[DEFINES] or Utils.ordered_dict()
-
-	# the user forgot to tell if the value is quoted or not
-	if isinstance(value, int):
-		tbl[define] = value
+	if isinstance(val, int):
+		s = '%s=%d'
 	else:
-		if quote:
-			tbl[define] = '"%s"' % str(value)
-		else:
-			tbl[define] = value
-
-	# add later to make reconfiguring faster
-	self.env[DEFINES] = tbl
-	self.env[define] = value # <- not certain this is necessary
+		s = quote and '%s="%s"' or '%s=%s'
+	self.env.append_val('DEFINES', s % (key, str(val)))
 
 @conf
-def undefine(self, define):
-	"""store a single define and its state into an internal list
-	   for later writing to a config header file"""
-	assert define and isinstance(define, str)
+def undefine(self, key):
+	"""
+	remove a define
+	"""
+	assert key and isinstance(key, str)
 
-	tbl = self.env[DEFINES] or Utils.ordered_dict()
-
-	value = UNDEFINED
-	tbl[define] = value
-
-	# add later to make reconfiguring faster
-	self.env[DEFINES] = tbl
-	self.env[define] = value
+	ban = key + '='
+	lst = [x for x in self.env['DEFINES'] if not x.startswith(ban)]
+	self.env['DEFINES'] = lst
 
 @conf
-def define_cond(self, name, value):
+def define_cond(self, key, val):
 	"""Conditionally define a name.
-	Formally equivalent to: if value: define(name, 1) else: undefine(name)"""
-	if value:
-		self.define(name, 1)
+	Formally equivalent to: if val: define(name, 1) else: undefine(name)"""
+	if val:
+		self.define(key, 1)
 	else:
-		self.undefine(name)
+		self.undefine(key)
 
 @conf
 def is_defined(self, key):
-	defines = self.env[DEFINES]
-	if not defines:
-		return False
-	try:
-		value = defines[key]
-	except KeyError:
-		return False
-	else:
-		return value != UNDEFINED
+	"is something defined?"
+	ban = key + '='
+	for x in self.env['DEFINES']:
+		if x.startswith(ban):
+			return True
+	return False
 
 @conf
-def get_define(self, define):
+def get_define(self, key):
 	"get the value of a previously stored define"
-	try: return self.env[DEFINES][define]
-	except KeyError: return None
+	ban = key + '='
+	for x in self.env['DEFINES']:
+		if x.startswith(ban):
+			return x.substring(len(ban):)
+	return None
 
 @conf
 def have_define(self, name):
@@ -596,12 +581,14 @@ def have_define(self, name):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(name)
 
 @conf
-def write_config_header(self, configfile='', guard='', top=False, env=None):
+def write_config_header(self, configfile='', guard='', top=False, env=None, remove_from_env=True):
 	"""
 	save the defines into a file
 	with configfile=foo/bar.h and a script in folder xyz
 	top -> build/foo/bar.h
 	!top -> build/xyz/foo/bar.h
+
+	by default, reset env.DEFINES to []
 	"""
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
@@ -618,8 +605,13 @@ def write_config_header(self, configfile='', guard='', top=False, env=None):
 
 	node.write('\n'.join(lst))
 
+	env = env or self.env
+
 	# config files are not removed on "waf clean"
-	(env or self.env).append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
+	env.append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
+
+	if remove_from_env:
+		env['DEFINES'] = []
 
 @conf
 def get_config_header(self):
