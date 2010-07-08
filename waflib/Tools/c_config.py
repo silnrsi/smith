@@ -532,10 +532,11 @@ def define(self, key, val, quote=True):
 	assert key and isinstance(key, str)
 
 	if isinstance(val, int):
-		s = '%s=%d'
+		s = '%s=%s'
 	else:
 		s = quote and '%s="%s"' or '%s=%s'
-	self.env.append_val('DEFINES', s % (key, str(val)))
+	app = s % (key, str(val))
+	self.env.append_value('DEFINES', app)
 
 @conf
 def undefine(self, key):
@@ -572,7 +573,7 @@ def get_define(self, key):
 	ban = key + '='
 	for x in self.env['DEFINES']:
 		if x.startswith(ban):
-			return x.substring(len(ban):)
+			return x[len(ban):]
 	return None
 
 @conf

@@ -115,19 +115,6 @@ else:
 	def to_hex(s):
 		return s.encode('hex')
 
-class ordered_dict(UserDict):
-	def __init__(self, dict = None):
-		self.allkeys = []
-		UserDict.__init__(self, dict)
-
-	def __delitem__(self, key):
-		self.allkeys.remove(key)
-		UserDict.__delitem__(self, key)
-
-	def __setitem__(self, key, item):
-		if key not in self.allkeys: self.allkeys.append(key)
-		UserDict.__setitem__(self, key, item)
-
 listdir = os.listdir
 if is_win32:
 	def listdir_win32(s):
