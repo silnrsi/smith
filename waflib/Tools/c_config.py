@@ -8,6 +8,7 @@ c/c++ configuration routines
 
 import os, imp, sys, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
+from waflib.TaskGen import before, after, feature
 from waflib.Configure import conf
 from waflib.Utils import subprocess
 
@@ -274,9 +275,6 @@ def validate_c(self, kw):
 
 	#OSX
 	if 'framework_name' in kw:
-		try: TaskGen.task_gen.create_task_macapp
-		except AttributeError: self.fatal('frameworks require the osx tool')
-
 		fwkname = kw['framework_name']
 		if not 'uselib_store' in kw:
 			kw['uselib_store'] = fwkname.upper()
@@ -445,6 +443,27 @@ def check(self, *k, **kw):
 	if not kw.get('execute', False):
 		return ret == 0
 	return ret
+
+class test_exec_task(Task.Task):
+	"""
+	a task for executing a program after it is built
+	"""
+	color = 'PINK'
+	def run(self):
+		if self.generator.rpath:
+			return self.generator.bld.cmd_and_log(self.inputs[0].abspath())
+		else:
+			env = {}
+			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
+			return self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env)
+
+@feature('test_exec')
+@after('apply_link')
+def test_exec_fun(self):
+	"""
+	create a task that tries to execute the link task output
+	"""
+	self.create_task('test_exec', self.link_task.outputs[0])
 
 @conf
 def run_c_code(self, *k, **kw):

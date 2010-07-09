@@ -10,27 +10,6 @@ from waflib.Configure import conf
 from waflib.TaskGen import feature, before, after
 from waflib.Task import Task
 
-class test_exec_task(Task):
-	"""
-	a task for executing a program after it is built
-	"""
-	color = 'PINK'
-	def run(self):
-		if self.generator.rpath:
-			return self.generator.bld.cmd_and_log(self.inputs[0].abspath())
-		else:
-			env = {}
-			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
-			return self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env)
-
-@feature('test_exec')
-@after('apply_link')
-def test_exec_fun(self):
-	"""
-	create a task that tries to execute the link task output
-	"""
-	self.create_task('test_exec', self.link_task.outputs[0])
-
 @feature('link_lib_test')
 @before('process_source')
 def link_lib_test_fun(self):
