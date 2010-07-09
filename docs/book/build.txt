@@ -230,8 +230,8 @@ after the build is complete <2>
 Waf: Entering directory `/disk/comp/waf/docs/book/examples/build_2/build'
 before the build is started
 Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_2/build'
-after the build is complete <3>
-/sbin/ldconfig: Cannot create /etc/ld.so.cache~: Permission denied
+after the build is complete
+/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied <3>
 'install' finished successfully (15.730s)
 ---------------
 
