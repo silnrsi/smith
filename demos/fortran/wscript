@@ -6,7 +6,7 @@
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_cc')
 	opt.tool_options('compiler_fc')
 
