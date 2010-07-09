@@ -168,7 +168,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 'build' finished successfully (0.005s)
 ---------------
 
-WARNING: Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method 'pong_' is executed before the method 'ping_'
+WARNING: Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method 'pong' is executed before the method 'ping'
 
 === Task generator method execution order
 

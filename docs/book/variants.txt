@@ -9,7 +9,7 @@ It is not possible to use several Waf instances concurrently over the same build
 . The environment variable `WAFCACHE`
 . The build directory, using a command-line option
 
-Here is an example for a simple project located in '/tmp/smallfolderr'`:
+Here is an example for a simple project located in '/tmp/smallfolder'`:
 
 [source,python]
 ---------------
@@ -61,16 +61,14 @@ $ tree -a
 |   |   |-- build.config.py
 |   |   `-- default.cache.py
 |   |-- config.log
-|   `-- default
-|       `-- foo.txt
+|   `-- foo.txt
 |-- release
 |   |-- .wafpickle-7
 |   |-- c4che
 |   |   |-- build.config.py
 |   |   `-- default.cache.py
 |   |-- config.log
-|   `-- default
-|       `-- foo.txt
+|   `-- foo.txt
 `-- wscript
 ---------------
 
@@ -100,20 +98,7 @@ top = '.'
 out = 'out_bld'
 
 def configure(conf):
-	conf.env.NAME = 'default'
-	dbg = conf.env.copy() <1>
-	rel = conf.env.copy()
-
-	dbg.set_variant('debug') <2>
-	conf.set_env_name('debug', dbg) <3>
-	conf.setenv('debug') <4>
-	# conf.check_tool('gcc') <5>
-	conf.env.NAME = 'foo' <6>
-
-	rel.set_variant('release') <7>
-	conf.set_env_name('cfg_name', rel)
-	conf.setenv('cfg_name')
-	conf.env.NAME = 'bar'
+	pass
 
 def build(bld):
 	bld(
@@ -129,6 +114,18 @@ def build(bld):
 		rule='echo ${NAME} > ${TGT}',
 		target='test.txt',
 		env=bld.env_of_name('cfg_name').copy())
+
+from waflib.Build import BuildContext
+
+class debug_context(Build.BuildContext):
+	fun = 'build'
+	cmd = 'debug'
+	variant = 'debug'
+
+class release_context(Build.BuildContext):
+	fun = 'build'
+	cmd = 'release'
+	variant = 'release'
 ---------------
 
 <1> Create a copy of the default data set.
