@@ -11,8 +11,8 @@ The context for a command is created automatically, and is derived from the clas
 def foo(ctx):
 	pass
 
-from waflib import Utils
-class foo_context(Utils.Context):
+from waflib.Context import Context
+class context(Context):
 	def __init__(self):
 		print("a context for 'foo'")
 ---------------
@@ -51,24 +51,20 @@ def configure(conf):
 	conf.check_tool('gcc')
 
 def setup(ctx):
-	f = open('main.c', 'w')
-	f.write('#include "foo.h"\nint main() {return 0;}\n')
-	f.close()
+	n = ctx.path.make_node('main.c')
+	n.write('#include "foo.h"\nint main() {return 0;}\n')
 
-	f = open('foo.h', 'w')
-	f.write('int k = 32;\n')
-	f.close()
+	m = ctx.path.make_node('foo.h')
+	m.write('int k = 32;\n')
 
 def build(bld):
-	bld(
-		features = 'cc cprogram',
-		source = 'main.c',
-		target='tprog')
+	bld.program(
+		source   = 'main.c',
+		target   = 'tprog')
 
 def modify(ctx):
-	f = open('foo.h', 'w')
-	f.write('int k = 34;\n')
-	f.close()
+	m = ctx.path.make_node('foo.h')
+	m.write('int k = 34;\n')
 ---------------
 
 === Executing commands as part of another command
@@ -89,7 +85,7 @@ def configure(conf):
 
 def build(bld):
 	bld.install_files('/tmp/foo/', 'wscript') <1>
-	bld.new_task_gen(features='cc cprogram', target='foo', source='k.c')
+	bld(features='cc cprogram', target='foo', source='k.c')
 
 back = False
 def package(ctx): <2>

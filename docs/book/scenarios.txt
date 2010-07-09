@@ -281,7 +281,7 @@ def configure(conf):
 	conf.check_tool('g++')
 
 def build(bld):
-	bld.new_task_gen(features='cxx cprogram', source='main.cpp', target='test')
+	bld(features='cxx cprogram', source='main.cpp', target='test')
 
 from waflib.TaskGen import after, feature
 
