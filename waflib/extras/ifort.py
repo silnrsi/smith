@@ -11,7 +11,7 @@ def find_ifort(conf):
 	conf.find_program('ifort', var='FC')
 	conf.env.FC_NAME = 'IFORT'
 
-def detect(conf):
+def configure(conf):
 	conf.find_ifort()
 	conf.find_ar()
 	conf.fc_flags()

@@ -165,8 +165,7 @@ class fcprogram_test(fcprogram):
 		kw['cwd'] = bld.variant_dir
 		bld.out = bld.err = ''
 
-		if bld.log:
-			bld.to_log('command: %s\n' % cmd)
+		bld.to_log('command: %s\n' % cmd)
 
 		try:
 			proc = Utils.subprocess.Popen(cmd, **kw)
@@ -174,11 +173,10 @@ class fcprogram_test(fcprogram):
 		except OSError:
 			return -1
 
-		if bld.log:
-			if bld.out:
-				bld.to_log("out: %s\n" % bld.out)
-			if bld.err:
-				bld.to_log("err: %s\n" % bld.err)
+		if bld.out:
+			bld.to_log("out: %s\n" % bld.out)
+		if bld.err:
+			bld.to_log("err: %s\n" % bld.err)
 
 		return proc.returncode
 

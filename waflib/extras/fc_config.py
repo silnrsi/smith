@@ -71,7 +71,7 @@ def check_fortran_dummy_main(self, *k, **kw):
 		try:
 			self.check_cc(
 				fragment = 'int %s() { return 0; }\n' % (main or 'test'),
-				features = 'cc fcprogram',
+				features = 'c fcprogram',
 				mandatory = True
 			)
 			if not main:
@@ -279,7 +279,7 @@ def link_main_routines_tg_method(self):
 	bld(rule=write_test_file, target='main.c', code=MAIN_CODE % self.__dict__)
 	bld(rule=write_test_file, target='test.f', code=ROUTINES_CODE)
 	bld(features='fc fcstlib', source='test.f', target='test')
-	bld(features='cc cprogram', source='main.c', target='app', uselib_local='test')
+	bld(features='c cprogram', source='main.c', target='app', uselib_local='test')
 
 def mangling_schemes():
 	"""
