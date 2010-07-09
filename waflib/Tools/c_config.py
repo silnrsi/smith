@@ -251,12 +251,6 @@ def validate_c(self, kw):
 	if not 'type' in kw:
 		kw['type'] = 'cprogram'
 
-	assert not(kw['type'] != 'cprogram' and kw.get('execute', 0)), 'can only execute programs'
-
-
-	#if kw['type'] != 'program' and kw.get('execute', 0):
-	#	raise ValueError, 'can only execute programs'
-
 	def to_header(dct):
 		if 'header_name' in dct:
 			dct = Utils.to_list(dct['header_name'])
@@ -272,6 +266,8 @@ def validate_c(self, kw):
 
 	if not 'features' in kw:
 		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram c"
+	else:
+		kw['features'] = Utils.to_list(kw['features'])
 
 	#OSX
 	if 'framework_name' in kw:
@@ -364,6 +360,8 @@ def validate_c(self, kw):
 
 	if not 'execute' in kw:
 		kw['execute'] = False
+	if kw['execute']:
+		kw['features'].append('test_exec')
 
 	if not 'errmsg' in kw:
 		kw['errmsg'] = 'not found'
@@ -450,18 +448,20 @@ class test_exec_task(Task.Task):
 	"""
 	color = 'PINK'
 	def run(self):
-		if self.generator.rpath:
-			return self.generator.bld.cmd_and_log(self.inputs[0].abspath())
+		if getattr(self.generator, 'rpath', None):
+			self.generator.bld.retval = self.generator.bld.cmd_and_log(self.inputs[0].abspath())
 		else:
 			env = {}
+			env.update(dict(os.environ))
 			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
-			return self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env)
+			self.generator.bld.retval = self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env=env)
 
 @feature('test_exec')
 @after('apply_link')
 def test_exec_fun(self):
 	"""
 	create a task that tries to execute the link task output
+	used by conf.check(execute=1)
 	"""
 	self.create_task('test_exec', self.link_task.outputs[0])
 
@@ -510,27 +510,9 @@ def run_c_code(self, *k, **kw):
 	try:
 		bld.compile()
 	except Errors.WafError:
-		ret = Utils.ex_stack()
-	else:
-		ret = 0
+		self.fatal('Test does not build: %s' % Utils.ex_stack())
 
-	if ret:
-		self.to_log('command returned: %s' % ret)
-		self.fatal(str(ret))
-	else:
-		self.to_log('config test compiles')
-
-	# keep the name of the program to execute
-	if kw['execute']:
-		lastprog = o.link_task.outputs[0].abspath()
-
-		args = Utils.to_list(kw.get('exec_args', []))
-		try:
-			ret = self.cmd_and_log([lastprog] + args).strip()
-		except Errors.WafError as e:
-			conf.fatal('command exited %r' % e)
-
-	return ret
+	return getattr(bld, 'retval', 0)
 
 @conf
 def check_cxx(self, *k, **kw):
