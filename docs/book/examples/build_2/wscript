@@ -1,0 +1,25 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def options(ctx):
+	ctx.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def configure(ctx):
+	pass
+
+def pre(ctx):
+	print('before the build is started')
+
+def post(ctx):
+	if ctx.cmd == 'install':
+		from waflib import Options, Utils
+		if Options.options.exe:
+			Utils.exec_command('/sbin/ldconfig')
+
+def build(ctx):
+	ctx.add_pre_fun(pre)
+	ctx.add_post_fun(post)
+
