@@ -7,8 +7,6 @@ configuration tests...
 """
 
 from waflib.Configure import conf
-from waflib.TaskGen import feature, before, after
-from waflib.Task import Task
 
 @feature('link_lib_test')
 @before('process_source')
@@ -34,7 +32,6 @@ def check_library(self, **kw):
 	"""
 	see if the platform supports building libraries
 	"""
-
 	self.check(
 		compile_filename = [],
 		features = 'link_lib_test',
