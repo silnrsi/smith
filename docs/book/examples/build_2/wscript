@@ -14,10 +14,11 @@ def pre(ctx):
 	print('before the build is started')
 
 def post(ctx):
+	print('after the build is complete')
 	if ctx.cmd == 'install':
 		from waflib import Options, Utils
 		if Options.options.exe:
-			Utils.exec_command('/sbin/ldconfig')
+			ctx.exec_command('/sbin/ldconfig')
 
 def build(ctx):
 	ctx.add_pre_fun(pre)

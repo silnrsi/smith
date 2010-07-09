@@ -128,7 +128,7 @@ The waf tools are loaded once during the configuration and during the build. To 
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('some_tool', tooldir='.')
 
 def configure(conf):
@@ -146,7 +146,7 @@ Now our tool 'some_tool.py', located next to the 'wscript' file, will contain th
 import os
 from waflib import Utils, ConfigSet, Options, Build
 
-def set_options(opt): <1>
+def options(opt): <1>
 	pass
 
 def list_targets(ctx): <2>
@@ -173,7 +173,7 @@ def list_targets(ctx): <2>
 Utils.g_module.__dict__['list_targets'] = list_targets <8>
 ---------------
 
-<1> The function 'set_options' is called by 'tool_options' above
+<1> The function 'options' is called by 'tool_options' above
 <2> The command that will be injected dynamically from this tool
 <3> Declare a build context manually
 <4> Read the project settings

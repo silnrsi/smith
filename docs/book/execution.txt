@@ -1,6 +1,14 @@
-== The scripting system
+== Basic usage
 
 This chapter provides a hands-on overview of the Waf usage in a software project.
+
+////
+cmdline usage
+project setup
+default commands
+custom commands and options
+////
+
 
 === Setting up a project
 
@@ -12,8 +20,8 @@ The Waf projects are structured based on the following concepts:
 
 When Waf is launched, it looks for the top-level project file, which are Python scripts. A valid Waf project requires at least a top-level Waf script file (named 'wscript' without any extension) containing the three following elements:
 
-. top: string representing the project directory. In general, top is set to \'.\', except for some proprietary projects where the wscript cannot be added to the top-level, top may be set to \'../..' or even some other folder such as '/checkout/perforce/project'
-. out: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as \'.' or \'..\'.
+. top: string representing the project directory. In general, top is set to \'.\', except for some proprietary projects where the wscript cannot be added to the top-level, top may be set to \'../..\' or even some other folder such as '/checkout/perforce/project'
+. out: string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as \'.\' or \'..\'.
 . configure: function called for setting up a project (also known as a 'Waf command').
 
 The Waf script will always look for one valid top-level project file first before considering other project files.
@@ -437,14 +445,14 @@ $ waf configure
 'configure' finished successfully (0.001s)
 ---------------
 
-To define project command-line options, a special command named 'set_options' may be defined in user scripts. This command will be called once before any other command executes.
+To define project command-line options, a special command named 'options' may be defined in user scripts. This command will be called once before any other command executes.
 
 [source,python]
 ---------------
 top = '.'
 out = 'build_directory'
 
-def set_options(ctx):
+def options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):
@@ -462,5 +470,5 @@ $ waf configure --foo=test
 'configure' finished successfully (0.001s)
 ---------------
 
-The command context for set_options is a shortcut to access the optparse functionality. For more information on the optparse module, consult the http://docs.python.org/library/optparse.html[Python documentation]
+The command context for options is a shortcut to access the optparse functionality. For more information on the optparse module, consult the http://docs.python.org/library/optparse.html[Python documentation]
 

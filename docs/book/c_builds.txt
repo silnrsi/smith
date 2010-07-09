@@ -18,7 +18,7 @@ The construction of c/c++ applications can be quite complicated, and several mea
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_cc')
 
 def configure(conf):

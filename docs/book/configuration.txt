@@ -112,7 +112,7 @@ By splitting the configuration from the build step, it is possible to stop and l
 top = '.'
 out = 'build'
 
-def set_options(ctx):
+def options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):

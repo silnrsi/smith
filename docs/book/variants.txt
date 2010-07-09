@@ -194,7 +194,7 @@ out = 'build'
 
 from waflib import Options
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants') <1>
 
 def configure(conf): <2>
