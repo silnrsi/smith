@@ -150,15 +150,15 @@ def configure(conf):
 	conf.find_program('test')
 ---------------
 
-When a test fails, the exception 'waflib.Errors.ConfigurationException' is raised. For example, such exceptions are thrown when a program could not be found:
+When a test fails, the exception 'waflib.Errors.ConfigurationError' is raised. For example, such exceptions are thrown when a program could not be found:
 
 [source,python]
 ---------------
 def configure(conf):
-	from waflib import Configure
+	from waflib.Errors import ConfigurationError
 	try:
 		conf.find_program('missing_app', mandatory=True)
-	except Configuration.ConfigurationError:
+	except ConfigurationError:
 		pass
 	conf.find_program(['gjc', 'cjg'], mandatory=True)
 ---------------

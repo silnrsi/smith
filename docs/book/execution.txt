@@ -72,7 +72,7 @@ $ tree
 
 === Adding project commands
 
-In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitely by `waf commandname`. Let us create two new commands _ping_ and _pong_ in the project created previously ('/tmp/smallproject/')
+In the last section, we have see the use of the command 'configure' to initialize a project. Waf commands are special functions declared in the top-level project file and which may be called explicitly by `waf commandname`. Let us create two new commands _ping_ and _pong_ in the project created previously ('/tmp/smallproject/')
 
 [source,python]
 ---------------
@@ -313,7 +313,7 @@ def build(ctx):
 	print('building the software')
 ---------------
 
-Without surprize, the execution output will look like the following:
+Without surprise, the execution output will look like the following:
 
 [source,shishell]
 ---------------
@@ -333,7 +333,7 @@ Waf: Leaving directory `/tmp/smallproject/build_directory'
 'build' finished successfully (0.004s)
 ---------------
 
-Since the command `waf build` is executed very often, a shortcut is provided to call it implicitely:
+Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
 
 [source,shishell]
 ---------------

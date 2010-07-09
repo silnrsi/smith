@@ -40,7 +40,7 @@ def myMethod(tgen): <4>
 ---------------
 
 <1> Attributes may be set by arguments or by accessing the object. It is set two times in this example.
-<2> Call the task generator method explicitely
+<2> Call the task generator method explicitly
 <3> Use a python decorator
 <4> Task generator methods have a unique argument representing the current instance
 <5> Process the attribute 'myattr' when present (the case in the example)
