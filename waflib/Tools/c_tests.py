@@ -7,6 +7,7 @@ configuration tests...
 """
 
 from waflib.Configure import conf
+from waflib.TaskGen import feature, before
 
 @feature('link_lib_test')
 @before('process_source')
@@ -22,8 +23,8 @@ def link_lib_test_fun(self):
 	if getattr(self, 'add_rpath', True):
 		rpath = [self.bld.path.get_bld().abspath()]
 	bld = self.bld
-	bld(rule=write_test_file, target='test.c', code='int lib_func(void) { return 42; }\n')
-	bld(rule=write_test_file, target='main.c', code='int main(void) {return !(lib_func() == 42);}\n')
+	bld(rule=write_test_file, target='test.c', code='int lib_func(void) { return 9; }\n')
+	bld(rule=write_test_file, target='main.c', code='int main(void) {return !(lib_func() == 9);}\n')
 	bld(features='c cshlib', source='test.c', target='test')
 	bld(features='c cprogram test_exec', source='main.c', target='app', uselib_local='test', rpath=rpath)
 
