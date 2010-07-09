@@ -28,6 +28,7 @@ def configure(conf):
 
 	conf.check_large_file()
 	conf.check_inline()
+	conf.check_library()
 
 	conf.write_config_header('config.h')
 
