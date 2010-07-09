@@ -6,7 +6,63 @@
 configuration tests...
 """
 
-from Configure import conf
+from waflib.Configure import conf
+from waflib.TaskGen import feature, before, after
+from waflib.Task import Task
+
+class test_exec_task(Task):
+	"""
+	a task for executing a program after it is built
+	"""
+	color = 'PINK'
+	def run(self):
+		if self.generator.rpath:
+			return self.generator.bld.cmd_and_log(self.inputs[0].abspath())
+		else:
+			env = {}
+			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
+			return self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env)
+
+@feature('test_exec')
+@after('apply_link')
+def test_exec_fun(self):
+	"""
+	create a task that tries to execute the link task output
+	"""
+	self.create_task('test_exec', self.link_task.outputs[0])
+
+@feature('link_lib_test')
+@before('process_source')
+def link_lib_test_fun(self):
+	"""
+	the configuration test declares a unique task generator,
+	so we create other task generators from there
+	"""
+	def write_test_file(task):
+		task.outputs[0].write(task.generator.code)
+
+	rpath = []
+	if getattr(self, 'add_rpath', True):
+		rpath = [self.bld.path.get_bld().abspath()]
+	bld = self.bld
+	bld(rule=write_test_file, target='test.c', code='int lib_func(void) { return 42; }\n')
+	bld(rule=write_test_file, target='main.c', code='int main(void) {return !(lib_func() == 42);}\n')
+	bld(features='c cshlib', source='test.c', target='test')
+	bld(features='c cprogram test_exec', source='main.c', target='app', uselib_local='test', rpath=rpath)
+
+@conf
+def check_library(self, **kw):
+	"""
+	see if the platform supports building libraries
+	"""
+
+	self.check(
+		compile_filename = [],
+		features = 'link_lib_test',
+		msg = 'Checking for libraries',
+		)
+
+########################################################################################
 
 INLINE_CODE = '''
 typedef int foo_t;
@@ -19,11 +75,11 @@ INLINE_VALUES = ['inline', '__inline__', '__inline']
 
 @conf
 def check_inline(self, **kw):
-	'''
+	"""
 	check for the right value for inline
 	define INLINE_MACRO to 1 if the define is found
 	if the inline macro is not 'inline', add a define for the config.h (#define inline __inline__)
-	'''
+	"""
 
 	self.start_msg('Checking for inline')
 
@@ -55,9 +111,9 @@ LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8)
 
 @conf
 def check_large_file(self, **kw):
-	'''
+	"""
 	see if large files are supported and define the macro HAVE_LARGEFILE
-	'''
+	"""
 
 	if not 'define_name' in kw:
 		kw['define_name'] = 'HAVE_LARGEFILE'
@@ -90,4 +146,7 @@ def check_large_file(self, **kw):
 		return True
 
 	self.fatal('There is no support for large files')
+
+########################################################################################
+
 
