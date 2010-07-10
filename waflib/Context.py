@@ -141,7 +141,7 @@ class Context(ctx):
 	def execute(self):
 		"""executes the command represented by this context - subclasses must override this method"""
 		global g_module
-		self.recurse(os.path.dirname(g_module.root_path))
+		self.recurse([os.path.dirname(g_module.root_path)])
 
 	def free(self):
 		"""
