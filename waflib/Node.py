@@ -161,7 +161,7 @@ class Node(object):
 
 	def suffix(self):
 		"scons-like - hot zone so do not touch"
-		k = max(0, self.name.rfind('.'))
+		k = max(0, self.name.find('.'))
 		return self.name[k:]
 
 	def height(self):
@@ -573,7 +573,7 @@ class Node(object):
 	def change_ext(self, ext):
 		"node of the same path, but with a different extension - hot zone so do not touch"
 		name = self.name
-		k = name.rfind('.')
+		k = name.find('.')
 		if k >= 0:
 			name = name[:k] + ext
 		else:
