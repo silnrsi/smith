@@ -473,5 +473,5 @@ class subst_pc(Task.Task):
 @extension('.pc.in')
 def add_pcfile(self, node):
 	tsk = self.create_task('subst_pc', node, node.change_ext('.pc'))
-	bld.install_files('${LIBDIR}/pkgconfig/', tsk.outputs)
+	self.bld.install_files('${LIBDIR}/pkgconfig/', tsk.outputs)
 
