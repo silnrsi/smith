@@ -33,9 +33,6 @@ def waf_entry_point(current_directory, version, wafdir):
 	# at the same time, store the first wscript file seen
 	cur = current_directory
 	while cur:
-		if cur == '/' or not cur:
-			break # root or c:
-
 		lst = os.listdir(cur)
 		if Options.lockfile in lst:
 			env = ConfigSet.ConfigSet()
@@ -54,7 +51,10 @@ def waf_entry_point(current_directory, version, wafdir):
 			if Context.WSCRIPT_FILE in lst:
 				Context.run_dir = cur
 
-		cur = os.path.dirname(cur)
+		next = os.path.dirname(cur)
+		if next == cur:
+			break
+		cur = next
 
 		# if 'configure' is in the commands, do not search any further
 		for k in no_climb_commands:
