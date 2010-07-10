@@ -267,10 +267,10 @@ class Task(TaskBase):
 	def __repr__(self):
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
-	def unique_id(self):
+	def uid(self):
 		"get a unique id: hash the node paths, the class, the function"
 		try:
-			return self.uid
+			return self.uid_
 		except AttributeError:
 			"this is not a real hot zone, but we want to avoid surprizes here"
 			m = Utils.md5()
@@ -278,8 +278,8 @@ class Task(TaskBase):
 			up(self.__class__.__name__.encode())
 			for x in self.inputs + self.outputs:
 				up(x.abspath().encode())
-			self.uid = m.digest()
-			return self.uid
+			self.uid_ = m.digest()
+			return self.uid_
 
 	def set_inputs(self, inp):
 		if isinstance(inp, list): self.inputs += inp
@@ -339,7 +339,7 @@ class Task(TaskBase):
 		new_sig = self.signature()
 
 		# compare the signature to a signature computed previously
-		key = self.unique_id()
+		key = self.uid()
 		try:
 			prev_sig = bld.task_sigs[key]
 		except KeyError:
@@ -378,7 +378,7 @@ class Task(TaskBase):
 			# important, store the signature for the next run
 			node.sig = sig
 
-		bld.task_sigs[self.unique_id()] = self.cache_sig
+		bld.task_sigs[self.uid()] = self.cache_sig
 
 	def sig_explicit_deps(self):
 		bld = self.generator.bld
@@ -446,7 +446,7 @@ class Task(TaskBase):
 		bld = self.generator.bld
 
 		# get the task signatures from previous runs
-		key = self.unique_id()
+		key = self.uid()
 		prev = bld.task_sigs.get((key, 'imp'), [])
 
 		# for issue #379
@@ -480,13 +480,13 @@ class Task(TaskBase):
 		env = self.env
 
 		try:
-			for k in bld.node_deps.get(self.unique_id(), []):
+			for k in bld.node_deps.get(self.uid(), []):
 				# can do an optimization here
 				upd(k.get_bld_sig())
 		except AttributeError:
 			# do it again to display a meaningful error message
 			nodes = []
-			for k in bld.node_deps.get(self.unique_id(), []):
+			for k in bld.node_deps.get(self.uid(), []):
 				try:
 					k.get_bld_sig()
 				except AttributeError:
@@ -748,7 +748,7 @@ def update_outputs(cls):
 		try:
 			bld = self.generator.bld
 			new_sig  = self.signature()
-			prev_sig = bld.task_sigs[self.unique_id()]
+			prev_sig = bld.task_sigs[self.uid()]
 			if prev_sig == new_sig:
 				for x in self.outputs:
 					if not x.sig:

@@ -82,8 +82,8 @@ class qxx(cxx.cxx):
 		moctasks=[]
 		mocfiles=[]
 		try:
-			tmp_lst = bld.raw_deps[self.unique_id()]
-			bld.raw_deps[self.unique_id()] = []
+			tmp_lst = bld.raw_deps[self.uid()]
+			bld.raw_deps[self.uid()] = []
 		except KeyError:
 			tmp_lst = []
 		for d in tmp_lst:
@@ -128,10 +128,10 @@ class qxx(cxx.cxx):
 			moctasks.append(task)
 
 		# remove raw deps except the moc files to save space (optimization)
-		tmp_lst = bld.raw_deps[self.unique_id()] = mocfiles
+		tmp_lst = bld.raw_deps[self.uid()] = mocfiles
 
 		# look at the file inputs, it is set right above
-		lst = bld.node_deps.get(self.unique_id(), ())
+		lst = bld.node_deps.get(self.uid(), ())
 		for d in lst:
 			name = d.name
 			if name.endswith('.moc'):
