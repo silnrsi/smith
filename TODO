@@ -6,7 +6,7 @@ General
 - fake local libraries? relink when they change?
 - how to force a full compilation for the configuration?
 - broken conf.check_cfg and problems with default uselib (capital letters)
-- better apis for shell compilation in Task.py and remove misc.py
+- better apis for shell compilation in Task.py
 - refactor the environment thing ?
 
 Low priority
@@ -26,8 +26,12 @@ Potential sub-projects (contributions will be welcome)
 
 Docs
 
+diagram for the command workflow
+
 - string expansion on other attributes
 - compile targets at the end
+- set CC and LINK to a particular variable (the wine example)
+
 
 - show a complete example of c compilation with rules vs task generator code (procedural vs object-oriented)
 
