@@ -7,5 +7,52 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld.pcfile(source='test.pc.in')
+	bld(source='test.pc.in')
+
+
+import re
+re_m4 = re.compile('@(\w+)@', re.M)
+
+from waflib import Task
+class subst_pc(Task.Task):
+	def run(tsk):
+		"Substitutes variables in a .in file"
+
+		code = tsk.inputs[0].read()
+
+		# replace all % by %% to prevent errors by % signs
+		code = code.replace('%', '%%')
+
+		# extract the vars foo into lst and replace @foo@ by %(foo)s
+		lst = []
+		def repl(match):
+			g = match.group
+			if g(1):
+				lst.append(g(1))
+				return "%%(%s)s" % g(1)
+			return ''
+		code = re_m4.sub(repl, code)
+
+		print lst
+		di = {}
+		for x in lst:
+			di[x] = 'aa'
+
+		tsk.outputs[0].write(s % di)
+
+from waflib.TaskGen import extension
+@extension('.pc.in')
+def add_pcfile(self, node):
+	tsk = self.create_task(subst_pc, node, node.change_ext('.pc'))
+
+"""
+def pcfile(bld, **kw):
+	if not 'features' in kw:
+		kw['features'] = 'pcfile'
+	tg = bld(**kw)
+	return tg
+
+from waflib.Build import BuildContext
+BuildContext.pcfile = pcfile
+"""
 
