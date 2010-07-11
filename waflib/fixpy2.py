@@ -63,7 +63,7 @@ def r2(code):
 	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
 	return code
 
-@subst('Tools/ccroot.py')
+@subst('Tools/c_config.py')
 def r3(code):
 	code = code.replace("b'\\n'", "'\\n'")
 	return code
