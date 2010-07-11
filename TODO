@@ -6,7 +6,7 @@ General
 - fake local libraries? relink when they change?
 - how to force a full compilation for the configuration?
 - broken conf.check_cfg and problems with default uselib (capital letters)
-- better apis for shell compilation in Task.py
+- better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - refactor the environment thing ?
 
 Low priority

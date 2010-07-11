@@ -28,7 +28,7 @@ $ ./waf-light
 Configuring the project
 'build' finished successfully (0.001s)
 Checking for program python              : /usr/bin/python
-Python version                           : ok
+Checking for python version              : (2, 6, 5, 'final', 0)
 'configure' finished successfully (0.176s)
 Waf: Entering directory `/disk/comp/waf/build'
 [1/1] create_waf:  -> waf

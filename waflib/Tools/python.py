@@ -330,10 +330,10 @@ def check_python_version(conf, minver=None):
 	# Feedback
 	pyver_full = '.'.join(map(str, pyver_tuple[:3]))
 	if minver is None:
-		conf.msg('Python version', pyver_full)
+		conf.msg('Checking for python version', pyver_full)
 	else:
 		minver_str = '.'.join(map(str, minver))
-		conf.msg('Python version', result, ">= %s" % (minver_str,) and 'GREEN' or 'YELLOW')
+		conf.msg('Checking for python version', pyver_tuple, ">= %s" % (minver_str,) and 'GREEN' or 'YELLOW')
 
 	if not result:
 		conf.fatal('The python version is too old (%r)' % minver)
