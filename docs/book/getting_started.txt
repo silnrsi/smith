@@ -1,4 +1,4 @@
-== Download and setup
+== Download and installation
 
 === Obtaining the Waf file
 
@@ -12,9 +12,8 @@ The Waf binary is a python script which does not require any installation whatso
 [source,shishell]
 ---------------
 $ wget http://waf.googlecode.com/files/waf-1.6.0
-$ chmod 755 waf-1.6.0
 $ mv waf-1.6.0 waf
-$ ./waf --version
+$ python waf --version
 waf 1.6.0 (8840M)
 ---------------
 
@@ -37,7 +36,7 @@ Building Waf requires a Python interpreter having a version number in the range 
 $ wget http://waf.googlecode.com/files/waf-1.6.0.tar.bz2
 $ tar xjvf waf-1.6.0.tar.bz2
 $ cd waf-1.6.0
-$ ./waf-light
+$ python waf-light
 Configuring the project
 'build' finished successfully (0.001s)
 Checking for program python              : /usr/bin/python
@@ -49,33 +48,60 @@ Waf: Leaving directory `/waf-1.6.0/build'
 'build' finished successfully (2.050s)
 ---------------
 
-=== Running waf
+For older interpreters, it is possible to build the +waf+ file with gzip compression instead of bzip2:
 
-==== Local directory and permissions
+[source,shishell]
+---------------
+$ python waf-light --zip-type=gz
+---------------
 
-Because the waf script is a python script, it may be used by calling +python+ on it.
+=== Using the waf file
+
+==== Permissions and aliases
+
+Because the waf script is a python script, it is usually executed by calling +python+ on it:
 
 [source,shishell]
 ---------------
 $ python waf
 ---------------
 
-Yet, it is usually convenient to set the executable permissions once (unix-like systems only):
+On unix-like systems, it is usually much more convenient to set the executable permissions and avoid calling +python+ each time:
 
 [source,shishell]
 ---------------
 $ chmod 755 waf
-$ ./waf
+$ ./waf --version
+waf 1.6.0 (8840M)
 ---------------
 
-The +waf+ script can be used directly from a writeable folder:
+If the command-line interpreter supports aliases, it is recommended to set the alias once:
 
-Or, if the executable permissions are not set:
+[source,shishell]
+---------------
+$ alias waf=$PWD/waf
+$ waf --version
+waf 1.6.0 (8840M)
+---------------
 
-The +waf+ file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+Or, the execution path may be modified to point at the location of the waf binary:
 
-==== The Waf directory
+[source,shishell]
+---------------
+$ export PATH:$PWD:$PATH
+$ waf --version
+waf 1.6.0 (8840M)
+---------------
 
+In the next sections of the book, we assume that either an alias or the execution path have been set in a way that +waf+ may be called directly.
+
+==== Local waflib folders
+
+Although the waf library is unpacked automatically from the waf binary file, it is sometimes necessary to keep the files in a visible folder, which may even be kept in a source control tool (subversion, git, etc). For example, the +waf-light+ script does not contain the waf library, yet it is used to create the +waf+ script by using the directory +waflib+.
+
+The following diagram represents the process used to find the +waflib+ directory:
+
+image::waflib{PIC}["Waflib discovery"{backend@docbook:,width=220:}]
 
 
 ==== Portability concerns
