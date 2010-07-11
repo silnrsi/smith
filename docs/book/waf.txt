@@ -32,7 +32,7 @@ The objectives of this book is to expose the use of the Waf build system though 
 
 The chapters are ordered by difficulty, starting from the basic use of Waf and Python, and diving gradually into the most difficult topics. It is therefore recommended to read the chapters in order. It is also possible to start by looking at the http://code.google.com/p/waf/source/browse/trunk/demos/[examples] from the Waf distribution before starting the reading.
 
-include::getting_started.txt[]
+include::download.txt[]
 include::execution.txt[]
 include::configuration.txt[]
 include::build.txt[]
