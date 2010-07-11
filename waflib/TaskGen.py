@@ -458,6 +458,8 @@ class subst_pc(Task.Task):
 			d = {}
 			for x in lst:
 				d[x] = self.env.get_flat(x) or self.env.get_flat(x.upper())
+				if not d[x] and not getattr(self.generator, 'quiet', False):
+					raise ValueError('variable %r has no value for %r' % (x, self.outputs))
 
 		self.outputs[0].write(code % d)
 		self.generator.bld.raw_deps[self.uid()] = self.dep_vars = lst
