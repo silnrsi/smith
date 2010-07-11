@@ -49,9 +49,8 @@ def init(*k, **kw):
 		pats.append(('^HEXVERSION(.*)', 'HEXVERSION=%s' % hexver))
 
 		try:
-			import Utils
-			rev = Utils.cmd_output('svnversion').strip()
-			pats.append(('^WAFREVISION(.*)', 'WAFREVISION = "%s"' % rev))
+			rev = k[0].cmd_and_log('svnversion').strip()
+			pats.append(('^WAFREVISION(.*)', 'WAFREVISION="%s"' % rev))
 		except:
 			pass
 
