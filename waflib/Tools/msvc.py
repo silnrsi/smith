@@ -490,7 +490,7 @@ def find_msvc(conf):
 	# before setting anything, check if the compiler is really msvc
 	env = dict(conf.environ)
 	env.update(PATH = ';'.join(path))
-	if not conf.cmd_and_log([cxx, '/nologo', '/?'], silent=True, env=env):
+	if not conf.cmd_and_log([cxx, '/nologo', '/?'], env=env):
 		conf.fatal('the msvc compiler could not be identified')
 
 	# c/c++ compiler
