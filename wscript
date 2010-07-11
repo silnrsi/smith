@@ -210,7 +210,7 @@ def sfilter(path):
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 
 def create_waf(*k, **kw):
-	print ("-> preparing waf")
+	#print("-> preparing waf")
 	mw = 'tmp-waf-'+VERSION
 
 	import tarfile, re
