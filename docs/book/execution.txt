@@ -32,7 +32,7 @@ In +waf+ terms, the function hello is called a _waf command_, and the parameter 
 
 Several commands may be declared in the same wscript file:
 
-// execution ping
+// execution_ping
 [source,python]
 ---------------
 def ping(ctx):
@@ -54,6 +54,54 @@ $ waf ping pong ping
  ping!
 'ping' finished successfully (0.000s)
 ---------------
+
+==== Splitting a project into several folders
+
+Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
+
+[source,shishell]
+---------------
+.
+|-- src
+|   `-- wscript
+`-- wscript
+---------------
+
+The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named +recurse+:
+
+// execution_recurse
+[source,python]
+---------------
+def ping(ctx):
+	print('→ ping from ' + bld.path.abspath())
+	ctx.recurse('src')
+---------------
+
+And here is the contents of 'src/wscript'
+
+[source,python]
+---------------
+def ping(ctx):
+	print('→ ping from ' + bld.path.abspath())
+---------------
+
+Upon execution, the results will be:
+
+[source,shishell]
+---------------
+$ cd /tmp/execution_recurse
+
+$ waf ping
+→ ping from /tmp/execution_recurse
+→ ping from /tmp/execution_recurse/src
+'ping' finished successfully (0.002s)
+---------------
+
+NOTE: the method +recurse+, and the attribute +path+ are available on all waf context classes
+
+
+
+=== Predefined commands
 
 ==== The 'configure' command
 
@@ -115,146 +163,10 @@ $ tree -a
 
 NOTE: +waf configure+ is called from the directory containing the wscript file
 
-==== Splitting a project into several folders
-
-Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
-
-[source,shishell]
----------------
-.
-|-- src
-|   `-- wscript
-`-- wscript
----------------
-
-The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named 'recurse'.
-
-[source,python]
----------------
-top = '.'
-out = 'build_directory'
-
-def configure(ctx):
-	print('→ configure from the top-level')
-	ctx.recurse('src')
-
-def ping(ctx):
-	print('→ ping from the top-level')
-	ctx.recurse('src')
----------------
-
-Since the folder 'src' is not meant to be redistributed as a standalone project, it is not necessary to duplicate the variables _top_ and _out_.
-
-[source,python]
----------------
-def configure(ctx):
-	print('→ configure from src')
-
-def ping(ctx):
-	print('→ ping from src')
----------------
-
-Upon execution, the results will be:
-
-[source,shishell]
----------------
-$ cd /tmp/smallproject
-
-$ waf configure ping
-→ configure from the top-level
-→ configure from src
-'configure' finished successfully (0.080s)
-→ ping from the top-level
-→ ping from src
-'ping' finished successfully (0.009s)
----------------
-
-
-=== The 'build' commands
-
-==== Building, cleaning, installing and uninstalling a project
-
-The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
-
-[source,python]
----------------
-top = '.'
-out = 'build_directory'
-
-def configure(ctx):
-	print('→ configure from the top-level')
-
-def build(ctx):
-	print('building the software')
----------------
-
-Without surprise, the execution output will look like the following:
-
-[source,shishell]
----------------
-$ cd /tmp/smallproject
-
-$ waf
-Project not configured (run 'waf configure' first)
-
-$ waf configure
-→ configure from the top-level
-'configure' finished successfully (0.001s)
-
-$ waf build
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
----------------
-
-Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
-
-[source,shishell]
----------------
-$ waf
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
----------------
-
-The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
-
-[source,shishell]
----------------
-$ waf build install uninstall clean
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'install' finished successfully (0.003s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'uninstall' finished successfully (0.002s)
-building the software
-'clean' finished successfully (0.002s)
----------------
-
-The meaning of the commands is the following:
-
-. +build:+ process the source code to create the object files
-. +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
-. +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)
-. +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
-. +list:+ list the task generators in the build section (to use with waf --targets=name)
-. +step:+ force the rebuild of particular files for debugging purposes
-
-Object file creation and installation will be detailed in the next chapters.
-
-=== More predefined commands
 
 ==== Cleaning up a project
 
-Waf itself comes with a predefined command called _distclean_ which removes the build directory and the lock file. After calling cleaning a project, it is necessary to configure it once again.
+Waf itself comes with a predefined command called _distclean_ to remove the build directory and the lock file created during the configuration
 
 [source,shishell]
 ---------------
@@ -262,18 +174,14 @@ $ waf configure
 → configuring the project
 'configure' finished successfully (0.001s)
 
-$ waf ping
- ping!
-'ping' finished successfully (0.000s)
-
 $ waf distclean
 'distclean' finished successfully (0.001s)
 
-$ waf ping
+$ waf
 Project not configured (run 'waf configure' first)
 ---------------
 
-It is possible to override the behaviour of 'distclean' by redefining it in the wscript file. For example, the following will cause it to avoid removing the build files.
+It is possible to override the behaviour of 'distclean' by redefining it in the wscript file. For example, the following will cause it to avoid removing anything.
 
 [source,python]
 ---------------
@@ -360,6 +268,87 @@ Or 'zip' for http://en.wikipedia.org/wiki/ZIP_%28file_format%29[zip] files:
 from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
+
+
+=== The 'build' commands
+
+==== Building, cleaning, installing and uninstalling a project
+
+The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
+
+[source,python]
+---------------
+top = '.'
+out = 'build_directory'
+
+def configure(ctx):
+	print('→ configure from the top-level')
+
+def build(ctx):
+	print('building the software')
+---------------
+
+Without surprise, the execution output will look like the following:
+
+[source,shishell]
+---------------
+$ cd /tmp/smallproject
+
+$ waf
+Project not configured (run 'waf configure' first)
+
+$ waf configure
+→ configure from the top-level
+'configure' finished successfully (0.001s)
+
+$ waf build
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+---------------
+
+Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
+
+[source,shishell]
+---------------
+$ waf
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+---------------
+
+The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
+
+[source,shishell]
+---------------
+$ waf build install uninstall clean
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'install' finished successfully (0.003s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'uninstall' finished successfully (0.002s)
+building the software
+'clean' finished successfully (0.002s)
+---------------
+
+The meaning of the commands is the following:
+
+. +build:+ process the source code to create the object files
+. +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
+. +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)
+. +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
+. +list:+ list the task generators in the build section (to use with waf --targets=name)
+. +step:+ force the rebuild of particular files for debugging purposes
+
+Object file creation and installation will be detailed in the next chapters.
 
 === Customizing the command-line options
 
