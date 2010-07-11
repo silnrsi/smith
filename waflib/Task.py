@@ -451,8 +451,11 @@ class Task(TaskBase):
 
 		# for issue #379
 		if prev:
-			if prev == self.compute_sig_implicit_deps():
-				return prev
+			try:
+				if prev == self.compute_sig_implicit_deps():
+					return prev
+			except IOError: # raised if a file was renamed
+				pass
 			del bld.task_sigs[(key, 'imp')]
 			raise ValueError('rescan')
 
