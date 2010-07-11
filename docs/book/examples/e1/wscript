@@ -1,14 +1,5 @@
 #! /usr/bin/env python
 
-top = '.'
-out = 'build_directory'
-
-def configure(ctx):
-	print('→ configuring the project')
-
-def ping(ctx):
-	print(' ping!')
-
-def pong(ctx):
-	print(' pong!')
+def hello(ctx):
+	print('hello, world!')
 

@@ -3,7 +3,7 @@
 === Obtaining the Waf file
 
 The Waf project is located on http://code.google.com/p/waf[Google Code].
-The current Waf version requires an interpreter for the Python programming language such as http://www.python.org[cPython] 2.3 to 3.1 or http://www.jython.org[Jython] >= 2.5. Note that Waf requires http://docs.python.org/library/bz2.html[bzip2] compression support, which may be unavailable in self-compiled cPython installations.
+The current Waf version requires an interpreter for the Python programming language such as http://www.python.org[cPython] 2.3 to 3.1 or http://www.jython.org[Jython] >= 2.5.
 
 ==== Downloading and using the Waf binary
 
