@@ -1,0 +1,5 @@
+def ping(ctx):
+    print(' ping!')
+
+def pong(ctx):
+    print(' pong!')
