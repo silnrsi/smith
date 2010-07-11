@@ -24,7 +24,16 @@ The Waf binary creation requires a Python interpreter in version 2.6 to 3.1. The
 $ wget http://waf.googlecode.com/files/waf-1.6.0.tar.bz2
 $ tar xjvf waf-1.6.0.tar.bz2
 $ cd waf-1.6.0
-$ ./waf-light --make-waf
+$ ./waf-light
+Configuring the project
+'build' finished successfully (0.001s)
+Checking for program python              : /usr/bin/python
+Python version                           : ok
+'configure' finished successfully (0.176s)
+Waf: Entering directory `/disk/comp/waf/build'
+[1/1] create_waf:  -> waf
+Waf: Leaving directory `/disk/comp/waf/build'
+'build' finished successfully (2.050s)
 ---------------
 
 === Running Waf
