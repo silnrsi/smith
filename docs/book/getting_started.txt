@@ -1,23 +1,36 @@
-== Getting Started
+== Download and setup
 
-=== Obtaining Waf
+=== Obtaining the Waf file
 
 The Waf project is located on http://code.google.com/p/waf[Google Code].
 The current Waf version requires an interpreter for the Python programming language such as http://www.python.org[cPython] 2.3 to 3.1 or http://www.jython.org[Jython] >= 2.5. Note that Waf requires http://docs.python.org/library/bz2.html[bzip2] compression support, which may be unavailable in self-compiled cPython installations.
 
-==== Using the Waf binary
+==== Downloading and using the Waf binary
 
-The Waf binary does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it into \'waf' if necessary:
+The Waf binary is a python script which does not require any installation whatsoever. It may be executed directly from a writeable folder. Just rename it as +waf+ if necessary:
 
 [source,shishell]
 ---------------
 $ wget http://waf.googlecode.com/files/waf-1.6.0
-$ mv waf-1.6.0 waf && chmod 755 waf
+$ chmod 755 waf-1.6.0
+$ mv waf-1.6.0 waf
+$ ./waf --version
+waf 1.6.0 (8840M)
 ---------------
 
-==== Generating the Waf binary from the source code
+The +waf+ file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in a hidden folder in the current directory. The folder will be re-created if removed. This scheme enables different Waf versions to be executed from the same folders:
 
-The Waf binary creation requires a Python interpreter in version 2.6 to 3.1. The source code is then processed to support Python 2.3, 2.4 and 2.5.
+[source,shishell]
+---------------
+$ ls -ld .waf*
+.waf-1.6.0-2c924e3f453eb715218b9cc852291170
+---------------
+
+NOTE: The binary file requires http://docs.python.org/library/bz2.html[bzip2] compression support, which may be unavailable in some self-compiled cPython installations.
+
+==== Building Waf from the source code
+
+Building Waf requires a Python interpreter having a version number in the range 2.6-3.1. The source code is then processed to support Python 2.3, 2.4 and 2.5.
 
 [source,shishell]
 ---------------
@@ -30,35 +43,42 @@ Configuring the project
 Checking for program python              : /usr/bin/python
 Checking for python version              : (2, 6, 5, 'final', 0)
 'configure' finished successfully (0.176s)
-Waf: Entering directory `/disk/comp/waf/build'
+Waf: Entering directory `/waf-1.6.0/build'
 [1/1] create_waf:  -> waf
-Waf: Leaving directory `/disk/comp/waf/build'
+Waf: Leaving directory `/waf-1.6.0/build'
 'build' finished successfully (2.050s)
 ---------------
 
-=== Running Waf
+=== Running waf
 
-The 'waf' script can be used directly from a writeable folder:
+==== Local directory and permissions
 
-[source,shishell]
----------------
-$ ./waf
----------------
-
-Or, if the executable permissions are not set properly:
+Because the waf script is a python script, it may be used by calling +python+ on it.
 
 [source,shishell]
 ---------------
 $ python waf
 ---------------
 
-The 'waf' file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+Yet, it is usually convenient to set the executable permissions once (unix-like systems only):
 
 [source,shishell]
 ---------------
-$ ls -ld .waf*
-.waf-1.6.0-2c924e3f453eb715218b9cc852291170
+$ chmod 755 waf
+$ ./waf
 ---------------
+
+The +waf+ script can be used directly from a writeable folder:
+
+Or, if the executable permissions are not set:
+
+The +waf+ file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in the current directory, in a hidden folder that will be re-created if removed. The naming enables different Waf versions to be executed from the same folders:
+
+==== The Waf directory
+
+
+
+==== Portability concerns
 
 By default, the recommended Python interpreter is cPython, for which the supported versions are 2.3 to 3.1. For maximum convenience for the user, a copy of the http://www.jython.org[Jython] interpreter in the version 2.5 may be redistributed along with a copy of the Waf executable.
 
