@@ -1,5 +1,5 @@
 def ping(ctx):
-    print(' ping!')
+    print(' ping! %d' % id(ctx))
 
 def pong(ctx):
-    print(' pong!')
+    print(' pong! %d' % id(ctx))
