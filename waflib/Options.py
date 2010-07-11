@@ -96,7 +96,7 @@ class opt_parser(optparse.OptionParser):
 		lst.sort()
 		ret = '\n'.join(lst)
 
-		return '''waf [command] [options]
+		return '''waf [commands] [options]
 
 Main commands (example: ./waf build -j4)
 %s
