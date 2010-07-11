@@ -127,12 +127,15 @@ echo LIB=%%LIB%%
 	env.update(PATH = path)
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
+	if isinstance(cxx, list):
+		cxx = cxx[0] # FIXME wtf is this a list now
+
 	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
 	if env.has_key('CL'):
 		del(env['CL'])
 
 	try:
-		conf.cmd_and_log(cxx + ['/help'], env=env)
+		conf.cmd_and_log([cxx, '/help'], env=env)
 	except Exception as e:
 		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
 		debug(str(e))
