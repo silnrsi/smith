@@ -127,15 +127,13 @@ echo LIB=%%LIB%%
 	env.update(PATH = path)
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 	cxx = conf.find_program(compiler_name, path_list=MSVC_PATH)
-	if isinstance(cxx, list):
-		cxx = cxx[0] # FIXME wtf is this a list now
 
 	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
 	if env.has_key('CL'):
 		del(env['CL'])
 
 	try:
-		conf.cmd_and_log([cxx, '/help'], env=env)
+		conf.cmd_and_log(cxx + ['/help'], env=env)
 	except Exception as e:
 		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
 		debug(str(e))
@@ -525,7 +523,7 @@ def find_msvc(conf):
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT', path_list=path)
 	if manifesttool:
-		v['MT'] = manifesttool
+		v['MT'] = [manifesttool]
 		v['MTFLAGS'] = ['/NOLOGO']
 
 	conf.check_tool('winres')
@@ -617,7 +615,7 @@ def apply_flags_msvc(self):
 			d = f.lower()
 			if d[1:] == 'debug':
 				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
-				pdbfile = pdbnode.bldpath(self.env)
+				pdbfile = pdbnode.bldpath()
 				self.link_task.outputs.append(pdbnode)
 				self.bld.install_files(self.install_path, [pdbnode], env=self.env)
 				break
@@ -641,7 +639,7 @@ def apply_manifest(self):
 
 def exec_mf(self):
 	env = self.env
-	outfile = self.inputs[0].bldpath(env)
+	outfile = self.inputs[0].bldpath()
 	manifest = outfile + '.manifest'
 	if os.path.exists(manifest):
 		debug('msvc: manifesttool')
