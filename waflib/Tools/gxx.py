@@ -48,7 +48,7 @@ def gxx_common_flags(conf):
 	# shared library
 	v['CXXFLAGS_cxxshlib']      = ['-fPIC']
 	v['LINKFLAGS_cxxshlib']     = ['-shared']
-	v['cxxshlib_PATTERN_cxxshlib']       = 'lib%s.so'
+	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['LINKFLAGS_cxxstlib'] = ['-Wl,-Bstatic']
