@@ -1,11 +1,11 @@
 
 #ifdef _MSC_VER
-#	define testshlib_EXPORT __declspec(dllexport)
+#	define test_EXPORT __declspec(dllexport)
 #else
-#	define testshlib_EXPORT
+#	define test_EXPORT
 #endif
 
-extern testshlib_EXPORT void foo_b2() { }
+extern test_EXPORT void foo() { }
 
 static const int truc=5;
 
