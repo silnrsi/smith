@@ -1,4 +1,4 @@
-== Waf projects and commands
+== Waf projects
 
 The +waf+ script is meant to build software projects, and is of little use when taken alone. This chapter describes what is necessary to set up a waf project and how to use the +waf+ script.
 
@@ -114,7 +114,7 @@ $ waf ping
 
 NOTE: The method _recurse_, and the attribute _path_ are available on all waf context classes
 
-=== Predefined commands
+=== Waf project definition
 
 ==== Configuring a project (the _configure_ command)
 
@@ -133,7 +133,7 @@ We will now extend the example from the previous section with the following top-
 [source,python]
 ---------------
 top = '.' <1>
-out = 'build' <2>
+out = 'build_directory' <2>
 
 def configure(ctx): <3>
 	print('→ configuring the project in ' + ctx.path.abspath())
