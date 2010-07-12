@@ -5,7 +5,7 @@
 #	define testshlib_EXPORT
 #endif
 
-extern testshlib_EXPORT void foo_b2() { }
+extern testshlib_EXPORT void foo_a() { }
 
 static const int truc=5;
 
