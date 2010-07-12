@@ -275,7 +275,9 @@ $ waf distclean
 
 ==== Packaging the project sources
 
-The command 'dist' is another predefined utility which is used to create an archive of the project. By using the script presented previously:
+The _dist_ command is provided to create an archive of the project. By using the script presented previously:
+
+// execution_dist
 
 [source,python]
 ---------------
@@ -283,34 +285,36 @@ top = '.'
 out = 'build_directory'
 
 def configure(ctx):
-	print('→ configuring the project')
+	print('→ configuring the project in ' + ctx.path.abspath())
 ---------------
 
-Execute the command 'dist' to get:
+Execute the _dist_ command to get:
 
 [source,shishell]
 ---------------
+$ cd /tmp/execution_dist
+
 $ waf configure
-→ configuring the project
-'configure' finished successfully (0.001s)
+→ configuring the project in /tmp/execution_dist
+'configure' finished successfully (0.005s)
 
 $ waf dist
-New archive created: noname-1.0.tar.bz2 (sha='c16c97a51b39c7e5bee35bb6d932a12e2952f2f8')
-'dist' finished successfully (0.091s)
+New archive created: noname-1.0.tar.bz2 (sha='a4543bb438456b56d6c89a6695f17e6cb69061f5')
+'dist' finished successfully (0.035s)
 ---------------
 
 By default, the project name and version are set to 'noname' and '1.0'. To change them, it is necessary to provide two additional variables in the top-level project file:
 
 [source,python]
 ---------------
-APPNAME='webe'
-VERSION='2.0'
+APPNAME = 'webe'
+VERSION = '2.0'
 
 top = '.'
 out = 'build_directory'
 
 def configure(ctx):
-	print('→ configuring the project')
+	print('→ configuring the project in ' + ctx.path.abspath())
 ---------------
 
 Because the project was configured once, it is not necessary to configure it once again:
@@ -337,7 +341,6 @@ Or 'zip' for http://en.wikipedia.org/wiki/ZIP_%28file_format%29[zip] files:
 from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
-
 
 === The 'build' commands
 
