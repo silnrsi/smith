@@ -1,34 +1,37 @@
 == The configuration system
 
-The configuration step is used to check if the requiremements for working on a project are met. The parameters are then stored for use by other commands, such as the build command.
+The _configuration_ command is used to check if the requiremements for working on a project are met and to store the information. The parameters are then stored for use by other commands, such as the build command.
 
-=== Storing configuration sets
+=== Using persistent data
+
+==== Storing configuration sets
 
 Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within Waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
 
+// configuration_sets
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
-def configure(conf):
-	conf.env['CXXFLAGS'] = ['-O2'] <1>
-	conf.env.store('test.txt') <2>
-	conf.env.TEST        = 'test' <3>
+def configure(ctx):
+	ctx.env['CXXFLAGS'] = ['-O2'] <1>
+	ctx.env.store('test.txt') <2>
+	ctx.env.TEST        = 'test' <3>
 
-	new = conf.env.__class__() <4>
-	new.load('test.txt') <5>
+	new_env = ctx.env.__class__() <4>
+	new_env.load('test.txt') <5>
 
-	print(new)
+	print(new_env)
 	print("")
-	print(conf.env)
+	print(ctx.env)
 ----------------
 
 <1> Key-based access
-<2> Store the configuration set in the file `test.txt`
+<2> Store the configuration set in the file +test.txt+
 <3> Attribute-based access (the two forms are equivalent)
 <4> Create a new configuration set, avoiding using the import
-<5> Load the configuration set contents form the file `test.txt`
+<5> Load the configuration set contents from the file +test.txt+
 
 The execution will produce the following output:
 
@@ -103,7 +106,7 @@ $ waf configure
 -O3 -g -O2
 ---------------
 
-=== Using configuration sets during the build
+==== Using configuration sets during the build
 
 By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example `build/c4che/default.cache.py`). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
 
@@ -140,56 +143,7 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
 'build' finished successfully (0.003s)
 ---------------
 
-=== Launching and catching configuration exceptions
 
-Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
-
-[source,python]
----------------
-def configure(conf):
-	conf.find_program('test')
----------------
-
-When a test fails, the exception 'waflib.Errors.ConfigurationError' is raised. For example, such exceptions are thrown when a program could not be found:
-
-[source,python]
----------------
-def configure(conf):
-	from waflib.Errors import ConfigurationError
-	try:
-		conf.find_program('missing_app', mandatory=True)
-	except ConfigurationError:
-		pass
-	conf.find_program(['gjc', 'cjg'], mandatory=True)
----------------
-
-The output will be:
-
-[source,shishell]
----------------
-$ waf
-Checking for program missing_app         : not found
-Checking for program gjc,cjg             : not found
- error: The program ['gjc', 'cjg'] could not be found
----------------
-
-It is sometimes useful to raise such an exception manually by using 'conf.fatal':
-
-[source,python]
----------------
-def configure(conf):
-	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
----------------
-
-Which will display the same kind of error
-
-[source,shishell]
----------------
-$ waf configure
- error: I'm sorry Dave, I'm afraid I can't do that
-$ echo $?
-1
----------------
 
 === Loading Waf tools
 
@@ -251,10 +205,10 @@ def build(bld):
 ---------------
 
 <1> By loading a Waf tool at the root of a script, the detection routines will not be executed (discouraged)
-<2> By loading a Waf tool using 'import', the tool will not be loaded at build time (discouraged)
-<3> Just an example to show if the method 'check_cc' is present on the configuration context class
+<2> By loading a Waf tool using _import_, the tool will not be loaded at build time (discouraged)
+<3> Just an example to show if the method _check_cc_ is present on the configuration context class
 <4> Load the tool providing configuration routines for c and c++ support (the method check_cc)
-<5> When tools provide a method named 'configure', it is executed during 'conf.check_tool'
+<5> If a method named _configure_ is provided, it will be executed during _conf.check_tool_
 <6> Use specific functions instead of calling the default
 <7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
 <8> Use the build context method defined in dang.py
@@ -276,7 +230,61 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------
 
-=== Handling configuration exceptions
+=== Exception handling
+
+==== Launching and catching configuration exceptions
+
+Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
+
+[source,python]
+---------------
+def configure(conf):
+	conf.find_program('test')
+---------------
+
+When a test fails, the exception 'waflib.Errors.ConfigurationError' is raised. For example, such exceptions are thrown when a program could not be found:
+
+[source,python]
+---------------
+def configure(conf):
+	from waflib.Errors import ConfigurationError
+	try:
+		conf.find_program('missing_app', mandatory=True)
+	except ConfigurationError:
+		pass
+	conf.find_program(['gjc', 'cjg'], mandatory=True)
+---------------
+
+The output will be:
+
+[source,shishell]
+---------------
+$ waf
+Checking for program missing_app         : not found
+Checking for program gjc,cjg             : not found
+ error: The program ['gjc', 'cjg'] could not be found
+---------------
+
+It is sometimes useful to raise such an exception manually by using 'conf.fatal':
+
+[source,python]
+---------------
+def configure(conf):
+	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
+---------------
+
+Which will display the same kind of error
+
+[source,shishell]
+---------------
+$ waf configure
+ error: I'm sorry Dave, I'm afraid I can't do that
+$ echo $?
+1
+---------------
+
+
+==== Handling configuration exceptions
 
 An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
 
