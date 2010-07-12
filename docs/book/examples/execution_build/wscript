@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build_directory'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(rule='touch ${TGT}', target='foo.txt')
+	ctx(rule='cp ${SRC} ${TGT}', source='foo.txt', target='bar.txt')
+

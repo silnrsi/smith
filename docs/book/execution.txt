@@ -1,10 +1,10 @@
 == Waf projects
 
-The +waf+ script is meant to build software projects, and is of little use when taken alone. This chapter describes what is necessary to set up a waf project and how to use the +waf+ script.
+The _waf_ script is meant to build software projects, and is of little use when taken alone. This chapter describes what is necessary to set up a waf project and how to use the _waf_ script.
 
 === Scripts and commands
 
-Waf projects use description files of the name +wscript+ which are python scripts containing functions and variables that may be used by Waf. Particular functions named +waf commands+ may be used by Waf on the command-line.
+Waf projects use description files of the name _wscript_ which are python scripts containing functions and variables that may be used by Waf. Particular functions named _waf commands_ may be used by Waf on the command-line.
 
 ==== Declaring Waf commands
 
@@ -35,7 +35,7 @@ hello world
 
 ==== Chaining Waf commands
 
-Several commands may be declared in the same wscript file:
+Several commands may be declared in the same _wscript_ file:
 
 // execution_ping
 [source,python]
@@ -66,7 +66,7 @@ NOTE: The context parameter is a new object for each command executed
 
 ==== Using several scripts and folders
 
-Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
+Although a Waf project must contain a top-level _wscript_ file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
 
 [source,shishell]
 ---------------
@@ -76,7 +76,7 @@ $ tree
 `-- wscript
 ---------------
 
-The commands in the top-level wscript will call the same commands from a subproject wscript file by calling a context method named +recurse+:
+The commands in the top-level _wscript_ will call the same commands from a subproject _wscript_ file by calling a context method named _recurse_:
 
 // execution_recurse
 [source,python]
@@ -147,7 +147,7 @@ def ping(ctx):
 <2> string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'.
 <3> the _configure_ command declaration is mandatory
 
-The script in 'src/wscript' will be left unchanged
+The script in 'src/wscript' is left unchanged:
 
 [source,python]
 ---------------
@@ -191,7 +191,7 @@ $ tree -a
 |   |   |-- build.config.py <5>
 |   |   `-- default.cache.py <6>
 |   `-- config.log <7>
-|--.lock-build <8>
+|--.lock-wafbuild <8>
 `-- wscript
 
 $ waf ping
@@ -217,7 +217,7 @@ $ waf ping <9>
 <9> Calling _waf_ from a subfolder will execute the commands from the same wscript file used for the configuration
 
 NOTE: _waf configure_ is always called from the directory containing the wscript file
-// NOTE: the command configure must be provided to explicitly indicate that the project may be configured from a particular location
+NOTE: The command configure must be provided in the wscript file to exclude other folders from being configured accidentally
 
 ==== Removing generated files (the _distclean_ command)
 
@@ -235,7 +235,7 @@ $ tree -a
 |   |   |-- build.config.py
 |   |   `-- default.cache.py
 |   `-- config.log
-|--.lock-build
+|--.lock-wafbuild
 `-- wscript
 
 $ waf distclean <1>
@@ -344,7 +344,7 @@ Scripting.g_gz = 'zip'
 
 ==== Defining command-line options (the _options_ command)
 
-The Waf script provides various default command-line options, which may be consulted by executing `waf --help`:
+The Waf script provides various default command-line options, which may be consulted by executing +waf --help+:
 
 [source,shishell]
 ---------------
@@ -442,74 +442,104 @@ The command context for options is a shortcut to access the optparse functionali
 
 === The _build_ commands
 
-==== Building, cleaning, installing and uninstalling a project
+==== Building targets (the _build_ command)
 
-The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
+The 'build' command is used for building targets. We will now create a new project in '/tmp/execution_build/', and add a script to create an empty file +foo.txt+ and then copy it into another file +bar.txt+:
 
+// execution_build
 [source,python]
 ---------------
 top = '.'
 out = 'build_directory'
 
 def configure(ctx):
-	print('→ configure from the top-level')
+    pass
 
 def build(ctx):
-	print('building the software')
+    ctx(rule='touch ${TGT}', target='foo.txt')
+    ctx(rule='cp ${SRC} ${TGT}', source='foo.txt', target='bar.txt')
 ---------------
 
-Without surprise, the execution output will look like the following:
+Calling _waf build_ directly results in an error:
 
 [source,shishell]
 ---------------
-$ cd /tmp/smallproject
-
-$ waf
-Project not configured (run 'waf configure' first)
-
-$ waf configure
-→ configure from the top-level
-'configure' finished successfully (0.001s)
+$ cd /tmp/execution_build/
 
 $ waf build
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
+The project was not configured: run "waf configure" first!
 ---------------
 
-Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
+As a matter of fact, the build requires a configured folder to know where to look for source files and where to output the created files. Let's try again:
+
+[source,shishell]
+---------------
+$ waf configure build
+'configure' finished successfully (0.007s)
+Waf: Entering directory `/tmp/execution_build/build_directory'
+[1/2] foo.txt:  -> build_directory/foo.txt <1>
+[2/2] bar.txt: build_directory/foo.txt -> build_directory/bar.txt
+Waf: Leaving directory `/tmp/examples/execution_build/build_directory'
+'build' finished successfully (0.041s)
+
+$ tree -a
+|-- build_directory/
+|   |-- bar.txt <2>
+|   |-- c4che/
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- foo.txt
+|   |-- config.log
+|   `-- .wafpickle <3>
+|--.lock-wafbuild
+`-- wscript
+
+$ waf build
+Waf: Entering directory `/tmp/execution_build/build_directory'
+Waf: Leaving directory `/tmp/execution_build/build_directory'
+'build' finished successfully (0.008s) <4>
+---------------
+
+<1> Note that the build _deduced_ that +bar.txt+ has to be created after +foo.txt+
+<2> The targets are created in the build directory
+<3> A pickle file is used to store the information about the targets
+<4> Since the targets are up-to-date, they do not have to be created once again
+
+Since the command _waf build_ is usually executed very often, a shortcut is provided to call it implicitly:
 
 [source,shishell]
 ---------------
 $ waf
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
+Waf: Entering directory `/tmp/execution_build/build_directory'
+Waf: Leaving directory `/tmp/execution_build/build_directory'
 ---------------
 
-The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
+==== Cleaning the targets (the _clean_ command)
+
+The _clean_ command is used to remove the information about the files and targets created during the build. It uses the same function _build_ from the wscript files so there is no need to add a function named _clean_ in the wscript file.
+
+After cleaning, the targets will be created once again even if they were up-to-date:
 
 [source,shishell]
 ---------------
-$ waf build install uninstall clean
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'install' finished successfully (0.003s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'uninstall' finished successfully (0.002s)
-building the software
-'clean' finished successfully (0.002s)
+$ waf clean build
+'clean' finished successfully (0.003s)
+Waf: Entering directory `/tmp/execution_build/build_directory' <1>
+[1/2] foo.txt:  -> build_directory/foo.txt <2>
+14:58:34 runner 'touch foo.txt' <3>
+[2/2] bar.txt: build_directory/foo.txt -> build_directory/bar.txt
+14:58:34 runner 'cp foo.txt bar.txt'
+Waf: Leaving directory `/tmp/execution_build/build_directory'
+'build' finished successfully (0.040s)
 ---------------
 
-The meaning of the commands is the following:
+<1> All commands are executed from the build directory by default
+<2> The information about the files +foo.txt+ was lost so it is rebuilt
+<3> By using the _-v_ flag, the command-lines executed are displayed
+
+==== More build commands
+
+The following commands all use the same function _build_ from the wscript file:
 
 . +build:+ process the source code to create the object files
 . +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
@@ -518,6 +548,5 @@ The meaning of the commands is the following:
 . +list:+ list the task generators in the build section (to use with waf --targets=name)
 . +step:+ force the rebuild of particular files for debugging purposes
 
-Object file creation and installation will be detailed in the next chapters.
-
+Their usage will be described in details in the next chapters.
 
