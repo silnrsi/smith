@@ -4,6 +4,7 @@ bld(
 	features     = 'c cshlib',
 	source       = 'test_shlib.c',
 	vnum         = '1.2.3',
+	defs         = 'foo.def',
 	target       = 'my_shared_lib')
 
 bld(
