@@ -671,7 +671,7 @@ def exec_mf(self):
 		lst = [lst]
 		ret = self.exec_command(*lst)
 
-	return ret
+		return ret
 
 msvc_manifest = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin', quiet=True)
 
