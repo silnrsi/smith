@@ -43,12 +43,12 @@ def xlcxx_common_flags(conf):
 
 	# program
 	v['LINKFLAGS_cxxprogram']   = ['-Wl,-brtl']
-	v['program_PATTERN']     = '%s'
+	v['cxxprogram_PATTERN']     = '%s'
 
 	# shared library
 	v['CXXFLAGS_cxxshlib']      = ['-fPIC']
 	v['LINKFLAGS_cxxshlib']     = ['-G', '-Wl,-brtl,-bexpfull']
-	v['shlib_PATTERN']       = 'lib%s.so'
+	v['cxxshlib_PATTERN']       = 'lib%s.so'
 
 	# static lib
 	v['LINKFLAGS_cxxstlib'] = ''
