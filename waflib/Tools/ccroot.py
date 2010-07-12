@@ -270,7 +270,7 @@ def propagate_uselib_vars(self):
 
 # ============ the code above must not know anything about import libs ==========
 
-@feature('cshlib', 'implib')
+@feature('cshlib', 'cxxshlib')
 @after('apply_link')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
@@ -280,16 +280,16 @@ def apply_implib(self):
 	if not self.get_dest_binfmt() == 'pe':
 		return
 
-	dll=self.link_task.outputs[0]
+	dll = self.link_task.outputs[0]
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
 	implib = dll.parent.find_or_declare(implib)
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 	self.link_task.outputs.append(implib)
 
 	try:
-		inst_to=self.install_path
+		inst_to = self.install_path
 	except AttributeError:
-		inst_to=self.link_task.__class__.inst_to
+		inst_to = self.link_task.__class__.inst_to
 	if not inst_to:
 		return
 
@@ -297,7 +297,7 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cshlib', 'dshlib', 'vnum')
+@feature('cshlib', 'cxxshlib', 'dshlib', 'vnum')
 @after('apply_link')
 def apply_vnum(self):
 	"""
