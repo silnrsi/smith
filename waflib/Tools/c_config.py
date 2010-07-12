@@ -449,12 +449,12 @@ class test_exec_task(Task.Task):
 	color = 'PINK'
 	def run(self):
 		if getattr(self.generator, 'rpath', None):
-			self.generator.bld.retval = self.generator.bld.cmd_and_log(self.inputs[0].abspath())
+			self.generator.bld.retval = self.generator.bld.cmd_and_log([self.inputs[0].abspath()])
 		else:
 			env = {}
 			env.update(dict(os.environ))
 			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
-			self.generator.bld.retval = self.generator.bld.cmd_and_log(self.inputs[0].abspath(), env=env)
+			self.generator.bld.retval = self.generator.bld.cmd_and_log([self.inputs[0].abspath()], env=env)
 
 @feature('test_exec')
 @after('apply_link')
