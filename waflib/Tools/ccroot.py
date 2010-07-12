@@ -286,6 +286,12 @@ def apply_implib(self):
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 	self.link_task.outputs.append(implib)
 
+	if getattr(self, 'defs', None):
+		node = self.path.find_resource(self.defs)
+		if not node:
+			raise Errors.WafError('invalid def file %r' % self.defs)
+		self.env.append_value('LINKFLAGS', '/defs:%s' % node.abspath())
+
 	try:
 		inst_to = self.install_path
 	except AttributeError:
