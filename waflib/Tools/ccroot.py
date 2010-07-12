@@ -290,7 +290,7 @@ def apply_implib(self):
 		node = self.path.find_resource(self.defs)
 		if not node:
 			raise Errors.WafError('invalid def file %r' % self.defs)
-		self.env.append_value('LINKFLAGS', '/defs:%s' % node.abspath())
+		self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
 
 	try:
 		inst_to = self.install_path
