@@ -29,10 +29,10 @@ def configure(ctx):
 
 def build(ctx):
 	obj = ctx(target='test.txt', rule='touch ${TGT}')
-	print('  ' + obj.__class__)
+	print('  ' + str(obj.__class__))
 ---------------
 
-The call 'ctx(...)' is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
+The call _ctx(...)_ is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
 
 [source,shishell]
 ---------------
@@ -52,7 +52,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'clean' finished successfully (0.002s)
 ---------------
 
-<1> Print 'obj.__class__'.
+<1> Print _obj.__class___.
 <2> Actual task execution, during the first build.
 <3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
 <4> This print was output during the call to `clean`.
@@ -238,3 +238,35 @@ after the build is complete
 <1> output of the function bound by 'bld.add_pre_fun'
 <2> output of the function bound by 'bld.add_post_fun'
 <3> execution at installation time
+
+==== Execution step by step for debugging (the _step_ command)
+
+The new command 'step' is used to execute specific tasks and to return the exit status or any error message. It is particularly useful for debugging:
+
+[source,shishell]
+---------------
+$ waf clean step --file=test_shlib.c
+'clean' finished successfully (0.017s)
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
+cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+ -> 0
+cshlib: build/shlib/test_shlib.c.1.o -> build/shlib/libmy_shared_lib.so
+ -> 0
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
+'step' finished successfully (0.146s)
+---------------
+
+To restrict the tasks to execute, just prefix the names by 'in:' or 'out:':
+
+[source,shishell]
+---------------
+$ waf step --file=out:build/shlib/test_shlib.c.1.o
+Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
+cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+ -> 0
+Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
+'step' finished successfully (0.091s)
+---------------
+
+
+
