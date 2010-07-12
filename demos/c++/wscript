@@ -18,7 +18,10 @@ def configure(conf):
 	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
 
 def build(bld):
-	bld.program(source='main.cpp', target='app')
+	bld(features='cxxshlib cxx', source='a.cpp', target='mylib')
+	bld.program(source='main.cpp', target='app', uselib_local='mylib')
+
+	return
 	if bld.cmd != 'clean':
 		from waflib import Logs
 		bld.logger = Logs.make_logger('test.log', 'build')
