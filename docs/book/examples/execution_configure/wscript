@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    print('→ configuring the project in ' + bld.path.abspath())
+
+def ping(ctx):
+    print('→ ping from ' + bld.path.abspath())
+    ctx.recurse('src')
