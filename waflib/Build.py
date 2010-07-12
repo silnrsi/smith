@@ -178,7 +178,7 @@ class BuildContext(Context.Context):
 		"""Executes the build, it is shared by install and uninstall"""
 
 		Logs.info("Waf: Entering directory `%s'" % self.variant_dir)
-		self.recurse(self.run_dir)
+		self.recurse([self.run_dir])
 		self.pre_build()
 
 		# display the time elapsed in the progress bar
@@ -858,7 +858,7 @@ class CleanContext(BuildContext):
 		if not self.all_envs:
 			self.load_envs()
 
-		self.recurse(self.run_dir)
+		self.recurse([self.run_dir])
 		try:
 			self.clean()
 		finally:
@@ -886,7 +886,7 @@ class ListContext(BuildContext):
 		if not self.all_envs:
 			self.load_envs()
 
-		self.recurse(self.run_dir)
+		self.recurse([self.run_dir])
 		self.pre_build()
 
 		# display the time elapsed in the progress bar
