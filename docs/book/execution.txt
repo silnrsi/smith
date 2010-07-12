@@ -2,7 +2,7 @@
 
 The +waf+ script is meant to build software projects, and is of little use when taken alone. This chapter describes what is necessary to set up a waf project and how to use the +waf+ script.
 
-=== Waf commands
+=== Scripts and commands
 
 Waf projects use description files of the name +wscript+ which are python scripts containing functions and variables that may be used by Waf. Particular functions named +waf commands+ may be used by Waf on the command-line.
 
@@ -64,7 +64,7 @@ $ waf ping pong ping ping
 
 NOTE: The context parameter is a new object for each command executed
 
-==== Splitting a project into several folders
+==== Using several scripts and folders
 
 Although a Waf project must contain a top-level wscript file, the contents may be split into several sub-project files. We will now illustrate this concept on a small project:
 
@@ -273,7 +273,7 @@ $ waf distclean
 'distclean' finished successfully (0.000s)
 ---------------
 
-==== Packaging the project sources
+==== Packaging the project sources (the _dist_ command)
 
 The _dist_ command is provided to create an archive of the project. By using the script presented previously:
 
@@ -342,7 +342,7 @@ from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
 
-=== The 'build' commands
+=== The _build_ commands
 
 ==== Building, cleaning, installing and uninstalling a project
 

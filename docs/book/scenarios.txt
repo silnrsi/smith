@@ -58,7 +58,7 @@ def process_src(self, node): <3>
 	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
 	self.source.append(tsk.outputs[0])
 
-	name = tg.link_task.outputs[0].abspath(tg.env) <7>
+	name = tg.link_task.outputs[0].abspath() <7>
 	tsk.env.COMP = name <8>
 ---------------
 
@@ -401,7 +401,7 @@ class shpip_task(Task.Task): <3>
 		node = self.inputs[0]
 
 		dir = self.generator.bld.srcnode.bldpath(self.env)
-		cmd = 'cd %s && %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath(self.env))
+		cmd = 'cd %s && %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath())
 		try:
 			# read the contents of the file and create cpp files from it
 			files = os.popen(cmd).read().strip()
@@ -504,8 +504,8 @@ class shpip_task(Task.Task): <3>
 			# to add the include paths
 			dir = task.inputs[0].parent
 			# include paths for c++ and c
-			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath(self.env))
-			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath(self.env))
+			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath())
+			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath())
 			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
 
 		return tsklst

@@ -224,7 +224,7 @@ def configure(conf):
 
 def build(bld):
 	bld( <1>
-		rule   = 'cp ${SRC} ${TGT[0].abspath(env)} && cp ${SRC} ${TGT[1].abspath(env)}',
+		rule   = 'cp ${SRC} ${TGT[0].abspath()} && cp ${SRC} ${TGT[1].abspath()}',
 		source = 'wscript',
 		target = 'f1.txt f2.txt',
 		shell  = True
