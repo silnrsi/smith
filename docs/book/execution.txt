@@ -342,87 +342,7 @@ from waflib import Scripting
 Scripting.g_gz = 'zip'
 ---------------
 
-=== The _build_ commands
-
-==== Building, cleaning, installing and uninstalling a project
-
-The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
-
-[source,python]
----------------
-top = '.'
-out = 'build_directory'
-
-def configure(ctx):
-	print('→ configure from the top-level')
-
-def build(ctx):
-	print('building the software')
----------------
-
-Without surprise, the execution output will look like the following:
-
-[source,shishell]
----------------
-$ cd /tmp/smallproject
-
-$ waf
-Project not configured (run 'waf configure' first)
-
-$ waf configure
-→ configure from the top-level
-'configure' finished successfully (0.001s)
-
-$ waf build
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
----------------
-
-Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
-
-[source,shishell]
----------------
-$ waf
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
----------------
-
-The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
-
-[source,shishell]
----------------
-$ waf build install uninstall clean
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'build' finished successfully (0.004s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'install' finished successfully (0.003s)
-Waf: Entering directory `/tmp/smallproject/build_directory'
-building the software
-Waf: Leaving directory `/tmp/smallproject/build_directory'
-'uninstall' finished successfully (0.002s)
-building the software
-'clean' finished successfully (0.002s)
----------------
-
-The meaning of the commands is the following:
-
-. +build:+ process the source code to create the object files
-. +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
-. +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)
-. +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
-. +list:+ list the task generators in the build section (to use with waf --targets=name)
-. +step:+ force the rebuild of particular files for debugging purposes
-
-Object file creation and installation will be detailed in the next chapters.
-
-=== Customizing the command-line options
+==== Defining command-line options (the _options_ command)
 
 The Waf script provides various default command-line options, which may be consulted by executing `waf --help`:
 
@@ -518,4 +438,86 @@ $ waf configure --foo=test
 ---------------
 
 The command context for options is a shortcut to access the optparse functionality. For more information on the optparse module, consult the http://docs.python.org/library/optparse.html[Python documentation]
+
+
+=== The _build_ commands
+
+==== Building, cleaning, installing and uninstalling a project
+
+The 'build' command is used for building the actual software. Starting again from the project file '/tmp/smallfolder/wscript':
+
+[source,python]
+---------------
+top = '.'
+out = 'build_directory'
+
+def configure(ctx):
+	print('→ configure from the top-level')
+
+def build(ctx):
+	print('building the software')
+---------------
+
+Without surprise, the execution output will look like the following:
+
+[source,shishell]
+---------------
+$ cd /tmp/smallproject
+
+$ waf
+Project not configured (run 'waf configure' first)
+
+$ waf configure
+→ configure from the top-level
+'configure' finished successfully (0.001s)
+
+$ waf build
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+---------------
+
+Since the command `waf build` is executed very often, a shortcut is provided to call it implicitly:
+
+[source,shishell]
+---------------
+$ waf
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+---------------
+
+The Waf commands +build+, +clean+, +install+, +uninstall+ are shortcuts for calling `waf build` with different internal options. They all require the presence of the _build_ function in the scripts.
+
+[source,shishell]
+---------------
+$ waf build install uninstall clean
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'build' finished successfully (0.004s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'install' finished successfully (0.003s)
+Waf: Entering directory `/tmp/smallproject/build_directory'
+building the software
+Waf: Leaving directory `/tmp/smallproject/build_directory'
+'uninstall' finished successfully (0.002s)
+building the software
+'clean' finished successfully (0.002s)
+---------------
+
+The meaning of the commands is the following:
+
+. +build:+ process the source code to create the object files
+. +clean:+ remove the object files that were created during a build (unlike distclean, do not remove the configuration)
+. +install:+ check that all object files have been generated and copy them on the system (programs, libraries, data files, etc)
+. +uninstall:+ undo the installation, remove the object files from the system without touching the ones in the build directory
+. +list:+ list the task generators in the build section (to use with waf --targets=name)
+. +step:+ force the rebuild of particular files for debugging purposes
+
+Object file creation and installation will be detailed in the next chapters.
+
 
