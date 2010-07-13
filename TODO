@@ -3,8 +3,14 @@ Waf 1.6
 
 General
 
+- MAKEFLAGS?
+- recurse: from top or from current folder?
+- check if Utils.subst_vars has the null value bug
+- some configuration tests are for c only
+- clean the files properly (waf clean)
+- restrict waf step to the exact file (.c <-> .c.o)
+
 - fake local libraries? relink when they change?
-- how to force a full compilation for the configuration?
 - broken conf.check_cfg and problems with default uselib (capital letters)
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - refactor the environment thing ?
