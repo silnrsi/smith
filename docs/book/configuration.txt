@@ -160,13 +160,60 @@ PREFIX = '/usr/local'
 'configure' finished successfully (0.006s)
 ---------------
 
-=== Configuration helpers
+// ===== multiple configuration sets?
+
+=== Configuration utilities
 
 ==== Configuration methods
 
-The method _ctx.find_program_ seen in the previous example is an example of a configuration method.
+The method _ctx.find_program_ seen previously is an example of a configuration method. Here are more examples:
 
-==== Loading Waf tools
+// configuration_methods
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.find_program('touch', var='TOUCH')
+	ctx.check_waf_version(mini='1.6.0')
+	ctx.find_file('fstab', ['/opt', '/etc'])
+---------------
+
+Although these methods are documented in http://freehackers.org/~tnagy/wafdoc160/[the apidocs], they do not belong to the class of the context object (_waflib.Configure.ConfigurationContext_). Rather, the methods are defined as simple functions outside of any class:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+from waflib.Configure import conf <1>
+
+@conf <2>
+def hi(ctx):
+	print('→ hello, world!')
+
+# hi = conf(hi) <3>
+
+def configure(ctx):
+	ctx.hi() <4>
+---------------
+
+<1> Import the decorator *conf*
+<2> Use the decorator to bind the method _hi_ to the configuration context class
+<3> Decorators are simple python function. Python 2.3 does not support the *@* syntax so the function has to be called after the function declaration
+<4> Use the method previously bound to the configuration context class
+
+The execution will produce the following output:
+
+[source,shishell]
+---------------
+$ waf configure
+→ hello, world!
+'configure' finished successfully (0.005s)
+---------------
+
+==== Loading and using Waf tools
 
 For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder +waflib/Tools+. The contributed tools, or the tools in testing phase are located under the folder +waflib/extras+.
 

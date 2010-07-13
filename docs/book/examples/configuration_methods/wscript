@@ -1,0 +1,10 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.find_program('touch', var='TOUCH')
+	ctx.check_waf_version(mini='1.6.0')
+	ctx.find_file('fstab', ['/opt/', '/etc'])
+

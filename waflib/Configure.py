@@ -370,12 +370,14 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	@type  maxi: number, tuple or string
 	@param maxi: Maximum allowed version
 	"""
+	self.start_msg('Checking for waf version in %s-%s' % (str(mini), str(maxi)))
 	ver = Context.HEXVERSION
-	if num2ver(min_val) > ver:
+	if Utils.num2ver(mini) > ver:
 		conf.fatal('waf version should be at least %r (%r found)' % (mini, ver))
 
-	if num2ver(max_val) < ver:
+	if Utils.num2ver(maxi) < ver:
 		conf.fatal('waf version should be at most %r (%r found)' % (maxi, ver))
+	self.end_msg('ok')
 
 @conf
 def fatal(self, msg):
@@ -388,7 +390,7 @@ def fatal(self, msg):
 	raise self.errors.ConfigurationError(msg)
 
 @conf
-def find_file(self, filename, path_list):
+def find_file(self, filename, path_list=[]):
 	"""finds a file in a list of paths
 	@param filename: name of the file to search for
 	@param path_list: list of directories to search
@@ -397,7 +399,7 @@ def find_file(self, filename, path_list):
 	for directory in Utils.to_list(path_list):
 		if os.path.exists(os.path.join(directory, filename)):
 			return directory
-	return ''
+	self.fatal('Could not find %r' % filename)
 
 @conf
 def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):

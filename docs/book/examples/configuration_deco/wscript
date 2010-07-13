@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+from waflib.Configure import conf
+
+@conf
+def hi(ctx):
+    print('→ hello, world!')
+
+# hi = conf(hi)
+
+def configure(ctx):
+    ctx.hi()
