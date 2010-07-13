@@ -4,6 +4,72 @@ The _configuration_ command is used to check if the requiremements for working o
 
 === Using persistent data
 
+==== Using configuration sets during the build
+
+The configuration context is used to store data which may be re-used during the build. Let's begin with the following example:
+
+// configuration_build
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def options(ctx):
+	ctx.add_option('--foo', action='store', default=False, help='Silly test')
+
+def configure(ctx):
+	ctx.env.FOO = ctx.options.foo <1>
+	ctx.find_program('touch', var='TOUCH') <2>
+
+def build(ctx):
+	print(ctx.env.FOO) <3>
+	print(ctx.env.TOUCH)
+	bld(rule='${TOUCH} ${TGT}', target='foo.txt') <4>
+---------------
+
+<1> Store the option _foo_ into the variable _env_ (dict-like structure)
+<2> Configuration routine used to find the program _touch_ and to store it into _ctx.env.TOUCH_
+<3> Print the value of _ctx.env.FOO_ that was set during the configuration
+<4> The variable _${TOUCH}_ corresponds to the variable _env.TOUCH_
+
+[source,shishell]
+---------------
+$ waf distclean configure build --foo=abcd -v
+'distclean' finished successfully (0.005s)
+Checking for program touch               : /usr/bin/touch <1>
+'configure' finished successfully (0.007s)
+Waf: Entering directory `/disk/comp/waf/docs/book/examples/configuration_build/build'
+/usr/bin/touch <2>
+abcd
+[1/1] bar.txt:  -> build/bar.txt
+10:56:41 runner '/usr/bin/touch bar.txt' <3>
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/configuration_build/build'
+'build' finished successfully (0.021s)
+---------------
+<1> Output of the configuration test _find_program_
+<2> The value of _TOUCH_
+<3> Command-line used to create the target 'bar.txt'
+
+The variable _ctx.env_ is called a *Configuration set*, it may only contain serializable data (only simple variables, no functions or classes). Its values are stored in a python-like format in the build directory:
+
+[source,shishell]
+---------------
+$ tree
+build/
+|-- bar.txt
+|-- c4che
+|   |-- build.config.py
+|   `-- default.cache.py
+`-- config.log
+
+$ cat build/c4che/default.cache.py
+FOO = 'abcd'
+PREFIX = '/usr/local'
+TOUCH = '/usr/bin/touch'
+---------------
+
+NOTE: Reading and writing values to _ctx.env_ is possible in both configuration and build commands. Yet, the values are only written to +default.cache.py+ during the configuration.
+
 ==== Storing configuration sets
 
 Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within Waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
@@ -105,45 +171,6 @@ $ waf configure
 'PREFIX' '/usr/local'
 -O3 -g -O2
 ---------------
-
-==== Using configuration sets during the build
-
-By splitting the configuration from the build step, it is possible to stop and look at the configuration sets (for example `build/c4che/default.cache.py`). The data used during the build should use the command-line options as little as possible. To achieve this, a pattern similar to the following is usually applied:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def options(ctx):
-	ctx.add_option('--foo', action='store', default=False, help='Silly test')
-
-def configure(ctx):
-	from waflib import Options
-	ctx.env.FOO = Options.options.foo
-	ctx.find_program('touch', var='TOUCH', mandatory=True) # a configuration helper
-
-def build(ctx):
-	print(ctx.env.TOUCH)
-	print(ctx.env.FOO)
----------------
-
-All configuration sets are automatically loaded during the build. Upon execution, the output will be similar to the following:
-
-[source,shishell]
----------------
-$ waf distclean configure build --foo=abcd
-'distclean' finished successfully (0.002s)
-Checking for program touch               : ok /usr/bin/touch
-'configure' finished successfully (0.001s)
-Waf: Entering directory `/comp/waf/demos/simple_scenarios/folders/build'
-/usr/bin/touch
-abcd
-Waf: Leaving directory `/comp/waf/demos/simple_scenarios/folders/build'
-'build' finished successfully (0.003s)
----------------
-
-
 
 === Loading Waf tools
 
