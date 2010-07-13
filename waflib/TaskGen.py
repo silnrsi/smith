@@ -457,7 +457,7 @@ class subst_pc(Task.Task):
 		except AttributeError:
 			d = {}
 			for x in lst:
-				d[x] = self.env.get_flat(x) or self.env.get_flat(x.upper())
+				d[x] = getattr(self.generator, x, '') or self.env.get_flat(x) or self.env.get_flat(x.upper())
 				if not d[x] and not getattr(self.generator, 'quiet', False):
 					raise ValueError('variable %r has no value for %r' % (x, self.outputs))
 
@@ -468,9 +468,21 @@ class subst_pc(Task.Task):
 		try: delattr(self, 'cache_sig')
 		except AttributeError: pass
 
-	def signature(self):
-		self.dep_vars = self.generator.bld.raw_deps.get(self.uid(), [])
-		return super(subst_pc, self).signature()
+	def sig_vars(self):
+		bld = self.generator.bld
+		env = self.env
+		upd = self.m.update
+
+		vars = self.generator.bld.raw_deps.get(self.uid(), [])
+
+		# hash both env vars and task generator attributes
+		act_sig = bld.hash_env_vars(env, vars)
+		upd(act_sig)
+
+		lst = [getattr(self.generator, x, '') for x in vars]
+		upd(Utils.h_list(lst))
+
+		return self.m.digest()
 
 @extension('.pc.in')
 def add_pcfile(self, node):
