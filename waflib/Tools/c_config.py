@@ -487,7 +487,10 @@ def run_c_code(self, *k, **kw):
 		os.makedirs(bdir)
 
 	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir) # keep the temporary build context on an attribute for debugging
-	bld.load() # configuration test cache
+	if getattr(Options.options, 'confcache', None):
+		bld.load()
+	else:
+		bld.init_dirs()
 	bld.targets = '*'
 
 	if kw['compile_filename']:
