@@ -300,6 +300,9 @@ Configuration helpers are methods provided by the conf object to help finding pa
 
 [source,python]
 ---------------
+top = '.'
+out = 'build'
+
 def configure(conf):
 	conf.find_program('some_app')
 ---------------
@@ -317,8 +320,11 @@ These exceptions may be raised manually by using 'conf.fatal':
 
 [source,python]
 ---------------
-def configure(conf):
-	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.fatal("I'm sorry Dave, I'm afraid I can't do that")
 ---------------
 
 Which will display the same kind of error:
@@ -330,6 +336,49 @@ $ waf configure
 $ echo $?
 1
 ---------------
+
+Here is how to catch configuration exceptions:
+
+// configuration_exception
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	try:
+		ctx.find_program('some_app')
+	except ctx.errors.ConfigurationError: <1>
+		self.to_log('some_app was not found (ignoring)') <2>
+---------------
+
+<1> For convenience, the module _waflib.Errors_ is bound to _ctx.errors_
+<2> Adding information to the log file
+
+The execution output will be the following:
+
+[source,shishell]
+---------------
+$ waf configure
+Checking for program some_app            : not found
+'configure' finished successfully (0.029s) <1>
+
+$ cat build/config.log <2>
+# project  configured on Tue Jul 13 19:15:04 2010 by
+# waf 1.6.0 (abi 98, python 20605f0 on linux2)
+# using /home/waf/bin/waf configure
+#
+Checking for program some_app
+not found
+find program=['some_app'] paths=['/usr/local/bin', '/usr/bin'] var=None -> ''
+from /tmp/configuration_exception: The program ['some_app'] could not be found
+some_app was not found (ignoring) <3>
+---------------
+
+<1> The configuration completes without errors
+<2> The log file contains useful information about the configuration execution
+<3> Our log entry
 
 ==== Handling configuration exceptions
 
