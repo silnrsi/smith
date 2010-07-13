@@ -4,7 +4,7 @@ The _configuration_ command is used to check if the requiremements for working o
 
 === Using persistent data
 
-==== Sharing with the build
+==== Sharing data with the build
 
 The configuration context is used to store data which may be re-used during the build. Let's begin with the following example:
 
@@ -68,12 +68,11 @@ PREFIX = '/usr/local'
 TOUCH = '/usr/bin/touch'
 ---------------
 
-
 NOTE: Reading and writing values to _ctx.env_ is possible in both configuration and build commands. Yet, the values are stored to a file only during the configuration phase.
 
 ==== Configuration set usage
 
-We will now provide more details on the configuration sets by demonstrating its usage on more complicated examples. The following demonstrates how to store and load data from configuration sets manually:
+We will now provide more examples of the configuration set usage. The object *conf.env* provides convenience methods to access its contents:
 
 // configuration_sets
 [source,python]
@@ -82,93 +81,83 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.env['CXXFLAGS'] = ['-O2'] <1>
-	ctx.env.store('test.txt') <2>
-	ctx.env.TEST        = 'test' <3>
+	ctx.env['CCFLAGS'] = ['-g'] <1>
+	ctx.env.CCFLAGS = ['-g'] <2>
+	ctx.env.append_value('CXXFLAGS', ['-O2', '-g']) <3>
+	ctx.env.append_unique('CCFLAGS', ['-g', '-O2'])
+	ctx.env.prepend_value('CCFLAGS', ['-O3']) <4>
 
-	new_env = ctx.env.__class__() <4>
-	new_env.load('test.txt') <5>
-
-	print(new_env)
-	print("")
+	print(type(ctx.env))
 	print(ctx.env)
+	print(env.FOO)
 ----------------
 
 <1> Key-based access; storing a list
-<2> Store the configuration set in the file +test.txt+
-<3> Attribute-based access (the two forms are equivalent)
-<4> Create a new configuration set, avoiding using the import
-<5> Load the configuration set contents from the file +test.txt+
+<2> Attribute-based access (the two forms are equivalent)
+<3> Append a each element value to the list _ctx.env.CXXFLAGS_, assuming it is a list
+<4> Insert the values at the beginning. Note that there is no such method as _prepend_unique_
 
 The execution will produce the following output:
 
 [source,shishell]
 ---------------
 $ waf configure
-'CXXFLAGS' ['-O2']
+<class 'waflib.ConfigSet.ConfigSet'> <1>
+'CCFLAGS' ['-O3', '-g', '-O2'] <2>
+'CXXFLAGS' ['-O2', '-g']
 'PREFIX' '/usr/local'
+[] <3>
 
-'CXXFLAGS' ['-O2']
-'PREFIX' '/usr/local'
-'TEST' 'test'
-
-$ cat test.txt
-CXXFLAGS = ['-O2']
+$ cat build/c4che/default.cache.py <4>
+CCFLAGS = ['-O3', '-g', '-O2']
+CXXFLAGS = ['-O2', '-g']
 PREFIX = '/usr/local'
-
-$ cat build/c4che/default.cache.py
-CXXFLAGS = ['-O2']
-PREFIX = '/usr/local'
-TEST = 'test'
 ---------------
 
-Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
+<1> The object _conf.env_ is an instance of the class ConfigSet defined in _waflib/ConfigSet.py_
+<2> The contents of _conf.env_ after the modifications
+<3> When a key is undefined, it is assumed that it is a list (used by *append_value* above)
+<4> The object _conf.env_ is stored by default in this file
 
+Copy and serialization apis are also provided:
+
+// configuration_copysets
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
-def configure(conf):
-	conf.env['CCFLAGS'] = ['-g'] <1>
-	conf.env.CCFLAGS = ['-g'] <2>
-	conf.env.append_value('CXXFLAGS', ['-O2', '-g']) <3>
-	conf.env.append_unique('CCFLAGS', ['-g', '-O2']) <4>
-	conf.env.prepend_value('CCFLAGS', ['-O3']) <5>
-	my_copy = conf.env.copy() <6>
-	print(conf.env) <7>
+def configure(ctx):
+	ctx.env.FOO = 'TEST'
 
-	from waflib import Utils
-	s = Utils.subst_vars('${PREFIX}/bin', conf.env) <8>
-	print(s)
+	env_copy = ctx.env.derive() <1>
 
-	conf.env.store('/tmp/env.txt') <9>
+	node = ctx.path.make_node('test.txt') <2>
+	env_copy.store(node.abspath()) <3>
 
-	from waflib import ConfigSet
-	env = ConfigSet.ConfigSet()
-	env.load('/tmp/env.txt') <10>
+	from waflib.ConfigSet import ConfigSet
+	env2 = ConfigSet() <4>
+	env2.load(node.abspath()) <5>
+
+	print(node.read())
 ---------------
 
-<1> Initialize and set the given value by using the key-based notation
-<2> Initialize and set the given value by using the attribute-based notation
-<3> Ensure conf.env.CXXFLAGS is initalized, and add the given values
-<4> Append the elements from the second list that are not already present in conf.env.CCFLAGS
-<5> Insert the values from the second list in first position, preserving the order
-<6> Create a copy
-<7> Format and print the contents
-<8> Substitute the values in a formatted string
-<9> Serialize and store the contents into a file, one key=value by line.
-<10> Instantiate a new ConfigSet and load the contents from a file
+<1> Make a copy of _ctx.env_ - this is a shallow copy
+<2> Use *ctx.path* to create a node object representing the file +test.txt+
+<3> Store the contents of *env_copy* into +test.txt+
+<4> Create a new empty ConfigSet object
+<5> Load the values from +test.txt+
+<6> Print the contents of +test.txt+
 
 Upon execution, the output will be the following:
 
 [source,shishell]
 ---------------
-$ waf configure
-'CCFLAGS' ['-O3', '-g', '-O2']
-'CXXFLAGS' ['-O2', '-g']
-'PREFIX' '/usr/local'
--O3 -g -O2
+$ waf distclean configure
+'distclean' finished successfully (0.005s)
+FOO = 'TEST'
+PREFIX = '/usr/local'
+'configure' finished successfully (0.006s)
 ---------------
 
 === Configuration helpers

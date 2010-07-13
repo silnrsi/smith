@@ -4,13 +4,13 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-    ctx.env['CXXFLAGS'] = ['-O2']
-    ctx.env.store('test.txt')
-    ctx.env.TEST        = 'test'
+	ctx.env['CCFLAGS'] = ['-g']
+	ctx.env.CCFLAGS = ['-g']
+	ctx.env.append_value('CXXFLAGS', ['-O2', '-g'])
+	ctx.env.append_unique('CCFLAGS', ['-g', '-O2'])
+	ctx.env.prepend_value('CCFLAGS', ['-O3'])
 
-    new_env = ctx.env.__class__()
-    new_env.load('test.txt')
+	print(type(ctx.env))
+	print(ctx.env)
+	print(ctx.env.FOO)
 
-    print(new_env)
-    print("")
-    print(ctx.env)
