@@ -215,86 +215,82 @@ $ waf configure
 
 ==== Loading and using Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder +waflib/Tools+. The contributed tools, or the tools in testing phase are located under the folder +waflib/extras+.
+For efficiency reasons, only a few configuration methods are present in the Waf core. Most configuration methods are loaded by extensions called *Waf tools*.
+The main tools are located in the folder +waflib/Tools+, and the tools in testing phase are located under the folder +waflib/extras+.
+Yet, Waf tools may be used from any location on the filesystem.
 
-Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
+We will now demonstrate a very simple Waf tool named +dang.py+ which will be used to set 'ctx.env.DANG' from a command-line option:
 
+// configuration_tool
 [source,python]
 ---------------
-from Configure import conf <1>
+#! /usr/bin/env python
+# encoding: utf-8
 
-def configure(conf): <2>
-	print('→ configure from dang!')
+print('→ loading the dang tool')
+
+from waflib.Configure import conf
+
+def options(opt): <1>
+	opt.add_option('--dang', action='store', default='', dest='dang')
 
 @conf
-def test_hello(conf):
-	print('→ test from dang!')
+def read_dang(ctx): <2>
+	ctx.start_msg('Checking for the variable DANG')
+	if ctx.options.dang:
+		ctx.env.DANG = ctx.options.dang
+		ctx.end_msg(ctx.env.DANG)
+	else:
+		ctx.end_msg('DANG is not set')
 
-@conf
-def build_hello(self):
-	print('→ build hello from dang!')
+def configure(ctx): <3>
+	ctx.read_dang()
 ---------------
 
-<1> The decorator 'conf' is used to bind functions as new methods to the 'configuration context class'
-<2> The default detection method to execute when the tool is loaded is called 'configure'
+<1> Provide command-line options
+<2> Provide a detection method to set ctx.env.DANG and print a message on the console
+<3> Provide a method named _configure_
 
-For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
+For loading a tool, the method 'check_tool' must be used during the configuration:
 
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
-#from waflib import c_config <1>
+def options(ctx):
+    ctx.tool_options('dang', tooldir='.') <1>
 
-def configure(conf):
+def configure(ctx):
+    ctx.check_tool('dang', tooldir='.') <2>
 
-	#from waflib import c_config <2>
-
-	def is_check_cc_present():
-		try:
-			print('→ method conf.check_cc %r' % conf.check_cc) <3>
-		except:
-			print('→ there is no method conf.check_cc')
-
-	is_check_cc_present()
-	conf.check_tool('config_c') <4>
-	is_check_cc_present()
-
-	conf.check_tool('dang', tooldir='.') <5>
-	conf.check_tool('dang', tooldir='.', funs='test_hello') <6>
-	conf.check_tool('dang', tooldir='.') <7>
-
-def build(bld):
-	bld.build_hello() <8>
+def build(ctx):
+    print(ctx.env.DANG) <3>
 ---------------
 
-<1> By loading a Waf tool at the root of a script, the detection routines will not be executed (discouraged)
-<2> By loading a Waf tool using _import_, the tool will not be loaded at build time (discouraged)
-<3> Just an example to show if the method _check_cc_ is present on the configuration context class
-<4> Load the tool providing configuration routines for c and c++ support (the method check_cc)
-<5> If a method named _configure_ is provided, it will be executed during _conf.check_tool_
-<6> Use specific functions instead of calling the default
-<7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
-<8> The configuration context methods are also bound to the build context
+<1> Load the options defined in _dang.py_
+<2> Load the tool dang.py. By default, check_tool calls the method 'configure' defined in the tools.
+<3> The tool modifies the value of _ctx.env.DANG_ during the configuration
 
 Upon execution, the output will be the following:
 
 [source,shishell]
 ---------------
-$ waf distclean configure build
-'distclean' finished successfully (0.002s)
-→ there is no method conf.check_cc
-→ method conf.check_cc (ConfigurationContext.check_cc)
-→ configure from dang!
-→ test from dang!
-'configure' finished successfully (0.003s)
-Waf: Entering directory `/tmp/smallproject/build'
-→ build hello from dang!
-Waf: Leaving directory `/tmp/smallproject/build'
-'build' finished successfully (0.003s)
+$ waf configure --dang=hello
+→ loading the dang tool
+Checking for DANG                        : hello <1>
+'configure' finished successfully (0.006s)
+
+$ waf
+→ loading the dang tool <2>
+Waf: Entering directory `/disk/comp/waf/docs/book/examples/configuration_dang/build'
+hello
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/configuration_dang/build'
+'build' finished successfully (0.004s)
 ---------------
 
+<1> First the tool is imported as a python module, and then the method _configure_ is called by _check_tool_
+<2> The tools loaded during the configuration will be loaded during the build phase
 
 === Exception handling
 
@@ -305,33 +301,19 @@ Configuration helpers are methods provided by the conf object to help finding pa
 [source,python]
 ---------------
 def configure(conf):
-	conf.find_program('test')
+	conf.find_program('some_app')
 ---------------
 
-When a test fails, the exception 'waflib.Errors.ConfigurationError' is raised. For example, such exceptions are thrown when a program could not be found:
-
-[source,python]
----------------
-def configure(conf):
-	from waflib.Errors import ConfigurationError
-	try:
-		conf.find_program('missing_app', mandatory=True)
-	except ConfigurationError:
-		pass
-	conf.find_program(['gjc', 'cjg'], mandatory=True)
----------------
-
-The output will be:
+When a test fails, an exception of the type 'waflib.Errors.ConfigurationError' is raised. For example:
 
 [source,shishell]
 ---------------
 $ waf
-Checking for program missing_app         : not found
-Checking for program gjc,cjg             : not found
- error: The program ['gjc', 'cjg'] could not be found
+Checking for program some_app         : not found
+ error: The program some_app could not be found
 ---------------
 
-It is sometimes useful to raise such an exception manually by using 'conf.fatal':
+These exceptions may be raised manually by using 'conf.fatal':
 
 [source,python]
 ---------------
@@ -339,7 +321,7 @@ def configure(conf):
 	conf.fatal("I'm sorry Dave, I'm afraid I can't do that")
 ---------------
 
-Which will display the same kind of error
+Which will display the same kind of error:
 
 [source,shishell]
 ---------------
@@ -348,7 +330,6 @@ $ waf configure
 $ echo $?
 1
 ---------------
-
 
 ==== Handling configuration exceptions
 
