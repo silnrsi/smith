@@ -4,7 +4,7 @@ The _configuration_ command is used to check if the requiremements for working o
 
 === Using persistent data
 
-==== Using configuration sets during the build
+==== Sharing with the build
 
 The configuration context is used to store data which may be re-used during the build. Let's begin with the following example:
 
@@ -30,7 +30,7 @@ def build(ctx):
 <1> Store the option _foo_ into the variable _env_ (dict-like structure)
 <2> Configuration routine used to find the program _touch_ and to store it into _ctx.env.TOUCH_
 <3> Print the value of _ctx.env.FOO_ that was set during the configuration
-<4> The variable _${TOUCH}_ corresponds to the variable _env.TOUCH_
+<4> The variable _$\{TOUCH}_ corresponds to the variable _env.TOUCH_
 
 [source,shishell]
 ---------------
@@ -50,7 +50,7 @@ Waf: Leaving directory `/disk/comp/waf/docs/book/examples/configuration_build/bu
 <2> The value of _TOUCH_
 <3> Command-line used to create the target 'bar.txt'
 
-The variable _ctx.env_ is called a *Configuration set*, it may only contain serializable data (only simple variables, no functions or classes). Its values are stored in a python-like format in the build directory:
+The variable _ctx.env_ is called a *Configuration set*, and is an instance of the class 'ConfigSet'. The class is a wrapper around Python dicts to handle serialization. For this reason it should be used for simple variables only (no functions or classes). The values are stored in a python-like format in the build directory:
 
 [source,shishell]
 ---------------
@@ -58,8 +58,8 @@ $ tree
 build/
 |-- bar.txt
 |-- c4che
-|   |-- build.config.py
-|   `-- default.cache.py
+|   |-- build.config.py
+|   `-- default.cache.py
 `-- config.log
 
 $ cat build/c4che/default.cache.py
@@ -68,11 +68,12 @@ PREFIX = '/usr/local'
 TOUCH = '/usr/bin/touch'
 ---------------
 
-NOTE: Reading and writing values to _ctx.env_ is possible in both configuration and build commands. Yet, the values are only written to +default.cache.py+ during the configuration.
 
-==== Storing configuration sets
+NOTE: Reading and writing values to _ctx.env_ is possible in both configuration and build commands. Yet, the values are stored to a file only during the configuration phase.
 
-Configuration sets are instances of the class 'ConfigSet'. That class acts as a wrapper around Python dicts to handle serialization (in human-editable files) and copy-on-write efficiently. Instances of that class are used extensively within Waf, and the instances are usually named 'env'. Here is how the default configuration set called 'env' is usually stored:
+==== Configuration sets methods
+
+We will now provide more details on the configuration set usage. The following example demonstrates how to store and load data from configuration sets manually:
 
 // configuration_sets
 [source,python]
@@ -93,7 +94,7 @@ def configure(ctx):
 	print(ctx.env)
 ----------------
 
-<1> Key-based access
+<1> Key-based access; storing a list
 <2> Store the configuration set in the file +test.txt+
 <3> Attribute-based access (the two forms are equivalent)
 <4> Create a new configuration set, avoiding using the import
@@ -120,8 +121,6 @@ CXXFLAGS = ['-O2']
 PREFIX = '/usr/local'
 TEST = 'test'
 ---------------
-
-The default configuration is stored to the cache file named 'default.cache.py'. The configuration set will always contain the default variable PREFIX, which is used to indicate the default directory in which to install something (in case there is something to install). The cache file is written in pseudo-python, and may be edited manually if necessary.
 
 Although the conf.env object is similar to a Python dict, a few routines are present to ease value access:
 
@@ -172,7 +171,13 @@ $ waf configure
 -O3 -g -O2
 ---------------
 
-=== Loading Waf tools
+=== Configuration helpers
+
+==== Adding configuration helpers
+
+Describe the @conf decorator
+
+==== Loading Waf tools
 
 For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `waflib/Tools`. The contributed tools, or the tools in testing phase are located under the folder `waflib/3rdparty`.
 
@@ -256,6 +261,10 @@ Waf: Entering directory `/tmp/smallproject/build'
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------
+
+==== Using configuration helpers during the build
+
+This is also allowed...
 
 === Exception handling
 
