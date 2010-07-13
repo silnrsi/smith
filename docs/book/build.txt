@@ -200,8 +200,7 @@ def pre(ctx): <1>
 def post(ctx):
 	print('after the build is complete')
 	if ctx.cmd == 'install': <2>
-		from waflib import Options, Utils
-		if Options.options.exe: <3>
+		if ctx.options.exe: <3>
 			ctx.exec_command('/sbin/ldconfig') <4>
 
 def build(ctx):

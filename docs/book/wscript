@@ -6,7 +6,6 @@ VERSION='0.0.1'
 APPNAME='wafdocs'
 
 import os, re, shutil
-from waflib import Utils, Options, TaskGen
 
 top = '.'
 out = 'build'
@@ -76,24 +75,23 @@ def build(bld):
 
 	bld.add_group() # separator, the documents may require any of the pictures from above
 
-	if 'html' in Options.options.docs:
+	if 'html' in bld.options.docs:
 		bld(rule='${ADOC} -a icons=true -a iconsdir=. -a toc -n -d book -o ${TGT} ${SRC}',
 			source='waf.txt', target='single.html', name='single', scan=ascii_doc_scan)
 
-	if 'pdf' in Options.options.docs:
+	if 'pdf' in bld.options.docs:
 		bld(rule='${A2X} -L -a toc --icons-dir=. --stylesheet=waf.css --icons -D ${gen.path.get_bld().abspath()} -d book -f pdf ${SRC}',
 			source='waf.txt', target='waf.pdf', name='single', scan=ascii_doc_scan)
 
-	if 'intro' in Options.options.docs:
+	if 'intro' in bld.options.docs:
 		bld(rule='${A2X} -L -a toc --icons-dir=. --stylesheet=waf.css --icons -D ${gen.path.get_bld().abspath()} -d article -f pdf ${SRC}',
 			source='intro_waf_1.6.txt', target='intro_waf_1.6.pdf', name='single', scan=ascii_doc_scan)
 
 	bld(rule='ln -sf single.html index.html', shell=True)
 
-	if Options.options.exe:
+	if bld.options.exe:
 		def exe(ctx):
-			p = Utils.subprocess.Popen('firefox build/single.html', shell=True)
-			p.wait()
+			bld.exec_command('firefox build/single.html')
 		bld.add_post_fun(exe)
 
 """

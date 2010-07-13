@@ -71,9 +71,9 @@ TOUCH = '/usr/bin/touch'
 
 NOTE: Reading and writing values to _ctx.env_ is possible in both configuration and build commands. Yet, the values are stored to a file only during the configuration phase.
 
-==== Configuration sets methods
+==== Configuration set usage
 
-We will now provide more details on the configuration set usage. The following example demonstrates how to store and load data from configuration sets manually:
+We will now provide more details on the configuration sets by demonstrating its usage on more complicated examples. The following demonstrates how to store and load data from configuration sets manually:
 
 // configuration_sets
 [source,python]
@@ -173,13 +173,13 @@ $ waf configure
 
 === Configuration helpers
 
-==== Adding configuration helpers
+==== Configuration methods
 
-Describe the @conf decorator
+The method _ctx.find_program_ seen in the previous example is an example of a configuration method.
 
 ==== Loading Waf tools
 
-For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder `waflib/Tools`. The contributed tools, or the tools in testing phase are located under the folder `waflib/3rdparty`.
+For efficiency reasons, the Waf core libraries do not provide support for programming languages. The configuration helpers are located in separate files called 'Waf tools' and located under the folder +waflib/Tools+. The contributed tools, or the tools in testing phase are located under the folder +waflib/extras+.
 
 Tools usually provide additional routines, and may modify existing classes to extend their behaviour. We will now demonstrate a very simple Waf tool named `dang.py`:
 
@@ -194,16 +194,13 @@ def configure(conf): <2>
 def test_hello(conf):
 	print('→ test from dang!')
 
+@conf
 def build_hello(self):
 	print('→ build hello from dang!')
-
-from waflib import Build
-Build.BuildContext.build_hello = build_hello <3>
 ---------------
 
-<1> The decorator 'conftest' is used to bind functions as new methods to the 'configuration context class'
+<1> The decorator 'conf' is used to bind functions as new methods to the 'configuration context class'
 <2> The default detection method to execute when the tool is loaded is called 'configure'
-<3> New methods may be bound at runtime onto various classes, here the build context class
 
 For loading a tool, the method 'check_tool' must be used during the configuration. The same tools are then loaded during the build.:
 
@@ -243,7 +240,7 @@ def build(bld):
 <5> If a method named _configure_ is provided, it will be executed during _conf.check_tool_
 <6> Use specific functions instead of calling the default
 <7> To ease the creation of projects split into modules, conf.check_tool will not load the tools twice for the same environment and the same parameters.
-<8> Use the build context method defined in dang.py
+<8> The configuration context methods are also bound to the build context
 
 Upon execution, the output will be the following:
 
@@ -262,9 +259,6 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------
 
-==== Using configuration helpers during the build
-
-This is also allowed...
 
 === Exception handling
 

@@ -78,7 +78,7 @@ Because the context objects usually derive from different classes, it is usually
 top = '.'
 out = 'out'
 
-from waflib import Scripting, Options
+from waflib import Scripting
 
 def configure(conf):
 	conf.check_tool('gcc')
@@ -92,13 +92,13 @@ def package(ctx): <2>
 	global back
 	Scripting.commands.insert(0, 'package') <3>
 	Scripting.commands.insert(0, 'install') <4>
-	back = Options.options.destdir <5>
-	Options.options.destdir = '/tmp/foo'
+	back = ctx.options.destdir <5>
+	ctx.options.destdir = '/tmp/foo'
 
 def create_package(ctx): <6>
 	global back
 	print("packaging")
-	Options.options.destdir = back <7>
+	ctx.options.destdir = back <7>
 ---------------
 
 <1> Perform the installation

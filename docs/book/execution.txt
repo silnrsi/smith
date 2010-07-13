@@ -398,9 +398,7 @@ top = '.'
 out = 'build_directory'
 
 def configure(ctx):
-
-	from waflib import Options
-	print('→ prefix is ' + Options.options.prefix)
+	print('→ prefix is ' + ctx.options.prefix)
 ---------------
 
 Upon execution, the following will be observed:
@@ -423,9 +421,7 @@ def options(ctx):
 	ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):
-
-	from waflib import Options
-	print('→ the value of foo is %r' % Options.options.foo)
+	print('→ the value of foo is %r' % ctx.options.foo)
 ---------------
 
 Upon execution, the following will be observed:

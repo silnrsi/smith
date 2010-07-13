@@ -22,6 +22,8 @@ Low priority
 - detect user typos (the checks have been removed)
 - enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
+- Options.options.cache for config tests
+
 Potential sub-projects (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)

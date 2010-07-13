@@ -292,11 +292,9 @@ Data sharing is performed through the configuration set. The following example i
 top = '.'
 out = 'out'
 
-from waflib import Options
-
 def configure(conf):
 	print('prefix: %r' % conf.env.PREFIX)
-	print('jobs:   %r' % Options.options.jobs)
+	print('jobs:   %r' % conf.options.jobs)
 
 def build(bld):
 	bld(
@@ -308,7 +306,7 @@ def build(bld):
 		target = 't2.txt',
 		rule   = 'echo ${TEST_VAR} > ${TGT}', <2>
 	)
-	obj.env.TEST_VAR <3>= str(Options.options.jobs) <4>
+	obj.env.TEST_VAR <3>= str(bld.options.jobs) <4>
 
 	bld(
 		rule = 'echo "hey"',

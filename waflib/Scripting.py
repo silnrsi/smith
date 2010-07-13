@@ -165,6 +165,7 @@ def parse_options():
 def run_command(cmd_name):
 	"""Run a command like it was invoked from the command line."""
 	ctx = Context.create_context(cmd_name)
+	ctx.options = Options.options # provided for convenience
 	ctx.cmd = cmd_name
 	ctx.call_execute()
 

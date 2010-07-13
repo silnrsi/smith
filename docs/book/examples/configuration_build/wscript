@@ -7,8 +7,7 @@ def options(ctx):
     ctx.add_option('--foo', action='store', default=False, help='Silly test')
 
 def configure(ctx):
-    from waflib import Options
-    ctx.env.FOO = Options.options.foo
+    ctx.env.FOO = ctx.options.foo
     ctx.find_program('touch', var='TOUCH', mandatory=True) # a configuration helper
 
 def build(ctx):

@@ -189,8 +189,6 @@ A cloning scheme is provided for duplicating task generators for several variant
 top = '.'
 out = 'build'
 
-from waflib import Options
-
 def options(opt):
 	opt.add_option('--build_kind', action='store', default='debug,release', help='build the selected variants') <1>
 
@@ -207,7 +205,7 @@ def build(bld):
 	for obj in bld.all_task_gen[:]: <4>
 		for x in ['debug', 'release']:
 			cloned_obj = obj.clone(x) <5>
-			kind = Options.options.build_kind
+			kind = bld.options.build_kind
 			if kind.find(x) < 0:<6>
 				cloned_obj.posted = True
 		obj.posted = True <7>
