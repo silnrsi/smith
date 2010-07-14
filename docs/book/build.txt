@@ -294,26 +294,41 @@ Waf: Leaving directory `/tmp/build_list/build'
 
 ==== Execution step by step for debugging (the _step_ command)
 
-The _step_ is used to execute specific tasks and to return the exit status or any error message. It is particularly useful for debugging:
+The _step_ is used to execute specific tasks and to return the exit status and any error message. It is particularly useful for debugging:
 
 [source,shishell]
 ---------------
-$ waf clean step --file=test_shlib.c
-'clean' finished successfully (0.017s)
-Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
-cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+waf step --files=test_shlib.c,test_staticlib.c
+Waf: Entering directory `/disk/comp/waf/demos/c/build'
+c: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
  -> 0
 cshlib: build/shlib/test_shlib.c.1.o -> build/shlib/libmy_shared_lib.so
  -> 0
-Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
-'step' finished successfully (0.146s)
+c: stlib/test_staticlib.c -> build/stlib/test_staticlib.c.1.o
+ -> 0
+cstlib: build/stlib/test_staticlib.c.1.o -> build/stlib/libmy_static_lib.a
+ -> 0
+Waf: Leaving directory `/disk/comp/waf/demos/c/build'
+'step' finished successfully (0.201s)
 ---------------
 
-To restrict the tasks to execute, just prefix the names by 'in:' or 'out:':
+In this case the +.so+ files were also rebuilt. Since the files attribute is interpreted a comma-separated list of regular expressions, the following will produce a different output:
 
 [source,shishell]
 ---------------
-$ waf step --file=out:build/shlib/test_shlib.c.1.o
+$ waf step --files=test_shlib.c$
+Waf: Entering directory `/disk/comp/waf/demos/c/build'
+c: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+ -> 0
+Waf: Leaving directory `/disk/comp/waf/demos/c/build'
+'step' finished successfully (0.083s)
+---------------
+
+Finally, the tasks to execute may be prefixed by 'in:' or 'out:' to specify if it is a source or a target file:
+
+[source,shishell]
+---------------
+$ waf step --files=out:build/shlib/test_shlib.c.1.o
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
 cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
  -> 0
@@ -321,5 +336,5 @@ Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 'step' finished successfully (0.091s)
 ---------------
 
-
+NOTE: when using _waf step_, all tasks are executed sequentially, even if some of them return a non-zero exit status
 

@@ -466,7 +466,7 @@ $ waf build
 The project was not configured: run "waf configure" first!
 ---------------
 
-As a matter of fact, the build requires a configured folder to know where to look for source files and where to output the created files. Let's try again:
+The build requires a configured folder to know where to look for source files and where to output the created files. Let's try again:
 
 [source,shishell]
 ---------------
