@@ -243,9 +243,58 @@ after the build is complete
 <2> output of the function bound by 'bld.add_post_fun'
 <3> execution at installation time
 
+==== Listing the task generators and forcing specific task generators
+
+The _list_ command is used to display the task generators that are declared:
+
+// build_list
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(source='wscript', target='foo.txt', rule='cp ${SRC} ${TGT}')
+	ctx(target='bar.txt', rule='touch ${TGT}', name='bar')
+---------------
+
+By default, the name of the task generator is computed from the _target_ attribute:
+
+[source,shishell]
+---------------
+$ waf configure list
+'configure' finished successfully (0.005s)
+foo.txt
+bar
+'list' finished successfully (0.008s)
+---------------
+
+The main usage of the name values is to force a partial build with the _--targets_ option. Compare the following:
+
+[source,shishell]
+---------------
+$ waf clean build
+'clean' finished successfully (0.003s)
+Waf: Entering directory `/tmp/build_list/build'
+[1/2] foo.txt: wscript -> build/foo.txt
+[2/2] bar:  -> build/bar.txt
+Waf: Leaving directory `/tmp/build_list/build'
+'build' finished successfully (0.028s)
+
+$ waf clean build --targets=foo.txt
+'clean' finished successfully (0.003s)
+Waf: Entering directory `/tmp/build_list/build'
+[1/1] foo.txt: wscript -> build/foo.txt
+Waf: Leaving directory `/tmp/build_list/build'
+'build' finished successfully (0.022s)
+---------------
+
 ==== Execution step by step for debugging (the _step_ command)
 
-The new command 'step' is used to execute specific tasks and to return the exit status or any error message. It is particularly useful for debugging:
+The _step_ is used to execute specific tasks and to return the exit status or any error message. It is particularly useful for debugging:
 
 [source,shishell]
 ---------------

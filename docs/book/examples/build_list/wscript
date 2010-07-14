@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def configure(ctx):
+    pass
+
+def build(ctx):
+    ctx(source='wscript', target='foo.txt', rule='cp ${SRC} ${TGT}')
+    ctx(target='bar.txt', rule='touch ${TGT}', name='bar')
