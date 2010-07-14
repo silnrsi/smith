@@ -139,7 +139,7 @@ def configure(ctx):
 	env2 = ConfigSet() <4>
 	env2.load(node.abspath()) <5>
 
-	print(node.read())
+	print(node.read()) <6>
 ---------------
 
 <1> Make a copy of _ctx.env_ - this is a shallow copy
@@ -397,5 +397,5 @@ def error_handler(fun, exc):
 
 The following diagram illustrates the test execution loop performed from conf.check_tool
 
-image::conftest{PIC}["Configuration tests"{backend@docbook:,width=250:}]
+image::conftest{PIC}["Configuration tests"{backend@docbook:,width=210:}]
 

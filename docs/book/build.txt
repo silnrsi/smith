@@ -1,8 +1,10 @@
 == The build phase
 
-The build phase consists in generating the project outputs as build files. It is usually executed after the configuration phase.
+We will now provide a detailed description of the build command contents, which is used for processing the build targets.
 
-=== Declaring new targets
+=== Build execution
+
+==== Role of the build function
 
 Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
 
@@ -11,6 +13,9 @@ Since the Waf commands build, clean, install and uninstall execute the same func
 . Filesystem abstraction: fetching data from the network
 . Extensibility: adding support for new compilers and new languages from user scripts
 . Flexibility: changing the semantics of the declarations depending on the platform (operating system, compiler, etc)
+
+image::build{PIC}["Build process overview"{backend@docbook:,width=110:}]
+
 
 These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are two important definitions:
 
@@ -57,7 +62,7 @@ Waf: Leaving directory `/tmp/smallproject/build'
 <3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
 <4> This print was output during the call to `clean`.
 
-=== Finding folders and files through node objects
+==== Finding files and folders through node objects
 
 In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed from the build context:
 
