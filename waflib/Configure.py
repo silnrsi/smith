@@ -166,6 +166,10 @@ class ConfigurationContext(Context.Context):
 		self.msg('Setting top to', top)
 		self.msg('Setting out to', out)
 
+		if id(self.path) != id(self.srcnode):
+			if self.srcnode.is_child_of(self.path):
+				Logs.warn('Using an uncommon top directory')
+
 		super(ConfigurationContext, self).execute()
 
 		self.store()
