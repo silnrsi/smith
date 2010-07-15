@@ -45,7 +45,7 @@ class valac_task(Task.Task):
 			cmd.append('--pkg=%s' % package)
 
 		cmd.extend([a.abspath() for a in self.inputs])
-		result = self.generator.bld.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
+		result = self.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
 
 		if self.packages and getattr(self, 'deps_node', None):
 			self.deps_node.write('\n'.join(self.packages))
