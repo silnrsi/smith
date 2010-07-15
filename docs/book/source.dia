@@ -471,18 +471,18 @@ raise an error#</dia:string>
         <dia:point val="15.115,16.6"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="14.5032,16.6;15.2268,20.3368"/>
+        <dia:rectangle val="14.7531,16.55;15.4768,20.0868"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="15.115,16.6"/>
-        <dia:point val="15.115,16.6"/>
-        <dia:point val="15.115,19.975"/>
+        <dia:point val="15.115,18.2875"/>
+        <dia:point val="15.115,18.2875"/>
         <dia:point val="15.115,19.975"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
-        <dia:enum val="0"/>
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="autorouting">
         <dia:boolean val="true"/>
@@ -570,15 +570,15 @@ a mapping?#</dia:string>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O15">
       <dia:attribute name="obj_pos">
-        <dia:point val="21.75,4.9"/>
+        <dia:point val="21.7,5.25"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="21.75,4.305;22.9675,5.0525"/>
+        <dia:rectangle val="21.7,4.655;22.9075,5.4025"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#End#</dia:string>
+            <dia:string>#end#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -587,7 +587,7 @@ a mapping?#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="21.75,4.9"/>
+            <dia:point val="21.7,5.25"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -603,15 +603,15 @@ a mapping?#</dia:string>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O16">
       <dia:attribute name="obj_pos">
-        <dia:point val="12.15,2.75"/>
+        <dia:point val="12.55,2.5"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="12.15,2.155;13.7125,2.9025"/>
+        <dia:rectangle val="12.55,1.905;14.0375,2.6525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Start#</dia:string>
+            <dia:string>#start#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -620,7 +620,7 @@ a mapping?#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="12.15,2.75"/>
+            <dia:point val="12.55,2.5"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
