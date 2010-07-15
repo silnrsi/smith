@@ -4,6 +4,7 @@ bld.shlib(
 	#packages = 'gtk+-2.0',
 	target   = 'hello',
 	#uselib   = 'GTK GLIB',
-	source   = 'hello.vala'
+	source   = 'hello.vala',
+	gir      = 'hello-1.0'
 	)
 
