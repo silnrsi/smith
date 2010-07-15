@@ -22,21 +22,30 @@ def link_lib_test_fun(self):
 	rpath = []
 	if getattr(self, 'add_rpath', True):
 		rpath = [self.bld.path.get_bld().abspath()]
+
+	mode = self.mode
+	m = '%s %s' % (mode, mode)
+
 	bld = self.bld
 	bld(rule=write_test_file, target='test.c', code='int lib_func(void) { return 9; }\n')
-	bld(rule=write_test_file, target='main.c', code='int main(void) {return !(lib_func() == 9);}\n')
-	bld(features='c cshlib', source='test.c', target='test')
-	bld(features='c cprogram test_exec', source='main.c', target='app', uselib_local='test', rpath=rpath)
+	bld(rule=write_test_file, target='main.c', code='int lib_func(void); int main(void) {return !(lib_func() == 9);}\n')
+	bld(features= m + 'shlib', source='test.c', target='test')
+	bld(features= m + 'program test_exec', source='main.c', target='app', uselib_local='test', rpath=rpath)
 
 @conf
-def check_library(self, **kw):
+def check_library(self, mode=None):
 	"""
 	see if the platform supports building libraries
 	"""
+	if not mode:
+		mode = 'c'
+		if self.env.CXX:
+			mode = 'cxx'
 	self.check(
 		compile_filename = [],
 		features = 'link_lib_test',
 		msg = 'Checking for libraries',
+		mode = mode
 		)
 
 ########################################################################################
