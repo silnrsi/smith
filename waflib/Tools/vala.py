@@ -13,7 +13,6 @@ class valac_task(Task.Task):
 
 	def run(self):
 		env = self.env
-		inputs = [a.abspath() for a in self.inputs]
 
 		valac = env['VALAC']
 		vala_flags = env.get_flat('VALAFLAGS')
@@ -49,7 +48,8 @@ class valac_task(Task.Task):
 				cmd.append('--gir=%s.gir' % self.gir)
 
 		else:
-			output_dir = self.outputs[0].bld_dir()
+			#output_dir = self.outputs[0].bld_dir() # not sure about this
+			output_dir = self.generator.bld.bldnode.abspath() # this works
 			cmd.append('-d %s' % output_dir)
 
 		for vapi_dir in self.vapi_dirs:
@@ -61,7 +61,9 @@ class valac_task(Task.Task):
 		for package in self.packages_private:
 			cmd.append('--pkg %s' % package)
 
+		inputs = [a.abspath() for a in self.inputs]
 		cmd.append(" ".join(inputs))
+
 		result = self.generator.bld.exec_command(" ".join(cmd))
 
 		if not 'cprogram' in features:
