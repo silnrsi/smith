@@ -97,31 +97,6 @@ class valac_task(Task.Task):
 						shutil.move(first.parent.get_bld().abspath() + os.sep + node.name, node.get_bld().abspath())
 		return result
 
-	def post_install(self):
-		bld = self.generator.bld
-		features = self.generator.features
-
-		if self.attr("install_path") and ('cshlib' in features or 'cstlib' in features):
-			headers_list = [o for o in self.outputs if o.suffix() == ".h"]
-			vapi_list = [o for o in self.outputs if (o.suffix() in (".vapi", ".deps"))]
-			gir_list = [o for o in self.outputs if o.suffix() == ".gir"]
-
-			for header in headers_list:
-				top_src = self.generator.bld.srcnode
-				package = self.env['PACKAGE']
-				try:
-					api_version = Utils.g_module.API_VERSION
-				except AttributeError:
-					version = Utils.g_module.VERSION.split(".")
-					if version[0] == "0":
-						api_version = "0." + version[1]
-					else:
-						api_version = version[0] + ".0"
-				install_path = '${INCLUDEDIR}/%s-%s/%s' % (package, api_version, header.relpath_gen(top_src))
-				bld.install_as(install_path, header, self.env)
-			bld.install_files('${DATAROOTDIR}/vala/vapi', vapi_list, self.env)
-			bld.install_files('${DATAROOTDIR}/gir-1.0', gir_list, self.env)
-
 	def _fix_output(self, output):
 		top_bld = self.generator.bld.bldnode.abspath()
 		try:
@@ -137,7 +112,7 @@ def vala_file(self, node):
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
 		valatask = self.create_task('valac')
-		self.valatask = valatask
+		self.valatask = valatask # this assumes one vala task by task generator
 		self.includes = Utils.to_list(getattr(self, 'includes', []))
 		self.uselib = self.to_list(self.uselib)
 		valatask.packages = []
@@ -194,8 +169,8 @@ def vala_file(self, node):
 			except AttributeError:
 				Logs.warn("Unable to locate Vala API directory: '%s'" % vapi_dir)
 
-		self.includes.append(node.ctx.srcnode.abspath())
-		self.includes.append(node.ctx.bldnode.abspath())
+		self.includes.append(self.bld.srcnode.abspath())
+		self.includes.append(self.bld.bldnode.abspath())
 		for include in includes:
 			try:
 				self.includes.append(self.path.find_dir(include).abspath())
@@ -254,6 +229,32 @@ def vala_file(self, node):
 
 	valatask.inputs.append(node)
 	valatask.outputs.extend(output_nodes)
+
+	features = self.features
+
+	bld = self.bld
+	if valatask.attr("install_path") and ('cshlib' in features or 'cstlib' in features):
+		headers_list = [o for o in valatask.outputs if o.suffix() == ".h"]
+		self.install_vheader = []
+		for header in headers_list:
+			top_src = self.bld.srcnode
+			package = self.env['PACKAGE']
+			try:
+				api_version = Utils.g_module.API_VERSION
+			except AttributeError:
+				version = Utils.g_module.VERSION.split(".")
+				if version[0] == "0":
+					api_version = "0." + version[1]
+				else:
+					api_version = version[0] + ".0"
+			install_path = '${INCLUDEDIR}/%s-%s/%s' % (package, api_version, header.path_from(top_src))
+			self.install_vheader.append(self.bld.install_as(install_path, header, self.env))
+
+		vapi_list = [o for o in valatask.outputs if (o.suffix() in (".vapi", ".deps"))]
+		self.install_vapi = self.bld.install_files('${DATAROOTDIR}/vala/vapi', vapi_list, self.env)
+
+		gir_list = [o for o in valatask.outputs if o.suffix() == ".gir"]
+		self.install_gir = self.bld.install_files('${DATAROOTDIR}/gir-1.0', gir_list, self.env)
 
 def configure(self):
 	min_version = (0, 1, 6)
