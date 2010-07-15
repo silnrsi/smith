@@ -6,7 +6,6 @@
 VERSION='0.0.1'
 APPNAME='cc_test'
 
-# these variables are mandatory ('/' are converted automatically)
 top = '.'
 out = 'build'
 
