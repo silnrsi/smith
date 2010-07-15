@@ -3,7 +3,7 @@
 # Ali Sabil, 2007
 
 import os.path, shutil
-from waflib import Task, Runner, Utils, Logs, Build, Node
+from waflib import Task, Runner, Utils, Logs, Build, Node, Options
 from waflib.TaskGen import extension, after, before
 
 class valac_task(Task.Task):
@@ -27,6 +27,9 @@ class valac_task(Task.Task):
 
 		if self.threading:
 			cmd.append('--thread')
+
+		if self.profile:
+			cmd.append('--profile=%s' % self.profile)
 
 		if self.target_glib:
 			cmd.append('--target-glib=%s' % self.target_glib)
@@ -134,11 +137,14 @@ def vala_file(self, node):
 		valatask = self.create_task('valac')
 		self.valatask = valatask
 		self.includes = Utils.to_list(getattr(self, 'includes', []))
+		self.uselib = self.to_list(self.uselib)
 		valatask.packages = []
 		valatask.packages_private = Utils.to_list(getattr(self, 'packages_private', []))
 		valatask.vapi_dirs = []
 		valatask.target = self.target
 		valatask.threading = False
+		valatask.install_path = getattr(self, 'install_path', '')
+		valatask.profile = getattr (self, 'profile', 'gobject')
 		valatask.target_glib = None
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
@@ -156,6 +162,8 @@ def vala_file(self, node):
 
 				# check if the package exists
 				package_obj = self.bld.get_tgen_by_name(package)
+				if not package_obj:
+					raise Errors.WafError("object %r was not found in uselib_local (required by %r)" % (package, self.name))
 				package_name = package_obj.target
 				package_node = package_obj.path
 				package_dir = package_node.relpath_gen(self.path)
@@ -193,14 +201,25 @@ def vala_file(self, node):
 			except AttributeError:
 				Logs.warn("Unable to locate include directory: '%s'" % include)
 
-		if hasattr(self, 'threading'):
-			valatask.threading = self.threading
-			self.uselib = self.to_list(self.uselib)
-			if not 'GTHREAD' in self.uselib:
-				self.uselib.append('GTHREAD')
 
-		if hasattr(self, 'target_glib'):
-			valatask.target_glib = self.target_glib
+		if valatask.profile == 'gobject':
+			if hasattr(self, 'target_glib'):
+				Logs.warn('target_glib on vala tasks is not supported --vala-target-glib=MAJOR.MINOR from the vala tool options')
+
+			if getattr(Options.options, 'vala_target_glib', None):
+				valatask.target_glib = Options.options.vala_target_glib
+
+			if not 'GOBJECT' in self.uselib:
+				self.uselib.append('GOBJECT')
+
+		if hasattr(self, 'threading'):
+			if valatask.profile == 'gobject':
+				valatask.threading = self.threading
+				if not 'GTHREAD' in self.uselib:
+					self.uselib.append('GTHREAD')
+			else:
+				#Vala doesn't have threading support for dova nor posix
+				Logs.warn("Profile %s does not have threading support" % valatask.profile)
 
 		if hasattr(self, 'gir'):
 			valatask.gir = self.gir
@@ -240,12 +259,25 @@ def configure(self):
 
 	valac = self.find_program('valac', var='VALAC')
 
-	if not self.env.HAVE_GTHREAD:
-		self.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
+	if not conf.env["HAVE_GOBJECT"]:
+		pkg_args = {'package':      'gobject-2.0',
+			'uselib_store': 'GOBJECT',
+			'args':         '--cflags --libs'}
+		if getattr(Options.options, 'vala_target_glib', None):
+			pkg_args['atleast_version'] = Options.options.vala_target_glib
+		conf.check_cfg(**pkg_args)
+
+	if not conf.env["HAVE_GTHREAD"]:
+		pkg_args = {'package':      'gthread-2.0',
+			'uselib_store': 'GTHREAD',
+			'args':         '--cflags --libs'}
+		if getattr(Options.options, 'vala_target_glib', None):
+			pkg_args['atleast_version'] = Options.options.vala_target_glib
+		conf.check_cfg(**pkg_args)
 
 	try:
 		output = self.cmd_and_log(valac + " --version")
-		version = output.split(' ', 1)[-1].strip().split(".")
+		version = output.split(' ', 1)[-1].strip().split(".")[0:3]
 		version = [int(x) for x in version]
 		valac_version = tuple(version)
 	except Exception:
@@ -256,7 +288,12 @@ def configure(self):
 	if valac_version < min_version:
 		self.fatal("the valac version %r is too old (%r)" % (valac_version, min_version))
 
-	self.check_tool('gnu_dirs')
 	self.env.VALAC_VERSION = valac_version
 	self.env.VALAFLAGS     = []
+
+def options (opt):
+	valaopts = opt.add_option_group('Vala Compiler Options')
+	valaopts.add_option ('--vala-target-glib', default=None,
+		dest='vala_target_glib', metavar='MAJOR.MINOR',
+		help='Target version of glib for Vala GObject code generation')
 
