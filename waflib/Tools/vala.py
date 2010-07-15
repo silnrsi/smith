@@ -37,7 +37,7 @@ class valac_task(Task.Task):
 			cmd.append('--library ' + self.target)
 			for x in self.outputs:
 				if x.name.endswith('.h'):
-					cmd.append('--header ' + x.bldpath())
+					cmd.append('--header ' + x.abspath())
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
 			if hasattr(self, 'gir'):
@@ -86,7 +86,7 @@ def vala_file(self, node):
 		valatask = self.create_task('valac')
 		self.valatask = valatask # this assumes one vala task by task generator
 		self.includes = Utils.to_list(getattr(self, 'includes', []))
-		self.uselib = self.to_list(self.uselib)
+		self.uselib = self.to_list(getattr(self, 'uselib', []))
 		valatask.packages = []
 		valatask.packages_private = Utils.to_list(getattr(self, 'packages_private', []))
 		valatask.vapi_dirs = []
@@ -184,7 +184,6 @@ def vala_file(self, node):
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.h' % self.target))
 
-	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
 
 		if hasattr(self, 'gir'):
