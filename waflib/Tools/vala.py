@@ -19,10 +19,7 @@ class valac_task(Task.Task):
 		top_src = self.generator.bld.srcnode.abspath()
 		top_bld = self.generator.bld.bldnode.abspath()
 
-		if env['VALAC_VERSION'] > (0, 1, 6):
-			cmd = [valac, '-C', '--quiet', vala_flags]
-		else:
-			cmd = [valac, '-C', vala_flags]
+		cmd = [valac, '-C', '--quiet', vala_flags]
 
 		if self.threading:
 			cmd.append('--thread')
@@ -38,13 +35,12 @@ class valac_task(Task.Task):
 		if 'cshlib' in features or 'cstlib' in features:
 			output_dir = self.outputs[0].bld_dir()
 			cmd.append('--library ' + self.target)
-			if env['VALAC_VERSION'] >= (0, 7, 0):
-				for x in self.outputs:
-					if x.name.endswith('.h'):
-						cmd.append('--header ' + x.bldpath())
+			for x in self.outputs:
+				if x.name.endswith('.h'):
+					cmd.append('--header ' + x.bldpath())
 			cmd.append('--basedir ' + top_src)
 			cmd.append('-d ' + top_bld)
-			if env['VALAC_VERSION'] > (0, 7, 2) and hasattr(self, 'gir'):
+			if hasattr(self, 'gir'):
 				cmd.append('--gir=%s.gir' % self.gir)
 
 		else:
@@ -86,15 +82,6 @@ class valac_task(Task.Task):
 			if hasattr(self, 'gir'):
 				self._fix_output("%s.gir" % self.gir)
 
-		first = None
-		for node in self.outputs:
-			if not first:
-				first = node
-			else:
-				if id(first.parent) != id(node.parent):
-					# issue #483
-					if env['VALAC_VERSION'] < (0, 7, 0):
-						shutil.move(first.parent.get_bld().abspath() + os.sep + node.name, node.get_bld().abspath())
 		return result
 
 	def _fix_output(self, output):
@@ -209,21 +196,17 @@ def vala_file(self, node):
 	output_nodes.append(c_node)
 	self.source.append(c_node)
 
-	if env['VALAC_VERSION'] < (0, 7, 0):
-		output_nodes.append(node.change_ext('.h'))
-	else:
-		if not 'cprogram' in self.features:
-			output_nodes.append(self.path.find_or_declare('%s.h' % self.target))
+	if not 'cprogram' in self.features:
+		output_nodes.append(self.path.find_or_declare('%s.h' % self.target))
 
 	if not 'cprogram' in self.features:
 		output_nodes.append(self.path.find_or_declare('%s.vapi' % self.target))
-		if env['VALAC_VERSION'] > (0, 7, 2):
-			if hasattr(self, 'gir'):
-				output_nodes.append(self.path.find_or_declare('%s.gir' % self.gir))
-		elif env['VALAC_VERSION'] > (0, 3, 5):
-			output_nodes.append(self.path.find_or_declare('%s.gir' % self.target))
-		elif env['VALAC_VERSION'] > (0, 1, 7):
+
+		if hasattr(self, 'gir'):
+			output_nodes.append(self.path.find_or_declare('%s.gir' % self.gir))
+		else:
 			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
+
 		if valatask.packages:
 			output_nodes.append(self.path.find_or_declare('%s.deps' % self.target))
 
@@ -259,7 +242,7 @@ def vala_file(self, node):
 valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
 def configure(self):
-	min_version = (0, 1, 6)
+	min_version = (0, 8, 0)
 	min_version_str = "%d.%d.%d" % min_version
 
 	valac = self.find_program('valac', var='VALAC')
