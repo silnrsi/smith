@@ -65,22 +65,7 @@ class valac_task(Task.Task):
 		if not 'cprogram' in features:
 			# generate the .deps file
 			if self.packages:
-				filename = os.path.join(self.generator.path.get_bld().abspath(), "%s.deps" % self.target)
-				deps = open(filename, 'w')
-				for package in self.packages:
-					deps.write(package + '\n')
-				deps.close()
-
-			# handle vala 0.1.6 who doesn't honor --directory for the generated .vapi
-			self._fix_output("../%s.vapi" % self.target)
-			# handle vala >= 0.1.7 who has a weid definition for --directory
-			self._fix_output("%s.vapi" % self.target)
-			# handle vala >= 0.2.0 who doesn't honor --directory for the generated .gidl
-			self._fix_output("%s.gidl" % self.target)
-			# handle vala >= 0.3.6 who doesn't honor --directory for the generated .gir
-			self._fix_output("%s.gir" % self.target)
-			if hasattr(self, 'gir'):
-				self._fix_output("%s.gir" % self.gir)
+				self.deps.write('\n'.join(self.packages))
 
 		return result
 
@@ -204,11 +189,11 @@ def vala_file(self, node):
 
 		if hasattr(self, 'gir'):
 			output_nodes.append(self.path.find_or_declare('%s.gir' % self.gir))
-		else:
-			output_nodes.append(self.path.find_or_declare('%s.gidl' % self.target))
 
 		if valatask.packages:
-			output_nodes.append(self.path.find_or_declare('%s.deps' % self.target))
+			d = self.path.find_or_declare('%s.deps' % self.target)
+			output_nodes.append(d)
+			valatask.deps_node = d
 
 	valatask.inputs.append(node)
 	valatask.outputs.extend(output_nodes)
