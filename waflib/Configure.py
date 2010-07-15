@@ -117,23 +117,38 @@ class ConfigurationContext(Context.Context):
 
 		self.tool_cache = []
 
-	def post_init(self):
-		"""TODO remove this method, ugh"""
+	def execute(self):
+		"""See Context.prepare"""
+		top = Options.options.top
+		if not top:
+			top = getattr(Context.g_module, Context.TOP, None)
+		if not top:
+			top = os.path.abspath('.')
+		top = os.path.abspath(top)
+
+		out = Options.options.out
+		if not out:
+			out = getattr(Context.g_module, Context.OUT, None)
+		if not out:
+			out = Options.lockfile.replace('.lock-waf', '')
+			out = os.path.abspath(out)
+		out = os.path.abspath(out)
+
+		try:
+			os.makedirs(out)
+		except OSError:
+			if not os.path.isdir(out):
+				conf.fatal('could not create the build directory %s' % out)
+
+		self.srcnode = self.root.find_dir(top)
+		self.bldnode = self.root.find_dir(out)
+
+		#self.post_init()
 		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
 		self.logger = Logs.make_logger(path, 'cfg')
 
-		"""
-		import logging
-		logger = logging.getLogger('cfg')
-		hdlr = logging.FileHandler(path, 'w')
-		formatter = logging.Formatter('%(message)s')
-		hdlr.setFormatter(formatter)
-		logger.addHandler(hdlr)
-		logger.setLevel(logging.INFO)
-		self.logger = logger
-		"""
 		app = getattr(Context.g_module, 'APPNAME', '')
 		if app:
 			ver = getattr(Context.g_module, 'VERSION', '')
@@ -148,35 +163,8 @@ class ConfigurationContext(Context.Context):
 		abi = Context.ABI
 		self.to_log(conf_template % vars())
 
-	def execute(self):
-		"""See Context.prepare"""
-		top = Options.options.top
-		if not top:
-			top = getattr(Context.g_module, Context.TOP, None)
-		if not top:
-			top = os.path.abspath('.')
-			self.msg('Setting top to', top)
-		top = os.path.abspath(top)
-
-		out = Options.options.out
-		if not out:
-			out = getattr(Context.g_module, Context.OUT, None)
-		if not out:
-			out = Options.lockfile.replace('.lock-waf', '')
-			out = os.path.abspath(out)
-			self.msg('Setting out to', out)
-		out = os.path.abspath(out)
-
-		try:
-			os.makedirs(out)
-		except OSError:
-			if not os.path.isdir(out):
-				conf.fatal('could not create the build directory %s' % out)
-
-		self.srcnode = self.root.find_dir(top)
-		self.bldnode = self.root.find_dir(out)
-
-		self.post_init()
+		self.msg('Setting top to', top)
+		self.msg('Setting out to', out)
 
 		super(ConfigurationContext, self).execute()
 
