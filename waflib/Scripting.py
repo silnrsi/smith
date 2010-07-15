@@ -275,11 +275,12 @@ def distclean(ctx):
 			else:
 				distclean_dir(proj['out_dir'])
 
-			try:
-				os.remove(f)
-			except OSError as e:
-				if e.errno != errno.ENOENT:
-					Logs.warn('file %r cannot be removed' % f)
+			for k in (proj['out_dir'], proj['top_dir'], proj['run_dir']):
+				try:
+					os.remove(os.path.join(k, Options.lockfile))
+				except OSError as e:
+					if e.errno != errno.ENOENT:
+						Logs.warn('file %r cannot be removed' % f)
 
 		# remove the local waf cache
 		if f.startswith('.waf-') and not Options.commands:
