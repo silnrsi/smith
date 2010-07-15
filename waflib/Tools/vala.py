@@ -261,21 +261,21 @@ def configure(self):
 
 	valac = self.find_program('valac', var='VALAC')
 
-	if not conf.env["HAVE_GOBJECT"]:
+	if not self.env["HAVE_GOBJECT"]:
 		pkg_args = {'package':      'gobject-2.0',
 			'uselib_store': 'GOBJECT',
 			'args':         '--cflags --libs'}
 		if getattr(Options.options, 'vala_target_glib', None):
 			pkg_args['atleast_version'] = Options.options.vala_target_glib
-		conf.check_cfg(**pkg_args)
+		self.check_cfg(**pkg_args)
 
-	if not conf.env["HAVE_GTHREAD"]:
+	if not self.env["HAVE_GTHREAD"]:
 		pkg_args = {'package':      'gthread-2.0',
 			'uselib_store': 'GTHREAD',
 			'args':         '--cflags --libs'}
 		if getattr(Options.options, 'vala_target_glib', None):
 			pkg_args['atleast_version'] = Options.options.vala_target_glib
-		conf.check_cfg(**pkg_args)
+		self.check_cfg(**pkg_args)
 
 	try:
 		output = self.cmd_and_log(valac + " --version")
