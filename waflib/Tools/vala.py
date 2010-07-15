@@ -14,12 +14,8 @@ class valac_task(Task.Task):
 	def run(self):
 		env = self.env
 
-		valac = env['VALAC']
-		vala_flags = env.get_flat('VALAFLAGS')
-		top_src = self.generator.bld.srcnode.abspath()
-		top_bld = self.generator.bld.bldnode.abspath()
-
-		cmd = [valac, '-C', '--quiet', vala_flags]
+		cmd = [env['VALAC'], '-C', '--quiet']
+		cmd.extend(env['VALAFLAGS'])
 
 		if self.threading:
 			cmd.append('--thread')
@@ -30,53 +26,31 @@ class valac_task(Task.Task):
 		if self.target_glib:
 			cmd.append('--target-glib=%s' % self.target_glib)
 
-		features = self.generator.features
-
-		if 'cshlib' in features or 'cstlib' in features:
+		if getattr(self.generator, 'link_task', []).__class__.__name__.find('program') < 0:
 			output_dir = self.outputs[0].bld_dir()
-			cmd.append('--library ' + self.target)
+			cmd.append('--library=' + self.target)
 			for x in self.outputs:
 				if x.name.endswith('.h'):
-					cmd.append('--header ' + x.abspath())
-			cmd.append('--basedir ' + top_src)
-			cmd.append('-d ' + top_bld)
+					cmd.append('--header=' + x.name)
 			if hasattr(self, 'gir'):
 				cmd.append('--gir=%s.gir' % self.gir)
-
-		else:
-			#output_dir = self.outputs[0].bld_dir() # not sure about this
-			output_dir = self.generator.bld.bldnode.abspath() # this works
-			cmd.append('-d %s' % output_dir)
 
 		for vapi_dir in self.vapi_dirs:
 			cmd.append('--vapidir=%s' % vapi_dir)
 
 		for package in self.packages:
-			cmd.append('--pkg %s' % package)
+			cmd.append('--pkg=%s' % package)
 
 		for package in self.packages_private:
-			cmd.append('--pkg %s' % package)
+			cmd.append('--pkg=%s' % package)
 
-		inputs = [a.abspath() for a in self.inputs]
-		cmd.append(" ".join(inputs))
+		cmd.extend([a.abspath() for a in self.inputs])
+		result = self.generator.bld.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
 
-		result = self.generator.bld.exec_command(" ".join(cmd))
-
-		if not 'cprogram' in features:
-			# generate the .deps file
-			if self.packages:
-				self.deps.write('\n'.join(self.packages))
+		if self.packages and getattr(self, 'deps_node', None):
+			self.deps_node.write('\n'.join(self.packages))
 
 		return result
-
-	def _fix_output(self, output):
-		top_bld = self.generator.bld.bldnode.abspath()
-		try:
-			src = os.path.join(top_bld, output)
-			dst = self.generator.path.get_bld().abspath()
-			shutil.move(src, dst)
-		except:
-			pass
 
 @extension('.vala', '.gs')
 def vala_file(self, node):
