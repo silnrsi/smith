@@ -256,6 +256,8 @@ def vala_file(self, node):
 		gir_list = [o for o in valatask.outputs if o.suffix() == ".gir"]
 		self.install_gir = self.bld.install_files('${DATAROOTDIR}/gir-1.0', gir_list, self.env)
 
+valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
+
 def configure(self):
 	min_version = (0, 1, 6)
 	min_version_str = "%d.%d.%d" % min_version
