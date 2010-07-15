@@ -244,7 +244,7 @@ def configure(self):
 		self.check_cfg(package='gthread-2.0', uselib_store='GTHREAD', args='--cflags --libs')
 
 	try:
-		output = self.cmd_and_log(valac + " --version", silent=True)
+		output = self.cmd_and_log(valac + " --version")
 		version = output.split(' ', 1)[-1].strip().split(".")
 		version = [int(x) for x in version]
 		valac_version = tuple(version)

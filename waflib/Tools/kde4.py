@@ -30,7 +30,7 @@ def apply_msgfmt(self):
 
 def configure(self):
 	kdeconfig = self.find_program('kde4-config')
-	prefix = self.cmd_and_log('%s --prefix' % kdeconfig, silent=True).strip()
+	prefix = self.cmd_and_log('%s --prefix' % kdeconfig).strip()
 	fname = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
 	try: os.stat(fname)
 	except OSError:
