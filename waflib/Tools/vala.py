@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Ali Sabil, 2007
 
-import os.path, shutil
+import os.path, shutil, re
 from waflib import Task, Runner, Utils, Logs, Build, Node, Options
 from waflib.TaskGen import extension, after, before
 
@@ -214,17 +214,17 @@ def configure(self):
 		self.check_cfg(**pkg_args)
 
 	try:
-		output = self.cmd_and_log(valac + " --version")
-		version = output.split(' ', 1)[-1].strip().split(".")[0:3]
-		version = [int(x) for x in version]
-		valac_version = tuple(version)
+		output = self.cmd_and_log(valac + ' --version')
 	except Exception:
 		valac_version = (0, 0, 0)
+	else:
+		ver = re.search(r'((\d+).(\d+).(\d+))', output).group(1).split('.')
+		valac_version = tuple([int(x) for x in ver])
 
 	self.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
 
 	if valac_version < min_version:
-		self.fatal("the valac version %r is too old (%r)" % (valac_version, min_version))
+		self.fatal("the valac version %r is too old %r" % (valac_version, min_version))
 
 	self.env.VALAC_VERSION = valac_version
 	self.env.VALAFLAGS     = []
