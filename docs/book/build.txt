@@ -2,7 +2,8 @@
 
 We will now provide a detailed description of the build command contents, which is used for processing the build targets.
 
-=== Build execution
+=== How the targets are processed
+
 
 ==== Role of the build function
 
@@ -61,6 +62,74 @@ Waf: Leaving directory `/tmp/smallproject/build'
 <2> Actual task execution, during the first build.
 <3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
 <4> This print was output during the call to `clean`.
+
+=== Executing specific routines before or after the build
+
+User functions may be bound to be executed at two key moments during the build command (callbacks):
+
+. immediately before the build starts (bld.add_pre_fun)
+. immediately after the build is completed successfully (bld.add_post_fun)
+
+Here is how to execute a test after the build is finished:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def options(ctx):
+	ctx.add_option('--exe', action='store_true', default=False,
+		help='execute the program after it is built')
+
+def configure(ctx):
+	pass
+
+def pre(ctx): <1>
+	print('before the build is started')
+
+def post(ctx):
+	print('after the build is complete')
+	if ctx.cmd == 'install': <2>
+		if ctx.options.exe: <3>
+			ctx.exec_command('/sbin/ldconfig') <4>
+
+def build(ctx):
+	ctx.add_pre_fun(pre) <5>
+	ctx.add_post_fun(post)
+---------------
+
+<1> The callbacks take the build context as unique parameter 'ctx'
+<2> Access the command type
+<3> Access to the command-line options
+<4> A common scenario is to call ldconfig after the files are installed.
+<5> Scheduling the functions for later execution. Remember that in Python, functions are objects too.
+
+Upon execution, the following output will be produced:
+
+[source,shishell]
+---------------
+waf distclean configure build install --exe
+'distclean' finished successfully (0.005s)
+'configure' finished successfully (0.011s)
+Waf: Entering directory `/disk/comp/waf/docs/book/examples/build_2/build'
+before the build is started <1>
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_2/build'
+after the build is complete <2>
+'build' finished successfully (0.004s)
+Waf: Entering directory `/disk/comp/waf/docs/book/examples/build_2/build'
+before the build is started
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_2/build'
+after the build is complete
+/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied <3>
+'install' finished successfully (15.730s)
+---------------
+
+<1> output of the function bound by 'bld.add_pre_fun'
+<2> output of the function bound by 'bld.add_post_fun'
+<3> execution at installation time
+
+
+////
 
 ==== Finding files and folders through node objects
 
@@ -146,9 +215,13 @@ Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (12.873s)
 ---------------
 
-=== Installing files
+////
 
-Three build context methods are provided for installing files:
+=== More build options
+
+==== Installing files
+
+Three build context methods are provided for installing files created during or after the build:
 
 . install_files: install several files in a folder
 . install_as: install a target with a different name
@@ -166,9 +239,11 @@ def build(bld):
 	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <4>
 
 	start_dir = bld.path.find_dir('src/bar')
-	bld.install_files('${PREFIX}/share', ['foo/a1.h'], cwd=start_dir, relative_trick=True) <5>
+	bld.install_files('${PREFIX}/share', ['foo/a1.h'],
+		cwd=start_dir, relative_trick=True) <5>
 
-	bld.install_files('${PREFIX}/share', start_dir.ant_glob('**/*.png'), cwd=start_dir, relative_trick=True) <6>
+	bld.install_files('${PREFIX}/share', start_dir.ant_glob('**/*.png'), <6>
+		cwd=start_dir, relative_trick=True)
 ---------------
 
 <1> Install various files in the target destination
@@ -177,71 +252,6 @@ def build(bld):
 <4> Overridding the configuration set ('env' is optional in the three methods install_files, install_as and symlink_as)
 <5> Install src/bar/foo/a1.h as seen from the current script into '$\{PREFIX}/share/foo/a1.h'
 <6> Install the png files recursively, preserving the folder structure read from src/bar/
-
-=== Executing specific routines before or after the build
-
-User functions may be bound to be executed at two key moments during the build command (callbacks):
-
-. immediately before the build starts (bld.add_pre_fun)
-. immediately after the build is completed successfully (bld.add_post_fun)
-
-Here is how to execute a test after the build is finished:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def options(ctx):
-	ctx.add_option('--exe', action='store_true', default=False,
-		help='execute the program after it is built')
-
-def configure(ctx):
-	pass
-
-def pre(ctx): <1>
-	print('before the build is started')
-
-def post(ctx):
-	print('after the build is complete')
-	if ctx.cmd == 'install': <2>
-		if ctx.options.exe: <3>
-			ctx.exec_command('/sbin/ldconfig') <4>
-
-def build(ctx):
-	ctx.add_pre_fun(pre) <5>
-	ctx.add_post_fun(post)
----------------
-
-<1> The callbacks take the build context as unique parameter 'ctx'
-<2> Access the command type
-<3> Access to the command-line options
-<4> A common scenario is to call ldconfig after the files are installed.
-<5> Scheduling the functions for later execution. Remember that in Python, functions are objects too.
-
-Upon execution, the following output will be produced:
-
-[source,shishell]
----------------
-waf distclean configure build install --exe
-'distclean' finished successfully (0.005s)
-'configure' finished successfully (0.011s)
-Waf: Entering directory `/disk/comp/waf/docs/book/examples/build_2/build'
-before the build is started <1>
-Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_2/build'
-after the build is complete <2>
-'build' finished successfully (0.004s)
-Waf: Entering directory `/disk/comp/waf/docs/book/examples/build_2/build'
-before the build is started
-Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_2/build'
-after the build is complete
-/sbin/ldconfig: Can't create temporary cache file /etc/ld.so.cache~: Permission denied <3>
-'install' finished successfully (15.730s)
----------------
-
-<1> output of the function bound by 'bld.add_pre_fun'
-<2> output of the function bound by 'bld.add_post_fun'
-<3> execution at installation time
 
 ==== Listing the task generators and forcing specific task generators
 
