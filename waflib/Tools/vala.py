@@ -218,7 +218,7 @@ def configure(self):
 	except Exception:
 		valac_version = (0, 0, 0)
 	else:
-		ver = re.search(r'((\d+).(\d+).(\d+))', output).group(1).split('.')
+		ver = re.search(r'\d+.\d+.\d+', output).group(0).split('.')
 		valac_version = tuple([int(x) for x in ver])
 
 	self.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
