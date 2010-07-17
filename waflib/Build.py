@@ -437,6 +437,7 @@ class BuildContext(Context.Context):
 		"""add a task or a task generator for the build"""
 		# paranoid
 		assert(isinstance(tgen, TaskGen.task_gen) or isinstance(tgen, Task.TaskBase))
+		tgen.bld = self
 		self.get_group(group).append(tgen)
 
 	def get_group_name(self, g):
