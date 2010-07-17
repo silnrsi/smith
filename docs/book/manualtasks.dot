@@ -1,19 +1,12 @@
 digraph G {
 
-	subgraph clusterA {
-		rank = same
-		foo     [label="foo.txt"]
-		bar     [label="bar.txt"]
-	}
-
+	foo     [label="foo.txt"]
+	bar     [label="bar.txt"]
 	wscript [label="wscript"]
 	foobar  [label="foobar.txt"]
-
-	// stupid graphviz does not support adding links to clusters
-	// clusterA -> foobar [label="cat"];
-	wscript -> foo [label="cp"];
-	wscript -> bar [label="cp"];
-	foo -> foobar [label="cat"];
-	bar -> foobar [label="cat"];
+	wscript -> foo;
+	wscript -> bar;
+	foo -> foobar;
+	bar -> foobar;
 }
 
