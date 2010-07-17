@@ -1,11 +1,26 @@
 == The build phase
 
-We will now provide a detailed description of the build command contents, which is used for processing the build targets.
+We will now provide a detailed description of the build phase, which is used for processing the build targets.
 
-=== How the targets are processed
+=== Behind the _build_ command
 
+==== Overview of the build process
 
-==== Role of the build function
+To illustrate the various concepts that are part of the build process, we will now use the following simple build:
+
+image::manualtasks{PIC}["A simple build"{backend@docbook:,width=120:}]
+
+The files +foo.txt+ and +bar.txt+ are intermediate files generated from +wscript+, and +foobar.txt+ is created from the concatenation of the previous files.
+
+////
+"""
+cp: wscript -> foo.txt
+cp: wscript -> bar.txt
+cat: foo.txt + bar.txt -> foobar.txt
+"""
+////
+
+The build process is used to 
 
 Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
 
