@@ -1,9 +1,10 @@
-== Build context and nodes
+== Waf nodes
 
-Node objects may be accessed through a few object (bld.path), and are used internally by task objects. Although their usage is somewhat restricted, there are a few useful applications from user scripts.
+Node objects represent files or folders and are used to ease the access to the filesystem. This chapter provides an overview of their usage.
 
+=== Design of the node class
 
-=== Finding files and folders through node objects
+==== a singleton tree
 
 In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node instances. Two nodes may be accessed from the build context:
 
@@ -51,6 +52,42 @@ path to /etc/fstab: '/etc/fstab'
 Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.003s)
 ---------------
+
+==== caching system
+
+TODO
+
+==== nodes and signatures
+
+TODO
+
+=== General usage
+
+==== searching and creating nodes
+
+TODO
+
+==== finding files recursively
+
+TODO
+
+==== path manipulation: abspath, path_from
+
+TODO
+
+=== BuildContext-specific methods
+
+==== specific use in the configuration/build
+
+describe why ...
+
+==== srcnode/bldnode , get_src/get_bld
+
+TODO
+
+==== find_resource,find_or_declare
+
+TODO
 
 Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
 
