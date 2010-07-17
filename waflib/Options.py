@@ -149,6 +149,11 @@ class OptionsContext(Context.Context):
 		return self.parser.get_option_group(opt_str)
 
 	def tool_options(self, tool_list, *k, **kw):
+		"""
+		load the options that a waf tool provides (or not)
+		@type tool_list: list of string or string representing the space-separated tool list
+		@param tool_list: list of waf tools to use
+		"""
 		#if not k[0]:
 		#	raise Utils.WafError('invalid tool_options call %r %r' % (k, kw))
 		tools = Utils.to_list(tool_list)
