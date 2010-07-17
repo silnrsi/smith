@@ -1,0 +1,10 @@
+#! /usr/bin/env python
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='foo.txt')
+	ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='bar.txt')
+	ctx(rule='cat ${SRC} > ${TGT}', source='foo.txt bar.txt', target='foobar.txt')
+

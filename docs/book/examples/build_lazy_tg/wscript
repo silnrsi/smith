@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	tg = ctx(rule='touch ${TGT}', target='foo')
+	print(type(tg))
+	print(tg.tasks)
+	tg.post()
+	print(tg.tasks)
+	print(type(tg.tasks[0]))
+

@@ -2,9 +2,9 @@
 
 We will now provide a detailed description of the build phase, which is used for processing the build targets.
 
-=== Diving into the _build_ command
+=== Essential build concepts
 
-==== Analysis of a simple build
+==== Tasks, build order and dependencies
 
 To illustrate the various concepts that are part of the build process, we are now going to use a new example.
 The files +foo.txt+ and +bar.txt+ will be created by copying the file +wscript+, and the file +foobar.txt+ will be created from the concatenation of the generated files. Here is a possible representation displaying the command to use, the input files, and the output files:
@@ -18,7 +18,7 @@ cat: foo.txt, bar.txt -> foobar.txt
 
 The three lines represent the *tasks* to execute. While the _cp_ tasks may be executed in any order or even in parallel, the _cat_ task may only be executed after all the _cp_ tasks are done. This represents a constraint on *the build order*. The arrows represent *dependencies*: when the +wscript+ file changes, the +foo.txt+ file must be generated again.
 
-The dependencies are represented on the following graph:
+The dependencies are represented on the following diagram:
 
 image::manualtasks{PIC}["Dependencies on a simple build"{backend@docbook:,width=120:}]
 
@@ -28,6 +28,7 @@ Note that the structure represented is a http://en.wikipedia.org/wiki/Directed_a
 
 We will now represent the build from the previous section by declaring the tasks directly in the build section:
 
+// build_manual_tasks
 [source,python]
 ---------------
 def configure(ctx):
@@ -108,19 +109,73 @@ Waf: Leaving directory `/disk/comp/waf/docs/book/examples/build_manual_tasks/bui
 <1> The tasks are not executed in the _clean_ command
 <2> The build keeps track of the files that were generated to avoid generating them again
 <3> Modify one of the source files
-<4> The dependency graph is causing a rebuild
+<4> Rebuild according to the dependency graph
 
 Please remember:
 
-. The execution order was computed automatically, by using the file inputs and outputs
-. The dependencies were computed automatically (the files were rebuilt when necessary), by using the file contents (hashes of the file contents were stored between the builds and compared)
+. The execution order was *computed automatically*, by using the file inputs and outputs set on the task instances
+. The dependencies were *computed automatically* (the files were rebuilt when necessary), by using the node objects (hashes of the file contents were stored between the builds and then compared)
 . The tasks that have no order constraints are executed in parallel by default
 
-NOTE: Declaring the tasks directly is tedious and results in lengthy scripts. A more simple way of declaring tasks will be provided in the next section.
+==== Task encapsulation by task generators
 
-==== Task encapsulation
+Declaring the tasks directly is tedious and results in lengthy scripts. Feature-wise, the following is equivalent to the previous example:
 
-The build process is used to 
+// build_task_gen
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='foo.txt')
+	ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='bar.txt')
+	ctx(rule='cat ${SRC} > ${TGT}', source='foo.txt bar.txt', target='foobar.txt')
+---------------
+
+The *ctx(...)* call is a shortcut to the class _waflib.TaskGen.task_gen_, instances of this class are called *task generator objects*. The task generators are lazy containers and will only create the tasks and the task classes whey they are actually needed:
+
+// build_lazy_tg
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def build(ctx):
+	tg = ctx(rule='touch ${TGT}', target='foo')
+	print(type(tg))
+	print(tg.tasks)
+	tg.post()
+	print(tg.tasks)
+	print(type(tg.tasks[0]))
+---------------
+
+Here is the output:
+
+[source,shishell]
+---------------
+waf configure build
+Setting top to   : /tmp/build_lazy_tg
+Setting out to   : /tmp/build_lazy_tg/build
+'configure' finished successfully (0.204s)
+Waf: Entering directory `/tmp/build_lazy_tg/build'
+<class 'waflib.TaskGen.task_gen'> <1>
+[] <2>
+<class 'waflib.Task.foo'> <3>
+[{task: foo  -> foo}] <4>
+[1/1] foo:  -> build/foo
+Waf: Leaving directory `/tmp/build_lazy_tg/build'
+'build' finished successfully (0.023s)
+---------------
+
+<1> Task generator type
+<2> The tasks created are stored in the list _tasks_
+<3> A new task class was created dynamically for the target +foo+
+<4> Tasks are created after calling the method post() - it is usually called automatically internally
+
+=== The build process
+
+==== Overview
 
 Since the Waf commands build, clean, install and uninstall execute the same function 'build', it is somehow necessary to isolate the declaration of the targets from the actual code that will create them. For example:
 
