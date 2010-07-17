@@ -177,7 +177,7 @@ Waf: Leaving directory `/tmp/build_lazy_tg/build'
 
 A high level overview of the build process is represented on the following diagram:
 
-image::build{PIC}["Build process overview"{backend@docbook:,width=110:}]
+image::build{PIC}["Build process overview"{backend@docbook:,width=130:}]
 
 NOTE: The tasks are all created before any of them is executed. New tasks may be created after the build has started, but the dependencies have to be set by using low-level apis.
 
