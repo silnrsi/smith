@@ -169,7 +169,7 @@ Waf: Leaving directory `/tmp/build_lazy_tg/build'
 ---------------
 
 <1> Task generator type
-<2> The tasks created are stored in the list _tasks_
+<2> The tasks created are stored in the list _tasks_ (0..n tasks may be added)
 <3> A new task class was created dynamically for the target +foo+
 <4> Tasks are created after calling the method post() - it is usually called automatically internally
 
@@ -188,52 +188,7 @@ Since the Waf commands build, clean, install and uninstall execute the same func
 image::build{PIC}["Build process overview"{backend@docbook:,width=110:}]
 
 
-These main contraints lead to the creation of an abstraction layer between the actual code execution ('task') and the declaration ('task generators'). Here are two important definitions:
-
-. `Task`: Abstract unit of data transformation which may be delegated for later execution. Task instances often present sequential constraints and require a scheduler to optimize the overall execution time (execution in parallel whenever possible).
-. `Task generator`: Object part of the user interface (Waf scripts) used to create lots of task instances. The task generators handle global constraints across the tasks: access to the configuration sets, data sharing, operating system abstraction, error checking, etc
-
-Here is a sample project script to illustrate the concepts:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(ctx):
-	pass
-
-def build(ctx):
-	obj = ctx(target='test.txt', rule='touch ${TGT}')
-	print('  ' + str(obj.__class__))
----------------
-
-The call _ctx(...)_ is just a shortcut on the build context to create new task generator instances easily. The output will be the following:
-
-[source,shishell]
----------------
-$ waf distclean configure build build clean
-'distclean' finished successfully (0.002s)
-'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/smallproject/build'
-  class 'TaskGen.task_gen' <1>
-[1/1] test.txt:  -> build/test.txt <2>
-Waf: Leaving directory `/tmp/smallproject/build'
-'build' finished successfully (0.011s)
-Waf: Entering directory `/tmp/smallproject/build'
-  class 'TaskGen.task_gen' <3>
-Waf: Leaving directory `/tmp/smallproject/build'
-'build' finished successfully (0.004s)
-  class 'TaskGen.task_gen' <4>
-'clean' finished successfully (0.002s)
----------------
-
-<1> Print _obj.__class___.
-<2> Actual task execution, during the first build.
-<3> This print was output during the second `build` execution. The target is considered up-to-date and is not rebuilt.
-<4> This print was output during the call to `clean`.
-
-=== Executing specific routines before or after the build
+==== Executing specific routines before or after the build
 
 User functions may be bound to be executed at two key moments during the build command (callbacks):
 
