@@ -248,11 +248,26 @@ TODO
 
 ==== find_resource,find_or_declare
 
-TODO
+Three main Node methods are commonly used for accessing the file system during the build:
 
-Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
+. find_dir: return a directory node or None if the folder cannot be found on the system. By calling this method, the corresponding folders in the build directory will be created for each variant.
+. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists. Compute and store the node signature (by hashing the file). This method will call 'find_dir' internally.
+. find_or_declare: Return a build node. If no corresponding build node exists, it will be created first. This method will call 'find_dir' internally to create the required directory structure
+
+Because the folders may be replicated in the build directory before the build starts, it is recommended to use the method 'find_dir' whenever possible:
+
+[source,python]
+---------------
+def build(bld):
+	p = bld.path.parent.find_dir('src') <1>
+	p = bld.path.find_dir('../src') <2>
+---------------
+
+<1> Bad, do not use.
+<2> Recommended. Path separators are converted automatically according to the platform.
 
 
+// hmmm clean the stuff below ///////////////////////////////////////////////////////////////////////////////////////
 
 === Build context creation and access
 
@@ -379,31 +394,4 @@ Waf: Leaving directory `/tmp/nested/build'
 ---------------
 
 NOTE: Tasks created by task generators are somehow private objects. They should not be manipulated directly in the 'build' function, but rather by task generator methods.
-
-=== Using nodes
-
-==== Obtaining nodes
-
-Three main Node methods are commonly used for accessing the file system:
-
-. find_dir: return a directory node or None if the folder cannot be found on the system. By calling this method, the corresponding folders in the build directory will be created for each variant.
-. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists. Compute and store the node signature (by hashing the file). This method may call 'find_dir' internally.
-. find_or_declare: Return a build node. If no corresponding build node exist, it will be created first. This method may call 'find_dir' internally.
-
-These methods interact with the filesystem, and may create other nodes such as intermediate folders. It is important to avoid their usage in a context of concurrency (threading). In general, this means avoiding node manipulations in the methods that execute the tasks.
-
-Although nodes have an attribute named 'parent', it is usually better to access the hierarchy by calling 'find_dir' with a relative path. For example:
-
-[source,python]
----------------
-def build(bld):
-	p = bld.path.parent.find_dir('src') <1>
-	p = bld.path.find_dir('../src') <2>
----------------
-
-<1> Bad, do not use.
-<2> Recommended. Separators such as '/' are converted automatically and does not need to be the os separator.
-
-WARNING: Node instances must not be created manually.
-
 
