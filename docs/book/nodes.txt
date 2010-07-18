@@ -6,13 +6,7 @@ Node objects represent files or folders and are used to ease the operations deal
 
 ==== The node tree
 
-Despite the methods provided by the Python libraries, file system operations can be slow and quite inconvenient to do:
-
-. computing absolute and relative path
-. listing files and folders
-. searching for files
-
-To improve the situation, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node objects. Waf nodes inherit the class _waflib.Node.Node_ and provide a tree structure:
+The Waf nodes inherit the class _waflib.Node.Node_ and provide a tree structure to represent the file system:
 
 . *parent*: parent node
 . *children*: folder contents - or empty if the node is a file
@@ -91,15 +85,63 @@ $ ls /
 bin boot dev etc home tmp usr var
 ---------------
 
-==== nodes and signatures
+// ==== nodes and signatures TODO
 
-TODO
 
 === General usage
 
-==== searching and creating nodes
+==== Searching and creating nodes
 
-TODO
+Nodes may be created manually or read from the file system. Three methods are provided for this purpose:
+
+// nodes_search
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def dosomething(ctx):
+	print(ctx.path.find_node('wscript')) <1>
+
+	nd1 = ctx.path.make_node('foo.txt') <2>
+	print(nd1)
+
+	nd2 = ctx.path.search('foo.txt') <3>
+	print(nd2)
+
+	nd3 = ctx.path.search('bar.txt') <4>
+	print(nd3)
+
+	nd2.write('some text') <5>
+	print(nd2.read())
+
+	print(ctx.path.listdir())
+---------------
+
+<1> Search for a nodes by reading the file system
+<2> Search for a node or create it if it does not exist
+<3> Search for a node but do not try to create it
+<4> Search for a file which does not exist
+<5> Write to the file pointed by the node, creating or overwriting the file
+
+The output will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure dosomething
+'distclean' finished successfully (0.005s)
+Setting top to    : /tmp/nodes_search
+Setting out to    : /tmp/nodes_search/build
+'configure' finished successfully (0.006s)
+wscript
+foo.txt
+foo.txt
+None
+some text
+['.lock-wafbuild', 'foo.txt', 'build', 'wscript', '.svn']
+---------------
+
+NOTE: More methods may be found in the http://freehackers.org/~tnagy/wafdoc160/[API documentation]
 
 ==== finding files recursively
 
