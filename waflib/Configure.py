@@ -168,7 +168,7 @@ class ConfigurationContext(Context.Context):
 
 		if id(self.srcnode) == id(self.bldnode):
 			Logs.warn('setting top == out')
-		elif id(self.path) == id(self.srcnode):
+		elif id(self.path) != id(self.srcnode):
 			if self.srcnode.is_child_of(self.path):
 				Logs.warn('Using an uncommon top directory')
 
