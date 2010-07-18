@@ -188,7 +188,53 @@ Setting out to    : /tmp/nodes_ant_glob/build
 
 ==== path manipulation: abspath, path_from
 
-TODO
+The method 'abspath' is used to obtain the absolute path for a node. In the following example, three nodes are used:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(conf):
+	pass
+
+def build(ctx):
+	dir = ctx.path <1>
+	src = ctx.path.find_resource('wscript')
+	bld = ctx.path.find_or_declare('out.out')
+
+	print(src.abspath(ctx.env)) <2>
+	print(bld.abspath(ctx.env))
+	print(dir.abspath(ctx.env)) <3>
+	print(dir.abspath())
+---------------
+
+<1> Directory node, source node and build node
+<2> Computing the absolute path for source node or a build node takes a configuration set as parameter
+<3> Computing the absolute path for a directory may use a configuration set or not
+
+Here is the execution trace:
+
+[source,shishell]
+---------------
+$ waf distclean configure build
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.005s)
+Waf: Entering directory `/tmp/nested/build'
+/tmp/nested/wscript <1>
+/tmp/nested/build/default/out.out <2>
+/tmp/nested/build/default/ <3>
+/tmp/nested <4>
+Waf: Leaving directory `/tmp/nested/build'
+'build' finished successfully (0.003s)
+---------------
+
+<1> Absolute path for the source node
+<2> The absolute path for the build node depends on the variant in use
+<3> When a configuration set is provided, the absolute path for a directory node is the build directory representation including the variant
+<4> When no configuration set is provided, the directory node absolute path is the one for the source directory
+
+NOTE: Several other methods such as 'relpath_gen' or 'srcpath' are provided. See the http://freehackers.org/~tnagy/wafdoc/index.html[api documentation]
 
 === BuildContext-specific methods
 
@@ -207,66 +253,6 @@ TODO
 Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
 
 
-
-=== Node types
-
-Although nodes are use for representing the filesystem, there are only 3 node types:
-
-. Source nodes represent source files present on the file system. The signature for a source node is the hash of the file contents.
-. Build nodes represent files created under the build directory. While build nodes are not bound to the build variant, the build nodes may have several signatures corresponding to the variants in which the files have been created (the signature is the signature of the task that created the file).
-. Directory nodes represent the folders from the project directory. During the build phase, the folders corresponding to the source directory are automatically created for each variant into the build directory. Directory nodes have no associated signatures.
-
-For example, for a project located in /tmp/nodes, using the rule 'source.in' -> 'target.out' with three variants 'default', 'debug' and 'release', the filesystem contents will be:
-
-[source,shishell]
----------------
-$ tree
-.
-|-- build
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   |-- debug.cache.py
-|   |   |-- default.cache.py
-|   |   `-- release.cache.py
-|   |-- config.log
-|   |-- debug
-|   |   `-- target.out
-|   |-- default
-|   `-- release
-|       `-- target.out
-|-- source.in
-`-- wscript
----------------
-
-And the filesystem representation will consist in only three nodes:
-
-[source,shishell]
----------------
-dir:///tmp/nodes <1>
-src:///tmp/nodes/source.in <2>
-bld:///tmp/nodes/target.out <3>
----------------
-
-<1> The project directory. Directory nodes are represented by 'dir://'
-<2> The source node for 'source.in'. Source nodes are represented by 'src://'
-<3> The build node for the outputs 'target.out'. Build nodes are represented by 'bld://'
-
-There can be only one node of a name for a given directory node. Because of this restriction, it is not possible to copy a file from the source directory to the corresponding build directory (for a given variant):
-
-[source,python]
----------------
-bld(
-	rule   = 'cp ${SRC} ${TGT}',
-	source = 'test.png',
-	target = 'test.png') <1>
-
-bld(
-	rule   = 'cp ${SRC} ${SRC[0].parent.abspath(env)}/${SRC[0].name}',
-	source = 'test.png') <2>
----------------
-
-<1> Forbidden
-<2> Discouraged, but Ok.
 
 === Build context creation and access
 
@@ -420,146 +406,4 @@ def build(bld):
 
 WARNING: Node instances must not be created manually.
 
-==== The absolute path
-
-The method 'abspath' is used to obtain the absolute path for a node. In the following example, three nodes are used:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-	pass
-
-def build(ctx):
-	dir = ctx.path <1>
-	src = ctx.path.find_resource('wscript')
-	bld = ctx.path.find_or_declare('out.out')
-
-	print(src.abspath(ctx.env)) <2>
-	print(bld.abspath(ctx.env))
-	print(dir.abspath(ctx.env)) <3>
-	print(dir.abspath())
----------------
-
-<1> Directory node, source node and build node
-<2> Computing the absolute path for source node or a build node takes a configuration set as parameter
-<3> Computing the absolute path for a directory may use a configuration set or not
-
-Here is the execution trace:
-
-[source,shishell]
----------------
-$ waf distclean configure build
-'distclean' finished successfully (0.002s)
-'configure' finished successfully (0.005s)
-Waf: Entering directory `/tmp/nested/build'
-/tmp/nested/wscript <1>
-/tmp/nested/build/default/out.out <2>
-/tmp/nested/build/default/ <3>
-/tmp/nested <4>
-Waf: Leaving directory `/tmp/nested/build'
-'build' finished successfully (0.003s)
----------------
-
-<1> Absolute path for the source node
-<2> The absolute path for the build node depends on the variant in use
-<3> When a configuration set is provided, the absolute path for a directory node is the build directory representation including the variant
-<4> When no configuration set is provided, the directory node absolute path is the one for the source directory
-
-NOTE: Several other methods such as 'relpath_gen' or 'srcpath' are provided. See the http://freehackers.org/~tnagy/wafdoc/index.html[api documentation]
-
-=== Searching for nodes
-
-==== ant_glob
-
-The http://ant.apache.org/manual/dirtasks.html[Ant-like] Node method 'ant_glob' is used for finding nodes or files.
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-	pass
-
-def build(ctx):
-	print(ctx.path.ant_glob('**/*', src=True, bld=False, dir=False, flat=False))
-	print(ctx.path.ant_glob('**/*', src=True, bld=False, dir=False, flat=True))
----------------
-
-The results will be:
-
-[source,shishell]
----------------
-$ waf
-wscript .lock-wscript
-[src:///tmp/ant/wscript, src:///tmp/ant/.lock-wscript]
----------------
-
-The behaviour of 'ant_glob' will be recursive if the expression contains '**'. It is therefore a good idea to limit the expression to what is strictly necessary.
-
-==== update_build_dir
-
-By default, 'ant_glob' will only find the files for folders that exist in the build directory. If new folders are created manually in the build directory, they must be declared somehow. Here is an example:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-    conf.find_program('touch', mandatory=True)
-
-def build(bld):
-    bld(rule='mkdir -p default/a/b/c/ && touch default/a/b/c/foo.txt', name='blah')
-
-    def printi(bld):
-        print(' before update %r' % bld.path.ant_glob('**/*.txt', bld=True))
-        bld.path.update_build_dir(bld.env)
-        print(' after update  %r' % bld.path.ant_glob('**/*.txt', bld=True))
-
-    bld.add_post_fun(printi)
----------------
-
-The tree generated during the build will be the following:
-
-[source,shishell]
----------------
-$ tree
-.
-|-- build
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   `-- default.cache.py
-|   |-- config.log
-|   `-- default
-|       `-- a
-|           `-- b
-|               `-- c
-|                   `-- foo.txt
-`-- wscript
----------------
-
-The output from the execution will be:
-
-[source,shishell]
----------------
-$ waf distclean configure build
-'distclean' finished successfully (0.002s)
-Checking for program touch               : ok /usr/bin/touch
-'configure' finished successfully (0.003s)
-Waf: Entering directory `/comp/waf/demos/simple_scenarios/magic_outputs/build'
-[1/1] blah:
-Waf: Leaving directory `/comp/waf/demos/simple_scenarios/magic_outputs/build'
- before update '' <1>
- after update  'a/b/c/foo.txt' <2>
-'build' finished successfully (0.018s)
----------------
-
-<1> Files created in the build directory by a foreign process are ignored
-<2> Read the contents from the build directory
-
-NOTE: In 'update_build_dir', the parameter 'env' is optional. When unset, all variants are considered.
 
