@@ -236,23 +236,50 @@ NOTE: Several other methods such as 'relpath_gen' or 'srcpath' are provided. See
 
 === BuildContext-specific methods
 
-==== Serialization concerns
+==== Source and build nodes
 
-describe why ...
+Although the _sources_ and _targets_ in the +wscript+ files are declared as if they were in the current directory, the target files are output into the build directory. To enable this behaviour, the directory structure below the _top_ directory must be replicated in the _out_ directory. For example, the folder *program* from +demos/c+ has its equivalent in the build directory:
 
-==== srcnode/bldnode , get_src/get_bld
+[source,shishell]
+---------------
+$ cd demos/c
+$ tree
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.h
+|   |-- config.log
+|   `-- program
+|       |-- main.c.0.o
+|       `-- myprogram
+|-- program
+|   |-- a.h
+|   |-- main.c
+|   `-- wscript_build
+`-- wscript
+---------------
 
-TODO
+To support this, the build context provides two additional nodes:
+
+. srcnode: node representing the top-level directory
+. bldnode: node representing the build directory
+
+To obtain a build node from a src node and vice-verca, the following methods may be used
+
+. Node.get_src()
+. Node.get_bld()
 
 ==== Using Nodes during the build phase
 
-Three main Node methods are commonly used for accessing the file system during the build. They accept a string representing the target as input and return a single node:
+Although using _srcnode_ and _bldnode_ directly is possible, the three following wrapper methods are much easier to use. They accept a string representing the target as input and return a single node:
 
 . *find_dir*: returns a node or None if the folder cannot be found on the system.
 . *find_resource*: returns a node under the source directory, a node under the corresponding build directory, or None if no such a node exists. If the file is not in the build directory, the node signature is computed and put into a cache (file contents hash).
 . *find_or_declare*: returns a node or create the corresponding node in the build directory.
 
-All these methods will create the required directory structure in the build directory my calling _find_dir_ internally. Because the folders may be replicated in the build directory before the build starts, it is recommended to use it whenever possible:
+Besides, they all use _find_dir_ internally which will create the required directory structure in the build directory. Because the folders may be replicated in the build directory before the build starts, it is recommended to use it whenever possible:
 
 [source,python]
 ---------------
@@ -263,4 +290,9 @@ def build(bld):
 
 <1> Not recommended, use _find_dir_ instead
 <2> Path separators are converted automatically according to the platform.
+
+==== Serialization concerns
+
+The nodes are bound to 
+
 
