@@ -1,19 +1,23 @@
 == Waf nodes
 
-Node objects represent files or folders and are used to ease the access to the filesystem. This chapter provides an overview of their usage.
+Node objects represent files or folders and are used to ease the operations dealing with the file system. This chapter provides an overview of their usage.
 
 === Design of the node class
 
-==== The filesystem tree
+==== The node tree
 
-In general, file system access are slow operations (listing files and folders, reading file permissions, etc). For this reason, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node objects. The nodes are then used as a cache to obtain relative or absolute paths and to read and write data. There is a strict correspondance between nodes and filesystem files: a node represents exactly one file or one folder, and only one node can represent a file or a folder.
+Despite the methods provided by the Python libraries, file system operations can be slow and quite inconvenient to do:
 
-In practice, the reference to the filesystem tree is bound to the context classes for easy access:
+. computing absolute and relative path
+. listing files and folders
+. searching for files
 
-. *root*: file system root (or the folder containing the drive letters on win32 systems)
-. *path*: path to the +wscript+ file being executed
+To improve the situation, Waf maintains an internal representation of the files and folders already explored in the form of a tree of Node objects. Waf nodes inherit the class _waflib.Node.Node_ and provide a tree structure:
 
-Here is an illustration:
+. *parent*: parent node
+. *children*: folder contents - or empty if the node is a file
+
+In practice, the reference to the filesystem tree is bound to the context classes for access from Waf commands. Here is an illustration:
 
 // nodes_tree
 [source,python]
@@ -25,12 +29,15 @@ def configure(ctx):
     pass
 
 def dosomething(ctx):
-    print(ctx.path.abspath())
-    print(ctx.root.abspath())
+    print(ctx.path.abspath()) <1>
+    print(ctx.root.abspath()) <2>
     print("ctx.path contents %r" % ctx.path.children)
     print("ctx.path parent   %r" % ctx.path.parent.abspath())
     print("ctx.root parent   %r" % ctx.root.parent)
 ---------------
+
+<1> *ctx.path* represents the path to the +wscript+ file being executed
+<2> *ctx.root* is the root of the file system or the folder containing the drive letters (win32 systems)
 
 The execution output will be the following:
 
@@ -53,9 +60,36 @@ ctx.root parent   None <4>
 <3> Each node keeps reference to his _parent_ node
 <4> The root node has no _parent_
 
-==== Nodes lazy behaviour
+NOTE: There is a strict correspondance between nodes and filesystem elements: a node represents exactly one file or one folder, and only one node can represent a file or a folder.
 
-TODO
+==== Node caching
+
+By default, only the necessary nodes are created:
+
+// nodes_cache
+[source,python]
+---------------
+def configure(ctx):
+    pass
+
+def dosomething(ctx):
+    print(ctx.root.children)
+---------------
+
+The filesystem root appears to only contain one node, although the real filesystem root contains more folders than just +/tmp+:
+
+[source,shishell]
+---------------
+$ waf configure dosomething
+Setting top to   : /tmp/nodes_cache
+Setting out to   : /tmp/nodes_cache/build
+'configure' finished successfully (0.086s)
+{'tmp': /tmp}
+'dosomething' finished successfully (0.001s)
+
+$ ls /
+bin boot dev etc home tmp usr var
+---------------
 
 ==== nodes and signatures
 
