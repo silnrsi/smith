@@ -378,7 +378,7 @@ class Node(object):
 				if getattr(node, 'cache_isdir', None) or isdir:
 					node.cache_isdir = True
 					if maxdepth:
-						for k in node.ant_iter(accept=accept, maxdepth=maxdepth - 1, pats=npats):
+						for k in node.ant_iter(accept=accept, maxdepth=maxdepth - 1, pats=npats, dir=dir, src=src):
 							yield k
 		raise StopIteration
 
