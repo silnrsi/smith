@@ -70,7 +70,7 @@ def jar_files(self):
 	tsk.basedir = d
 
 	jaropts.append('-C')
-	jaropts.append(d.abspath())
+	jaropts.append(d.bldpath())
 	jaropts.append('.')
 
 	tsk.env['JAROPTS'] = jaropts
@@ -100,7 +100,7 @@ def apply_java(self):
 	for x in src_nodes:
 		x.sig = Utils.h_file(x.abspath())
 
-	self.env['OUTDIR'] = [srcdir_node.get_bld().abspath()]
+	self.env['OUTDIR'] = [srcdir_node.srcpath()]
 
 	tsk = self.create_task('javac')
 	tsk.set_inputs(src_nodes)
@@ -155,7 +155,7 @@ class javac(Task.Task):
 
 		inner = []
 		for k in lst:
-			lst = Utils.listdir(k.abspath())
+			lst = k.listdir()
 			for u in lst:
 				if u.find('$') >= 0:
 					node = k.find_or_declare(u)
@@ -207,12 +207,12 @@ def check_java_class(self, classname, with_classpath=None):
 	java_file.close()
 
 	# Compile the source
-	Utils.exec_command(self.env['JAVAC'] + [os.path.join(javatestdir, 'Test.java')], shell=False)
+	self.exec_command(self.env['JAVAC'] + [os.path.join(javatestdir, 'Test.java')], shell=False)
 
 	# Try to run the app
 	cmd = self.env['JAVA'] + ['-cp', classpath, 'Test', classname]
 	self.to_log("%s\n" % str(cmd))
-	found = Utils.exec_command(cmd, shell=False, log=self.log)
+	found = self.exec_command(cmd, shell=False)
 
 	self.msg('Checking for java class %s' % classname, not found)
 
