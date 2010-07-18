@@ -291,8 +291,5 @@ def build(bld):
 <1> Not recommended, use _find_dir_ instead
 <2> Path separators are converted automatically according to the platform.
 
-==== Serialization concerns
-
-The nodes are bound to 
-
+// ==== Serialization concerns
 
