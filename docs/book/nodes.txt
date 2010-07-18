@@ -160,17 +160,15 @@ out = 'build'
 def configure(ctx):
 	pass
 
-def build(ctx):
+def dosomething(ctx):
 	print(ctx.path.ant_glob('wsc*'))<1>
 	print(ctx.path.ant_glob('w?cr?p?'))<2>
-	print(ctx.root<3>.ant_glob('bin/**/g*'<4>, dir=True, src=False)) <5>
+	print(ctx.root.ant_glob('usr/include/**/zlib*' <3>, dir=False, src=True))
 ---------------
 
 <1> The method ant_glob is called on a node object, and not on the build context
 <2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
-<3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
-<4> The '**' indicates to consider folders recursively. Use with care.
-<5> By default, only nodes representing source files are returned (_dir=False_ and _src=True_).
+<3> The '**' indicates to consider folders recursively. Use with care.
 
 The execution output will be similar to the following:
 
@@ -246,15 +244,15 @@ describe why ...
 
 TODO
 
-==== find_resource,find_or_declare
+==== Using Nodes during the build phase
 
-Three main Node methods are commonly used for accessing the file system during the build:
+Three main Node methods are commonly used for accessing the file system during the build. They accept a string representing the target as input and return a single node:
 
-. find_dir: return a directory node or None if the folder cannot be found on the system. By calling this method, the corresponding folders in the build directory will be created for each variant.
-. find_resource: return a source node, or a build node if a build node with the given name exist, or None if no such node exists. Compute and store the node signature (by hashing the file). This method will call 'find_dir' internally.
-. find_or_declare: Return a build node. If no corresponding build node exists, it will be created first. This method will call 'find_dir' internally to create the required directory structure
+. *find_dir*: returns a node or None if the folder cannot be found on the system.
+. *find_resource*: returns a node under the source directory, a node under the corresponding build directory, or None if no such a node exists. If the file is not in the build directory, the node signature is computed and put into a cache (file contents hash).
+. *find_or_declare*: returns a node or create the corresponding node in the build directory.
 
-Because the folders may be replicated in the build directory before the build starts, it is recommended to use the method 'find_dir' whenever possible:
+All these methods will create the required directory structure in the build directory my calling _find_dir_ internally. Because the folders may be replicated in the build directory before the build starts, it is recommended to use it whenever possible:
 
 [source,python]
 ---------------
@@ -263,8 +261,8 @@ def build(bld):
 	p = bld.path.find_dir('../src') <2>
 ---------------
 
-<1> Bad, do not use.
-<2> Recommended. Path separators are converted automatically according to the platform.
+<1> Not recommended, use _find_dir_ instead
+<2> Path separators are converted automatically according to the platform.
 
 
 // hmmm clean the stuff below ///////////////////////////////////////////////////////////////////////////////////////
