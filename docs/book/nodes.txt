@@ -85,6 +85,8 @@ $ ls /
 bin boot dev etc home tmp usr var
 ---------------
 
+This means in particular that some nodes may have to be read from the file system or created before being used.
+
 // ==== nodes and signatures TODO
 
 
@@ -143,9 +145,46 @@ some text
 
 NOTE: More methods may be found in the http://freehackers.org/~tnagy/wafdoc160/[API documentation]
 
-==== finding files recursively
+WARNING: These methods are not safe for concurrent access. The node class methods are not thread-safe.
 
-TODO
+==== Finding files recursively
+
+Files and folders may be found recursively by using the method *ant_glob*:
+
+// nodes_ant_glob
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	print(ctx.path.ant_glob('wsc*'))<1>
+	print(ctx.path.ant_glob('w?cr?p?'))<2>
+	print(ctx.root<3>.ant_glob('bin/**/g*'<4>, dir=True, src=False)) <5>
+---------------
+
+<1> The method ant_glob is called on a node object, and not on the build context
+<2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
+<3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
+<4> The '**' indicates to consider folders recursively. Use with care.
+<5> By default, only nodes representing source files are returned (_dir=False_ and _src=True_).
+
+The execution output will be similar to the following:
+
+[source,shishell]
+---------------
+$ waf configure dosomething
+Setting top to    : /tmp/nodes_ant_glob
+Setting out to    : /tmp/nodes_ant_glob/build
+'configure' finished successfully (0.006s)
+[/tmp/nodes_ant_glob/wscript]
+[/tmp/nodes_ant_glob/wscript]
+[/usr/include/boost/iostreams/detail/config/zlib.hpp,
+  /usr/include/boost/iostreams/filter/zlib.hpp, /usr/include/zlib.h]
+---------------
 
 ==== path manipulation: abspath, path_from
 
@@ -166,39 +205,6 @@ TODO
 TODO
 
 Listing files and folders automatically reduces the needs for updating the scripts (files may be added, removed or renamed). A Node method called 'ant_glob' enables searching for folders and files on the file system. Here is an illustration:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(ctx):
-	pass
-
-def build(bld):
-	print(bld.path.ant_glob('wsc*'))<1>
-	print(bld.path.ant_glob('w?cr?p?'))<2>
-	print(bld.root<3>.ant_glob('etc/**/g*'<4>, dir=True, src=False, bld=False)) <5>
----------------
-
-<1> The method ant_glob is called on a node object, and not on the build context
-<2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
-<3> Calling ant_glob on the file system root may be slow, and may give different results depending on the operating system
-<4> The '**' indicates to consider folders recursively. Use with care.
-<5> By default, only node representing source files are returned. It is possible to obtain folder nodes and build file nodes by turning on the appropriate options.
-
-The execution output will be similar to the following:
-
-[source,shishell]
----------------
-$ waf
-Waf: Entering directory `/tmp/smallproject/build'
-wscript
-wscript
-etc/ghostscript etc/gconf etc/gconf/gconf.xml.mandatory etc/gnome-vfs-2.0 etc/gpm etc/gnupg etc/gre.d etc/gdm
-Waf: Leaving directory `/tmp/smallproject/build'
-'build' finished successfully (12.873s)
----------------
 
 
 
