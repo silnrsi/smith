@@ -9,4 +9,6 @@ def configure(ctx):
 def dosomething(ctx):
 	print(ctx.path.abspath())
 	print(ctx.root.abspath())
-	print("root children %r" % (ctx.path.children))
+	print("ctx.path contents %r" % (ctx.path.children))
+	print("ctx.path parent   %r" % ctx.path.parent.abspath())
+	print("ctx.root parent   %r" % ctx.root.parent)
