@@ -161,16 +161,16 @@ def configure(ctx):
 	pass
 
 def dosomething(ctx):
-	print(ctx.path.ant_glob('wsc*'))<1>
-	print(ctx.path.ant_glob('w?cr?p?'))<2>
-	print(ctx.root.ant_glob('usr/include/**/zlib*' <3>, dir=False, src=True))
+	print(ctx.path.ant_glob('wsc*')) <1>
+	print(ctx.path.ant_glob('w?cr?p?')) <2>
+	print(ctx.root.ant_glob('usr/include/**/zlib*', dir=False, src=True)) <3>
 ---------------
 
 <1> The method ant_glob is called on a node object, and not on the build context
 <2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
 <3> The '**' indicates to consider folders recursively. Use with care.
 
-The execution output will be similar to the following:
+The execution output will be the following:
 
 [source,shishell]
 ---------------
@@ -236,7 +236,7 @@ NOTE: Several other methods such as 'relpath_gen' or 'srcpath' are provided. See
 
 === BuildContext-specific methods
 
-==== specific use in the configuration/build
+==== Serialization concerns
 
 describe why ...
 
@@ -263,133 +263,4 @@ def build(bld):
 
 <1> Not recommended, use _find_dir_ instead
 <2> Path separators are converted automatically according to the platform.
-
-
-// hmmm clean the stuff below ///////////////////////////////////////////////////////////////////////////////////////
-
-=== Build context creation and access
-
-For testing purposes, a function created from a build context instance could create another build context. Therefore, the build context is not a singleton. The task signatures and the dependent nodes are then bound to the build context instance that created them.
-
-Here is how to create a build context inside another build context:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-	pass
-
-def build(ctx):
-
-	def do_it():
-
-		from waflib import ConfigSet, Build
-		bld = Build.BuildContext() <1>
-		bld.load_dirs('/tmp', '/tmp/build') <2>
-		env = ConfigSet.ConfigSet()
-		bld.all_envs['default'] = env <3>
-		bld.init_variants() <4>
-
-		bld( <5>
-			rule   = 'echo hi from the nested context!',
-			always = True)
-
-		bld.compile() <6>
-
-	ctx( <7>
-		rule   = 'echo hi from the main buildcontext',
-		always = True)
-
-	do_it() <8>
----------------
-
-<1> Create a new build context.
-<2> Set the project and the output folders
-<3> Set the configuration data set
-<4> Create the folder(s) '/tmp/build/variant' and initialize the build node signature cache
-<5> Declare a task generator
-<6> Execute a build
-<7> Create a task generator for the main build context
-<8> Call the function 'do_it' to create immediately a new build context and to execute it
-
-The execution trace is the following:
-
-[source,shishell]
----------------
-$ waf distclean configure build
-'distclean' finished successfully (0.002s)
-'configure' finished successfully (0.002s)
-Waf: Entering directory `/tmp/nested/build'
-[1/1] echo hi from the nested context!: <1>
-hi from the nested context!
-[1/1] echo hi from the main buildcontext:
-hi from the main buildcontext <2>
-Waf: Leaving directory `/tmp/nested/build'
-'build' finished successfully (0.018s)
----------------
-
-<1> The nested build is executed immediately
-<2> Trace from the normal build
-
-The task generators, the tasks, and the node objects are all bound to a particular build context. Here is how to access the different objects:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-    pass
-
-def build(bld):
-    print('root %r' % type(bld.root)) <1>
-    print('path %r' % bld.path) <2>
-    print('path %r' % bld.srcnode) <3>
-    print('bld %r' % bld.path.__class__.bld) <4>
-
-    def fun(task):
-        print("task %r %r -> %r" % (
-            type(task),
-            task.generator, <5>
-            task.generator.bld) <6>
-        )
-
-    obj = bld(rule=fun, always=True, name='foo')
-    print('tgen %r -> %r' % (type(obj), obj.bld)) <7>
-    print(bld.name_to_obj('foo', bld.env)) <8>
----------------
-
-<1> Filesystem root
-<2> Current path
-<3> Project directory (top-level)
-<4> Access the build context instance from the class
-<5> Get a reference to the task generator that created the task instance
-<6> Get the build context corresponding to the task instance
-<7> The attribute 'bld' of a task generator is the build context
-<8> Obtain a task generator from the build context
-
-The execution trace will be the following:
-
-[source,shishell]
----------------
-$ waf distclean configure build
-'distclean' finished successfully (0.001s)
-'configure' finished successfully (0.002s)
-Waf: Entering directory `/tmp/nested/build'
-root <class 'Node.Nodu'>
-path dir:///tmp/nested
-src  dir:///tmp/nested
-bld <Build.BuildContext object at 0x7f5472764490>
-tgen <class 'TaskGen.task_gen'> -> <Build.BuildContext object at 0x7f5472764490>
-<task_gen 'foo' of type task_gen defined in dir:///tmp/nested>
-[1/1] 1:
-task <class 'Task.1'> <TaskGen.task_gen object at 0x7f547277b610>
-     -> <Build.BuildContext object at 0x7f5472764490>
-Waf: Leaving directory `/tmp/nested/build'
-'build' finished successfully (0.007s)
----------------
-
-NOTE: Tasks created by task generators are somehow private objects. They should not be manipulated directly in the 'build' function, but rather by task generator methods.
 

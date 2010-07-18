@@ -38,12 +38,12 @@ $ waf distclean configure build --foo=abcd -v
 'distclean' finished successfully (0.005s)
 Checking for program touch               : /usr/bin/touch <1>
 'configure' finished successfully (0.007s)
-Waf: Entering directory `/disk/comp/waf/docs/book/examples/configuration_build/build'
+Waf: Entering directory `/tmp/configuration_build/build'
 /usr/bin/touch <2>
 abcd
 [1/1] bar.txt:  -> build/bar.txt
 10:56:41 runner '/usr/bin/touch bar.txt' <3>
-Waf: Leaving directory `/disk/comp/waf/docs/book/examples/configuration_build/build'
+Waf: Leaving directory `/tmp/configuration_build/build'
 'build' finished successfully (0.021s)
 ---------------
 <1> Output of the configuration test _find_program_
@@ -283,9 +283,9 @@ Checking for DANG                        : hello <1>
 
 $ waf
 → loading the dang tool <2>
-Waf: Entering directory `/disk/comp/waf/docs/book/examples/configuration_dang/build'
+Waf: Entering directory `/tmp/configuration_dang/build'
 hello
-Waf: Leaving directory `/disk/comp/waf/docs/book/examples/configuration_dang/build'
+Waf: Leaving directory `/tmp/configuration_dang/build'
 'build' finished successfully (0.004s)
 ---------------
 
