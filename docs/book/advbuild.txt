@@ -100,87 +100,63 @@ def cleanbuild(ctx):
 	Options.commands = ['clean', 'build'] + Options.commands
 ---------------
 
-NOTE: this is especially useful for writing testcases
-
-////
-Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
+This technique is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
 
 [source,python]
 ---------------
-VERSION = '0.0.1'
-APPNAME = 'my_testcase'
+def options(ctx):
+	ctx.tool_options('compiler_cc')
 
-top = '.'
-out = 'build'
-
-from waflib import Scripting
-
-def test(ctx):
-	lst = 'distclean configure setup build modify build'.split()
-	Scripting.commands += lst
-
-def configure(conf):
-	conf.check_tool('gcc')
+def configure(ctx):
+	ctx.check_tool('compiler_cc')
 
 def setup(ctx):
 	n = ctx.path.make_node('main.c')
 	n.write('#include "foo.h"\nint main() {return 0;}\n')
 
+	global v
 	m = ctx.path.make_node('foo.h')
-	m.write('int k = 32;\n')
+	m.write('int k = %d;\n' % v)
+	v += 1
 
-def build(bld):
-	bld.program(
-		source   = 'main.c',
-		target   = 'tprog')
+def build(ctx):
+	ctx.program(source='main.c', target='app')
 
-def modify(ctx):
-	m = ctx.path.make_node('foo.h')
-	m.write('int k = 34;\n')
+def test(ctx):
+	global v <1>
+	v = 12
+
+	import Options <2>
+	lst = ['configure', 'setup', 'build', 'setup', 'build']
+	Options.commands = lst + Options.commands
 ---------------
 
-In the following scenario, the build files are installed into a temporary directory for packaging. This is different from the `waf dist` command which only packages the source files needed for the project.
+<1> To share data between different commands, use a global variable
+<2> The test command is used to add more commands
 
-Because the context objects usually derive from different classes, it is usually forbidden to call a command from another commands. In the following example, the commands to execute are pushed onto a stack:
+The following output will be observed:
 
-[source,python]
+[source,shishell]
 ---------------
-top = '.'
-out = 'out'
-
-from waflib import Scripting
-
-def configure(conf):
-	conf.check_tool('gcc')
-
-def build(bld):
-	bld.install_files('/tmp/foo/', 'wscript') <1>
-	bld(features='cc cprogram', target='foo', source='k.c')
-
-back = False
-def package(ctx): <2>
-	global back
-	Scripting.commands.insert(0, 'package') <3>
-	Scripting.commands.insert(0, 'install') <4>
-	back = ctx.options.destdir <5>
-	ctx.options.destdir = '/tmp/foo'
-
-def create_package(ctx): <6>
-	global back
-	print("packaging")
-	ctx.options.destdir = back <7>
+$ waf test
+'test' finished successfully (0.000s)
+Setting top to                           : /tmp/advbuild_testcase
+Setting out to                           : /tmp/advbuild_testcase/build
+Checking for 'gcc' (c compiler)          : ok
+'configure' finished successfully (0.092s)
+'setup' finished successfully (0.001s)
+Waf: Entering directory `/tmp/advbuild_testcase/build'
+[1/2] c: main.c -> build/main.c.0.o
+[2/2] cprogram: build/main.c.0.o -> build/app
+Waf: Leaving directory `/tmp/advbuild_testcase/build'
+'build' finished successfully (0.137s)
+'setup' finished successfully (0.002s)
+Waf: Entering directory `/tmp/advbuild_testcase/build'
+[1/2] c: main.c -> build/main.c.0.o
+[2/2] cprogram: build/main.c.0.o -> build/app
+Waf: Leaving directory `/tmp/advbuild_testcase/build'
+'build' finished successfully (0.125s)
 ---------------
-
-<1> Perform the installation
-<2> Users will call 'waf package' to create the package
-<3> Postpone the actual package creation
-<4> Now the next command to execute is the installation, and after the installation, the package creation will be performed
-<5> Change the value of 'destdir' for installing the files into a temporary directory
-<6> Command for creating the package
-<7> Restore the value of 'destdir', in case if more commands are to be executed
-
-Note that the 'destdir' parameter is being passed between commands by means of a global option.
-////
 
 ==== Adding a command from a waf tool
 
