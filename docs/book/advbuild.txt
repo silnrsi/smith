@@ -164,7 +164,6 @@ Waf: Leaving directory `/tmp/advbuild_testcase/build'
 
 When the top-level wscript is read, it is converted into a python module and kept in memory. Commands may be added dynamically by injecting the desired function into that module. We will now show how to load a waf tool to count the amount of task generators in the project.
 
-
 // advbuild_cmdtool
 [source,python]
 ---------------
@@ -176,58 +175,32 @@ def options(opt):
 
 def configure(conf):
 	pass
-
-def build(bld): <2>
-	bld(rule='touch ${TGT}', target='foo.txt', always=True)
-	bld(rule='cp ${SRC} ${TGT}', source='foo.txt', target='bar.txt', always=True)
 ---------------
 
-<1> Waf tools are loaded once for the configuration and for the build. To ensure that the tool is always enabled, it is mandatory to load its options, even if the tool does not actually provide options
-<2> Two task generators are provided
-
-Now our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
+Waf tools are loaded once for the configuration and for the build. To ensure that the tool is always enabled, it is mandatory to load its options, even if the tool does not actually provide options. Our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
 
 [source,python]
 ---------------
-import os
-from waflib import Build, Context
+from waflib import Context
 
-def cnt_targets(ctx):
-	"""print the amount of targets"""
-	print 2
+def cnt(ctx):
+	"""do something"""
+	print('just a test')
 
-Context.g_module.__dict__['cnt_targets'] = cnt_targets <1>
-
-class cnt(Build.BuildContext): <2>
-	cmd = 'cnt'
-	fun = 'build'
-
-	def execute(self): <3>
-		self.load()
-		if not self.all_envs:
-			self.load_envs()
-		self.recurse([self.run_dir])
-		tot = 0
-		for x in self.groups:
-			tot += len(x)
-		self.to_log('there are %d task generators in this project\n' % tot)
+Context.g_module.__dict__['cnt'] = cnt
 ---------------
-
-<1> Inject the method
 
 The execution output will be the following.
 
 [source,shishell]
 ---------------
-$ waf configure cnt
-Setting top to   : /disk/comp/waf/docs/book/examples/advbuild_cmdtool
-Setting out to   : /disk/comp/waf/docs/book/examples/advbuild_cmdtool/build
+waf configure cnt
+Setting top to   : /tmp/examples/advbuild_cmdtool
+Setting out to   : /tmp/advbuild_cmdtool/build
 'configure' finished successfully (0.006s)
-there are 2 task generators in this project
-'cnt' finished successfully (0.002s)
+just a test
+'cnt' finished successfully (0.001s)
 ---------------
-
-NOTE: Note that during the execution of *cnt*, the task generator definitions have been read but no task was produced or executed
 
 === Custom build outputs
 

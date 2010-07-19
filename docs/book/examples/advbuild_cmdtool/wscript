@@ -9,7 +9,3 @@ def options(opt):
 def configure(conf):
 	pass
 
-def build(bld):
-	bld(rule='touch ${TGT}', target='foo.txt', always=True)
-	bld(rule='cp ${SRC} ${TGT}', source='foo.txt', target='bar.txt', always=True)
-
