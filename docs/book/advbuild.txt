@@ -32,114 +32,6 @@ typical is to inherit waflib.Build.BuildContext to obtain the configuration data
 
 ==== Scripting.commands manipulation
 
-chain several commands with incompatible context classes
-
-=== Custom build outputs
-
-==== Multiple configurations
-
-example with a separate build directory
-
-example with the lock file
-
-It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:
-
-. The environment variable `WAFCACHE`
-. The build directory, using a command-line option
-
-Here is an example for a simple project located in '/tmp/smallfolder'`:
-
-[source,python]
----------------
-top = '.'
-out = 'out_directory'
-
-def configure(conf):
-	pass
-
-def build(bld):
-	bld(rule='touch ${TGT}', target='foo.txt')
----------------
-
-Upon execution, the results will be the following:
-
-[source,shishell]
----------------
-$ export WAFLOCK=.lock-debug <1>
-
-$ waf distclean configure -b debug <2>
-'distclean' finished successfully (0.002s)
-'configure' finished successfully (0.001s)
-
-$ waf
-Waf: Entering directory `/tmp/smallproject/debug'
-[1/1] foo.txt:  -> debug/default/foo.txt <3>
-Waf: Leaving directory `/tmp/smallproject/debug'
-'build' finished successfully (0.012s)
-
-$ export WAFLOCK=.lock-release
-
-$ waf distclean configure -b release
-'distclean' finished successfully (0.001s)
-'configure' finished successfully (0.176s)
-
-$ waf
-Waf: Entering directory `/tmp/smallproject/release' <4>
-[1/1] foo.txt:  -> release/default/foo.txt
-Waf: Leaving directory `/tmp/smallproject/release'
-'build' finished successfully (0.034s)
-
-$ tree -a
-.
-|-- .lock-debug <5>
-|-- .lock-release
-|-- debug
-|   |-- .wafpickle-7
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   `-- default.cache.py
-|   |-- config.log
-|   `-- foo.txt
-|-- release
-|   |-- .wafpickle-7
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   `-- default.cache.py
-|   |-- config.log
-|   `-- foo.txt
-`-- wscript
----------------
-
-<1> The environment variable 'WAFLOCK' points at the configuration of the project in use.
-<2> The lockfile is created during the configuration.
-<3> The files are output in the build directory `debug`
-<4> The configuration 'release' is used with a different lock file and a different build directory.
-<5> The contents of the project directory contain the two lock files and the two build folders.
-
-When waf is executed, it reads the variable 'WAFLOCK' on an internal variable, which may be modified programmatically:
-
-[source,python]
----------------
-from waflib import Options
-Options.lockfile = '.lockfilename'
----------------
-
-==== Build output directory (bld.variant)
-
-example
-
-
-
-
-
-
-
-
-=== Providing a custom command context
-
-
-=== Creating aliases / Injecting new commands
-
 When several commands with incompatible contexts must be executed in a row, they may be injected in the following manner:
 
 [source,python]
@@ -185,8 +77,6 @@ def modify(ctx):
 	m.write('int k = 34;\n')
 ---------------
 
-=== Executing commands as part of another command
-
 In the following scenario, the build files are installed into a temporary directory for packaging. This is different from the `waf dist` command which only packages the source files needed for the project.
 
 Because the context objects usually derive from different classes, it is usually forbidden to call a command from another commands. In the following example, the commands to execute are pushed onto a stack:
@@ -229,7 +119,8 @@ def create_package(ctx): <6>
 
 Note that the 'destdir' parameter is being passed between commands by means of a global option.
 
-=== Adding a new command from a waf tool
+
+==== Adding a command from a waf tool
 
 When the top-level wscript is read, it is converted into a python module and kept in memory. To add a new command dynamically,
 it is only necessary to inject the desired function into that module. We will now show how to load a waf tool to count the amount of task generators
@@ -325,4 +216,99 @@ Waf: Leaving directory `/home/waf/tmp/nt/build'
 ---------------
 
 Note that during the execution of `num_targets`, the task generator definitions have been read but no task was executed.
+
+=== Custom build outputs
+
+==== Multiple configurations
+
+example with a separate build directory
+
+example with the lock file
+
+It is not possible to use several Waf instances concurrently over the same build folder. Yet, several Waf instances may use the project at the same time. For this, two options must be set:
+
+. The environment variable `WAFCACHE`
+. The build directory, using a command-line option
+
+Here is an example for a simple project located in '/tmp/smallfolder'`:
+
+[source,python]
+---------------
+top = '.'
+out = 'out_directory'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='touch ${TGT}', target='foo.txt')
+---------------
+
+Upon execution, the results will be the following:
+
+[source,shishell]
+---------------
+$ export WAFLOCK=.lock-debug <1>
+
+$ waf distclean configure -b debug <2>
+'distclean' finished successfully (0.002s)
+'configure' finished successfully (0.001s)
+
+$ waf
+Waf: Entering directory `/tmp/smallproject/debug'
+[1/1] foo.txt:  -> debug/default/foo.txt <3>
+Waf: Leaving directory `/tmp/smallproject/debug'
+'build' finished successfully (0.012s)
+
+$ export WAFLOCK=.lock-release
+
+$ waf distclean configure -b release
+'distclean' finished successfully (0.001s)
+'configure' finished successfully (0.176s)
+
+$ waf
+Waf: Entering directory `/tmp/smallproject/release' <4>
+[1/1] foo.txt:  -> release/default/foo.txt
+Waf: Leaving directory `/tmp/smallproject/release'
+'build' finished successfully (0.034s)
+
+$ tree -a
+.
+|-- .lock-debug <5>
+|-- .lock-release
+|-- debug
+|   |-- .wafpickle-7
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- foo.txt
+|-- release
+|   |-- .wafpickle-7
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- foo.txt
+`-- wscript
+---------------
+
+<1> The environment variable 'WAFLOCK' points at the configuration of the project in use.
+<2> The lockfile is created during the configuration.
+<3> The files are output in the build directory `debug`
+<4> The configuration 'release' is used with a different lock file and a different build directory.
+<5> The contents of the project directory contain the two lock files and the two build folders.
+
+When waf is executed, it reads the variable 'WAFLOCK' on an internal variable, which may be modified programmatically:
+
+[source,python]
+---------------
+from waflib import Options
+Options.lockfile = '.lockfilename'
+---------------
+
+==== Build output directory (bld.variant)
+
+example
+
 
