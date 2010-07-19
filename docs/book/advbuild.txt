@@ -49,20 +49,60 @@ Setting out to    : /tmp/advbuild_subclass/build
 'tak' finished successfully (0.001s)
 ---------------
 
-typical is to inherit waflib.Build.BuildContext to obtain the configuration data (ctx.env)
-.  provide an example
-
-==== Scripting.commands manipulation
-
-When several commands with incompatible contexts must be executed in a row, they may be injected in the following manner:
+A typical application of custom context is subclassing the build context to use the configuration data loaded in *ctx.env*:
 
 [source,python]
 ---------------
-from waflib import Scripting
+def configure(ctx):
+	ctx.env.FOO = 'some data'
+
+def build(ctx):
+	print('build command')
+
 def foo(ctx):
-	Scripting.commands += ['build', 'clean']
+	print(ctx.env.FOO)
+
+from waflib.Build import BuildContext
+class one(BuildContext):
+	cmd = 'foo'
+	fun = 'foo'
 ---------------
 
+The output will be the following:
+
+[source,shishell]
+---------------
+$ waf configure foo
+Setting top to    : /tmp/advbuild_confdata
+Setting out to    : /tmp/advbuild_confdata/build
+'configure' finished successfully (0.006s)
+Waf: Entering directory `/disk/comp/waf/docs/book/examples/advbuild_confdata/build'
+some data
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/advbuild_confdata/build'
+'foo' finished successfully (0.004s)
+---------------
+
+==== Command composition
+
+To re-use existing commands that have incompatible context classes, insert them in the _command stack_:
+
+// advbuild_composition
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def build(ctx):
+	pass
+
+def cleanbuild(ctx):
+	from waflib import Options
+	Options.commands = ['clean', 'build'] + Options.commands
+---------------
+
+NOTE: this is especially useful for writing testcases
+
+////
 Injecting new commands is useful for writing testcases. By executing 'waf test', the following script will configure a project, create source files in the source directory, build a program, modify the sources, and rebuild the program. In this case, the program must be rebuilt because a header (implicit dependency) has changed.
 
 [source,python]
@@ -140,7 +180,7 @@ def create_package(ctx): <6>
 <7> Restore the value of 'destdir', in case if more commands are to be executed
 
 Note that the 'destdir' parameter is being passed between commands by means of a global option.
-
+////
 
 ==== Adding a command from a waf tool
 
