@@ -4,7 +4,7 @@
 
 ==== Commands inheritance
 
-The context for a command is created automatically, and is derived from the class 'Utils.Context'. Custom context instance may be provided in the following manner:
+By default, custom commands use an instance of the class _waflib.Context.Context_ for context object. Custom context objects may be used by providing a context subclass:
 
 [source,python]
 ---------------
@@ -15,7 +15,7 @@ def foo(ctx):
 	pass
 
 from waflib.Context import Context
-class context(Context):
+class mycontext(Context):
 	fun = 'foo'
 	def __init__(self):
 		print("a context for 'foo'")
