@@ -1,0 +1,8 @@
+#! /usr/bin/env python
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='touch ${TGT}', target='foo.txt')
+
