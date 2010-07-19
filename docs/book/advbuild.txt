@@ -278,8 +278,26 @@ Options.lockfile = '.lock-wafname'
 
 NOTE: The output directory pointed at by the waf lock file only has effect when not given in the waf script
 
-==== Build output directory (bld.variant)
+==== Changing the output directory
 
-example
+In the previous section, two different configurations were used for similar builds. We will now show how to inherit the same configuration by two different builds, and how to output the targets in different folders. First, let's start with the project file:
+
+// advbuild_variant
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(rule='touch ${TGT}', target=ctx.cmd + '.txt')
+
+from waflib.Build import BuildContext
+class debug(BuildContext):
+	cmd = 'debug'
+	variant = 'debug'
+class release(BuildContext):
+	cmd = 'release'
+	variant = 'release'
+---------------
 
 

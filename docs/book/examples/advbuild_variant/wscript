@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(rule='touch ${TGT}', target=ctx.cmd + '.txt')
+
+from waflib.Build import BuildContext
+class debug(BuildContext):
+	cmd = 'debug'
+class release(BuildContext):
+	cmd = 'release'
+
