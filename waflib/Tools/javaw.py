@@ -163,6 +163,7 @@ class javac(Task.Task):
 
 		to_add = set(inner) - set(self.outputs)
 		self.outputs.extend(list(to_add))
+		self.cached = True # disable the cache for this task
 		return super(javac, self).post_run()
 
 def configure(self):
