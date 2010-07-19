@@ -2,33 +2,55 @@
 
 === Custom commands
 
-==== Commands inheritance
+==== Context inheritance
 
-By default, custom commands use an instance of the class _waflib.Context.Context_ for context object. Custom context objects may be used by providing a context subclass:
+An instance of the class _waflib.Context.Context_ is used by default for the custom commands. To provide a custom context object it is necessary to create a context subclass:
 
+// advbuild_subclass
 [source,python]
 ---------------
 def configure(ctx):
-	pass
+	print(type(ctx))
 
-def foo(ctx):
-	pass
+def foo(ctx): <1>
+	print(type(ctx))
+
+def bar(ctx):
+	print(type(ctx))
 
 from waflib.Context import Context
-class mycontext(Context):
-	fun = 'foo'
-	def __init__(self):
-		print("a context for 'foo'")
+
+class one(Context):
+	cmd = 'bar' <2>
+
+class two(Context):
+	cmd = 'tak' <3>
+	fun = 'bar'
 ---------------
 
-Custom contexts may be provided for the functions 'configure' and 'build'.
+<1> A custom command using the default context
+<2> Bind a context class to the command _foo_
+<3> Declare a new command named _tak_, but set it to call the script function _bar_
 
+The execution output will be:
 
-commands inherit waflib.Context and so subclasses can be mades
-  . fun
-  . cmd
+[source,shishell]
+---------------
+$ waf configure foo bar tak
+Setting top to    : /tmp/advbuild_subclass
+Setting out to    : /tmp/advbuild_subclass/build
+<class 'waflib.Configure.ConfigurationContext'>
+'configure' finished successfully (0.008s)
+<class 'waflib.Context.Context'>
+'foo' finished successfully (0.001s)
+<class 'wscript.one'>
+'bar' finished successfully (0.001s)
+<class 'wscript.two'>
+'tak' finished successfully (0.001s)
+---------------
+
 typical is to inherit waflib.Build.BuildContext to obtain the configuration data (ctx.env)
-  provide an example
+.  provide an example
 
 ==== Scripting.commands manipulation
 
