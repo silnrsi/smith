@@ -278,9 +278,9 @@ Options.lockfile = '.lock-wafname'
 
 NOTE: The output directory pointed at by the waf lock file only has effect when not given in the waf script
 
-==== Changing the output directory
+==== Changing the output directory (variant builds)
 
-In the previous section, two different configurations were used for similar builds. We will now show how to inherit the same configuration by two different builds, and how to output the targets in different folders. First, let's start with the project file:
+In the previous section, two different configurations were used for similar builds. We will now show how to inherit the same configuration by two different builds, and how to output the targets in different folders. Let's start with the project file:
 
 // advbuild_variant
 [source,python]
@@ -289,15 +289,51 @@ def configure(ctx):
 	pass
 
 def build(ctx):
-	ctx(rule='touch ${TGT}', target=ctx.cmd + '.txt')
+	ctx(rule='touch ${TGT}', target=ctx.cmd + '.txt') <1>
 
 from waflib.Build import BuildContext
-class debug(BuildContext):
+class debug(BuildContext): <2>
 	cmd = 'debug'
-	variant = 'debug'
-class release(BuildContext):
-	cmd = 'release'
-	variant = 'release'
+	variant = 'debug' <3>
 ---------------
 
+<1> The command being called is _self.cmd_
+<2> Create the _debug_ command inheriting the build context
+<3> Declare a folder for targets of the _debug_ command
+
+This projet declares two different builds _build_ and _debug_. Let's examine the execution output:
+
+[source,shishell]
+---------------
+waf configure build debug
+Setting top to   : /tmp/advbuild_variant
+Setting out to   : /tmp/advbuild_variant/build
+'configure' finished successfully (0.007s)
+Waf: Entering directory `/tmp/advbuild_variant/build'
+[1/1] build.txt:  -> build/build.txt
+Waf: Leaving directory `/tmp/advbuild_variant/build'
+'build' finished successfully (0.020s)
+Waf: Entering directory `/tmp/build_variant/build/debug'
+[1/1] debug.txt:  -> build/debug/debug.txt <1>
+Waf: Leaving directory `/tmp/advbuild_variant/build/debug'
+'debug' finished successfully (0.021s)
+
+$ tree
+.
+|-- build
+|   |-- build.txt <2>
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- debug
+|       `-- debug.txt <3>
+`-- wscript
+---------------
+
+<1> Commands are executed from _build/variant_
+<2> The default _build_ command does not have any variant
+<3> The target _debug_ is under the variant directory in the build directory
+
+NOTE: The configuration data is shared between the build commands. If there are several differences between the commands, use multiple configuration data sets.
 

@@ -9,6 +9,5 @@ def build(ctx):
 from waflib.Build import BuildContext
 class debug(BuildContext):
 	cmd = 'debug'
-class release(BuildContext):
-	cmd = 'release'
+	variant = 'debug'
 
