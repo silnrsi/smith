@@ -1,6 +1,5 @@
 == Build copies and variants
 
-A common scenario is to duplicate the outputs for a particular build phase. The copy may be performed into another build directory, or into subfolders of the same tree called variants.
 
 === Using several build folders
 
@@ -180,6 +179,7 @@ bar
 
 NOTE: As a general rule, tasks created for a particular variant should not share data with the tasks from another variant.
 
+////
 === Cloning task generators
 
 A cloning scheme is provided for duplicating task generators for several variants easily. A general design pattern is to duplicate the task generators for the desired variants immediately before the build starts. Here is an example, also available in the folder `demos/cxx` of the Waf distribution.
@@ -222,4 +222,5 @@ def build(bld):
 Some task generators are use indexed attributes to generate unique values which may cause unnecessary rebuilds if the scripts change. To avoid problems, it is a best practice to create the task generators for the default configuration set first. Also, the method 'clone' is not a substitute for creating instances for lots of nearly identical task generators. In such a situation, it will be better to use one task generator to create lots of tasks. As a reminder, creating task generator clones for the same variant will lead to build errors.
 
 WARNING: Do not create task generator clones for the same variant or for the same configuration set.
+////
 
