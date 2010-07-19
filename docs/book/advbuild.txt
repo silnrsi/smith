@@ -82,6 +82,8 @@ Waf: Leaving directory `/disk/comp/waf/docs/book/examples/advbuild_confdata/buil
 'foo' finished successfully (0.004s)
 ---------------
 
+NOTE: The build commands are using this system: _waf install_ → _waflib.Build.InstallContext_, _waf step_ → _waflib.Build.StepContext_, etc
+
 ==== Command composition
 
 To re-use existing commands that have incompatible context classes, insert them in the _command stack_:
@@ -158,102 +160,74 @@ Waf: Leaving directory `/tmp/advbuild_testcase/build'
 'build' finished successfully (0.125s)
 ---------------
 
-==== Adding a command from a waf tool
+==== Binding a command from a Waf tool
 
-When the top-level wscript is read, it is converted into a python module and kept in memory. To add a new command dynamically,
-it is only necessary to inject the desired function into that module. We will now show how to load a waf tool to count the amount of task generators
-in the project.
+When the top-level wscript is read, it is converted into a python module and kept in memory. Commands may be added dynamically by injecting the desired function into that module. We will now show how to load a waf tool to count the amount of task generators in the project.
 
-The waf tools are loaded once during the configuration and during the build. To ensure that the tool is always loaded, it is necessary to load its options:
 
+// advbuild_cmdtool
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('some_tool', tooldir='.')
+	opt.tool_options('some_tool', tooldir='.') <1>
 
 def configure(conf):
 	pass
 
-def build(bld):
-	bld(rule='echo "hi"', always=True, name='a')
-	bld(rule='echo "there"', always=True, name='b')
+def build(bld): <2>
+	bld(rule='touch ${TGT}', target='foo.txt', always=True)
+	bld(rule='cp ${SRC} ${TGT}', source='foo.txt', target='bar.txt', always=True)
 ---------------
+
+<1> Waf tools are loaded once for the configuration and for the build. To ensure that the tool is always enabled, it is mandatory to load its options, even if the tool does not actually provide options
+<2> Two task generators are provided
 
 Now our tool 'some_tool.py', located next to the 'wscript' file, will contain the following code:
 
 [source,python]
 ---------------
 import os
-from waflib import Utils, ConfigSet, Options, Build
+from waflib import Build, Context
 
-def options(opt): <1>
-	pass
+def cnt_targets(ctx):
+	"""print the amount of targets"""
+	print 2
 
-def list_targets(ctx): <2>
-	"""return the amount of targets"""
+Context.g_module.__dict__['cnt_targets'] = cnt_targets <1>
 
-	bld = Build.BuildContext() <3>
-	proj = ConfigSet.ConfigSet(Options.lockfile) <4>
-	bld.load_dirs(proj['top'], proj['out']) <5>
-	bld.load_envs()
+class cnt(Build.BuildContext): <2>
+	cmd = 'cnt'
+	fun = 'build'
 
-	bld.add_subdirs([os.path.split(Utils.g_module.root_path)[0]]) <6>
-
-	names = set([])
-	for x in bld.all_task_gen: <7>
-		try:
-			names.add(x.name or x.target)
-		except AttributeError:
-			pass
-
-	lst = list(names)
-	lst.sort()
-	for name in lst:
-		print(name)
-Utils.g_module.__dict__['list_targets'] = list_targets <8>
+	def execute(self): <3>
+		self.load()
+		if not self.all_envs:
+			self.load_envs()
+		self.recurse([self.run_dir])
+		tot = 0
+		for x in self.groups:
+			tot += len(x)
+		self.to_log('there are %d task generators in this project\n' % tot)
 ---------------
 
-<1> The function 'options' is called by 'tool_options' above
-<2> The command that will be injected dynamically from this tool
-<3> Declare a build context manually
-<4> Read the project settings
-<5> Initialize the build context
-<6> Read the project files, executing the methods 'build'
-<7> Access the declared task generators stored in the build context attribute 'all_task_gen'
-<8> Bind the function as a new command
+<1> Inject the method
 
 The execution output will be the following.
 
 [source,shishell]
 ---------------
-$ waf distclean configure build
-'distclean' finished successfully (0.001s)
-'configure' finished successfully (0.001s)
-Waf: Entering directory `/home/waf/tmp/nt/build'
-[1/2] echo "hi":
-hi
-[2/2] echo "there":
-there
-Waf: Leaving directory `/home/waf/tmp/nt/build'
-'build' finished successfully (0.015s)
-
-$ waf list_targets
-a
-b
-'list_targets' finished successfully (0.003s)
-
-$ waf --targets=a
-Waf: Entering directory `/home/waf/tmp/nt/build'
-[1/1] a:
-hi
-Waf: Leaving directory `/home/waf/tmp/nt/build'
-'build' finished successfully (0.012s)
+$ waf configure cnt
+Setting top to   : /disk/comp/waf/docs/book/examples/advbuild_cmdtool
+Setting out to   : /disk/comp/waf/docs/book/examples/advbuild_cmdtool/build
+'configure' finished successfully (0.006s)
+there are 2 task generators in this project
+'cnt' finished successfully (0.002s)
 ---------------
 
-Note that during the execution of `num_targets`, the task generator definitions have been read but no task was executed.
+NOTE: Note that during the execution of *cnt*, the task generator definitions have been read but no task was produced or executed
 
 === Custom build outputs
 
