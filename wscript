@@ -191,11 +191,16 @@ def process_decorators(body):
 	return "\n".join(accu+all_deco)
 
 def sfilter(path):
-	f = open(path, "r")
-	if Options.options.strip_comments:
+	if sys.version_info[0] >= 3 and Options.options.strip_comments:
+		f = open(path, "rb")
+		cnt = process_tokens(tokenize.tokenize(f.readline))
+	elif Options.options.strip_comments:
+		f = open(path, "r")
 		cnt = process_tokens(tokenize.generate_tokens(f.readline))
 	else:
+		f = open(path, "r")
 		cnt = f.read()
+
 	f.close()
 
 	if path.endswith('Scripting.py'):
