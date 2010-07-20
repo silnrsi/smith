@@ -75,6 +75,6 @@ def r4(code):
 
 @subst('ansiterm.py')
 def r5(code):
-	code = code.replace("isinstance(txt, str):", "isinstance(txt, unicode):")
+	code = code.replace('isinstance(txt,str):', 'isinstance(txt,unicode):')
 	return code
 
