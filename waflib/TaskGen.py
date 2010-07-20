@@ -57,7 +57,7 @@ class task_gen(object):
 
 		self.tasks = []
 
-		if not bld in kwargs:
+		if not 'bld' in kwargs:
 			self.env = ConfigSet.ConfigSet()
 			self.idx = 0
 			self.path = None

@@ -130,7 +130,7 @@ echo LIB=%%LIB%%
 	cxx = conf.cmd_to_list(cxx)
 
 	# delete CL if exists. because it could contain parameters wich can change cl's behaviour rather catastrophically.
-	if env.has_key('CL'):
+	if 'CL' in env:
 		del(env['CL'])
 
 	try:
