@@ -192,7 +192,7 @@ Here are a few important points about scanner methods:
 
 === Extension callbacks
 
-In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c++). Now consider the following two chains ('uh.in' → 'uh.a1' + 'uh.a2') and ('uh.a1' → 'uh.b') in the following example:
+In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c\++). Now consider the following two chains ('uh.in' → 'uh.a1' + 'uh.a2') and ('uh.a1' → 'uh.b') in the following example:
 
 [source,python]
 ---------------
@@ -280,7 +280,7 @@ The creation of new task classes will be described in the next section.
 
 === Task class declaration
 
-Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains the real minimum, and the immediate subclass 'Task.Task'is usually chosen in user scripts. We will now start over with a simple project containing only one project 'wscript' file and and example file named 'ah.in'. A task class will be added.
+Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains the real minimum, and the immediate subclass 'Task.Task' is usually chosen in user scripts. We will now start over with a simple project containing only one project 'wscript' file and and example file named 'ah.in'. A task class will be added.
 
 [source,python]
 ---------------

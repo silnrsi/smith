@@ -13,9 +13,9 @@ The chapter on make-like rules illustrated how the attribute 'rule' is processed
 
 Implementing such a system is a difficult problem which lead to the creation of very different designs:
 
-. 'A hierarchy of task generator subclasses' It was abandoned due to the high coupling between the Waf tools: the C tools required knowledge from the D tool for building hybrid applications
-. 'Method decoration (creating linked lists of method calls)' Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly
-. 'Flat method and execution constraint declaration' The concept is close to aspect-oriented programming and may scare programmers.
+. _A hierarchy of task generator subclasses_ It was abandoned due to the high coupling between the Waf tools: the C tools required knowledge from the D tool for building hybrid applications
+. _Method decoration (creating linked lists of method calls)_ Replacing or disabling a method safely was no longer possible (addition-only), so this system disappeared quickly
+. _Flat method and execution constraint declaration_ The concept is close to aspect-oriented programming and might scare programmers.
 
 So far, the third design proved to be the most flexible and was kept. Here is how to define a task generator method:
 
