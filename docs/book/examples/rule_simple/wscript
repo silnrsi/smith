@@ -1,0 +1,15 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(
+		rule   = 'cp ${SRC} ${TGT}',
+		source = 'wscript',
+		target = 'foobar.txt',
+	)
+

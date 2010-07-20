@@ -1,17 +1,20 @@
 == Rule-based task generators (Make-like)
 
-This chapter illustrates how to perform common transformations used during the build phase through the use of rule-based task generators.
+// TODO refactor this chapter
+
+This chapter illustrates how the use of rule-based task generators for building simple targets.
 
 === Declaration and usage
 
 Rule-based task generators are a particular category of task generators producing exactly one task (transformation) at a time.
 
-The following example presents a simple example of a task generator producing the file 'foobar.txt' from the project file 'wscript' by executing a copy (the command `cp`). Let's create a new project in the folder '/tmp/rule/' containing the following 'wscript' file:
+The following example shows a task generator producing the file 'foobar.txt' from the project file 'wscript' by executing the command _cp_ to perform a copy:
 
+// rule_simple
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -25,7 +28,7 @@ def build(bld):
 ---------------
 
 <1> To instantiate a new task generator, remember that all arguments have the form 'key=value'
-<2> The attribute 'rule' is mandatory here. It represents the command to execute in a readable manner (more on this in the next chapters).
+<2> The attribute _rule_ represents the command to execute in a readable manner (more on this in the next chapters).
 <3> Source files, either in a space-delimited string, or in a list of python strings
 <4> Target files, either in a space-delimited string, or in a list of python strings
 
@@ -36,34 +39,33 @@ Upon execution, the following output will be observed:
 $ waf distclean configure build -v
 'distclean' finished successfully (0.000s)
 'configure' finished successfully (0.021s)
-Waf: Entering directory `/tmp/rule/out'
-[1/1] foobar.txt: wscript -> out/default/foobar.txt <1>
-16:24:21 runner system command ->  cp ../wscript default/foobar.txt <2>
-Waf: Leaving directory `/tmp/rule/out'
+Waf: Entering directory `/tmp/rule_simple/build'
+[1/1] foobar.txt: wscript -> build/foobar.txt <1>
+10:57:33 runner 'cp ../wscript foobar.txt' <2>
+Waf: Leaving directory `/tmp/rule_simple/build'
 'build' finished successfully (0.016s)
 
 $ tree
 .
-|-- out
+|-- build
 |   |-- c4che
 |   |   |-- build.config.py
 |   |   `-- default.cache.py
 |   |-- config.log
-|   `-- default
-|       `-- foobar.txt
+|   `-- foobar.txt
 `-- wscript
 
 $ waf <3>
-Waf: Entering directory `/tmp/rule/out'
-Waf: Leaving directory `/tmp/rule/out'
+Waf: Entering directory `/tmp/rule_simple/build'
+Waf: Leaving directory `/tmp/rule_simple/build'
 'build' finished successfully (0.006s)
 
 $ echo " " >> wscript <4>
 
 $ waf
-Waf: Entering directory `/tmp/rule/out'
-[1/1] foobar.txt: wscript → out/default/foobar.txt <5>
-Waf: Leaving directory `/tmp/rule/out'
+Waf: Entering directory `/tmp/rule_simple/build'
+[1/1] foobar.txt: wscript → build/foobar.txt <5>
+Waf: Leaving directory `/tmp/rule_simple/build'
 'build' finished successfully (0.013s)
 ---------------
 
@@ -71,7 +73,7 @@ Waf: Leaving directory `/tmp/rule/out'
 <2> Command-lines are only displayed in 'verbose mode' by using the option '-v'
 <3> The target are up-to-date, there is nothing to do
 <4> Modify the source file in place by appending a space character
-<5> Since the source has changed, the target is created once again.
+<5> Since the source has changed, the target is created once again
 
 The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
 
@@ -282,184 +284,6 @@ task always run
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.014s)
 ---------------
-
-=== Sharing data
-
-Data sharing is performed through the configuration set. The following example illustrates how to use it.
-
-[source,python]
----------------
-top = '.'
-out = 'out'
-
-def configure(conf):
-	print('prefix: %r' % conf.env.PREFIX)
-	print('jobs:   %r' % conf.options.jobs)
-
-def build(bld):
-	bld(
-		target = 't1.txt',
-		rule   = 'echo ${PREFIX} > ${TGT}' <1>
-	)
-
-	obj = bld(
-		target = 't2.txt',
-		rule   = 'echo ${TEST_VAR} > ${TGT}', <2>
-	)
-	obj.env.TEST_VAR <3>= str(bld.options.jobs) <4>
-
-	bld(
-		rule = 'echo "hey"',
-		vars = ['TEST_VAR'], <5>
-		env  = obj.env <6>
-	)
----------------
-
-<1> The 'PREFIX' is one of the few predefined variables. It is necessary for computing the default installation path.
-<2> The following rule will create the file 't2.txt' with the contents of 'TEST_VAR'
-<3> The value of 'TEST_VAR' will be defined now
-<4> Use the value of a predefined command-line option (the jobs control the amount of commands which may be executed in parallel)
-<5> By default, the variables used in string expressions '$\{...}' are extracted automatically and used as dependencies (rebuild the targets when the value change). They are given manually in this case.
-<6> Set the base environment. The variable TEST_VAR will be used for the dependency here.
-
-By turning the debugging flags on, it will be easier to understand what is happening during the build:
-
-[source,shishell]
----------------
-$ waf distclean configure build --zones=runner,action
-'distclean' finished successfully (0.003s)
-prefix: '/usr/local' <1>
-jobs:   2
-'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/rule/out'
-15:21:29 action
-def f(task):
-	env = task.env
-	wd = getattr(task, 'cwd', None)
-	p = env.get_flat
-	cmd = ''' echo %s > %s ''' % (p('PREFIX'), <2>
-		" ".join([a.bldpath(env) for a in task.outputs]))
-	return task.exec_command(cmd, cwd=wd)
-
-[...] <3>
-
-[1/3] t2.txt:  -> out/default/t2.txt
-15:21:29 runner system command ->  echo 2 > default/t2.txt
-[2/3] t1.txt:  -> out/default/t1.txt
-15:21:29 runner system command ->  echo /usr/local > default/t1.txt <4>
-[2/3] echo "hey":
-18:05:26 runner system command ->  echo "hey"
-hey
-Waf: Leaving directory `/tmp/rule/out'
-'build' finished successfully (0.052s)
-
-$ waf
-Waf: Entering directory `/tmp/rule/out'
-Waf: Leaving directory `/tmp/rule/out'
-'build' finished successfully (0.007s)
-
-$ waf --jobs=17 --zones=runner
-Waf: Entering directory `/tmp/rule/out'
-[1/3] t2.txt:  -> out/default/t2.txt
-15:23:24 runner system command ->  echo 17 > default/t2.txt <5>
-[2/3] echo "hey": <6>
-hey
-Waf: Leaving directory `/tmp/rule/out'
-'build' finished successfully (0.014s)
----------------
-
-<1> The default values for prefix and jobs.
-<2> The function generated from the string expression will use the 'PREFIX' value.
-<3> Some output was removed.
-<4> The expression '$\{PREFIX}' was substituted by its value.
-<5> The target is created whenever the value of a variable changes, even though the string expression has not changed.
-<6> The variable 'TEST_VAR' changed, so the command was executed again.
-
-=== Execution order and dependencies
-
-Although task generators will create the tasks in the relevant order, tasks are executed in parallel and the compilation order may not be the order expected. In the example from the previous section, the target 't2.txt' was processed before the target 't1.txt'. We will now illustrate two important concepts used for the build specification:
-
-. order: sequential constraints between the tasks being executed (here, the commands)
-. dependency: executing a task if another task is executed
-
-For illustation purposes, let's create the following chain 'wscript' → 'w1.txt' → 'w2.txt'. The order constraint is given by the attribute 'after' which references a task class name. For rule-based task generators, the task class name is bound to the attribute 'name'
-
-[source,python]
----------------
-top = '.'
-out = 'out'
-
-def configure(conf):
-	pass
-
-def build(bld):
-	bld(
-		rule   = 'cp ${SRC} ${TGT}',
-		source = 'wscript',
-		target = 'w1.txt',
-		name   = 'w1',
-	)
-
-	bld(
-		rule   = 'cp ${SRC} ${TGT}',
-		source = 'w1.txt',
-		target = 'w2.txt'
-		after  = w1,
-	)
----------------
-
-The execution output will be similar to the following. Note that both files are created whenever the first source file 'wscript' changes:
-
-[source,shishell]
----------------
-$ waf distclean configure build
-'distclean' finished successfully (0.001s)
-'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/rule/out'
-[1/2] w1: wscript -> out/default/w1.txt
-[2/2] w2.txt: out/default/w1.txt -> out/default/w2.txt
-Waf: Leaving directory `/tmp/rule/out'
-'build' finished successfully (0.055s)
-
-$ echo " " >> wscript
-
-$ waf
-Waf: Entering directory `/tmp/rule/out'
-[1/2] w1: wscript -> out/default/w1.txt
-[2/2] w2.txt: out/default/w1.txt -> out/default/w2.txt
-Waf: Leaving directory `/tmp/rule/out'
-'build' finished successfully (0.018s)
----------------
-
-Although the order constraint between w1 and w2 is trivial to find in this case, implicit constraints can be a source of confusion for large projects. For this reason, the default is to 'encourage' the explicit order declaration. Nevertheless, a special method may be used to let the system look at all source and target files:
-
-[source,python]
----------------
-top = '.'
-out = 'out'
-
-def configure(conf):
-	pass
-
-def build(bld):
-
-	bld.use_the_magic()
-
-	bld(
-		rule   = 'cp ${SRC} ${TGT}',
-		source = 'wscript',
-		target = 'w1.txt',
-	)
-
-	bld(
-		rule   = 'cp ${SRC} ${TGT}',
-		source = 'w1.txt',
-		target = 'w2.txt',
-	)
----------------
-
-WARNING: The method 'bld.use_the_magic()' will not work for tasks that do not have clear input and output files and will degrade performance for large builds.
-
 
 === Dependencies on file contents
 
