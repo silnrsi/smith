@@ -28,6 +28,11 @@ except Exception:
 else:
 	import re, threading
 
+	try:
+		_type = unicode
+	except:
+		_type = str
+
 	to_int = lambda number, default: number and int(number) or default
 	wlock = threading.Lock()
 
@@ -218,7 +223,7 @@ else:
 							cmd_func(self, param)
 					else:
 						chars_written = c_int()
-						if isinstance(txt, str):
+						if isinstance(txt, _type):
 							windll.kernel32.WriteConsoleW(self.hconsole, txt, len(txt), byref(chars_written), None)
 						else:
 							windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)
