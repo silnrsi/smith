@@ -41,13 +41,13 @@ else:
 
 	class AnsiTerm(object):
 		def __init__(self):
+			self.encoding = sys.getsystemencoding()
 			self.hconsole = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 			self.cursor_history = []
 			self.orig_sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
 			self.orig_csinfo = CONSOLE_CURSOR_INFO()
 			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole, byref(self.orig_sbinfo))
 			windll.kernel32.GetConsoleCursorInfo(hconsole, byref(self.orig_csinfo))
-
 
 		def screen_buffer_info(self):
 			sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
