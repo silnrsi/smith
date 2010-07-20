@@ -57,18 +57,13 @@ class task_gen(object):
 
 		self.tasks = []
 
-		for key, val in kwargs.items():
-			setattr(self, key, val)
-
-		try:
-			bld = self.bld
-		except AttributeError:
+		if not bld in kwargs:
 			self.env = ConfigSet.ConfigSet()
 			self.idx = 0
 			self.path = None
 		else:
+			self.bld = kwargs['bld']
 			self.env = self.bld.env.derive()
-
 			self.path = self.bld.path # emulate chdir when reading scripts
 
 			# provide a unique id
@@ -78,6 +73,8 @@ class task_gen(object):
 				self.bld.idx = {}
 				self.idx = self.bld.idx[id(self.path)] = 0
 
+		for key, val in kwargs.items():
+			setattr(self, key, val)
 
 	def __str__(self):
 		return "<task_gen '%s' declared in %s>" % (self.name, self.path)
