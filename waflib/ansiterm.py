@@ -41,7 +41,7 @@ else:
 
 	class AnsiTerm(object):
 		def __init__(self):
-			self.encoding = sys.getsystemencoding()
+			self.encoding = sys.stdout.encoding
 			self.hconsole = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 			self.cursor_history = []
 			self.orig_sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
