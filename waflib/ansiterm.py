@@ -218,7 +218,7 @@ else:
 							cmd_func(self, param)
 					else:
 						chars_written = c_int()
-						if isinstance(txt, unicode):
+						if isinstance(txt, str):
 							windll.kernel32.WriteConsoleW(self.hconsole, txt, len(txt), byref(chars_written), None)
 						else:
 							windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)

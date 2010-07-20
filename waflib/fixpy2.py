@@ -73,3 +73,8 @@ def r4(code):
 	code = code.replace('next(self.biter)', 'self.biter.next()')
 	return code
 
+@subst('ansiterm.py')
+def r5(code):
+	code = code.replace("isinstance(txt, str):", "isinstance(txt, unicode):")
+	return code
+
