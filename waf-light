@@ -83,13 +83,18 @@ def unpack_wafdir(dir):
 
 	try:
 		t = tarfile.open(tmp)
-		for x in t: t.extract(x)
-		t.close()
 	except:
-		os.chdir(cwd)
-		try: shutil.rmtree(dir)
-		except OSError: pass
-		err("Waf cannot be unpacked, check that bzip2 support is present")
+		try:
+			os.system('bunzip2 t.bz2')
+			t = tarfile.open('t')
+		except:
+			os.chdir(cwd)
+			try: shutil.rmtree(dir)
+			except OSError: pass
+			err("Waf cannot be unpacked, check that bzip2 support is present")
+
+	for x in t: t.extract(x)
+	t.close()
 
 	for x in ['Tools', 'extras']:
 		os.chmod(join('waflib',x), 493)
