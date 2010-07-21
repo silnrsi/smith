@@ -133,6 +133,7 @@ def process_tokens(tokens):
 	line_buf = []
 
 	for (type, token, start, end, line) in tokens:
+		token = token.replace('\r\n', '\n')
 		if type == tokenize.NEWLINE:
 			if line_buf:
 				accu.append(indent * '\t')
@@ -193,7 +194,9 @@ def process_decorators(body):
 def sfilter(path):
 	if sys.version_info[0] >= 3 and Options.options.strip_comments:
 		f = open(path, "rb")
-		cnt = process_tokens(tokenize.tokenize(f.readline))
+		tk = tokenize.tokenize(f.readline)
+		next(tk) # the first one is always tokenize.ENCODING for Python 3, ignore it
+		cnt = process_tokens(tk)
 	elif Options.options.strip_comments:
 		f = open(path, "r")
 		cnt = process_tokens(tokenize.generate_tokens(f.readline))
