@@ -4,6 +4,7 @@ digraph G {
 	Build -> Runner;
 	Build -> TaskGen;
 	Build -> ConfigSet;
+	Build -> Options;
 
 	ConfigSet -> Utils;
 	ConfigSet -> Logs;
@@ -23,7 +24,8 @@ digraph G {
 
 	TaskGen -> Task;
 
-	Task -> Options;
+	//Task -> Utils;
+	Task -> Logs;
 
 	Utils -> Errors;
 }
