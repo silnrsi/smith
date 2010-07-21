@@ -118,12 +118,12 @@ class Context(ctx):
 		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(waflib.Node.Node):
 			pass
-		self.node_class = waflib.Node.Nod3 = node_class
+		self.node_class = node_class
 		self.node_class.__module__ = "waflib.Node"
 		self.node_class.__name__ = "Nod3"
 		self.node_class.ctx = self
 
-		self.root = waflib.Node.Nod3('', None)
+		self.root = self.node_class('', None)
 		self.cur_script = None
 		self.path = self.root.find_dir(start)
 
