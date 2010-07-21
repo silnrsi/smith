@@ -7,7 +7,6 @@ VERSION='0.0.1'
 APPNAME='cc_test'
 
 top = '.'
-out = 'build'
 
 import waflib.Configure
 waflib.Configure.autoconfig = True
