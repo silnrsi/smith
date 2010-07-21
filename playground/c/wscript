@@ -37,15 +37,19 @@ def configure(conf):
 from waflib.Build import BuildContext
 class buildall_ctx(BuildContext):
 	cmd = fun = "buildall"
+	def compile(self):
+		pass
 
 def buildall(ctx):
 	"""call 'waf buildall' to build all the variants in parallel"""
 
 	import Utils
+	timer = Utils.Timer()
 	class sub_build(Utils.threading.Thread):
 		def run(self):
 			bld = self.cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
 			bld.load()
+			bld.timer = timer
 			bld.load_envs()
 			bld.recurse([bld.run_dir])
 			bld.compile()
