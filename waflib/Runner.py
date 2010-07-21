@@ -9,7 +9,7 @@ try:
 	from queue import Queue
 except:
 	from Queue import Queue
-from waflib import Utils, Logs, Options, Task, Errors
+from waflib import Utils, Logs, Task, Errors
 
 GAP = 15
 MAXJOBS = 999
@@ -146,7 +146,7 @@ class Parallel(object):
 
 	def error_handler(self, tsk):
 		"by default, errors make the build stop (not thread safe so be careful)"
-		if not Options.options.keep:
+		if not self.bld.keep:
 			self.stop = True
 		self.error.append(tsk)
 
@@ -182,7 +182,7 @@ class Parallel(object):
 				st = tsk.runnable_status()
 			except Exception as e:
 				self.processed += 1
-				if self.stop and not Options.options.keep:
+				if self.stop and not self.bld.keep:
 					tsk.hasrun = Task.SKIPPED
 					continue
 				tsk.err_msg = Utils.ex_stack()

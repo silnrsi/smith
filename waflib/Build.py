@@ -82,6 +82,7 @@ class BuildContext(Context.Context):
 		self.task_gen_cache_names = {}
 
 		self.targets = Options.options.targets
+		self.keep = Options.options.keep
 		self.launch_dir = Context.launch_dir
 
 		############ stuff below has not been reviewed
