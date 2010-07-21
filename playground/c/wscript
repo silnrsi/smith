@@ -36,7 +36,7 @@ def configure(conf):
 
 from waflib import Utils, Build
 class buildall_ctx(Build.BuildContext):
-	cmd = fun = "buildall"
+	cmd = fun = 'buildall'
 	def compile(self):
 		pass
 
@@ -88,4 +88,21 @@ def locked_progress_line(self, state, total, col1, col2):
 		return Build.BuildContext.progress_line(self, self.count[0], total, col1, col2)
 	finally:
 		self.line_lock.release()
+
+
+
+class cleanall_ctx(Build.CleanContext):
+	cmd = fun = 'cleanall'
+
+def cleanall(ctx):
+	for x in lst:
+		cls = type(Build.CleanContext)(x, (Build.CleanContext,), {'cmd': x, 'variant': x})
+		bld = cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
+		bld.load()
+		bld.load_envs()
+		bld.recurse([bld.run_dir])
+		try:
+			bld.clean()
+		finally:
+			bld.save()
 
