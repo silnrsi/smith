@@ -22,7 +22,7 @@ Custom task clases may be created by subclassing or factories
 """
 
 import os, shutil, re
-from waflib import Utils, Logs, Options, Errors
+from waflib import Utils, Logs, Errors
 
 # task state
 NOT_RUN = 0
@@ -177,10 +177,10 @@ class TaskBase(evil):
 		col1 = Logs.colors(self.color)
 		col2 = Logs.colors.NORMAL
 
-		if Options.options.progress_bar == 1:
+		if self.generator.bld.progress_bar == 1:
 			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
-		if Options.options.progress_bar == 2:
+		if self.generator.bld.progress_bar == 2:
 			ela = str(self.generator.bld.timer)
 			try:
 				ins  = ','.join([n.name for n in self.inputs])
@@ -774,22 +774,24 @@ def cache_outputs(cls):
 	"""
 	Task class decorator
 
-	If Options.cache_global is defined and if the task instances produces output nodes,
+	If bld.cache_global is defined and if the task instances produces output nodes,
 	the files will be copied into a folder in the cache directory
 
 	the files may also be retrieved from that folder, if it exists
 	"""
-	if not Options.cache_global or Options.options.nocache or not self.outputs:
-		return None
-
 	old = cls.run
 	def run(self):
+		bld = self.generator.bld
+		if not bld.cache_global or bld.nocache or not self.outputs:
+			return old(self)
 		return can_retrieve_cache(self) or old(self)
 	cls.run = run
 
 	old = cls.post_run
 	def post_run(self):
 		ret = old(self)
+		if not bld.cache_global or bld.nocache or not self.outputs:
+			return ret
 		put_files_cache(self)
 		return ret
 	cls.post_run = post_run
@@ -816,7 +818,7 @@ def can_retrieve_cache(self):
 	ssig = Utils.to_hex(sig)
 
 	# first try to access the cache folder for the task
-	dname = os.path.join(Options.cache_global, ssig)
+	dname = os.path.join(self.generator.bld.cache_global, ssig)
 	try:
 		t1 = os.stat(dname).st_mtime
 	except OSError:
@@ -843,7 +845,7 @@ def can_retrieve_cache(self):
 
 	for node in self.outputs:
 		node.sig = sig
-		if Options.options.progress_bar < 1:
+		if self.generator.bld.progress_bar < 1:
 			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
 
 	self.cached = True
@@ -857,8 +859,8 @@ def put_files_cache(self):
 	if getattr(self, 'cached', None):
 		return None
 
-	dname = os.path.join(Options.cache_global, ssig)
-	tmpdir = tempfile.mkdtemp(prefix=Options.cache_global + os.sep + 'waf')
+	dname = os.path.join(self.generator.bld.cache_global, ssig)
+	tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
 
 	try:
 		shutil.rmtree(dname)

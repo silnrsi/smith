@@ -491,6 +491,7 @@ def run_c_code(self, *k, **kw):
 		bld.load()
 	else:
 		bld.init_dirs()
+	bld.progress_bar = 0
 	bld.targets = '*'
 
 	if kw['compile_filename']:
