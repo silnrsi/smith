@@ -76,7 +76,7 @@ def unpack_wafdir(dir):
 		err("Cannot unpack waf lib into %s\nMove waf into a writeable directory" % dir)
 
 	os.chdir(dir)
-	tmp = 't.tbz2'
+	tmp = 't.bz2'
 	t = open(tmp,'wb')
 	t.write(txt)
 	t.close()
@@ -87,6 +87,7 @@ def unpack_wafdir(dir):
 		try:
 			os.system('bunzip2 t.bz2')
 			t = tarfile.open('t')
+			tmp = 't'
 		except:
 			os.chdir(cwd)
 			try: shutil.rmtree(dir)
