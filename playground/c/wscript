@@ -50,13 +50,19 @@ def buildall(ctx):
 			bld = self.cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
 			bld.load()
 			bld.timer = timer
+			bld.logger = ctx.logger
 			bld.load_envs()
 			bld.recurse([bld.run_dir])
 			bld.compile()
 
+	threads = []
 	for x in lst:
 		cls = type(BuildContext)(x, (BuildContext,), {'cmd': x, 'variant': x})
 		f = sub_build()
 		f.cls = cls
+		threads.append(f)
 		f.start()
+
+	for x in threads:
+		x.join()
 
