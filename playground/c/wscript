@@ -74,8 +74,8 @@ def locked_progress_line(self, state, total, col1, col2):
 	try:
 		self.line_lock.acquire()
 
-		state = 1
-		total = 1
+		state = 0
+		total = 0
 		for x in self.siblings:
 			try:
 				p = x.bld.producer
@@ -83,7 +83,7 @@ def locked_progress_line(self, state, total, col1, col2):
 				pass
 			else:
 				total += p.total
-				state += p.processed
+				state += p.processed - 1
 
 		return Build.BuildContext.progress_line(self, state, total, col1, col2)
 	finally:
