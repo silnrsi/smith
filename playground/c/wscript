@@ -34,8 +34,8 @@ def configure(conf):
 		node.parent.mkdir()
 		node.write(txt)
 
-from waflib.Build import BuildContext
-class buildall_ctx(BuildContext):
+from waflib import Utils, Build
+class buildall_ctx(Build.BuildContext):
 	cmd = fun = "buildall"
 	def compile(self):
 		pass
@@ -43,21 +43,25 @@ class buildall_ctx(BuildContext):
 def buildall(ctx):
 	"""call 'waf buildall' to build all the variants in parallel"""
 
-	import Utils
 	timer = Utils.Timer()
+	threads = []
+	line_lock = Utils.threading.Lock()
 	class sub_build(Utils.threading.Thread):
 		def run(self):
-			bld = self.cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
+			bld = self.bld = self.cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
 			bld.load()
+			bld.siblings = threads
+			bld.line_lock = line_lock
 			bld.timer = timer
 			bld.logger = ctx.logger
 			bld.load_envs()
+			bld.targets = ctx.targets
 			bld.recurse([bld.run_dir])
 			bld.compile()
 
-	threads = []
 	for x in lst:
-		cls = type(BuildContext)(x, (BuildContext,), {'cmd': x, 'variant': x})
+		cls = type(Build.BuildContext)(x, (Build.BuildContext,), {'cmd': x, 'variant': x})
+		cls.progress_line = locked_progress_line
 		f = sub_build()
 		f.cls = cls
 		threads.append(f)
@@ -65,4 +69,23 @@ def buildall(ctx):
 
 	for x in threads:
 		x.join()
+
+def locked_progress_line(self, state, total, col1, col2):
+	try:
+		self.line_lock.acquire()
+
+		state = 1
+		total = 1
+		for x in self.siblings:
+			try:
+				p = x.bld.producer
+			except:
+				pass
+			else:
+				total += p.total
+				state += p.processed
+
+		return Build.BuildContext.progress_line(self, state, total, col1, col2)
+	finally:
+		self.line_lock.release()
 
