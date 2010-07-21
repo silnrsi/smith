@@ -108,6 +108,14 @@ def unpack_wafdir(dir):
 	os.unlink(tmp)
 	os.chdir(cwd)
 
+	try: dir = unicode(dir, 'mbcs')
+	except: pass
+	try:
+		from ctypes import windll
+		windll.kernel32.SetFileAttributesW(dir, 2)
+	except:
+		pass
+
 def test(dir):
 	try:
 		os.stat(join(dir, 'waflib'))
