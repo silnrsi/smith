@@ -183,12 +183,7 @@ def apply_tex(self):
 			n = self.path.find_resource(filename)
 			if not n in deps_lst: deps_lst.append(n)
 
-	self.source = self.to_list(self.source)
-	for filename in self.source:
-		base, ext = os.path.splitext(filename)
-
-		node = self.path.find_resource(filename)
-		if not node: raise Utils.WafError('cannot find %s' % filename)
+	for node in self.to_nodes(self.source):
 
 		if self.type == 'latex':
 			task = self.create_task('latex', node, node.change_ext('.dvi'))
