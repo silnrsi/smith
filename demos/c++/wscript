@@ -21,6 +21,8 @@ def build(bld):
 	bld(features='cxxshlib cxx', source='a.cpp', target='mylib')
 	bld.program(source='main.cpp', target='app', uselib_local='mylib')
 
+	bld(features='cxxstlib cxx', target='foo', source='b.cpp')
+
 	return
 	if bld.cmd != 'clean':
 		from waflib import Logs
