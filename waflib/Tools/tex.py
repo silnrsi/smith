@@ -196,12 +196,12 @@ def apply_tex(self):
 		# add the manual dependencies
 		if deps_lst:
 			try:
-				lst = tree.node_deps[task.unique_id()]
+				lst = tree.node_deps[task.uid()]
 				for n in deps_lst:
 					if not n in lst:
 						lst.append(n)
 			except KeyError:
-				tree.node_deps[task.unique_id()] = deps_lst
+				tree.node_deps[task.uid()] = deps_lst
 
 		if self.type == 'latex':
 			if 'ps' in outs:

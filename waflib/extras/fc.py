@@ -95,7 +95,7 @@ class fc(Task.Task):
 
 		# the .mod files to create
 		for tsk in lst:
-			key = tsk.unique_id()
+			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('MOD@'):
 					name = x.replace('MOD@', '') + '.mod'
@@ -105,7 +105,7 @@ class fc(Task.Task):
 
 		# the .mod files to use
 		for tsk in lst:
-			key = tsk.unique_id()
+			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('USE@'):
 					name = x.replace('USE@', '') + '.mod'

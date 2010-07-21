@@ -214,7 +214,7 @@ def compile_may_start(self):
 		tree = self.generator.bld
 		env = self.env
 		for node in self.inputs:
-			lst = tree.node_deps[self.unique_id()]
+			lst = tree.node_deps[self.uid()]
 			for depnode in lst:
 				for t in alltasks:
 					if t == self: continue

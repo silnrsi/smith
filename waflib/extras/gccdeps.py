@@ -30,7 +30,7 @@ def add_mmd_cxx(self):
 
 def scan(self):
 	"the scanner does not do anything initially"
-	nodes = self.generator.bld.node_deps.get(self.unique_id(), [])
+	nodes = self.generator.bld.node_deps.get(self.uid(), [])
 	names = []
 	return (nodes, names)
 
@@ -95,8 +95,8 @@ def post_run(self):
 
 	Logs.debug('deps: real scanner for %s returned %s' % (str(self), str(nodes)))
 
-	bld.node_deps[self.unique_id()] = nodes
-	bld.raw_deps[self.unique_id()] = []
+	bld.node_deps[self.uid()] = nodes
+	bld.raw_deps[self.uid()] = []
 
 	try:
 		del self.cache_sig
