@@ -15,33 +15,31 @@ def options(opt):
 	opt.tool_options('compiler_cc')
 	opt.tool_options('gnu_dirs')
 
+def build(bld):
+	bld.recurse('program stlib shlib')
+
+
+lst = 'debug release foo bar one two'.split()
+
 def configure(conf):
 	conf.check_tool('compiler_cc')
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 	conf.write_config_header('config.h')
 
 
-	# uffff
-	conf.write_config_header('debug/config.h')
-	conf.write_config_header('release/config.h')
-	conf.env.cfg_files = ['config.h']
-
-def build(bld):
-	bld.recurse('program stlib shlib')
-
-
+	# gotcha - the config.h must be written for each variant
+	txt = conf.bldnode.search('config.h').read()
+	for x in lst:
+		node = conf.bldnode.make_node(x + '/config.h')
+		node.parent.mkdir()
+		node.write(txt)
 
 from waflib.Build import BuildContext
 class buildall_ctx(BuildContext):
 	cmd = fun = "buildall"
 
 def buildall(ctx):
-
-	# find a better way to have a loop
-	class debug(BuildContext):
-		variant = cmd = 'debug'
-	class release(BuildContext):
-		variant = cmd = 'release'
+	"""call 'waf buildall' to build all the variants in parallel"""
 
 	import Utils
 	class sub_build(Utils.threading.Thread):
@@ -52,7 +50,8 @@ def buildall(ctx):
 			bld.recurse([bld.run_dir])
 			bld.compile()
 
-	for cls in [debug, release]:
+	for x in lst:
+		cls = type(BuildContext)(x, (BuildContext,), {'cmd': x, 'variant': x})
 		f = sub_build()
 		f.cls = cls
 		f.start()
