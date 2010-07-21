@@ -45,12 +45,14 @@ def buildall(ctx):
 
 	timer = Utils.Timer()
 	threads = []
+	count = [0]
 	line_lock = Utils.threading.Lock()
 	class sub_build(Utils.threading.Thread):
 		def run(self):
 			bld = self.bld = self.cls(top_dir=ctx.top_dir, out_dir=ctx.out_dir)
 			bld.load()
 			bld.siblings = threads
+			bld.count = count
 			bld.line_lock = line_lock
 			bld.timer = timer
 			bld.logger = ctx.logger
@@ -73,8 +75,7 @@ def buildall(ctx):
 def locked_progress_line(self, state, total, col1, col2):
 	try:
 		self.line_lock.acquire()
-
-		state = 0
+		self.count[0] += 1
 		total = 0
 		for x in self.siblings:
 			try:
@@ -83,9 +84,8 @@ def locked_progress_line(self, state, total, col1, col2):
 				pass
 			else:
 				total += p.total
-				state += p.processed - 1
 
-		return Build.BuildContext.progress_line(self, state, total, col1, col2)
+		return Build.BuildContext.progress_line(self, self.count[0], total, col1, col2)
 	finally:
 		self.line_lock.release()
 
