@@ -67,6 +67,9 @@ def process_use(self):
 			tmp_path = y.link_task.outputs[0].parent.bldpath()
 			if not tmp_path in env['LIBPATH']:
 				env.prepend_value('LIBPATH', [tmp_path])
+		else:
+			for t in getattr(y, 'compiled_tasks', []):
+				self.link_task.inputs.extend(t.outputs)
 
 		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
