@@ -50,7 +50,7 @@ def create_compiled_task(self, name, node):
 		self.compiled_tasks = [task]
 	return task
 
-@taskgen_method
+@conf
 def get_dest_binfmt(self):
 	# The only thing we need for cross-compilation is DEST_BINFMT.
 	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
@@ -108,7 +108,7 @@ class link_task(Task.Task):
 			folder, name = os.path.split(target)
 
 			if self.__class__.__name__.find('shlib') > 0:
-				if self.generator.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
+				if self.generator.bld.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
 					# include the version in the dll file name,
 					# the import lib file name stays unversionned.
 					name = name + '-' + self.generator.vnum.split('.')[0]
@@ -277,7 +277,7 @@ def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
-	if not self.get_dest_binfmt() == 'pe':
+	if not self.bld.get_dest_binfmt() == 'pe':
 		return
 
 	dll = self.link_task.outputs[0]
@@ -310,7 +310,7 @@ def apply_vnum(self):
 	libfoo.so is installed as libfoo.so.1.2.3
 	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
 	"""
-	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.get_dest_binfmt() not in ('elf', 'mac-o'):
+	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.bld.get_dest_binfmt() not in ('elf', 'mac-o'):
 		return
 
 	link = self.link_task
