@@ -139,7 +139,7 @@ def apply_link(self):
 			x = 'cxxshlib'
 
 		if x in Task.classes:
-			if hasattr(Task.classes[x], 'inst_to'):
+			if issubclass(Task.classes[x], link_task):
 				link = x
 				break
 	else:
