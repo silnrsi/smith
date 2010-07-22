@@ -24,8 +24,8 @@ def configure(conf):
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 
 	#conf.check_large_file()
-	#conf.check_inline()
-	#conf.check_library()
+	conf.check_inline()
+	conf.check_library()
 
 	conf.write_config_header('config.h')
 

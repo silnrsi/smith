@@ -20,7 +20,7 @@ def link_lib_test_fun(self):
 		task.outputs[0].write(task.generator.code)
 
 	rpath = []
-	if getattr(self, 'add_rpath', True):
+	if getattr(self, 'add_rpath', False):
 		rpath = [self.bld.path.get_bld().abspath()]
 
 	mode = self.mode
