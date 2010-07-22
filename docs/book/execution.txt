@@ -62,7 +62,7 @@ $ waf ping pong ping ping
 'ping' finished successfully (0.001s)
 ---------------
 
-NOTE: The context parameter is a new object for each command executed
+NOTE: The context parameter is a new object for each command executed. The classes are also different: ConfigureContext for configure, BuildContext for build, OptionContext for option, and Context for any other command.
 
 ==== Using several scripts and folders
 
