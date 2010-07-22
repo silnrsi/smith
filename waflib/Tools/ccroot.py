@@ -8,7 +8,7 @@ import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
-from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects, c_osx, c_tests
+from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_objects, c_osx, c_tests, c_use
 
 USELIB_VARS = Utils.defaultdict(set)
 USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
@@ -160,7 +160,7 @@ def apply_link(self):
 
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths')
-@after('apply_link')
+@after('apply_link', 'process_source')
 def apply_uselib_local(self):
 	"""
 	process the uselib_local attribute
