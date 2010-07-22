@@ -25,10 +25,26 @@ def link_lib_test_fun(self):
 
 	mode = self.mode
 	m = '%s %s' % (mode, mode)
-
+	lib_code = '''
+#ifdef _MSC_VER
+#define testEXPORT __declspec(dllexport)
+#else
+#define testEXPORT
+#endif
+testEXPORT int lib_func(void) { return 9; }
+	'''
+	main_code = '''
+#ifdef _MSC_VER
+#define testEXPORT __declspec(dllimport)
+#else
+#define testEXPORT
+#endif
+testEXPORT int lib_func(void);
+int main(void) {return !(lib_func() == 9);}
+	'''
 	bld = self.bld
-	bld(rule=write_test_file, target='test.c', code='int lib_func(void) { return 9; }\n')
-	bld(rule=write_test_file, target='main.c', code='int lib_func(void); int main(void) {return !(lib_func() == 9);}\n')
+	bld(rule=write_test_file, target='test.c', code=lib_code)
+	bld(rule=write_test_file, target='main.c', code=main_code)
 	bld(features= m + 'shlib', source='test.c', target='test')
 	bld(features= m + 'program test_exec', source='main.c', target='app', uselib_local='test', rpath=rpath)
 
