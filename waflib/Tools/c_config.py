@@ -771,7 +771,18 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 
 @conf
-def add_as_needed(conf):
-	if conf.env.DEST_BINFMT == 'elf' and 'gcc' in (conf.env.CXX_NAME, conf.env.CC_NAME):
-		conf.env.append_unique('LINKFLAGS', '--as-needed')
+def add_as_needed(self):
+	if self.get_dest_binfmt() == 'elf' and 'gcc' in (self.env.CXX_NAME, self.env.CC_NAME):
+		self.env.append_unique('LINKFLAGS', '--as-needed')
+
+@conf
+def get_dest_binfmt(self):
+	# The only thing we need for cross-compilation is DEST_BINFMT.
+	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
+	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
+	if not self.env.DEST_BINFMT:
+		# Infer the binary format from the os name.
+		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
+			self.env.DEST_OS or Utils.unversioned_sys_platform())
+	return self.env.DEST_BINFMT
 

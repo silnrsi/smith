@@ -50,17 +50,6 @@ def create_compiled_task(self, name, node):
 		self.compiled_tasks = [task]
 	return task
 
-@conf
-def get_dest_binfmt(self):
-	# The only thing we need for cross-compilation is DEST_BINFMT.
-	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
-	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
-	if not self.env.DEST_BINFMT:
-		# Infer the binary format from the os name.
-		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
-			self.env.DEST_OS or Utils.unversioned_sys_platform())
-	return self.env.DEST_BINFMT
-
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
