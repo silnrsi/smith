@@ -50,11 +50,10 @@ def process_use(self):
 					self.uselib.append(x)
 				else:
 					obj.post()
-					try:
-						if not isinstance(obj.link_task, waflib.Tools.ccroot.stlink_task):
-							tmp.append(x)
-					except AttributeError:
-						Logs.warn('task generator %s has no link task' % x)
+					if getattr(obj, 'link_task', None) and isinstance(obj.link_task, waflib.Tools.ccroot.stlink_task):
+						pass
+					else:
+						tmp.append(x)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
