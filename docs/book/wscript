@@ -59,16 +59,23 @@ def scansize(self):
 			else:
 				w = "800"
 				h = val
+
+			ext = self.inputs[0].name[-3:]
+			if ext == 'eps':
+				code = '-geometry %sx%s' % (w, h)
+			elif ext == 'dia':
+				if m.group(1) == 'width':
+					h = ''
+				else:
+					w = ''
+				code = '--size %sx%s' % (w, h)
+			else:
+				code = '-Gsize="%s,%s"' % (w, h)
 			break
 	else:
 		return ([], '')
 
-	if self.inputs[0].name[-3:] == 'eps':
-		template = '-geometry %sx%s'
-	else:
-		template = '-Gsize="%s,%s"'
-
-	return ([], template % (w, h))
+	return ([], code)
 
 def options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
@@ -85,7 +92,7 @@ def build(bld):
 	for x in bld.path.ant_glob('*.eps'):
 		nd = bld.path.get_bld().make_node(x.name)
 		bld(rule='cp ${SRC} ${TGT}', source=x, target=nd)
-		bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=x, target=x.change_ext('.png'), scan=scansize)
+		bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} -density 600 ${SRC} ${TGT}', source=x, target=x.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.dot'):
 		tg = bld(rule='dot -Teps -o${TGT} ${SRC}', source=x, target=x.change_ext('.eps'))
@@ -93,8 +100,9 @@ def build(bld):
 		#tg = bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=x.change_ext('.eps'), target=x.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('*.dia'):
-		tg = bld(rule='${DIA} -t eps-pango ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'))
-		bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), scan=scansize)
+		tg = bld(rule='${DIA} -t eps ${SRC} -e ${TGT}', source=x, target=x.change_ext('.eps'))
+		tg = bld(rule='${DIA} -t png ${SRC} -e ${TGT}', source=x, target=x.change_ext('.png'), scan=scansize)
+		#bld(rule='${CONVERT} ${bld.raw_deps[tsk.uid()]} ${SRC} ${TGT}', source=tg.target, target=tg.target.change_ext('.png'), scan=scansize)
 
 	for x in bld.path.ant_glob('pics/*.png'):
 		bld(rule='cp ${SRC} ${TGT}', source=x, target=x.name)
