@@ -11,11 +11,11 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 	opt.tool_options('vala')
 
 def configure(conf):
-	conf.check_tool('compiler_cc vala')
+	conf.check_tool('compiler_c vala')
 	conf.check_cfg(package='glib-2.0', uselib_store='GLIB', atleast_version='2.10.0', mandatory=1, args='--cflags --libs')
 	conf.check_cfg(package='gtk+-2.0', uselib_store='GTK', atleast_version='2.10.0', mandatory=1, args='--cflags --libs')
 

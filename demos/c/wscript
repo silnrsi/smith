@@ -12,13 +12,12 @@ import waflib.Configure
 waflib.Configure.autoconfig = True
 
 def options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 	opt.tool_options('gnu_dirs')
 
 def configure(conf):
 	#conf.check_tool('akakak')
-	conf.check_tool('compiler_cc')
-	#conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 	#conf.check_tool('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 

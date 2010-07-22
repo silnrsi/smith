@@ -11,10 +11,10 @@ top = '.'
 out = 'build'
 
 def set_options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 
 def build(bld):
 	bld(features='cc cprogram', source='main.c', target='app')

@@ -2,10 +2,10 @@
 # encoding: utf-8
 
 def set_options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 
 def build(bld):
 

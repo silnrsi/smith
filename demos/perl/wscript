@@ -12,11 +12,11 @@ top = '.'
 out = 'build'
 
 def set_options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 	opt.tool_options('perl')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 	conf.check_tool('perl')
 
 	# check for perl

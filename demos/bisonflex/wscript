@@ -2,10 +2,10 @@
 # encoding: utf-8
 
 def options(opt):
-	opt.tool_options('compiler_cxx compiler_cc')
+	opt.tool_options('compiler_cxx compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx compiler_cc flex bison')
+	conf.check_tool('compiler_cxx compiler_c flex bison')
 	conf.env.LIB_CALC = ['fl']
 
 def build(bld):

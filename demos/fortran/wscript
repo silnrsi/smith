@@ -7,11 +7,11 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 	opt.tool_options('compiler_fc')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 	conf.check_tool('compiler_fc')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['INCLUDES'] = ['hfloupi']
