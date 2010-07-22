@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+bld(
+	 features="c",
+	 source="a.c",
+	 target="a",
+	 use="Z",
+	)
+
+"""
+bld.program(
+	 source="a-test.c",
+	 target="a-test",
+	 use="a",
+	)
+"""
+
+bld(
+	 features="c",
+	 source="b.c",
+	 target="b",
+	 use="a",
+	)
+
+bld.program(
+	 source = "c.c",
+	 target = "c",
+	 use = "b",
+	)
+
