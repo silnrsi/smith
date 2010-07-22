@@ -71,9 +71,97 @@ Should this be insuficient, the Task method method 'get_out' of the class Parall
 
 === Support for c-like languages
 
-==== link tasks
+==== Compiled and link tasks
 
-TODO
+The tool _waflib.Tools.ccroot_ provides a system for creating object files and linking them into a single final file. The method _waflib.Tools.ccroot.apply_link_ is called after the method _waflib.TaskGen.process_source_ to create the link task. In pseudocode:
+
+[source,shishell]
+---------------
+call the method process_source:
+  for each source file foo.ext:
+    process the file by extension
+      if the method create_compiled_task is used:
+        create a new task
+        set the output file name to be foo.ext.o
+        add the task to the list self.compiled_tasks
+
+call the method apply_link
+  for each name N in self.features:
+    find a class named N:
+      if the class N derives from 'waflib.Tools.ccroot.link_task':
+        create a task of that class, assign it to self.link_task
+        set the link_task inputs from self.compiled_tasks
+        set the link_task output name to be env.N_PATTERN % self.target
+        stop
+---------------
+
+This system is used for _assembly_, _C_, _C++_, _D_ and _fortran_ by default. Note that the method _apply_link_ is supposed to be called after the method _process_source_.
+
+We will now demonstrate how to support the following mini language:
+
+[source,shishell]
+---------------
+cp: .ext -> .o
+cat: *.o -> .exe
+---------------
+
+Here is the project file:
+
+// architecture_link
+[source,python]
+---------------
+def configure(ctx):
+	pass
+
+def build(ctx):
+	ctx(features='mylink', source='foo.ext faa.ext', target='bingo')
+
+from waflib.Task import Task
+from waflib.TaskGen import feature, extension, after
+from waflib.Tools import ccroot <1>
+
+@after('process_source')
+@feature('mylink')
+def call_apply_link(self): <2>
+	self.apply_link()
+
+class mylink(ccroot.link_task): <3>
+	run_str = 'cat ${SRC} > ${TGT}'
+
+class ext2o(Task):
+	run_str = 'cp ${SRC} ${TGT}'
+
+@extension('.ext')
+def process_ext(self, node):
+	self.create_compiled_task('ext2o', node) <4>
+---------------
+
+<1> This import will bind the methods such as _create_compiled_task_ and _apply_link_task_
+<2> An alternate definition would be calling _waflib.TaskGen.feats['mylink'] = ['apply_link']_
+<3> The link task must be a subclass of another link task class
+<4> Calling the method _create_compiled_task_
+
+The execution outputs will be the following:
+// why the extra space after "setting top to"?
+[source,shishell]
+---------------
+waf distclean configure build -v
+'distclean' finished successfully (0.005s)
+Setting top to   : /tmp/architecture_link
+Setting out to   : /tmp/architecture_link/build
+'configure' finished successfully (0.008s)
+Waf: Entering directory `/tmp/architecture_link/build'
+[1/3] ext2o: foo.ext -> build/foo.ext.0.o
+12:50:25 runner ['cp', '../foo.ext', 'foo.ext.0.o']
+[2/3] ext2o: faa.ext -> build/faa.ext.0.o
+12:50:25 runner ['cp', '../faa.ext', 'faa.ext.0.o']
+[3/3] mylink: build/foo.ext.0.o build/faa.ext.0.o -> build/bingo
+12:50:25 runner 'cat foo.ext.0.o faa.ext.0.o > bingo'
+Waf: Leaving directory `/tmp/architecture_link/build'
+'build' finished successfully (0.041s)
+---------------
+
+NOTE: Task generator instances have at most one link task instance
 
 ==== include processing
 
