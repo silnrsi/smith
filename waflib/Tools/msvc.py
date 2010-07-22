@@ -602,16 +602,18 @@ def msvc_common_flags(conf):
 @after('apply_link')
 @feature('c', 'cxx')
 def apply_flags_msvc(self):
-	if self.env.CC_NAME != 'msvc' or not self.link_task:
+	if self.env.CC_NAME != 'msvc' or not getattr(self, 'link_task', None):
 		return
+
+	is_static = self.link_task.__class__.__name__.find('stlib') > 0
 
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
 		subsystem = '/subsystem:%s' % subsystem
-		flags = 'cstlib' in self.features and 'ARFLAGS' or 'LINKFLAGS'
+		flags = is_static and 'ARFLAGS' or 'LINKFLAGS'
 		self.env.append_value(flags, subsystem)
 
-	if getattr(self, 'link_task', None) and not 'cstlib' in self.features:
+	if not is_static:
 		for f in self.env.LINKFLAGS:
 			d = f.lower()
 			if d[1:] == 'debug':
