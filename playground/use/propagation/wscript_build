@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
+bld.env.LIB_Z = ["z"]
+
 bld(
-	 features="c",
-	 source="a.c",
-	 target="a",
-	 use="Z",
+	 features = "c",
+	 source   = "a.c",
+	 target   = "a",
+	 use      = "Z",
 	)
 
 """
@@ -16,15 +18,15 @@ bld.program(
 """
 
 bld(
-	 features="c",
-	 source="b.c",
-	 target="b",
-	 use="a",
+	 features = "c",
+	 source   = "b.c",
+	 target   = "b",
+	 use      = "a",
 	)
 
 bld.program(
 	 source = "c.c",
 	 target = "c",
-	 use = "b",
+	 use    = "b",
 	)
 
