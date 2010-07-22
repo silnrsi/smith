@@ -3,7 +3,7 @@
 # Thomas Nagy, 2010 (ita)
 
 import os
-import Utils
+from waflib import Utils, Errors, Logs
 import waflib.Tools
 from waflib.TaskGen import feature, before, after
 
@@ -31,20 +31,30 @@ def process_use(self):
 		if lib_name in seen:
 			continue
 
-		y = get(lib_name)
+		try:
+			y = get(lib_name)
+		except Errors.WafError:
+			seen.add(lib_name)
+			self.uselib.append(lib_name)
+			continue
+
 		y.post()
 		seen.add(lib_name)
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'use', None):
 			for x in self.to_list(getattr(y, 'use', [])):
-				obj = get(x)
-				obj.post()
 				try:
-					if not isinstance(obj.link_task, waflib.Tools.ccroot.stlink_task):
-						tmp.append(x)
-				except AttributeError:
-					Logs.warn('task generator %s has no link task' % x)
+					obj = get(x)
+				except Errors.WafError:
+					self.uselib.append(x)
+				else:
+					obj.post()
+					try:
+						if not isinstance(obj.link_task, waflib.Tools.ccroot.stlink_task):
+							tmp.append(x)
+					except AttributeError:
+						Logs.warn('task generator %s has no link task' % x)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
@@ -68,8 +78,9 @@ def process_use(self):
 			if not tmp_path in env['LIBPATH']:
 				env.prepend_value('LIBPATH', [tmp_path])
 		else:
-			for t in getattr(y, 'compiled_tasks', []):
-				self.link_task.inputs.extend(t.outputs)
+			if getattr(self, 'link_task', None):
+				for t in getattr(y, 'compiled_tasks', []):
+					self.link_task.inputs.extend(t.outputs)
 
 		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
