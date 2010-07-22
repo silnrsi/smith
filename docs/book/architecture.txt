@@ -30,19 +30,19 @@ Waf consists of the following modules which constitute the core library. They ar
 
 Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. If the module 'Build' is used, then the modules 'Scripting' and 'Configure' are not necessary.
 
-image::core{PIC}["Module dependencies"{backend@docbook:,height=400:}]
+image::core{PIC}["Module dependencies"{backend@docbook:,height=400:},align="center"]
 
 ==== Context classes
 
 The context classes (which inherit from the class 'Context') are used by the Waf commands. The base class 'Context' may be used directly for the Waf commands that do not have an associated context subclass. The metaclass 'store_context' is used for recording any context subclass created.
 
-image::classes{PIC}["Context classes"{backend@docbook:,width=500:}]
+image::classes{PIC}["Context classes"{backend@docbook:,width=500:},align="center"]
 
 ==== Build classes
 
 The structure of the build classes is represented on the following diagram:
 
-image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:}]
+image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:},align="center"]
 
 ==== Build context and persistence
 

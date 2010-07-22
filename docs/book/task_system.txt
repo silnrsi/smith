@@ -15,14 +15,14 @@ Here are a few motives for using the task generators to create the tasks instead
 
 A summary can be found on the following diagram:
 
-image::task_execution{PIC}["Flowchart model"{backend@docbook:,width=370:}]
+image::task_execution{PIC}["Flowchart model"{backend@docbook:,width=370:},align="center"]
 
 === Task execution
 
 Executing a task consists in calling the method 'run' on that task, and setting the task execution state.
 The following diagram is a summary of the process:
 
-image::task_run{PIC}["Task execution"{backend@docbook:,width=250:}]
+image::task_run{PIC}["Task execution"{backend@docbook:,width=250:},align="center"]
 
 The method 'post_run' can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
 
@@ -44,7 +44,7 @@ By default, Waf does not allow consumer threads to access the tasks directly:
 
 The following illustrates the relationship producer-consumer performed for the builds:
 
-image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:}]
+image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
 
 
 
@@ -76,7 +76,7 @@ def build(bld):
 
 The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
 
-image::output-ADDGROUP{PIC}["Task groups"{backend@docbook:,width=350:}]
+image::output-ADDGROUP{PIC}["Task groups"{backend@docbook:,width=350:},align="center"]
 
 It is possible to create groups at any point in the scripts, and to add the task generators to any group previously created. Adding groups for specific folders or scripts enables a behaviour similar to projects organized in recursive Makefiles.
 
@@ -154,7 +154,7 @@ The direct instances of TaskBase are quite limited and do not track the changes 
 
 The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
 
-image::task_signature{PIC}["Signatures"{backend@docbook:,width=320:}]
+image::task_signature{PIC}["Signatures"{backend@docbook:,width=320:},align="center"]
 
 The signature computation uses the following data:
 

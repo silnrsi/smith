@@ -9,7 +9,7 @@ Task dependencies and task ordering specify the exact order in which tasks must 
 
 To make this possible, the task execution is organized in the following manner:
 
-image::task_grouping{PIC}["Execution model"{backend@docbook:,width=220:}]
+image::task_grouping{PIC}["Execution model"{backend@docbook:,width=220:},align="center"]
 
 === Job control
 
@@ -17,15 +17,15 @@ Job control is related to the parallelization algorithms used for launching the 
 
 In the NORMAL ordering, task groups are created, and a topological sort is performed on the task class types. The overall performance penalty for complete builds is usually small, like a few seconds on builds during minutes.
 
-image::output-NORMAL{PIC}["NORMAL"{backend@docbook:,width=350:}]
+image::output-NORMAL{PIC}["NORMAL"{backend@docbook:,width=350:},align="center"]
 
 In the JOBCONTROL ordering, groups are created in advance, and a flag indicates the maximum amount of jobs to be used when the consumer threads execute the tasks. This prevents parallelization of tasks which use a lot of resources. For example, linking c++ object files uses a lot of RAM.
 
-image::output-JOBCONTROL{PIC}["JOBCONTROL"{backend@docbook:,width=350:}]
+image::output-JOBCONTROL{PIC}["JOBCONTROL"{backend@docbook:,width=350:},align="center"]
 
 In the MAXPARALLEL ordering, Each task holds a list of tasks it must run after (there is only one list of tasks waiting to be executed). Though this version parallelizes tasks very well, it consumes more memory and processing. In practice, Waf may last 20% more on builds when all tasks are up-to-date.
 
-image::output-MAXPARALLEL{PIC}["MAXPARALLEL"{backend@docbook:,width=350:}]
+image::output-MAXPARALLEL{PIC}["MAXPARALLEL"{backend@docbook:,width=350:},align="center"]
 
 WARNING: Because most task classes use ordering constraints, the maximum parallelization can only be achieved if the constraints between task classes are relaxed, and if all task instances know their predecessors. In the example graph, this was achieved by removing the ordering constraints between the compilation tasks classes and the link tasks classes.
 
@@ -68,8 +68,8 @@ Tasks that are known to take a lot of time may be launched first to improve the 
 
 The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
 
-image::duration-1{PIC}["Random order"{backend@docbook:,width=310:}]
-image::duration-2{PIC}["Slowest task first"{backend@docbook:,width=310:}]
+image::duration-1{PIC}["Random order"{backend@docbook:,width=310:},align="center"]
+image::duration-2{PIC}["Slowest task first"{backend@docbook:,width=310:},align="center"]
 
 Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
 

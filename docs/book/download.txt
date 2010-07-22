@@ -101,7 +101,7 @@ Although the waf library is unpacked automatically from the waf binary file, it 
 
 The following diagram represents the process used to find the +waflib+ directory:
 
-image::waflib{PIC}["Waflib discovery"{backend@docbook:,width=220:}]
+image::waflib{PIC}["Waflib discovery"{backend@docbook:,width=220:},align="center"]
 
 
 ==== Portability concerns

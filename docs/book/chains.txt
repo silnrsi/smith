@@ -366,5 +366,5 @@ The first step in processing the source file attribute is to convert all file na
 
 The list of nodes is then consumed by regular extension mappings. Extension methods may re-inject the output nodes for further processing by appending them to the the attribute 'source' (hence the name re-entrant provided in declare_chain).
 
-image::source{PIC}["Source attribute processing"{backend@docbook:,width=250:}]
+image::source{PIC}["Source attribute processing"{backend@docbook:,width=250:},align="center"]
 

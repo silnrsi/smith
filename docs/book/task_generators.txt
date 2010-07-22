@@ -247,7 +247,7 @@ def remove_apply_core(self):
 
 The task generator method workflow is represented in the following illustration:
 
-image::posting{PIC}["Task generator workflow"{backend@docbook:,width=320:}]
+image::posting{PIC}["Task generator workflow"{backend@docbook:,width=320:},align="center"]
 
 === Expressing abstract dependencies between task generators
 

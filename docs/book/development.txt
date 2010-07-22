@@ -164,7 +164,7 @@ set ytic 1
 plot 'test.dat' using 1:3 with lines title "" lt 2
 ---------------
 
-image::dev{PIC}["Tracing the threads being executed"{backend@docbook:,width=400:}]
+image::dev{PIC}["Tracing the threads being executed"{backend@docbook:,width=400:},align="center"]
 
 
 === Obtaining the latest source code
