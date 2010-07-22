@@ -605,7 +605,7 @@ def apply_flags_msvc(self):
 	if self.env.CC_NAME != 'msvc' or not getattr(self, 'link_task', None):
 		return
 
-	is_static = self.link_task.__class__.__name__.find('stlib') > 0
+	is_static = isinstance(self.link_task, ccroot.stlink_task)
 
 	subsystem = getattr(self, 'subsystem', '')
 	if subsystem:
