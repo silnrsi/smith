@@ -275,7 +275,7 @@ def apply_implib(self):
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 	self.link_task.outputs.append(implib)
 
-	if getattr(self, 'defs', None):
+	if getattr(self, 'defs', None) and 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
 		node = self.path.find_resource(self.defs)
 		if not node:
 			raise Errors.WafError('invalid def file %r' % self.defs)
