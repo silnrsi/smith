@@ -9,7 +9,7 @@ This chapter provides describes the Waf library and the interaction between the 
 
 Waf consists of the following modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` and `waflib/extras` are only extension and are not part of the Waf core.
 
-.The core library
+.List of core modules
 [options="header", cols="1,6"]
 |=================
 |Module    | Role
@@ -48,6 +48,7 @@ image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:}]
 
 The build context holds all the information necessary for a build. To accelerate the start-up, a part of the information is stored and loaded between the runs. The persistent attributes are the following:
 
+.Persistent attributes
 [options="header", cols="1,3,3"]
 |=================
 |Attribute | Description                                            | Type
@@ -56,18 +57,18 @@ The build context holds all the information necessary for a build. To accelerate
 |raw_deps  | Implicit file dependencies which could not be resolved | dict mapping Node ids to any serializable type
 |task_sigs | Signature of the tasks executed                        | dict mapping a Task computed uid to a hash
 |=================
-.Build context persistence
 
+////
 ==== Parallelization concerns
 
 Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods 'run' and 'install' from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
 
-In particular, direct 'Node' instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
+In particular, direct _Node_ instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
 
 The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer'). It is therefore discouraged to search for files and folder in these methods unless the nodes have already been created. For processing tasks dynamically during the build, it is recommended to use the TaskBase method 'runnable_status' which is executed by the main thread.
 
 Should this be insuficient, the Task method method 'get_out' of the class Parallel should be overridden to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code).
-
+////
 
 === Support for c-like languages
 
@@ -137,7 +138,7 @@ def process_ext(self, node):
 ---------------
 
 <1> This import will bind the methods such as _create_compiled_task_ and _apply_link_task_
-<2> An alternate definition would be calling _waflib.TaskGen.feats['mylink'] = ['apply_link']_
+<2> An alternate definition would be calling _waflib.TaskGen.feats[`mylink'] = [`apply_link']_
 <3> The link task must be a subclass of another link task class
 <4> Calling the method _create_compiled_task_
 
@@ -163,6 +164,7 @@ Waf: Leaving directory `/tmp/architecture_link/build'
 
 NOTE: Task generator instances have at most one link task instance
 
+////
 ==== include processing
 
 TODO
@@ -175,8 +177,6 @@ TODO
 
 TODO
 
-
-////
 
 === Execution overview
 
