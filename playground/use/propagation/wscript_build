@@ -24,10 +24,9 @@ bld(
 	 use      = "a",
 	)
 
-"""
 bld.program(
 	 source = "c.c",
 	 target = "c",
 	 use    = "b",
 	)
-"""
+
