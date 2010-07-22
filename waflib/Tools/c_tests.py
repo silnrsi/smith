@@ -8,6 +8,7 @@ configuration tests...
 
 from waflib.Configure import conf
 from waflib.TaskGen import feature, before
+import sys
 
 LIB_CODE = '''
 #ifdef _MSC_VER
@@ -112,11 +113,13 @@ def check_inline(self, **kw):
 ########################################################################################
 
 LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); };'
+LARGE_FRAGMENT_WIN32 = 'int main() {return 0; }'
 
 @conf
 def check_large_file(self, **kw):
 	"""
 	see if large files are supported and define the macro HAVE_LARGEFILE
+	FIXME: win32 presumably has this support
 	"""
 
 	if not 'define_name' in kw:
@@ -131,6 +134,9 @@ def check_large_file(self, **kw):
 			kw['features'] = ['c', 'cprogram']
 
 	kw['fragment'] = LARGE_FRAGMENT
+	if sys.platform == 'win32':
+		kw['fragment'] = LARGE_FRAGMENT_WIN32
+
 	kw['msg'] = 'Checking for large file support'
 	try:
 		self.check(**kw)
