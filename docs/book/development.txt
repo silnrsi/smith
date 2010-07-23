@@ -157,6 +157,7 @@ The details will be generated in the file +pdebug.dat+ as space-separated values
 
 [source,shishell]
 ---------------
+#! /usr/bin/env gnuplot
 set terminal png
 set output "output.png"
 set ylabel "Amount of active threads"
@@ -165,12 +166,27 @@ set title "Active threads on a parallel build (waf -j5)"
 unset label
 set yrange [-0.1:5.2]
 set ytic 1
-plot 'test.dat' using 1:3 with lines title "" lt 2
+plot 'pdebug.dat' using 3:7 with lines title "" lt 2
 ---------------
 
 image::dev{PIC}["Thread activity during the build"{backend@docbook:,width=410:},align="center"]
 
-=== Optimization guidlines
+The data file columns are the following:
+
+.pdebug file format
+[options="header", cols="1,2,6"]
+|=================
+|Column | Type | Description
+|1 |int| Identifier of the thread which has started or finished processing a task
+|2 |int| Identifier of the task processed
+|3 |float| Event time
+|4 |string| Type of the task processed
+|5 |int| Amount of tasks processed
+|6 |int| Amount of tasks waiting to be processed by the task consumers
+|7 |int| Amount of active threads
+|=================
+
+=== Optimizations
 
 The Waf source code has already been optimized in various ways. In practice, the projects may use additional assumptions to replace certain methods or parameters from its build scripts. For example, if a project is always executed on Windows, then the _framework_ and _rpath_ variables may be removed:
 

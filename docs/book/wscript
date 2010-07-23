@@ -152,5 +152,8 @@ Set the following values in asciidoc-dblatex.xsl:
 And for vim highlighting:
 cp vim/syntax/asciidoc.vim /usr/share/vim/site/syntax/
 cp vim/ftdetect/asciidoc_filetype.vim /usr/share/vim/site/ftdetect/
+
+When adding an eps from a svg file, convert it with inscape first
+convert (imagemagick) does not process svg files too well
 """
 
