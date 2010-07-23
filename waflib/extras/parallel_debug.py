@@ -206,10 +206,10 @@ def process_colors(producer, q):
 
 	out.append("\n</svg>")
 
-	node = producer.bld.path.make_node('foo.svg')
+	node = producer.bld.path.make_node('pdebug.svg')
 	node.write("".join(out))
 	Logs.warn('Created the diagram %r' % node.abspath())
 
 	p = node.parent.abspath()
-	producer.bld.exec_command(['convert', p + os.sep + 'foo.svg', p + os.sep + 'foo.png'])
+	producer.bld.exec_command(['convert', p + os.sep + 'pdebug.svg', p + os.sep + 'pdebug.png'])
 
