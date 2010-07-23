@@ -31,6 +31,6 @@ class cxxprogram(link_task):
 class cxxshlib(cxxprogram):
 	inst_to = '${LIBDIR}'
 
-class cstlib(stlink_task):
+class cxxstlib(stlink_task):
 	pass
 
