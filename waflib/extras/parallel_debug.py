@@ -41,19 +41,13 @@ def map_to_color(name):
 	return "#cc1d1d"
 
 
-taskinfo = Queue.Queue()
-state = 0
-def set_running(by, i, tsk):
-	taskinfo.put(  (i, id(tsk), time.time(), tsk.__class__.__name__)  )
-
-
 def process_task(tsk):
 	m = tsk.master
 	if m.stop:
 		m.out.put(tsk)
 		return
 
-	set_running(1, id(Utils.threading.current_thread()), tsk)
+	tsk.master.set_running(1, id(Utils.threading.current_thread()), tsk)
 
 	try:
 		tsk.generator.bld.to_log(tsk.display())
@@ -84,7 +78,7 @@ def process_task(tsk):
 	if tsk.hasrun != Task.SUCCESS:
 		m.error_handler(tsk)
 
-	set_running(-1, id(Utils.threading.current_thread()), tsk)
+	tsk.master.set_running(-1, id(Utils.threading.current_thread()), tsk)
 	m.out.put(tsk)
 
 Runner.process_task = process_task
@@ -96,17 +90,23 @@ def do_start(self):
 	except AttributeError:
 		self.bld.fatal('use def options(opt): opt.tool_options("parallel_debug")!')
 
+	self.taskinfo = Queue.Queue()
 	old_start(self)
 	if self.dirty:
-		process_colors(self, taskinfo)
+		process_colors(self)
 Runner.Parallel.start = do_start
 
-def process_colors(producer, q):
+def set_running(self, by, i, tsk):
+	self.taskinfo.put( (i, id(tsk), time.time(), tsk.__class__.__name__, self.processed, self.count)  )
+Runner.Parallel.set_running = set_running
+
+def process_colors(producer):
+	# first, cast the parameters
 	tmp = []
 	try:
 		while True:
-			(s, t, tm, clsname) = q.get(False)
-			tmp.append([s, t, tm, clsname])
+			tup = producer.taskinfo.get(False)
+			tmp.append(list(tup))
 	except:
 		pass
 
