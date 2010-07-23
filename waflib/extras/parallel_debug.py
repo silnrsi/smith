@@ -97,7 +97,7 @@ def do_start(self):
 Runner.Parallel.start = do_start
 
 def set_running(self, by, i, tsk):
-	self.taskinfo.put( (i, id(tsk), time.time(), tsk.__class__.__name__, self.processed, self.count)  )
+	self.taskinfo.put( (i, id(tsk), time.time(), tsk.__class__.__name__, self.processed, self.count, by)  )
 Runner.Parallel.set_running = set_running
 
 def process_colors(producer):
@@ -115,9 +115,11 @@ def process_colors(producer):
 	except:
 		return
 
+	thread_count = 0
 	acc = []
 	for x in tmp:
-		acc.append("%d %d %d %r %d %d" % (x[0], x[1], x[2] - ini, x[3], x[4], x[5]))
+		thread_count += x[6]
+		acc.append("%d %d %f %r %d %d %d" % (x[0], x[1], x[2] - ini, x[3], x[4], x[5], thread_count))
 	data_node = producer.bld.path.make_node('pdebug.dat')
 	data_node.write('\n'.join(acc))
 
