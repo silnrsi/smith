@@ -89,19 +89,19 @@ def build(bld):
 
 === Profiling
 
-Profiling information is obtained by calling the module cProfile and by injecting specific code. The two most interesting methods to profile are 'flush' and 'compile'. The most important number from the profiling information is the amount of function calls, and reducing it results in noticeable speedups. Here is an example on the method compile:
+Profiling information is obtained by calling the module cProfile and by injecting specific code. The most interesting methods to profile is 'waflib.Build.BuildContext.compile'. The amount of function calls is usually a bottleneck, and reducing it results in noticeable speedups. Here is an example on the method compile:
 
 [source,python]
 ---------------
-from waflib import Build
+from waflib.Build import BuildContext
 def ncomp(self):
 	import cProfile, pstats
-	cProfile.run('from waflib import Build; Build.bld.rep_compile()', 'profi.txt')
+	cProfile.runctx('self.orig_compile()', {}, {'self': self}, 'profi.txt')
 	p = pstats.Stats('profi.txt')
-	p.sort_stats('time').print_stats(150)
+	p.sort_stats('time').print_stats(45)
 
-Build.bld.rep_compile = Build.bld.compile
-Build.bld.compile = ncomp
+BuildContext.orig_compile = BuildContext.compile
+BuildContext.compile = ncomp
 ---------------
 
 Here the output obtained on a benchmark build created as explained in the previous section:
