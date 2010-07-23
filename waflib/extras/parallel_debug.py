@@ -7,13 +7,14 @@ debugging helpers for parallel compilation, outputs
 a svg file in the build directory
 """
 
-import os, time, random, Queue, sys
-from waflib import Runner, Options, Utils, Task
+import os, time, Queue, sys
+from waflib import Runner, Options, Utils, Task, Logs
 
-random.seed(100)
+#import random
+#random.seed(100)
 
 def options(opt):
-	opt.add_option('--dtitle', action='store', default='Parallel build representation for %r' % sys.argv,
+	opt.add_option('--dtitle', action='store', default='Parallel build representation for %r' % ' '.join(sys.argv),
 		help='title for the svg diagram', dest='dtitle')
 	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=5000, dest='dwidth')
 	opt.add_option('--dtime', action='store', type='float', help='recording interval in seconds', default=0.009, dest='dtime')
@@ -52,7 +53,7 @@ def process_task(tsk):
 		m.out.put(tsk)
 		return
 
-	set_running(1, 0, tsk)
+	set_running(1, id(Utils.threading.current_thread()), tsk)
 
 	try:
 		tsk.generator.bld.to_log(tsk.display())
@@ -83,7 +84,7 @@ def process_task(tsk):
 	if tsk.hasrun != Task.SUCCESS:
 		m.error_handler(tsk)
 
-	set_running(-1, 0, tsk)
+	set_running(-1, id(Utils.threading.current_thread()), tsk)
 	m.out.put(tsk)
 
 Runner.process_task = process_task
