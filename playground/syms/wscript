@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+export_symbols_regex=r"mylib_.*"
 def options(ctx):
 	ctx.tool_options('compiler_c')
 
@@ -7,26 +8,45 @@ def configure(ctx):
 	ctx.check_tool('compiler_c')
 
 def build(ctx):
-	ctx(features='c cprogram syms', source='a.c b.c main.c', target='app')
+	ctx(features='c cshlib syms', source='a.c b.c', target='testlib')
+	ctx(features='c cprogram', source='main.c', target='app', uselib_local='testlib')
 
 import re
-re_nm = re.compile('\s+\w+$')
+re_nm = None
 
 from waflib.Context import STDOUT
 from waflib.Task import Task
+from waflib.Errors import WafError
 class nom_nom_nom(Task):
 
 	def filter(self, x):
+		#print ("x=%s"% x)
 		lst = re_nm.findall(x)
-		lst = [x.strip() for x in lst]
+		#print ("lst=%s" % lst)
+		lst = [x[1:].strip()[1:] for x in lst] #x is like "T _foo", but we need only "foo"
+		#print ("lst=%s" % lst)
 		return ' '.join(lst)
 
 	def run(self):
 		syms = []
 		for x in self.inputs:
-			s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
+			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+				global re_nm
+				re_nm = re.compile(r'\|\s+_' + export_symbols_regex + r'\b')
+				s = self.filter(self.generator.bld.cmd_and_log(['dumpbin', '/symbols', x.abspath()], quiet=STDOUT))
+			else:
+				if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
+					re_nm = re.compile(r'T\s+_' + export_symbols_regex + r'\b')
+				else:
+					re_nm = re.compile(r'T\s+' + export_symbols_regex + r'\b')
+				s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
 			syms.append(s)
-		self.outputs[0].write('\n'.join(syms))
+		if self.generator.bld.get_dest_binfmt() == 'pe':
+			self.outputs[0].write('EXPORTS\n' + '\n'.join(syms))
+		elif self.generator.bld.get_dest_binfmt() == 'elf':
+			self.outputs[0].write('{global:\n' + ';\n'.join(syms) + "local:*;};")
+		else:
+			raise NotImplemented
 
 from waflib.TaskGen import before, feature, after
 
@@ -37,5 +57,13 @@ def do_the_symbol_stuff(self):
 	tsk = self.create_task('nom_nom_nom', ins, self.path.find_or_declare('foo.def'))
 	self.link_task.set_run_after(tsk)
 	self.link_task.dep_nodes = [tsk.outputs[0]]
-	self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script', '-Wl,' + tsk.outputs[0].bldpath()])
+	if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+		self.link_task.env.append_value('LINKFLAGS', ['/def:' + tsk.outputs[0].bldpath()])
+	elif self.bld.get_dest_binfmt() == 'pe':
+		self.link_task.inputs.append(tsk.outputs[0])
+	elif self.bld.get_dest_binfmt() == 'elf':
+		self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script -Wl,' + tsk.outputs[0].bldpath()])
+	else:
+		raise NotImplemented
+	
 
