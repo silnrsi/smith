@@ -9,3 +9,25 @@ def configure(ctx):
 def build(ctx):
 	ctx(features='c cprogram syms', source='a.c b.c main.c', target='app')
 
+from waflib.Task import Task
+class nom_nom_nom(Task):
+
+	def filter(self, x):
+		return x
+
+	def run(self):
+		syms = []
+		for x in self.inputs:
+			s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()]))
+			syms.append(s)
+		self.outputs[0].write('\n'.join(syms))
+
+from waflib.TaskGen import before, feature, after
+
+@feature('syms')
+@after('process_source')
+@before('apply_link')
+def do_the_symbol_stuff(self):
+	ins = [x.outputs[0] for x in self.compiled_tasks]
+	self.create_task('nom_nom_nom', ins, self.path.find_or_declare('foo.def'))
+
