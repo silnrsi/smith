@@ -1,16 +1,15 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2007 (ita)
+# Thomas Nagy, 2007-2010 (ita)
 
 """
 debugging helpers for parallel compilation, outputs
 a svg file in the build directory
 """
 
-import time, threading, random, Queue
-import Runner, Options, Utils
-from Constants import *
-from Runner import TaskConsumer
+import os, time, random, Queue
+from waflib import Runner, Options, Utils
+from waflib import Runner
 
 random.seed(100)
 
@@ -25,14 +24,15 @@ def options(opt):
 # green #4da74d
 # lila  #a751ff
 
+mp = {}
 mp['copy_script'] = '#ff0000'
 mp['c'] = mp['cxx'] = '#4da74d'
 mp['cprogram'] = mp['cstlib'] = mp['cshlib'] = mp['cxxprogram'] = mp['cxxstlib'] = mp['cxxshlib'] = '#a751ff'
 
 info = {
 '#4da74d': 'Compilation task',
-'#a751ff': 'Link task'
-'#cc1d1d': 'Other',
+'#a751ff': 'Link task',
+'#cc1d1d': 'Other'
 }
 
 def map_to_color(name):
@@ -46,64 +46,56 @@ state = 0
 def set_running(by, i, tsk):
 	taskinfo.put(  (i, id(tsk), time.time(), tsk.__class__.__name__)  )
 
-def newrun(self):
 
-	if 1 == 1:
-		while 1:
-			tsk = TaskConsumer.ready.get()
-			m = tsk.master
-			if m.stop:
-				m.out.put(tsk)
-				continue
+def process_task(tsk):
+	m = tsk.master
+	if m.stop:
+		m.out.put(tsk)
+		return
 
-			set_running(1, id(self), tsk)
-			try:
-				tsk.generator.bld.printout(tsk.display())
-				if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
-				# actual call to task's run() function
-				else: ret = tsk.call_run()
-			except Exception, e:
-				tsk.err_msg = Utils.ex_stack()
-				tsk.hasrun = EXCEPTION
+	set_running(1, 0, tsk)
 
-				# TODO cleanup
-				m.error_handler(tsk)
-				m.out.put(tsk)
-				continue
+	try:
+		tsk.generator.bld.to_log(tsk.display())
+		if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
+		# actual call to task's run() function
+		else: ret = tsk.call_run()
+	except Exception as e:
+		tsk.err_msg = Utils.ex_stack()
+		tsk.hasrun = Task.EXCEPTION
 
-			#time.sleep(1 + 2* random.random())
+		m.error_handler(tsk)
+		m.out.put(tsk)
+		return
 
-			if ret:
-				tsk.err_code = ret
-				tsk.hasrun = CRASHED
-			else:
-				try:
-					tsk.post_run()
-				except Utils.WafError:
-					pass
-				except Exception:
-					tsk.err_msg = Utils.ex_stack()
-					tsk.hasrun = EXCEPTION
-				else:
-					tsk.hasrun = SUCCESS
-			if tsk.hasrun != SUCCESS:
-				m.error_handler(tsk)
+	if ret:
+		tsk.err_code = ret
+		tsk.hasrun = Task.CRASHED
+	else:
+		try:
+			tsk.post_run()
+		except Errors.WafError:
+			pass
+		except Exception:
+			tsk.err_msg = Utils.ex_stack()
+			tsk.hasrun = Task.EXCEPTION
+		else:
+			tsk.hasrun = Task.SUCCESS
+	if tsk.hasrun != Task.SUCCESS:
+		m.error_handler(tsk)
 
-			set_running(-1, id(self), tsk)
-			m.out.put(tsk)
+	set_running(-1, 0, tsk)
+	m.out.put(tsk)
 
-
-
-
-Runner.TaskConsumer.run = newrun
+Runner.process_task = process_task
 
 old_start = Runner.Parallel.start
 def do_start(self):
 	old_start(self)
-	process_colors(taskinfo)
+	process_colors(self, taskinfo)
 Runner.Parallel.start = do_start
 
-def process_colors(q):
+def process_colors(producer, q):
 	tmp = []
 	try:
 		while True:
@@ -113,13 +105,6 @@ def process_colors(q):
 		pass
 
 	BAND = Options.options.dband
-
-#file = open('colors.dat', 'rb')
-#code = file.read()
-#file.close()
-
-#lst = code.strip().split('\n')
-#tmp = [x.split() for x in lst]
 
 	try:
 		ini = float(tmp[0][2])
@@ -214,10 +199,9 @@ def process_colors(q):
 
 	out.append("\n</svg>")
 
-	file = open("foo.svg", "wb")
-	file.write("".join(out))
-	file.close()
+	node = producer.bld.path.make_node('foo.svg')
+	node.write("".join(out))
 
-	import os
-	os.popen("convert foo.svg foo.png").read()
+	p = node.parent.abspath()
+	producer.bld.exec_command(['convert', p + os.sep + 'foo.svg', p + os.sep + 'foo.png'])
 
