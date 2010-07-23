@@ -9,25 +9,33 @@ def configure(ctx):
 def build(ctx):
 	ctx(features='c cprogram syms', source='a.c b.c main.c', target='app')
 
+import re
+re_nm = re.compile('\s+\w+$')
+
+from waflib.Context import STDOUT
 from waflib.Task import Task
 class nom_nom_nom(Task):
 
 	def filter(self, x):
-		return x
+		lst = re_nm.findall(x)
+		lst = [x.strip() for x in lst]
+		return ' '.join(lst)
 
 	def run(self):
 		syms = []
 		for x in self.inputs:
-			s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()]))
+			s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
 			syms.append(s)
 		self.outputs[0].write('\n'.join(syms))
 
 from waflib.TaskGen import before, feature, after
 
 @feature('syms')
-@after('process_source')
-@before('apply_link')
+@after('process_source', 'process_use', 'apply_link', 'process_uselib_local')
 def do_the_symbol_stuff(self):
 	ins = [x.outputs[0] for x in self.compiled_tasks]
-	self.create_task('nom_nom_nom', ins, self.path.find_or_declare('foo.def'))
+	tsk = self.create_task('nom_nom_nom', ins, self.path.find_or_declare('foo.def'))
+	self.link_task.set_run_after(tsk)
+	self.link_task.dep_nodes = [tsk.outputs[0]]
+	self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script', '-Wl,' + tsk.outputs[0].bldpath()])
 
