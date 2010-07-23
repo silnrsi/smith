@@ -175,7 +175,8 @@ def process_colors(producer, q):
 <defs id=\"defs604\" />\n""" % (-1, -1, gwidth + 3, gheight + 2))
 
 	# main title
-	out.append("""<text x="%d" y="%d" style="font-size:15px; text-anchor:middle; font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans">%s</text>
+	if Options.options.dtitle:
+		out.append("""<text x="%d" y="%d" style="font-size:15px; text-anchor:middle; font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans">%s</text>
 """ % (gwidth/2, gheight - 5, Options.options.dtitle))
 
 	# the rectangles
