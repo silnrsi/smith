@@ -103,6 +103,7 @@ class Parallel(object):
 		self.stop = False # error condition to stop the build
 		self.error = [] # tasks in error
 		self.biter = None # build iterator, must give groups of parallelizable tasks on next()
+		self.dirty = False # tasks have been executed, the build cache must be saved
 
 	def get_next_task(self):
 		"override this method to schedule the tasks in a particular order"
@@ -143,6 +144,7 @@ class Parallel(object):
 			self.outstanding += ret.more_tasks
 			self.total += len(ret.more_tasks)
 		self.count -= 1
+		self.dirty = True
 
 	def error_handler(self, tsk):
 		"by default, errors make the build stop (not thread safe so be careful)"

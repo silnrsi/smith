@@ -275,10 +275,12 @@ class BuildContext(Context.Context):
 		try:
 			self.producer.start() # vroom
 		except KeyboardInterrupt:
-			self.save()
+			if self.producer.dirty:
+				self.save()
 			raise
 		else:
-			self.save()
+			if self.producer.dirty:
+				self.save()
 
 		if self.producer.error:
 			raise Errors.BuildError(self.producer.error)
