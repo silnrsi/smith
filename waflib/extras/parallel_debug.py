@@ -110,12 +110,16 @@ def process_colors(producer):
 	except:
 		pass
 
-	BAND = Options.options.dband
-
 	try:
 		ini = float(tmp[0][2])
 	except:
 		return
+
+	acc = []
+	for x in tmp:
+		acc.append("%d %d %d %r %d %d" % (x[0], x[1], x[2] - ini, x[3], x[4], x[5]))
+	data_node = producer.bld.path.make_node('pdebug.dat')
+	data_node.write('\n'.join(acc))
 
 	tmp = [lst[:2] + [float(lst[2]) - ini] + lst[3:] for lst in tmp]
 
@@ -132,6 +136,8 @@ def process_colors(producer):
 			st[l[1]] = len(st.keys())
 	tmp = [  [lst[0]] + [st[lst[1]]] + lst[2:] for lst in tmp ]
 
+
+	BAND = Options.options.dband
 
 	seen = {}
 	acc = []
