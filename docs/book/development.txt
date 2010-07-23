@@ -42,7 +42,7 @@ Logs.debug("task: task %r must run as it was never run before or the task code c
 The following zones are used in Waf:
 
 .Debugging zones
-[options="header"]
+[options="header",cols='1,5']
 |=================
 |Zone    | Description
 |runner  | command-lines executed (enabled when -v is provided without debugging zones)
