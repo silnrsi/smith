@@ -7,18 +7,17 @@ debugging helpers for parallel compilation, outputs
 a svg file in the build directory
 """
 
-import os, time, random, Queue
-from waflib import Runner, Options, Utils
-from waflib import Runner
+import os, time, random, Queue, sys
+from waflib import Runner, Options, Utils, Task
 
 random.seed(100)
 
 def options(opt):
 	opt.add_option('--dtitle', action='store', default='Parallel build representation for %r' % sys.argv,
-		help='title for the svg diagram')
-	opt.add_option('--dwidth', action='store_int', help='diagram width', default=5000)
-	opt.add_option('--dtime', action='store_float', help='recording interval in seconds', default=0.009)
-	opt.add_option('--dband', action='store_int', help='band width', default=22)
+		help='title for the svg diagram', dest='dtitle')
+	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=5000, dest='dwidth')
+	opt.add_option('--dtime', action='store', type='float', help='recording interval in seconds', default=0.009, dest='dtime')
+	opt.add_option('--dband', action='store', type='int', help='band width', default=22, dest='dband')
 
 # red   #ff4d4d
 # green #4da74d
@@ -91,8 +90,14 @@ Runner.process_task = process_task
 
 old_start = Runner.Parallel.start
 def do_start(self):
+	try:
+		Options.options.dband
+	except AttributeError:
+		self.bld.fatal('use def options(opt): opt.tool_options("parallel_debug")!')
+
 	old_start(self)
-	process_colors(self, taskinfo)
+	if self.dirty:
+		process_colors(self, taskinfo)
 Runner.Parallel.start = do_start
 
 def process_colors(producer, q):
@@ -201,6 +206,7 @@ def process_colors(producer, q):
 
 	node = producer.bld.path.make_node('foo.svg')
 	node.write("".join(out))
+	Logs.warn('Created the diagram %r' % node.abspath())
 
 	p = node.parent.abspath()
 	producer.bld.exec_command(['convert', p + os.sep + 'foo.svg', p + os.sep + 'foo.png'])
