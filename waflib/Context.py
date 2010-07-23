@@ -273,6 +273,12 @@ class Context(ctx):
 			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 			kw['startupinfo'] = startupinfo
 
+		if 'quiet' in kw:
+			quiet = kw['quiet']
+			del kw['quiet']
+		else:
+			quiet = None
+
 		if 'output' in kw:
 			to_ret = kw['output']
 			del kw['output']
@@ -295,9 +301,9 @@ class Context(ctx):
 		if not isinstance(err, str):
 			err = err.decode('utf-8')
 
-		if out:
+		if out and quiet != STDOUT and quiet != BOTH:
 			self.to_log('out: %s' % out)
-		if err:
+		if err and quiet != STDERR and quiet != BOTH:
 			self.to_log('err: %s' % err)
 
 		if p.returncode:
