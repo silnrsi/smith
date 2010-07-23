@@ -20,11 +20,13 @@ from waflib.Errors import WafError
 class nom_nom_nom(Task):
 
 	def filter(self, x):
-		#print ("x=%s"% x)
 		lst = re_nm.findall(x)
-		#print ("lst=%s" % lst)
-		lst = [x[1:].strip()[1:] for x in lst] #x is like "T _foo", but we need only "foo"
-		#print ("lst=%s" % lst)
+		if self.generator.bld.get_dest_binfmt() == 'pe':
+			lst = [x[1:].strip()[1:] for x in lst] #x is like "T _foo", but we need only "foo"
+		elif self.generator.bld.get_dest_binfmt() == 'elf':
+			lst = [x[1:].strip() for x in lst]
+		else:
+			raise NotImplemented
 		return ' '.join(lst)
 
 	def run(self):
@@ -44,7 +46,7 @@ class nom_nom_nom(Task):
 		if self.generator.bld.get_dest_binfmt() == 'pe':
 			self.outputs[0].write('EXPORTS\n' + '\n'.join(syms))
 		elif self.generator.bld.get_dest_binfmt() == 'elf':
-			self.outputs[0].write('{global:\n' + ';\n'.join(syms) + "local:*;};")
+			self.outputs[0].write('{ global:\n' + ';\n'.join(syms) + ";\nlocal: *; };\n")
 		else:
 			raise NotImplemented
 
@@ -62,7 +64,7 @@ def do_the_symbol_stuff(self):
 	elif self.bld.get_dest_binfmt() == 'pe':
 		self.link_task.inputs.append(tsk.outputs[0])
 	elif self.bld.get_dest_binfmt() == 'elf':
-		self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script -Wl,' + tsk.outputs[0].bldpath()])
+		self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script', '-Wl,' + tsk.outputs[0].bldpath()])
 	else:
 		raise NotImplemented
 	
