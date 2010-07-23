@@ -2,7 +2,9 @@
 
 A few notes on the waf development follow.
 
-=== Tracing the execution
+=== Execution traces
+
+==== Logging
 
 The generic flags to add more information to the stack traces or to the messages is '-v' (verbosity), it is used to display the command-lines executed during a build:
 
@@ -36,7 +38,7 @@ The Waf module 'Logs' replaces the Python module logging. In the source code, tr
 
 [source,python]
 ---------------
-Logs.debug("task: task %r must run as it was never run before or the task code changed" % self)
+Logs.debug("task: executing %r - it was never run before or its class changed" % self)
 ---------------
 
 The following zones are used in Waf:
@@ -58,82 +60,7 @@ The following zones are used in Waf:
 
 WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by 'tool_options'
 
-=== Benchmarking
-
-The script `utils/genbench.py` generates a simple benchmark for Waf. The habitual use is the following:
-
-[source,shishell]
----------------
-$ utils/genbench.py /tmp/build 50 100 15 5
-$ cd /tmp/build
-$ waf configure
-$ waf -p -j2
----------------
-
-The project created contains 50 libraries with 100 classes for each, each source file having 15 include headers pointing to the same library and 5 headers pointing to the headers of other libraries in the project.
-
-The time taken to create the tasks and to resolve the dependencies can be obtained by injecting code to disable the actual compilation, for example:
-
-[source,python]
----------------
-def build(bld):
-	from waflib import Task
-	def touch_func(task):
-		for x in task.outputs:
-			x.write('')
-	for x in Task.TaskBase.classes.keys():
-		cls = Task.TaskBase.classes[x]
-		cls.func = touch_func
-		cls.color = 'CYAN'
----------------
-
-=== Profiling
-
-Profiling information is obtained by calling the module cProfile and by injecting specific code. The most interesting methods to profile is 'waflib.Build.BuildContext.compile'. The amount of function calls is usually a bottleneck, and reducing it results in noticeable speedups. Here is an example on the method compile:
-
-[source,python]
----------------
-from waflib.Build import BuildContext
-def ncomp(self):
-	import cProfile, pstats
-	cProfile.runctx('self.orig_compile()', {}, {'self': self}, 'profi.txt')
-	p = pstats.Stats('profi.txt')
-	p.sort_stats('time').print_stats(45)
-
-BuildContext.orig_compile = BuildContext.compile
-BuildContext.compile = ncomp
----------------
-
-Here the output obtained on a benchmark build created as explained in the previous section:
-
-[source,shishell]
----------------
-Fri Jul 23 15:11:15 2010    profi.txt
-
-         1114979 function calls (1099879 primitive calls) in 5.768 CPU seconds
-
-   Ordered by: internal time
-   List reduced from 139 to 45 due to restriction 45
-
-   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-   109500    0.523    0.000    1.775    0.000 /comp/waf/waflib/Node.py:615(get_bld_sig)
-     5000    0.381    0.000    1.631    0.000 /comp/waf/waflib/Task.py:475(compute_sig_implicit_deps)
-   154550    0.286    0.000    0.286    0.000 {method 'update' of '_hashlib.HASH' objects}
-   265350    0.232    0.000    0.232    0.000 {id}
-40201/25101    0.228    0.000    0.228    0.000 /comp/waf/waflib/Node.py:319(abspath)
-    10000    0.223    0.000    0.223    0.000 {open}
-    20000    0.197    0.000    0.197    0.000 {method 'read' of 'file' objects}
-    15000    0.193    0.000    0.349    0.000 /comp/waf/waflib/Task.py:270(uid)
-    10000    0.189    0.000    0.850    0.000 /comp/waf/waflib/Utils.py:96(h_file)
----------------
-
-A few known hot spots are present in the library:
-
-. The persistence implemented by the cPickle module (the cache file to serialize may take a few megabytes)
-. Accessing configuration data from the Environment instances
-. Computing implicit dependencies in general
-
-=== Creating task execution diagrams
+==== Build visualization
 
 The Waf tool named _parallel_debug_ is used to inject code in Waf modules and to obtain a detailed execution trace. This module is provided in the folder +waflib/extras+ and must be imported in one's project before use:
 
@@ -186,7 +113,85 @@ The data file columns are the following:
 |7 |int| Amount of active threads
 |=================
 
-=== Optimizations
+
+=== Profiling
+
+==== Benchmark projects
+
+The script +utils/genbench.py+ is used as a base to create large c-like project files. The habitual use is the following:
+
+[source,shishell]
+---------------
+$ utils/genbench.py /tmp/build 50 100 15 5
+$ cd /tmp/build
+$ waf configure
+$ waf -p -j2
+---------------
+
+The C++ project created will generate 50 libraries from 100 class files for each, each source file having 15 include headers pointing at the same library and 5 headers pointing at other headers randomly chosen.
+
+The compilation time may be discarded easily by disabling the actual compilation, for example:
+
+[source,python]
+---------------
+def build(bld):
+	from waflib import Task
+	def touch_func(task):
+		for x in task.outputs:
+			x.write('')
+	for x in Task.TaskBase.classes.keys():
+		cls = Task.TaskBase.classes[x]
+		cls.func = touch_func
+		cls.color = 'CYAN'
+---------------
+
+==== Profile traces
+
+Profiling information is obtained by calling the module cProfile and by injecting specific code. The most interesting methods to profile is 'waflib.Build.BuildContext.compile'. The amount of function calls is usually a bottleneck, and reducing it results in noticeable speedups. Here is an example on the method compile:
+
+[source,python]
+---------------
+from waflib.Build import BuildContext
+def ncomp(self):
+	import cProfile, pstats
+	cProfile.runctx('self.orig_compile()', {}, {'self': self}, 'profi.txt')
+	p = pstats.Stats('profi.txt')
+	p.sort_stats('time').print_stats(45)
+
+BuildContext.orig_compile = BuildContext.compile
+BuildContext.compile = ncomp
+---------------
+
+Here the output obtained on a benchmark build created as explained in the previous section:
+
+[source,shishell]
+---------------
+Fri Jul 23 15:11:15 2010    profi.txt
+
+         1114979 function calls (1099879 primitive calls) in 5.768 CPU seconds
+
+   Ordered by: internal time
+   List reduced from 139 to 45 due to restriction 45
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   109500    0.523    0.000    1.775    0.000 /comp/waf/waflib/Node.py:615(get_bld_sig)
+     5000    0.381    0.000    1.631    0.000 /comp/waf/waflib/Task.py:475(compute_sig_implicit_deps)
+   154550    0.286    0.000    0.286    0.000 {method 'update' of '_hashlib.HASH' objects}
+   265350    0.232    0.000    0.232    0.000 {id}
+40201/25101    0.228    0.000    0.228    0.000 /comp/waf/waflib/Node.py:319(abspath)
+    10000    0.223    0.000    0.223    0.000 {open}
+    20000    0.197    0.000    0.197    0.000 {method 'read' of 'file' objects}
+    15000    0.193    0.000    0.349    0.000 /comp/waf/waflib/Task.py:270(uid)
+    10000    0.189    0.000    0.850    0.000 /comp/waf/waflib/Utils.py:96(h_file)
+---------------
+
+A few known hot spots are present in the library:
+
+. The persistence implemented by the cPickle module (the cache file to serialize may take a few megabytes)
+. Accessing configuration data from the Environment instances
+. Computing implicit dependencies in general
+
+==== Optimizations tips
 
 The Waf source code has already been optimized in various ways. In practice, the projects may use additional assumptions to replace certain methods or parameters from its build scripts. For example, if a project is always executed on Windows, then the _framework_ and _rpath_ variables may be removed:
 
@@ -197,7 +202,9 @@ USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = \
 	set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'LINKDEPS'])
 ---------------
 
-=== Hacking on the source code
+=== Waf programming
+
+==== Setting up a Waf directory for development
 
 Waf is hosted on http://code.google.com/p/waf/source[Google code], and uses Subversion for source control. To obtain the development copy, use:
 
@@ -215,7 +222,7 @@ To avoid regenerating Waf each time, the environment variable *WAFDIR* should be
 $ export WAFDIR=/path/to/directory/
 ---------------
 
-=== Programming guidelines
+==== Specific guidelines
 
 Though Waf is written in Python, additional restrictions apply to the source code:
 
