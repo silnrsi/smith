@@ -80,7 +80,7 @@ def build(bld):
 	from waflib import Task
 	def touch_func(task):
 		for x in task.outputs:
-			open(x.abspath(task.env), 'w').close()
+			x.write('')
 	for x in Task.TaskBase.classes.keys():
 		cls = Task.TaskBase.classes[x]
 		cls.func = touch_func
