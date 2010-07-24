@@ -3,12 +3,10 @@
 # Thomas Nagy, 2008-2010 (ita)
 
 import os
-from waflib import TaskGen, Task, Utils, Build
+from waflib import Task, Utils
 from waflib.Utils import subprocess
-from waflib.TaskGen import feature, before, after, extension
-from waflib.Logs import debug
+from waflib.TaskGen import extension
 
-@after('apply_link')
 @extension('.src')
 def process_shpip(self, node):
 	self.create_task('src2c', node)
@@ -26,7 +24,7 @@ class src2c(Task.Task):
 		out, _ = p.communicate()
 		if p.returncode:
 			return p.returncode
-		#out = out.strip()
+
 		self.outputs = [self.generator.path.find_or_declare(x) for x in Utils.to_list(out)]
 		self.generator.bld.raw_deps[self.uid()] = [self.signature()] + self.outputs
 		self.add_cpp_tasks(self.outputs)
