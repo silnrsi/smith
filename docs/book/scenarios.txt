@@ -295,6 +295,7 @@ def insert_myflags(self):
 	self.env.prepend_value('_CXXINCFLAGS', '-I' + dir)
 ---------------
 
+////
 === Simple file transformations
 
 The Waf tool 'misc' contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
@@ -330,39 +331,36 @@ Cflags: -I${includedir} @CFLAGS@
 
 The default substitution function may be replaced by changing the attribute 'func' of the task generator.
 
+////
+
 === A compiler producing source files with names unknown in advance
 
-The example below demonstrates how to tackle the following requirements:
+The requirements for this problem are the following:
 
-. A compiler 'produces source files' (.c files) which are to be processed
-. The source file names are *not known in advance*
-. The task must be *run only if necessary*
-. Other tasks *may depend on the tasks* processing the source produced (compile and link the .c files)
+. A compiler *creates source files* (one .src file -> several .c files)
+. The source file names to create are *known only when the compiler is executed*
+. The compiler is slow so it should run *only when absolutely necessary*
+. Other tasks will *depend on the generated files* (compile and link the .c files into a program)
 
-The main difficulty in this scenario is to store the information on the source file produced and to create the corresponding tasks each time.
+To do this, the information on the source files must be shared between the build executions.
 
 [source,python]
 ---------------
-VERSION='0.0.1'
-APPNAME='unknown_outputs'
 top = '.'
 out = 'build'
 
 def configure(conf):
-	# used only when configured from the same folder
 	conf.check_tool('gcc')
-	conf.env.SHPIP_COMPILER = os.getcwd() + os.sep + "bad_compiler.py"
+	conf.check_tool('mytool', tooldir='.')
 
 def build(bld):
-	staticlib = bld()
-	staticlib.features = 'cc cstaticlib'
-	staticlib.source = 'x.c foo.shpip' <1>
-	staticlib.target='teststaticlib'
-	staticlib.includes = '.'
+	bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath()
+	bld.stlib(source='x.c foo.src', target='astaticlib')
+---------------
 
 
-## INTERNAL CODE BELOW ##
-
+[source,python]
+---------------
 import os
 from waflib import TaskGen, Task, Utils, Build, Logs
 from TaskGen import feature, before, after, extension
