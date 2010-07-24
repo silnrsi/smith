@@ -68,7 +68,6 @@ def gcc_modifier_win32(conf):
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
-	dest_arch = v['DEST_CPU']
 	v['cshlib_CCFLAGS'] = []
 
 	v.append_value('cshlib_CCFLAGS', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea

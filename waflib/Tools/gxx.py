@@ -68,7 +68,6 @@ def gxx_modifier_win32(conf):
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
-	dest_arch = v['DEST_CPU']
 	v['cxxshlib_CXXFLAGS'] = []
 
 	v.append_value('cxxshlib_CXXFLAGS', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
