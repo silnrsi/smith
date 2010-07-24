@@ -144,7 +144,7 @@ class Parallel(object):
 
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
-		ret = self.out.get()
+		tsk = self.out.get()
 		if not self.stop:
 			self.add_more_tasks(tsk)
 		self.count -= 1
