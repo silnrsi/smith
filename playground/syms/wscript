@@ -30,10 +30,10 @@ class nom_nom_nom(Task):
 		return ' '.join(lst)
 
 	def run(self):
+		global re_nm
 		syms = []
 		for x in self.inputs:
 			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-				global re_nm
 				re_nm = re.compile(r'\|\s+_' + export_symbols_regex + r'\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['dumpbin', '/symbols', x.abspath()], quiet=STDOUT))
 			else:
