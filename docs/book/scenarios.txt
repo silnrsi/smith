@@ -55,7 +55,7 @@ def process_src(self, node): <2>
 
 	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <4>
 
-	tsk.env.COMP = tg.link_task.outputs[0].abspath() <4>
+	tsk.env.COMP = tg.link_task.outputs[0].abspath() <5>
 ---------------
 
 <1> Declare a new task class for processing the source file by our compiler
@@ -344,6 +344,7 @@ The requirements for this problem are the following:
 
 To do this, the information on the source files must be shared between the build executions.
 
+// scenarios_unknown
 [source,python]
 ---------------
 top = '.'
@@ -354,161 +355,108 @@ def configure(conf):
 	conf.check_tool('mytool', tooldir='.')
 
 def build(bld):
-	bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath()
-	bld.stlib(source='x.c foo.src', target='astaticlib')
+	bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath() <1>
+	bld.stlib(source='x.c foo.src', target='astaticlib') <2>
 ---------------
 
+<1> Compiler path
+<2> An example, having a _.src_ file
+
+The contents of _mytool_ will be the following
 
 [source,python]
 ---------------
 import os
-from waflib import TaskGen, Task, Utils, Build, Logs
-from TaskGen import feature, before, after, extension
+from waflib import Task, Utils, Context
+from waflib.Utils import subprocess
+from waflib.TaskGen import extension
 
-@after('apply_link')
-@extension('.shpip')
-def process_shpip(self, node): <2>
-	tsk = shpip_task(self.env, generator=self)
-	tsk.task_gen = self
-	tsk.set_inputs(node)
+@extension('.src')
+def process_shpip(self, node): <1>
+	self.create_task('src2c', node)
 
-class shpip_task(Task.Task): <3>
-	"""
-	A special task, which finds its outputs once it has run
-	It outputs cpp files that must be compiled too
-	"""
-
+class src2c(Task.Task):
 	color = 'PINK'
-	quiet = True <4>
+	quiet = 1 <2>
+	ext_out = ['.h'] <3>
 
-	# important, no link before all shpip are done
-	before = ['cc_link', 'cxx_link', 'ar_link_static']
+	def run(self):
+		cmd = '%s %s' % (self.env.COMP, self.inputs[0].abspath())
+		cwd = self.inputs[0].parent.get_bld().abspath()
+		out = self.generator.bld.cmd_and_log(cmd, cwd=cwd, quiet=Context.STDOUT) <4>
 
-	def __init__(self, *k, **kw):
-		Task.Task.__init__(self, *k, **kw)
+		out = Utils.to_list(out)
+		self.outputs = [self.generator.path.find_or_declare(x) for x in out]
+		self.generator.bld.raw_deps[self.uid()] = [self.signature()] + self.outputs <5>
+		self.add_c_tasks(self.outputs) <6>
 
-	def run(self): <5>
-		"runs a program that creates cpp files, capture the output to compile them"
-		node = self.inputs[0]
+	def add_c_tasks(self, lst):
+		self.more_tasks = []
+		for node in lst:
+			if node.name.endswith('.h'):
+				continue
+			tsk = self.generator.create_compiled_task('c', node)
+			self.more_tasks.append(tsk) <7>
 
-		dir = self.generator.bld.srcnode.bldpath(self.env)
-		cmd = 'cd %s && %s %s' % (dir, self.env.SHPIP_COMPILER, node.abspath())
-		try:
-			# read the contents of the file and create cpp files from it
-			files = os.popen(cmd).read().strip()
-		except:
-			# comment the following line to disable debugging
-			#raise
-			return 1 # error
+			tsk.env.append_value('INCPATHS', [node.parent.abspath()])
 
-		# the variable lst should contain a list of paths to the files produced
-		lst = Utils.to_list(files)
-
-		# Waf does not know "magically" what files are produced
-		# In the most general case it may be necessary to run os.listdir() to see them
-		# In this demo the command outputs is giving us this list
-
-		# the files exist in the build dir only so we do not use find_or_declare
-		build_nodes = [node.parent.exclusive_build_node(x) for x in lst]
-		self.outputs = build_nodes
-
-		# create the cpp tasks, in the thread
-		self.more_tasks = self.add_cpp_tasks(build_nodes) <6>
-
-		# cache the file names and the task signature
-		node = self.inputs[0]
-		sig = self.signature()
-		self.generator.bld.raw_deps[self.unique_id()] = [sig] + lst
-
-		return 0 # no error
+			if getattr(self.generator, 'link_task', None): <8>
+				self.generator.link_task.set_run_after(tsk)
+				self.generator.link_task.inputs.append(tsk.outputs[0])
 
 	def runnable_status(self):
-		# look at the cache, if the shpip task was already run
-		# and if the source has not changed, create the corresponding cpp tasks
+		ret = super(src2c, self).runnable_status()
+		if ret == Task.SKIP_ME:
 
-		for t in self.run_after:
-			if not t.hasrun:
-				return ASK_LATER
+			lst = self.generator.bld.raw_deps[self.uid()]
+			if lst[0] != self.signature():
+				return Task.RUN_ME
 
-		tree = self.generator.bld
-		node = self.inputs[0]
-		try: <7>
-			sig = self.signature()
-			key = self.unique_id()
-			deps = tree.raw_deps[key]
-			prev_sig = tree.task_sigs[key][0]
-		except KeyError:
-			pass
-		else:
-			# if the file has not changed, create the cpp tasks
-			if prev_sig == sig:
-				lst = [self.task_gen.path.exclusive_build_node(y) for y in deps[1:]]
-				self.set_outputs(lst)
-				lst = self.add_cpp_tasks(lst) <8>
-				for tsk in lst:
-					generator = self.generator.bld.generator
-					generator.outstanding.append(tsk)
+			nodes = lst[1:]
+			for x in nodes:
+				try:
+					os.stat(x.abspath())
+				except:
+					return Task.RUN_ME
 
+			nodes = lst[1:]
+			self.set_outputs(nodes)
+			self.add_c_tasks(nodes) <9>
 
-		if not self.outputs:
-			return RUN_ME
-
-		# this is a part of Task.Task:runnable_status: first node does not exist -> run
-		# this is necessary after a clean
-		env = self.env
-		node = self.outputs[0]
-		variant = node.variant(env)
-
-		try:
-			time = tree.node_sigs[variant][node.id]
-		except KeyError:
-			Logs.debug("run task #%d - the first node does not exist" % self.idx, 'task')
-			try: new_sig = self.signature()
-			except KeyError:
-				return RUN_ME
-
-			ret = self.can_retrieve_cache(new_sig)
-			return ret and SKIP_ME or RUN_ME
-
-		return SKIP_ME
-
-	def add_cpp_tasks(self, lst): <9>
-		"creates cpp tasks after the build has started"
-		tgen = self.task_gen
-		tsklst = []
-
-		for node in lst:
-			TaskGen.task_gen.mapped['c_hook'](tgen, node)
-			task = tgen.compiled_tasks[-1]
-			task.set_run_after(self)
-
-			# important, no link before compilations are all over
-			try:
-				self.generator.link_task.set_run_after(task)
-			except AttributeError:
-				pass
-
-			tgen.link_task.inputs.append(task.outputs[0])
-			tsklst.append(task)
-
-			# if headers are produced something like this can be done
-			# to add the include paths
-			dir = task.inputs[0].parent
-			# include paths for c++ and c
-			self.env.append_unique('_CXXINCFLAGS', '-I%s' % dir.abspath())
-			self.env.append_unique('_CCINCFLAGS', '-I%s' % dir.abspath())
-			self.env.append_value('INC_PATHS', dir) # for the waf preprocessor
-
-		return tsklst
+		return ret
 ---------------
 
-<1> An example. The source line contains a directive 'foo.shpip' which triggers the creation of a shpip task (it does not represent a real file)
-<2> This method is used to create the shpip task when a file ending in '.shpip' is found
-<3> Create the new task type
-<4> Disable the warnings raised because the task has no input and outputs
-<5> Execute the task
-<6> Retrieve the information on the source files created
-<7> Create the c++ tasks used for processing the source files found
-<8> f the tasks are created during a task execution (in an execution thread), the tasks must be re-injected by adding them to the attribute 'more_tasks'
-<9> If the tasks are created during the task examination (runnable_status), the tasks can be injected directly in the build by using the attribute 'outstanding' of the scheduler
+<1> The processing will be delegated to the task
+<2> Disable the warnings raised when a task has no outputs
+<3> Make certain the processing will be executed before any task using _.h_ files
+<4> When the task is executed, collect the process stdout which contains the generated file names
+<5> Store the output file nodes in a persistent cache
+<6> Create the tasks to compile the outputs
+<7> The c tasks will be processed after the current task is done. This does not mean that the c tasks will always be executed.
+<8> If the task generator of the _src_ file has a link task, set the build order
+<9> When this task can be skipped, force the dynamic c task creation
+
+The output will be the following:
+
+[source,shishell]
+---------------
+$ waf distclean configure build build
+'distclean' finished successfully (0.006s)
+Setting top to  : /tmp/scenarios_unknown
+Setting out to  : /tmp/scenarios_unknown/build
+Checking for program gcc,cc              : /usr/bin/gcc
+Checking for program ar                  : /usr/bin/ar
+'configure' finished successfully (0.115s)
+Waf: Entering directory `/tmp/scenarios_unknown/build'
+[1/3] src2c: foo.src
+[2/5] c: build/shpip/a12.c -> build/shpip/a12.c.0.o
+[3/5] c: build/shpop/a13.c -> build/shpop/a13.c.0.o
+[4/5] c: x.c -> build/x.c.0.o
+[5/5] cstlib: build/x.c.0.o build/shpip/a12.c.0.o build/shpop/a13.c.0.o -> build/libastaticlib.a
+Waf: Leaving directory `/tmp/scenarios_unknown/build'
+'build' finished successfully (0.188s)
+Waf: Entering directory `/tmp/scenarios_unknown/build'
+Waf: Leaving directory `/tmp/scenarios_unknown/build'
+'build' finished successfully (0.013s)
+---------------
 
