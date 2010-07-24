@@ -15,9 +15,9 @@ def build(bld):
 	node = bld.path.find_resource('precious.c')
 
 	bld(
-		rule='''echo -e "#include <stdio.h>\\nint main(){ printf(\\"%%d\\", $$RANDOM); return 0;}" > ${TGT}''',
-		target=node,
-		update_outputs=True)
+		rule = '''echo -e "#include <stdio.h>\\nint main(){ printf(\\"%%d\\", $$RANDOM); return 0;}" > ${TGT}''',
+		target = node,
+		update_outputs = True)
 
 	bld.program(
 		source = 'precious.c',

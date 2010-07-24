@@ -3,15 +3,13 @@
 # anonymous coward, 2007
 # Thomas Nagy, 2010
 
-import sys, os
-
 VERSION='0.0.1'
 APPNAME='perl_test'
 
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_c')
 	opt.tool_options('perl')
 
@@ -31,11 +29,11 @@ def configure(conf):
 
 def build(bld):
 
-	# Build a perl extension module
-	obj = bld(
-		features = 'c cshlib perlext',
-		source = 'Mytest.xs',
-		target = 'Mytest',
+	# a perl extension module
+	bld(
+		features     = 'c cshlib perlext',
+		source       = 'Mytest.xs',
+		target       = 'Mytest',
 		install_path = '${ARCHDIR_PERL}/auto')
 
 	bld.install_files('${ARCHDIR_PERL}', 'Mytest.pm')

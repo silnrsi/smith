@@ -14,10 +14,10 @@ def build(bld):
 	#mode = 'cc'
 
 	tg = bld(
-		features = ['cprogram', mode],
+		features = [mode + 'program', mode],
 		source = 'calc.l calc.y main.c',
 		target = 'calc',
-		uselib = 'CALC')
+		use    = 'CALC')
 
 	if mode == 'cxx':
 		import waflib.Tools.cxx as cxx

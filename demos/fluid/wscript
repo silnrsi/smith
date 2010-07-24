@@ -5,20 +5,19 @@
 top = '.'
 out = 'out'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_cxx')
 
 def configure(conf):
-	conf.recurse('gni')
+	#conf.recurse('gni')
 	conf.check_tool('compiler_cxx')
 	conf.check_tool('fluid')
 
 def build(bld):
-	bld(
-		features = 'cxx cprogram',
+	bld.program(
 		target   = 'sample',
 		source   = 'main.cpp PopupDialog.fl UserInterface.fl',
 		includes = '.',
 		install_path = '${PREFIX}/bin/',
-		uselib = 'FLTK')
+		use      = 'FLTK')
 

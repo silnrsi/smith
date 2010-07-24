@@ -23,7 +23,7 @@ def configure(conf):
 	try:
 		conf.check_python_module('pygccxml')
 	except conf.errors.ConfigurationError:
-		print ("(module pygccxml not found, but we ignore it)")
+		print('could not find pygccxml (ignored)')
 
 def build(bld):
 
@@ -33,12 +33,12 @@ def build(bld):
 	# then a c extension module
 	bld(
 		features = 'c cshlib pyext',
-		source = 'spammodule.c',
-		target = 'spam')
+		source   = 'spammodule.c',
+		target   = 'spam')
 
 	# then a c program
 	bld(
 		features = 'c cprogram pyembed',
-		source = 'test.c',
-		target = 'test')
+		source   = 'test.c',
+		target   = 'test')
 

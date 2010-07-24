@@ -8,7 +8,7 @@ APPNAME='qt4_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('compiler_cxx qt4')
 
 def configure(conf):

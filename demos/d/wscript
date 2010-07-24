@@ -21,24 +21,22 @@ def build(bld):
 		bld.add_subdirs('src')
 
 		# here is how to use the object-oriented notation
-		bld(
-			features     = 'd dstlib',
-			source       = 'testlib/code.d',
-			includes     = '.',
-			name         = 'testlib',
-			target       = 'testlib')
+		bld.stlib(
+			source   = 'testlib/code.d',
+			includes = '.',
+			name     = 'testlib',
+			target   = 'testlib')
 
-		bld(features     = 'd dprogram',
-			source       = 'example.d',
-			target       = 'd_test',
-			uselib_local = 'testlib',
-			uselib       = 'PTHREAD',
-			includes     = '.')
+		bld.program(
+			source   = 'example.d',
+			target   = 'd_test',
+			use      = 'testlib PTHREAD',
+			includes = '.')
 
 	else:
 		# bad pun hidden
-		bld(features='d dprogram', source='foo.d', target='bar', uselib_local='hmm', includes=[bld.path])
-		bld(features='d dstlib', source='hmm.d', target='hmm')
+		bld.program(source='foo.d', target='bar', use='hmm', includes=[bld.path])
+		bld.stlib(source='hmm.d', target='hmm')
 
 		#bld(features='d dshlib', source='shared.d', target='sha')
 		# shared libs do not work here:

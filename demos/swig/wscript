@@ -14,7 +14,7 @@ APPNAME='swig_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('g++')
 	opt.tool_options('python')
 
@@ -44,7 +44,7 @@ def build(bld):
 	# be careful that the .py produced by swig is mandatory for using the library
 	#
 	# it is possible to disable 'mylib', and to add extend/a.cpp
-	# to the source of extend/python/_test_swig_waf and remeve uselib_local
+	# to the source of extend/python/_test_swig_waf and remove use
 
 	bld(
 		features = 'cxx cxxshlib',
@@ -62,7 +62,7 @@ def build(bld):
 		swig_flags = '-c++ -python -Wall',
 		includes = 'extend',
 		vnum = '1.2.3',
-		uselib_local = 'mylib')
+		use  = 'mylib')
 
 	bld.add_post_fun(inst_py)
 	bld.add_post_fun(exec_test)
@@ -85,7 +85,7 @@ python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3
 	# why does this fail now on mandriva???
 	try:
 		os.stat('build/embed/embed_demo')
-		print os.popen('PYTHONPATH=$PYTHONPATH:build/embed/ build/embed/embed_demo').read()
+		bld.cmd_and_log('PYTHONPATH=$PYTHONPATH:build/embed/ build/embed/embed_demo')
 	except:
 		pass
 

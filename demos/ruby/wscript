@@ -25,7 +25,7 @@ def build(bld):
 
 	# Build a ruby extension module
 	bld(
-		features = 'cc cshlib rubyext',
+		features = 'c cshlib rubyext',
 		source = 'rb_mytest.c',
 		target = 'mytest_ext',
 		install_path = '${ARCHDIR_RUBY}')
