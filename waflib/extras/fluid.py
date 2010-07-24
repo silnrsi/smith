@@ -12,7 +12,7 @@ from waflib.TaskGen import extension
 class fluid(Task.Task):
 	color   = 'BLUE'
 	ext_out = ['.h']
-	run_str = '${FLUID} -c -o ${TGT[0].abspath(env)} -h ${TGT[1].abspath()} ${SRC}'
+	run_str = '${FLUID} -c -o ${TGT[0].abspath()} -h ${TGT[1].abspath()} ${SRC}'
 
 @extension('.fl')
 def fluid(self, node):
