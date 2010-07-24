@@ -76,7 +76,7 @@ def build(ctx):
 	bld(rule='touch ${TGT}', target='foo')
 ---------------
 
-The execution will generate a diagram of the following form in the file +pdebug.svg+:
+The execution will generate a diagram of the tasks executed during the build in the file +pdebug.svg+:
 
 image::pdebug{PIC}["Parallel execution diagram"{backend@docbook:,width=500:},align="center"]
 

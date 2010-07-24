@@ -1,0 +1,20 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.check_tool('g++')
+	ctx.check_tool()
+
+def build(ctx):
+	ctx.program(
+		source = 'comp.cpp',
+		target = 'comp')
+
+	ctx.add_group()
+
+	ctx.program(
+		source = 'main.cpp a.src',
+		target = 'foo')
+

@@ -12,64 +12,59 @@ The example below demonstrates how to build a compiler which is used for buildin
 
 The first thing to do is to write the expected user script:
 
+// scenarios_compiler
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
-def configure(conf):
-	conf.check_tool('g++')
+def configure(ctx):
+	ctx.check_tool('g++')
+	ctx.check_tool('src2cpp', tooldir='.')
 
-def build(bld):
-	bld( <1>
-		features = 'cxx cprogram',
-		source   = 'comp.cpp',
-		target   = 'comp',
-		name     = 'comp') <2>
+def build(ctx):
+	ctx.program( <1>
+		source = 'comp.cpp',
+		target = 'comp')
 
-	bld.add_group() <3>
+	ctx.add_group() <2>
 
-	bld(
-		features = 'cxx cprogram',
-		source   = 'main.cpp a.src', <4>
-		target   = 'foo')
+	ctx.program(
+		source = 'main.cpp a.src', <3>
+		target = 'foo')
 ---------------
 
-<1> Build the compiler first, it will result in a binary named 'comp'
-<2> Give this task generator a name to access it by reference easily
-<3> Add a new build group to make certain the compiler is complete before processing the next tasks
-<4> Provide a file 'a.src' to be transformed by 'comp' into 'a.cpp'
+<1> Build the compiler first, it will result in a binary named _comp_
+<2> Add a new build group to make certain the compiler is complete before processing the next tasks
+<3> The file 'a.src' is to be transformed by 'comp' into 'a.cpp'
 
-The code to support this scenario may be added in the wscript file or into a waf tool:
+The code for the _src → cpp_ conversion will be the following:
 
 [source,python]
 ---------------
-from waflib import Task
-Task.simple_task_type('src2cpp',
-	'${COMP} ${SRC} ${TGT}', <1>
-	color='PINK', before='cxx') <2>
+from waflib.Task import Task
+class src2cpp(Task): <1>
+	run_str = '${COMP} ${SRC} ${TGT}'
+	color   = 'PINK'
 
 from waflib.TaskGen import extension
+
 @extension('.src')
-def process_src(self, node): <3>
-	tg = self.bld.name_to_obj('comp', self.env) <4>
-	tg.post() <5>
+def process_src(self, node): <2>
+	tg = self.bld.get_tg_by_name('comp') <3>
+	tg.post() <4>
 
-	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <6>
-	self.source.append(tsk.outputs[0])
+	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <5>
 
-	name = tg.link_task.outputs[0].abspath() <7>
-	tsk.env.COMP = name <8>
+	tsk.env.COMP = tg.link_task.outputs[0].abspath() <6>
 ---------------
 
 <1> Declare a new task class for processing the source file by our compiler
-<2> The tasks of this class must be executed before c++ tasks
-<3> Files of extension '.src' are to be processed by this method
-<4> Obtain a reference on the task generator producing the compiler
-<5> Ensure that the compiler tasks are created, else calling `waf --targets=foo` would produce an error
-<6> Create the task 'a.src' -> 'a.cpp'
-<7> Get the node corresponding to the program 'comp' and obtain its absolute path
-<8> Bind the path to 'comp' for use in the rule
+<2> Files of extension '.src' are to be processed by this method
+<3> Obtain a reference on the task generator producing the compiler
+<4> Ensure that the compiler tasks are created, else calling `waf --targets=foo` would produce an error
+<5> Create the task 'src → cpp'
+<6> Bind the path to _comp_ for use in the rule
 
 The compilation results will be the following:
 
