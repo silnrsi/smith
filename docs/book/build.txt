@@ -18,7 +18,7 @@ cat: foo.txt, bar.txt -> foobar.txt
 
 Each of the three lines represents a command to execute. While the _cp_ commands may be executed in any order or even in parallel, the _cat_ command may only be executed after all the others are done. The constraints on *the build order* are represented on the following http://en.wikipedia.org/wiki/Directed_acyclic_graph[Directed acyclic graph]:
 
-image::dag_tasks{PIC}["Task representation of the same build"{backend@docbook:,width=280:},align="center"]
+image::dag_tasks{PIC}["Task representation of the same build"{backend@docbook:,width=260:},align="center"]
 
 When the +wscript+ input file changes, the +foo.txt+ output file has to be created once again. The file +foo.txt+ is said to depend on the +wscript+ file. The *dependencies* may be represented by a Direct acyclic graph too:
 
