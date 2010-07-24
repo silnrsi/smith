@@ -1,0 +1,12 @@
+digraph G {
+
+	foo     [label="foo.txt"]
+	bar     [label="bar.txt"]
+	wscript [label="wscript"]
+	foobar  [label="foobar.txt"]
+	wscript -> foo;
+	wscript -> bar;
+	foo -> foobar;
+	bar -> foobar;
+}
+

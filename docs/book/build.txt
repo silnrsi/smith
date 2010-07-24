@@ -20,9 +20,11 @@ The three lines represent the *tasks* to execute. While the _cp_ tasks may be ex
 
 The dependencies are represented on the following diagram:
 
-image::manualtasks{PIC}["Dependencies on a simple build"{backend@docbook:,width=120:},align="center"]
+image::dag_nodes{PIC}["Dependencies on a simple build"{backend@docbook:,width=120:},align="center"]
 
 Note that the structure represented is a http://en.wikipedia.org/wiki/Directed_acyclic_graph[Directed acyclic graph]
+
+image::dag_tasks{PIC}["Task representation of the same build"{backend@docbook:,width=120:},align="center"]
 
 ==== Direct task declaration
 
