@@ -19,19 +19,24 @@ class src2c(Task.Task):
 	ext_out = ['.h']
 
 	def run(self):
-		p = subprocess.Popen(self.inputs[0].abspath(), stdout=subprocess.PIPE)
-		out = p.communicate()
+		cmd = '%s %s' % (self.env.COMP, self.inputs[0].abspath())
+		cwd = self.inputs[0].parent.get_bld().abspath()
+		p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, cwd=cwd)
+
+		out, _ = p.communicate()
 		if p.returncode:
 			return p.returncode
-		self.outputs = [self.path.find_or_declare(x) for x in Utils.to_list(out)]
-		self.generator.bld.raw_deps[self.uid()] = [self.signature()] + lst
+		#out = out.strip()
+		self.outputs = [self.generator.path.find_or_declare(x) for x in Utils.to_list(out)]
+		self.generator.bld.raw_deps[self.uid()] = [self.signature()] + self.outputs
+		self.add_cpp_tasks(self.outputs)
 
 	def add_cpp_tasks(self, lst):
 		self.more_tasks = []
 		for node in lst:
 			if node.name.endswith('.h'):
 				continue
-			tsk = self.generator.create_compiled_task('cxx', node)
+			tsk = self.generator.create_compiled_task('c', node)
 			self.more_tasks.append(tsk)
 
 			tsk.env.append_value('INCPATHS', [node.parent.abspath()])
@@ -50,10 +55,18 @@ class src2c(Task.Task):
 				return Task.RUN_ME
 
 			nodes = lst[1:]
+			for x in nodes:
+				try:
+					os.stat(x.abspath())
+				except:
+					return Task.RUN_ME
+
+			nodes = lst[1:]
 			self.set_outputs(nodes)
 			self.add_cpp_tasks(nodes)
 
 		return ret
 
-# can_retrieve_cache? update_outputs?
+	def can_retrieve_cache(self):
+		return False
 
