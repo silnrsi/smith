@@ -67,6 +67,3 @@ class src2c(Task.Task):
 
 		return ret
 
-	def can_retrieve_cache(self):
-		return False
-
