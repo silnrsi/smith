@@ -137,12 +137,16 @@ class Parallel(object):
 				self.total = self.bld.total()
 				break
 
+	def add_more_tasks(self, tsk):
+		if getattr(tsk, 'more_tasks', None):
+			self.outstanding += tsk.more_tasks
+			self.total += len(tsk.more_tasks)
+
 	def get_out(self):
 		"the tasks that are put to execute are all collected using get_out"
 		ret = self.out.get()
-		if not self.stop and getattr(ret, 'more_tasks', None):
-			self.outstanding += ret.more_tasks
-			self.total += len(ret.more_tasks)
+		if not self.stop:
+			self.add_more_tasks(tsk)
 		self.count -= 1
 		self.dirty = True
 
@@ -197,6 +201,7 @@ class Parallel(object):
 			elif st == Task.SKIP_ME:
 				self.processed += 1
 				tsk.hasrun = Task.SKIPPED
+				self.add_more_tasks(tsk)
 			else:
 				# run me: put the task in ready queue
 				tsk.position = (self.processed, self.total)
