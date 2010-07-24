@@ -51,52 +51,50 @@ from waflib.TaskGen import extension
 
 @extension('.src')
 def process_src(self, node): <2>
-	tg = self.bld.get_tg_by_name('comp') <3>
-	tg.post() <4>
+	tg = self.bld.get_tgen_by_name('comp') <3>
 
-	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <5>
+	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <4>
 
-	tsk.env.COMP = tg.link_task.outputs[0].abspath() <6>
+	tsk.env.COMP = tg.link_task.outputs[0].abspath() <4>
 ---------------
 
 <1> Declare a new task class for processing the source file by our compiler
 <2> Files of extension '.src' are to be processed by this method
 <3> Obtain a reference on the task generator producing the compiler
-<4> Ensure that the compiler tasks are created, else calling `waf --targets=foo` would produce an error
-<5> Create the task 'src → cpp'
-<6> Bind the path to _comp_ for use in the rule
+<4> Create the task 'src → cpp'
+<5> Bind the path to _comp_ for use in the rule
 
 The compilation results will be the following:
 
 [source,shishell]
 ---------------
 $ waf distclean configure build -v
-'distclean' finished successfully (0.004s)
-Checking for program g++,c++             : ok /usr/bin/g++
-Checking for program cpp                 : ok /usr/bin/cpp
-Checking for program ar                  : ok /usr/bin/ar
-Checking for program ranlib              : ok /usr/bin/ranlib
-'configure' finished successfully (0.034s)
-Waf: Entering directory `/tmp/comp/build'
-[1/5] cxx: comp.cpp -> build/comp_1.o
-16:22:50 runner system command -> ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'comp_1.o']
-[2/5] cxx_link: build/comp_1.o -> build/comp <1>
-16:22:50 runner system command -> ['/usr/bin/g++', 'comp_1.o', '-o', '/tmp/comp/build/comp']
-[3/5] src2cpp: a.src -> build/a.cpp
-16:22:50 runner system command ->  /tmp/comp/build/comp ../a.src a.cpp <2>
-[4/5] cxx: main.cpp -> build/main_2.o
-16:22:50 runner system command -> ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'main_2.o']
-[5/5] cxx_link: build/main_2.o -> build/foo
-16:22:50 runner system command -> ['/usr/bin/g++', 'main_2.o', '-o', '/tmp/comp/build/foo'] <3>
-Waf: Leaving directory `/tmp/comp/build'
-'build' finished successfully (0.194s)
+'distclean' finished successfully (0.006s)
+Setting top to                           : /tmp/scenarios_compiler
+Setting out to                           : /tmp/scenarios_compiler/build
+Checking for program g++,c++             : /usr/bin/g++
+Checking for program ar                  : /usr/bin/ar
+'configure' finished successfully (0.118s)
+Waf: Entering directory `/tmp/scenarios_compiler/build'
+[1/5] cxx: comp.cpp -> build/comp.cpp.0.o
+10:21:14 runner ['/usr/bin/g++', '../comp.cpp', '-c', '-o', 'comp.cpp.0.o']
+[2/5] cxxprogram: build/comp.cpp.0.o -> build/comp <1>
+10:21:14 runner ['/usr/bin/g++', 'comp.cpp.0.o', '-o', '/tmp/scenarios_compiler/build/comp']
+[3/5] cxx: main.cpp -> build/main.cpp.1.o
+10:21:15 runner ['/usr/bin/g++', '../main.cpp', '-c', '-o', 'main.cpp.1.o']
+[4/5] src2cpp: a.src -> build/a.cpp
+10:21:15 runner ['/tmp/scenarios_compiler/build/comp', '../a.src', 'a.cpp'] <2>
+[5/5] cxxprogram: build/main.cpp.1.o -> build/foo <3>
+10:21:15 runner ['/usr/bin/g++', 'main.cpp.1.o', '-o', 'foo']
+Waf: Leaving directory `/tmp/scenarios_compiler/build'
+'build' finished successfully (1.009s)
 ---------------
 
 <1> Creation of the 'comp' program
 <2> Use the compiler to generate 'a.cpp'
 <3> Compile and link 'a.cpp' and 'main.cpp' into the program 'foo'
 
-NOTE: In the example above, the task generator 'foo' depends on the tasks created by the task generator 'tg' (get the path to the binary). Calling 'tg.post()' used to force 'tg' to create its tasks, and is only called during the processing of 'foo'. Doing it from the top-level would break the behaviour of `waf --targets=xyz`
+NOTE: When `waf --targets=foo' is called, the task generator `comp' will create its tasks too (task generators from previous groups are processed).
 
 === Mixing extensions and c/c++ features
 
