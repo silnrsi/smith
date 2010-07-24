@@ -1,12 +1,9 @@
 digraph G {
 
-	foo     [label="foo.txt"]
-	bar     [label="bar.txt"]
-	wscript [label="wscript"]
-	foobar  [label="foobar.txt"]
-	wscript -> foo;
-	wscript -> bar;
-	foo -> foobar;
-	bar -> foobar;
+	A [label="cp: wscript -> foo.txt"]
+	B [label="cp: wscript -> bar.txt"]
+	C [label="cat: foo.txt, bar.txt -> foobar.txt"]
+	A -> C;
+	B -> C;
 }
 
