@@ -392,6 +392,134 @@ $ tree
 `-- wscript
 ---------------
 
+=== Force the compilation of a particular task
+
+In some applications, it may be interesting to keep track of the date and time of the last build. In C this may be done by using the macros `__DATE__' and `__TIME__', for example, the following +about.c+ file will contain:
+
+[source,c]
+---------------
+void ping() {
+	printf("Project compiled: %s %s\n", __DATE__, __TIME__);
+}
+---------------
+
+The files are only compiled when they change though, so it is necessary to find a way to force the recompilation of a the file containing the macros. To sum up, the compilation should be performed whenever:
+
+. One of the c files of the project is compiled
+. The link flags for any task change
+. The link task including the object for our macro is removed
+
+To illustrate this behaviour, we will now set up a project will use various c files:
+
+// scenarios_end
+[source,python]
+---------------
+def options(opt):
+	opt.tool_options('compiler_c')
+
+def configure(conf):
+	conf.check_tool('compiler_c')
+
+def build(bld):
+	bld.program(
+		source   = 'main.c about.c',
+		target   = 'app',
+		includes = '.',
+		use      = 'my_static_lib')
+
+	bld.stlib(
+		source   = 'test_staticlib.c',
+		target   = 'my_static_lib')
+---------------
+
+The main file will just call the function _ping_ defined +about.c+ to display the date and time:
+
+[source,c]
+---------------
+#include "a.h"
+
+int main() {
+	ping();
+	return 0;
+}
+---------------
+
+The task method _runnable_status_ must be overridden to take into account the dependencies:
+
+[source,python]
+---------------
+import os
+from waflib import Task
+def runnable_status(self):
+	if self.inputs[0].name == 'about.c': <1>
+		h = 0 <2>
+		for g in self.generator.bld.groups:
+			for tg in g:
+				if isinstance(tg, TaskBase):
+					continue <3>
+
+				h = hash((self.generator.bld.hash_env_vars(self.generator.env, ['LINKFLAGS']), h))
+				for tsk in getattr(tg, 'compiled_tasks', []): # all .c or .cpp compilations
+					if id(tsk) == id(self):
+						continue
+					if not tsk.hasrun:
+						return Task.ASK_LATER
+					h = hash((tsk.signature(), h)) <4>
+		self.env.CCDEPS = h
+
+		try:
+			os.stat(self.generator.link_task.outputs[0].abspath()) <5>
+		except:
+			return Task.RUN_ME
+
+	return Task.Task.runnable_status(self) <6>
+
+from waflib.Tools.c import c <7>
+c.runnable_status = runnable_status
+---------------
+
+<1> If the task processes +about.c+
+<2> Define a hash value that the task will depend on (CCDEPS)
+<3> Iterate over all task generators of the project
+<4> Hash the link flags and the signatures of all other compilation tasks
+<5> Make sure to execute the task if it was never executed before
+<6> Normal behaviour
+<7> Modify the 'c' task class
+
+The execution will produce the following output:
+
+[source,shishell]
+---------------
+$ waf
+Waf: Entering directory `/tmp/scenarios_end/build'
+[2/5] c: test_staticlib.c -> build/test_staticlib.c.1.o
+[3/5] cstlib: build/test_staticlib.c.1.o -> build/libmy_static_lib.a
+[4/5] c: about.c -> build/about.c.0.o
+[5/5] cprogram: build/main.c.0.o build/about.c.0.o -> build/app
+Waf: Leaving directory `/tmp/scenarios_end/build' <1>
+'build' finished successfully (0.088s)
+
+$ ./build/app
+Project compiled: Jul 25 2010 14:05:30
+
+$ echo " " >> main.c <2>
+
+$ waf
+Waf: Entering directory `/tmp/scenarios_end/build'
+[1/5] c: main.c -> build/main.c.0.o
+[4/5] c: about.c -> build/about.c.0.o <3>
+[5/5] cprogram: build/main.c.0.o build/about.c.0.o -> build/app
+Waf: Leaving directory `/tmp/scenarios_end/build'
+'build' finished successfully (0.101s)
+
+$ ./build/app
+Project compiled: Jul 25 2010 14:05:49
+---------------
+
+<1> All files are compiled on the first build
+<2> The file +main.c+ is modified
+<3> The build generates +about.c+ again to update the build time string
+
 === A compiler producing source files with names unknown in advance
 
 The requirements for this problem are the following:

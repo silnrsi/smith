@@ -25,7 +25,6 @@ def build(bld):
 		source   = 'test_staticlib.c',
 		target   = 'my_static_lib')
 
-# special processing for "about.c" ...
 import os
 from waflib import Task
 def runnable_status(self):
@@ -33,6 +32,8 @@ def runnable_status(self):
 		h = 0
 		for g in self.generator.bld.groups:
 			for tg in g:
+				if isinstance(tg, Task.TaskBase):
+					continue
 				h = hash((self.generator.bld.hash_env_vars(self.generator.env, ['LINKFLAGS']), h))
 				for tsk in getattr(tg, 'compiled_tasks', []): # all .c or .cpp compilations
 					if id(tsk) == id(self):
@@ -41,7 +42,7 @@ def runnable_status(self):
 					if not tsk.hasrun:
 						return Task.ASK_LATER
 					h = hash((tsk.signature(), h))
-			self.env.CCDEPS = h
+		self.env.CCDEPS = h
 
 		try:
 			os.stat(self.generator.link_task.outputs[0].abspath())
