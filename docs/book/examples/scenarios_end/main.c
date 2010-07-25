@@ -4,3 +4,4 @@ int main() {
 	ping();
 	return 0;
 }
+

@@ -9,10 +9,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.check_tool('compiler_c')
 
 def build(bld):
 	bld.program(
@@ -20,41 +20,36 @@ def build(bld):
 		target   = 'app',
 		includes = '.',
 		use      = 'my_static_lib')
+
 	bld.stlib(
 		source   = 'test_staticlib.c',
 		target   = 'my_static_lib')
 
-"""
 # special processing for "about.c" ...
 import os
-from Constants import *
-import Task
-import cc
+from waflib import Task
 def runnable_status(self):
 	if self.inputs[0].name == 'about.c':
 		h = 0
-		for tg in self.generator.bld.all_task_gen:
-
-			h = hash((self.generator.bld.hash_env_vars(self.generator.env, ['LINKFLAGS']), h))
-
-			for tsk in getattr(tg, 'compiled_tasks', []): # all .c or .cpp compilations
-
-				if id(tsk) == id(self):
-					# but not 'about.c' (skip other tasks too if necessary)
-					continue
-
-				if not tsk.hasrun:
-					return ASK_LATER
-
-				h = hash((tsk.signature(), h))
-		self.env.CCDEPS = h
+		for g in self.generator.bld.groups:
+			for tg in g:
+				h = hash((self.generator.bld.hash_env_vars(self.generator.env, ['LINKFLAGS']), h))
+				for tsk in getattr(tg, 'compiled_tasks', []): # all .c or .cpp compilations
+					if id(tsk) == id(self):
+						# but not 'about.c' (skip other tasks too if necessary)
+						continue
+					if not tsk.hasrun:
+						return Task.ASK_LATER
+					h = hash((tsk.signature(), h))
+			self.env.CCDEPS = h
 
 		try:
-			os.stat(self.generator.link_task.outputs[0].abspath(self.env))
+			os.stat(self.generator.link_task.outputs[0].abspath())
 		except:
-			return RUN_ME
+			return Task.RUN_ME
 
 	return Task.Task.runnable_status(self)
-Task.TaskBase.classes['c'].runnable_status = runnable_status
-"""
+
+from waflib.Tools.c import c
+c.runnable_status = runnable_status
 
