@@ -102,3 +102,81 @@ def waf_version(*k, **kw):
 	Logs.warn('wrong version (waf_version was removed in waf 1.6)')
 Utils.waf_version = waf_version
 
+
+import os
+@TaskGen.feature('c', 'cxx', 'd')
+@TaskGen.before('apply_incpaths')
+@TaskGen.after('apply_link', 'process_source')
+def apply_uselib_local(self):
+	"""
+	process the uselib_local attribute
+	execute after apply_link because of the execution order set on 'link_task'
+	"""
+	env = self.env
+	from waflib.Tools.ccroot import stlink_task
+
+	# 1. the case of the libs defined in the project (visit ancestors first)
+	# the ancestors external libraries (uselib) will be prepended
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
+	self.includes = self.to_list(getattr(self, 'includes', []))
+	names = self.to_list(getattr(self, 'uselib_local', []))
+	get = self.bld.get_tgen_by_name
+	seen = set([])
+	tmp = Utils.deque(names) # consume a copy of the list of names
+	while tmp:
+		lib_name = tmp.popleft()
+		# visit dependencies only once
+		if lib_name in seen:
+			continue
+
+		y = get(lib_name)
+		y.post()
+		seen.add(lib_name)
+
+		# object has ancestors to process (shared libraries): add them to the end of the list
+		if getattr(y, 'uselib_local', None):
+			for x in self.to_list(getattr(y, 'uselib_local', [])):
+				obj = get(x)
+				obj.post()
+				try:
+					if not isinstance(obj.link_task, stlink_task):
+						tmp.append(x)
+				except AttributeError:
+					Logs.warn('task generator %s has no link task' % x)
+
+		# link task and flags
+		if getattr(y, 'link_task', None):
+
+			link_name = y.target[y.target.rfind(os.sep) + 1:]
+			if isinstance(y.link_task, stlink_task):
+				env.append_value('STLIB', [link_name])
+			else:
+				# some linkers can link against programs
+				env.append_value('LIB', [link_name])
+
+			# the order
+			self.link_task.set_run_after(y.link_task)
+
+			# for the recompilation
+			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
+			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
+
+			# add the link path too
+			tmp_path = y.link_task.outputs[0].parent.bldpath()
+			if not tmp_path in env['LIBPATH']:
+				env.prepend_value('LIBPATH', [tmp_path])
+
+		# add ancestors uselib too - but only propagate those that have no staticlib defined
+		for v in self.to_list(getattr(y, 'uselib', [])):
+			if not env['STLIB_' + v]:
+				if not v in self.uselib:
+					self.uselib.insert(0, v)
+
+		# if the library task generator provides 'export_incdirs', add to the include path
+		# the export_incdirs must be a list of paths relative to the other library
+		if getattr(y, 'export_incdirs', None):
+			for x in self.to_list(y.export_incdirs):
+				node = y.path.find_dir(x)
+				if not node:
+					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
+				self.includes.append(node)

@@ -148,11 +148,11 @@ def apply_link(self):
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
 @feature('c', 'cxx', 'd')
-@before('apply_incpaths')
+@before('apply_incpaths', 'propagate_uselib_vars')
 @after('apply_link', 'process_source')
-def apply_uselib_local(self):
+def process_use(self):
 	"""
-	process the uselib_local attribute
+	process the 'use' attribute which is like uselib+uselib_local+add_objects
 	execute after apply_link because of the execution order set on 'link_task'
 	"""
 	env = self.env
@@ -161,7 +161,7 @@ def apply_uselib_local(self):
 	# the ancestors external libraries (uselib) will be prepended
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
-	names = self.to_list(getattr(self, 'uselib_local', []))
+	names = self.to_list(getattr(self, 'use', []))
 	get = self.bld.get_tgen_by_name
 	seen = set([])
 	tmp = Utils.deque(names) # consume a copy of the list of names
@@ -171,20 +171,29 @@ def apply_uselib_local(self):
 		if lib_name in seen:
 			continue
 
-		y = get(lib_name)
+		try:
+			y = get(lib_name)
+		except Errors.WafError:
+			seen.add(lib_name)
+			self.uselib.append(lib_name)
+			continue
+
 		y.post()
 		seen.add(lib_name)
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
-		if getattr(y, 'uselib_local', None):
-			for x in self.to_list(getattr(y, 'uselib_local', [])):
-				obj = get(x)
-				obj.post()
+		if getattr(y, 'use', None):
+			for x in self.to_list(getattr(y, 'use', [])):
 				try:
-					if not isinstance(obj.link_task, stlink_task):
+					obj = get(x)
+				except Errors.WafError:
+					self.uselib.append(x)
+				else:
+					obj.post()
+					if getattr(obj, 'link_task', None) and isinstance(obj.link_task, stlink_task):
+						pass
+					else:
 						tmp.append(x)
-				except AttributeError:
-					Logs.warn('task generator %s has no link task' % x)
 
 		# link task and flags
 		if getattr(y, 'link_task', None):
@@ -207,6 +216,10 @@ def apply_uselib_local(self):
 			tmp_path = y.link_task.outputs[0].parent.bldpath()
 			if not tmp_path in env['LIBPATH']:
 				env.prepend_value('LIBPATH', [tmp_path])
+		else:
+			if getattr(self, 'link_task', None):
+				for t in getattr(y, 'compiled_tasks', []):
+					self.link_task.inputs.extend(t.outputs)
 
 		# add ancestors uselib too - but only propagate those that have no staticlib defined
 		for v in self.to_list(getattr(y, 'uselib', [])):
