@@ -311,6 +311,69 @@ NOTE: This technique is used by the waf library for processing the 'add_objects'
 
 === Task generator methods
 
+==== Replacing particular attributes
+
+In general, task generator attributes are not replaced, so the following is not going to be compile +main.c+:
+
+[source,python]
+---------------
+bld.env.FOO = '/usr/includes'
+bld.env.MAIN = 'main.c'
+bld(
+    features = 'c cprogram',
+    source   = '${MAIN}',
+    target   = 'app',
+    includes = '. ${FOO}')
+---------------
+
+This design decision is motivated by two main reasons:
+
+. Processing the attributes has a negative performance impact
+. For consistency all attributes would have to be processed
+
+Nevertheless, it is we will demonstrate how to provide Waf with a method to process some attributes. To add a new task generator method, it is necessary to think about its integration with other methods: is there a particular order? The answer is yes, for example, the source attribute is used to create the compilation tasks. To display what methods are in use, execute Waf with the following logging key:
+
+[source,shishell]
+---------------
+19:20:51 task_gen posting task_gen 'app' declared in 'scenarios_expansion' <1>
+19:20:51 task_gen -> process_rule (9232720) <2>
+19:20:51 task_gen -> process_source (9232720)
+19:20:51 task_gen -> apply_link (9232720)
+19:20:51 task_gen -> apply_objdeps (9232720)
+19:20:51 task_gen -> process_use (9232720)
+19:20:51 task_gen -> propagate_uselib_vars (9232720)
+19:20:51 task_gen -> apply_incpaths (9232720)
+19:20:51 task_gen posted app
+---------------
+
+<1> Task generator execution
+<2> Method name and task generator id in parentheses
+
+From the method list, we find that *process_rule* and *process_source* are processing the _source_ attribute. The _includes_ attribute is processed by *apply_incpaths*.
+
+// scenarios_expansion
+[source,python]
+---------------
+from waflib import Utils, TaskGen
+@TaskGen.feature('*') <1>
+@TaskGen.before('process_source', 'process_rule', 'apply_incpaths') <2>
+def transform_strings(self):
+	for x in 'includes source'.split(): <3>
+		val = getattr(self, x, None)
+		if val:
+			if isinstance(val, str):
+				setattr(self, x, Utils.subst_vars(val, self.env)) <4>
+			elif isinstance(val, list):
+				for i in xrange(len(val)):
+					if isinstance(val[i], str):
+						val[i] = Utils.subst_vars(val[i], self.env)
+---------------
+
+<1> Execute this method in all task generators
+<2> Methods to take into account
+<3> Iterate over all interesting attributes
+<4> Substitute the attributes
+
 ==== Inserting special include flags
 
 A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag `-I.' in first position (before any other include).
