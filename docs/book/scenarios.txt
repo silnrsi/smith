@@ -200,7 +200,7 @@ def process_idl(self, node):
     self.source.append(cpp_node) <4>
 ---------------
 
-<1> Dummy command for demonstration purposes. In practice the rule to use would be like _omniidl -bcxx ${SRC} -C${TGT}_
+<1> Dummy command for demonstration purposes. In practice the rule to use would be like _omniidl -bcxx $\{SRC} -C$\{TGT}_
 <2> Because the idl task produces headers, it must be executed before any other +cpp+ file is compiled
 <3> Create the task from the '.idl' extension.
 <4> Reinject the file to compile by the C++ compiler
