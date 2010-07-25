@@ -360,8 +360,8 @@ def configure(self):
 
 	if not qtlibs:
 		try:
-			qtlibs = self.cmd_and_log([qmake, '-query', 'QT_LIBRARIES']).strip() + os.sep
-		except self.errors.ConfigurationError:
+			qtlibs = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_LIBS']).strip()
+		except Errors.WafError:
 			qtlibs = os.path.join(qtdir, 'lib')
 
 	def find_bin(lst, var):
@@ -387,9 +387,9 @@ def configure(self):
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
 	if version.find(' 3.') != -1:
-		self.msg('uic version', '(%s: too old)' % version, False)
+		self.msg('Checking for uic version', '(%s: too old)' % version, False)
 		self.fatal('uic is too old')
-	self.msg('uic version', '(%s)'%version)
+	self.msg('Checking for uic version', '(%s)'%version)
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
