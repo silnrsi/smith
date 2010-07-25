@@ -154,7 +154,7 @@ $ tree
 
 
 
-=== Mixing extensions and c/c++ features
+=== Mixing extensions and C/C++ features
 
 ==== Files processed by a single task generator
 
@@ -162,6 +162,7 @@ Now let's illustrate the @extension decorator on idl file processing. Files with
 
 First, here is the declaration expected in user scripts:
 
+// scenarios_idl
 [source,python]
 ---------------
 top = '.'
@@ -171,53 +172,61 @@ def configure(conf):
     conf.check_tool('g++')
 
 def build(bld):
-    bld(
-        features = 'cxx cprogram',
-        source   = 'foo.idl main.cpp',
-        target   = 'myapp'
+    bld.program(
+        source = 'foo.idl main.cpp',
+        target = 'myapp'
         )
 ---------------
 
-The file 'foo.idl' is listed as a source. It will be processed to 'foo.cpp' and compiled and linked with 'main.cpp'
+The file +foo.idl+ is listed as a source. It will be processed to +foo.cpp+ and compiled and linked with +main.cpp+
 
 Here is the code to support this scenario:
 
 [source,python]
 ---------------
-from waflib import Task
+from waflib.Task import Task
 from waflib.TaskGen import extension
 
-Task.simple_task_type('idl', 'cp ${SRC} ${TGT}', color='BLUE', before='cxx') <1>
+class idl(Task):
+    run_str = 'cp ${SRC} ${TGT[0].abspath()} && touch ${TGT[1].abspath()}' <1>
+    color   = 'BLUE'
+    ext_out = ['.h'] <2>
 
 @extension('.idl')
 def process_idl(self, node):
-    cc_node = node.change_ext('.cpp')
-    self.create_task('idl', [node], [cc_node]) <2>
-    self.source.append(cc_node) <3>
+    cpp_node = node.change_ext('.cpp')
+    hpp_node = node.change_ext('.hpp')
+    self.create_task('idl', node, [cpp_node, hpp_node]) <3>
+    self.source.append(cpp_node) <4>
 ---------------
 
-<1> The ext_out symbol is to force the idl execution before any c++ file is processed. In practice the rule to use would be like `omniidl -bcxx ${SRC} -C${TGT}`
-<2> Create the task from the '.idl' extension. If the task produces other files (headers, ...), more nodes should be added along with 'cc_node'.
-<3> Reinject the c++ node to the list of nodes to process
+<1> Dummy command for demonstration purposes. In practice the rule to use would be like _omniidl -bcxx ${SRC} -C${TGT}_
+<2> Because the idl task produces headers, it must be executed before any other +cpp+ file is compiled
+<2> Create the task from the '.idl' extension.
+<3> Reinject the file to compile by the C++ compiler
 
-The compilation results will be the following:
+The execution results will be the following:
 
 [source,shishell]
 ---------------
-$ waf distclean configure build
+waf distclean configure build -v
 'distclean' finished successfully (0.002s)
-Checking for program g++,c++             : ok /usr/bin/g++
-Checking for program cpp                 : ok /usr/bin/cpp
-Checking for program ar                  : ok /usr/bin/ar
-Checking for program ranlib              : ok /usr/bin/ranlib
-'configure' finished successfully (0.033s)
-Waf: Entering directory `/tmp/idl/build'
-[1/4] idl: foo.idl -> build/foo.cc
-[2/4] cxx: build/foo.cc -> build/foo_1.o
-[3/4] cxx: main.cpp -> build/main_1.o
-[4/4] cxx_link: build/main_1.o build/foo_1.o -> build/myapp
-Waf: Leaving directory `/tmp/idl/build'
-'build' finished successfully (0.119s)
+Setting top to   : /tmp/scenarios_idl
+Setting out to   : /tmp/scenarios_idl/build
+Checking for program g++,c++   : /usr/bin/g++
+Checking for program ar        : /usr/bin/ar
+'configure' finished successfully (0.072s)
+Waf: Entering directory `/tmp/scenarios_idl/build'
+[1/4] idl: foo.idl -> build/foo.cpp build/foo.hpp
+19:47:11 runner 'cp ../foo.idl foo.cpp && touch foo.hpp'
+[2/4] cxx: main.cpp -> build/main.cpp.0.o
+19:47:11 runner ['/usr/bin/g++', '-I.', '-I..', '../main.cpp', '-c', '-o', 'main.cpp.0.o']
+[3/4] cxx: build/foo.cpp -> build/foo.cpp.0.o
+19:47:11 runner ['/usr/bin/g++', '-I.', '-I..', 'foo.cpp', '-c', '-o', 'foo.cpp.0.o']
+[4/4] cxxprogram: build/main.cpp.0.o build/foo.cpp.0.o -> build/myapp
+19:47:11 runner ['/usr/bin/g++', 'main.cpp.0.o', 'foo.cpp.0.o', '-o', 'myapp']
+Waf: Leaving directory `/disk/comp/waf/docs/book/examples/scenarios_idl/build'
+'build' finished successfully (0.149s)
 ---------------
 
 NOTE: The drawback of this declaration is that the source files produced by the idl transformation are used by only one task generator.
@@ -278,7 +287,7 @@ def process_add_source(self): <4>
             self.source.extend(y.more_source) <8>
 ---------------
 
-<1> The idl processing must be performed before any c++ task is executed
+<1> The idl processing must be performed before any C++ task is executed
 <2> This is the standard way to process a file by extension
 <3> Bind the output nodes to a new task generator attribute 'more_source'
 <4> A new task generator method is added to process the attribute 'add_source'
@@ -376,9 +385,9 @@ def transform_strings(self):
 
 ==== Inserting special include flags
 
-A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag `-I.' in first position (before any other include).
+A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all C++ compilations with the flag `-I.' in first position (before any other include).
 
-First, a look at the definition of the c++ compilation rule shows that the variable 'INCPATHS' contains the include flags:
+First, a look at the definition of the C++ compilation rule shows that the variable 'INCPATHS' contains the include flags:
 
 [source,python]
 ---------------
