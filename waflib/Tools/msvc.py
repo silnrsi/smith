@@ -539,7 +539,7 @@ def find_msvc(conf):
 def msvc_common_flags(conf):
 	v = conf.env
 
-	v['CPPFLAGS']     = ['/W3', '/nologo']
+	v['CCFLAGS'] = v['CXXFLAGS'] = ['/W3', '/nologo']
 	v['DEFINES_ST']     = '/D%s'
 
 	v['CC_SRC_F']     = ''
@@ -552,30 +552,25 @@ def msvc_common_flags(conf):
 	v['AR_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
 
 	# Subsystem specific flags
-	v['CPPFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
-	v['CPPFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
-	v['CPPFLAGS_POSIX']     = ['/SUBSYSTEM:POSIX']
-	v['CPPFLAGS_WINDOWS']   = ['/SUBSYSTEM:WINDOWS']
-	v['CPPFLAGS_WINDOWSCE']	= ['/SUBSYSTEM:WINDOWSCE']
+	v['CCFLAGS_CONSOLE']   = v['CXXFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
+	v['CCFLAGS_NATIVE']    = v['CXXFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
+	v['CCFLAGS_POSIX']     = v['CXXFLAGS_POSIX']     = ['/SUBSYSTEM:POSIX']
+	v['CCFLAGS_WINDOWS']   = v['CXXFLAGS_WINDOWS']   = ['/SUBSYSTEM:WINDOWS']
+	v['CCFLAGS_WINDOWSCE'] = v['CXXFLAGS_WINDOWSCE'] = ['/SUBSYSTEM:WINDOWSCE']
 
 	# CRT specific flags
-	v['CPPFLAGS_CRT_MULTITHREADED'] = ['/MT']
-	v['CPPFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
+	v['CCFLAGS_CRT_MULTITHREADED']     = v['CXXFLAGS_CRT_MULTITHREADED']     = ['/MT']
+	v['CCFLAGS_CRT_MULTITHREADED_DLL'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
 
-	# TODO these are defined by the compiler itself!
-	v['DEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
-	v['DEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
+	v['CCFLAGS_CRT_MULTITHREADED_DBG']     = v['CXXFLAGS_CRT_MULTITHREADED_DBG']     = ['/MTd']
+	v['CCFLAGS_CRT_MULTITHREADED_DLL_DBG'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
 
-	v['CPPFLAGS_CRT_MULTITHREADED_DBG'] = ['/MTd']
-	v['CPPFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
-
-	# TODO these are defined by the compiler itself!
-	v['DEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
-	v['DEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
+	#v['DEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
+	#v['DEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
+	#v['DEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
+	#v['DEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
 
 	# linker
-	v['LIB']              = []
-
 	v['LIB_ST']           = '%s.lib' # template for adding libs
 	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
 	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
