@@ -3,31 +3,33 @@
 # Carlos Rafael Giani, 2006 (dv)
 # Tamas Pal, 2007 (folti)
 # Nicolas Mercier, 2009
-# Microsoft Visual C++/Intel C++ compiler support - beta, needs more testing
 
-# usage:
-#
-# conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
-# conf.env['MSVC_TARGETS'] = ['x64']
-# conf.check_tool('msvc')
-# OR conf.check_tool('msvc', funs='no_autodetect')
-# conf.check_lib_msvc('gdi32')
-# conf.check_libs_msvc('kernel32 user32')
-# ...
-# obj.uselib = 'KERNEL32 USER32 GDI32'
-#
-# platforms and targets will be tested in the order they appear;
-# the first good configuration will be used
-# supported platforms :
-# ia64, x64, x86, x86_amd64, x86_ia64
+"""
+Microsoft Visual C++/Intel C++ compiler support
 
-# compilers supported :
-#  msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
-#  wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
-#  icl        => Intel compiler, versions 9,10,11
-#  Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
-#  PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
+usage:
 
+conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
+conf.env['MSVC_TARGETS'] = ['x64']
+conf.check_tool('msvc')
+OR conf.check_tool('msvc', funs='no_autodetect')
+conf.check_lib_msvc('gdi32')
+conf.check_libs_msvc('kernel32 user32')
+...
+obj.uselib = 'KERNEL32 USER32 GDI32'
+
+platforms and targets will be tested in the order they appear;
+the first good configuration will be used
+supported platforms :
+ia64, x64, x86, x86_amd64, x86_ia64
+
+compilers supported :
+ msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
+ wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
+ icl        => Intel compiler, versions 9,10,11
+ Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
+ PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
+"""
 
 import os, sys, re
 try:
@@ -179,7 +181,7 @@ def gather_wsdk_versions(conf, versions):
 
 @conf
 def gather_msvc_versions(conf, versions):
-	# checks SmartPhones SDKs
+	"""checks SmartPhones SDKs"""
 	try:
 		ce_sdk = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Microsoft\\Windows CE Tools\\SDKs')
 	except WindowsError:
@@ -410,15 +412,16 @@ def libname_msvc(self, libname, is_static=False):
 
 @conf
 def check_lib_msvc(self, libname, is_static=False, uselib_store=None):
-	"This is the api to use"
+	"""
+	ideally we should be able to place the lib in the right env var, either STLIB or LIB,
+	but we don't distinguish static libs from shared libs.
+	This is ok since msvc doesn't have any special linker flag to select static libs (no env['STLIB_MARKER'])
+	"""
 	libn = self.libname_msvc(libname, is_static)
 
 	if not uselib_store:
 		uselib_store = libname.upper()
 
-	# Note: ideally we should be able to place the lib in the right env var, either STLIB or LIB,
-	# but we don't distinguish static libs from shared libs.
-	# This is ok since msvc doesn't have any special linker flag to select static libs (no env['STLIB_MARKER'])
 	if False and is_static: # disabled
 		self.env['STLIB_' + uselib_store] = [libn]
 	else:
@@ -468,7 +471,7 @@ def _get_prog_names(conf, compiler):
 
 @conf
 def find_msvc(conf):
-	# due to path format limitations, limit operation only to native Win32. Yeah it sucks.
+	"""due to path format limitations, limit operation only to native Win32. Yeah it sucks."""
 	if sys.platform != 'win32':
 		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
 

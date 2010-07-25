@@ -17,7 +17,7 @@ if not '.c' in TaskGen.task_gen.mappings:
 
 class cxx(Task.Task):
 	color   = 'GREEN'
-	run_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	vars    = ['CXXDEPS']
 	ext_in  = ['.h']
 	scan    = ccroot.scan

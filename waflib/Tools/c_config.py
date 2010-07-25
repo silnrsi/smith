@@ -655,12 +655,10 @@ def get_config_header(self):
 @conf
 def cc_add_flags(conf):
 	conf.add_os_flags('CFLAGS', 'CCFLAGS')
-	conf.add_os_flags('CPPFLAGS')
 
 @conf
 def cxx_add_flags(conf):
 	conf.add_os_flags('CXXFLAGS')
-	conf.add_os_flags('CPPFLAGS')
 
 @conf
 def link_add_flags(conf):
