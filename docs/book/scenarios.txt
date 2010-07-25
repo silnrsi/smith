@@ -9,6 +9,7 @@ The example below demonstrates how to build a compiler which is used for buildin
 . Create the compiler and all its intermediate tasks
 . Re-use the compiler in a second build step
 . The compiler will transform '.src' files into '.cpp' files, which will be processed too
+. Call the compiler again if it was rebuilt (add the dependency on the compiler)
 
 The first thing to do is to write the expected user script:
 
@@ -44,7 +45,7 @@ The code for the _src → cpp_ conversion will be the following:
 ---------------
 from waflib.Task import Task
 class src2cpp(Task): <1>
-	run_str = '${COMP} ${SRC} ${TGT}'
+	run_str = '${SRC[0].abspath()} ${SRC[1].abspath()} ${TGT}'
 	color   = 'PINK'
 
 from waflib.TaskGen import extension
@@ -52,17 +53,16 @@ from waflib.TaskGen import extension
 @extension('.src')
 def process_src(self, node): <2>
 	tg = self.bld.get_tgen_by_name('comp') <3>
-
-	tsk = self.create_task('src2cpp', node, node.change_ext('.cpp')) <4>
-
-	tsk.env.COMP = tg.link_task.outputs[0].abspath() <5>
+	comp = tg.link_task.outputs[0]
+	tsk = self.create_task('src2cpp', [comp, node], node.change_ext('.cpp')) <4>
+	self.source.extend(tsk.outputs) <5>
 ---------------
 
 <1> Declare a new task class for processing the source file by our compiler
 <2> Files of extension '.src' are to be processed by this method
 <3> Obtain a reference on the task generator producing the compiler
-<4> Create the task 'src → cpp'
-<5> Bind the path to _comp_ for use in the rule
+<4> Create the task 'src → cpp', the compiler being as used as the first source file
+<5> Add the generated 'cpp' file to be processed too
 
 The compilation results will be the following:
 
