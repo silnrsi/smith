@@ -11,15 +11,13 @@ def build(ctx):
 	ctx(features='c cprogram', source='main.c', target='app', uselib_local='testlib')
 
 import re
-re_nm = None
-
 from waflib.Context import STDOUT
 from waflib.Task import Task
 from waflib.Errors import WafError
 class nom_nom_nom(Task):
 
 	def filter(self, x):
-		lst = re_nm.findall(x)
+		lst = self.re_nm.findall(x)
 		if self.generator.bld.get_dest_binfmt() == 'pe':
 			lst = [x[1:].strip()[1:] for x in lst] #x is like "T _foo", but we need only "foo"
 		elif self.generator.bld.get_dest_binfmt() == 'elf':
@@ -29,18 +27,17 @@ class nom_nom_nom(Task):
 		return ' '.join(lst)
 
 	def run(self, **kw):
-		global re_nm
 		syms = []
 		print ('kw = %s' % kw)
 		for x in self.inputs:
 			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-				re_nm = re.compile(r'\|\s+_' + self.generator.export_symbols_regex + r'\b')
+				self.re_nm = re.compile(r'\|\s+_' + self.generator.export_symbols_regex + r'\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['dumpbin', '/symbols', x.abspath()], quiet=STDOUT))
 			else:
 				if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
-					re_nm = re.compile(r'T\s+_' + self.generator.export_symbols_regex + r'\b')
+					self.re_nm = re.compile(r'T\s+_' + self.generator.export_symbols_regex + r'\b')
 				else:
-					re_nm = re.compile(r'T\s+' + self.generator.export_symbols_regex + r'\b')
+					self.re_nm = re.compile(r'T\s+' + self.generator.export_symbols_regex + r'\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
 			syms.append(s)
 		if self.generator.bld.get_dest_binfmt() == 'pe':
