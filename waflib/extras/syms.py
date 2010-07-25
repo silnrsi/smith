@@ -1,6 +1,15 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+# this tool supports the export_symbols_regex to export the symbols in a shared library.
+# by default, all symbols are exported by gcc, and nothing by msvc.
+# to use the tool, do something like:
+# 
+# def build(ctx):
+#		ctx(features='c cshlib syms', source='a.c b.c', export_symbols_regex='mylib_.*', target='testlib')
+# 
+# only the symbols starting with 'mylib_' will be exported.
+
 import re
 from waflib.Context import STDOUT
 from waflib.Task import Task
