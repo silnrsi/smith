@@ -1,14 +1,16 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-# this tool supports the export_symbols_regex to export the symbols in a shared library.
-# by default, all symbols are exported by gcc, and nothing by msvc.
-# to use the tool, do something like:
-# 
-# def build(ctx):
-#		ctx(features='c cshlib syms', source='a.c b.c', export_symbols_regex='mylib_.*', target='testlib')
-# 
-# only the symbols starting with 'mylib_' will be exported.
+"""
+this tool supports the export_symbols_regex to export the symbols in a shared library.
+by default, all symbols are exported by gcc, and nothing by msvc.
+to use the tool, do something like:
+
+def build(ctx):
+	ctx(features='c cshlib syms', source='a.c b.c', export_symbols_regex='mylib_.*', target='testlib')
+
+only the symbols starting with 'mylib_' will be exported.
+"""
 
 import re
 from waflib.Context import STDOUT
@@ -63,4 +65,4 @@ def do_the_symbol_stuff(self):
 		self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script', '-Wl,' + tsk.outputs[0].bldpath()])
 	else:
 		raise NotImplemented
-	
+
