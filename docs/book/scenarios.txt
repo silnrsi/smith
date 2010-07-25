@@ -2,7 +2,9 @@
 
 This chapter demonstrates a few examples of the waf library for more complicated and less common scenarios.
 
-=== Building the compiler first
+=== Project organization
+
+==== Building the compiler first
 
 The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
 
@@ -95,6 +97,62 @@ Waf: Leaving directory `/tmp/scenarios_compiler/build'
 <3> Compile and link 'a.cpp' and 'main.cpp' into the program 'foo'
 
 NOTE: When `waf --targets=foo' is called, the task generator `comp' will create its tasks too (task generators from previous groups are processed).
+
+==== Providing arbitrary configuration files
+
+A file is copied into the build directory before the build starts. The build may use this file for building other targets.
+
+// scenarios_impfile
+[source,python]
+---------------
+cfg_file = 'somedir/foo.txt'
+
+def configure(conf):
+
+    orig = conf.root.find_node('/etc/fstab')
+    txt = orig.read() <1>
+
+    dest = conf.bldnode.make_node(cfg_file)
+    dest.parent.mkdir()
+    dest.write(txt) <2>
+
+    conf.env.append_value('cfg_files', cfg_file) <3>
+
+def build(ctx):
+    ctx(rule='cp ${SRC} ${TGT}', source=cfg_file, target='bar.txt')
+---------------
+
+<1> Read the file '/etc/fstab'
+<2> Create a new file in the build directory
+<3> Mark the output as a configuration file so it can be used during the build
+
+The execution output will be the following:
+
+[source,shishell]
+---------------
+$ waf configure build
+Setting top to     : /tmp/scenarios_impfile
+Setting out to     : /tmp/scenarios_impfile/build
+'configure' finished successfully (0.003s)
+Waf: Entering directory `/tmp/scenarios_impfile/build'
+[1/1] bar.txt: build/somedir/foo.txt -> build/bar.txt
+Waf: Leaving directory `/tmp/scenarios_impfile/build'
+'build' finished successfully (0.008s)
+
+$ tree
+.
+|-- build
+|   |-- bar.txt
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- somedir
+|       `-- foo.txt
+`-- wscript
+---------------
+
+
 
 === Mixing extensions and c/c++ features
 
@@ -251,7 +309,9 @@ Waf: Leaving directory `/home/waf/Descargas/blah/out'
 
 NOTE: This technique is used by the waf library for processing the 'add_objects' attribute.
 
-=== Inserting special include flags
+=== Task generator methods
+
+==== Inserting special include flags
 
 A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag `-I.' in first position (before any other include).
 
@@ -300,99 +360,10 @@ def insert_srcdir(self):
     self.env.prepend_value('INCPATHS', path)
 ---------------
 
-////
-=== Simple file transformations
 
-The Waf tool 'misc' contains various routines to ease file manipulations such as substituting parameters or executing custom compilers. The objective of this section is to illustrate the principles of the current apis.
+=== Custom tasks
 
-The following example illustrates how to produce a pkg-config file from a template:
-
-[source,python]
----------------
-top = '.'
-out = 'build'
-
-def configure(conf):
-    conf.check_tool('misc')
-
-def build(bld):
-    obj = bld(
-        features = 'subst',
-        source   = 'test.pc.in',
-        target   = 'test.pc')
-    obj.dict     = {'LIBS': '-lm', 'CFLAGS': '-Wall', 'VERSION': '1.0'}
----------------
-
-Any kind of map will work for 'obj.dict', for example env.get_merged_dict(). The variables must be declared in the template file by enclosing the names between '@ characters' (m4 syntax):
-
-[source,shishell]
----------------
-Name: test
-Description: @CFLAGS@
-Version: @VERSION@
-Libs: -L${libdir} @LIBS@
-Cflags: -I${includedir} @CFLAGS@
----------------
-
-The default substitution function may be replaced by changing the attribute 'func' of the task generator.
-
-////
-
-=== Arbitrary configuration files
-
-A file is copied into the build directory before the build starts. The build may use this file for building other targets.
-
-// scenarios_impfile
-[source,python]
----------------
-cfg_file = 'somedir/foo.txt'
-
-def configure(conf):
-
-    orig = conf.root.find_node('/etc/fstab')
-    txt = orig.read() <1>
-
-    dest = conf.bldnode.make_node(cfg_file)
-    dest.parent.mkdir()
-    dest.write(txt) <2>
-
-    conf.env.append_value('cfg_files', cfg_file) <3>
-
-def build(ctx):
-    ctx(rule='cp ${SRC} ${TGT}', source=cfg_file, target='bar.txt')
----------------
-
-<1> Read the file '/etc/fstab'
-<2> Create a new file in the build directory
-<3> Mark the output as a configuration file so it can be used during the build
-
-The execution output will be the following:
-
-[source,shishell]
----------------
-$ waf configure build
-Setting top to     : /tmp/scenarios_impfile
-Setting out to     : /tmp/scenarios_impfile/build
-'configure' finished successfully (0.003s)
-Waf: Entering directory `/tmp/scenarios_impfile/build'
-[1/1] bar.txt: build/somedir/foo.txt -> build/bar.txt
-Waf: Leaving directory `/tmp/scenarios_impfile/build'
-'build' finished successfully (0.008s)
-
-$ tree
-.
-|-- build
-|   |-- bar.txt
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   `-- default.cache.py
-|   |-- config.log
-|   `-- somedir
-|       `-- foo.txt
-`-- wscript
----------------
-
-=== Force the compilation of a particular task
+==== Force the compilation of a particular task
 
 In some applications, it may be interesting to keep track of the date and time of the last build. In C this may be done by using the macros `__DATE__' and `__TIME__', for example, the following +about.c+ file will contain:
 
@@ -520,7 +491,7 @@ Project compiled: Jul 25 2010 14:05:49
 <2> The file +main.c+ is modified
 <3> The build generates +about.c+ again to update the build time string
 
-=== A compiler producing source files with names unknown in advance
+==== A compiler producing source files with names unknown in advance
 
 The requirements for this problem are the following:
 
