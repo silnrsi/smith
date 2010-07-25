@@ -26,9 +26,8 @@ class nom_nom_nom(Task):
 			raise NotImplemented
 		return ' '.join(lst)
 
-	def run(self, **kw):
+	def run(self):
 		syms = []
-		print ('kw = %s' % kw)
 		for x in self.inputs:
 			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
 				self.re_nm = re.compile(r'\|\s+_' + self.generator.export_symbols_regex + r'\b')
