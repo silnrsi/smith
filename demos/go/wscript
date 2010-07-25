@@ -38,7 +38,7 @@ def build(ctx):
 	ctx(
 		features = 'go goprogram',
 		target   = 'test',
-		uselib_local = 'other',
+		use      = 'other',
 		source   = 'main.go',
 		includes = '.',
 	)
