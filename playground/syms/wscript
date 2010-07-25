@@ -1,6 +1,5 @@
 #! /usr/bin/env python
 
-export_symbols_regex=r"mylib_.*"
 def options(ctx):
 	ctx.tool_options('compiler_c')
 
@@ -8,7 +7,7 @@ def configure(ctx):
 	ctx.check_tool('compiler_c')
 
 def build(ctx):
-	ctx(features='c cshlib syms', source='a.c b.c', target='testlib')
+	ctx(features='c cshlib syms', source='a.c b.c', export_symbols_regex='mylib_.*', target='testlib')
 	ctx(features='c cprogram', source='main.c', target='app', uselib_local='testlib')
 
 import re
@@ -29,18 +28,19 @@ class nom_nom_nom(Task):
 			raise NotImplemented
 		return ' '.join(lst)
 
-	def run(self):
+	def run(self, **kw):
 		global re_nm
 		syms = []
+		print ('kw = %s' % kw)
 		for x in self.inputs:
 			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-				re_nm = re.compile(r'\|\s+_' + export_symbols_regex + r'\b')
+				re_nm = re.compile(r'\|\s+_' + self.generator.export_symbols_regex + r'\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['dumpbin', '/symbols', x.abspath()], quiet=STDOUT))
 			else:
 				if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
-					re_nm = re.compile(r'T\s+_' + export_symbols_regex + r'\b')
+					re_nm = re.compile(r'T\s+_' + self.generator.export_symbols_regex + r'\b')
 				else:
-					re_nm = re.compile(r'T\s+' + export_symbols_regex + r'\b')
+					re_nm = re.compile(r'T\s+' + self.generator.export_symbols_regex + r'\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
 			syms.append(s)
 		if self.generator.bld.get_dest_binfmt() == 'pe':
