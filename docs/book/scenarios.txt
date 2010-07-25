@@ -253,18 +253,23 @@ NOTE: This technique is used by the waf library for processing the 'add_objects'
 
 === Inserting special include flags
 
-A scenario that appears from times to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag \'-I.' in first position (before any other include).
+A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all c++ compilations with the flag `-I.' in first position (before any other include).
 
-First, a look at the definition of the c++ compilation rule shows that the variable '_CXXINCFLAGS' contains the include flags:
+First, a look at the definition of the c++ compilation rule shows that the variable 'INCPATHS' contains the include flags:
 
 [source,python]
 ---------------
-cxx_str = '${CXX} ${CXXFLAGS} ${CPPFLAGS} ${_CXXINCFLAGS} ${_CXXDEFFLAGS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-cls = Task.simple_task_type('cxx', cxx_str, color='GREEN', ext_out='.o', ext_in='.cxx', shell=False)
+class cxx(Task.Task):
+	color   = 'GREEN'
+	run_str = '${CXX} ${CXXFLAGS} ${CPPPATH_ST:INCPATHS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	vars    = ['CXXDEPS']
+	ext_in  = ['.h']
+	scan    = ccroot.scan
 ---------------
 
-Those include flags are set by the method 'apply_obj_vars_cxx'. The trick is then to modify '_CXXINCFLAGS' after that method has been executed:
+Those include flags are set by the method 'apply_incpaths'. The trick is then to modify 'INCPATHS' after that method has been executed:
 
+// scenarios_incflags
 [source,python]
 ---------------
 top = '.'
@@ -274,14 +279,14 @@ def configure(conf):
 	conf.check_tool('g++')
 
 def build(bld):
-	bld(features='cxx cprogram', source='main.cpp', target='test')
+	bld.program(features='cxx cxxprogram', source='main.cpp', target='test')
 
 from waflib.TaskGen import after, feature
 
 @feature('cxx')
-@after('apply_obj_vars_cxx')
-def insert_myflags(self):
-	self.env.prepend_value('_CXXINCFLAGS', '-I.')
+@after('apply_incpaths')
+def insert_blddir(self):
+	self.env.prepend_value('INCPATHS', '.')
 ---------------
 
 A related case is how to add the top-level directory containing a configuration header:
@@ -289,10 +294,10 @@ A related case is how to add the top-level directory containing a configuration 
 [source,python]
 ---------------
 @feature('cxx')
-@after('apply_obj_vars_cxx')
-def insert_myflags(self):
-	dir = self.bld.srcnode.relpath_gen(self.path)
-	self.env.prepend_value('_CXXINCFLAGS', '-I' + dir)
+@after('apply_incpaths', 'insert_blddir')
+def insert_srcdir(self):
+	path = self.bld.srcnode.abspath()
+	self.env.prepend_value('INCPATHS', path)
 ---------------
 
 ////
