@@ -338,6 +338,60 @@ The default substitution function may be replaced by changing the attribute 'fun
 
 ////
 
+=== Arbitrary configuration files
+
+A file is copied into the build directory before the build starts. The build may use this file for building other targets.
+
+// scenarios_impfile
+[source,python]
+---------------
+cfg_file = 'somedir/foo.txt'
+
+def configure(conf):
+
+	orig = conf.root.find_node('/etc/fstab')
+	txt = orig.read() <1>
+
+	dest = conf.bldnode.make_node(cfg_file)
+	dest.parent.mkdir()
+	dest.write(txt) <2>
+
+	conf.env.append_value('cfg_files', cfg_file) <3>
+
+def build(ctx):
+	ctx(rule='cp ${SRC} ${TGT}', source=cfg_file, target='bar.txt')
+---------------
+
+<1> Read the file '/etc/fstab'
+<2> Create a new file in the build directory
+<3> Mark the output as a configuration file so it can be used during the build
+
+The execution output will be the following:
+
+[source,shishell]
+---------------
+$ waf configure build
+Setting top to     : /tmp/scenarios_impfile
+Setting out to     : /tmp/scenarios_impfile/build
+'configure' finished successfully (0.003s)
+Waf: Entering directory `/tmp/scenarios_impfile/build'
+[1/1] bar.txt: build/somedir/foo.txt -> build/bar.txt
+Waf: Leaving directory `/tmp/scenarios_impfile/build'
+'build' finished successfully (0.008s)
+
+$ tree
+.
+|-- build
+|   |-- bar.txt
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   `-- somedir
+|       `-- foo.txt
+`-- wscript
+---------------
+
 === A compiler producing source files with names unknown in advance
 
 The requirements for this problem are the following:
