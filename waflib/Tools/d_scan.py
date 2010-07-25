@@ -49,7 +49,7 @@ def filter_comments(filename):
 			if i == max: return buf
 			c = txt[i]
 			if c != '\'':
-				Logs.error("uh-oh, invalid character")
+				Logs.error("Invalid character %r in %r" % (c, filename))
 
 		# skip a comment
 		elif c == '/':
