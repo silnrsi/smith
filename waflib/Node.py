@@ -161,7 +161,7 @@ class Node(object):
 
 	def suffix(self):
 		"scons-like - hot zone so do not touch"
-		k = max(0, self.name.find('.'))
+		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
 	def height(self):
