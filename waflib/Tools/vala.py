@@ -45,12 +45,19 @@ class valac_task(Task.Task):
 			cmd.append('--pkg=%s' % package)
 
 		cmd.extend([a.abspath() for a in self.inputs])
-		result = self.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
+		ret = self.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
+
+		if ret:
+			return ret
+
+		for x in self.outputs:
+			if id(x.parent) != id(self.outputs[0].parent):
+				shutil.move(self.outputs[0].parent.abspath() + os.sep + x.name, x.abspath())
 
 		if self.packages and getattr(self, 'deps_node', None):
 			self.deps_node.write('\n'.join(self.packages))
 
-		return result
+		return ret
 
 @extension('.vala', '.gs')
 def vala_file(self, node):
