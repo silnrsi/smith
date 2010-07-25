@@ -173,14 +173,14 @@ class task_gen(object):
 		"""
 		get a function able to process an extension
 		"""
-		ext = node.suffix()
-		try:
-			return self.mappings[ext]
-		except KeyError:
-			try:
-				return task_gen.mappings[ext]
-			except KeyError:
-				return None
+		name = node.name
+		for k in self.mappings:
+			if name.endswith(k):
+				return self.mappings[k]
+		for k in task_gen.mappings:
+			if name.endswith(k):
+				return task_gen.mappings[k]
+		raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, task_gen.mappings.keys()))
 
 	def create_task(self, name, src=None, tgt=None):
 		task = Task.classes[name](env=self.env.derive(), generator=self)
@@ -322,14 +322,9 @@ def process_source(self):
 
 	No error will be raised if 'self.source' is not defined.
 	"""
-
 	self.source = self.to_nodes(getattr(self, 'source', []))
 	for node in self.source:
-		# self.mappings or task_gen.mappings map the file extension to a function
-		x = self.get_hook(node)
-		if not x:
-			raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, self.__class__.mappings.keys()))
-		x(self, node)
+		self.get_hook(node)(self, node)
 
 @feature('*')
 @before('process_source')
