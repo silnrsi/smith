@@ -2,6 +2,7 @@ The Waf Book (v1.6.0 snapshot)
 ==============================
 :author: Thomas Nagy
 :quotes.++:
+:numbered!:
 
 {set:PIC:{backend@docbook:.eps:.png}}
 
