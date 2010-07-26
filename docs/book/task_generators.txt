@@ -201,8 +201,9 @@ def method2(self):
 
 The execution output will be the following:
 
+[source,shishell]
 ---------------
- waf distclean configure build --zones=task_gen
+$ waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/simpleproject/out'

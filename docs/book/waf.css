@@ -1,8 +1,3 @@
-body
-{
-	font-family: Tahoma,Arial,Verdana,Geneva,Helvetica,sans-serif;
-}
-
 div.tableblock > table {
   border: 1px solid gray;
 }
@@ -15,3 +10,12 @@ div.title, caption.title {
 div.tableblock > table th {
 	background-color: #F4F4F4;
 }
+
+h1, h2, h3, h4, h5, h6, span#author, div.title, caption.title, div.admonitionblock .icon, div#toctitle, div.sidebar-title, div.image-title {
+	color: #333;
+}
+
+body, div.sectionbody, div#toctitle {
+	font-family: 'Lucida Grande', Verdana, Arial, sans-serif;
+}
+

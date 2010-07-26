@@ -194,7 +194,7 @@ The execution output will be the following.
 
 [source,shishell]
 ---------------
-waf configure cnt
+$ waf configure cnt
 Setting top to   : /tmp/examples/advbuild_cmdtool
 Setting out to   : /tmp/advbuild_cmdtool/build
 'configure' finished successfully (0.006s)

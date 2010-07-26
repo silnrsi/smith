@@ -2,7 +2,7 @@ bgcolor "white"; // the background color for documents
 context gray; // the color for context lines (when specified with line ranges)
 
 normal black ;
-keyword blue b ; // for language keywords
+keyword darkblue; // for language keywords
 type darkgreen ; // for basic types
 usertype teal ; // for user defined types
 string darkgreen ; // for strings and chars
@@ -44,7 +44,7 @@ bold darkgreen b;
 underline darkgreen u;
 fixed green f;
 argument darkgreen;
-optionalargument purple;
+optionalargument purple b;
 math orange;
 bibtex blue;
 
