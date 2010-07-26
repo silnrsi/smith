@@ -5,7 +5,12 @@ The Waf Book (v1.6.0 snapshot)
 
 {set:PIC:{backend@docbook:.eps:.png}}
 
+ifdef::basebackend-docbook[]
 [preface]
+endif::basebackend-docbook[]
+ifdef::basebackend-html[]
+[float]
+endif::basebackend-html[]
 == Introduction
 
 Copyright (C) 2010 Thomas Nagy
@@ -14,23 +19,34 @@ Copies of this book may be redistributed, verbatim, and for non-commercial
 purposes. The license for this book is
  http://creativecommons.org/licenses/by-nc-nd/3.0/[by-nc-nd license].
 
+ifdef::basebackend-html[]
+[float]
+endif::basebackend-html[]
 === A word on build systems
 
 As software is becoming increasingly complex, the process of creating software is becoming more complex too. Today's software uses various languages, requires various compilers, and the input data is spread into many files.
 
 Software is now used to express the process of building software, it can take the form of simple scripts (shell scripts, makefiles), or compilers (CMake, Qmake), or complete applications (SCons, Maven, Waf). The term `build system' is used to design the tools used to build applications.
 
+ifdef::basebackend-html[]
+[float]
+endif::basebackend-html[]
 === The Waf framework
 
 Build systems make assumptions on software it is trying to build, and are typically limited where it comes to processing other languages or different projects. For example, Ant is better suited than Make for managing Java projects, but is more limited than Make for managing simple c projects. The programming tools are evolving constantly, making the creation of a complete build system for end-users impossible.
 
 The Waf framework is somewhat different than traditional build systems in the sense that it does not provide support for a specific language. Rather, the focus is to support the major usecases encountered when working on a software project. As such, it is essentially a library of components that are suitable for use in a build system, with an emphasis on extensibility. Although the default distribution contains various plugins for several programming languages and different tools (c, d, ocaml, java, etc), it is by no means a frozen product. Creating new extensions is both a standard and a recommended practice.
 
+ifdef::basebackend-html[]
+[float]
+endif::basebackend-html[]
 === Objectives of this book
 
 The objectives of this book is to expose the use of the Waf build system though the use of Waf in practice, the description of the Waf extension system, and an overview of the Waf internals. We hope that this book will serve as a reference for both new and advanced users. Although this book does not deal with build systems in general, a secondary objective is to illustrate quite a few new techniques and patterns through numerous examples.
 
 The chapters are ordered by difficulty, starting from the basic use of Waf and Python, and diving gradually into the most difficult topics. It is therefore recommended to read the chapters in order. It is also possible to start by looking at the http://code.google.com/p/waf/source/browse/trunk/demos/[examples] from the Waf distribution before starting the reading.
+
+:numbered:
 
 include::download.txt[]
 include::execution.txt[]
