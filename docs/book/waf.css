@@ -1,0 +1,17 @@
+body
+{
+	font-family: Tahoma,Arial,Verdana,Geneva,Helvetica,sans-serif;
+}
+
+div.tableblock > table {
+  border: 1px solid gray;
+}
+
+div.title, caption.title {
+	text-align: center;
+	margin-bottom: 0.2em;
+}
+
+div.tableblock > table th {
+	background-color: #F4F4F4;
+}
