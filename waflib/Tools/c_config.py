@@ -166,8 +166,8 @@ def exec_cfg(self, kw):
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
-		version = self.cmd_and_log([kw['path'], '--modversion %s' % kw['modversion']]).strip()
-		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
+		version = self.cmd_and_log([kw['path'], '--modversion', kw['package']]).strip()
+		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), version)
 		return version
 
 	cmd = [kw['path']]
