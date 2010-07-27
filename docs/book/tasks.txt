@@ -77,27 +77,98 @@ image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:},align="ce
 
 ==== set_run_after
 
-TODO
+The method _set_run_after_ is used to declare ordering constraints between tasks:
+
+[source,python]
+---------------
+task1.set_run_after(task2)
+---------------
+
+The tasks are stored in the attribute _run_after_
 
 ==== computed constraints
 
 ===== after/before
 
-TODO
+The attributes _before_ and _after_ are used to declare ordering constraints between tasks:
+
+[source,python]
+---------------
+from waflib import Task
+class task_test_a(Task.TaskBase):
+	before = 'task_test_b'
+class task_test_b(Task.TaskBase):
+	after = 'task_test_a'
+---------------
 
 ===== ext_in/ext_out
 
-TODO
+Another way to declare precedence constraints is to declare a file extension production, for example:
+
+[source,python]
+---------------
+from waflib import Task
+class task_test_a(Task.TaskBase):
+	ext_in = '.c'
+class task_test_b(Task.TaskBase):
+	ext_out = '.c'
+---------------
+
+The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
 
 ===== files inputs/outputs
 
-TODO
+Before feeding the tasks to the producer-consumer system, a constraint extraction is performed on the tasks having input and output files. The attributes _run_after_ are initialized with the tasks to wait for.
 
 ==== soft order constraints
 
-diagrams, ...
+Tasks that are known to take a lot of time may be launched first to improve the build times. The general problem of finding an optimal order for launching tasks in parallel and with constraints is called http://en.wikipedia.org/wiki/Job-shop_problem[Job Shop]. In practice this problem can often be reduced to a critical path problem (approximation).
 
+The following pictures illustrate the difference in scheduling a build with different independent tasks, in which a slow task is clearly identified, and launched first:
 
+image::duration-1{PIC}["Random order"{backend@docbook:,width=310:},align="center"]
+image::duration-2{PIC}["Slowest task first"{backend@docbook:,width=310:},align="center"]
+
+Waf provides a function for reordering the tasks before they are launched in the module Runner, the default reordering may be changed by dynamic method replacement in Python:
+
+[source,python]
+---------------
+from waflib import Runner
+def get_next(self):
+	# reorder the task list by a random function
+	self.outstanding.sort()
+	# return the next task
+	return self.outstanding.pop()
+Runner.Parallel.get_next = get_next
+---------------
+
+If the reordering is not to be performed each time a task is retrieved, the list of task may be reordered when the next group is retrieved:
+
+[source,python]
+---------------
+from waflib import Runner
+old_refill = Runner.Parallel.refill_task_list
+def refill_task_list(self):
+	old_refill(self)
+	self.outstanding.sort()
+Runner.Parallel.refill_task_list = refill_task_list
+---------------
+
+It is possible to measure the task execution times by intercepting the function calls. The task execution times may be re-used for optimizing the schedule for subsequent builds:
+
+[source,python]
+---------------
+import time
+from waflib import Task
+old_call_run = Task.TaskBase.call_run
+def new_call_run(self):
+	t1 = time.time()
+	ret = old_call_run(self)
+	t2 = time.time()
+	if not ret: print("execution time %r" % (t2 - t1))
+	return ret
+Task.TaskBase.call_run = new_call_run
+---------------
 
 
 === Dependencies
@@ -160,41 +231,6 @@ To make the problem more simple, it is divided by the different concerns, and th
 . specific constraints for task instances that can only run after a few other task instances
 
 
-
-==== Precedence constraints
-
-The attributes 'before' and 'after' are used to declare ordering constraints between tasks:
-
-[source,python]
----------------
-from waflib import Task
-class task_test_a(Task.TaskBase):
-	before = 'task_test_b'
-class task_test_b(Task.TaskBase):
-	after = 'task_test_a'
----------------
-
-Another way to declare precedence constraints is to declare a file extension production, for example:
-
-[source,python]
----------------
-from waflib import Task
-class task_test_a(Task.TaskBase):
-	ext_in = '.c'
-class task_test_b(Task.TaskBase):
-	ext_out = '.c'
----------------
-
-The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
-
-==== Precedence constraints on task instances
-
-The method 'set_run_after' is used to declare ordering constraints between tasks:
-
-[source,python]
----------------
-task1.set_run_after(task2)
----------------
 
 unlike the previous constraints, it is used on the instances of class 'Task' which is a subclass of class 'TaskBase'
 
