@@ -29,15 +29,6 @@ def configure(conf):
 
 	conf.write_config_header('config.h')
 
-	orig = conf.root.find_node('/etc/fstab')
-	txt = orig.read()
-
-	dest = conf.bldnode.make_node('usr/foo.txt')
-	dest.parent.mkdir()
-	dest.write(txt)
-
-	conf.env.append_value('cfg_files', 'usr/foo.txt')
-
 def build(bld):
 
 	bld.env.DEFINES=['WAF=1']
