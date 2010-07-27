@@ -174,7 +174,8 @@ def exec_cfg(self, kw):
 	for key, val in kw.get('define_variable', {}).items():
 		cmd.append('--define-variable=%s=%s' % (key, val))
 
-	cmd.append(kw.get('args', ''))
+	if 'args' in kw:
+		cmd.append(Utils.to_list(kw['args']))
 	cmd.append(kw['package'])
 
 	# so we assume the command-line will output flags to be parsed afterwards
