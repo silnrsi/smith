@@ -3,18 +3,46 @@
 
 This chapter provides a description of the task classes which are used during the build phase.
 
-=== Execution overview
+=== Task execution
+
+==== Build overview
+
+groups -> producer-consumer -> task states
+
+==== Producer-consumer system
+
+Tasks are executed in parallel by default to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
+
+[source,shishell]
+------------------
+$ waf -j3
+------------------
+
+By default, Waf does not allow consumer threads to access the tasks directly:
+
+. There is little need for parallelizing the computation of the next task to execute, choosing the next task is fast enough
+. The thread issues are limited to a very small section of the code
+. The producer-consumer scheme prevents 'busy waiting' for the next task
+. A simple global error handler can be used for processing the errors and to decide to stop the build
+
+The following illustrates the relationship producer-consumer performed for the builds:
+
+image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
+
+==== Task states
+
+cache, status, signature
 
 ==== Build groups
 
-In some circumstances it is necessary to build a compiler and all its dependencies before using it for executing some other tasks (bootstrapping). The following demonstrates how declare groups of tasks to be executed after other groups of tasks:
+Tasks and task generators are added to build groups. The build groups are then processed one by one during the build phase.
 
 [source,python]
 ---------------
 def build(bld):
-	bld(features='cc cprogram', source='main.c', target='mycompiler')
-	bld.add_group()
-	bld(features='cc cprogram', source='user.c', target='someotherapp')
+	ctx(features='c cprogram', source='main.c', target='mycompiler')
+	ctx.add_group()
+	ctx(features='c cprogram', source='user.c', target='someotherapp')
 ---------------
 
 The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
@@ -49,29 +77,6 @@ def build(bld):
 
 WARNING: By preventing parallelization, build groups may increase build times. On the other hand, they make projects more structured and improve the maintainance.
 
-==== Task states
-
-cache, status, signature
-
-==== Producer-consumer system
-
-Tasks are executed in parallel by default to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
-
-[source,shishell]
-------------------
-$ waf -j3
-------------------
-
-By default, Waf does not allow consumer threads to access the tasks directly:
-
-. There is little need for parallelizing the computation of the next task to execute, choosing the next task is fast enough
-. The thread issues are limited to a very small section of the code
-. The producer-consumer scheme prevents 'busy waiting' for the next task
-. A simple global error handler can be used for processing the errors and to decide to stop the build
-
-The following illustrates the relationship producer-consumer performed for the builds:
-
-image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
 
 === Build order constraints
 

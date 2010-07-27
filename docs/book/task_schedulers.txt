@@ -62,6 +62,4 @@ From this, we can immediately notice the following:
 
 NOTE: In practice, the NORMAL algorithm should be used whenever possible, and the MAXPARALLEL should be used if substantial gains are expected and if the ordering is specified between all tasks. The JOBCONTROL system may be useful for tasks that consume a vast amount of resources.
 
-=== Weak task order constraints
-
 
