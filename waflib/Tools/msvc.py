@@ -632,7 +632,7 @@ def apply_manifest(self):
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
 
-	if self.env.CC_NAME != 'msvc':
+	if self.env.CC_NAME != 'msvc' or not getattr(self, 'link_task', None):
 		return
 
 	tsk = self.create_task('msvc_manifest')
