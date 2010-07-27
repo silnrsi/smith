@@ -1,4 +1,4 @@
-== Waf nodes
+== Node objects
 
 Node objects represent files or folders and are used to ease the operations dealing with the file system. This chapter provides an overview of their usage.
 

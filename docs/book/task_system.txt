@@ -1,7 +1,71 @@
 
-== The Task system
+== Task processing
 
-Task objects are created by task generators. They represent atomic transformations performed in the build phase.
+This chapter provides a description of the task classes which are used during the build phase.
+
+=== Execution overview
+
+==== Build groups
+
+the build is structured into groups
+
+==== Task states
+
+cache, status, signature
+
+==== Producer-consumer system
+
+prodcons diagram
+
+
+
+=== Build order constraints
+
+==== set_run_after
+
+TODO
+
+==== computed constraints
+
+===== after/before
+
+TODO
+
+===== ext_in/ext_out
+
+TODO
+
+===== files inputs/outputs
+
+TODO
+
+==== soft order constraints
+
+diagrams, ...
+
+
+
+
+=== Dependencies
+
+==== Task signatures
+
+TODO
+
+==== Explicit dependencies
+
+TODO
+
+==== Implicit dependencies and scanners
+
+TODO
+
+==== Variables
+
+TODO
+
+
+
 
 === Task creation and execution
 

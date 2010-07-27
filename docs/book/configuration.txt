@@ -1,4 +1,4 @@
-== The configuration system
+== Project configuration
 
 The _configuration_ command is used to check if the requiremements for working on a project are met and to store the information. The parameters are then stored for use by other commands, such as the build command.
 

@@ -1,4 +1,4 @@
-== The build phase
+== Builds
 
 We will now provide a detailed description of the build phase, which is used for processing the build targets.
 

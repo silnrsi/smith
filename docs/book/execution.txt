@@ -1,8 +1,8 @@
-== Waf projects
+== Projects and commands
 
 The _waf_ script is meant to build software projects, and is of little use when taken alone. This chapter describes what is necessary to set up a waf project and how to use the _waf_ script.
 
-=== Scripts and commands
+=== Waf commands
 
 Waf projects use description files of the name _wscript_ which are python scripts containing functions and variables that may be used by Waf. Particular functions named _waf commands_ may be used by Waf on the command-line.
 
