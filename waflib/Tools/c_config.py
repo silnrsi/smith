@@ -148,7 +148,7 @@ def exec_cfg(self, kw):
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
-		cmd = '%s --atleast-pkgconfig-version=%s' % (kw['path'], kw['atleast_pkgconfig_version'])
+		cmd = [kw['path'], '--atleast-pkgconfig-version=%s' % kw['atleast_pkgconfig_version']]
 		self.cmd_and_log(cmd)
 		if not 'okmsg' in kw:
 			kw['okmsg'] = 'yes'
@@ -158,7 +158,7 @@ def exec_cfg(self, kw):
 	for x in cfg_ver:
 		y = x.replace('-', '_')
 		if y in kw:
-			self.cmd_and_log('%s --%s=%s %s' % (kw['path'], x, kw[y], kw['package']))
+			self.cmd_and_log([kw['path'], '--%s=%s' % (x, kw[y]), kw['package']])
 			if not 'okmsg' in kw:
 				kw['okmsg'] = 'yes'
 			self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
@@ -166,19 +166,19 @@ def exec_cfg(self, kw):
 
 	# retrieving the version of a module
 	if 'modversion' in kw:
-		version = self.cmd_and_log('%s --modversion %s' % (kw['path'], kw['modversion'])).strip()
+		version = self.cmd_and_log([kw['path'], '--modversion %s' % kw['modversion']]).strip()
 		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['modversion'])), version)
 		return version
 
-	lst = [kw['path']]
+	cmd = [kw['path']]
 	for key, val in kw.get('define_variable', {}).items():
-		lst.append('--define-variable=%s=%s' % (key, val))
+		cmd.append('--define-variable=%s=%s' % (key, val))
 
-	lst.append(kw.get('args', ''))
-	lst.append(kw['package'])
+	cmd.append(kw.get('args', ''))
+	cmd.append(kw['package'])
 
 	# so we assume the command-line will output flags to be parsed afterwards
-	cmd = ' '.join(lst)
+	#cmd = ' '.join(lst)
 	ret = self.cmd_and_log(cmd)
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'yes'
