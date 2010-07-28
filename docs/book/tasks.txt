@@ -180,7 +180,44 @@ Task.TaskBase.call_run = new_call_run
 
 ==== Task signatures
 
-TODO
+The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class 'Task' provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
+
+The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
+
+image::task_signature{PIC}["Signatures"{backend@docbook:,width=320:},align="center"]
+
+The signature computation uses the following data:
+
+. explicit dependencies: input files and dependencies set explicitly using task.deps_man or bld.depends_on
+. implicit dependencies: dependencies searched by the task itself (like source files included from other source files).
+. parameters: compilation flags and command-line parameters.
+
+Here is an example illustrating the different kinds of dependencies:
+
+[source,python]
+---------------
+from waflib import Task
+class task_demo(Task.Task):
+	vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
+	def scan(self): <2>
+		return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
+
+task = task_demo()
+task.inputs = [bld.path.find_resource('test.cxx')] <3>
+task.deps_man = [bld.path.find_resource('wscript')] <4>
+
+bld.add_manual_dependency('main.c', 'an arbitrary string value') <5>
+bld.add_manual_dependency(
+		bld.path.find_or_declare('test_c_program'),
+		bld.path.find_resource('bbb')) <6>
+---------------
+
+<1> Environment variable dependencies (compilation flags)
+<2> Implicit dependencies: a method returns a list containing the list of additional nodes to take into account, and the list of the files that could not be found (cache)
+<3> Explicit dependencies as input files (nodes)
+<4> Explicit dependencies as manual dependencies
+<5> Manual dependencies on source files, the second parameter can be a string, a node object or a function returning a string
+<6> Manual dependencies with nodes, the first node represents a target (which may or may not exist in the build), and the second parameter represents a file in the source directory.
 
 ==== Explicit dependencies
 
@@ -240,47 +277,4 @@ To make the problem more simple, it is divided by the different concerns, and th
 unlike the previous constraints, it is used on the instances of class 'Task' which is a subclass of class 'TaskBase'
 
 
-
-
-
-=== Executing tasks only when something changes
-
-The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class 'Task' provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
-
-The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
-
-image::task_signature{PIC}["Signatures"{backend@docbook:,width=320:},align="center"]
-
-The signature computation uses the following data:
-
-. explicit dependencies: input files and dependencies set explicitly using task.deps_man or bld.depends_on
-. implicit dependencies: dependencies searched by the task itself (like source files included from other source files).
-. parameters: compilation flags and command-line parameters.
-
-Here is an example illustrating the different kinds of dependencies:
-
-[source,python]
----------------
-from waflib import Task
-class task_demo(Task.Task):
-	vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
-	def scan(self): <2>
-		return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
-
-task = task_demo()
-task.inputs = [bld.path.find_resource('test.cxx')] <3>
-task.deps_man = [bld.path.find_resource('wscript')] <4>
-
-bld.add_manual_dependency('main.c', 'an arbitrary string value') <5>
-bld.add_manual_dependency(
-		bld.path.find_or_declare('test_c_program'),
-		bld.path.find_resource('bbb')) <6>
----------------
-
-<1> Environment variable dependencies (compilation flags)
-<2> Implicit dependencies: a method returns a list containing the list of additional nodes to take into account, and the list of the files that could not be found (cache)
-<3> Explicit dependencies as input files (nodes)
-<4> Explicit dependencies as manual dependencies
-<5> Manual dependencies on source files, the second parameter can be a string, a node object or a function returning a string
-<6> Manual dependencies with nodes, the first node represents a target (which may or may not exist in the build), and the second parameter represents a file in the source directory.
 
