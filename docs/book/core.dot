@@ -1,6 +1,20 @@
 digraph G {
 	label="Dependencies between the core modules";
 
+	Build[fillcolor="#fffea6",style=filled]
+	ConfigSet[fillcolor="#fffea6",style=filled]
+	Configure[fillcolor="#fffea6",style=filled]
+	Context[fillcolor="#fffea6",style=filled]
+	Logs[fillcolor="#fffea6",style=filled]
+	Nod3[fillcolor="#fffea6",style=filled, label="Node"]
+	Options[fillcolor="#fffea6",style=filled]
+	Runner[fillcolor="#fffea6",style=filled]
+	Scripting[fillcolor="#fffea6",style=filled]
+	TaskGen[fillcolor="#fffea6",style=filled]
+	Task[fillcolor="#fffea6",style=filled]
+	Utils[fillcolor="#fffea6",style=filled]
+	Errors[fillcolor="#fffea6",style=filled]
+
 	Build -> Runner;
 	Build -> TaskGen;
 	Build -> ConfigSet;
@@ -12,9 +26,9 @@ digraph G {
 	Configure -> Build;
 
 	Context -> Logs;
-	Context -> "Node";
+	Context -> Nod3;
 
-	"Node" -> Utils;
+	Nod3 -> Utils;
 
 	Options -> Context;
 

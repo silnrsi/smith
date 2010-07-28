@@ -1,9 +1,9 @@
 digraph G {
 
-	foo     [label="foo.txt"]
-	bar     [label="bar.txt"]
-	wscript [label="wscript"]
-	foobar  [label="foobar.txt"]
+	foo     [label="foo.txt",fillcolor="#aef9a5",style=filled]
+	bar     [label="bar.txt",fillcolor="#aef9a5",style=filled]
+	wscript [label="wscript",fillcolor="#aef9a5",style=filled]
+	foobar  [label="foobar.txt",fillcolor="#aef9a5",style=filled]
 	wscript -> foo;
 	wscript -> bar;
 	foo -> foobar;

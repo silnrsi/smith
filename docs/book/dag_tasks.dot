@@ -1,8 +1,8 @@
 digraph G {
 
-	A [label="cp: wscript -> foo.txt"]
-	B [label="cp: wscript -> bar.txt"]
-	C [label="cat: foo.txt, bar.txt -> foobar.txt"]
+	A [label="cp: wscript -> foo.txt",fillcolor="#fffea6",style=filled]
+	B [label="cp: wscript -> bar.txt",fillcolor="#fffea6",style=filled]
+	C [label="cat: foo.txt, bar.txt -> foobar.txt",fillcolor="#fffea6",style=filled]
 	A -> C;
 	B -> C;
 }
