@@ -76,18 +76,20 @@ class utest(Task.Task):
 	run = exec_test
 	vars = []
 	def runnable_status(self):
-		if getattr(Options.options, 'all_tests', False):
-			return Task.RUN_ME
-		return suber(utest, self).runnable_status()
+		ret = super(utest, self).runnable_status()
+		if ret == Task.SKIP_ME:
+			if getattr(Options.options, 'all_tests', False):
+				return Task.RUN_ME
+		return ret
 
 def summary(bld):
 	lst = getattr(bld, 'utest_results', [])
 	if lst:
-		Utils.pprint('CYAN', 'execution summary')
+		Logs.pprint('CYAN', 'execution summary')
 		for (f, fail, ret) in lst:
 			col = fail and 'RED' or 'GREEN'
-			Utils.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
-			if fail: Utils.pprint('NORMAL', ret.replace('\\n', '\n'))
+			Logs.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
+			if fail: Logs.pprint('NORMAL', ret.replace('\\n', '\n'))
 
 def options(opt):
 	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
