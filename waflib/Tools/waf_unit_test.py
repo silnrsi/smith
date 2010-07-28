@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-
-import os, sys
-from waflib import Build, TaskGen, Utils, Options, Logs, Task
-from waflib.TaskGen import before, after, feature
+# Carlos Rafael Giani, 2006
 
 """
 New unit test system
@@ -16,61 +13,71 @@ import UnitTest
 bld.add_post_fun(UnitTest.summary)
 """
 
-import threading
-testlock = threading.Lock()
+import os, sys
+from waflib.TaskGen import feature, after
+from waflib import Utils, Task, Logs
+testlock = Utils.threading.Lock()
 
 @feature('test')
-@after('apply_link', 'vars_target_cprogram')
+@after('apply_link')
 def make_test(self):
 	if getattr(self, 'link_task', None):
 		self.default_install_path = None
 		self.create_task('utest', self.link_task.outputs)
 
 def exec_test(self):
-	testlock.acquire()
-	fail = False
+
+	status = 0
+
+	filename = self.inputs[0].abspath()
+	self.ut_exec = getattr(self, 'ut_exec', [filename])
+	if getattr(self.generator, 'ut_fun', None):
+		self.generator.ut_fun(self)
+
 	try:
-		filename = self.inputs[0].abspath()
+		fu = getattr(self.generator.bld, 'all_test_paths')
+	except AttributeError:
+		fu = os.environ.copy()
+		self.generator.bld.all_test_paths = fu
 
-		try:
-			fu = getattr(self.generator.bld, 'all_test_paths')
-		except AttributeError:
-			fu = os.environ.copy()
-			self.generator.bld.all_test_paths = fu
+		lst = []
+		for g in self.generator.bld.groups:
+			for tg in g:
+				if getattr(tg, 'link_task', None):
+					lst.append(tg.link_task.outputs[0].parent.abspath())
 
-			lst = []
-			for g in self.generator.bld.groups:
-				for tg in g:
-					link_task = getattr(tg, 'link_task', None)
-					if link_task:
-						lst.append(link_task.outputs[0].parent.abspath())
+		def add_path(dct, path, var):
+			dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
 
-			def add_path(dct, path, var):
-				dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
-			if sys.platform == 'win32':
-				add_path(fu, lst, 'PATH')
-			elif sys.platform == 'darwin':
-				add_path(fu, lst, 'DYLD_LIBRARY_PATH')
-				add_path(fu, lst, 'LD_LIBRARY_PATH')
-			else:
-				add_path(fu, lst, 'LD_LIBRARY_PATH')
-
-		try:
-			ret = self.generator.bld.cmd_and_log(filename, cwd=self.inputs[0].parent.abspath(), quiet=1, env=fu)
-		except Exception as e:
-			fail = True
-			ret = '' + str(e)
+		if sys.platform == 'win32':
+			add_path(fu, lst, 'PATH')
+		elif sys.platform == 'darwin':
+			add_path(fu, lst, 'DYLD_LIBRARY_PATH')
+			add_path(fu, lst, 'LD_LIBRARY_PATH')
 		else:
-			pass
+			add_path(fu, lst, 'LD_LIBRARY_PATH')
 
-		stats = getattr(self.generator.bld, 'utest_results', [])
-		stats.append((filename, fail, ret))
-		self.generator.bld.utest_results = stats
+
+	cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
+	proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE)
+	(stdout, stderr) = proc.communicate()
+
+	tup = (filename, proc.returncode, stdout, stderr)
+	self.generator.utest_result = tup
+
+	testlock.acquire()
+	try:
+		bld = self.generator.bld
+		Logs.debug("ut: %r", tup)
+		try:
+			bld.utest_results.append(tup)
+		except AttributeError:
+			bld.utest_results = [tup]
 	finally:
 		testlock.release()
 
 class utest(Task.Task):
-	color = 'RED'
+	color = 'PINK'
 	quiet = True
 	ext_in = ['.bin']
 	run = exec_test
@@ -86,11 +93,20 @@ def summary(bld):
 	lst = getattr(bld, 'utest_results', [])
 	if lst:
 		Logs.pprint('CYAN', 'execution summary')
-		for (f, fail, ret) in lst:
-			col = fail and 'RED' or 'GREEN'
-			Logs.pprint(col, (fail and 'FAIL' or 'ok') + " " + f)
-			if fail: Logs.pprint('NORMAL', ret.replace('\\n', '\n'))
+
+		total = len(lst)
+		tfail = len([x for x in lst if x[1]])
+
+		Logs.pprint('CYAN', '  tests that pass %d/%d' % (total-tfail, total))
+		for (f, code, out, err) in lst:
+			if not code:
+				Logs.pprint('CYAN', '    %s' % f)
+
+		Logs.pprint('CYAN', '  tests that fail %d/%d' % (tfail, total))
+		for (f, code, out, err) in lst:
+			if code:
+				Logs.pprint('CYAN', '    %s' % f)
 
 def options(opt):
-	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
+	opt.add_option('--alltests', action='store_true', default=True, help='Exec all unit tests', dest='all_tests')
 
