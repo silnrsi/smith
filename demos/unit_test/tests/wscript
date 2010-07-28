@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+# encoding: utf-8
+
+def build(bld):
+	bld.add_subdirs('test0 test1')
+
+	obj = bld(
+			features = 'cxx cstaticlib',
+			source   = 'main.cpp',
+			uselib   = 'CPPUNIT',
+			target   = 'unittestmain')
+
