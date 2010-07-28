@@ -177,11 +177,11 @@ Waf: Leaving directory `/tmp/build_lazy_tg/build'
 <3> Tasks are created after calling the method post() - it is usually called automatically internally
 <4> A new task class was created dynamically for the target +foo+
 
-==== Overview of the build process
+==== Overview of the build phase
 
 A high level overview of the build process is represented on the following diagram:
 
-image::build{PIC}["Build process overview"{backend@docbook:,width=130:},align="center"]
+image::build{PIC}["Overview of the build phase"{backend@docbook:,width=250:},align="center"]
 
 NOTE: The tasks are all created before any of them is executed. New tasks may be created after the build has started, but the dependencies have to be set by using low-level apis.
 
