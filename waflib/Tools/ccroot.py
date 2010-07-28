@@ -190,34 +190,33 @@ def process_use(self):
 					self.uselib.append(x)
 				else:
 					obj.post()
-					if getattr(obj, 'link_task', None) and isinstance(obj.link_task, stlink_task):
-						pass
-					else:
-						tmp.append(x)
+					if getattr(obj, 'link_task', None):
+						if not isinstance(obj.link_task, stlink_task):
+							tmp.append(x)
 
 		# link task and flags
-		if getattr(y, 'link_task', None):
+		if getattr(self, 'link_task', None):
+			if getattr(y, 'link_task', None):
 
-			link_name = y.target[y.target.rfind(os.sep) + 1:]
-			if isinstance(y.link_task, stlink_task):
-				env.append_value('STLIB', [link_name])
+				link_name = y.target[y.target.rfind(os.sep) + 1:]
+				if isinstance(y.link_task, stlink_task):
+					env.append_value('STLIB', [link_name])
+				else:
+					# some linkers can link against programs
+					env.append_value('LIB', [link_name])
+
+				# the order
+				self.link_task.set_run_after(y.link_task)
+
+				# for the recompilation
+				dep_nodes = getattr(self.link_task, 'dep_nodes', [])
+				self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
+
+				# add the link path too
+				tmp_path = y.link_task.outputs[0].parent.bldpath()
+				if not tmp_path in env['LIBPATH']:
+					env.prepend_value('LIBPATH', [tmp_path])
 			else:
-				# some linkers can link against programs
-				env.append_value('LIB', [link_name])
-
-			# the order
-			self.link_task.set_run_after(y.link_task)
-
-			# for the recompilation
-			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
-
-			# add the link path too
-			tmp_path = y.link_task.outputs[0].parent.bldpath()
-			if not tmp_path in env['LIBPATH']:
-				env.prepend_value('LIBPATH', [tmp_path])
-		else:
-			if getattr(self, 'link_task', None):
 				for t in getattr(y, 'compiled_tasks', []):
 					self.link_task.inputs.extend(t.outputs)
 
