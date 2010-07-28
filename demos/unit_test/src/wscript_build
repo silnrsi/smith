@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 bld(
-	features = 'cxx cstaticlib',
+	features = 'cxx cxxstlib',
 	source   = 'Accumulator.cpp HelloWorld.cpp',
 	target   = 'useless',
 	export_incdirs = '.',

@@ -5,7 +5,7 @@ def build(bld):
 	bld.add_subdirs('test0 test1')
 
 	obj = bld(
-			features = 'cxx cstaticlib',
+			features = 'cxx cxxstlib',
 			source   = 'main.cpp',
 			uselib   = 'CPPUNIT',
 			target   = 'unittestmain')
