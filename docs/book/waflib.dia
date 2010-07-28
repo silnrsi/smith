@@ -144,7 +144,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="UML - Branch" version="0" id="O3">
@@ -170,7 +170,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Line" version="0" id="O4">
@@ -308,7 +308,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -440,7 +440,7 @@ raise an error#</dia:string>
         <dia:point val="6.135,4.95"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="6.135,4.33631;13.6562,7.53988"/>
+        <dia:rectangle val="6.135,4.355;13.6375,7.5025"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -659,7 +659,7 @@ at a folder containing
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O19">
@@ -753,7 +753,7 @@ named 'waflib' ?#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -835,15 +835,15 @@ stream in 'waf'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O24">
       <dia:attribute name="obj_pos">
-        <dia:point val="16.4,14.8"/>
+        <dia:point val="16.2,14.8"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="16.4,14.205;17.71,14.9525"/>
+        <dia:rectangle val="16.2,14.205;17.51,14.9525"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -857,7 +857,7 @@ stream in 'waf'#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="16.4,14.8"/>
+            <dia:point val="16.2,14.8"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -1102,6 +1102,39 @@ usable?#</dia:string>
       <dia:attribute name="valign">
         <dia:enum val="3"/>
       </dia:attribute>
+    </dia:object>
+    <dia:object type="Standard - ZigZagLine" version="1" id="O32">
+      <dia:attribute name="obj_pos">
+        <dia:point val="16.0312,15.7257"/>
+      </dia:attribute>
+      <dia:attribute name="obj_bb">
+        <dia:rectangle val="15.9812,7.1632;25.4618,15.7757"/>
+      </dia:attribute>
+      <dia:attribute name="orth_points">
+        <dia:point val="16.0312,15.7257"/>
+        <dia:point val="25.1,15.7257"/>
+        <dia:point val="25.1,7.275"/>
+      </dia:attribute>
+      <dia:attribute name="orth_orient">
+        <dia:enum val="0"/>
+        <dia:enum val="1"/>
+      </dia:attribute>
+      <dia:attribute name="autorouting">
+        <dia:boolean val="true"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow">
+        <dia:enum val="22"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_length">
+        <dia:real val="0.5"/>
+      </dia:attribute>
+      <dia:attribute name="end_arrow_width">
+        <dia:real val="0.5"/>
+      </dia:attribute>
+      <dia:connections>
+        <dia:connection handle="0" to="O23" connection="2"/>
+        <dia:connection handle="1" to="O1" connection="6"/>
+      </dia:connections>
     </dia:object>
   </dia:layer>
 </dia:diagram>

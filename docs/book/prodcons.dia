@@ -167,7 +167,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -216,7 +216,7 @@ to the queue 'ready'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -264,7 +264,7 @@ to the queue 'ready'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="UML - Fork" version="0" id="O6">
@@ -381,7 +381,7 @@ to the queue 'ready'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O10">
@@ -475,7 +475,7 @@ from the queue 'ready'
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -552,7 +552,7 @@ the queue 'out'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O15">
@@ -639,7 +639,7 @@ the queue 'out'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -912,19 +912,19 @@ to process#</dia:string>
     </dia:object>
     <dia:object type="UML - Activity" version="0" id="O26">
       <dia:attribute name="obj_pos">
-        <dia:point val="31.3375,9.20001"/>
+        <dia:point val="31.0375,9.20001"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="31.2875,9.15001;37.315,11.85"/>
+        <dia:rectangle val="30.9875,9.15001;37.565,11.85"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
-        <dia:point val="31.3375,9.20001"/>
+        <dia:point val="31.0375,9.20001"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="5.9275000000000002"/>
+        <dia:real val="6.4775"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="2.6000000000000001"/>
@@ -933,12 +933,12 @@ to process#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Create the task
+            <dia:string>#Initialize the task
 consumer pool#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
@@ -948,7 +948,7 @@ consumer pool#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="34.3012,10.295"/>
+            <dia:point val="34.2762,10.295"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -964,11 +964,11 @@ consumer pool#</dia:string>
         <dia:point val="34.275,7.75"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="33.9285,7.6991;34.6519,9.3118"/>
+        <dia:rectangle val="33.9139,7.69996;34.6375,9.31181"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="34.275,7.75"/>
-        <dia:point val="34.3013,9.20001"/>
+        <dia:point val="34.2762,9.20001"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -989,13 +989,13 @@ consumer pool#</dia:string>
     </dia:object>
     <dia:object type="Standard - Line" version="0" id="O28">
       <dia:attribute name="obj_pos">
-        <dia:point val="34.3013,11.8"/>
+        <dia:point val="34.2762,11.8"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="33.9388,11.75;34.6624,13.2618"/>
+        <dia:rectangle val="33.9275,11.7491;34.651,13.2618"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="34.3013,11.8"/>
+        <dia:point val="34.2762,11.8"/>
         <dia:point val="34.3,13.15"/>
       </dia:attribute>
       <dia:attribute name="numcp">
@@ -1066,7 +1066,7 @@ consumer pool#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O31">
@@ -1159,7 +1159,7 @@ later#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1243,7 +1243,7 @@ in the queue
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1325,7 +1325,7 @@ the a list 'frozen'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1374,7 +1374,7 @@ the queue 'out'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O39">
@@ -1467,7 +1467,7 @@ the queue 'out'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O42">
@@ -1526,7 +1526,7 @@ the queue 'out'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O44">
@@ -1587,7 +1587,7 @@ frozen state?
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1665,7 +1665,7 @@ to the list 'outstanding'#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -1882,7 +1882,7 @@ being processed?#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#aef9a5"/>
       </dia:attribute>
     </dia:object>
     <dia:object type="Standard - Text" version="1" id="O54">
@@ -2017,14 +2017,14 @@ processed?#</dia:string>
     </dia:object>
     <dia:object type="Standard - ZigZagLine" version="1" id="O58">
       <dia:attribute name="obj_pos">
-        <dia:point val="36.4149,18.625"/>
+        <dia:point val="36.415,18.625"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="22.6644,17.2;36.4649,18.9868"/>
+        <dia:rectangle val="22.6644,17.2;36.465,18.9868"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
-        <dia:point val="36.4149,18.625"/>
-        <dia:point val="36.4149,17.25"/>
+        <dia:point val="36.415,18.625"/>
+        <dia:point val="36.415,17.25"/>
         <dia:point val="23.0262,17.25"/>
         <dia:point val="23.0262,18.875"/>
       </dia:attribute>
@@ -2243,11 +2243,11 @@ processed?#</dia:string>
         <dia:point val="36.415,24.2437"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="36.0531,21.1132;36.7767,24.2937"/>
+        <dia:rectangle val="36.0532,21.1132;36.7768,24.2937"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="36.415,24.2437"/>
-        <dia:point val="36.4149,21.225"/>
+        <dia:point val="36.415,21.225"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -2587,7 +2587,7 @@ processed?#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -2811,12 +2811,12 @@ state?#</dia:string>
         <dia:point val="31.8,7.45"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="31.8,6.855;33.2875,7.6025"/>
+        <dia:rectangle val="31.8,6.855;33.3625,7.6025"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#start#</dia:string>
+            <dia:string>#Start#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -2844,12 +2844,12 @@ state?#</dia:string>
         <dia:point val="35.75,52.0875"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="35.75,51.4925;36.9575,52.24"/>
+        <dia:rectangle val="35.75,51.4925;36.9675,52.24"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#end#</dia:string>
+            <dia:string>#End#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>

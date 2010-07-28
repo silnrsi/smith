@@ -155,5 +155,11 @@ cp vim/ftdetect/asciidoc_filetype.vim /usr/share/vim/site/ftdetect/
 
 When adding an eps from a svg file, convert it with inscape first
 convert (imagemagick) does not process svg files too well
+
+colors:
+ yellow fffea6
+ green  aef9a5
+ blue   d2d5ff
+
 """
 

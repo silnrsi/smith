@@ -144,7 +144,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -192,7 +192,7 @@
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -307,7 +307,7 @@ create the task objects#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -356,7 +356,7 @@ based on the inputs/outputs#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -406,7 +406,7 @@ ordering constraints#</dia:string>
         <dia:color val="#000000"/>
       </dia:attribute>
       <dia:attribute name="fill_colour">
-        <dia:color val="#ffffff"/>
+        <dia:color val="#fffea6"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
@@ -437,7 +437,7 @@ which tasks must be executed#</dia:string>
         <dia:point val="16.0647,2.4813"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4529,2.4813;16.1765,4.38789"/>
+        <dia:rectangle val="15.4529,2.4813;16.1765,4.38788"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="16.0647,2.4813"/>
@@ -472,18 +472,18 @@ which tasks must be executed#</dia:string>
         <dia:point val="16.0647,5.82608"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4529,5.82608;16.1765,7.73267"/>
+        <dia:rectangle val="15.7028,5.77608;16.4265,7.48267"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="16.0647,5.82608"/>
-        <dia:point val="16.0647,5.82608"/>
-        <dia:point val="16.0647,7.37087"/>
+        <dia:point val="16.0647,6.59848"/>
+        <dia:point val="16.0647,6.59848"/>
         <dia:point val="16.0647,7.37087"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
-        <dia:enum val="0"/>
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="autorouting">
         <dia:boolean val="true"/>
@@ -507,18 +507,18 @@ which tasks must be executed#</dia:string>
         <dia:point val="16.0647,9.97087"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4529,9.97087;16.1765,11.8775"/>
+        <dia:rectangle val="15.7029,9.92087;16.4265,11.6274"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="16.0647,9.97087"/>
-        <dia:point val="16.0647,9.97087"/>
-        <dia:point val="16.0647,11.5156"/>
+        <dia:point val="16.0647,10.7432"/>
+        <dia:point val="16.0647,10.7432"/>
         <dia:point val="16.0647,11.5156"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
-        <dia:enum val="0"/>
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="autorouting">
         <dia:boolean val="true"/>
@@ -542,18 +542,18 @@ which tasks must be executed#</dia:string>
         <dia:point val="16.0647,14.1156"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4529,14.1156;16.1765,16.0222"/>
+        <dia:rectangle val="15.7028,14.0656;16.4265,15.7722"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="16.0647,14.1156"/>
-        <dia:point val="16.0647,14.1156"/>
-        <dia:point val="16.0647,15.6604"/>
+        <dia:point val="16.0647,14.888"/>
+        <dia:point val="16.0647,14.888"/>
         <dia:point val="16.0647,15.6604"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
-        <dia:enum val="0"/>
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="autorouting">
         <dia:boolean val="true"/>
@@ -577,18 +577,18 @@ which tasks must be executed#</dia:string>
         <dia:point val="16.0647,18.2604"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="15.4529,18.2604;16.1765,20.167"/>
+        <dia:rectangle val="15.7029,18.2104;16.4265,19.917"/>
       </dia:attribute>
       <dia:attribute name="orth_points">
         <dia:point val="16.0647,18.2604"/>
-        <dia:point val="16.0647,18.2604"/>
-        <dia:point val="16.0647,19.8052"/>
+        <dia:point val="16.0647,19.0328"/>
+        <dia:point val="16.0647,19.0328"/>
         <dia:point val="16.0647,19.8052"/>
       </dia:attribute>
       <dia:attribute name="orth_orient">
-        <dia:enum val="0"/>
         <dia:enum val="1"/>
         <dia:enum val="0"/>
+        <dia:enum val="1"/>
       </dia:attribute>
       <dia:attribute name="autorouting">
         <dia:boolean val="true"/>
