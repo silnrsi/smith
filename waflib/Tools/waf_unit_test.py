@@ -22,13 +22,9 @@ testlock = threading.Lock()
 @feature('test')
 @after('apply_link', 'vars_target_cprogram')
 def make_test(self):
-	if not 'cprogram' in self.features:
-		Logs.error('test cannot be executed %s' % self)
-		return
-
-	self.default_install_path = None
-	tsk = self.create_task('utest')
-	tsk.set_inputs(self.link_task.outputs)
+	if getattr(self, 'link_task', None):
+		self.default_install_path = None
+		self.create_task('utest', self.link_task.outputs)
 
 def exec_test(self):
 	testlock.acquire()
@@ -73,16 +69,16 @@ def exec_test(self):
 	finally:
 		testlock.release()
 
-cls = Task.task_factory('utest', func=exec_test, color='RED', ext_in='.bin')
-
-old = cls.runnable_status
-def test_status(self):
-	if getattr(Options.options, 'all_tests', False):
-		return Task.RUN_ME
-	return old(self)
-
-cls.runnable_status = test_status
-cls.quiet = 1
+class utest(Task.Task):
+	color = 'RED'
+	quiet = True
+	ext_in = ['.bin']
+	run = exec_test
+	vars = []
+	def runnable_status(self):
+		if getattr(Options.options, 'all_tests', False):
+			return Task.RUN_ME
+		return suber(utest, self).runnable_status()
 
 def summary(bld):
 	lst = getattr(bld, 'utest_results', [])
