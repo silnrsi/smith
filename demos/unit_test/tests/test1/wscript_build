@@ -7,7 +7,7 @@ def fun(task):
 	task.ut_exec.append('--help')
 
 bld(
-	features = 'cxx cprogram test',
+	features = 'cxx cxxprogram test',
 	source   = 'AccumulatorTest.cpp',
 	target   = 'unit_test_program',
 	uselib   = 'CPPUNIT',

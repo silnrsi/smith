@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 bld(
-	features = 'cxx cprogram test',
+	features = 'cxx cxxprogram test',
 	source   = 'HelloWorldTest.cpp',
 	target   = 'unit_test_program',
 	uselib   = 'CPPUNIT',
