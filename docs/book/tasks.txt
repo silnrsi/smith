@@ -9,6 +9,19 @@ This chapter provides a description of the task classes which are used during th
 
 groups -> producer-consumer -> task states
 
+Creating all tasks by hand is a tedious process that the task generators may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a sub folder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular sub folder (optimization).
+
+Here are a few motives for using the task generators to create the tasks instead of creating them manually:
+
+. Lazy creation: building only a part of the project is a common scenario
+. Filesystem access: the filesystem requirements such as new folders will be created ahead of time
+. Concurrency issues: tasks are executed in parallel and may lead to complex bugs if initialized improperly
+
+A summary can be found on the following diagram:
+
+image::task_execution{PIC}["Flowchart model"{backend@docbook:,width=370:},align="center"]
+
+
 ==== Producer-consumer system
 
 Tasks are executed in parallel by default to take advantage of the hardware (multi-core) or the environment (distributed builds). By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
@@ -31,7 +44,12 @@ image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=500:},align="ce
 
 ==== Task states
 
-cache, status, signature
+Executing a task consists in calling the method 'run' on that task, and setting the task execution state.
+The following diagram is a summary of the process:
+
+image::task_run{PIC}["Task execution"{backend@docbook:,width=250:},align="center"]
+
+The method 'post_run' can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
 
 ==== Build groups
 
@@ -232,33 +250,7 @@ TODO
 TODO
 
 
-
-
-=== Task creation and execution
-
-Creating all tasks by hand is a tedious process that the task generators may automate. Before starting the build, Waf asks each task generator to produce the corresponding tasks. If Waf is launched from a sub folder inside the source directory, it will try to avoid the creation of the tasks that are not relevant for that particular sub folder (optimization).
-
-Here are a few motives for using the task generators to create the tasks instead of creating them manually:
-
-. Lazy creation: building only a part of the project is a common scenario
-. Filesystem access: the filesystem requirements such as new folders will be created ahead of time
-. Concurrency issues: tasks are executed in parallel and may lead to complex bugs if initialized improperly
-
-A summary can be found on the following diagram:
-
-image::task_execution{PIC}["Flowchart model"{backend@docbook:,width=370:},align="center"]
-
-=== Task execution
-
-Executing a task consists in calling the method 'run' on that task, and setting the task execution state.
-The following diagram is a summary of the process:
-
-image::task_run{PIC}["Task execution"{backend@docbook:,width=250:},align="center"]
-
-The method 'post_run' can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
-
-
-
+////
 === Task execution order
 
 Running tasks in parallel is a simple problem, but in practice it is more complicated:
@@ -272,9 +264,7 @@ To make the problem more simple, it is divided by the different concerns, and th
 . task types to indicate the instance will run after other task type instances, for example linking object files may only occur after compiling the source files
 . specific constraints for task instances that can only run after a few other task instances
 
-
-
 unlike the previous constraints, it is used on the instances of class 'Task' which is a subclass of class 'TaskBase'
-
+////
 
 
