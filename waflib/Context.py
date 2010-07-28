@@ -286,7 +286,8 @@ class Context(ctx):
 			to_ret = STDOUT
 
 		kw['stdout'] = kw['stderr'] = subprocess.PIPE
-		self.to_log(cmd)
+		if not quiet:
+			self.to_log(cmd)
 		try:
 			p = subprocess.Popen(cmd, **kw)
 			(out, err) = p.communicate()

@@ -56,7 +56,7 @@ def exec_test(self):
 				add_path(fu, lst, 'LD_LIBRARY_PATH')
 
 		try:
-			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(), env=fu)
+			ret = self.generator.bld.cmd_and_log(filename, cwd=self.inputs[0].parent.abspath(), quiet=1, env=fu)
 		except Exception as e:
 			fail = True
 			ret = '' + str(e)
