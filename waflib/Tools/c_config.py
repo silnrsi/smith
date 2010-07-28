@@ -175,11 +175,11 @@ def exec_cfg(self, kw):
 		cmd.append('--define-variable=%s=%s' % (key, val))
 
 	if 'args' in kw:
-		cmd.append(Utils.to_list(kw['args']))
-	cmd.append(kw['package'])
+		cmd.extend(Utils.to_list(kw['args']))
+	if kw['package']:
+		cmd.append(kw['package'])
 
 	# so we assume the command-line will output flags to be parsed afterwards
-	#cmd = ' '.join(lst)
 	ret = self.cmd_and_log(cmd)
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'yes'
