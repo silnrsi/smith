@@ -34,7 +34,7 @@ def exec_test(self):
 	testlock.acquire()
 	fail = False
 	try:
-		filename = self.inputs[0].abspath(self.env)
+		filename = self.inputs[0].abspath()
 
 		try:
 			fu = getattr(self.generator.bld, 'all_test_paths')
@@ -60,7 +60,7 @@ def exec_test(self):
 				add_path(fu, lst, 'LD_LIBRARY_PATH')
 
 		try:
-			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(self.env), env=fu)
+			ret = Utils.cmd_output(filename, cwd=self.inputs[0].parent.abspath(), env=fu)
 		except Exception as e:
 			fail = True
 			ret = '' + str(e)
@@ -78,7 +78,7 @@ cls = Task.task_factory('utest', func=exec_test, color='RED', ext_in='.bin')
 old = cls.runnable_status
 def test_status(self):
 	if getattr(Options.options, 'all_tests', False):
-		return RUN_ME
+		return Task.RUN_ME
 	return old(self)
 
 cls.runnable_status = test_status
