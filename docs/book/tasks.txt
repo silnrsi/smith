@@ -5,6 +5,7 @@ This chapter provides a description of the task classes which are used during th
 
 === Task execution
 
+////
 ==== Build overview
 
 groups -> producer-consumer -> task states
@@ -20,6 +21,7 @@ Here are a few motives for using the task generators to create the tasks instead
 A summary can be found on the following diagram:
 
 image::tasks_overview{PIC}["Overview of the task processing"{backend@docbook:,width=250:},align="center"]
+////
 
 ==== Producer-consumer system
 
