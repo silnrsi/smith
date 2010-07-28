@@ -1,5 +1,5 @@
 digraph G {
-	label="Dependencies between core modules";
+	label="Dependencies between the core modules";
 
 	Build -> Runner;
 	Build -> TaskGen;

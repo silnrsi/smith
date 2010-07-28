@@ -27,7 +27,7 @@ By default, Waf does not allow consumer threads to access the tasks directly:
 
 The following illustrates the relationship producer-consumer performed for the builds:
 
-image::parallel{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
+image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
 
 ==== Task states
 
