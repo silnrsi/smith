@@ -28,7 +28,7 @@ Waf consists of the following modules which constitute the core library. They ar
 |Utils       | Contains support functions and classes used by other Waf modules
 |=================
 
-Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. If the module 'Build' is used, then the modules 'Scripting' and 'Configure' are not necessary.
+Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. Conversely, if the module 'Build' is used alone, then the modules 'Scripting' and 'Configure' are not necessary.
 
 image::core{PIC}["Module dependencies"{backend@docbook:,height=400:},align="center"]
 

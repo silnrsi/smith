@@ -20,13 +20,13 @@ Each of the three lines represents a command to execute. While the _cp_ commands
 
 image::dag_tasks{PIC}["Task representation of the same build"{backend@docbook:,width=260:},align="center"]
 
-When the +wscript+ input file changes, the +foo.txt+ output file has to be created once again. The file +foo.txt+ is said to depend on the +wscript+ file. The *dependencies* may be represented by a Direct acyclic graph too:
+When the +wscript+ input file changes, the +foo.txt+ output file has to be created once again. The file +foo.txt+ is said to depend on the +wscript+ file. The *file dependencies* can be represented by a Direct acyclic graph too:
 
 image::dag_nodes{PIC}["File dependencies on a simple build"{backend@docbook:,width=120:},align="center"]
 
-Executing a build consists in computing an adequate schedule for the commands, which may be executed in parallel. For this reason, it is critical to respect the build order. Then, the dependencies must be used to avoid executing the the commands when it is not necessary.
+Building a project consists in executing the commands according to a schedule which will respect these constraints. Faster build will be obtained when commands are executed in parallel (by using the build order), and when commands can be skipped (by using the dependencies).
 
-In Waf, the commands are represented by *task objects*. The task classes may use file-based dependencies or abstract dependencies to enforce specific constraints.
+In Waf, the commands are represented by *task objects*. The dependencies are used by the task classes, and may be file-based or abstract to enforce particular constraints.
 
 ==== Direct task declaration
 
