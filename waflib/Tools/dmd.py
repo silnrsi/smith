@@ -37,8 +37,9 @@ def common_flags_dmd(conf):
 	v['DLNK_TGT_F']        = '-of'
 	v['DINC_ST'] = '-I%s'
 
-	v['STLIB_ST'] = v['LIB_ST']           = '-L-l%s'
-	v['STLIBPATH_ST'] = v['LIBPATH_ST']       = '-L-L%s'
+	v['DSHLIB_MARKER'] = v['DSTLIB_MARKER'] = ''
+	v['DSTLIB_ST'] = v['DLIB_ST']           = '-L-l%s'
+	v['DSTLIBPATH_ST'] = v['DLIBPATH_ST']   = '-L-L%s'
 
 	v['LINKFLAGS']        = ['-quiet']
 
