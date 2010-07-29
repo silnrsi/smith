@@ -2,9 +2,10 @@
 
 bld.shlib(
 	#packages = 'gtk+-2.0',
-	target   = 'hello',
+	features = 'c cshlib',
+	target   = 'hello-world',
 	#uselib   = 'GTK GLIB',
-	source   = 'hello.vala',
+	source   = bld.path.ant_glob('src/*.vala'),
 	gir      = 'hello-1.0'
 	)
 
