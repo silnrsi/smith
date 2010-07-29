@@ -132,7 +132,7 @@ image::task_run{PIC}["Task states"{backend@docbook:,width=250:},align="center"]
 
 === Build order constraints
 
-==== set_run_after
+==== The method set_run_after
 
 The method _set_run_after_ is used to declare ordering constraints between tasks:
 
@@ -141,11 +141,11 @@ The method _set_run_after_ is used to declare ordering constraints between tasks
 task1.set_run_after(task2)
 ---------------
 
-The tasks are stored in the attribute _run_after_ and are used by the method runnable_status to yield the status 'ASK_LATER' when a task has not run yet. This is merely for the build order and not for the dependencies.
+The tasks to wait for are stored in the attribute _run_after_. They are used by the method _runnable_status_ to yield the status 'ASK_LATER' when a task has not run yet. This is merely for the build order and not for forcing a rebuild if one of the previous tasks is executed.
 
-==== computed constraints
+==== Computed constraints
 
-===== after/before
+===== Attribute after/before
 
 The attributes _before_ and _after_ are used to declare ordering constraints between tasks:
 
