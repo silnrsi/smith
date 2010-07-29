@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 """
-waf configure clean build -j4 --dwidth=800
+waf configure clean build -j4 --dwidth=800 --dtitle='Parallel build representation for "waf -j4"'
 """
 
 def options(ctx):
@@ -12,9 +12,9 @@ def configure(ctx):
 
 def build(ctx):
 	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i, color='GREEN')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i, color='YELLOW')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i, color='YELLOW', name='tasks a')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i, color='GREEN', name='tasks b')
 	ctx.add_group()
 	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i, color='BLUE')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i, color='PINK')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i, color='BLUE', name='tasks c')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i, color='PINK', name='tasks d')
