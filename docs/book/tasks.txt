@@ -61,31 +61,29 @@ image::tasks_twogroups{PIC}["Two build groups"{backend@docbook:,width=400:},alig
 
 The tasks and tasks generator are added implicitely to the current group. By giving a name to the groups, it is easy to control what goes where:
 
+// tasks_groups2
 [source,python]
 ---------------
-def build(bld):
+def build(ctx):
 
-    bld.add_group('test1')
-    bld.add_group('test2')
-    bld.add_group('test3')
-    bld.add_group('test4')
+	ctx.add_group('group1')
+	ctx.add_group('group2')
 
-    print('adding task generators')
+	for i in range(8):
+		ctx.set_group('group1')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+			color='YELLOW', name='tasks a')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+			color='GREEN', name='tasks b')
 
-    bld.set_group('test3')
-    bld(features='cxx cprogram', source='main3.c', target='g3')
-
-    bld.set_group('test1')
-    bld(features='cxx cprogram', source='main1.c', target='g1')
-
-    bld.set_group('test2')
-    obj2 = bld(features='cxx cprogram', source='main2.c', target='g2')
-
-    bld.set_group('test4')
-    obj2.clone('debug')
+		ctx.set_group('group2')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+			color='BLUE', name='tasks c')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+			color='PINK', name='tasks d')
 ---------------
 
-WARNING: By preventing parallelization, build groups may increase build times. On the other hand, they make projects more structured and improve the maintainance.
+NOTE: By preventing task parallelization, build groups may cause longer build times.
 
 ==== The Producer-consumer system
 
