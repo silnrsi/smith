@@ -196,7 +196,7 @@ def process_colors(producer):
 <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\"
    x=\"%r\" y=\"%r\" width=\"%r\" height=\"%r\"
    id=\"svg602\" xml:space=\"preserve\">
-<defs id=\"defs604\" />\n""" % (-1, -1, gwidth + 3, gheight + 2))
+<defs id=\"defs604\" />\n""" % (0, 0, gwidth + 4, gheight + 4))
 
 	# main title
 	if Options.options.dtitle:
@@ -209,7 +209,7 @@ def process_colors(producer):
    x='%r' y='%r'
    width='%r' height='%r'
    style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
-   />\n""" % (x*ratio, y, w*ratio, h, map_to_color(clsname)))
+   />\n""" % (2 + x*ratio, 2 + y, w*ratio, h, map_to_color(clsname)))
 
 	# output the caption
 	cnt = THREAD_AMOUNT
@@ -221,12 +221,12 @@ def process_colors(producer):
 		x='%r' y='%r'
 		width='%r' height='%r'
 		style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
-  />\n""" % (BAND, (cnt + 0.5) * BAND, b, b, color))
+  />\n""" %                       (2 + BAND,     5 + (cnt + 0.5) * BAND, b, b, color))
 
 		# caption text
 		out.append("""<text
    style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-   x="%r" y="%d">%s</text>\n""" % (2 * BAND, (cnt+1) * BAND, text))
+   x="%r" y="%d">%s</text>\n""" % (2 + 2 * BAND, 5 + (cnt + 0.5) * BAND + 10, text))
 		cnt += 1
 
 	out.append("\n</svg>")
