@@ -628,7 +628,10 @@ class inst_task(Task.Task):
 						self.set_run_after(tsk)
 						break
 
-		return super(inst_task, self).runnable_status()
+		ret = super(inst_task, self).runnable_status()
+		if ret == Task.SKIP_ME:
+			return Task.RUN_ME
+		return ret
 
 	def __str__(self):
 		"""no display"""
