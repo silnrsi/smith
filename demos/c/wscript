@@ -21,14 +21,11 @@ def configure(conf):
 	#conf.check_tool('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 
-	'''
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 
 	conf.check_large_file()
 	conf.check_inline()
 	conf.check_library()
-	'''
-	conf.check(header_name='stdio.h')
 
 	conf.write_config_header('config.h')
 

@@ -9,10 +9,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c compiler_d')
+	opt.tool_options('compiler_d')
 
 def configure(conf):
-	conf.check_tool('compiler_d compiler_c')
+	conf.check_tool('compiler_d')
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
 
@@ -35,8 +35,7 @@ def build(bld):
 
 	else:
 		# bad pun hidden
-		bld(features='d cprogram', source='foo.d', target='bar', use='hmm', includes=[bld.path])
-		#bld(features='d', source='hmm.d', target='hmm')
+		bld.program(source='foo.d', target='bar', use='hmm', includes=[bld.path])
 		bld.stlib(source='hmm.d', target='hmm')
 
 		#bld(features='d dshlib', source='shared.d', target='sha')
