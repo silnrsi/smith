@@ -12,9 +12,13 @@ def configure(ctx):
 
 def build(ctx):
 	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i, color='YELLOW', name='tasks a')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i, color='GREEN', name='tasks b')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+			color='YELLOW', name='tasks a')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+			color='GREEN', name='tasks b')
 	ctx.add_group()
 	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i, color='BLUE', name='tasks c')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i, color='PINK', name='tasks d')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+			color='BLUE', name='tasks c')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+			color='PINK', name='tasks d')
