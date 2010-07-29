@@ -23,14 +23,14 @@ These lists of tasks are called _build groups_ and may be accessed from the buil
 def build(ctx):
     for i in range(8):
         ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
-        	color='YELLOW', name='tasks a')
+            color='YELLOW', name='tasks a')
         ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
-        	color='GREEN', name='tasks b')
+            color='GREEN', name='tasks b')
     for i in range(8)
         ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
-        	color='BLUE', name='tasks c')
+            color='BLUE', name='tasks c')
         ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
-        	color='PINK', name='tasks d')
+            color='PINK', name='tasks d')
 ---------------
 
 Each green task must be executed after one yellow task and each pink task must be executed after one blue task. Because there is only one group by default, the parallel execution will be similar to the following:
@@ -44,15 +44,15 @@ We will now modify the example to add one more build group.
 def build(ctx):
     for i in range(8):
         ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
-        	color='YELLOW', name='tasks a')
+            color='YELLOW', name='tasks a')
         ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
-        	color='GREEN', name='tasks b')
+            color='GREEN', name='tasks b')
     ctx.add_group()
     for i in range(8):
         ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
-        	color='BLUE', name='tasks c')
+            color='BLUE', name='tasks c')
         ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
-        	color='PINK', name='tasks d')
+            color='PINK', name='tasks d')
 ---------------
 
 Now a separator will appear between the group of yellow and green tasks and the group of blue and violet taks:
@@ -66,21 +66,21 @@ The tasks and tasks generator are added implicitely to the current group. By giv
 ---------------
 def build(ctx):
 
-	ctx.add_group('group1')
-	ctx.add_group('group2')
+    ctx.add_group('group1')
+    ctx.add_group('group2')
 
-	for i in range(8):
-		ctx.set_group('group1')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
-			color='YELLOW', name='tasks a')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
-			color='GREEN', name='tasks b')
+    for i in range(8):
+        ctx.set_group('group1')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+            color='YELLOW', name='tasks a')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+            color='GREEN', name='tasks b')
 
-		ctx.set_group('group2')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
-			color='BLUE', name='tasks c')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
-			color='PINK', name='tasks d')
+        ctx.set_group('group2')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+            color='BLUE', name='tasks c')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+            color='PINK', name='tasks d')
 ---------------
 
 NOTE: By preventing task parallelization, build groups may cause longer build times.
