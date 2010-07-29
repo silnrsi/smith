@@ -11,6 +11,14 @@ The build context is only used to create the tasks and to return lists of tasks 
 
 image::tasks_actors{PIC}["Actors processing the tasks"{backend@docbook:,width=150:},align="center"]
 
+// To reduce the build time, it is interesting to take advantage of the hardware (multiple cpu cores) or of the environment (distributed builds).
+The amount of consumers is computed from the number of processors, or may be set manually by using the '-j' option:
+
+[source,shishell]
+------------------
+$ waf -j3
+------------------
+
 ==== Build groups
 
 The task producer iterates over lists of tasks returned by the build context. Although the tasks from a list may be executed in parallel by the consumer threads, all the tasks from one list must be consumed before processing another list of tasks. The build ends when there are no more tasks to process.
@@ -86,14 +94,6 @@ def build(ctx):
 NOTE: By preventing task parallelization, build groups may cause longer build times.
 
 ==== The Producer-consumer system
-
-To reduce the build time, it is interesting to take advantage of the hardware (multiple cpu cores) or of the environment (distributed builds).
-The number of processors is detected by default to size the task consumer pool. The amount of task consumers may also be set manually by using the '-j' option:
-
-[source,shishell]
-------------------
-$ waf -j3
-------------------
 
 In most python interpreters, a global interpreter lock prevents parallelization by more than one cpu core at a time. Therefore, it makes sense to restrict the task scheduling on a single task producer, and to let the threads access only the task execution.
 
