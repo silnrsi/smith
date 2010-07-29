@@ -15,28 +15,51 @@ image::tasks_actors{PIC}["Actors processing the tasks"{backend@docbook:,width=15
 
 The task producer iterates over lists of tasks returned by the build context. Although the tasks from a list may be executed in parallel by the consumer threads, all the tasks from one list must be consumed before processing another list of tasks. The build ends when there are no more tasks to process.
 
-These lists of tasks are called _build groups_ and are induced by
+These lists of tasks are called _build groups_ and may be accessed from the build scripts. Let's demonstrate this behaviour on an example:
 
 // tasks_groups
 [source,python]
 ---------------
-def options(ctx):
-	ctx.tool_options('compiler_c')
-
-def configure(ctx):
-	ctx.check_tool('compiler_c')
-
 def build(ctx):
-	ctx.program(source='main.c', target='app1')
-	ctx.add_group()
-	ctx.program(source='user.c', target='app2')
+	for i in range(8):
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+			color='YELLOW', name='tasks a')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+			color='GREEN', name='tasks b')
+	for i in range(8)
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+			color='BLUE', name='tasks c')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+			color='PINK', name='tasks d')
 ---------------
 
-The effect of task groups when running tasks in parallel is illustrated by the following diagram. Three groups of tasks have been added, and the execution of the next group only starts when the execution of the tasks in the previous group is complete.
+Each green task must be executed after one yellow task and each pink task must be executed after one blue task. Because there is only one group by default, the parallel execution will be similar to the following:
 
-image::output-ADDGROUP{PIC}["Task groups"{backend@docbook:,width=350:},align="center"]
+image::tasks_nogroup{PIC}["One build group"{backend@docbook:,width=400:},align="center"]
 
-It is possible to create groups at any point in the scripts, and to add the task generators to any group previously created. Adding groups for specific folders or scripts enables a behaviour similar to projects organized in recursive Makefiles.
+We will now modify the example to add one more build group.
+
+[source,python]
+---------------
+def build(ctx):
+	for i in range(8):
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+			color='YELLOW', name='tasks a')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+			color='GREEN', name='tasks b')
+	ctx.add_group()
+	for i in range(8):
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+			color='BLUE', name='tasks c')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+			color='PINK', name='tasks d')
+---------------
+
+Now a separator will appear between the group of yellow and green tasks and the group of blue and violet taks:
+
+image::tasks_twogroups{PIC}["Two build groups"{backend@docbook:,width=400:},align="center"]
+
+The tasks and tasks generator are added implicitely to the current group. By giving a name to the groups, it is easy to control what goes where:
 
 [source,python]
 ---------------
@@ -63,8 +86,6 @@ def build(bld):
 ---------------
 
 WARNING: By preventing parallelization, build groups may increase build times. On the other hand, they make projects more structured and improve the maintainance.
-
-
 
 ==== The Producer-consumer system
 
