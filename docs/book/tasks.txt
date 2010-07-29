@@ -21,38 +21,38 @@ These lists of tasks are called _build groups_ and may be accessed from the buil
 [source,python]
 ---------------
 def build(ctx):
-	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
-			color='YELLOW', name='tasks a')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
-			color='GREEN', name='tasks b')
-	for i in range(8)
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
-			color='BLUE', name='tasks c')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
-			color='PINK', name='tasks d')
+    for i in range(8):
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+        	color='YELLOW', name='tasks a')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+        	color='GREEN', name='tasks b')
+    for i in range(8)
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+        	color='BLUE', name='tasks c')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+        	color='PINK', name='tasks d')
 ---------------
 
 Each green task must be executed after one yellow task and each pink task must be executed after one blue task. Because there is only one group by default, the parallel execution will be similar to the following:
 
-image::tasks_nogroup{PIC}["One build group"{backend@docbook:,width=400:},align="center"]
+image::tasks_nogroup{PIC}["One build group"{backend@docbook:,width=420:},align="center"]
 
 We will now modify the example to add one more build group.
 
 [source,python]
 ---------------
 def build(ctx):
-	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
-			color='YELLOW', name='tasks a')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
-			color='GREEN', name='tasks b')
-	ctx.add_group()
-	for i in range(8):
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
-			color='BLUE', name='tasks c')
-		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
-			color='PINK', name='tasks d')
+    for i in range(8):
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i,
+        	color='YELLOW', name='tasks a')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i,
+        	color='GREEN', name='tasks b')
+    ctx.add_group()
+    for i in range(8):
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i,
+        	color='BLUE', name='tasks c')
+        ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
+        	color='PINK', name='tasks d')
 ---------------
 
 Now a separator will appear between the group of yellow and green tasks and the group of blue and violet taks:
@@ -65,24 +65,24 @@ The tasks and tasks generator are added implicitely to the current group. By giv
 ---------------
 def build(bld):
 
-	bld.add_group('test1')
-	bld.add_group('test2')
-	bld.add_group('test3')
-	bld.add_group('test4')
+    bld.add_group('test1')
+    bld.add_group('test2')
+    bld.add_group('test3')
+    bld.add_group('test4')
 
-	print('adding task generators')
+    print('adding task generators')
 
-	bld.set_group('test3')
-	bld(features='cxx cprogram', source='main3.c', target='g3')
+    bld.set_group('test3')
+    bld(features='cxx cprogram', source='main3.c', target='g3')
 
-	bld.set_group('test1')
-	bld(features='cxx cprogram', source='main1.c', target='g1')
+    bld.set_group('test1')
+    bld(features='cxx cprogram', source='main1.c', target='g1')
 
-	bld.set_group('test2')
-	obj2 = bld(features='cxx cprogram', source='main2.c', target='g2')
+    bld.set_group('test2')
+    obj2 = bld(features='cxx cprogram', source='main2.c', target='g2')
 
-	bld.set_group('test4')
-	obj2.clone('debug')
+    bld.set_group('test4')
+    obj2.clone('debug')
 ---------------
 
 WARNING: By preventing parallelization, build groups may increase build times. On the other hand, they make projects more structured and improve the maintainance.
@@ -142,9 +142,9 @@ The attributes _before_ and _after_ are used to declare ordering constraints bet
 ---------------
 from waflib import Task
 class task_test_a(Task.TaskBase):
-	before = 'task_test_b'
+    before = 'task_test_b'
 class task_test_b(Task.TaskBase):
-	after = 'task_test_a'
+    after = 'task_test_a'
 ---------------
 
 ===== ext_in/ext_out
@@ -155,9 +155,9 @@ Another way to declare precedence constraints is to declare a file extension pro
 ---------------
 from waflib import Task
 class task_test_a(Task.TaskBase):
-	ext_in = '.c'
+    ext_in = '.c'
 class task_test_b(Task.TaskBase):
-	ext_out = '.c'
+    ext_out = '.c'
 ---------------
 
 The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
@@ -181,10 +181,10 @@ Waf provides a function for reordering the tasks before they are launched in the
 ---------------
 from waflib import Runner
 def get_next(self):
-	# reorder the task list by a random function
-	self.outstanding.sort()
-	# return the next task
-	return self.outstanding.pop()
+    # reorder the task list by a random function
+    self.outstanding.sort()
+    # return the next task
+    return self.outstanding.pop()
 Runner.Parallel.get_next = get_next
 ---------------
 
@@ -195,8 +195,8 @@ If the reordering is not to be performed each time a task is retrieved, the list
 from waflib import Runner
 old_refill = Runner.Parallel.refill_task_list
 def refill_task_list(self):
-	old_refill(self)
-	self.outstanding.sort()
+    old_refill(self)
+    self.outstanding.sort()
 Runner.Parallel.refill_task_list = refill_task_list
 ---------------
 
@@ -208,11 +208,11 @@ import time
 from waflib import Task
 old_call_run = Task.TaskBase.call_run
 def new_call_run(self):
-	t1 = time.time()
-	ret = old_call_run(self)
-	t2 = time.time()
-	if not ret: print("execution time %r" % (t2 - t1))
-	return ret
+    t1 = time.time()
+    ret = old_call_run(self)
+    t2 = time.time()
+    if not ret: print("execution time %r" % (t2 - t1))
+    return ret
 Task.TaskBase.call_run = new_call_run
 ---------------
 
@@ -239,9 +239,9 @@ Here is an example illustrating the different kinds of dependencies:
 ---------------
 from waflib import Task
 class task_demo(Task.Task):
-	vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
-	def scan(self): <2>
-		return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
+    vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
+    def scan(self): <2>
+        return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
 
 task = task_demo()
 task.inputs = [bld.path.find_resource('test.cxx')] <3>
@@ -249,8 +249,8 @@ task.deps_man = [bld.path.find_resource('wscript')] <4>
 
 bld.add_manual_dependency('main.c', 'an arbitrary string value') <5>
 bld.add_manual_dependency(
-		bld.path.find_or_declare('test_c_program'),
-		bld.path.find_resource('bbb')) <6>
+        bld.path.find_or_declare('test_c_program'),
+        bld.path.find_resource('bbb')) <6>
 ---------------
 
 <1> Environment variable dependencies (compilation flags)
