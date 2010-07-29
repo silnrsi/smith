@@ -103,17 +103,7 @@ image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=490:},align="ce
 
 ==== Task states and status
 
-The producer decides to execute a task based on the value returned by the method 'waflib.Task.TaskBase.runnable_status'. The possible return values are the following:
-
-[options="header", cols="1,6"]
-|=================
-|Code    | Description
-| ASK_LATER | The task is not ready to be executed or to be skipped. It may depend on other tasks which have not finished to run
-| SKIP_ME   | The task does not have to be executed, it is up-to-date
-| RUN_ME    | The task can be executed now
-|=================
-
-A state is a assigned to the each task (_task.hasrun = state_) to keep track of their execution. Here is a summary of the codes:
+A state is a assigned to the each task (_task.hasrun = state_) to keep track of the execution. The possible values are the following:
 
 [options="header", cols="1,1,6"]
 |=================
@@ -126,13 +116,19 @@ A state is a assigned to the each task (_task.hasrun = state_) to keep track of 
 |SUCCESS  | 9 | The execution was successful
 |=================
 
-////
-The following diagram is a summary of the process:
+To decide to execute a task or not, the producer uses the value returned by the task method 'runnable_status'. The possible return values are the following:
 
-image::task_run{PIC}["Task execution"{backend@docbook:,width=250:},align="center"]
+[options="header", cols="1,6"]
+|=================
+|Code    | Description
+| ASK_LATER | The task may depend on other tasks which have not finished to run (not ready)
+| SKIP_ME   | The task does not have to be executed, it is up-to-date
+| RUN_ME    | The task is ready to be executed
+|=================
 
-The method 'post_run' can be used to check if the files have been produced, it must throw an OSError if the task has not completed properly.
-////
+The following diagram represents the main task methods:
+
+image::task_run{PIC}["Task states"{backend@docbook:,width=250:},align="center"]
 
 === Build order constraints
 
@@ -145,7 +141,7 @@ The method _set_run_after_ is used to declare ordering constraints between tasks
 task1.set_run_after(task2)
 ---------------
 
-The tasks are stored in the attribute _run_after_
+The tasks are stored in the attribute _run_after_ and are used by the method runnable_status to yield the status 'ASK_LATER' when a task has not run yet. This is merely for the build order and not for the dependencies.
 
 ==== computed constraints
 
