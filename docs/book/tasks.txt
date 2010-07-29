@@ -87,24 +87,17 @@ NOTE: By preventing task parallelization, build groups may cause longer build ti
 
 ==== The Producer-consumer system
 
-The task producer uses the build context as an iterator to obtain lists of tasks that may be executed in parallel. It then iterates over the tasks, skips the tasks that may be considered up-to-date, and lets the tasks to execute to the tasks consumers.
-
-Tasks are executed in parallel by default to take advantage of the hardware (multi-core) or the environment (distributed builds).
-By default Waf does not execute immediately the tasks that are ready. Instead, tasks are added to a queue which is consumed by threads. Waf detects the number of installed processors. For uni-processor only one task is executed at a time, for dual-processors two tasks are executed at a time, and so on. To disable task parallelization, use the option '-j1'. To enhance parallelization, use the option '-j' with the amount of consumers:
+To reduce the build time, it is interesting to take advantage of the hardware (multiple cpu cores) or of the environment (distributed builds).
+The number of processors is detected by default to size the task consumer pool. The amount of task consumers may also be set manually by using the '-j' option:
 
 [source,shishell]
 ------------------
 $ waf -j3
 ------------------
 
-By default, Waf does not allow consumer threads to access the tasks directly:
+In most python interpreters, a global interpreter lock prevents parallelization by more than one cpu core at a time. Therefore, it makes sense to restrict the task scheduling on a single task producer, and to let the threads access only the task execution.
 
-. There is little need for parallelizing the computation of the next task to execute, choosing the next task is fast enough
-. The thread issues are limited to a very small section of the code
-. The producer-consumer scheme prevents 'busy waiting' for the next task
-. A simple global error handler can be used for processing the errors and to decide to stop the build
-
-The following illustrates the relationship producer-consumer performed for the builds:
+The following illustrates the relationship between the task producers and consumers as performed during the build:
 
 image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=500:},align="center"]
 
