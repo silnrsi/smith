@@ -33,7 +33,7 @@ color2code = {
 }
 
 mp = {}
-info = {}
+info = [] # list of (text,color)
 
 def map_to_color(name):
 	if name in mp:
@@ -120,10 +120,16 @@ def process_colors(producer):
 		return
 
 	if not info:
-		vals = info.values()
+		seen = []
 		for x in tmp:
-			if not x[3] in vals:
-				info[map_to_color(x[3])] = x[3]
+			name = x[3]
+			if not name in seen:
+				seen.append(name)
+			else:
+				continue
+
+			info.append((name, map_to_color(name)))
+		info.sort(cmp= lambda x, y: cmp(x[0], y[0]))
 
 	thread_count = 0
 	acc = []
@@ -180,7 +186,7 @@ def process_colors(producer):
 	ratio = float(Options.options.dwidth) / gwidth
 	gwidth = Options.options.dwidth
 
-	gheight = BAND * (THREAD_AMOUNT + len(info.keys()) + 1.5)
+	gheight = BAND * (THREAD_AMOUNT + len(info) + 1.5)
 
 	out = []
 
@@ -207,7 +213,8 @@ def process_colors(producer):
 
 	# output the caption
 	cnt = THREAD_AMOUNT
-	for (color, text) in info.iteritems():
+
+	for (text, color) in info:
 		# caption box
 		b = BAND/2
 		out.append("""<rect
