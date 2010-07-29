@@ -1,13 +1,20 @@
 #! /usr/bin/env python
 
+"""
+waf configure clean build -j4 --dwidth=800
+"""
+
 def options(ctx):
-	ctx.tool_options('compiler_c')
+	ctx.tool_options('parallel_debug')
 
 def configure(ctx):
-	ctx.check_tool('compiler_c')
+	ctx.check_tool('parallel_debug')
 
 def build(ctx):
-	ctx.program(source='main.c', target='app1')
+	for i in range(8):
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_a_%d' % i, color='GREEN')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_a_%d' % i, target='wscript_b_%d' % i, color='YELLOW')
 	ctx.add_group()
-	ctx.program(source='user.c', target='app2')
-
+	for i in range(8):
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='wscript_c_%d' % i, color='BLUE')
+		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i, color='PINK')
