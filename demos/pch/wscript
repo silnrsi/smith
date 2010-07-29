@@ -8,6 +8,7 @@ all.h is in the same directory as main.cpp
 we recommend to add the header to compile in a separate directory without any sources
 
 Note: the #warning will come once when the .h is compiled, it will not come when the .cpp is compiled
+Note: do not forget to set the include paths (include=...)
 """
 
 from waflib.TaskGen import feature, after
@@ -25,6 +26,8 @@ def process_pch(self):
 class gchx(Task):
 	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	scan    = ccroot.scan
+	ext_out = ['.h']
+	color   = 'BLUE'
 
 # example below
 
