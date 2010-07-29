@@ -154,24 +154,24 @@ def vala_file(self, node):
 		if hasattr(self, 'gir'):
 			valatask.gir = self.gir
 
+		features = self.features
+		if not 'cprogram' in features:
+			valatask.outputs.append(self.path.find_or_declare('%s.h' % self.target))
+			valatask.outputs.append(self.path.find_or_declare('%s.vapi' % self.target))
+
+			if hasattr(self, 'gir'):
+				valatask.outputs.append(self.path.find_or_declare('%s.gir' % self.gir))
+
+			if valatask.packages:
+				d = self.path.find_or_declare('%s.deps' % self.target)
+				valatask.outputs.append(d)
+				valatask.deps_node = d
+
 	valatask.inputs.append(node)
 	c_node = node.change_ext('.c')
 
 	valatask.outputs.append(c_node)
 	self.source.append(c_node)
-
-	features = self.features
-	if not 'cprogram' in features:
-		valatask.outputs.append(self.path.find_or_declare('%s.h' % self.target))
-		valatask.outputs.append(self.path.find_or_declare('%s.vapi' % self.target))
-
-		if hasattr(self, 'gir'):
-			valatask.outputs.append(self.path.find_or_declare('%s.gir' % self.gir))
-
-		if valatask.packages:
-			d = self.path.find_or_declare('%s.deps' % self.target)
-			valatask.outputs.append(d)
-			valatask.deps_node = d
 
 	if valatask.attr("install_path") and ('cshlib' in features or 'cstlib' in features):
 		headers_list = [o for o in valatask.outputs if o.suffix() == ".h"]
