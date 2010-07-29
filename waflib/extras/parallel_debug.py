@@ -24,22 +24,26 @@ def options(opt):
 # green #4da74d
 # lila  #a751ff
 
-mp = {}
-mp['copy_script'] = '#ff0000'
-mp['c'] = mp['cxx'] = '#4da74d'
-mp['cprogram'] = mp['cstlib'] = mp['cshlib'] = mp['cxxprogram'] = mp['cxxstlib'] = mp['cxxshlib'] = '#a751ff'
-
-info = {
-'#4da74d': 'Compilation task',
-'#a751ff': 'Link task',
-'#cc1d1d': 'Other'
+color2code = {
+	'GREEN'  : '#4da74d',
+	'YELLOW' : '#ffff00',
+	'PINK'   : '#a751ff',
+	'RED'    : '#cc1d1d',
+	'BLUE'   : '#0000ff',
 }
+
+mp = {}
+info = {}
 
 def map_to_color(name):
 	if name in mp:
 		return mp[name]
-	return "#cc1d1d"
-
+	cls = Task.classes[name]
+	if cls.color in mp:
+		return mp[cls.color]
+	if cls.color in color2code:
+		return color2code[cls.color]
+	return color2code['RED']
 
 def process_task(tsk):
 	m = tsk.master
@@ -114,6 +118,12 @@ def process_colors(producer):
 		ini = float(tmp[0][2])
 	except:
 		return
+
+	if not info:
+		vals = info.values()
+		for x in tmp:
+			if not x[3] in vals:
+				info[map_to_color(x[3])] = x[3]
 
 	thread_count = 0
 	acc = []
