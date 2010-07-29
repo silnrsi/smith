@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+def options(ctx):
+	ctx.tool_options('compiler_c')
+
+def configure(ctx):
+	ctx.check_tool('compiler_c')
+
+def build(ctx):
+	ctx.program(source='main.c', target='app1')
+	ctx.add_group()
+	ctx.program(source='user.c', target='app2')
+
