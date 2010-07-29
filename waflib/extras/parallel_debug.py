@@ -26,10 +26,10 @@ def options(opt):
 
 color2code = {
 	'GREEN'  : '#4da74d',
-	'YELLOW' : '#ffff00',
+	'YELLOW' : '#fefe44',
 	'PINK'   : '#a751ff',
 	'RED'    : '#cc1d1d',
-	'BLUE'   : '#0000ff',
+	'BLUE'   : '#6687bb',
 }
 
 mp = {}
