@@ -1534,14 +1534,13 @@ the queue 'out'#</dia:string>
         <dia:point val="16.65,37.025"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="16.65,36.43;22.29,38.7775"/>
+        <dia:rectangle val="16.65,36.43;22.29,37.9775"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
             <dia:string>#Are there tasks in
-frozen state?
-(list 'frozen')#</dia:string>
+the list 'frozen'?#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -2566,19 +2565,19 @@ processed?#</dia:string>
     </dia:object>
     <dia:object type="UML - Activity" version="0" id="O75">
       <dia:attribute name="obj_pos">
-        <dia:point val="18.85,41.4509"/>
+        <dia:point val="17.45,41.4509"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="18.8,41.4009;27.2525,44.1009"/>
+        <dia:rectangle val="17.4,41.4009;28.71,44.1009"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
       </dia:attribute>
       <dia:attribute name="elem_corner">
-        <dia:point val="18.85,41.4509"/>
+        <dia:point val="17.45,41.4509"/>
       </dia:attribute>
       <dia:attribute name="elem_width">
-        <dia:real val="8.3525000000000009"/>
+        <dia:real val="11.209999999999999"/>
       </dia:attribute>
       <dia:attribute name="elem_height">
         <dia:real val="2.6000000000000001"/>
@@ -2592,8 +2591,8 @@ processed?#</dia:string>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
-            <dia:string>#Get more tasks to add
-in the list 'outstanding'#</dia:string>
+            <dia:string>#Get group tasks from the
+build context (list 'outstanding')#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
@@ -2602,7 +2601,7 @@ in the list 'outstanding'#</dia:string>
             <dia:real val="0.80000000000000004"/>
           </dia:attribute>
           <dia:attribute name="pos">
-            <dia:point val="23.0263,42.5459"/>
+            <dia:point val="23.055,42.5459"/>
           </dia:attribute>
           <dia:attribute name="color">
             <dia:color val="#000000"/>
@@ -2618,11 +2617,11 @@ in the list 'outstanding'#</dia:string>
         <dia:point val="23.0263,39.575"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="22.6645,39.525;23.3881,41.5627"/>
+        <dia:rectangle val="22.6839,39.5242;23.4074,41.5627"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="23.0263,39.575"/>
-        <dia:point val="23.0263,41.4509"/>
+        <dia:point val="23.055,41.4509"/>
       </dia:attribute>
       <dia:attribute name="numcp">
         <dia:int val="1"/>
@@ -2643,13 +2642,13 @@ in the list 'outstanding'#</dia:string>
     </dia:object>
     <dia:object type="Standard - Line" version="0" id="O77">
       <dia:attribute name="obj_pos">
-        <dia:point val="23.0263,44.0509"/>
+        <dia:point val="23.055,44.0509"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="22.6645,44.0009;23.3881,45.7118"/>
+        <dia:rectangle val="22.6759,44;23.3994,45.7118"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
-        <dia:point val="23.0263,44.0509"/>
+        <dia:point val="23.055,44.0509"/>
         <dia:point val="23.0263,45.6"/>
       </dia:attribute>
       <dia:attribute name="numcp">
@@ -2674,13 +2673,13 @@ in the list 'outstanding'#</dia:string>
         <dia:point val="33.8,23.7009"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="33.8,23.1059;35.76,24.6534"/>
+        <dia:rectangle val="33.8,23.1059;36.1025,24.6534"/>
       </dia:attribute>
       <dia:attribute name="text">
         <dia:composite type="text">
           <dia:attribute name="string">
             <dia:string>#task
-state?#</dia:string>
+status?#</dia:string>
           </dia:attribute>
           <dia:attribute name="font">
             <dia:font family="sans" style="0" name="Helvetica"/>
