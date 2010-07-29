@@ -22,3 +22,15 @@ def build(ctx):
 			color='BLUE', name='tasks c')
 		ctx(rule='cp ${SRC} ${TGT}', source='wscript_c_%d' % i, target='wscript_d_%d' % i,
 			color='PINK', name='tasks d')
+
+# just to make the diagrams more interesting, shuffle the tasks
+
+from waflib import Task
+
+old = Task.set_file_constraints
+def meth(lst):
+	import random
+	random.shuffle(lst)
+	old(lst)
+Task.set_file_constraints = meth
+
