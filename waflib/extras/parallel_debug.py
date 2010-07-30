@@ -19,6 +19,7 @@ def options(opt):
 	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=5000, dest='dwidth')
 	opt.add_option('--dtime', action='store', type='float', help='recording interval in seconds', default=0.009, dest='dtime')
 	opt.add_option('--dband', action='store', type='int', help='band width', default=22, dest='dband')
+	opt.add_option('--dmaxtime', action='store', type='float', help='maximum time, for drawing fair comparisons', default=0, dest='dmaxtime')
 
 # red   #ff4d4d
 # green #4da74d
@@ -178,10 +179,14 @@ def process_colors(producer):
 				acc.append( (BAND * begin, BAND*thread_id, BAND*end - BAND*begin, BAND, line[3]) )
 				break
 
-	gwidth = 0
-	for x in tmp:
+	if Options.options.dmaxtime < 0.1:
+		gwidth = 1
+		for x in tmp:
 			m = BAND * x[2]
-			if m > gwidth: gwidth = m
+			if m > gwidth:
+				gwidth = m
+	else:
+		gwidth = BAND * Options.options.dmaxtime
 
 	ratio = float(Options.options.dwidth) / gwidth
 	gwidth = Options.options.dwidth
@@ -196,7 +201,16 @@ def process_colors(producer):
 <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\"
    x=\"%r\" y=\"%r\" width=\"%r\" height=\"%r\"
    id=\"svg602\" xml:space=\"preserve\">
-<defs id=\"defs604\" />\n""" % (0, 0, gwidth + 4, gheight + 4))
+<defs id=\"defs604\" />\n
+
+<!-- inkscape requires a big rectangle or it will not export the pictures properly -->
+<rect
+   x='%r' y='%r'
+   width='%r' height='%r'
+   style=\"font-size:10;fill:#ffffff;fill-opacity:0.01;fill-rule:evenodd;stroke:#ffffff;\"
+   />\n
+
+""" % (0, 0, gwidth + 4, gheight + 4,   0, 0, gwidth + 4, gheight + 4))
 
 	# main title
 	if Options.options.dtitle:
