@@ -151,31 +151,36 @@ The attributes _before_ and _after_ are used to declare ordering constraints bet
 
 [source,python]
 ---------------
-from waflib import Task
-class task_test_a(Task.TaskBase):
-    before = 'task_test_b'
-class task_test_b(Task.TaskBase):
-    after = 'task_test_a'
+from waflib.Task import TaskBase
+class task_test_a(TaskBase):
+    before = ['task_test_b']
+class task_test_b(TaskBase):
+    after  = ['task_test_a']
 ---------------
 
 ===== ext_in/ext_out
 
-Another way to declare precedence constraints is to declare a file extension production, for example:
+Another way to force the order is by declaring lists of abstract symbols on the class attributes. This way the classes are not named explicitly, for example:
 
 [source,python]
 ---------------
-from waflib import Task
-class task_test_a(Task.TaskBase):
-    ext_in = '.c'
-class task_test_b(Task.TaskBase):
-    ext_out = '.c'
+from waflib.Task import TaskBase
+class task_test_a(TaskBase):
+    ext_in  = ['.c']
+class task_test_b(TaskBase):
+    ext_out = ['.c']
 ---------------
 
 The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
 
-===== files inputs/outputs
+===== Order extraction
 
 Before feeding the tasks to the producer-consumer system, a constraint extraction is performed on the tasks having input and output files. The attributes _run_after_ are initialized with the tasks to wait for.
+
+The two functions called on lists of tasks are:
+
+. _waflib.Task.set_precedence_constraints_: extract the build order from the task classes attributes ext_in/ext_out/before/after
+. _waflib.Task.set_file_constraints_: extract the constraints from the tasks having input and output files
 
 ==== Weak order constraints
 
@@ -206,8 +211,8 @@ Task.set_file_constraints = meth <3>
 ---------------
 
 <1> Set the long task in first position
-<1> Execute the original code
-<2> Replace the method
+<2> Execute the original code
+<3> Replace the method
 
 Here is a representation of the effect:
 
@@ -221,18 +226,18 @@ The direct instances of 'waflib.Task.TaskBase' are very limited and cannot be us
 
 The dependency tracking is based on the use of hashes of the dependencies called *task signatures*. The signature is computed from various dependencies source, such as input files and configuration set variables.
 
-The following diagram illustrates the task processing for 'waflib.Task.Task' instance:
+The following diagram describes how 'waflib.Task.Task' instances are processed:
 
 image::task_signature{PIC}["Signatures"{backend@docbook:,width=280:},align="center"]
 
-The signature computation uses the following data:
+The following data is used in the signature computation:
 
-. explicit dependencies: input files and dependencies set explicitly using task.deps_man or bld.depends_on
-. implicit dependencies: dependencies searched by the task itself (like source files included from other source files).
-. parameters: compilation flags and command-line parameters.
+. Explicit dependencies: _input nodes_ and dependencies set explicitly by using _bld.depends_on_
+. Implicit dependencies: dependencies searched by a scanner method (the method _scan_)
+. Variables: configuration set variables such as compilation flags
 
+////
 Here is an example illustrating the different kinds of dependencies:
-
 [source,python]
 ---------------
 from waflib import Task
@@ -257,6 +262,7 @@ bld.add_manual_dependency(
 <4> Explicit dependencies as manual dependencies
 <5> Manual dependencies on source files, the second parameter can be a string, a node object or a function returning a string
 <6> Manual dependencies with nodes, the first node represents a target (which may or may not exist in the build), and the second parameter represents a file in the source directory.
+////
 
 ==== Explicit dependencies
 
