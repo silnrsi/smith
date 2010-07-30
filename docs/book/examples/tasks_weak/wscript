@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+
+"""
+waf configure clean build -j2 --dwidth=800 --dtitle='Random order for "waf -j2"'
+"""
+
+def options(ctx):
+	ctx.tool_options('parallel_debug')
+
+def configure(ctx):
+	ctx.check_tool('parallel_debug')
+
+def build(ctx):
+	for x in range(4):
+		ctx(rule='sleep 2', color='GREEN', name='short task')
+	ctx(rule='sleep 5', color='RED', name='long task')
+
