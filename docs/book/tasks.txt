@@ -191,9 +191,9 @@ The following pictures illustrate the difference in scheduling a build with diff
 [source,python]
 ---------------
 def build(ctx):
-	for x in range(5):
-		ctx(rule='sleep 1', color='GREEN', name='short task')
-	ctx(rule='sleep 5', color='RED', name='long task')
+    for x in range(5):
+        ctx(rule='sleep 1', color='GREEN', name='short task')
+    ctx(rule='sleep 5', color='RED', name='long task')
 ---------------
 
 image::tasks_nosort{PIC}["No particular order"{backend@docbook:,width=440:},align="center"]
@@ -205,8 +205,8 @@ A function is used to reorder the tasks from a group before they are passed to t
 ---------------
 old = Task.set_file_constraints
 def meth(lst):
-	lst.sort() <1>
-	old(lst) <2>
+    lst.sort() <1>
+    old(lst) <2>
 Task.set_file_constraints = meth <3>
 ---------------
 
@@ -236,37 +236,55 @@ The following data is used in the signature computation:
 . Implicit dependencies: dependencies searched by a scanner method (the method _scan_)
 . Variables: configuration set variables such as compilation flags
 
-////
-Here is an example illustrating the different kinds of dependencies:
-[source,python]
----------------
-from waflib import Task
-class task_demo(Task.Task):
-    vars = ['CXXFLAGS', 'LINKFLAGS'] <1>
-    def scan(self): <2>
-        return [[self.inputs[0].parent.find_resource('.svn/entries')], []]
-
-task = task_demo()
-task.inputs = [bld.path.find_resource('test.cxx')] <3>
-task.deps_man = [bld.path.find_resource('wscript')] <4>
-
-bld.add_manual_dependency('main.c', 'an arbitrary string value') <5>
-bld.add_manual_dependency(
-        bld.path.find_or_declare('test_c_program'),
-        bld.path.find_resource('bbb')) <6>
----------------
-
-<1> Environment variable dependencies (compilation flags)
-<2> Implicit dependencies: a method returns a list containing the list of additional nodes to take into account, and the list of the files that could not be found (cache)
-<3> Explicit dependencies as input files (nodes)
-<4> Explicit dependencies as manual dependencies
-<5> Manual dependencies on source files, the second parameter can be a string, a node object or a function returning a string
-<6> Manual dependencies with nodes, the first node represents a target (which may or may not exist in the build), and the second parameter represents a file in the source directory.
-////
-
 ==== Explicit dependencies
 
-TODO
+===== Input and output nodes
+
+The task objects do not directly depend on other tasks. Other tasks may exist or not, and be executed or nodes. Rather, the input and output nodes hold themselves signatures values. These values may come from different sources:
+
+. Nodes for build files usually inherit the signature of the task that generated the file
+. Nodes from elsewhere have a signature computed automatically from the file contents (hash)
+
+===== Global dependencies on other nodes
+
+The tasks may be informed that some files may depend on other files transitively without listing them in the inputs. This is achieved by the method _add_manual_dependency_ from the build context:
+
+// tasks_manual_deps
+[source,python]
+---------------
+def configure(ctx):
+    pass
+
+def build(ctx):
+    ctx(rule='cp ${SRC} ${TGT}', source='wscript', target='somecopy')
+    ctx.add_manual_dependency(
+        ctx.path.find_node('wscript'),
+        ctx.path.find_node('testfile'))
+---------------
+
+The file _somecopy_ will be rebuilt whenever _wscript_ or _testfile_ change, even by one character:
+
+[source,shishell]
+---------------
+$ waf build
+Waf: Entering directory `/tmp/tasks_manual_deps/build'
+[1/1] somecopy: wscript -> build/somecopy
+Waf: Leaving directory `/tmp/tasks_manual_deps/build'
+'build' finished successfully (0.034s)
+
+$ waf
+Waf: Entering directory `/tmp/tasks_manual_deps/build'
+Waf: Leaving directory `/tmp/tasks_manual_deps/build'
+'build' finished successfully (0.006s)
+
+$ echo " " >> testfile
+
+$ waf
+Waf: Entering directory `/tmp/tasks_manual_deps/build'
+[1/1] somecopy: wscript -> build/somecopy
+Waf: Leaving directory `/tmp/tasks_manual_deps/build'
+'build' finished successfully (0.022s)
+---------------
 
 ==== Implicit dependencies and scanners
 

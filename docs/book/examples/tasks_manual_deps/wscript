@@ -2,6 +2,8 @@
 
 """
 ctx.add_manual_dependency
+
+change the file 'testfile' and see how it affects the rebuild of 'somecopy'
 """
 
 def configure(ctx):
