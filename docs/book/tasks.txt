@@ -217,9 +217,11 @@ image::tasks_sort{PIC}["Slowest task first"{backend@docbook:,width=440:},align="
 
 ==== Task signatures
 
-The direct instances of TaskBase are quite limited and do not track the changes to the source files. The class 'Task' provides the necessary features for the most common builds in which source files are used to produce target files. The idea is to create a unique signature for tasks, and to represent the dependencies on files or other tasks by including them in the signature. A hashing function is used for computing the signature, by default it is md5.
+The direct instances of 'waflib.Task.TaskBase' are very limited and cannot be used to track file changes. The subclass 'waflib.Task.Task' provides the necessary features for the most common builds in which source files are used to produce target files.
 
-The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
+The dependency tracking is based on the use of hashes of the dependencies called *task signatures*. The signature is computed from various dependencies source, such as input files and configuration set variables.
+
+The following diagram illustrates the task processing for 'waflib.Task.Task' instance:
 
 image::task_signature{PIC}["Signatures"{backend@docbook:,width=280:},align="center"]
 
