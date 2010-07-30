@@ -504,7 +504,6 @@ class BuildContext(Context.Context):
 		min_grp = 0
 		for name in self.targets.split(','):
 			tg = self.get_tgen_by_name(name)
-
 			if not tg:
 				raise Errors.WafError('target %r does not exist' % name)
 
@@ -520,22 +519,34 @@ class BuildContext(Context.Context):
 		"""post the task generators from a group indexed by self.cur (used by get_build_iterator)"""
 		if self.targets == '*':
 			for tg in self.groups[self.cur]:
-				if isinstance(tg, TaskGen.task_gen):
-					tg.post()
+				try:
+					f = tg.post
+				except AttributeError:
+					pass
+				else:
+					f()
 		elif self.targets:
 			if self.cur < self._min_grp:
 				for tg in self.groups[self.cur]:
-					if isinstance(tg, TaskGen.task_gen):
-						tg.post()
+					try:
+						f = tg.post
+					except AttributeError:
+						pass
+					else:
+						f()
 			else:
 				for tg in self._exact_tg:
 					tg.post()
 		else:
 			ln = self.launch_node()
 			for tg in self.groups[self.cur]:
-				if isinstance(tg, TaskGen.task_gen):
-					if tg.path.is_child_of(ln):
-						tg.post()
+				if tg.path.is_child_of(ln):
+					try:
+						f = tg.post
+					except AttributeError:
+						pass
+					else:
+						f()
 
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel (yield)"""
@@ -905,8 +916,12 @@ class ListContext(BuildContext):
 
 		for g in self.groups:
 			for tg in g:
-				if isinstance(tg, TaskGen.task_gen):
-					tg.post()
+				try:
+					f = tg.post
+				except AttributeError:
+					pass
+				else:
+					f()
 
 		try:
 			# force the cache initialization
@@ -935,8 +950,12 @@ class StepContext(BuildContext):
 
 		for g in self.groups:
 			for tg in g:
-				if isinstance(tg, TaskGen.task_gen):
-					tg.post()
+				try:
+					f = tg.post
+				except AttributeError:
+					pass
+				else:
+					f()
 
 		for pat in self.files.split(','):
 			inn = True
