@@ -11,15 +11,17 @@ def configure(ctx):
 	ctx.check_tool('parallel_debug')
 
 def build(ctx):
-	for x in range(4):
-		ctx(rule='sleep 2', color='GREEN', name='short task')
+	for x in range(5):
+		ctx(rule='sleep 1', color='GREEN', name='short task')
 	ctx(rule='sleep 5', color='RED', name='long task')
 
+import random
 from waflib import Task
 
 old = Task.set_file_constraints
 def meth(lst):
 	lst.sort()
+	#random.shuffle(lst)
 	old(lst)
 Task.set_file_constraints = meth
 
