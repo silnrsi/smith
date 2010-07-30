@@ -15,7 +15,7 @@ bld.add_post_fun(UnitTest.summary)
 
 import os, sys
 from waflib.TaskGen import feature, after
-from waflib import Utils, Task, Logs
+from waflib import Utils, Task, Logs, Options
 testlock = Utils.threading.Lock()
 
 @feature('test')
