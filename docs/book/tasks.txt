@@ -43,7 +43,7 @@ def build(ctx):
 
 Each green task must be executed after one yellow task and each pink task must be executed after one blue task. Because there is only one group by default, the parallel execution will be similar to the following:
 
-image::tasks_nogroup{PIC}["One build group"{backend@docbook:,width=420:},align="center"]
+image::tasks_nogroup{PIC}["One build group"{backend@docbook:,width=440:},align="center"]
 
 We will now modify the example to add one more build group.
 
@@ -65,7 +65,7 @@ def build(ctx):
 
 Now a separator will appear between the group of yellow and green tasks and the group of blue and violet taks:
 
-image::tasks_twogroups{PIC}["Two build groups"{backend@docbook:,width=400:},align="center"]
+image::tasks_twogroups{PIC}["Two build groups"{backend@docbook:,width=440:},align="center"]
 
 The tasks and tasks generator are added implicitely to the current group. By giving a name to the groups, it is easy to control what goes where:
 
@@ -99,7 +99,7 @@ In most python interpreters, a global interpreter lock prevents parallelization 
 
 The following illustrates the relationship between the task producers and consumers as performed during the build:
 
-image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=490:},align="center"]
+image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=470:},align="center"]
 
 ==== Task states and status
 
@@ -191,7 +191,7 @@ def build(ctx):
 	ctx(rule='sleep 5', color='RED', name='long task')
 ---------------
 
-image::tasks_nosort{PIC}["Random order"{backend@docbook:,width=420:},align="center"]
+image::tasks_nosort{PIC}["No particular order"{backend@docbook:,width=440:},align="center"]
 
 A function is used to reorder the tasks from a group before they are passed to the producer. We will replace it to reorder the long task in first position:
 
@@ -211,7 +211,7 @@ Task.set_file_constraints = meth <3>
 
 Here is a representation of the effect:
 
-image::tasks_sort{PIC}["Slowest task first"{backend@docbook:,width=420:},align="center"]
+image::tasks_sort{PIC}["Slowest task first"{backend@docbook:,width=440:},align="center"]
 
 === Dependencies
 
@@ -221,7 +221,7 @@ The direct instances of TaskBase are quite limited and do not track the changes 
 
 The following diagram illustrates the task processing including the signature, it is only valid for Task instance (not TaskBase instances):
 
-image::task_signature{PIC}["Signatures"{backend@docbook:,width=320:},align="center"]
+image::task_signature{PIC}["Signatures"{backend@docbook:,width=280:},align="center"]
 
 The signature computation uses the following data:
 
