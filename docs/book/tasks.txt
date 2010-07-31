@@ -91,7 +91,7 @@ def build(ctx):
             color='PINK', name='tasks d')
 ---------------
 
-NOTE: Build groups prevent task parallelization and may cause longer build times.
+Build groups can be used for building a compiler to generate more source files to process. See the chapter 13 for a concrete example.
 
 ==== The Producer-consumer system
 
@@ -412,11 +412,11 @@ the flags are 'abc'
 <2> The dependencies have not changed, so the task is not executed
 <3> The flags have changed so the task is executed
 
-=== Task modification
+=== Task tuning
 
 ==== Scriptlet expressions
 
-When a task is declared as in the following example:
+When a task provides an attribute named _run_str_ as in the following example:
 
 // tasks_values2
 [source,python]
@@ -437,7 +437,7 @@ def build(ctx):
 	ctx.add_to_group(tsk)
 ---------------
 
-a metaclass processes the _Task_ class to process the attribute _run_str_ if provided. The string _run_str_ is compiled into a python function which is set as the method _run_. Durin this process, the variables in _$\{}_ such as 'COPYFLAGS' are extracted into a list and merged with the class attribute 'vars':
+It is assumed that 'run_str' represents a command-line, and that the variables in _$\{}_ such as 'COPYFLAGS' represent variables to add to the dependencies. A metaclass processes 'run_str' to obtain the method 'run' (called to execute the task) and the variables in the attribute 'vars' (merged with existing variables). The function created is displayed in the following output:
 
 [source,shishell]
 ---------------
@@ -461,4 +461,13 @@ $ waf --zones=action
 ['COPY', 'COPYFLAGS']
 'build' finished successfully (0.007s)
 ---------------
+
+Two special cases are provided for the input and output files:
+
+. SRC represents the list of task inputs seen from the root of the build directory
+. TGT represents the list of task outputs seen from the root of the build directory
+
+Other special cases are provide for accessing task attributes easily:
+
+. if the value starts by *env*, *gen*, *bld* or *tsk*, a call will 
 
