@@ -540,12 +540,12 @@ class BuildContext(Context.Context):
 		else:
 			ln = self.launch_node()
 			for tg in self.groups[self.cur]:
-				if tg.path.is_child_of(ln):
-					try:
-						f = tg.post
-					except AttributeError:
-						pass
-					else:
+				try:
+					f = tg.post
+				except AttributeError:
+					pass
+				else:
+					if tg.path.is_child_of(ln):
 						f()
 
 	def get_build_iterator(self):
