@@ -471,7 +471,13 @@ Special cases are provided to access the task attributes easily:
 
 ==== Direct class modifications
 
-waflib.Task.always
-waflib.Task.update_outputs
+===== Always execute
 
+The function 'waflib.Task.always' is used to force a task to be executed whenever a build is performed. It sets a method 'runnable_status' that always return _RUN_ME_.
+
+===== File hashes
+
+By default, the task signature is also used as the signature of the task nodes outputs. The aim is to detect if the outputs have really been produced by the task.
+
+The function 'waflib.Task.update_outputs' replaces the methods _post_run_ and _runnable_status_ of a task class to set the hash file contents to the output nodes. The main application is to avoid overwriting the signatures for files which are kept in the source directory (not in the build directory).
 
