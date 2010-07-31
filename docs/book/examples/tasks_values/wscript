@@ -3,13 +3,18 @@
 
 from waflib.Task import Task
 class foo(Task):
-	vars = ['COPYFLAGS']
+	vars = ['FLAGS']
 	def run(self):
-		print(self.env.COPYFLAGS)
+		print('the flags are %r' % self.env.FLAGS)
+
+def options(ctx):
+	ctx.add_option('--flags', default='-f', dest='flags', type='string')
 
 def configure(ctx):
 	pass
 
 def build(ctx):
+	ctx.env.FLAGS = ctx.options.flags
 	tsk = foo(env=ctx.env)
+	ctx.add_to_group(tsk)
 
