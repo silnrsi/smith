@@ -126,9 +126,9 @@ To decide to execute a task or not, the producer uses the value returned by the 
 | RUN_ME    | The task is ready to be executed
 |=================
 
-The following diagram represents the main task methods:
+The following diagram represents the interaction between the main task methods and the states and status:
 
-image::task_run{PIC}["Task states"{backend@docbook:,width=250:},align="center"]
+image::task_run{PIC}["Task states"{backend@docbook:,width=310:},align="center"]
 
 === Build order constraints
 
