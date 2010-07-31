@@ -97,6 +97,8 @@ Build groups can be used for building a compiler to generate more source files t
 
 In most python interpreters, a global interpreter lock prevents parallelization by more than one cpu core at a time. Therefore, it makes sense to restrict the task scheduling on a single task producer, and to let the threads access only the task execution.
 
+The communication between producer and consumers is based on two queues _ready_ and _out_. The producer adds the tasks to _ready_ and reads them back from _out_ while the consumers obtain the tasks from _ready_ and put them into _out_. The producer uses the an internal list _outstanding_ to iterate over the tasks and decide which ones to put in the queue _ready_. The tasks that cannot be processed are temporarily output in the list _frozen_.
+
 The following illustrates the relationship between the task producers and consumers as performed during the build:
 
 image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=470:},align="center"]
@@ -486,11 +488,13 @@ Here are a few examples:
 ${SRC[0].parent.abspath()} <1>
 ${bld.root.abspath()} <2>
 ${tsk.uid()} <3>
+${CPPPATH_ST:INCPATHS}
 ---------------
 
 <1> Absolute path of the parent folder of the task first source file
 <2> File system root
 <3> Print the task unique identifier
+<4> Perform a map replacement equivalent to _[env.CPPPATH_ST % x for x in env.INCPATHS]_
 
 ==== Direct class modifications
 
