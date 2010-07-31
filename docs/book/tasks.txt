@@ -462,12 +462,16 @@ $ waf --zones=action
 'build' finished successfully (0.007s)
 ---------------
 
-Two special cases are provided for the input and output files:
+Special cases are provided to access the task attributes easily:
 
+. If the value starts by *env*, *gen*, *bld* or *tsk*, a method call will be made
+. If the value starts by SRC[n] or TGT[n], a method call to the input/output node _n_ will be made
 . SRC represents the list of task inputs seen from the root of the build directory
 . TGT represents the list of task outputs seen from the root of the build directory
 
-Other special cases are provide for accessing task attributes easily:
+==== Direct class modifications
 
-. if the value starts by *env*, *gen*, *bld* or *tsk*, a call will 
+waflib.Task.always
+waflib.Task.update_outputs
+
 
