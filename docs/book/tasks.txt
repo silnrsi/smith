@@ -358,7 +358,7 @@ custom data: 64.31
 <2> The scanner method is not called when nothing has changed, although the data returned is retrieved
 <3> When a dependency changes, the scanner method is executed once again (the custom data has changed)
 
-WARNING: The method _scan_ will throw an exception if the build order is incorrect
+WARNING: If the build order is incorrect, the method _scan_ may fail to find dependent nodes (missing nodes) or the signature calculation may throw an exception (missing signature for dependent nodes).
 
 ==== Variables
 
