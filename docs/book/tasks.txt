@@ -362,8 +362,6 @@ WARNING: If the build order is incorrect, the method _scan_ may fail to find dep
 
 ==== Values
 
-===== Task variables
-
 The habitual use of command-line parameters such as compilation flags lead to the creation of _dependencies on values_, and more specifically the configuration set values. The Task class attribute 'vars' is used to control what values can enter in the signature calculation. In the following example, the task created has no inputs and no outputs nodes, and only depends on the values.
 
 // tasks_values
@@ -405,7 +403,7 @@ $ waf --flags abcdef <2>
 'build' finished successfully (0.004s)
 
 $ waf --flags abc
-[1/1] foo: <2>
+[1/1] foo: <3>
 the flags are 'abc'
 'build' finished successfully (0.006s)
 ---------------
@@ -414,7 +412,9 @@ the flags are 'abc'
 <2> The dependencies have not changed, so the task is not executed
 <3> The flags have changed so the task is executed
 
-===== Variable extraction
+=== Task modification
+
+==== Scriptlet expressions
 
 When a task is declared as in the following example:
 
@@ -437,7 +437,7 @@ def build(ctx):
 	ctx.add_to_group(tsk)
 ---------------
 
-The string _run_str_ is compiled into a python function, which may be displayed during the build. Additionally, the variables such as 'COPYFLAGS' will be extracted and set into a list on the class attribute 'vars':
+a metaclass processes the _Task_ class to process the attribute _run_str_ if provided. The string _run_str_ is compiled into a python function which is set as the method _run_. Durin this process, the variables in _$\{}_ such as 'COPYFLAGS' are extracted into a list and merged with the class attribute 'vars':
 
 [source,shishell]
 ---------------
