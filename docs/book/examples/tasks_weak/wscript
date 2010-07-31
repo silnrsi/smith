@@ -21,7 +21,7 @@ from waflib import Task
 
 old = Task.set_file_constraints
 def meth(lst):
-	lst.sort()
+	lst.sort(cmp=lambda x, y: cmp(x.__class__.__name__, y.__class__.__name__))
 	#random.shuffle(lst)
 	old(lst)
 Task.set_file_constraints = meth
