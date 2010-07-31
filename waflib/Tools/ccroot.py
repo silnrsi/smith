@@ -287,11 +287,15 @@ def apply_implib(self):
 	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
 	self.link_task.outputs.append(implib)
 
-	if getattr(self, 'defs', None) and 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+	if getattr(self, 'defs', None) and self.bld.get_dest_binfmt() == 'pe':
 		node = self.path.find_resource(self.defs)
 		if not node:
 			raise Errors.WafError('invalid def file %r' % self.defs)
-		self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
+		if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+			self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
+		else: #gcc for windows takes *.def file a an input without any special flag
+			self.link_task.inputs.append(node)
+
 
 	try:
 		inst_to = self.install_path
