@@ -224,7 +224,7 @@ image::tasks_sort{PIC}["Slowest task first"{backend@docbook:,width=440:},align="
 
 The direct instances of 'waflib.Task.TaskBase' are very limited and cannot be used to track file changes. The subclass 'waflib.Task.Task' provides the necessary features for the most common builds in which source files are used to produce target files.
 
-The dependency tracking is based on the use of hashes of the dependencies called *task signatures*. The signature is computed from various dependencies source, such as input files and configuration set variables.
+The dependency tracking is based on the use of hashes of the dependencies called *task signatures*. The signature is computed from various dependencies source, such as input files and configuration set values.
 
 The following diagram describes how 'waflib.Task.Task' instances are processed:
 
@@ -234,7 +234,7 @@ The following data is used in the signature computation:
 
 . Explicit dependencies: _input nodes_ and dependencies set explicitly by using _bld.depends_on_
 . Implicit dependencies: dependencies searched by a scanner method (the method _scan_)
-. Variables: configuration set variables such as compilation flags
+. Values: configuration set values such as compilation flags
 
 ==== Explicit dependencies
 
@@ -360,26 +360,77 @@ custom data: 64.31
 
 WARNING: If the build order is incorrect, the method _scan_ may fail to find dependent nodes (missing nodes) or the signature calculation may throw an exception (missing signature for dependent nodes).
 
-==== Variables
+==== Values
 
-TODO
+===== Task variables
 
+The habitual use of command-line parameters such as compilation flags lead to the creation of _dependencies on values_, and more specifically the configuration set values.
 
-////
-=== Task execution order
+// tasks_values
+[source,python]
+---------------
+from waflib.Task import Task
+class foo(Task):
+	vars = ['COPYFLAGS']
+	def run(self):
+		print(self.env.COPYFLAGS)
 
-Running tasks in parallel is a simple problem, but in practice it is more complicated:
-. Dependencies can be discovered during the build (dynamic task creation)
-. New ordering constraints can be discovered after files are compiled
-. The amount of tasks and ordering constraints (graph size) can be huge and performance may be a problem
+def configure(ctx):
+	pass
 
-To make the problem more simple, it is divided by the different concerns, and the ordering constraints can be given on three different levels:
+def build(ctx):
+	tsk = foo(env=ctx.env)
+---------------
 
-. groups of tasks may run only after another group of tasks has finished to run, this represents a strict sequential order between groups of tasks, for example a compiler is produced and used to compile the tasks in the next group
-. task types to indicate the instance will run after other task type instances, for example linking object files may only occur after compiling the source files
-. specific constraints for task instances that can only run after a few other task instances
+The variables will trigger a recompilation whenever the value change (changing 'ctx.env.COPY').
 
-unlike the previous constraints, it is used on the instances of class 'Task' which is a subclass of class 'TaskBase'
-////
+===== Variable extraction
+
+When a task is declared as in the following example:
+
+// tasks_values
+[source,python]
+---------------
+def configure(ctx):
+	ctx.env.COPY      = '/bin/cp'
+	ctx.env.COPYFLAGS = ['-f']
+
+def build(ctx):
+	from waflib.Task import Task
+	class copy(Task):
+		run_str = '${COPY} ${COPYFLAGS} ${SRC} ${TGT}'
+	print(copy.vars)
+
+	tsk = copy(env=ctx.env)
+	tsk.set_inputs(ctx.path.find_resource('wscript'))
+	tsk.set_outputs(ctx.path.find_or_declare('b.out'))
+	ctx.add_to_group(tsk)
+---------------
+
+The string _run_str_ is compiled into a python function, which may be displayed during the build. Additionally, the variables such as 'COPYFLAGS' will be extracted and set into a list on the class attribute 'vars':
+
+[source,shishell]
+---------------
+$ waf --zones=action
+13:36:49 action   def f(tsk):
+	env = tsk.env
+	gen = tsk.generator
+	bld = gen.bld
+	wd = getattr(tsk, 'cwd', None)
+	def to_list(xx):
+		if isinstance(xx, str): return [xx]
+		return xx
+	lst = []
+	lst.extend(to_list(env['COPY']))
+	lst.extend(to_list(env['COPYFLAGS']))
+	lst.extend([a.path_from(bld.bldnode) for a in tsk.inputs])
+	lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])
+	lst = [x for x in lst if x]
+	return tsk.exec_command(lst, cwd=wd, env=env.env or None)
+[1/1] copy: wscript -> build/b.out
+['COPY', 'COPYFLAGS']
+'build' finished successfully (0.007s)
+---------------
+
 
 

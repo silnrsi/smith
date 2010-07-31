@@ -353,7 +353,7 @@ Task.task_type_from_func(<6>
 <3> Rule to execute during the build
 <4> Color for the output during the execution
 <5> Execute the task instance before any instance of task classes named 'cc'. The opposite of 'before' is 'after'
-<6> Create a new task class from a custom python function. The 'vars' attribute represents additional configuration set variables to use as dependencies
+<6> Create a new task class from a custom python function. The 'vars' attribute represents additional configuration set values to use as dependencies
 <7> Task class name
 <8> Function to use
 <9> In this context, the extension names are meant to be used for computing the execution order with other tasks, without naming the other task classes explicitly
