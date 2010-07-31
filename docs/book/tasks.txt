@@ -228,7 +228,7 @@ The dependency tracking is based on the use of hashes of the dependencies called
 
 The following diagram describes how 'waflib.Task.Task' instances are processed:
 
-image::task_signature{PIC}["Signatures"{backend@docbook:,width=280:},align="center"]
+image::task_signature{PIC}["Signatures"{backend@docbook:,height=350:},align="center"]
 
 The following data is used in the signature computation:
 
