@@ -120,7 +120,7 @@ def dosomething(ctx):
 	print(ctx.path.listdir())
 ---------------
 
-<1> Search for a nodes by reading the file system
+<1> Search for a node by reading the file system
 <2> Search for a node or create it if it does not exist
 <3> Search for a node but do not try to create it
 <4> Search for a file which does not exist
