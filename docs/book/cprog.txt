@@ -316,7 +316,7 @@ def build(bld):
 The variables used for C/C++ are the following:
 
 .Use variables and task generator attributes for C/C++
-[options="header"]
+[options="header",cols="1,1,3"]
 |=================
 |Uselib variable | Attribute | Usage
 |LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
@@ -330,7 +330,7 @@ The variables used for C/C++ are the following:
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
 |LINKDEPS |         | same as above, for the link task
-|DEFINES  |defines  | list of defines in the form ['key=value', 'key', ...]
+|DEFINES  |defines  | list of defines in the form [`key=value', ...]
 |FRAMEWORK|framework| list of frameworks to use
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use
 |=================
