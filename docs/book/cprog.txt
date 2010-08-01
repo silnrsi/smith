@@ -369,10 +369,11 @@ The method 'check' is used to detect parameters using a small build project. The
 . msg: title of the test to execute
 . okmsg: message to display when the test succeeds
 . errmsg: message to display when the test fails
-. mandatory: when true, raise a configuration exception if the test fails
 . env: environment to use for the build (conf.env is used by default)
 . compile_mode: 'cc' or 'cxx'
 . define_name: add a define for the configuration header when the test succeeds (in most cases it is calculated automatically)
+
+The errors raised are instances of 'waflib.Errors.ConfigurationError'. There are no return codes.
 
 Besides the main parameters, the attributes from c/c++ task generators may be used. Here is a concrete example:
 
@@ -406,7 +407,7 @@ def configure(conf):
 <6> Execute a simple program, collect the output, and put it in a define when successful
 <7> After all the tests are executed, write a configuration header in the build directory (optional). The configuration header is used to limit the size of the command-line.
 
-Here is an example of a 'config.h' produced with the previous test code:
+Here is an example of a +config.h+ produced with the previous test code:
 
 [source,c]
 ---------------
@@ -422,7 +423,7 @@ Here is an example of a 'config.h' produced with the previous test code:
 #endif /* _CONFIG_H_WAF */
 ---------------
 
-The file `default.cache.py` will contain the following variables:
+The file +default.cache.py+ will contain the following variables:
 
 [source,python]
 ---------------
@@ -511,7 +512,7 @@ def configure(conf):
 ---------------
 
 <1> Check for the pkg-config version
-<2> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute "uselib_store='MYPANGO'".
+<2> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute _uselib_store='MYPANGO'_.
 <3> Obtain the flags for a package and assign them to the uselib PANGO (calculated automatically from the package name)
 <4> Store the flags to the uselib variable 'MYPANGO', and raise a configuration error if the package cannot be found
 <5> Use pkg-config clauses to ensure a particular version number. The arguments and the command are joined into a string and executed by the shell.
