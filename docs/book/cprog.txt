@@ -14,6 +14,7 @@ The C/C++ builds consist in transforming (compiling) source files into object fi
 
 To conceal the implementation details and the portability concerns, each target (program, library) can be wrapped as single task generator object as in the following example:
 
+// cprog_wrappers
 [source,python]
 ---------------
 def options(opt):
@@ -34,7 +35,7 @@ def build(bld):
 <3> Declare a static library
 <4> Declare a shared library, using the objects from 'myobjects'
 
-The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list.
+The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list. For example, for a program having _.c_ files in the source attribute, the features added will be "c cprogram".
 
 ==== Supported attributes
 
