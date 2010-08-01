@@ -91,7 +91,7 @@ def build(ctx):
             color='PINK', name='tasks d')
 ---------------
 
-Build groups can be used for building a compiler to generate more source files to process. See the chapter 13 for a concrete example.
+Build groups can be used for <<build_compiler_first,building a compiler to generate more source files>> to process.
 
 ==== The Producer-consumer system
 

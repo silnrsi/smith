@@ -4,7 +4,7 @@ This chapter demonstrates a few examples of the waf library for more complicated
 
 === Project organization
 
-==== Building the compiler first
+==== Building the compiler first[[build_compiler_first]]
 
 The example below demonstrates how to build a compiler which is used for building the remaining targets. The requirements are the following:
 
