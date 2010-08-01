@@ -30,7 +30,7 @@ def build(bld):
 	bld.objects(source='c.c', target='myobjects')
 ---------------
 
-<1> The c compiler detection will try to load msvc on Windows, and gcc on Linux
+<1> Use compiler_c to load the c routines and to find a compiler (for c++ use 'compiler_cxx' and 'compiler_d' for d)
 <2> Declare a program built from _main.c_ and using two other libraries
 <3> Declare a static library
 <4> Declare a shared library, using the objects from 'myobjects'
@@ -111,7 +111,7 @@ def build(bld):
 
 ==== Execution path and flags
 
-Include paths are used by the c/c++ compilers for finding the headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
+Include paths are used by the C/C++ compilers for finding the headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
 
 [source,shishell]
 ---------------
@@ -129,8 +129,7 @@ The file 'src/wscript' will contain the following code:
 [source,python]
 ---------------
 def build(bld):
-    bld(
-        features = 'cc cprogram',
+    bld.program(
         source   = 'main.c',
         target   = 'myapp',
         includes = '.. .')
@@ -197,13 +196,15 @@ def configure(conf):
 	conf.write_config_header('config.h')
 ---------------
 
-For performance reasons, the dependencies are not added onto system headers by default. The following code may be used to enable this behaviour:
+For performance reasons, the implicit dependency on the system headers is ignored by default. The following code may be used to enable this behaviour:
 
 [source,python]
 ---------------
 from waflib import preproc
 preproc.go_absolute = True
 ---------------
+
+Additional tools such as http://code.google.com/p/waf/source/browse/trunk/waflib/extras/gccdeps.py[gccdeps] provide alternate dependency resolution by using various heuristics (using the compiler, ignoring the macros, etc).
 
 ==== Debugging dependencies
 
@@ -232,33 +233,30 @@ $ waf --zones=deps
 The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
 
 
-=== Library interaction (uselib)
+=== Library interaction (use)
 
 ==== Local libraries
 
-To link a library against another one created in the same Waf project, the attribute 'uselib_local' may be used. The include paths, the link path and the library name are automatically exported, and the dependent binary is recompiled when the library changes:
+The attribute 'use' enables the link against libraries (static or shared), or the inclusion of object files when the task generator referenced is not a library. The compilation order is modified and the dependency is added.
 
 [source,python]
 ---------------
 def build(bld):
-	staticlib = bld(
-		features       = 'cc cstaticlib', <1>
+	staticlib = bld.stlib(
 		source         = 'test_staticlib.c',
 		target         = 'teststaticlib',
 		export_incdirs = '.') <2>
 
-	main = bld(
-		features       = 'cc cprogram', <3>
+	main = bld.program(
 		source         = 'main.c',
 		target         = 'test_c_program',
 		includes       = '.',
-		uselib_local   = 'teststaticlib') <4>
+		use            = 'teststaticlib') <3>
 ---------------
 
 <1> A static library
 <2> Include paths to export for use with uselib_local (include paths are not added automatically). These folders are taken relatively to the current target.
-<3> A program using the static library declared previously
-<4> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
+<3> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
 
 The library does not need to actually declare a target. Header-only libraries may be created to add common include paths to several targets:
 
@@ -270,11 +268,10 @@ def build(bld):
 		export_incdirs = '.',
 		name           = 'common_includes')
 
-	main = bld(
-		features       = 'cc cprogram',
+	main = bld.program(
 		source         = 'main.c',
 		target         = 'some_app',
-		uselib_local   = 'common_includes')
+		use            = 'common_includes')
 ---------------
 
 NOTE: Include paths are only propagated when 'export_incdirs' is provided. The include paths are relative to the path of the task generator that declared them.
@@ -303,7 +300,7 @@ def build(bld):
 		features = 'cc cstaticlib',
 		source   = 'test_staticlib.c',
 		target   = 'teststaticlib',
-		uselib   = 'TEST') <5>
+		use      = 'TEST') <5>
 
 	if mylib.env.CC_NAME == 'gcc':
 		mylib.cxxflags = ['-O2'] <6>
@@ -316,9 +313,9 @@ def build(bld):
 <5> Add all the VAR_NAME corresponding to the uselib NAME, which is 'TEST' in this example
 <6> 'Model to avoid': setting the flags and checking for the configuration must be performed in the configuration section
 
-The variables used for c/c++ are the following:
+The variables used for C/C++ are the following:
 
-.Uselib variables and task generator attributes for c/c++
+.Use variables and task generator attributes for C/C++
 [options="header"]
 |=================
 |Uselib variable | Attribute | Usage
@@ -326,16 +323,17 @@ The variables used for c/c++ are the following:
 |STATICLIB|staticlib| list of static library names to use, without prefix or extension
 |LIBPATH  |libpath  | list of search path for shared and static libraries
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
-|CXXFLAGS |cxxflags | flags to use during the compilation of c++ files
-|CCFLAGS  |ccflags  | flags to use during the compilation of c files
+|CXXFLAGS |cxxflags | flags to use for c++ files
+|CCFLAGS  |ccflags  | flags to use for c files
+|DFLAGS   |dflags   | flags to use for d files
 |INCLUDES |includes | include paths
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
+|LINKDEPS |         | same as above, for the link task
 |DEFINES  |defines  | list of defines in the form ['key=value', 'key', ...]
-|FRAMEWORK|framework| list of frameworks to use, requires the waf tool 'osx'
-|FRAMEWORKPATH|frameworkpath| list of framework paths to use, requires the waf tool 'osx'
+|FRAMEWORK|framework| list of frameworks to use
+|FRAMEWORKPATH|frameworkpath| list of framework paths to use
 |=================
-
 
 The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
 
@@ -346,18 +344,16 @@ In some cases, it is necessary to re-use object files generated by another task 
 [source,python]
 ---------------
 def build(bld):
-	some_objects = bld(
-		features       = 'c', <1>
-		source         = 'test.c',
-		ccflags        = '-O3',
-		target         = 'my_objs')
+	some_objects = bld.objects( <1>
+		source   = 'test.c',
+		ccflags  = '-O3',
+		target   = 'my_objs')
 
-	main = bld(
-		features       = 'c cprogram',
-		source         = 'main.c',
-		ccflags        = '-O2', <2>
-		target         = 'test_c_program',
-		add_objects    = 'my_objs') <3>
+	main = bld.program(
+		source   = 'main.c',
+		ccflags  = '-O2', <2>
+		target   = 'test_c_program',
+		use      = 'my_objs') <3>
 ---------------
 
 <1> Files will be compiled in c mode, but no program or library will be produced
