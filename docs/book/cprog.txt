@@ -35,50 +35,54 @@ def build(bld):
 <3> Declare a static library
 <4> Declare a shared library, using the objects from 'myobjects'
 
-The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list. For example, for a program having _.c_ files in the source attribute, the features added will be "c cprogram".
+The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list. For example, for a program having _.c_ files in the source attribute, the features added will be _"c cprogram"_, for a _d_ static library, _"d dstlib"_.
 
 ==== Supported attributes
 
+The methods described previously can process many more attributes than just 'use'. Here is an advanced example:
+
 [source,python]
 ---------------
-top = '.'
-out = 'build'
-
 def options(opt):
 	opt.tool_options('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c') <1>
+	conf.check_tool('compiler_c')
 
 def build(bld):
-	t = bld(
-		features     = ['c', 'cprogram'], <2>
-		source       = 'main.c', <3>
-		target       = 'appname', <4>
-		install_path = '${SOME_PATH}/bin', <5>
-		vnum         = '1.2.3', <6>
-		includes     = ['.'], <7>
-		defines      = ['LINUX=1', 'BIDULE'], <8>
-		ccflags      = ['-O2', '-Wall'], <9>
-		lib          = ['m'], <10>
+	bld.program(
+		source       = 'main.c', <1>
+		target       = 'appname', <2>
+		features     = ['more', 'features'], <3>
+
+		includes     = ['.'], <4>
+		defines      = ['LINUX=1', 'BIDULE'],
+
+		lib          = ['m'], <5>
 		libpath      = ['/usr/lib'],
-		linkflags    = ['-g'],
+		stlib        = ['dl'], <6>
+		stlibpath    = ['/usr/local/lib'],
+		linkflags    = ['-g'], <7>
+		rpath        = ['/opt/kde/lib'] <8>
+		vnum         = '1.2.3',
+
+		install_path = '${SOME_PATH}/bin', <9>
+		ccflags      = ['-O2', '-Wall'], <10>
+		cxxflags     = ['-O3'],
+		dflags       = ['-g'],
 	)
-	t.rpath          = ['/usr/lib']
 ---------------
 
-<1> Load the c/c++ support routines (such as the features below) and try to find a suitable compiler for the build. The support for c++ is loaded by 'compiler_cxx'
-<2> Task generator declaration; each element in the list represent a feature; it is possible to add several languages at once ('ocaml and c++' for example), but the one of 'cstaticlib, cshlib or cprogram' must be chosen.
-<3> List of source, it may be either a python list, or a string containing the file names separated with spaces. This list may contain file names of different extensions to make hybrid applications.
-<4> Target name, it is concerted to the name of the binary 'name.so' or 'name.exe' depending on the platform and the features.
-<5> Installation directory, this is where to install the library or program produced. The '$\{}' expression is a reference to a variable to be extracted from 'tgen.env'. By default it is set to '$\{PREFIX}/bin' for programs and '$\{PREFIX}/lib' for libraries. To disable the installation, set it to 'None'.
-<6> Version number for shared libraries. It is not used for programs or static libraries.
-<7> List of include paths, it may be either a python list, or a string containing the paths separated by spaces. The paths are used for both the command-line and for finding the implicit dependencies (headers). In general, include paths must be relative to the wscript folder and given explicitly.
-<8> Command-line defines: list of defines to add to the command-line with the '-D' prefix. To reduce the size of the command-line, it is possible to use a configuration header, see the following section for more details.
-<9> Command-line compilation flags, for the c++ language the attribute is called 'cxxflags'
-<10> Shared libraries may be given directly (use 'staticlib' and 'staticlibpath' for static libraries)
-
-Additional pararameters may be added from a task generator reference. The next section describes a technique to gather the conditions into the configuration section.
+<1> Source file list
+<2> Target, converted automatically to +target.exe+ or +libtarget.so+, depending on the platform and type
+<3> Additional features to add (for a program consisting in c files, the default will be _'c cprogram'_)
+<4> Includes and defines
+<5> Shared libraries and shared libraries link paths
+<6> Static libraries and link paths
+<7> Use linkflags for specific link flags (not for passing libraries)
+<8> rpath and vnum, ignored on platforms that do not support them
+<9> Installation path (support variables)
+<10> Miscalleneous flags, applied to the source files that support them (if present)
 
 === Include processing
 
