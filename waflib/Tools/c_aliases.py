@@ -6,6 +6,7 @@
 
 import os, sys, re
 from waflib import Utils, Build
+from waflib.Configure import conf
 
 def get_extensions(lst):
 	ret = []
@@ -81,6 +82,7 @@ def stlib(bld, *k, **kw):
 def objects(bld, *k, **kw):
 	"""alias for features='c' bound to the build context"""
 	if not 'features' in kw:
+		kw['_type'] = 'objects'
 		kw['features'] = sniff_features(**kw)
 	return bld(*k, **kw)
 
