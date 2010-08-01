@@ -437,7 +437,24 @@ dep_files = ['config.h']
 waf_config_files = ['/compilation/waf/demos/adv/build/config.h']
 ---------------
 
-NOTE: The methods 'conf.check' all use task generators internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here).
+The methods 'conf.check' create a build context and a task generator internally. This means that the attributes 'includes', 'defines', 'cxxflags' may be used (not all shown here). Advanced tests may be created by passing feature arguments:
+
+// cprog_cfg_advanced
+[source,python]
+---------------
+from waflib.TaskGen import feature
+
+@feature('special_test')
+def my_special_test(self):
+	self.bld(rule='touch ${TGT}', target='foo') <1>
+	self.bld(rule='cp ${SRC} ${TGT}', source='foo', target='bar')
+
+def configure(conf):
+	conf.check_cc(features='special_test', msg='my test!', source='') <2>
+---------------
+
+<1> Create a task generator from another task generator
+<2> Disable the compilation of +test.c+ by setting no source files
 
 NOTE: The attribute 'compile_mode' may also contain user-defined task generator features.
 

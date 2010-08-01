@@ -1,0 +1,12 @@
+#! /usr/bin/env python
+
+from waflib.TaskGen import feature
+
+@feature('special_test')
+def my_special_test(self):
+	self.bld(rule='touch ${TGT}', target='foo')
+	self.bld(rule='cp ${SRC} ${TGT}', source='foo', target='bar')
+
+def configure(conf):
+	conf.check_cc(features='special_test', msg='my test!', source='')
+
