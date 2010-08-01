@@ -513,9 +513,10 @@ def find_msvc(conf):
 		link = conf.find_program(linker_name, path_list=path)
 		if link: v['LINK_CXX'] = link
 		else: conf.fatal('%s was not found (linker)' % linker_name)
-	v['LINK'] = link
+		v['LINK'] = link
 
-	if not v['LINK_CC']: v['LINK_CC'] = v['LINK_CXX']
+	if not v['LINK_CC']:
+		v['LINK_CC'] = v['LINK_CXX']
 
 	# staticlib linker
 	if not v['AR']:
