@@ -2,7 +2,7 @@
 
 Although Waf is language neutral, it is used very often for C and C++ projects. This chapter describes the Waf tools and functions used for these languages.
 
-=== Common script for C/C++ applications
+=== Common script for C, C++ and D applications
 
 ==== Predefined task generators
 
@@ -35,9 +35,32 @@ def build(bld):
 <3> Declare a static library
 <4> Declare a shared library, using the objects from 'myobjects'
 
+The targets will have different extensions and names depending on the platform. For example on Linux, the contents of the build directory will be:
+
+[source,shishell]
+---------------
+$ tree build
+build/
+|-- c4che
+|   |-- build.config.py
+|   `-- default.cache.py
+|-- a.c.1.o
+|-- app <1>
+|-- b.c.2.o
+|-- c.c.3.o
+|-- config.log
+|-- libmyshlib.so <2>
+|-- libmystlib.a
+`-- main.c.0.o <3>
+---------------
+
+<1> Programs have no extension on Linux but will have '.exe' on Windows
+<2> The '.so' extension for shared libraries on Linux will be '.dll' on Windows
+<3> The '.o' object files use the original file name and an index to avoid errors in multiple compilations
+
 The build context methods _program_, _shlib_, _stlib_ and _objects_ return a single task generator with the appropriate features detected from the source list. For example, for a program having _.c_ files in the source attribute, the features added will be _"c cprogram"_, for a _d_ static library, _"d dstlib"_.
 
-==== Supported attributes
+==== Additional attributes
 
 The methods described previously can process many more attributes than just 'use'. Here is an advanced example:
 
