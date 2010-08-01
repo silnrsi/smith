@@ -442,21 +442,22 @@ The methods 'conf.check' create a build context and a task generator internally.
 // cprog_cfg_advanced
 [source,python]
 ---------------
-from waflib.TaskGen import feature
+from waflib.TaskGen import feature, before
 
 @feature('special_test')
+@before('process_source')
 def my_special_test(self):
 	self.bld(rule='touch ${TGT}', target='foo') <1>
 	self.bld(rule='cp ${SRC} ${TGT}', source='foo', target='bar')
+	self.source = [] <2>
 
 def configure(conf):
-	conf.check_cc(features='special_test', msg='my test!', source='') <2>
+	conf.check_cc(features='special_test', msg='my test!') <3>
 ---------------
 
 <1> Create a task generator from another task generator
 <2> Disable the compilation of +test.c+ by setting no source files
-
-NOTE: The attribute 'compile_mode' may also contain user-defined task generator features.
+<3> Use the feature special_test
 
 ==== Creating configuration headers
 
