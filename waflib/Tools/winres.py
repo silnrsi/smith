@@ -17,7 +17,7 @@ def rc_file(self, node):
 	self.compiled_tasks.append(rctask)
 
 class winrc(Task.Task):
-	run_str = '${WINRC} ${_CPPDEFFLAGS} ${_CCDEFFLAGS} ${WINRCFLAGS} ${_CPPINCFLAGS} ${_CCINCFLAGS} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
+	run_str = '${WINRC} ${WINRCFLAGS} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
 	color   = 'BLUE'
 
 def configure(conf):
@@ -27,13 +27,12 @@ def configure(conf):
 
 	# find rc.exe
 	if not conf.env.WINRC:
-		if v.CC_NAME in ['gcc', 'cc', 'g++', 'c++']:
-			winrc = conf.find_program('windres', var='WINRC')
-		elif v.CC_NAME == 'msvc':
+		if v.CC_NAME == 'msvc':
 			winrc = conf.find_program('RC', var='WINRC')
 			v['WINRC_TGT_F'] = '/fo'
 			v['WINRC_SRC_F'] = ''
-
+		else:
+			winrc = conf.find_program('windres', var='WINRC')
 	if not conf.env.WINRC:
 		conf.fatal('winrc was not found!')
 
