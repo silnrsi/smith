@@ -9,6 +9,7 @@ from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
 from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
+from waflib.Configure import conf
 
 USELIB_VARS = Utils.defaultdict(set)
 USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
@@ -362,4 +363,53 @@ class vnum_task(Task.Task):
 			os.symlink(self.inputs[0].name, path)
 		except OSError:
 			return 1
+
+class fake_shlib(link_task):
+	quiet = True
+	def runnable_status(self):
+		for x in self.outputs:
+			x.sig = Utils.h_file(x.abspath())
+		return Task.SKIP_ME
+
+class fake_stlib(stlink_task):
+	quiet = True
+	def runnable_status(self):
+		for x in self.outputs:
+			x.sig = Utils.h_file(x.abspath())
+		return Task.SKIP_ME
+
+@conf
+def read_shlib(self, name, paths=[]):
+	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='shlib')
+
+@conf
+def read_stlib(self, name, paths=[]):
+	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='stlib')
+
+lib_patterns = {
+	'shlib' : ['lib%s.so', '%s.so', 'lib%s.dll'],
+	'stlib' : ['lib%s.a', '%s.a', 'lib%s.dll', 'lib%s.lib'],
+}
+
+@feature('fake_lib')
+def process_lib(self):
+	node = None
+
+	names = [x % self.name for x in lib_patterns[self.lib_type]]
+	for x in self.lib_paths + ['/usr/lib64', '/usr/lib', '/usr/local/lib64', '/usr/local/lib']:
+		if not isinstance(x, Node.Node):
+			x = self.bld.root.find_node(x)
+			if not x:
+				continue
+		for y in names:
+			node = x.find_node(y)
+			if node:
+				node.sig = Utils.h_file(node.abspath())
+				break
+		else:
+			continue
+		break
+	else:
+		raise Errors.WafError('could not find library %r' % self.name)
+	tsk = self.create_task('fake_%s' % self.lib_type, [], [node])
 
