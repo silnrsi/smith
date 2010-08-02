@@ -13,7 +13,7 @@ Note: do not forget to set the include paths (include=...)
 
 from waflib.TaskGen import feature, after
 from waflib.Task import Task
-from waflib.Tools import ccroot
+from waflib.Tools import c_preproc
 
 @feature('cxx')
 @after('apply_link')
@@ -25,7 +25,7 @@ def process_pch(self):
 
 class gchx(Task):
 	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	scan    = ccroot.scan
+	scan    = c_preproc.scan
 	ext_out = ['.h']
 	color   = 'BLUE'
 
