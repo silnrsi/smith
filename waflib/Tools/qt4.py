@@ -20,7 +20,7 @@ else:
 	has_xml = True
 
 import os, sys
-from waflib.Tools import ccroot, cxx
+from waflib.Tools import c_preproc, cxx
 from waflib import TaskGen, Task, Utils, Runner, Options, Node, Errors
 from waflib.TaskGen import feature, after, extension
 from waflib.Logs import error
@@ -38,7 +38,7 @@ class qxx(cxx.cxx):
 		self.moc_done = 0
 
 	def scan(self):
-		(nodes, names) = ccroot.scan(self)
+		(nodes, names) = c_preproc.scan(self)
 		# for some reasons (variants) the moc node may end in the list of node deps
 		for x in nodes:
 			if x.name.endswith('.moc'):

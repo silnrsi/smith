@@ -766,7 +766,7 @@ class c_parser(object):
 			if re_pragma_once.search(line.lower()):
 				self.ban_includes.append(self.curfile)
 
-def get_deps(task):
+def scan(task):
 	"""
 	Get the dependencies using a c/c++ preprocessor, this is required for finding dependencies of the kind
 	#include some_macro()
@@ -782,5 +782,7 @@ def get_deps(task):
 
 	tmp = c_parser(nodepaths)
 	tmp.start(task.inputs[0], task.env)
+	if Logs.verbose:
+		debug('deps: deps for %r: %r; unresolved %r' % (self.inputs, nodes, names))
 	return (tmp.nodes, tmp.names)
 

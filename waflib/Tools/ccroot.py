@@ -28,13 +28,6 @@ USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
 
 # =================================================================================================
 
-def scan(self):
-	"scanner for c and c++ tasks, uses the python-based preprocessor from the module preproc.py (task method)"
-	(nodes, names) = c_preproc.get_deps(self)
-	if Logs.verbose:
-		debug('deps: deps for %r: %r; unresolved %r' % (self.inputs, nodes, names))
-	return (nodes, names)
-
 @taskgen_method
 def create_compiled_task(self, name, node):
 	"""

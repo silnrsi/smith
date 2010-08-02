@@ -5,7 +5,7 @@
 "Base for c++ programs and libraries"
 
 from waflib import TaskGen, Task, Utils
-from waflib.Tools import ccroot
+from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task, stlink_task
 
 def cxx_hook(self, node):
@@ -20,7 +20,7 @@ class cxx(Task.Task):
 	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	vars    = ['CXXDEPS']
 	ext_in  = ['.h']
-	scan    = ccroot.scan
+	scan    = c_preproc.scan
 
 class cxxprogram(link_task):
 	run_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${FRAMEWORK_ST:FRAMEWORK} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'

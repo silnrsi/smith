@@ -5,7 +5,7 @@
 "Base for c programs/libraries"
 
 from waflib import TaskGen, Task, Utils
-from waflib.Tools import ccroot
+from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task, stlink_task
 
 @TaskGen.extension('.c')
@@ -17,7 +17,7 @@ class c(Task.Task):
 	run_str = '${CC} ${CCFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS']
 	ext_in  = ['.h']
-	scan    = ccroot.scan
+	scan    = c_preproc.scan
 
 Task.classes['cc'] = cc = c # compat, remove in waf 1.7
 
