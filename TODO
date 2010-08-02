@@ -5,7 +5,7 @@ General
 
 - MAKEFLAGS?
 - recurse: from top or from current folder? into a file of a given name?
-- clean the files properly (waf clean)
+- remove the files on 'waf clean'
 - fake local libraries? relink when they change?
 - broken conf.check_cfg and problems with default uselib (capital letters)
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
