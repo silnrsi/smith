@@ -54,35 +54,31 @@ def sniff_features(**kw):
 
 	return ''
 
+def set_features(kw, _type):
+	kw['_type'] = _type
+	kw['features'] = Utils.to_list(kw.get('features', [])) + Utils.to_list(sniff_features(**kw))
+
 @conf
 def program(bld, *k, **kw):
 	"""alias for features='c cprogram' bound to the build context"""
-	if not 'features' in kw:
-		kw['_type'] = 'program'
-		kw['features'] = sniff_features(**kw)
+	set_features(kw, 'program')
 	return bld(*k, **kw)
 
 @conf
 def shlib(bld, *k, **kw):
 	"""alias for features='c cshlib' bound to the build context"""
-	if not 'features' in kw:
-		kw['_type'] = 'shlib'
-		kw['features'] = sniff_features(**kw)
+	set_features(kw, 'shlib')
 	return bld(*k, **kw)
 
 @conf
 def stlib(bld, *k, **kw):
 	"""alias for features='c cstlib' bound to the build context"""
-	if not 'features' in kw:
-		kw['_type'] = 'stlib'
-		kw['features'] = sniff_features(**kw)
+	set_features(kw, 'stlib')
 	return bld(*k, **kw)
 
 @conf
 def objects(bld, *k, **kw):
 	"""alias for features='c' bound to the build context"""
-	if not 'features' in kw:
-		kw['_type'] = 'objects'
-		kw['features'] = sniff_features(**kw)
+	set_features(kw, 'objects')
 	return bld(*k, **kw)
 
