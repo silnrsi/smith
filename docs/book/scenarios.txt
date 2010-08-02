@@ -398,7 +398,7 @@ class cxx(Task.Task):
     run_str = '${CXX} ${CXXFLAGS} ${CPPPATH_ST:INCPATHS} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
     vars    = ['CXXDEPS']
     ext_in  = ['.h']
-    scan    = ccroot.scan
+    scan    = c_preproc.scan
 ---------------
 
 Those include flags are set by the method 'apply_incpaths'. The trick is then to modify 'INCPATHS' after that method has been executed:
