@@ -11,6 +11,6 @@ def build(ctx):
 	sub('fakelibs')
 	sub('objects')
 	sub('order')
-	#sub('transitivity')
+	sub('transitivity')
 	#sub('cycle') # this must raise an error during the build
 
