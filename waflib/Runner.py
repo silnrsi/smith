@@ -128,6 +128,8 @@ class Parallel(object):
 		while not self.outstanding:
 			if self.count:
 				self.get_out()
+			elif self.frozen:
+				raise Errors.WafError("Deadlock detected, stopping the build %r" % self.frozen)
 
 			if self.frozen:
 				self.outstanding += self.frozen

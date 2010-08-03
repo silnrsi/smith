@@ -14,7 +14,6 @@ General
 Low priority
 
 - refactor the c and d preprocessor functions
-- detect potential deadlocks in the task scheduler
 - detect user typos (the checks have been removed)
 - enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
 
