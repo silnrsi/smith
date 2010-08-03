@@ -11,12 +11,12 @@ bld(
 
 
 bld.program(
-	 source="a-test.c",
-	 target="a-test",
-	 use="a",
+	 source  = "a-test.c",
+	 target  = "a-test",
+	 use     = "a",
 	)
 
-
+"""
 bld(
 	 features = "c",
 	 source   = "b.c",
@@ -29,4 +29,5 @@ bld.program(
 	 target = "c",
 	 use    = "b",
 	)
+"""
 
