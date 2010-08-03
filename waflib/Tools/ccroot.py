@@ -175,6 +175,9 @@ def process_use(self):
 		y.post()
 		seen.add(lib_name)
 
+		# a static library is found -> propagation on anything stops
+		# a shared library (non-static) is found -> propagation continues, but objects are not added
+
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'use', None):
 			for x in self.to_list(getattr(y, 'use', [])):
