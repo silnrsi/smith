@@ -95,10 +95,10 @@ def build(bld):
 		tgt = task.outputs[0].abspath() <3>
 		cmd = 'cp %s %s' % (src, tgt)
 		print(cmd)
-		return task.exec_command(cmd) <5>
+		return task.exec_command(cmd) <4>
 
 	bld(
-		rule   = run, <6>
+		rule   = run, <5>
 		source = 'wscript',
 		target = 'same.txt',
 	)
@@ -108,7 +108,7 @@ def build(bld):
 <2> Sources and targets are represented internally as Node objects bound to the task instance.
 <3> Commands are executed from the root of the build directory. Node methods such as 'bldpath' ease the command line creation.
 <4> The task class holds a wrapper around subprocess.Popen(...) to execute commands.
-<6> Use a function instead of a string expression
+<5> Use a function instead of a string expression
 
 The execution trace will be similar to the following:
 
@@ -118,7 +118,7 @@ $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule_function/out'
-[1/1] same.txt: wscript -> out/default/same.txt
+[1/1] same.txt: wscript -> out/same.txt
 cp /tmp/rule_function/wscript /tmp/rule_function/build/same.txt
 Waf: Leaving directory `/tmp/rule_function/out'
 'build' finished successfully (0.010s)
@@ -186,10 +186,10 @@ def f(task): <3>
 		" ".join([a.bldpath(env) for a in task.outputs]))
 	return task.exec_command(cmd, cwd=wd)
 
-[1/2] f1.txt: wscript -> out/default/f1.txt
-23:11:23 runner system command -> ['cp', '../wscript', 'default/f1.txt'] <4>
-[2/2] f2.txt: wscript -> out/default/f2.txt
-23:11:23 runner system command ->  cp ../wscript default/f2.txt
+[1/2] f1.txt: wscript -> out/f1.txt
+23:11:23 runner system command -> ['cp', '../wscript', 'f1.txt']
+[2/2] f2.txt: wscript -> out/f2.txt
+23:11:23 runner system command ->  cp ../wscript f2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.017s)
 ---------------
@@ -259,9 +259,9 @@ Waf: Entering directory `/tmp/rule/out'
 [2/5] echo 'task always run':
 [3/5] echo ${SRC}: wscript
 ../wscript
-[4/5] f1.txt f2.txt: wscript -> out/default/f1.txt out/default/f2.txt
+[4/5] f1.txt f2.txt: wscript -> out/f1.txt out/f2.txt
 task always run
-[5/5] test.k3:  -> out/default/test.k3
+[5/5] test.k3:  -> out/test.k3
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.049s)
 
@@ -317,18 +317,18 @@ $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
-[1/2] r1:  -> out/default/r1.txt
-16:44:39 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
+[1/2] r1:  -> out/r1.txt
+16:44:39 runner system command ->  (date > r1.txt) && cat r1.txt
 dom ene 31 16:44:39 CET 2010
-[2/2] r2: out/default/r1.txt -> out/default/r2.txt
-16:44:39 runner system command ->  cp default/r1.txt default/r2.txt
+[2/2] r2: out/r1.txt -> out/r2.txt
+16:44:39 runner system command ->  cp r1.txt r2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.021s)
 
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
-[1/2] r1:  -> out/default/r1.txt
-16:44:41 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
+[1/2] r1:  -> out/r1.txt
+16:44:41 runner system command ->  (date > r1.txt) && cat r1.txt
 dom ene 31 16:44:41 CET 2010
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
@@ -371,29 +371,29 @@ $ waf distclean configure build -v
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
-[1/2] r1:  -> out/default/r1.txt
-16:59:49 runner system command ->  (date > default/r1.txt) && cat default/r1.txt <1>
+[1/2] r1:  -> out/r1.txt
+16:59:49 runner system command ->  (date > r1.txt) && cat r1.txt <1>
 dom ene 31 16:59:49 CET 2010 <2>
-[2/2] r2: out/default/r1.txt -> out/default/r2.txt
-16:59:49 runner system command ->  cp default/r1.txt default/r2.txt
+[2/2] r2: out/r1.txt -> out/r2.txt
+16:59:49 runner system command ->  cp r1.txt r2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.020s)
 
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
-[1/2] r1:  -> out/default/r1.txt
-16:59:49 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
+[1/2] r1:  -> out/r1.txt
+16:59:49 runner system command ->  (date > r1.txt) && cat r1.txt
 dom ene 31 16:59:49 CET 2010 <3>
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.016s)
 
 $ waf -v
 Waf: Entering directory `/tmp/rule/out'
-[1/2] r1:  -> out/default/r1.txt
-16:59:53 runner system command ->  (date > default/r1.txt) && cat default/r1.txt
+[1/2] r1:  -> out/r1.txt
+16:59:53 runner system command ->  (date > r1.txt) && cat r1.txt
 dom ene 31 16:59:53 CET 2010 <4>
-[2/2] r2: out/default/r1.txt -> out/default/r2.txt
-16:59:53 runner system command ->  cp default/r1.txt default/r2.txt
+[2/2] r2: out/r1.txt -> out/r2.txt
+16:59:53 runner system command ->  cp r1.txt r2.txt
 Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.022s)
 ---------------
