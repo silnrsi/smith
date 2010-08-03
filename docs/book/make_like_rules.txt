@@ -1,12 +1,10 @@
 == Rule-based task generators (Make-like)
 
-// TODO refactor this chapter
-
-This chapter illustrates how the use of rule-based task generators for building simple targets.
+This chapter illustrates the use of rule-based task generators for building simple targets.
 
 === Declaration and usage
 
-Rule-based task generators are a particular category of task generators producing exactly one task (transformation) at a time.
+Rule-based task generators are a particular category of task generators producing exactly one task.
 
 The following example shows a task generator producing the file 'foobar.txt' from the project file 'wscript' by executing the command _cp_ to perform a copy:
 
@@ -34,15 +32,16 @@ def build(bld):
 
 Upon execution, the following output will be observed:
 
+// rules_simple
 [source,shishell]
 ---------------
 $ waf distclean configure build -v
 'distclean' finished successfully (0.000s)
 'configure' finished successfully (0.021s)
-Waf: Entering directory `/tmp/rule_simple/build'
+Waf: Entering directory `/tmp/rules_simple/build'
 [1/1] foobar.txt: wscript -> build/foobar.txt <1>
 10:57:33 runner 'cp ../wscript foobar.txt' <2>
-Waf: Leaving directory `/tmp/rule_simple/build'
+Waf: Leaving directory `/tmp/rules_simple/build'
 'build' finished successfully (0.016s)
 
 $ tree
@@ -56,52 +55,47 @@ $ tree
 `-- wscript
 
 $ waf <3>
-Waf: Entering directory `/tmp/rule_simple/build'
-Waf: Leaving directory `/tmp/rule_simple/build'
+Waf: Entering directory `/tmp/rules_simple/build'
+Waf: Leaving directory `/tmp/rules_simple/build'
 'build' finished successfully (0.006s)
 
 $ echo " " >> wscript <4>
 
 $ waf
-Waf: Entering directory `/tmp/rule_simple/build'
+Waf: Entering directory `/tmp/rules_simple/build'
 [1/1] foobar.txt: wscript → build/foobar.txt <5>
-Waf: Leaving directory `/tmp/rule_simple/build'
+Waf: Leaving directory `/tmp/rules_simple/build'
 'build' finished successfully (0.013s)
 ---------------
 
 <1> In the first execution, the target is correctly created
 <2> Command-lines are only displayed in 'verbose mode' by using the option '-v'
-<3> The target are up-to-date, there is nothing to do
+<3> The target is up-to-date, so the task is not executed
 <4> Modify the source file in place by appending a space character
 <5> Since the source has changed, the target is created once again
 
-The target is created once again whenever the source files or the rule change. This is achieved by computing a signature for the targets, and storing that signature between executions. By default, the signature is computed by hashing the rule and the source files (MD5 by default).
-
-NOTE: The task (or transformation) are only executed during the build phase, after all build functions have been read
+The string for the rule also enters in the dependency calculation. If the rule changes, then the task will be recompiled.
 
 === Rule functions
 
-Rules may be given as expression strings or as python function. Let's modify the previous project file with a python function:
+Rules may be given as expression strings or as python function. The function is assigned to the task class created:
 
+// rule_function
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
 
 def build(bld):
 	def run(task): <1>
-		print(' → source is ' + task.generator.source) <2>
-
-		src = task.inputs[0].srcpath(task.env) <3>
-		tgt = task.outputs[0].bldpath(task.env) <4>
-
-		from waflib import Utils
+		src = task.inputs[0].abspath() <2>
+		tgt = task.outputs[0].abspath() <3>
 		cmd = 'cp %s %s' % (src, tgt)
 		print(cmd)
-		return Utils.exec_command(cmd) <5>
+		return task.exec_command(cmd) <5>
 
 	bld(
 		rule   = run, <6>
@@ -111,10 +105,9 @@ def build(bld):
 ---------------
 
 <1> Rule functions take the task instance as parameter.
-<2> Task instances may access their task generator through the attribute 'generator'
-<3> Sources and targets are represented internally as Node objects bound to the task instance.
-<4> Commands are executed from the root of the build directory. Node methods such as 'bldpath' ease the command line creation.
-<5> Utils.exec_command(...) is a wrapper around subprocess.Popen(...) from the Python library. Passing a string will execute the command through the system shell (use lists to disable this behaviour). The return code for a rule function must be non-0 to indicate a failure.
+<2> Sources and targets are represented internally as Node objects bound to the task instance.
+<3> Commands are executed from the root of the build directory. Node methods such as 'bldpath' ease the command line creation.
+<4> The task class holds a wrapper around subprocess.Popen(...) to execute commands.
 <6> Use a function instead of a string expression
 
 The execution trace will be similar to the following:
@@ -124,30 +117,26 @@ The execution trace will be similar to the following:
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/rule/out'
+Waf: Entering directory `/tmp/rule_function/out'
 [1/1] same.txt: wscript -> out/default/same.txt
- → source is wscript
-cp ../wscript default/same.txt
-Waf: Leaving directory `/tmp/rule/out'
+cp /tmp/rule_function/wscript /tmp/rule_function/build/same.txt
+Waf: Leaving directory `/tmp/rule_function/out'
 'build' finished successfully (0.010s)
 ---------------
 
-The rule function must return '0' to indicate success, and must generate the files corresponding to the outputs. The rule function must also access the task object in a read-only manner, and avoid node creation or attribute modification.
+The rule function must return a null value (0, None or False) to indicate success, and must generate the files corresponding to the outputs. The rule function is executed by threads internally so it is important to write thread-safe code (cannot search or create node objects).
 
-NOTE: The string expression 'cp $\{SRC} $\{TGT}' from the previous example is converted internally to a function similar to 'run'.
+Unlike string expressions, functions may execute several commands at once.
 
-NOTE: While a string expression may execute only one system command, functions may execute various commands at once.
-
-WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing a function will trigger a rebuild only if it is defined in a waf tool (not in wscript files).
+WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing the function will trigger a rebuild only if that function was defined in a Waf tool (not in wscript files).
 
 === Shell usage
 
 The attribute 'shell' is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
 
-
 . The Waf tools do not use the shell for executing commands
 . The shell is used by default for user commands and custom task generators
-. String expressions containing the following symbols \'>', \'<' or \'&' cannot be transformed into functions to execute commands without a shell, even if told to
+. String expressions containing the following symbols `>', `<' or `&' cannot be transformed into functions to execute commands without a shell, even if told to
 . In general, it is better to avoid the shell whenever possible to avoid quoting problems (paths having blank characters in the name for example)
 . The shell is creating a performance penalty which is more visible on win32 systems.
 
@@ -156,7 +145,7 @@ Here is an example:
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -170,7 +159,7 @@ Upon execution, the results will be similar to the following:
 
 [source,shishell]
 ---------------
-waf distclean configure build --zones=runner,action <1>
+waf distclean configure build --zones=runner,action
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
@@ -205,12 +194,11 @@ Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.017s)
 ---------------
 
-<1> The 'debugging zones' enable the display of specific debugging information (comma-separated values) for the string expression conversion, and 'runner' for command execution
-<2> String expressions are converted to functions (here, without the shell).
-<3> Command execution by the shell. Notice the heavy use of string concatenation.
-<4> Commands to execute are displayed by calling 'waf --zones=runner'. When called without the shell, the arguments are displayed as a list.
+<1> String expressions are converted to functions (here, without the shell).
+<2> Command execution by the shell. Notice the heavy use of string concatenation.
+<3> Commands to execute are displayed by calling 'waf --zones=runner'. When called without the shell, the arguments are displayed as a list.
 
-NOTE: Whenever possible, avoid using the shell to improve both performance and maintainability
+NOTE: For performance and maintainability, try avoiding the shell whenever possible
 
 === Inputs and outputs
 
@@ -219,7 +207,7 @@ Source and target arguments are optional for make-like task generators, and may 
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -292,7 +280,7 @@ As a second example, we will create a file named 'r1.txt' from the current date.
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -353,7 +341,7 @@ We will now illustrate how to make certain that the outputs reflect the file con
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
