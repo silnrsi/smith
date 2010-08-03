@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
-bld.env.LIB_Z = ["z"]
+bld.env.LIB_Z = ['z']
 
-bld(
-	 features = "c",
-	 source   = "a.c",
-	 target   = "a",
-	 use      = "Z",
+bld.objects(
+	 source   = 'a.c',
+	 target   = 'A',
+	 use      = 'Z',
 	)
 
 
 bld.program(
-	 source  = "a-test.c",
-	 target  = "a-test",
-	 use     = "a",
+	 source  = 'a-test.c',
+	 target  = 'a-test',
+	 use     = 'A',
 	)
 
 """
