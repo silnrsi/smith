@@ -282,9 +282,16 @@ NOTE: The 'use' keyword propagates transitively local shared libraries and varia
 
 When an element in the attribute 'use' does not match a local library, it is assumed that it represents a system library, and the the required flags are present in the configuration set 'env'. This system enables the addition of several compilation and link flags at once, as in the following example:
 
+// cprog_system
 [source,python]
 ---------------
+import sys
+
+def options(opt):
+	opt.tool_options('compiler_c')
+
 def configure(conf):
+	conf.check_tool('compiler_c')
 	conf.env.INCLUDES_TEST = ['/usr/include'] <1>
 
 	if sys.platform != 'win32': <2>
