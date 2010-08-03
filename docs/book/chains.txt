@@ -76,9 +76,9 @@ $ waf distclean configure build
 'distclean' finished successfully (0.000s)
 'configure' finished successfully (0.090s)
 Waf: Entering directory `/comp/waf/demos/simple_scenarios/chaining/build'
-[1/3] a: uh.in -> build/default/uh.a
-[2/3] b: build/default/uh.a -> build/default/uh.b
-[3/3] c: build/default/uh.b -> build/default/uh.c
+[1/3] a: uh.in -> build/uh.a
+[2/3] b: build/uh.a -> build/uh.b
+[3/3] c: build/uh.b -> build/uh.c
 Waf: Leaving directory `/comp/waf/demos/simple_scenarios/chaining/build'
 'build' finished successfully (0.034s)
 ---------------
@@ -110,8 +110,8 @@ The user script should only contain the following code:
 
 [source,python]
 ---------------
-top='.'
-out='out'
+top = '.'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -156,22 +156,22 @@ $ echo 1 > ch.dep <1>
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/smallproject/out'
-[1/1] copy: ch.in -> out/default/ch.out <2>
-Waf: Leaving directory `/tmp/smallproject/out'
+Waf: Entering directory `/tmp/smallproject/build'
+[1/1] copy: ch.in -> build/ch.out <2>
+Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.010s)
 
 $ waf
-Waf: Entering directory `/tmp/smallproject/out'
-Waf: Leaving directory `/tmp/smallproject/out'
+Waf: Entering directory `/tmp/smallproject/build'
+Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.005s) <3>
 
 $ echo 2 > ch.dep <4>
 
 $ waf
-Waf: Entering directory `/tmp/smallproject/out'
-[1/1] copy: ch.in -> out/default/ch.out <5>
-Waf: Leaving directory `/tmp/smallproject/out'
+Waf: Entering directory `/tmp/smallproject/build'
+[1/1] copy: ch.in -> build/ch.out <5>
+Waf: Leaving directory `/tmp/smallproject/build'
 'build' finished successfully (0.012s)
 --------------
 
@@ -286,7 +286,7 @@ Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -319,11 +319,11 @@ The output of the build execution will be the following:
 $ waf distclean configure build
 'distclean' finished successfully (0.002s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/simpleproject/out'
+Waf: Entering directory `/tmp/simpleproject/build'
 <class 'wscript_main.abcd'>
 [1/1] abcd:
 executing...
-Waf: Leaving directory `/tmp/simpleproject/out'
+Waf: Leaving directory `/tmp/simpleproject/build'
 'build' finished successfully (0.005s)
 ---------------
 

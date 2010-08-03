@@ -22,7 +22,7 @@ So far, the third design proved to be the most flexible and was kept. Here is ho
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -52,9 +52,9 @@ The output from the build will be the following:
 $ waf distclean configure build
 'distclean' finished successfully (0.001s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/simpleproject/out'
+Waf: Entering directory `/tmp/simpleproject/build'
 hello world
-Waf: Leaving directory `/tmp/simpleproject/out'
+Waf: Leaving directory `/tmp/simpleproject/build'
 'build' finished successfully (0.003s)
 ---------------
 
@@ -67,7 +67,7 @@ So far, the task generator methods defined are only executed through explicit ca
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -93,7 +93,7 @@ The execution results will be the following:
 $ waf distclean configure build --zones=task_gen <1>
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/simpleproject/out'
+Waf: Entering directory `/tmp/simpleproject/build'
 23:03:44 task_gen posting objects (normal)
 23:03:44 task_gen posting >task_gen '' of type task_gen defined in dir:///tmp/simpleproject> 139657958706768 <2>
 23:03:44 task_gen -> exec_rule (139657958706768) <3>
@@ -101,7 +101,7 @@ Waf: Entering directory `/tmp/simpleproject/out'
 23:03:44 task_gen -> methodName (139657958706768) <5>
 Hello, world!
 23:03:44 task_gen posted <6>
-Waf: Leaving directory `/tmp/simpleproject/out'
+Waf: Leaving directory `/tmp/simpleproject/build'
 23:03:44 task_gen posting objects (normal)
 'build' finished successfully (0.004s)
 ---------------
@@ -120,7 +120,7 @@ So far, the task generator methods we added were declared to be executed by all 
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -147,7 +147,7 @@ The execution output will be the following:
 $ waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/simpleproject/out'
+Waf: Entering directory `/tmp/simpleproject/build'
 16:22:07 task_gen posting objects (normal)
 16:22:07 task_gen posting <task_gen '' of type task_gen defined in dir:///tmp/simpleproject> 140631018237584
 16:22:07 task_gen -> exec_rule (140631018237584)
@@ -163,7 +163,7 @@ pong
 16:22:07 task_gen -> ping (140631018237776)
 ping
 16:22:07 task_gen posted
-Waf: Leaving directory `/tmp/simpleproject/out'
+Waf: Leaving directory `/tmp/simpleproject/build'
 16:22:07 task_gen posting objects (normal)
 'build' finished successfully (0.005s)
 ---------------
@@ -177,7 +177,7 @@ To control the execution order, two new decorators need to be added. We will now
 [source,python]
 ---------------
 top = '.'
-out = 'out'
+out = 'build'
 
 def configure(conf):
 	pass
@@ -206,7 +206,7 @@ The execution output will be the following:
 $ waf distclean configure build --zones=task_gen
 'distclean' finished successfully (0.003s)
 'configure' finished successfully (0.001s)
-Waf: Entering directory `/tmp/simpleproject/out'
+Waf: Entering directory `/tmp/simpleproject/build'
 15:54:02 task_gen posting objects (normal)
 15:54:02 task_gen posting <task_gen of type task_gen defined in dir:///tmp/simpleproject> 139808568487632
 15:54:02 task_gen -> method1 (139808568487632)
@@ -216,7 +216,7 @@ method 1 'Hello, world!'
 method 2 'Hello, world!'
 15:54:02 task_gen -> apply_core (139808568487632)
 15:54:02 task_gen posted
-Waf: Leaving directory `/tmp/simpleproject/out'
+Waf: Leaving directory `/tmp/simpleproject/build'
 15:54:02 task_gen posting objects (normal)
 'build' finished successfully (0.005s)
 ---------------

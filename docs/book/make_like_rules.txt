@@ -79,7 +79,7 @@ Waf: Leaving directory `/tmp/rules_simple/build'
 
 The string for the rule also enters in the dependency calculation. If the rule changes, then the task will be recompiled.
 
-=== Rule functions
+==== Rule functions
 
 Rules may be given as expression strings or as python function. The function is assigned to the task class created:
 
