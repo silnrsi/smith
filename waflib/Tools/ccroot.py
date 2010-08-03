@@ -147,12 +147,15 @@ def apply_link(self):
 def process_use(self):
 	"""
 	process the 'use' attribute which is like uselib+uselib_local+add_objects
-	execute after apply_link because of the execution order set on 'link_task'
+	execute after apply_link because of the execution order must be set on 'link_task'
+
+	propagation rules:
+	a static library is found -> propagation on anything stops
+	a shared library (non-static) is found -> propagation continues, but objects are not added
 	"""
+
 	env = self.env
 
-	# 1. the case of the libs defined in the project (visit ancestors first)
-	# the ancestors external libraries (uselib) will be prepended
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
@@ -174,9 +177,6 @@ def process_use(self):
 
 		y.post()
 		seen.add(lib_name)
-
-		# a static library is found -> propagation on anything stops
-		# a shared library (non-static) is found -> propagation continues, but objects are not added
 
 		# object has ancestors to process (shared libraries): add them to the end of the list
 		if getattr(y, 'use', None):
