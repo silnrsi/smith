@@ -5,6 +5,7 @@ objects can bring other objects to a final link
 """
 
 bld.env.LIB_Z = ['z']
+bld.env.INCLUDES_Z = ['.']
 
 bld.objects(
 		source   = 'a.c',
@@ -16,7 +17,6 @@ bld.objects(
 		source   = 'b.c',
 		target   = 'BB',
 		use      = 'AA',
-		includes = '.',
 	)
 
 bld.program(
