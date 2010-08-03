@@ -163,7 +163,7 @@ waf distclean configure build --zones=runner,action
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
-23:11:23 action <2>
+23:11:23 action <1>
 def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
@@ -178,16 +178,16 @@ def f(task):
 	return task.exec_command(lst, cwd=wd)
 
 23:11:23 action
-def f(task): <3>
+def f(task):
 	env = task.env
 	wd = getattr(task, 'cwd', None)
 	p = env.get_flat
-	cmd = ''' cp %s %s ''' % (" ".join([a.srcpath(env) for a in task.inputs]),
+	cmd = ''' cp %s %s ''' % (" ".join([a.srcpath(env) for a in task.inputs]), <2>
 		" ".join([a.bldpath(env) for a in task.outputs]))
 	return task.exec_command(cmd, cwd=wd)
 
 [1/2] f1.txt: wscript -> out/f1.txt
-23:11:23 runner system command -> ['cp', '../wscript', 'f1.txt']
+23:11:23 runner system command -> ['cp', '../wscript', 'f1.txt'] <3>
 [2/2] f2.txt: wscript -> out/f2.txt
 23:11:23 runner system command ->  cp ../wscript f2.txt
 Waf: Leaving directory `/tmp/rule/out'
