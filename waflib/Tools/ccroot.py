@@ -194,13 +194,8 @@ def process_use(self):
 		# link task and flags
 		if getattr(self, 'link_task', None):
 			if getattr(y, 'link_task', None):
-
-				link_name = y.target[y.target.rfind(os.sep) + 1:]
-				if isinstance(y.link_task, stlink_task):
-					env.append_value('STLIB', [link_name])
-				else:
-					# some linkers can link against programs
-					env.append_value('LIB', [link_name])
+				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
+				env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
 
 				# the order
 				self.link_task.set_run_after(y.link_task)
