@@ -141,6 +141,67 @@ def apply_link(self):
 		if inst_to:
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
 
+@taskgen_method
+def use_rec(self, name, objects=True, stlib=True):
+	"""
+	recursion sucks absolutely but we are forced to use it :-/
+	"""
+	if name in self.seen_libs:
+		continue
+	else:
+		self.seen_libs.add(name)
+
+	get = self.bld.get_tgen_by_name
+	try:
+		y = get(lib_name)
+	except Errors.WafError:
+		self.uselib.append(lib_name)
+		continue
+
+	y.post()
+	has_link = getattr(y, 'link_task', None)
+	is_static = has_link and isinstance(y.link_task, stlink_task)
+
+	# depth-first processing
+	for x in self.to_list(getattr(y, 'use', [])):
+		use_rec(x, objects and not haslink, stlib and not is_static)
+
+	# link task and flags
+	if getattr(self, 'link_task', None):
+		if has_link:
+			if (not is_static) or (is_static and stlib):
+				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
+				env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
+
+				# the order
+				self.link_task.set_run_after(y.link_task)
+
+				# for the recompilation
+				self.link_task.dep_nodes.extend(y.link_task.outputs)
+
+				# add the link path too
+				tmp_path = y.link_task.outputs[0].parent.bldpath()
+				if not tmp_path in env[var + 'PATH']:
+					env.prepend_value(var + 'PATH', [tmp_path])
+		else:
+			for t in getattr(y, 'compiled_tasks', []):
+				self.link_task.inputs.extend(t.outputs)
+
+	# add ancestors uselib too - but only propagate those that have no staticlib defined
+	for v in self.to_list(getattr(y, 'uselib', [])):
+		if not env['STLIB_' + v]:
+			if not v in self.uselib:
+				self.uselib.insert(0, v)
+
+	# if the library task generator provides 'export_incdirs', add to the include path
+	# the export_incdirs must be a list of paths relative to the other library
+	if getattr(y, 'export_incdirs', None):
+		for x in self.to_list(y.export_incdirs):
+			node = y.path.find_dir(x)
+			if not node:
+				raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
+			self.includes.append(node)
+
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths', 'propagate_uselib_vars')
 @after('apply_link', 'process_source')
@@ -159,73 +220,10 @@ def process_use(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
-	get = self.bld.get_tgen_by_name
-	seen = set([])
-	tmp = Utils.deque(names) # consume a copy of the list of names
-	while tmp:
-		lib_name = tmp.popleft()
-		# visit dependencies only once
-		if lib_name in seen:
-			continue
+	self.seen_libs = set([])
 
-		try:
-			y = get(lib_name)
-		except Errors.WafError:
-			seen.add(lib_name)
-			self.uselib.append(lib_name)
-			continue
-
-		y.post()
-		seen.add(lib_name)
-
-		# object has ancestors to process (shared libraries): add them to the end of the list
-		if getattr(y, 'use', None):
-			for x in self.to_list(getattr(y, 'use', [])):
-				try:
-					obj = get(x)
-				except Errors.WafError:
-					self.uselib.append(x)
-				else:
-					obj.post()
-					if getattr(obj, 'link_task', None):
-						if not isinstance(obj.link_task, stlink_task):
-							tmp.append(x)
-
-		# link task and flags
-		if getattr(self, 'link_task', None):
-			if getattr(y, 'link_task', None):
-				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
-				env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
-
-				# the order
-				self.link_task.set_run_after(y.link_task)
-
-				# for the recompilation
-				dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-				self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
-
-				# add the link path too
-				tmp_path = y.link_task.outputs[0].parent.bldpath()
-				if not tmp_path in env['LIBPATH']:
-					env.prepend_value('LIBPATH', [tmp_path])
-			else:
-				for t in getattr(y, 'compiled_tasks', []):
-					self.link_task.inputs.extend(t.outputs)
-
-		# add ancestors uselib too - but only propagate those that have no staticlib defined
-		for v in self.to_list(getattr(y, 'uselib', [])):
-			if not env['STLIB_' + v]:
-				if not v in self.uselib:
-					self.uselib.insert(0, v)
-
-		# if the library task generator provides 'export_incdirs', add to the include path
-		# the export_incdirs must be a list of paths relative to the other library
-		if getattr(y, 'export_incdirs', None):
-			for x in self.to_list(y.export_incdirs):
-				node = y.path.find_dir(x)
-				if not node:
-					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
-				self.includes.append(node)
+	for x in names:
+		self.use_rec(x)
 
 @taskgen_method
 def get_uselib_vars(self):

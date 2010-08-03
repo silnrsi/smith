@@ -249,7 +249,7 @@ class Task(TaskBase):
 		self.inputs  = []
 		self.outputs = []
 
-		self.deps_nodes = []
+		self.dep_nodes = []
 		self.run_after = set([])
 
 		# Additionally, you may define the following
@@ -298,7 +298,7 @@ class Task(TaskBase):
 	def add_file_dependency(self, filename):
 		"TODO user-provided file dependencies"
 		node = self.generator.bld.path.find_resource(filename)
-		self.deps_nodes.append(node)
+		self.dep_nodes.append(node)
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
@@ -385,7 +385,7 @@ class Task(TaskBase):
 		upd = self.m.update
 
 		# the inputs
-		for x in self.inputs + getattr(self, 'dep_nodes', []):
+		for x in self.inputs + self.dep_nodes:
 			try:
 				upd(x.get_bld_sig())
 			except (AttributeError, TypeError):
@@ -410,7 +410,7 @@ class Task(TaskBase):
 						v = v() # dependency is a function, call it
 					upd(v)
 
-		for x in self.deps_nodes:
+		for x in self.dep_nodes:
 			upd(x.get_bld_sig())
 		return self.m.digest()
 

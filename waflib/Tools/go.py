@@ -41,7 +41,7 @@ def go_local_libs(self):
 		for tsk in self.tasks:
 			if isinstance(tsk, go):
 				tsk.set_run_after(tg.link_task)
-				tsk.deps_nodes.extend(tg.link_task.outputs)
+				tsk.dep_nodes.extend(tg.link_task.outputs)
 		path = tg.link_task.outputs[0].parent.abspath()
 		self.env.append_unique('GOCFLAGS', ['-I%s' % path])
 		self.env.append_unique('GOLFLAGS', ['-L%s' % path])

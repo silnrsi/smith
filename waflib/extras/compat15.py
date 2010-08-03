@@ -156,8 +156,7 @@ def apply_uselib_local(self):
 			self.link_task.set_run_after(y.link_task)
 
 			# for the recompilation
-			dep_nodes = getattr(self.link_task, 'dep_nodes', [])
-			self.link_task.dep_nodes = dep_nodes + y.link_task.outputs
+			self.link_task.dep_nodes += y.link_task.outputs
 
 			# add the link path too
 			tmp_path = y.link_task.outputs[0].parent.bldpath()
