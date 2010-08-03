@@ -1,8 +1,8 @@
-== General purpose task generators
+=== General purpose task generators
 
 So far, various task generators uses have been demonstrated. This chapter provides a detailed description of task generator structure and usage.
 
-=== Task generator definition
+==== Task generator definition
 
 The chapter on make-like rules illustrated how the attribute 'rule' is processed. Then the chapter on name and extension-based file processing illustrated how the attribute 'source' is processed (in the absence of the rule attribute). To process 'any attribute', the following properties should hold:
 
@@ -60,7 +60,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 
 NOTE: The method could be bound by using 'setattr' directly, like for binding any new method on a python class.
 
-=== Executing the method during the build
+==== Executing the method during the build
 
 So far, the task generator methods defined are only executed through explicit calls. Another decorator is necessary to have a task generator executed during the build phase automatically. Here is the updated example:
 
@@ -113,7 +113,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 <5> Our task generator method is executed, and prints 'Hello, world!'
 <6> The task generator methods have been executed, the task generator is marked as done (posted)
 
-=== Task generator features
+==== Task generator features
 
 So far, the task generator methods we added were declared to be executed by all task generator instances. Limiting the execution to specific task generators requires the use of the 'feature' decorator:
 
@@ -170,7 +170,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 
 WARNING: Although the task generator instances are processed in order, the task generator method execution requires a specific declaration for the order of execution. Here, the method 'pong' is executed before the method 'ping'
 
-=== Task generator method execution order
+==== Task generator method execution order
 
 To control the execution order, two new decorators need to be added. We will now show a new example with two custom task generator methods 'method1' and 'method2', executed in that order:
 
@@ -221,7 +221,7 @@ Waf: Leaving directory `/tmp/simpleproject/out'
 'build' finished successfully (0.005s)
 ---------------
 
-=== Adding or removing a method for execution
+==== Adding or removing a method for execution
 
 The order constraints on the methods (after/before), are used to sort the list of methods in the attribute 'meths'. The sorting is performed once, and the list is consumed as methods are executed. Though no new feature may be added once the first method is executed, new methods may be added dynamically in self.meths. Here is how to create an infinite loop by adding the same method at the end:
 
@@ -250,7 +250,7 @@ The task generator method workflow is represented in the following illustration:
 
 image::posting{PIC}["Task generator workflow"{backend@docbook:,width=320:},align="center"]
 
-=== Expressing abstract dependencies between task generators
+==== Expressing abstract dependencies between task generators
 
 We will now illustrate how task generator methods can be used to express abstract dependencies between task generator objects. Here is a new project file located under '/tmp/targets/':
 

@@ -1,8 +1,11 @@
-== Rule-based task generators (Make-like)
+
+== Task generators
+
+=== Rule-based task generators (Make-like)
 
 This chapter illustrates the use of rule-based task generators for building simple targets.
 
-=== Declaration and usage
+==== Declaration and usage
 
 Rule-based task generators are a particular category of task generators producing exactly one task.
 
@@ -130,7 +133,7 @@ Unlike string expressions, functions may execute several commands at once.
 
 WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing the function will trigger a rebuild only if that function was defined in a Waf tool (not in wscript files).
 
-=== Shell usage
+==== Shell usage
 
 The attribute 'shell' is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
 
@@ -200,7 +203,7 @@ Waf: Leaving directory `/tmp/rule/out'
 
 NOTE: For performance and maintainability, try avoiding the shell whenever possible
 
-=== Inputs and outputs
+==== Inputs and outputs
 
 Source and target arguments are optional for make-like task generators, and may point at one or several files at once. Here are a few examples:
 
@@ -273,7 +276,7 @@ Waf: Leaving directory `/tmp/rule/out'
 'build' finished successfully (0.014s)
 ---------------
 
-=== Dependencies on file contents
+==== Dependencies on file contents
 
 As a second example, we will create a file named 'r1.txt' from the current date. It will be updated each time the build is executed. A second file named 'r2.txt' will be created from 'r1.txt'.
 

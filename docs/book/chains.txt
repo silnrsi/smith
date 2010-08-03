@@ -1,8 +1,9 @@
-== Name and extension-based file processing
+
+=== Name and extension-based file processing
 
 Transformations may be performed automatically based on the file name or on the extension.
 
-=== Refactoring repeated rule-based task generators into implicit rules
+==== Refactoring repeated rule-based task generators into implicit rules
 
 The explicit rules described in the previous chapter become limited for processing several files of the same kind. The following code may lead to unmaintainable scripts and to slow builds (for loop):
 
@@ -46,7 +47,7 @@ TaskGen.declare_chain(
 <5> The reentrant attribute is used to add the output files as source again, for processing by another implicit rule
 <6> String representing the installation path for the output files, similar to the destination path from 'bld.install_files'. To disable installation, set it to False.
 
-=== Chaining more than one command
+==== Chaining more than one command
 
 Now consider the long chain 'uh.in' → 'uh.a' → 'uh.b' → 'uh.c'. The following implicit rules demonstrate how to generate the files while maintaining a minimal user script:
 
@@ -82,7 +83,7 @@ Waf: Leaving directory `/comp/waf/demos/simple_scenarios/chaining/build'
 'build' finished successfully (0.034s)
 ---------------
 
-=== Scanner methods
+==== Scanner methods
 
 Because transformation chains rely on implicit transformations, it may be desirable to hide some files from the list of sources. Or, some dependencies may be produced conditionally and may not be known in advance. A 'scanner method' is a kind of callback used to find additional dependencies just before the target is generated. For illustration purposes, let us start with an empty project containing three files: the 'wscript', 'ch.in' and 'ch.dep'
 
@@ -190,7 +191,7 @@ Here are a few important points about scanner methods:
 . they are used by Waf internally for c/c++ support, to add dependencies dynamically on the header files ('.c' → '.h')
 
 
-=== Extension callbacks
+==== Extension callbacks
 
 In the chain declaration from the previous sections, the attribute 'reentrant' was described to control if the generated files are to be processed or not. There are cases however where one of the two generated files must be declared (because it will be used as a dependency) but where it cannot be considered as a source file in itself (like a header in c/c\++). Now consider the following two chains ('uh.in' → 'uh.a1' + 'uh.a2') and ('uh.a1' → 'uh.b') in the following example:
 
@@ -278,7 +279,7 @@ def my_callback(task_gen_object<2>, node<3>):
 
 The creation of new task classes will be described in the next section.
 
-=== Task class declaration
+==== Task class declaration
 
 Waf tasks are instances of the class Task.TaskBase. Yet, the base class contains the real minimum, and the immediate subclass 'Task.Task' is usually chosen in user scripts. We will now start over with a simple project containing only one project 'wscript' file and and example file named 'ah.in'. A task class will be added.
 
@@ -360,7 +361,7 @@ Task.task_type_from_func(<6>
 
 Note that most attributes are common between the two function factories. More usage examples may be found in most Waf tools.
 
-=== Source attribute processing
+==== Source attribute processing
 
 The first step in processing the source file attribute is to convert all file names into Nodes. Special methods may be mapped to intercept names by the exact file name entry (no extension). The Node objects are then added to the task generator attribute 'source'.
 
