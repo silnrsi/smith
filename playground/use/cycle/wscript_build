@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+bld.shlib(
+	source = 'a.c',
+	target = 'S_1',
+	use    = 'S_2'
+)
+
+bld.shlib(
+	source = 'b.c',
+	target = 'S_2',
+	use    = 'S_1'
+)
+

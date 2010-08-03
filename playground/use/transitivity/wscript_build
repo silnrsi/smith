@@ -20,10 +20,9 @@ bld.objects(
 		use      = 'AA',
 	)
 
-"""
 bld.program(
 		source = 'c.c',
 		target = 'CC',
 		use    = 'BB',
 	)
-"""
+
