@@ -7,5 +7,6 @@ def configure(ctx):
 	ctx.check_tool('compiler_c')
 
 def build(ctx):
-	ctx.add_subdirs('basic fakelibs objects transitivity')
+	#ctx.add_subdirs('fakelibs objects transitivity')
+	ctx.add_subdirs('transitivity')
 

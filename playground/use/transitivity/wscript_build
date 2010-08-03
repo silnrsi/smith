@@ -8,28 +8,21 @@ bld.env.LIB_Z = ['z']
 
 bld.objects(
 	 source   = 'a.c',
-	 target   = 'A',
+	 target   = 'AA',
 	 use      = 'Z',
 	)
 
-
-bld.program(
-	 source  = 'a-test.c',
-	 target  = 'a-test',
-	 use     = 'A',
-	)
-
-"""
 bld.objects(
 	 source   = 'b.c',
-	 target   = 'B',
+	 target   = 'BB',
 	 use      = 'A',
+	 includes = '.',
 	)
 
 bld.program(
 	 source = 'c.c',
-	 target = 'C',
-	 use    = 'B',
+	 target = 'CC',
+	 use    = 'BB',
 	)
-"""
+
 
