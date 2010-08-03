@@ -7,7 +7,10 @@ def configure(ctx):
 	ctx.check_tool('compiler_c')
 
 def build(ctx):
-	ctx.add_subdirs('fakelibs objects')
-	#ctx.add_subdirs('transitivity')
-	#ctx.add_subdirs('cycle')
+	sub = ctx.add_subdirs
+	sub('fakelibs')
+	sub('objects')
+	sub('order')
+	#sub('transitivity')
+	#sub('cycle')
 
