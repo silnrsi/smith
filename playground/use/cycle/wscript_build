@@ -6,13 +6,13 @@ Cycles in use should be detected (raise an error before the build starts)
 
 bld.shlib(
 	source = 'a.c',
-	target = 'S_1',
-	use    = 'S_2'
+	target = 'CYC_1',
+	use    = 'CYC_2'
 )
 
 bld.shlib(
 	source = 'b.c',
-	target = 'S_2',
-	use    = 'S_1'
-)
+	target = 'CYC_2',
+	use    = 'CYC_1'
+).post()
 
