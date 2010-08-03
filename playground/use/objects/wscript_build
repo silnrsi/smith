@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+when linked, object files should bring the libraries (uselib) they refer to
+"""
+
 bld.env.LIB_Z = ['z']
 
 bld.objects(
@@ -16,17 +20,16 @@ bld.program(
 	)
 
 """
-bld(
-	 features = "c",
-	 source   = "b.c",
-	 target   = "b",
-	 use      = "a",
+bld.objects(
+	 source   = 'b.c',
+	 target   = 'B',
+	 use      = 'A',
 	)
 
 bld.program(
-	 source = "c.c",
-	 target = "c",
-	 use    = "b",
+	 source = 'c.c',
+	 target = 'C',
+	 use    = 'B',
 	)
 """
 
