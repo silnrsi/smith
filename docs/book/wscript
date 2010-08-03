@@ -114,7 +114,7 @@ def build(bld):
 
 	bld.add_group() # separator, the documents may require any of the pictures from above
 
-	bld(rule='${ADOC} -a icons=true -a stylesheet=${SRC[1].abspath()} -a iconsdir=. -a toc -n -d book -o ${TGT} ${SRC[0].abspath()}',
+	bld(rule='${ADOC} -a icons=true -a stylesheet=${SRC[1].abspath()} -a iconsdir=. -a toc -d book -o ${TGT} ${SRC[0].abspath()}',
 		source='waf.txt waf.css', target='single.html', scan=ascii_doc_scan)
 
 	bld(rule='${A2X} -L -a toc --icons-dir=. --icons -D ${gen.path.get_bld().abspath()} -d book -f pdf ${SRC}',
