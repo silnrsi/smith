@@ -7,5 +7,5 @@ def configure(ctx):
 	ctx.check_tool('compiler_c')
 
 def build(ctx):
-	ctx.add_subdirs('basic propagation fakelibs')
+	ctx.add_subdirs('basic fakelibs objects transitivity')
 
