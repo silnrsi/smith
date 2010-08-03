@@ -147,16 +147,16 @@ def use_rec(self, name, objects=True, stlib=True):
 	recursion sucks absolutely but we are forced to use it :-/
 	"""
 	if name in self.seen_libs:
-		continue
+		return
 	else:
 		self.seen_libs.add(name)
 
 	get = self.bld.get_tgen_by_name
 	try:
-		y = get(lib_name)
+		y = get(name)
 	except Errors.WafError:
-		self.uselib.append(lib_name)
-		continue
+		self.uselib.append(name)
+		return
 
 	y.post()
 	has_link = getattr(y, 'link_task', None)
@@ -164,14 +164,14 @@ def use_rec(self, name, objects=True, stlib=True):
 
 	# depth-first processing
 	for x in self.to_list(getattr(y, 'use', [])):
-		use_rec(x, objects and not haslink, stlib and not is_static)
+		self.use_rec(x, objects and not has_link, stlib and not is_static)
 
 	# link task and flags
 	if getattr(self, 'link_task', None):
 		if has_link:
 			if (not is_static) or (is_static and stlib):
 				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
-				env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
+				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
 
 				# the order
 				self.link_task.set_run_after(y.link_task)
@@ -181,26 +181,22 @@ def use_rec(self, name, objects=True, stlib=True):
 
 				# add the link path too
 				tmp_path = y.link_task.outputs[0].parent.bldpath()
-				if not tmp_path in env[var + 'PATH']:
-					env.prepend_value(var + 'PATH', [tmp_path])
-		else:
+				if not tmp_path in self.env[var + 'PATH']:
+					self.env.prepend_value(var + 'PATH', [tmp_path])
+		elif objects:
 			for t in getattr(y, 'compiled_tasks', []):
 				self.link_task.inputs.extend(t.outputs)
 
 	# add ancestors uselib too - but only propagate those that have no staticlib defined
 	for v in self.to_list(getattr(y, 'uselib', [])):
-		if not env['STLIB_' + v]:
+		if not self.env['STLIB_' + v]:
 			if not v in self.uselib:
 				self.uselib.insert(0, v)
 
 	# if the library task generator provides 'export_incdirs', add to the include path
 	# the export_incdirs must be a list of paths relative to the other library
 	if getattr(y, 'export_incdirs', None):
-		for x in self.to_list(y.export_incdirs):
-			node = y.path.find_dir(x)
-			if not node:
-				raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
-			self.includes.append(node)
+		self.includes.extend(self.to_list(y.export_incdirs))
 
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths', 'propagate_uselib_vars')
