@@ -6,7 +6,6 @@ General
 - MAKEFLAGS?
 - recurse: from top or from current folder? into a file of a given name?
 - remove the files on 'waf clean'
-- fake local libraries? relink when they change?
 - broken conf.check_cfg and problems with default uselib (capital letters)
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - refactor the environment thing ?
@@ -16,8 +15,6 @@ Low priority
 - refactor the c and d preprocessor functions
 - detect user typos (the checks have been removed)
 - enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
-
-- Options.options.cache for config tests
 
 Potential sub-projects (contributions will be welcome)
 
