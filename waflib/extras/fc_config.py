@@ -294,7 +294,7 @@ def mangling_schemes():
 
 def mangle_name(u, du, c, name):
 	"""mangle a name from a triplet (used in check_fortran_mangling)"""
-	return getattr(string, c)(name) + u + (name.find('_') != -1 and du or '')
+	return getattr(name, c)() + u + (name.find('_') != -1 and du or '')
 
 @conf
 def check_fortran_mangling(self, *k, **kw):

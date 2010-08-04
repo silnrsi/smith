@@ -167,18 +167,16 @@ class fcprogram_test(fcprogram):
 
 		bld.to_log('command: %s\n' % cmd)
 
+		kw['output'] = 0
 		try:
-			proc = Utils.subprocess.Popen(cmd, **kw)
-			(bld.out, bld.err) = proc.communicate()
-		except OSError:
+			(bld.out, bld.err) = bld.cmd_and_log(cmd, **kw)
+		except Exception as e:
 			return -1
 
 		if bld.out:
 			bld.to_log("out: %s\n" % bld.out)
 		if bld.err:
 			bld.to_log("err: %s\n" % bld.err)
-
-		return proc.returncode
 
 class fcstlib(ccroot.stlink_task):
 	"""just use ar normally"""
