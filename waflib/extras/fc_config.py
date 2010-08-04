@@ -28,8 +28,8 @@ def fc_flags(conf):
 	v['FCLNK_SRC_F'] = ''
 	v['FCLNK_TGT_F'] = ['-o', '']
 
-	v['fcshlib_FCFLAGS']   = ['-fpic']
-	v['fcshlib_LINKFLAGS'] = ['-shared']
+	v['FCFLAGS_fcshlib']   = ['-fpic']
+	v['LINKFLAGS_fcshlib'] = ['-shared']
 	v['fcshlib_PATTERN']   = 'lib%s.so'
 
 	v['fcstlib_PATTERN']   = 'lib%s.a'
