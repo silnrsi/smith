@@ -30,7 +30,7 @@ class opt_parser(optparse.OptionParser):
 		self.ctx = ctx
 
 		jobs = ctx.jobs()
-		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % ctx)
+		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % jobs)
 		p('-k', '--keep',     dest='keep',    default=False, action='store_true', help='keep running happily on independent task groups')
 		p('-v', '--verbose',  dest='verbose', default=0,     action='count', help='verbosity level -v -vv or -vvv [default: 0]')
 		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
