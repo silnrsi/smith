@@ -1,2 +1,2 @@
 #include <stdio.h>
-int main(){ printf("%d", 31755); return 0;}
+int main(){ printf("%d", 748); return 0;}
