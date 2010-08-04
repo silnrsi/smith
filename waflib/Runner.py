@@ -129,7 +129,14 @@ class Parallel(object):
 			if self.count:
 				self.get_out()
 			elif self.frozen:
-				print("Deadlock detected, check the build order for the tasks: %r" % self.frozen)
+				try:
+					cond = self.deadlock == self.processed
+				except:
+					pass
+				else:
+					if cond:
+						raise Errors.WafError("Deadlock detected, check the build order for the tasks: %r" % self.frozen)
+				self.deadlock = self.processed
 
 			if self.frozen:
 				self.outstanding += self.frozen
