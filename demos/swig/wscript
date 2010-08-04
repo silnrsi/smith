@@ -74,11 +74,13 @@ def inst_py(bld):
 def exec_test(bld):
 	import os, stat
 	try:
-		print os.popen('''
+		import subprocess
+		proc = subprocess.Popen('''
 PYTHONPATH=$PYTHONPATH:build/extend/python
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/extend/python:build/extend
 python -c "import test_swig_waf; a=test_swig_waf.A(); print 'Testing: a.add(2, 3) ->', a.add(2, 3)"
-'''.replace('\n', ' ')).read()
+'''.replace('\n', ' '), shell=True)
+		proc.wait()
 	except:
 		pass
 
