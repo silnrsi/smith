@@ -405,7 +405,10 @@ def configure(self):
 	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
 	vars_debug = [a+'_debug' for a in vars]
 
-	pkgconfig = env['pkg-config'] or 'PKG_CONFIG_PATH=%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
+	if not 'PKG_CONFIG_PATH' in os.environ:
+		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib pkg-config --silence-errors' % (qtlibs, qtlibs)
+
+	pkgconfig = env['pkg-config'] or 'pkg-config'
 	for i in vars_debug+vars:
 		try:
 			self.check_cfg(package=i, args='--cflags --libs', path=pkgconfig)
