@@ -751,6 +751,7 @@ class InstallContext(BuildContext):
 	def run_task_now(self, tsk, postpone):
 		"""execute an installation task immediately"""
 		if not postpone:
+			tsk.post()
 			if tsk.runnable_status() == Task.ASK_LATER:
 				raise self.WafError('cannot post the task %r' % tsk)
 			tsk.run()
