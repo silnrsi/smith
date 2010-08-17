@@ -146,10 +146,6 @@ def check_python_headers(conf):
 	if not python:
 		conf.fatal('could not find the python executable')
 
-	## On Mac OSX we need to use mac bundles for python plugins
-	if Options.platform == 'darwin':
-		conf.check_tool('osx')
-
 	try:
 		# Get some python configuration variables using distutils
 		v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET'.split()
