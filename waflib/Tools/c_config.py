@@ -93,6 +93,7 @@ def parse_flags(line, uselib, env):
 			app('FRAMEWORKPATH_' + uselib, [x[2:]])
 		elif x.startswith('-std'):
 			app('CCFLAGS_' + uselib, [x])
+			app('CXXFLAGS_' + uselib, [x])
 			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-Wl'):
 			app('LINKFLAGS_' + uselib, [x])
