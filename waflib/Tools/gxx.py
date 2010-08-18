@@ -97,7 +97,6 @@ def gxx_modifier_darwin(conf):
 
 	v['SHLIB_MARKER']        = ''
 	v['STLIB_MARKER']    = ''
-	v['SONAME_ST']		 = ''
 
 @conf
 def gxx_modifier_aix(conf):
