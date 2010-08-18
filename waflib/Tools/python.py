@@ -192,24 +192,24 @@ MACOSX_DEPLOYMENT_TARGET = %r
 	if Options.platform != 'darwin' and python_LDFLAGS:
 		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())
 
-	result = False
+	result = None
 	name = 'python' + env['PYTHON_VERSION']
 
 	if python_LIBDIR is not None:
 		path = [python_LIBDIR]
 		conf.to_log("\n\n# Trying LIBDIR: %r\n" % path)
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
 	if not result and python_LIBPL is not None:
 		conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
 		path = [python_LIBPL]
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
 	if not result:
 		conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
 		path = [os.path.join(python_prefix, "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path)
+		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
 	if result:
 		env['LIBPATH_PYEMBED'] = path
