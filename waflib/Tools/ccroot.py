@@ -301,7 +301,7 @@ def apply_vnum(self):
 	libfoo.so is installed as libfoo.so.1.2.3
 	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
 	"""
-	if not getattr(self, 'vnum', '') or not 'cshlib' in self.features or os.name != 'posix' or self.bld.get_dest_binfmt() not in ('elf', 'mac-o'):
+	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.bld.get_dest_binfmt() not in ('elf', 'mac-o'):
 		return
 
 	link = self.link_task
@@ -329,9 +329,7 @@ def apply_vnum(self):
 		return
 
 	# the following task is just to enable execution from the build dir :-/
-	tsk = self.create_task('vnum')
-	tsk.set_inputs([node])
-	tsk.set_outputs(node.parent.find_or_declare(name2))
+	tsk = self.create_task('vnum', node, [node.parent.find_or_declare(name2), node.parent.find_or_declare(name3)])
 
 	self.install_task.hasrun = Task.SKIP_ME
 	bld = self.bld
@@ -345,16 +343,17 @@ class vnum_task(Task.Task):
 	quient = True
 	ext_in = ['.bin']
 	def run(self):
-		path = self.outputs[0].abspath()
-		try:
-			os.remove(path)
-		except OSError:
-			pass
+		for x in self.outputs:
+			path = x.abspath()
+			try:
+				os.remove(path)
+			except OSError:
+				pass
 
-		try:
-			os.symlink(self.inputs[0].name, path)
-		except OSError:
-			return 1
+			try:
+				os.symlink(self.inputs[0].name, path)
+			except OSError:
+				return 1
 
 class fake_shlib(link_task):
 	quiet = True
