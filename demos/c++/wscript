@@ -18,7 +18,7 @@ def configure(conf):
 	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
 
 def build(bld):
-	bld.shlib(source='a.cpp', target='mylib')
+	bld.shlib(source='a.cpp', target='mylib', vnum='9.8.7')
 	bld.program(source='main.cpp', target='app', use='mylib')
 	bld.stlib(target='foo', source='b.cpp')
 
