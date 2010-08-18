@@ -178,7 +178,8 @@ MACOSX_DEPLOYMENT_TARGET = %r
 	env['pyext_PATTERN'] = '%s'+python_SO
 
 	# Check for python libraries for embedding
-	if python_SYSLIBS is not None:
+	conf.parse_flags(python_SYSLIBS + ' ' + python_SHLIBS, 'PYEMBED')
+	"""if python_SYSLIBS is not None:
 		for lib in python_SYSLIBS.split():
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
@@ -187,7 +188,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 		for lib in python_SHLIBS.split():
 			if lib.startswith('-l'):
 				lib = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', [lib])
+			env.append_value('LIB_PYEMBED', [lib])"""
 
 	if Options.platform != 'darwin' and python_LDFLAGS:
 		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())

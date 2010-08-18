@@ -59,10 +59,13 @@ int main() {
 }
 '''
 
-def parse_flags(line, uselib, env):
+@conf
+def parse_flags(self, line, uselib, env=None):
 	"""pkg-config still has bugs on some platforms, and there are many -config programs, parsing flags is necessary :-/"""
 
 	assert(isinstance(line, str))
+
+	env = env or self.env
 
 	app = env.append_unique
 	lst = shlex.split(line)
@@ -186,7 +189,7 @@ def exec_cfg(self, kw):
 		kw['okmsg'] = 'yes'
 
 	self.define(self.have_define(kw.get('uselib_store', kw['package'])), 1, 0)
-	parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
+	self.parse_flags(ret, kw.get('uselib_store', kw['package'].upper()), kw.get('env', self.env))
 	return ret
 
 @conf
