@@ -321,22 +321,17 @@ def apply_vnum(self):
 		v = self.env.SONAME_ST % name2
 		self.env.append_value('LINKFLAGS', v.split())
 
-	if not getattr(self.bld, 'is_install', None):
-		return
-
-	path = getattr(self, 'install_path', None)
-	if not path:
-		return
-
 	# the following task is just to enable execution from the build dir :-/
 	tsk = self.create_task('vnum', node, [node.parent.find_or_declare(name2), node.parent.find_or_declare(name3)])
 
-	self.install_task.hasrun = Task.SKIP_ME
-	bld = self.bld
-	t1 = bld.install_as(path + os.sep + name3, node, env=self.env)
-	t2 = bld.symlink_as(path + os.sep + name2, name3)
-	t3 = bld.symlink_as(path + os.sep + libname, name3)
-	self.vnum_install_task = (t1, t2, t3)
+	if getattr(self.bld, 'is_install', None):
+		self.install_task.hasrun = Task.SKIP_ME
+		bld = self.bld
+		path = self.install_task.dest
+		t1 = bld.install_as(path + os.sep + name3, node, env=self.env)
+		t2 = bld.symlink_as(path + os.sep + name2, name3)
+		t3 = bld.symlink_as(path + os.sep + libname, name3)
+		self.vnum_install_task = (t1, t2, t3)
 
 class vnum_task(Task.Task):
 	color = 'CYAN'
