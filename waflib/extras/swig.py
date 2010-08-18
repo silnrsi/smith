@@ -108,7 +108,7 @@ def swig_c(self):
 	if '-c++' in flags:
 		c_tsk = self.generator.cxx_hook(out_node)
 	else:
-		c_tsk = self.generator.cc_hook(out_node)
+		c_tsk = self.generator.c_hook(out_node)
 
 	c_tsk.set_run_after(self)
 
