@@ -390,9 +390,11 @@ def find_file(self, filename, path_list=[]):
 	@param path_list: list of directories to search
 	@return: the first occurrence filename or '' if filename could not be found
 	"""
-	for directory in Utils.to_list(path_list):
-		if os.path.exists(os.path.join(directory, filename)):
-			return directory
+	for n in Utils.to_list(filename):
+		for d in Utils.to_list(path_list):
+			p = os.path.join(d, n)
+			if os.path.exists(p):
+				return p
 	self.fatal('Could not find %r' % filename)
 
 @conf
@@ -446,4 +448,19 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 		self.env[var] = ret
 	return ret
 
+
+@conf
+def find_perl_program(self, filename, path_list=[], var=None, environ=None, exts=''):
+	"""Search for a program on the operating system"""
+
+	try:
+		app = self.find_program(filename, path_list=path_list, var=var, environ=environ, exts=exts)
+	except:
+		perl = conf.find_program('perl', var='PERL')
+		app = self.find_file(filename, os.environ['PATH'].split(os.pathsep))
+		if not app:
+			raise
+		if var:
+			self.env[var] = Utils.to_list(conf.env['PERL']) + [app]
+	conf.msg('Checking for %r' % filename, app)
 

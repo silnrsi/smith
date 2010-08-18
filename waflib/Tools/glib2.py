@@ -159,6 +159,6 @@ Task.task_factory('glib_mkenums',
 	color='PINK', ext_out='.h')
 
 def configure(conf):
-	glib_genmarshal = conf.find_program('glib-genmarshal', var='GLIB_GENMARSHAL')
-	mk_enums_tool = conf.find_program('glib-mkenums', var='GLIB_MKENUMS')
+	conf.find_perl_program('glib-genmarshal', var='GLIB_GENMARSHAL')
+	conf.find_perl_program('glib-mkenums', var='GLIB_MKENUMS')
 

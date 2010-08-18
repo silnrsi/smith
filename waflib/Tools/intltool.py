@@ -84,19 +84,7 @@ def configure(conf):
 	conf.find_program('msgfmt', var='MSGFMT')
 	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
 
-	intltool = conf.find_program('intltool-merge', var='INTLTOOL')
-	if not intltool:
-		# if intltool-merge should not be mandatory, catch the thrown exception in your wscript
-		if Options.platform == 'win32':
-			perl = conf.find_program('perl', var='PERL')
-			intltooldir = Configure.find_file('intltool-merge', os.environ['PATH'].split(os.pathsep))
-			if not intltooldir:
-				conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
-
-			conf.env['INTLTOOL'] = Utils.to_list(conf.env['PERL']) + [intltooldir + os.sep + 'intltool-merge']
-			conf.msg('Checking for intltool', ' '.join(conf.env['INTLTOOL']))
-		else:
-			conf.fatal('The program intltool-merge (intltool, gettext-devel) is mandatory!')
+	conf.find_perl_program('intltool-merge', var='INTLTOOL')
 
 	def getstr(varname):
 		return getattr(Options.options, varname, '')
