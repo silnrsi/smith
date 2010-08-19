@@ -25,7 +25,7 @@ re_3 = re.compile('#include "(.*)"', re.M)
 
 class swig(Task.Task):
 	color   = 'BLUE'
-	run_str = '${SWIG} ${SWIGFLAGS} ${SWIGPATH_ST:INCPATHS} ${SRC}'
+	run_str = '${SWIG} ${SWIGFLAGS} ${SWIGPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC}'
 	ext_out = ['.h'] # might produce .h files although it is not mandatory
 
 	def runnable_status(self):
