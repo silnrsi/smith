@@ -96,7 +96,8 @@ def gcc_modifier_darwin(conf):
 	v['LINKFLAGS_cstlib'] = []
 
 	v['SHLIB_MARKER']        = ''
-	v['STLIB_MARKER']    = ''
+	v['STLIB_MARKER']        = ''
+	v['SONAME_ST']           = ''
 
 @conf
 def gcc_modifier_aix(conf):
