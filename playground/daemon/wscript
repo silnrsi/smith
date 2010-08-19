@@ -1,0 +1,26 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2009 (ita)
+
+"""
+Use 'waf daemon'
+"""
+
+VERSION='0.0.1'
+APPNAME='cc_test'
+top = '.'
+out = 'build'
+
+def set_options(opt):
+	opt.tool_options('daemon', tooldir='.')
+
+def configure(conf):
+	conf.check_tool('gcc')
+	conf.check_tool('daemon', tooldir='.')
+
+def build(bld):
+	bld(
+		features='cc cprogram',
+		source='main.c',
+		target='test')
+
