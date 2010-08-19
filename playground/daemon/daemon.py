@@ -60,9 +60,8 @@ def daemon(ctx):
 	bld = None
 	while True:
 		try:
-			bld = Context.g_module.build_context()
-			Scripting.build(bld)
-		except Build.BuildError, e:
+			bld = Scripting.run_command('build')
+		except ctx.errors.WafError as e:
 			Logs.warn(e)
 		except KeyboardInterrupt:
 			Utils.pprint('RED', 'interrupted')
