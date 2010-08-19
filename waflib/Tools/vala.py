@@ -44,6 +44,9 @@ class valac_task(Task.Task):
 		for package in self.packages_private:
 			cmd.append('--pkg=%s' % package)
 
+		for define in self.vala_defines:
+			cmd.append('--define=%s' % define)
+
 		cmd.extend([a.abspath() for a in self.inputs])
 		ret = self.exec_command(cmd, cwd=self.outputs[0].parent.abspath())
 
@@ -75,6 +78,7 @@ def vala_file(self, node):
 		valatask.threading = False
 		valatask.install_path = getattr(self, 'install_path', '')
 		valatask.profile = getattr (self, 'profile', 'gobject')
+		valatask.vala_defines = getattr(self, 'vala_defines', [])
 		valatask.target_glib = None
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
