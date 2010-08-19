@@ -4,9 +4,10 @@
 # Thomas Nagy, 2010
 
 bld.program(
-	packages = 'gtk+-2.0',
-	target   = 'vala-gtk-example',
-	uselib   = 'GTK GLIB',
-	source   = 'vala-gtk-example.vala'
+	packages      = 'gtk+-2.0',
+	target        = 'vala-gtk-example',
+	uselib        = 'GTK GLIB',
+	source        = 'vala-gtk-example.vala',
+	vala_defines  = ['DEBUG']
 	)
 

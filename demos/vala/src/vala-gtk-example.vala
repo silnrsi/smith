@@ -2,6 +2,12 @@
 using GLib;
 using Gtk;
 
+public void trace (string message) {
+        #if DEBUG
+        stdout.printf (message);
+        #endif
+}
+
 public class Sample : Window {
         construct {
                 title = "Sample Window";
@@ -21,6 +27,8 @@ public class Sample : Window {
 
         static int main (string[] args) {
                 Gtk.init (ref args);
+
+                trace ("testing vala conditional compilation\n");
 
                 var sample = new Sample ();
                 sample.show_all ();
