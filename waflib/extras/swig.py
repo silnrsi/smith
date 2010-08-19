@@ -146,7 +146,7 @@ def i_file(self, node):
 	tsk.module = getattr(self, 'swig_module', None)
 
 	flags = self.to_list(getattr(self, 'swig_flags', []))
-	tsk.env['SWIGFLAGS'] = flags
+	tsk.env.append_value('SWIGFLAGS', flags)
 
 	# looks like this is causing problems
 	#if not '-outdir' in flags:
