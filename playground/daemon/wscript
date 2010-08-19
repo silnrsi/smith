@@ -11,7 +11,7 @@ APPNAME='cc_test'
 top = '.'
 out = 'build'
 
-def set_options(opt):
+def options(opt):
 	opt.tool_options('daemon', tooldir='.')
 
 def configure(conf):
@@ -19,8 +19,7 @@ def configure(conf):
 	conf.check_tool('daemon', tooldir='.')
 
 def build(bld):
-	bld(
-		features='cc cprogram',
+	bld.program(
 		source='main.c',
 		target='test')
 

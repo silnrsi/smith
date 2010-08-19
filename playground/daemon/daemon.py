@@ -13,7 +13,7 @@ Watching for new svn revisions could be added too
 """
 
 import select, errno, os, time
-import Utils, Scripting, Logs, Build, Node
+from waflib import Utils, Scripting, Logs, Build, Node, Context
 
 w_pyinotify = w_fam = w_gamin = None
 def check_support():
@@ -60,7 +60,7 @@ def daemon(ctx):
 	bld = None
 	while True:
 		try:
-			bld = Utils.g_module.build_context()
+			bld = Context.g_module.build_context()
 			Scripting.build(bld)
 		except Build.BuildError, e:
 			Logs.warn(e)
@@ -76,9 +76,9 @@ def daemon(ctx):
 
 		x.wait(bld)
 
-def set_options(opt):
+def options(opt):
 	"""So this shows how to add new commands from tools"""
-	Utils.g_module.__dict__['daemon'] = daemon
+	Context.g_module.__dict__['daemon'] = daemon
 
 class DirWatch(object):
 	def __init__(self):
