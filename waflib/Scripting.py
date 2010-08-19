@@ -168,6 +168,7 @@ def run_command(cmd_name):
 	ctx.options = Options.options # provided for convenience
 	ctx.cmd = cmd_name
 	ctx.call_execute()
+	return ctx
 
 def run_commands():
 	run_command('init')
