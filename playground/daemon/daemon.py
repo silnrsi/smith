@@ -62,7 +62,7 @@ def daemon(ctx):
 		try:
 			bld = Scripting.run_command('build')
 		except ctx.errors.WafError as e:
-			Logs.warn(e)
+			print(e)
 		except KeyboardInterrupt:
 			Utils.pprint('RED', 'interrupted')
 			break
