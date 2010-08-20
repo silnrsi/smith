@@ -61,9 +61,9 @@ def daemon(ctx):
 	while True:
 		bld = Context.create_context('build')
 		try:
-    		bld.options = Options.options
-    		bld.cmd = 'build'
-     		bld.call_execute()
+			bld.options = Options.options
+			bld.cmd = 'build'
+			bld.call_execute()
 		except ctx.errors.WafError as e:
 			print(e)
 		except KeyboardInterrupt:
