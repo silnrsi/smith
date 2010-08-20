@@ -386,7 +386,9 @@ def process_lib(self):
 		if not isinstance(x, Node.Node):
 			x = self.bld.root.find_node(x)
 			if not x:
-				continue
+				x = self.path.find_node(x)
+				if not x:
+					continue
 		for y in names:
 			node = x.find_node(y)
 			if node:
