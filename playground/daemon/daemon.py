@@ -97,10 +97,12 @@ class DirWatch(object):
 
 	def enumerate(self, node):
 		yield node.abspath()
-		if node.children:
+		try:
 			for x in node.children.values():
 				for k in self.enumerate(x):
 					yield k
+		except AttributeError:
+			pass
 		raise StopIteration
 
 	def wait_pyinotify(self, bld):
