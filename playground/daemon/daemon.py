@@ -13,7 +13,7 @@ Watching for new svn revisions could be added too
 """
 
 import select, errno, os, time
-from waflib import Utils, Scripting, Logs, Build, Node, Context
+from waflib import Utils, Scripting, Logs, Build, Node, Context, Options
 
 w_pyinotify = w_fam = w_gamin = None
 def check_support():
