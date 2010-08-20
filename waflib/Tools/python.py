@@ -84,7 +84,8 @@ def feature_py(self):
 @feature('pyext')
 @before('propagate_uselib_vars', 'apply_link')
 def init_pyext(self):
-	self.install_path = '${PYTHONDIR}'
+	if not getattr(self, 'install_path', None):
+		self.install_path = '${PYTHONDIR}'
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
