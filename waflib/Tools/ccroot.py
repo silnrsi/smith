@@ -373,8 +373,8 @@ def read_stlib(self, name, paths=[]):
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='stlib')
 
 lib_patterns = {
-	'shlib' : ['lib%s.so', '%s.so', 'lib%s.dll'],
-	'stlib' : ['lib%s.a', '%s.a', 'lib%s.dll', 'lib%s.lib'],
+	'shlib' : ['lib%s.so', '%s.so', 'lib%s.dll', '%s.dll'],
+	'stlib' : ['lib%s.a', '%s.a', 'lib%s.dll', '%s.dll', 'lib%s.lib', '%s.lib'],
 }
 
 @feature('fake_lib')
@@ -382,7 +382,7 @@ def process_lib(self):
 	node = None
 
 	names = [x % self.name for x in lib_patterns[self.lib_type]]
-	for x in self.lib_paths + ['/usr/lib64', '/usr/lib', '/usr/local/lib64', '/usr/local/lib']:
+	for x in self.lib_paths + [self.path, '/usr/lib64', '/usr/lib', '/usr/local/lib64', '/usr/local/lib']:
 		if not isinstance(x, Node.Node):
 			x = self.bld.root.find_node(x)
 			if not x:
