@@ -99,7 +99,8 @@ class DirWatch(object):
 		return getattr(self.__class__, 'wait_' + self.sup)(self, bld)
 
 	def enumerate(self, node):
-		yield node.abspath()
+		if os.path.exists(node.abspath())
+			yield node.abspath()
 		try:
 			for x in node.children.values():
 				for k in self.enumerate(x):
