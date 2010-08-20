@@ -15,7 +15,7 @@ from waflib.Utils import subprocess
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""
 
-DEFINES = 'definez'
+DEFKEYS = 'definez'
 UNDEFINED = ()
 
 cfg_ver = {
@@ -541,8 +541,6 @@ def check_cxx(self, *k, **kw):
 def check_cc(self, *k, **kw):
 	kw['compiler'] = 'c'
 	return self.check(*k, **kw)
-
-DEFKEYS = 'definez'
 
 @conf
 def define(self, key, val, quote=True):
