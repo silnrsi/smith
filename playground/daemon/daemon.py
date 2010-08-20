@@ -97,7 +97,7 @@ class DirWatch(object):
 
 	def enumerate(self, node):
 		yield node.abspath()
-		for x in node.childs.values():
+		for x in node.children.values():
 			if x.id & 3 == Node.DIR:
 				for k in self.enumerate(x):
 					yield k
