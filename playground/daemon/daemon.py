@@ -59,8 +59,11 @@ def daemon(ctx):
 	"""waf command: rebuild as soon as something changes"""
 	bld = None
 	while True:
+		bld = Context.create_context('build')
 		try:
-			bld = Scripting.run_command('build')
+    		bld.options = Options.options
+    		bld.cmd = 'build'
+     		bld.call_execute()
 		except ctx.errors.WafError as e:
 			print(e)
 		except KeyboardInterrupt:
