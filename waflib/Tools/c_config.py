@@ -625,7 +625,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	top -> build/foo/bar.h
 	!top -> build/xyz/foo/bar.h
 
-	by default, reset env.DEFINES to []
+	this method will reset the define keys and values
 	"""
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)

@@ -2,8 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
-import sys
+"""
+This file is provided to enable compatibility with waf 1.5, it will be removed in waf 1.7
+"""
 
+import sys
 from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils, Errors
 
 # the following is to bring some compatibility with waf 1.5 "import waflib.Configure → import Configure"
@@ -235,4 +238,21 @@ def add_obj_file(self, file):
 	if not hasattr(self, 'obj_files'): self.obj_files = []
 	if not 'process_obj_files' in self.meths: self.meths.append('process_obj_files')
 	self.obj_files.append(file)
+
+
+old_define = Configure.ConfigurationContext.define
+
+@Configure.conf
+def define(self, key, val, quote=True):
+	old_define(self, key, val, quote)
+	if key.startswith('HAVE_'):
+		self.env[key] = 1
+
+old_undefine = Configure.ConfigurationContext.undefine
+
+@Configure.conf
+def undefine(self, key):
+	old_undefine(self, key)
+	if key.startswith('HAVE_'):
+		self.env[key] = 0
 
