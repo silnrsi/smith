@@ -228,17 +228,19 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	# We check that pythonX.Y-config exists, and if it exists we
 	# use it to get only the includes, else fall back to distutils.
-	python_config = conf.find_program(
-		'python%s-config' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
-		var='PYTHON_CONFIG')
-	if not python_config:
-		python_config = conf.find_program(
-			'python-config-%s' % ('.'.join(env['PYTHON_VERSION'].split('.')[:2])),
+	num = '.'.join(env['PYTHON_VERSION'].split('.')[:2])
+	try:
+		conf.find_program(
+			'python%s-config' % num,
 			var='PYTHON_CONFIG')
+	except conf.errors.ConfigurationError:
+		conf.find_program(
+			'python-config-%s' % num,
+			var='PYTHON_CONFIG', mandatory=False)
 
 	includes = []
-	if python_config:
-		for incstr in conf.cmd_and_log("%s %s --includes" % (python, python_config)).strip().split():
+	if conf.env.PYTHON_CONFIG:
+		for incstr in conf.cmd_and_log("%s %s --includes" % (python, conf.env.PYTHON_CONFIG)).strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I') or incstr.startswith('/I')):
 				incstr = incstr[2:]
