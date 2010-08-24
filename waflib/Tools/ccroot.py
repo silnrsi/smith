@@ -384,11 +384,10 @@ def process_lib(self):
 	names = [x % self.name for x in lib_patterns[self.lib_type]]
 	for x in self.lib_paths + [self.path, '/usr/lib64', '/usr/lib', '/usr/local/lib64', '/usr/local/lib']:
 		if not isinstance(x, Node.Node):
-			x = self.bld.root.find_node(x)
+			x = self.bld.root.find_node(x) or self.path.find_node(x)
 			if not x:
-				x = self.path.find_node(x)
-				if not x:
-					continue
+				continue
+
 		for y in names:
 			node = x.find_node(y)
 			if node:
