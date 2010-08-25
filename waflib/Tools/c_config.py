@@ -174,17 +174,35 @@ def exec_cfg(self, kw):
 		self.define('%s_VERSION' % Utils.quote_define_name(kw.get('uselib_store', kw['package'])), version)
 		return version
 
-	cmd = [kw['path']]
-	for key, val in kw.get('define_variable', {}).items():
-		cmd.append('--define-variable=%s=%s' % (key, val))
+	# retrieving variables of a module
+	if 'variables' in kw:
+		env = kw.get('env', self.env)
+		uselib = kw.get('uselib_store', kw['package'].upper())
+		vars = Utils.to_list(kw['variables'])
+		for v in vars:
+			val = self.cmd_and_log('%s --variable=%s %s' % (kw['path'], v, kw['package']), kw).strip()
+			var = '%s_%s' % (uselib, v)
+			env[var] = val
+		if not 'okmsg' in kw:
+			kw['okmsg'] = 'yes'
+		return
+
+	lst = [kw['path']]
+
+
+	defi = kw.get('define_variable', None)
+	if not defi:
+		defi = self.env.PKG_CONFIG_DEFINES or {}
+	for key, val in defi.items():
+		lst.append('--define-variable=%s=%s' % (key, val))
 
 	if 'args' in kw:
-		cmd.extend(Utils.to_list(kw['args']))
+		lst += Utils.to_list(kw['args'])
 	if kw['package']:
-		cmd.append(kw['package'])
+		lst.append(kw['package'])
 
 	# so we assume the command-line will output flags to be parsed afterwards
-	ret = self.cmd_and_log(cmd)
+	ret = self.cmd_and_log(lst)
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'yes'
 
