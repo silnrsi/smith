@@ -12,19 +12,18 @@ def configure(conf):
 	else:
 		test_for_compiler = ['gdc', 'dmd']
 
-	orig = conf.env
 	for compiler in test_for_compiler:
+		conf.env.stash()
+		conf.start_msg('Checking for %r (d compiler)' % compiler)
 		try:
-			conf.start_msg('Checking for %r (d compiler)' % compiler)
-			conf.env = orig.derive()
 			conf.check_tool(compiler)
 		except conf.errors.ConfigurationError as e:
+			conf.env.revert()
 			conf.end_msg(False)
 			Logs.debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env.D:
 				orig.table = conf.env.get_merged_dict()
-				conf.env = orig
 				conf.end_msg(True)
 				conf.env['COMPILER_D'] = compiler
 				conf.env.D_COMPILER = conf.env.D # TODO remove this

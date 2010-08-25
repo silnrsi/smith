@@ -30,19 +30,17 @@ def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.tool_options('compiler_cxx')")
 
-	orig = conf.env
 	for compiler in test_for_compiler.split():
+		conf.env.stash()
+		conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 		try:
-			conf.env = orig.derive()
-			conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 			conf.check_tool(compiler)
 		except conf.errors.ConfigurationError as e:
+			conf.env.revert()
 			conf.end_msg(False)
 			debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env['CXX']:
-				orig.table = conf.env.get_merged_dict()
-				conf.env = orig
 				conf.end_msg(True)
 				conf.env['COMPILER_CXX'] = compiler
 				break
