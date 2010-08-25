@@ -198,3 +198,12 @@ class ConfigSet(object):
 		for k, v in d.items():
 			self[k] = v
 
+	def stash(self):
+		"""store the object state, to use with 'revert' below"""
+		self.undo_stack = self.undo_stack + [self.table]
+		self.table = self.table.copy()
+
+	def revert(self):
+		"""revert the object to a previous state, to use with 'stash' above"""
+		self.table = self.undo_stack.pop(-1)
+
