@@ -34,6 +34,13 @@ def fc_flags(conf):
 
 	v['fcstlib_PATTERN']   = 'lib%s.a'
 
+	v['FCLIB_ST']       = '-l%s'
+	v['FCLIBPATH_ST']   = '-L%s'
+	v['FCSTLIB_ST']     = '-l%s'
+	v['FCSTLIBPATH_ST'] = '-L%s'
+	v['FCSTLIB_MARKER'] = '-Wl,-Bstatic'
+	v['FCSHLIB_MARKER'] = '-Wl,-Bdynamic'
+
 @conf
 def check_fortran(self, *k, **kw):
 	"""see if the compiler works by compiling a fragment"""
@@ -279,7 +286,7 @@ def link_main_routines_tg_method(self):
 	bld(rule=write_test_file, target='main.c', code=MAIN_CODE % self.__dict__)
 	bld(rule=write_test_file, target='test.f', code=ROUTINES_CODE)
 	bld(features='fc fcstlib', source='test.f', target='test')
-	bld(features='c cprogram', source='main.c', target='app', uselib_local='test')
+	bld(features='c fcprogram', source='main.c', target='app', uselib_local='test')
 
 def mangling_schemes():
 	"""

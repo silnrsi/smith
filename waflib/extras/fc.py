@@ -16,9 +16,9 @@ from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
 ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
-ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LINKFLAGS'])
-ccroot.USELIB_VARS['fcshlib'] = set(['LINKFLAGS'])
-ccroot.USELIB_VARS['fcstlib'] = set(['LINKFLAGS'])
+ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+ccroot.USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
 
 @feature('fcprogram', 'fcshlib', 'fcstlib', 'fcprogram_test')
 def dummy(self):
@@ -140,7 +140,7 @@ class fcpp(Task.Task):
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
-	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${LINKFLAGS}'
+	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${FCSTLIB_MARKER} ${FCSTLIBPATH_ST:STLIBPATH} ${FCSTLIB_ST:STLIB} ${FCSHLIB_MARKER} ${FCLIBPATH_ST:LIBPATH} ${FCLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 
 class fcshlib(fcprogram):
