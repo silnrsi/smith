@@ -16,7 +16,7 @@ WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""
 
 DEFKEYS = 'definez'
-UNDEFINED = ()
+INCKEYS = 'includez'
 
 cfg_ver = {
 	'atleast-version': '>=',
@@ -654,14 +654,22 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 
 @conf
 def get_config_header(self):
-	"""Fill-in the contents of the config header. Override when you need to write your own config header."""
+	"""
+	Create the contents of a config.h file from the accumulated includes and defines
+	There is no include guard here
+
+	Override this method when you need to write your own config header
+	"""
 	lst = []
-	for key in self.env[DEFKEYS]:
-		if self.is_defined(key):
-			val = self.get_define(key)
-			lst.append('#define %s %s' % (key, val))
+	for x in self.env[INCKEYS]:
+		lst.append('#include <%s>' % x)
+
+	for x in self.env[DEFKEYS]:
+		if self.is_defined(x):
+			val = self.get_define(x)
+			lst.append('#define %s %s' % (x, val))
 		else:
-			lst.append('/* #undef %s */' % key)
+			lst.append('/* #undef %s */' % x)
 	return "\n".join(lst)
 
 @conf
