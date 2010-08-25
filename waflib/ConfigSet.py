@@ -19,10 +19,9 @@ class ConfigSet(object):
 	Store and retrieve values easily and in a human-readable format
 	it is not possible to serialize functions though
 	"""
-	__slots__ = ('table', 'parent', 'undo_stack')
+	__slots__ = ('table', 'parent')
 	def __init__(self, filename=None):
 		self.table = {}
-		self.undo_stack = []
 		#self.parent = None
 
 		if filename:
@@ -180,7 +179,8 @@ class ConfigSet(object):
 			keys = list(merged_table.keys())
 			keys.sort()
 			for k in keys:
-				f.write('%s = %r\n' % (k, merged_table[k]))
+				if k != 'undo_stack':
+					f.write('%s = %r\n' % (k, merged_table[k]))
 		finally:
 			if f:
 				f.close()
@@ -201,10 +201,7 @@ class ConfigSet(object):
 
 	def stash(self):
 		"""store the object state, to use with 'revert' below"""
-		ud = getattr(self, 'undo_stack', [])
-		if not ud:
-			setattr(self, 'undo_stack', ud)
-		ud.append(self.table)
+		self.undo_stack = self.undo_stack + [self.table]
 		self.table = self.table.copy()
 
 	def revert(self):
