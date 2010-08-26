@@ -585,7 +585,6 @@ def tokenize(s):
 
 class c_parser(object):
 	def __init__(self, nodepaths=None, defines=None):
-		#self.lines = txt.split('\n')
 		self.lines = []
 
 		if defines is None:
@@ -661,14 +660,15 @@ class c_parser(object):
 		except KeyError:
 			pass
 		else:
-			self.lines = lns + self.lines
+			self.lines.extend(lns)
 			return
 
 		try:
 			lines = filter_comments(filepath)
 			lines.append((POPFILE, ''))
 			pc[filepath] = lines # cache the lines filtered
-			self.lines = lines + self.lines
+			lines.reverse()
+			self.lines.extend(lines)
 		except IOError:
 			raise PreprocError("could not read the file %s" % filepath)
 		except Exception:
@@ -692,10 +692,11 @@ class c_parser(object):
 		# macros may be defined on the command-line, so they must be parsed as if they were part of the file
 		if env['DEFINES']:
 			lst = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
-			self.lines = [('define', x) for x in lst] + self.lines
+			lst.reverse()
+			self.lines.extend([('define', x) for x in lst])
 
 		while self.lines:
-			(kind, line) = self.lines.pop(0)
+			(kind, line) = self.lines.pop()
 			if kind == POPFILE:
 				self.currentnode_stack.pop()
 				continue
