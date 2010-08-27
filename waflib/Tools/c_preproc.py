@@ -711,36 +711,8 @@ class c_parser(object):
 		if ve: debug('preproc: line is %s - %s state is %s', token, line, self.state)
 		state = self.state
 
-		# make certain we define the state if we are about to enter in an if block
-		if token in ['ifdef', 'ifndef', 'if']:
-			state.append(undefined)
-		elif token == 'endif':
+		if token == 'endif':
 			state.pop()
-
-		# skip lines when in a dead 'if' branch, wait for the endif
-		if not token in ['else', 'elif', 'endif']:
-			if skipped in self.state or ignored in self.state:
-				return
-
-		if token == 'if':
-			ret = eval_macro(tokenize(line), self.defs)
-			if ret: state[-1] = accepted
-			else: state[-1] = ignored
-		elif token == 'ifdef':
-			m = re_mac.search(line)
-			if m and m.group(0) in self.defs: state[-1] = accepted
-			else: state[-1] = ignored
-		elif token == 'ifndef':
-			m = re_mac.search(line)
-			if m and m.group(0) in self.defs: state[-1] = ignored
-			else: state[-1] = accepted
-		elif token == 'include' or token == 'import':
-			(kind, inc) = extract_include(line, self.defs)
-			if inc in self.ban_includes: return
-			if token == 'import': self.ban_includes.append(inc)
-			if ve: debug('preproc: include found %s    (%s)', inc, kind)
-			if kind == '"' or not strict_quotes:
-				self.tryfind(inc)
 		elif token == 'elif':
 			if state[-1] == accepted:
 				state[-1] = skipped
@@ -750,6 +722,29 @@ class c_parser(object):
 		elif token == 'else':
 			if state[-1] == accepted: state[-1] = skipped
 			elif state[-1] == ignored: state[-1] = accepted
+
+		if skipped in self.state or ignored in self.state:
+			return
+
+		if token == 'if':
+			ret = eval_macro(tokenize(line), self.defs)
+			if ret: state.append(accepted)
+			else: state.append(ignored)
+		elif token == 'ifdef':
+			m = re_mac.search(line)
+			if m and m.group(0) in self.defs: state.append(accepted)
+			else: state.append(ignored)
+		elif token == 'ifndef':
+			m = re_mac.search(line)
+			if m and m.group(0) in self.defs: state.append(ignored)
+			else: state.append(accepted)
+		elif token == 'include' or token == 'import':
+			(kind, inc) = extract_include(line, self.defs)
+			if inc in self.ban_includes: return
+			if token == 'import': self.ban_includes.append(inc)
+			if ve: debug('preproc: include found %s    (%s)', inc, kind)
+			if kind == '"' or not strict_quotes:
+				self.tryfind(inc)
 		elif token == 'define':
 			m = re_mac.search(line)
 			if m:
