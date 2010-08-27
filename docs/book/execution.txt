@@ -217,7 +217,6 @@ $ waf ping <9>
 <9> Calling _waf_ from a subfolder will execute the commands from the same wscript file used for the configuration
 
 NOTE: _waf configure_ is always called from the directory containing the wscript file
-NOTE: The command configure must be provided in the wscript file to exclude other folders from being configured accidentally
 
 ==== Removing generated files (the _distclean_ command)
 
