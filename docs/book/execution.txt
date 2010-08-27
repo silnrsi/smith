@@ -145,7 +145,7 @@ def ping(ctx):
 
 <1> string representing the project directory. In general, top is set to '.', except for some proprietary projects where the wscript cannot be added to the top-level, top may be set to '../..' or even some other folder such as '/checkout/perforce/project'
 <2> string representing the build directory. In general, it is set to 'build', except for some proprietary projects where the build directory may be set to an absolute path such as '/tmp/build'. It is important to be able to remove the build directory safely, so it should never be given as '.' or '..'.
-<3> the _configure_ command declaration is mandatory
+<3> the _configure_ function is called by the 'configure' command
 
 The script in 'src/wscript' is left unchanged:
 
