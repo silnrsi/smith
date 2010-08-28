@@ -13,8 +13,7 @@ def configure(conf):
 	conf.check_tool('cuda', tooldir='.')
 
 def build(bld):
-	t = bld(
-		features = 'cxx cprogram',
+	t = bld.program(
 		source   = 'test.cu main.cpp',
 		target   = 'app',
 		uselib = 'CUDA')
