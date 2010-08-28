@@ -442,7 +442,7 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 
 	if not ret:
-		self.fatal('The program %r could not be found' % filename)
+		self.fatal('Could not find the program %s' % ','.join(filename))
 
 	if var:
 		self.env[var] = ret
