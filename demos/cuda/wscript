@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# encoding: ISO8859-1
+# Thomas Nagy, 2010
+
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.tool_options('compiler_cxx')
+
+def configure(conf):
+	conf.check_tool('compiler_cxx') # cuda does not compile in c mode
+	conf.check_tool('cuda', tooldir='.')
+
+def build(bld):
+	t = bld(
+		features = 'cxx cprogram',
+		source   = 'test.cu main.cpp',
+		target   = 'app',
+		uselib = 'CUDA')
+
+	t.env.LIB_CUDA = ['cuda', 'cudart']
+	t.env.LIBPATH_CUDA = ['/usr/local/cuda/lib64']
+	t.env.RPATH_CUDA   = ['/usr/local/cuda/lib64']
+
+#t.env.CUDAFLAGS = '-deviceemu'
+#CUDAFLAGS=-deviceemu
+#CUDAFLAGS=--ptxas-options="-v"
+#CUDAFLAGS=--ptxas-options="-v -maxrregcount=10"
+
