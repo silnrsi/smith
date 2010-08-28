@@ -723,7 +723,7 @@ class c_parser(object):
 			if state[-1] == accepted: state[-1] = skipped
 			elif state[-1] == ignored: state[-1] = accepted
 
-		if skipped in self.state or ignored in self.state:
+		if skipped in state or ignored in state:
 			return
 
 		if token == 'if':
