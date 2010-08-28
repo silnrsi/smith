@@ -44,7 +44,7 @@ def check_perl_version(self, minver=None):
 	else:
 		self.env['PERL'] = perl = Options.options.perlbinary
 
-	version = self.cmd_and_log(perl + " -e'printf \"%vd\", $^V'")
+	version = self.cmd_and_log([perl, "-e", 'printf \"%vd\", $^V'])
 	if not version:
 		res = False
 		version = "Unknown"
