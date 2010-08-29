@@ -25,7 +25,7 @@ def build(bld):
 
 	bld.install_files('/tmp/bar', 'wscript')
 
-	bld(features='cc cprogram', source='main.c', target='app')
+	bld(features='c cprogram', source='main.c', target='app')
 
 
 def init(self):

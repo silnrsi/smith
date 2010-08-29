@@ -1,10 +1,6 @@
 Node concepts, without a particular order
 -----------------------------------------
 
-about the node folder design:
- one for the source dir and one for the build dir?
- one for both?
-
 when finding a source dir:
  1. eliminate src files that do not exist anymore
  2. look in os.listdir or try os.stat
