@@ -101,7 +101,9 @@ def test(ctx):
 
 	ss = dd.find_node(['src'])
 	bb = dd.find_node(['src', 'build'])
-	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
+	bld.top_dir = ss.abspath()
+	bld.out_dir = bb.abspath()
+	bld.init_dirs()
 
 	#remove(dd.abspath() + '/' +"xyz")
 	tt('find ["xyz"]', dd.find_node(['xyz']), None)
@@ -114,7 +116,7 @@ def test(ctx):
 	tt('bld.root is src', bld.root.is_src(), False)
 	nf = bld.srcnode.make_node('abc')
 	nf.write("aha")
-	nf.compute_sig()
+	nf.get_bld_sig()
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), nf)
 	tt('find_or_declare src/abc', bld.srcnode.find_or_declare(['abc']), nf)
 	tt('src.get_bld()', bld.srcnode.get_bld(), bld.bldnode)
@@ -126,7 +128,9 @@ def test(ctx):
 	tt('find_resource src/abc', bld.srcnode.find_resource(['abc']), stupid_build)
 
 	bld = Build.BuildContext()
-	bld.init_dirs(absdir + ['src'], absdir + ['src', 'build'])
+	bld.top_dir = ss.abspath()
+	bld.out_dir = bb.abspath()
+	bld.init_dirs()
 
 	create('src/a.txt')
 	create('src/b.txt')
