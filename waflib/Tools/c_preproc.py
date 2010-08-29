@@ -650,7 +650,7 @@ class c_parser(object):
 		filepath = node.abspath()
 
 		self.count_files += 1
-		if self.count_files > 30000: raise PreprocError("recursion limit exceeded")
+		if self.count_files > 9000: raise PreprocError("recursion limit exceeded")
 		pc = self.parse_cache
 		debug('preproc: reading file %r', filepath)
 		try:
@@ -664,8 +664,8 @@ class c_parser(object):
 		try:
 			lines = filter_comments(filepath)
 			lines.append((POPFILE, ''))
-			pc[filepath] = lines # cache the lines filtered
 			lines.reverse()
+			pc[filepath] = lines # cache the lines filtered
 			self.lines.extend(lines)
 		except IOError:
 			raise PreprocError("could not read the file %s" % filepath)
