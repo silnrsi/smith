@@ -89,7 +89,7 @@ else:
 
 		def push_cursor(self, param):
 			sbinfo = self.screen_buffer_info()
-			self.cursor_history.push(sbinfo.CursorPosition)
+			self.cursor_history.append(sbinfo.CursorPosition)
 
 		def pop_cursor(self, param):
 			if self.cursor_history:
