@@ -97,7 +97,7 @@ else:
 				windll.kernel32.SetConsoleCursorPosition(self.hconsole, old_pos)
 
 		def set_cursor(self, param):
-			x, sep, y = param.partition(';')
+			y, sep, x = param.partition(';')
 			x = to_int(x, 1) - 1
 			y = to_int(y, 1) - 1
 			sbinfo = self.screen_buffer_info()
