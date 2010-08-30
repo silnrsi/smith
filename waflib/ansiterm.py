@@ -150,39 +150,28 @@ else:
 				y_offset = -to_int(param, 1)
 			)
 
-		escape_to_color = { (0, 30): 0x0,			 #black
-							(0, 31): 0x4,			 #red
-							(0, 32): 0x2,			 #green
-							(0, 33): 0x4+0x2,		 #dark yellow
-							(0, 34): 0x1,			 #blue
-							(0, 35): 0x1+0x4,		 #purple
-							(0, 36): 0x2+0x4,		 #cyan
-							(0, 37): 0x1+0x2+0x4,	 #grey
-							(1, 30): 0x1+0x2+0x4,	 #dark gray
-							(1, 31): 0x4+0x8,		 #red
-							(1, 32): 0x2+0x8,		 #light green
-							(1, 33): 0x4+0x2+0x8,	 #yellow
-							(1, 34): 0x1+0x8,		 #light blue
-							(1, 35): 0x1+0x4+0x8,	 #light purple
-							(1, 36): 0x1+0x2+0x8,	 #light cyan
-							(1, 37): 0x1+0x2+0x4+0x8, #white
-						   }
+		def rgb2bgr(self, c): return ((c&1) << 2) | (c&2) | ((c&4)>>2)
 
 		def set_color(self, param):
 			cols = param.split(';')
-			attr = self.orig_sbinfo.Attributes
+			sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
+			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole, byref(sbinfo))
+			attr = sbinfo.Attributes
+			neg = False
 			for c in cols:
 				c = to_int(c, 0)
-				if c in range(30,38):
-					attr = (attr & 0xf0) | (self.escape_to_color.get((0,c), 0x7))
-				elif c in range(40,48):
-					attr = (attr & 0x0f) | (self.escape_to_color.get((0,c), 0x7) << 8)
-				elif c in range(90,98):
-					attr = (attr & 0xf0) | (self.escape_to_color.get((1,c-60), 0x7))
-				elif c in range(100,108):
-					attr = (attr & 0x0f) | (self.escape_to_color.get((1,c-60), 0x7) << 8)
-				elif c == 1:
+				if c in range(30,38): # fgcolor
+					attr = (attr & 0xfff0) | self.rgb2bgr(c-30)
+				elif c in range(40,48): # bgcolor
+					attr = (attr & 0xff0f) | (self.rgb2bgr(c-40) << 4)
+				elif c == 0: # reset
+					attr = self.orig_sbinfo.Attributes
+				elif c == 1: # strong
 					attr |= 0x08
+				elif c == 4: # blink not available -> bg intensity
+					attr |= 0x80
+				elif c == 7: # negative
+					attr = (attr & 0xff88) | ((attr & 0x70) >> 4) | ((attr & 0x07) << 4)
 			windll.kernel32.SetConsoleTextAttribute(self.hconsole, attr)
 
 		def show_cursor(self,param):
@@ -222,13 +211,16 @@ else:
 						if cmd_func:
 							cmd_func(self, param)
 					else:
-						chars_written = c_int()
-						if isinstance(txt, _type):
-							windll.kernel32.WriteConsoleW(self.hconsole, txt, len(txt), byref(chars_written), None)
-						else:
-							windll.kernel32.WriteConsoleA(self.hconsole, txt, len(txt), byref(chars_written), None)
+						self.writeconsole(txt)
 			finally:
 				wlock.release()
+
+		def writeconsole(self, txt):
+			chars_written = c_int()
+			writeconsole = windll.kernel32.WriteConsoleA
+			if isinstance(txt, _type):
+				writeconsole = windll.kernel32.WriteConsoleW
+			writeconsole(self.hconsole, txt, len(txt), byref(chars_written), None)
 
 		def flush(self):
 			pass
