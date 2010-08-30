@@ -653,7 +653,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	node.parent.mkdir()
 
 	lst = []
-	lst.append('/* Configuration header created by Waf - do not edit */\n')
+	lst.append('/* WARNING! All changes made to this file will be lost! */\n')
 	lst.append('#ifndef %s\n#define %s\n' % (waf_guard, waf_guard))
 	lst.append(self.get_config_header())
 	lst.append('\n#endif /* %s */\n' % waf_guard)

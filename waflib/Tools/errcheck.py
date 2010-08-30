@@ -4,6 +4,8 @@
 
 """
 Search for common mistakes
+
+There is a performance hit, so this tool must be loaded manually
 """
 
 typos = {
