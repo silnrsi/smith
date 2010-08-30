@@ -28,7 +28,7 @@ def replace(m):
 			if x in kw:
 				kw[typos[x]] = kw[x]
 				del kw[x]
-				Logs.warn('typo %r -> %r' % (x, typos[x]))
+				Logs.error('typo %r -> %r' % (x, typos[x]))
 		oldcall(self, *k, **kw)
 	setattr(Build.BuildContext, m, call)
 
