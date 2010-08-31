@@ -729,11 +729,11 @@ class c_parser(object):
 			if ret: state.append(accepted)
 			else: state.append(ignored)
 		elif token == 'ifdef':
-			m = re_mac.search(line)
+			m = re_mac.match(line)
 			if m and m.group(0) in self.defs: state.append(accepted)
 			else: state.append(ignored)
 		elif token == 'ifndef':
-			m = re_mac.search(line)
+			m = re_mac.match(line)
 			if m and m.group(0) in self.defs: state.append(ignored)
 			else: state.append(accepted)
 		elif token == 'include' or token == 'import':
@@ -744,15 +744,12 @@ class c_parser(object):
 			if kind == '"' or not strict_quotes:
 				self.tryfind(inc)
 		elif token == 'define':
-			m = re_mac.search(line)
-			if m:
-				name = m.group(0)
-				if ve: debug('preproc: define %s   %s', name, line)
-				self.defs[name] = line
-			else:
+			try:
+				self.defs[re_mac.match(line).group(0)]=line
+			except:
 				raise PreprocError("invalid define line %s" % line)
 		elif token == 'undef':
-			m = re_mac.search(line)
+			m = re_mac.match(line)
 			if m and m.group(0) in self.defs:
 				self.defs.__delitem__(m.group(0))
 				#print "undef %s" % name
