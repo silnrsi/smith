@@ -16,8 +16,13 @@ def build(bld):
 		ccflags  = '-O3',
 		target   = 'my_objs')
 
+	bld.shlib(
+		source   = 'a.c',
+		ccflags  = '-O2',
+		target   = 'lib1',
+		use      = 'my_objs')
+
 	bld.program(
 		source   = 'main.c',
-		ccflags  = '-O2',
 		target   = 'test_c_program',
-		use      = 'my_objs')
+		use      = 'lib1')

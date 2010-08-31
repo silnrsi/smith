@@ -320,22 +320,28 @@ def build(bld):
 		ccflags  = '-O3',
 		target   = 'my_objs')
 
+	bld.shlib(
+		source   = 'a.c',
+		ccflags  = '-O2', <2>
+		target   = 'lib1',
+		use      = 'my_objs') <3>
+
 	bld.program(
 		source   = 'main.c',
-		ccflags  = '-O2', <2>
 		target   = 'test_c_program',
-		use      = 'my_objs') <3>
+		use      = 'lib1') <4>
 ---------------
 
 <1> Files will be compiled in c mode, but no program or library will be produced
 <2> Different compilation flags may be used
 <3> The objects will be added automatically in the link stage
+<4> There is no object propagation to other programs or libraries to avoid duplicate symbol errors
 
-WARNING: This system is frequently abused to copy-paste binary code. Whenever possible, try to use shared libraries instead of duplicating object files.
+WARNING: Like static libraries, object files are often abused to copy-paste binary code. Try to minimize the executables size by using shared libraries whenever possible.
 
 ===== Fake libraries
 
-Local libraries will trigger a recompilation whenever they change. The methods 'read_shlib' and 'read_stlib' can be used to add this behaviour to external libraries:
+Local libraries will trigger a recompilation whenever they change. The methods 'read_shlib' and 'read_stlib' can be used to add this behaviour to external libraries or to binary files present in the project.
 
 // cprog_fakelibs
 [source,python]
