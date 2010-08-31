@@ -48,7 +48,7 @@ def create_compiled_task(self, name, node):
 def to_incnodes(self, inlst):
 	lst = []
 	seen = set([])
-	for x in inlst:
+	for x in self.to_list(inlst):
 		if x in seen:
 			continue
 		seen.add(x)
