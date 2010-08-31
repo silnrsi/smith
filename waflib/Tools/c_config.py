@@ -127,6 +127,8 @@ def validate_cfg(self, kw):
 
 	# pkg-config --modversion
 	if 'modversion' in kw:
+		#if not 'msg' in kw:
+		#	kw['msg'] = 'Checking for %r version' % kw['modversion']
 		return
 
 	# checking for the version of a module, for the moment, one thing at a time
@@ -141,7 +143,7 @@ def validate_cfg(self, kw):
 			return
 
 	if not 'msg' in kw:
-		kw['msg'] = 'Checking for %s' % kw['package']
+		kw['msg'] = 'Checking for %s' % (kw['package'] or kw['path'])
 	if not 'okmsg' in kw:
 		kw['okmsg'] = 'yes'
 	if not 'errmsg' in kw:
