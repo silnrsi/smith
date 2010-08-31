@@ -212,8 +212,6 @@ def process_use(self):
 	a shared library (non-static) is found -> propagation continues, but objects are not added
 	"""
 
-	env = self.env
-
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
