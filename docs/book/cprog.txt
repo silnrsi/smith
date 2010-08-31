@@ -321,7 +321,7 @@ Waf: Entering directory `/tmp/cprog_propagation/build'
 [7/8] cshlib: build/c.c.2.o -> build/liblib3.so
 12:36:17 runner ['/usr/bin/gcc', 'c.c.2.o', '-o', 'liblib3.so', '-Wl,-Bstatic', '-L.', '-llib2', '-Wl,-Bdynamic', '-L.', '-llib1', '-shared']
 [8/8] cprogram: build/main.c.3.o -> build/app
-12:36:17 runner ['/usr/bin/gcc', 'main.c.3.o', '-o', 'app', '-Wl,-Bstatic', '-L.', '-llib2', '-Wl,-Bdynamic', '-L.', '-llib1', '-llib3']
+12:36:17 runner ['/usr/bin/gcc', 'main.c.3.o', '-o', 'app', '-Wl,-Bdynamic', '-L.', '-llib1', '-llib3']
 Waf: Leaving directory `/tmp/cprog_propagation/build'
 'build' finished successfully (0.144s)
 ---------------
@@ -329,7 +329,7 @@ Waf: Leaving directory `/tmp/cprog_propagation/build'
 To sum up the two most important aspects of the 'use' attribute:
 
 . The task generators may be created in any order and in different files, but must provide a unique name for the 'use' attribute
-. The 'use' processing will iterate recursively over all the task generators, but the behaviour depends on the target (shared/static libraries)
+. The 'use' processing will iterate recursively over all the task generators involved, but the flags added depend on the target kind (shared/static libraries)
 
 ==== Special local libraries
 

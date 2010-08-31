@@ -1,1 +1,3 @@
-int c = 45;
+int c() {
+	return 34;
+}

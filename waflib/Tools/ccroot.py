@@ -165,7 +165,7 @@ def use_rec(self, name, objects=True, stlib=True):
 
 	# depth-first processing
 	for x in self.to_list(getattr(y, 'use', [])):
-		self.use_rec(x, objects and not has_link, stlib and not is_static)
+		self.use_rec(x, objects and not has_link, stlib and (is_static or not has_link))
 
 	# link task and flags
 	if getattr(self, 'link_task', None):
