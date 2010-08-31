@@ -274,7 +274,62 @@ def build(bld):
 		use      = ['mylib'])
 ---------------
 
-NOTE: The 'use' keyword propagates transitively local shared libraries and variables, but stop at static libraries.
+The 'use' processing also exhibits a recursive behaviour. Let's illustrate it by the following example:
+
+// cprog_propagation
+[source,python]
+---------------
+def build(bld):
+	bld.shlib(
+		source   = 'a.c',
+		target   = 'lib1')
+
+	bld.stlib(
+		source   = 'b.c',
+		target   = 'lib2')
+
+	bld.shlib(
+		source   = 'c.c',
+		target   = 'lib3',
+		use      = 'lib1 lib2')
+
+	bld.program(
+		source   = 'main.c',
+		target   = 'app',
+		use      = 'lib3')
+---------------
+
+Because of the shared library dependency 'lib1' → 'lib2', the program 'app' should link against both 'lib1' and 'lib3', but not against 'lib2':
+
+[source,shishell]
+---------------
+$ waf -v
+'clean' finished successfully (0.004s)
+Waf: Entering directory `/tmp/cprog_propagation/build'
+[1/8] c: a.c -> build/a.c.0.o
+12:36:17 runner ['/usr/bin/gcc', '-fPIC', '../a.c', '-c', '-o', 'a.c.0.o']
+[2/8] c: b.c -> build/b.c.1.o
+12:36:17 runner ['/usr/bin/gcc', '../b.c', '-c', '-o', 'b.c.1.o']
+[3/8] c: c.c -> build/c.c.2.o
+12:36:17 runner ['/usr/bin/gcc', '-fPIC', '../c.c', '-c', '-o', 'c.c.2.o']
+[4/8] c: main.c -> build/main.c.3.o
+12:36:17 runner ['/usr/bin/gcc', '../main.c', '-c', '-o', 'main.c.3.o']
+[5/8] cstlib: build/b.c.1.o -> build/liblib2.a
+12:36:17 runner ['/usr/bin/ar', 'rcs', 'liblib2.a', 'b.c.1.o']
+[6/8] cshlib: build/a.c.0.o -> build/liblib1.so
+12:36:17 runner ['/usr/bin/gcc', 'a.c.0.o', '-o', 'liblib1.so', '-shared']
+[7/8] cshlib: build/c.c.2.o -> build/liblib3.so
+12:36:17 runner ['/usr/bin/gcc', 'c.c.2.o', '-o', 'liblib3.so', '-Wl,-Bstatic', '-L.', '-llib2', '-Wl,-Bdynamic', '-L.', '-llib1', '-shared']
+[8/8] cprogram: build/main.c.3.o -> build/app
+12:36:17 runner ['/usr/bin/gcc', 'main.c.3.o', '-o', 'app', '-Wl,-Bstatic', '-L.', '-llib2', '-Wl,-Bdynamic', '-L.', '-llib1', '-llib3']
+Waf: Leaving directory `/tmp/cprog_propagation/build'
+'build' finished successfully (0.144s)
+---------------
+
+To sum up the two most important aspects of the 'use' attribute:
+
+. The task generators may be created in any order and in different files, but must provide a unique name for the 'use' attribute
+. The 'use' processing will iterate recursively over all the task generators, but the behaviour depends on the target (shared/static libraries)
 
 ==== Special local libraries
 
