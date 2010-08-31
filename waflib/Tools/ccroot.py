@@ -44,6 +44,29 @@ def create_compiled_task(self, name, node):
 		self.compiled_tasks = [task]
 	return task
 
+@taskgen_method
+def to_incpaths(self, inlst):
+	lst = []
+	seen = set([])
+	for x in inlst:
+		if x in seen:
+			continue
+		seen.add(x)
+
+		if isinstance(x, Node.Node):
+			lst.append(x)
+		else:
+			if os.path.isabs(x):
+				lst.append(self.bld.root.make_node(x))
+			else:
+				if x[0] == '#':
+					lst.append(self.bld.bldnode.make_node(x[1:]))
+					lst.append(self.bld.srcnode.make_node(x[1:]))
+				else:
+					lst.append(self.path.get_bld().make_node(x))
+					lst.append(self.path.make_node(x))
+	return lst
+
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
@@ -52,29 +75,7 @@ def apply_incpaths(self):
 	after process_source because some processing may add include paths
 	"""
 
-	paths = self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES']
-
-	lst = []
-	seen = set([])
-	for path in paths:
-
-		if path in seen:
-			continue
-		seen.add(path)
-
-		if isinstance(path, Node.Node):
-			lst.append(path)
-		else:
-			if os.path.isabs(path):
-				lst.append(self.bld.root.make_node(path))
-			else:
-				if path[0] == '#':
-					lst.append(self.bld.bldnode.make_node(path[1:]))
-					lst.append(self.bld.srcnode.make_node(path[1:]))
-				else:
-					lst.append(self.path.get_bld().make_node(path))
-					lst.append(self.path.make_node(path))
-
+	lst = self.to_incpaths(self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES'])
 	self.includes_nodes = lst
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
@@ -196,8 +197,7 @@ def use_rec(self, name, objects=True, stlib=True):
 	# if the library task generator provides 'export_incdirs', add to the include path
 	# the export_incdirs must be a list of paths relative to the other library
 	if getattr(y, 'export_incdirs', None):
-		lst = y.to_nodes(y.export_incdirs)
-		self.includes.extend(lst + [x.get_src() for x in lst])
+		self.includes.extend(y.to_incpaths(y.export_incdirs))
 
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths', 'propagate_uselib_vars')
