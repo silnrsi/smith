@@ -15,8 +15,8 @@ from waflib.Utils import subprocess
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""
 
-DEFKEYS = 'definez'
-INCKEYS = 'includez'
+DEFKEYS = 'define_key'
+INCKEYS = 'include_key'
 
 cfg_ver = {
 	'atleast-version': '>=',
@@ -199,7 +199,7 @@ def exec_cfg(self, kw):
 	if 'args' in kw:
 		lst += Utils.to_list(kw['args'])
 	if kw['package']:
-		lst.append(kw['package'])
+		lst.extend(Utils.to_list(kw['package']))
 
 	# so we assume the command-line will output flags to be parsed afterwards
 	ret = self.cmd_and_log(lst)
