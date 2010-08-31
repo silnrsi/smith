@@ -8,21 +8,21 @@ def configure(conf):
 
 def build(bld):
 	bld.shlib(
-		source   = 'a.c',
-		target   = 'lib1')
+		source = 'a.c',
+		target = 'lib1')
 
 	bld.stlib(
-		source   = 'b.c',
-		use      = 'cshlib',
-		target   = 'lib2')
+		source = 'b.c',
+		use    = 'cshlib',
+		target = 'lib2')
 
 	bld.shlib(
-		source   = 'c.c',
-		target   = 'lib3',
-		use      = 'lib1 lib2')
+		source = 'c.c',
+		target = 'lib3',
+		use    = 'lib1 lib2')
 
 	bld.program(
-		source   = 'main.c',
-		target   = 'app',
-		use      = 'lib3')
+		source = 'main.c',
+		target = 'app',
+		use    = 'lib3')
 

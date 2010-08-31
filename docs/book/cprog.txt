@@ -281,23 +281,23 @@ The 'use' processing also exhibits a recursive behaviour. Let's illustrate it by
 ---------------
 def build(bld):
 	bld.shlib(
-		source   = 'a.c', <1>
-		target   = 'lib1')
+		source = 'a.c', <1>
+		target = 'lib1')
 
 	bld.stlib(
-		source   = 'b.c',
-		use      = 'cshlib', <2>
-		target   = 'lib2')
+		source = 'b.c',
+		use    = 'cshlib', <2>
+		target = 'lib2')
 
 	bld.shlib(
-		source   = 'c.c',
-		target   = 'lib3',
-		use      = 'lib1 lib2') <3>
+		source = 'c.c',
+		target = 'lib3',
+		use    = 'lib1 lib2') <3>
 
 	bld.program( <4>
-		source   = 'main.c',
-		target   = 'app',
-		use      = 'lib3')
+		source = 'main.c',
+		target = 'app',
+		use    = 'lib3')
 ---------------
 
 <1> A simple shared library
@@ -377,20 +377,20 @@ Here is how to enable specific compilation flags for particular files:
 ---------------
 def build(bld):
 	bld.objects( <1>
-		source   = 'test.c',
-		ccflags  = '-O3',
-		target   = 'my_objs')
+		source  = 'test.c',
+		ccflags = '-O3',
+		target  = 'my_objs')
 
 	bld.shlib(
-		source   = 'a.c',
-		ccflags  = '-O2', <2>
-		target   = 'lib1',
-		use      = 'my_objs') <3>
+		source  = 'a.c',
+		ccflags = '-O2', <2>
+		target  = 'lib1',
+		use     = 'my_objs') <3>
 
 	bld.program(
-		source   = 'main.c',
-		target   = 'test_c_program',
-		use      = 'lib1') <4>
+		source  = 'main.c',
+		target  = 'test_c_program',
+		use     = 'lib1') <4>
 ---------------
 
 <1> Files will be compiled in c mode, but no program or library will be produced
@@ -428,15 +428,15 @@ def options(opt):
 
 def configure(conf):
 	conf.check_tool('compiler_c')
-	conf.env.INCLUDES_TEST = ['/usr/include'] <1>
+	conf.env.INCLUDES_TEST      = ['/usr/include'] <1>
 
 	if sys.platform != 'win32': <2>
-		conf.env.DEFINES_TEST    = ['TEST']
-		conf.env.CCFLAGS_TEST    = ['-O0'] <3>
-		conf.env.LIB_TEST        = ['m']
-		conf.env.LIBPATH_TEST    = ['/usr/lib'] <4>
-		conf.env.LINKFLAGS_TEST  = ['-g']
-		conf.env.INCLUDES_TEST   = ['/opt/gnome/include']
+		conf.env.DEFINES_TEST   = ['TEST']
+		conf.env.CCFLAGS_TEST   = ['-O0'] <3>
+		conf.env.LIB_TEST       = ['m']
+		conf.env.LIBPATH_TEST   = ['/usr/lib'] <4>
+		conf.env.LINKFLAGS_TEST = ['-g']
+		conf.env.INCLUDES_TEST  = ['/opt/gnome/include']
 
 def build(bld):
 	mylib = bld.stlib(
@@ -471,7 +471,7 @@ The variables used for C/C++ are the following:
 |INCLUDES |includes | include paths
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
-|LINKDEPS |         | same as above, for the link task
+|LINKDEPS |         | same as above, for the link tasks
 |DEFINES  |defines  | list of defines in the form [`key=value', ...]
 |FRAMEWORK|framework| list of frameworks to use
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use
@@ -624,6 +624,7 @@ The contents of the config.h for this example are
 #endif /* _CONFIG_H_WAF */
 ---------------
 
+NOTE: By default, the defines are moved from the command-line into the configuration header. This means that the attribute _conf.env.DEFINE_ is cleared by this operation.
 
 ==== Pkg-config
 
