@@ -5,7 +5,7 @@ def options(opt):
 
 def configure(conf):
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
-	#pango_version = conf.check_cfg(modversion='pango')
+	pango_version = conf.check_cfg(modversion='pango')
 
 	conf.check_cfg(package='pango')
 	conf.check_cfg(package='pango', uselib_store='MYPANGO')

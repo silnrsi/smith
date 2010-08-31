@@ -637,7 +637,7 @@ The method 'check_cfg' is provided to ease the interaction with these applicatio
 ---------------
 def configure(conf):
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
-	#pango_version = conf.check_cfg(modversion='pango') <2>
+	pango_version = conf.check_cfg(modversion='pango') <2>
 
 	conf.check_cfg(package='pango') <3>
 	conf.check_cfg(package='pango', uselib_store='MYPANGO') <4>
