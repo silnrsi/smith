@@ -51,7 +51,7 @@ def build(bld):
 		source = 'extend/a.cpp',
 		target = 'extend/mylib',
 		includes = 'extend',
-		export_incdirs = 'extend',
+		export_includes = 'extend',
 		vnum = '1.2.3',
 		name = 'mylib')
 

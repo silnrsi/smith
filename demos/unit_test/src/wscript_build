@@ -5,6 +5,6 @@ bld(
 	features = 'cxx cxxstlib',
 	source   = 'Accumulator.cpp HelloWorld.cpp',
 	target   = 'useless',
-	export_incdirs = '.',
+	export_includes = '.',
 )
 

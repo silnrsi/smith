@@ -351,7 +351,7 @@ def build(bld):
 	bld.program(source='main.c', target='app', use='m')
 ---------------
 
-The methods will try to find files such as 'libm.so' or 'libm.dll' in the specified paths to compute the required paths and dependencies. In this example, the target 'app' will be re-created whenever '/usr/lib64/libm.so' changes.
+The methods will try to find files such as 'libm.so' or 'libm.dll' in the specified paths to compute the required paths and dependencies. In this example, the target 'app' will be re-created whenever '/usr/lib64/libm.so' changes. These libraries are propagated between task generators just like shared or static libraries declared locally.
 
 ==== Foreign libraries and flags
 
