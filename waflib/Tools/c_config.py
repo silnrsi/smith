@@ -122,13 +122,17 @@ def validate_cfg(self, kw):
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
 		if not 'msg' in kw:
-			kw['msg'] = 'Checking for pkg-config version >= %s' % kw['atleast_pkgconfig_version']
+			kw['msg'] = 'Checking for pkg-config version >= %r' % kw['atleast_pkgconfig_version']
 		return
 
-	# pkg-config --modversion
+	if not 'okmsg' in kw:
+		kw['okmsg'] = 'yes'
+	if not 'errmsg' in kw:
+		kw['errmsg'] = 'not found'
+
 	if 'modversion' in kw:
-		#if not 'msg' in kw:
-		#	kw['msg'] = 'Checking for %r version' % kw['modversion']
+		if not 'msg' in kw:
+			kw['msg'] = 'Checking for %r version' % kw['modversion']
 		return
 
 	# checking for the version of a module, for the moment, one thing at a time
@@ -139,15 +143,11 @@ def validate_cfg(self, kw):
 				raise ValueError('%s requires a package' % x)
 
 			if not 'msg' in kw:
-				kw['msg'] = 'Checking for %s %s %s' % (kw['package'], cfg_ver[x], kw[y])
+				kw['msg'] = 'Checking for %r %s %s' % (kw['package'], cfg_ver[x], kw[y])
 			return
 
 	if not 'msg' in kw:
-		kw['msg'] = 'Checking for %s' % (kw['package'] or kw['path'])
-	if not 'okmsg' in kw:
-		kw['okmsg'] = 'yes'
-	if not 'errmsg' in kw:
-		kw['errmsg'] = 'not found'
+		kw['msg'] = 'Checking for %r' % (kw['package'] or kw['path'])
 
 @conf
 def exec_cfg(self, kw):
