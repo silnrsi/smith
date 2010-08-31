@@ -12,5 +12,6 @@ def build(ctx):
 	sub('objects')
 	sub('order')
 	sub('transitivity')
+	sub('headers')
 	#sub('cycle') # this must raise an error during the build
 
