@@ -237,46 +237,75 @@ The dependency computation is performed only when the files are not up-to-date, 
 
 ==== Local libraries
 
-The attribute 'use' enables the link against libraries (static or shared), or the inclusion of object files when the task generator referenced is not a library. The compilation order is modified and the dependency is added.
+===== Declaration
+
+The attribute 'use' enables the link against libraries (static or shared), or the inclusion of object files when the task generator referenced is not a library. The link order will be set and the dependency between the object files will be added.
+
+// cprog_use
+[source,python]
+---------------
+def build(bld):
+	bld.stlib(
+		source   = 'test_staticlib.c',
+		target   = 'mylib',
+		name     = 'stlib1') <1>
+
+	bld.program(
+		source   = 'main.c',
+		target   = 'app',
+		includes = '.',
+		use      = ['stlib1']) <2>
+---------------
+
+<1> The name attribute must point at exactly one task generator
+<2> The attribute 'use' contains the task generator names to use
+
+By using task generator names, the programs and libraries declarations may appear in any order and across scripts. For convenience, the name does not have to be defined, and will be set from the target name:
 
 [source,python]
 ---------------
 def build(bld):
-	staticlib = bld.stlib( <1>
-		source         = 'test_staticlib.c',
-		target         = 'teststaticlib',
-		export_incdirs = '.') <2>
+	bld.stlib(
+		source   = 'test_staticlib.c',
+		target   = 'mylib')
 
-	main = bld.program(
-		source         = 'main.c',
-		target         = 'test_c_program',
-		includes       = '.',
-		use            = 'teststaticlib') <3>
+	bld.program(
+		source   = 'main.c',
+		target   = 'app',
+		includes = '.',
+		use      = ['mylib'])
 ---------------
 
-<1> A static library
-<2> Include paths to export for use with uselib_local (include paths are not added automatically). These folders are taken relatively to the current target.
-<3> A list of references to existing libraries declared in the project (either a python list or a string containing the names space-separated)
+NOTE: The 'use' keyword propagates transitively local shared libraries and variables, but stop at static libraries.
 
-The library does not need to actually declare a target. Header-only libraries may be created to add common include paths to several targets:
+===== Fake libraries
 
-// cprog_incdirs
+The library do not need to actually declare a target. For example, header-only libraries are commonly used to add specific include paths to several targets:
+
+// cprog_export
 [source,python]
 ---------------
 def build(bld):
 	bld(
-		export_incdirs = '.',
-		name           = 'common_includes')
+		includes        = '. src',
+		export_includes = '.', <1>
+		name            = 'top_includes')
 
-	main = bld.program(
-		source         = 'main.c',
-		target         = 'some_app',
-		use            = 'common_includes')
+	bld.stlib(
+		source          = 'a.c',
+		target          = 'shlib1',
+		use             = 'top_includes') <2>
+
+	bld.program(
+		source          = 'main.c',
+		target          = 'app',
+		use             = 'shlib1', <3>
+		)
 ---------------
 
-Include paths are only propagated when 'export_incdirs' is provided. The include paths are relative to the path of the task generator that declared them.
-
-NOTE: The 'use' keyword propagates transitively local shared libraries and variables, but stop at static libraries.
+<1> The 'includes' attribute is private, but 'export_includes' will be used by other task generators
+<2> The paths added are relative to the other task generator
+<3> The 'export_includes' are not propagated to other task generators
 
 ==== Foreign libraries
 
