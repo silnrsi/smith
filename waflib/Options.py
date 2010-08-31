@@ -179,6 +179,9 @@ class OptionsContext(Context.Context):
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 
+		if options.verbose >= 2:
+			self.tool_options('errcheck')
+
 	def execute(self):
 		super(OptionsContext, self).execute()
 		self.parse_args()

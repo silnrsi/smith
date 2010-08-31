@@ -39,13 +39,15 @@ def replace(m):
 		oldcall(self, *k, **kw)
 	setattr(Build.BuildContext, m, call)
 
+def enhance_lib():
+	for m in meths_typos:
+		replace(m)
+
 def options(opt):
 	"""
 	Add a few methods
 	"""
-
-	for m in meths_typos:
-		replace(m)
+	enhance_lib()
 
 def configure(conf):
 	pass
