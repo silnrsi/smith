@@ -635,16 +635,22 @@ The method 'check_cfg' is provided to ease the interaction with these applicatio
 // cprog_pkgconfig
 [source,python]
 ---------------
+def options(opt):
+	opt.tool_options('compiler_c')
+
 def configure(conf):
+	conf.check_tool('compiler_c')
+
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
 	pango_version = conf.check_cfg(modversion='pango') <2>
 
 	conf.check_cfg(package='pango') <3>
-	conf.check_cfg(package='pango', uselib_store='MYPANGO') <4>
+	conf.check_cfg(package='pango', uselib_store='MYPANGO',
+		args=['--cflags', '--libs']) <4>
 
-	conf.check_cfg(package='pango',
-		args=['pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs'], <5>
-		msg='Checking for pango 0.1.0') <6>
+	conf.check_cfg(package='pango', <5>
+		args=['pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs'],
+		msg="Checking for 'pango 0.1.0'") <6>
 
 	conf.check_cfg(path='sdl-config', args='--cflags --libs',
 		package='', uselib_store='SDL') <7>
@@ -653,22 +659,68 @@ def configure(conf):
 ---------------
 
 <1> Check for the pkg-config version
-<2> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute _uselib_store='MYPANGO'_.
-<3> Obtain the flags for a package and assign them to the _use variable_ PANGO (calculated automatically from the package name)
-<4> Store the flags to the _use variable_ MYPANGO
-<5> Use pkg-config clauses to ensure a particular version number. The arguments and the command are joined into a string and executed by the shell.
-<6> Display a custom message on the output.
-<7> Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc
+<2> Retrieve the module version for a package as a string. If there were no errors, 'PANGO_VERSION' is defined. It can be overridden with the attribute _uselib_store='MYPANGO'_.
+<3> Check if the pango package is present, and define _HAVE_PANGO_ (calculated automatically from the package name)
+<4> Beside defining _HAVE_MYPANGO_, extract and store the relevant flags to the _use variable_ MYPANGO (_LIB_MYPANGO_, _LIBPATH_MYPANGO_, etc)
+<5> Like the previous test, but with pkg-config clauses to enforce a particular version number
+<6> Display a custom message on the output. The attributes 'okmsg' and 'errmsg' represent the messages to display in case of success and error respectively
+<7> Obtain the flags for sdl-config. The example is applicable for other configuration programs such as wx-config, pcre-config, etc
 <8> Suppress the configuration error which is raised whenever the program to execute is not found or returns a non-zero exit status
 
-Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the corresponding _use variables_ are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
+Due to the amount of flags, the lack of standards between config applications, and to the compiler-dependent flags (-I for gcc, /I for msvc), the pkg-config output is parsed before setting the corresponding _use variables_ in a go. The function 'parse_flags(line, uselib, env)' in the Waf module c_config.py performs the flag extraction.
 
 The outputs are written in the build directory into the file 'config.log':
 
 [source,shishell]
----------------
+------------------
+# project  configured on Tue Aug 31 17:30:21 2010 by
+# waf 1.6.0 (abi 98, python 20605f0 on linux2)
+# using /home/waf/bin/waf configure
+#
+---
+Setting top to
+/disk/comp/waf/docs/book/examples/cprog_pkgconfig
+---
+Setting out to
+/disk/comp/waf/docs/book/examples/cprog_pkgconfig/build
+---
+Checking for program pkg-config
+/usr/bin/pkg-config
+find program=['pkg-config'] paths=['/usr/local/bin', '/usr/bin'] var='PKGCONFIG' -> '/usr/bin/pkg-config'
+---
+Checking for pkg-config version >= 0.0.0
+['/usr/bin/pkg-config', '--atleast-pkgconfig-version=0.0.0']
+yes
+['/usr/bin/pkg-config', '--modversion', 'pango']
+out: 1.28.0
 
----------------
+---
+Checking for pango
+['/usr/bin/pkg-config', 'pango']
+yes
+---
+Checking for pango
+['/usr/bin/pkg-config', 'pango']
+yes
+---
+Checking for pango 0.1.0
+['/usr/bin/pkg-config', 'pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs', 'pango']
+out: -pthread -I/usr/include/pango-1.0 -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include
+     -pthread -lpango-1.0 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lrt -lglib-2.0
+
+yes
+---
+Checking for sdl-config
+['sdl-config', '--cflags', '--libs']
+out: -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT
+-L/usr/lib64 -lSDL -lpthread
+
+yes
+---
+Checking for mpicc
+['mpicc', '--showme:compile', '--showme:link']
+out: -pthread libtool: link: -pthread -L/usr/lib64 -llammpio -llamf77mpi -lmpi -llam -lutil -ldl
+------------------
 
 After such a configuration, the configuration set contents will be similar to the following:
 
