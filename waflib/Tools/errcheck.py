@@ -25,6 +25,10 @@ from waflib import Logs, Build
 import waflib.Tools.ccroot
 
 def replace(m):
+	"""
+	We could add properties, but they would not work in some cases:
+	bld.program(...) requires 'source' in the attributes
+	"""
 	oldcall = getattr(Build.BuildContext, m)
 	def call(self, *k, **kw):
 		for x in typos:
