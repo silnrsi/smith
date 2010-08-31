@@ -196,8 +196,8 @@ def use_rec(self, name, objects=True, stlib=True):
 
 	# if the library task generator provides 'export_incdirs', add to the include path
 	# the export_incdirs must be a list of paths relative to the other library
-	if getattr(y, 'export_incdirs', None):
-		self.includes.extend(y.to_incnodes(y.export_incdirs))
+	if getattr(y, 'export_includes', None):
+		self.includes.extend(y.to_incnodes(y.export_includes))
 
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths', 'propagate_uselib_vars')

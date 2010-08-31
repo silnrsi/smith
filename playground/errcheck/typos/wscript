@@ -14,7 +14,6 @@ def configure(conf):
 
 def build(bld):
 	bld(feature='c cprogram', source='main.c', target='app1')
-
 	bld.program(sources='main.c', target='app2')
 	bld.program(source='main.c', targets='app3')
 	bld.program(source='main.c', target='app4', include='.')

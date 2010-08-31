@@ -181,7 +181,6 @@ def apply_uselib_local(self):
 					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
 				self.includes.append(node)
 
-
 @TaskGen.feature('cprogram', 'cxxprogram', 'cstlib', 'cxxstlib', 'cshlib', 'cxxshlib', 'dprogram', 'dstlib', 'dshlib')
 @TaskGen.after('apply_link')
 def apply_objdeps(self):
@@ -255,4 +254,10 @@ def undefine(self, key):
 	old_undefine(self, key)
 	if key.startswith('HAVE_'):
 		self.env[key] = 0
+
+# some people might want to use export_incdirs, but it was renamed
+def set_incdirs(self, val):
+	Logs.warn('compat: change "export_incdirs" by "export_includes"')
+	self.export_includes = val
+TaskGen.task_gen.export_incdirs = property(None, set_incdirs)
 
