@@ -8,11 +8,18 @@ def configure(conf):
 
 def build(bld):
 	bld(
-		export_incdirs = '.',
-		name           = 'common_includes')
+		includes        = '. src',
+		export_includes = 'src',
+		name            = 'top_includes')
 
-	main = bld.program(
-		source         = 'main.c',
-		target         = 'some_app',
-		use            = 'common_includes')
+	bld.stlib(
+		source          = 'a.c',
+		target          = 'shlib1',
+		use             = 'top_includes')
+
+	bld.program(
+		source          = 'main.c',
+		target          = 'app',
+		use             = 'shlib1',
+		)
 
