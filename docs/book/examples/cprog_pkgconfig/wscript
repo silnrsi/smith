@@ -8,11 +8,12 @@ def configure(conf):
 	pango_version = conf.check_cfg(modversion='pango')
 
 	conf.check_cfg(package='pango')
-	conf.check_cfg(package='pango', uselib_store='MYPANGO')
+	conf.check_cfg(package='pango', uselib_store='MYPANGO',
+		args=['--cflags', '--libs'])
 
 	conf.check_cfg(package='pango',
 		args=['pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs'],
-		msg='Checking for pango 0.1.0')
+		msg="Checking for 'pango 0.1.0'")
 
 	conf.check_cfg(path='sdl-config', args='--cflags --libs',
 		package='', uselib_store='SDL')
