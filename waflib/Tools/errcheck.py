@@ -13,6 +13,7 @@ typos = {
 'sources':'source',
 'targets':'target',
 'include':'includes',
+'export_include':'export_includes',
 'define':'defines',
 'importpath':'includes',
 'installpath':'install_path',
