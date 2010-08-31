@@ -609,7 +609,7 @@ build/
 `-- config.h
 ---------------
 
-The contents of the config.h for this example are
+The contents of the config.h for this example are:
 
 [source,c]
 ---------------
@@ -624,7 +624,7 @@ The contents of the config.h for this example are
 #endif /* _CONFIG_H_WAF */
 ---------------
 
-NOTE: By default, the defines are moved from the command-line into the configuration header. This means that the attribute _conf.env.DEFINE_ is cleared by this operation.
+NOTE: By default, the defines are moved from the command-line into the configuration header. This means that the attribute _conf.env.DEFINE_ is cleared by this operation. To prevent this behaviour, use 'conf.write_config_header(remove=False)'
 
 ==== Pkg-config
 
@@ -632,32 +632,34 @@ Instead of duplicating the configuration detection in all dependent projects, co
 
 The method 'check_cfg' is provided to ease the interaction with these applications. Here are a few examples:
 
+// cprog_pkgconfig
 [source,python]
 ---------------
 def configure(conf):
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
-	pango_version = conf.check_cfg(modversion='pango', mandatory=True) <2>
+	#pango_version = conf.check_cfg(modversion='pango') <2>
 
 	conf.check_cfg(package='pango') <3>
-	conf.check_cfg(package='pango', uselib_store='MYPANGO', mandatory=True) <4>
+	conf.check_cfg(package='pango', uselib_store='MYPANGO') <4>
 
 	conf.check_cfg(package='pango',
-		args='"pango >= 1.0.0" "pango < 9.9.9" --cflags --libs', <5>
-		msg="Checking for pango 1.0.0", mandatory=True) <6>
+		args=['pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs'], <5>
+		msg='Checking for pango 0.1.0') <6>
 
 	conf.check_cfg(path='sdl-config', args='--cflags --libs',
 		package='', uselib_store='SDL') <7>
 	conf.check_cfg(path='mpicc', args='--showme:compile --showme:link',
-		package='', uselib_store='OPEN_MPI')
+		package='', uselib_store='OPEN_MPI', mandatory=False) <8>
 ---------------
 
 <1> Check for the pkg-config version
 <2> Retrieve the module version for a package. The returned object is a string containing the version number or an empty string in case of any errors. If there were no errors, 'PANGO_VERSION' is defined, can be overridden with the attribute _uselib_store='MYPANGO'_.
 <3> Obtain the flags for a package and assign them to the _use variable_ PANGO (calculated automatically from the package name)
-<4> Store the flags to the _use variable_ MYPANGO, and raise a configuration error if the package cannot be found
+<4> Store the flags to the _use variable_ MYPANGO
 <5> Use pkg-config clauses to ensure a particular version number. The arguments and the command are joined into a string and executed by the shell.
 <6> Display a custom message on the output.
 <7> Obtain the flags for a different configuration program (sdl-config). The example is applicable for other configuration programs such as wx-config, pcre-config, etc
+<8> Suppress the configuration error which is raised whenever the program to execute is not found or returns a non-zero exit status
 
 Due to the amount of flags, the lack of standards between config applications, and to the output changing for different operating systems (-I for gcc, /I for msvc), the output of pkg-config is parsed, and the corresponding _use variables_ are set in a go. The function 'parse_flags(line, uselib, env)' in the Waf module config_c.py performs the output analysis.
 
@@ -665,47 +667,30 @@ The outputs are written in the build directory into the file 'config.log':
 
 [source,shishell]
 ---------------
-# project cpp_test (0.0.1) configured on Fri Feb 26 20:51:39 2010 by
-# waf 1.6.0 (abi 7, python 20602f0 on linux2)
-# using /home/waf/bin/waf configure
-#
-Checking for pkg-config version >= 0.0.0
-pkg-config --errors-to-stdout --print-errors --atleast-pkgconfig-version=0.0.0
 
-pkg-config --errors-to-stdout --print-errors --modversion pango
-
-Checking for pango
-pkg-config --errors-to-stdout --print-errors  pango
-
-Checking for pango
-pkg-config --errors-to-stdout --print-errors  pango
-
-Checking for pango 1.0.0
-pkg-config --errors-to-stdout --print-errors "pango >= 1.0.0" --cflags --libs pango
-
-Checking for sdl-config
-sdl-config --cflags --libs
-
-Checking for mpicc
-mpicc --showme:compile --showme:link
 ---------------
 
 After such a configuration, the configuration set contents will be similar to the following:
 
 [source,python]
 ---------------
-CCFLAGS_OPEN_MPI = ['-pthread']
-INCLUDES_OPEN_MPI = ['/usr/lib64/mpi/gcc/openmpi/include/openmpi']
-INCLUDES_PANGO = ['/usr/include/pango-1.0', '/usr/include/glib-2.0']
-CXXFLAGS_OPEN_MPI = ['-pthread']
-HAVE_MYPANGO = 1
-HAVE_OPEN_MPI = 1
-HAVE_PANGO = 1
-LIB_PANGO = ['pango-1.0', 'gobject-2.0', 'gmodule-2.0', 'glib-2.0']
-LINKFLAGS_OPEN_MPI = ['-pthread']
-PANGO_VERSION = '1.25.3'
-PREFIX = '/usr/local'
-defines = {'HAVE_OPEN_MPI': 1, 'HAVE_PANGO': 1,
-	'PANGO_VERSION': '"1.25.3"', 'HAVE_MYPANGO': 1}
+'CCFLAGS_OPEN_MPI' ['-pthread']
+'CCFLAGS_PANGO' ['-pthread']
+'CXXFLAGS_OPEN_MPI' ['-pthread']
+'CXXFLAGS_PANGO' ['-pthread']
+'DEFINES' ['HAVE_PANGO=1', 'HAVE_MYPANGO=1', 'HAVE_SDL=1', 'HAVE_OPEN_MPI=1']
+'DEFINES_SDL' ['_GNU_SOURCE=1', '_REENTRANT']
+'INCLUDES_PANGO' ['/usr/include/pango-1.0', '/usr/include/glib-2.0', '/usr/lib64/glib-2.0/include']
+'INCLUDES_SDL' ['/usr/include/SDL']
+'LIBPATH_OPEN_MPI' ['/usr/lib64']
+'LIBPATH_SDL' ['/usr/lib64']
+'LIB_OPEN_MPI' ['lammpio', 'lamf77mpi', 'mpi', 'lam', 'util', 'dl']
+'LIB_PANGO' ['pango-1.0', 'gobject-2.0', 'gmodule-2.0', 'gthread-2.0', 'rt', 'glib-2.0']
+'LIB_SDL' ['SDL', 'pthread']
+'LINKFLAGS_OPEN_MPI' ['-pthread']
+'LINKFLAGS_PANGO' ['-pthread']
+'PKGCONFIG' '/usr/bin/pkg-config'
+'PREFIX' '/usr/local'
+'define_key' ['HAVE_PANGO', 'HAVE_MYPANGO', 'HAVE_SDL', 'HAVE_OPEN_MPI']
 ---------------
 
