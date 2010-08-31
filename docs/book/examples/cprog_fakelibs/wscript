@@ -1,0 +1,11 @@
+#! /usr/bin/env python
+
+def options(opt):
+	opt.tool_options('compiler_c')
+
+def configure(conf):
+	conf.check_tool('compiler_c')
+
+def build(bld):
+	bld.read_shlib('m', paths=['/usr/lib64'])
+	bld.program(source='main.c', target='app', use='m')
