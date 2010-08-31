@@ -281,23 +281,29 @@ The 'use' processing also exhibits a recursive behaviour. Let's illustrate it by
 ---------------
 def build(bld):
 	bld.shlib(
-		source   = 'a.c',
+		source   = 'a.c', <1>
 		target   = 'lib1')
 
 	bld.stlib(
 		source   = 'b.c',
+		use      = 'cshlib', <2>
 		target   = 'lib2')
 
 	bld.shlib(
 		source   = 'c.c',
 		target   = 'lib3',
-		use      = 'lib1 lib2')
+		use      = 'lib1 lib2') <3>
 
-	bld.program(
+	bld.program( <4>
 		source   = 'main.c',
 		target   = 'app',
 		use      = 'lib3')
 ---------------
+
+<1> A simple shared library
+<2> Add shared library flags required for linking static objects in shared libraries (see the next sections for more information)
+<3> 'lib3' uses both a shared library and a static library
+<4> A program using 'lib3'
 
 Because of the shared library dependency 'lib1' → 'lib2', the program 'app' should link against both 'lib1' and 'lib3', but not against 'lib2':
 
