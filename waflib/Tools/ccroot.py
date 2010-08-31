@@ -231,7 +231,7 @@ def get_uselib_vars(self):
 	return _vars
 
 @feature('c', 'cxx', 'd', 'fc', 'cs', 'uselib')
-@after('apply_uselib_local')
+@after('process_use')
 def propagate_uselib_vars(self):
 	_vars = self.get_uselib_vars()
 	env = self.env
