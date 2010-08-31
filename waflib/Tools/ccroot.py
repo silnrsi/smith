@@ -45,7 +45,7 @@ def create_compiled_task(self, name, node):
 	return task
 
 @taskgen_method
-def to_incpaths(self, inlst):
+def to_incnodes(self, inlst):
 	lst = []
 	seen = set([])
 	for x in inlst:
@@ -75,7 +75,7 @@ def apply_incpaths(self):
 	after process_source because some processing may add include paths
 	"""
 
-	lst = self.to_incpaths(self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES'])
+	lst = self.to_incnodes(self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES'])
 	self.includes_nodes = lst
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
@@ -197,7 +197,7 @@ def use_rec(self, name, objects=True, stlib=True):
 	# if the library task generator provides 'export_incdirs', add to the include path
 	# the export_incdirs must be a list of paths relative to the other library
 	if getattr(y, 'export_incdirs', None):
-		self.includes.extend(y.to_incpaths(y.export_incdirs))
+		self.includes.extend(y.to_incnodes(y.export_incdirs))
 
 @feature('c', 'cxx', 'd')
 @before('apply_incpaths', 'propagate_uselib_vars')

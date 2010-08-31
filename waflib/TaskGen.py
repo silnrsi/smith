@@ -294,7 +294,11 @@ def extension(*k):
 
 @taskgen_method
 def to_nodes(self, lst, path=None):
-	"""convert @lst to a list of nodes, used by process_source and process_rule"""
+	"""
+	convert @lst to a list of nodes, used by process_source and process_rule
+	it will try to return build nodes, so it is not really suitable for folders
+	for other purposes see to_incnodes in ccroot.py
+	"""
 	tmp = []
 	path = path or self.path
 	find = path.find_resource
