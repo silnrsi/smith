@@ -614,15 +614,17 @@ class Node(object):
 
 	def get_bld_sig(self):
 		try:
-			if id(self) in self.ctx.hash_cache:
-				return self.sig
+			ret = self.ctx.hash_cache[id(self)]
+		except KeyError:
+			pass
 		except AttributeError:
 			self.ctx.hash_cache = {}
+		else:
+			return ret
 
-		if not self.is_bld():
+		if not self.is_bld() or self.ctx.bldnode is self.ctx.srcnode:
 			self.sig = Utils.h_file(self.abspath())
-		ret = self.sig
-		self.ctx.hash_cache[id(self)] = True
+		self.ctx.hash_cache[id(self)] = ret = self.sig
 		return ret
 
 
