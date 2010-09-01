@@ -34,6 +34,9 @@ from waflib.Configure import conf
 from waflib import TaskGen, Task, Utils, Options, Build
 from waflib.TaskGen import feature, before
 
+SOURCE_RE = '**/*.java'
+JAR_RE = '**/*'
+
 class_check_source = '''
 public class Test {
 	public static void main(String[] argv) {
@@ -80,7 +83,7 @@ def jar_files(self):
 @before('process_source')
 def apply_java(self):
 	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		sourcepath='.', srcdir='.', source_re='**/*.java',
+		sourcepath='.', srcdir='.',
 		jar_mf_attributes={}, jar_mf_classpath=[])
 
 	nodes_lst = []
@@ -91,26 +94,23 @@ def apply_java(self):
 	else:
 		self.env['CLASSPATH'] = self.classpath
 
-	srcdir_node = self.path.find_dir(self.srcdir)
+	if isinstance(self.srcdir, self.path.__class__):
+		srcdir_node = self.srcdir
+	else:
+		srcdir_node = self.path.find_dir(self.srcdir)
 	if not srcdir_node:
 		raise Errors.WafError('could not find srcdir %r' % self.srcdir)
-
-	src_nodes = srcdir_node.ant_glob(self.source_re)
-	bld_nodes = [x.change_ext('.class') for x in src_nodes]
-	for x in src_nodes:
-		x.sig = Utils.h_file(x.abspath())
 
 	self.env['OUTDIR'] = [srcdir_node.srcpath()]
 
 	tsk = self.create_task('javac')
-	tsk.set_inputs(src_nodes)
-	tsk.set_outputs(bld_nodes)
+	tsk.srcdir = srcdir_node
 
 	if getattr(self, 'compat', None):
 		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
 
 	if hasattr(self, 'sourcepath'):
-		fold = [self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
+		fold = [isinstance(x, self.path.__class__) and x or self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
 		names = os.pathsep.join([x.srcpath() for x in fold])
 	else:
 		names = srcdir_node.srcpath()
@@ -140,12 +140,29 @@ class jar_create(Task.Task):
 				return Task.ASK_LATER
 
 		if not self.inputs:
-			self.inputs = [x for x in self.basedir.get_bld().ant_glob('**/*', dir=False) if id(x) != id(self.outputs[0])]
+			global JAR_RE
+			self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, dir=False) if id(x) != id(self.outputs[0])]
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
 	color   = 'BLUE'
 	run_str = '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}'
+	quiet   = True
+
+	def runnable_status(self):
+		"""
+		the javac task will have its complete inputs only after the other tasks are done
+		"""
+		for t in self.run_after:
+			if not t.hasrun:
+				return Task.ASK_LATER
+
+		if not self.inputs:
+			global SOURCE_RE
+			self.inputs  = self.srcdir.ant_glob(SOURCE_RE)
+		if not self.outputs:
+			self.outputs = [x.change_ext('.class') for x in self.inputs]
+		return super(javac, self).runnable_status()
 
 	def post_run(self):
 		"""record the inner class files created (Class$Foo) - for cleaning the folders mostly
