@@ -95,6 +95,8 @@ class swig(Task.Task):
 
 # provide additional language processing
 swig_langs = {}
+
+@conf
 def swigf(fun):
 	swig_langs[fun.__name__.replace('swig_', '')] = fun
 
