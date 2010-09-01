@@ -65,15 +65,19 @@ def jar_files(self):
 	jaropts = getattr(self, 'jaropts', [])
 	jarcreate = getattr(self, 'jarcreate', 'cf')
 
-	d = self.path.find_dir(basedir)
-	if not d: raise
+	if isinstance(self.basedir, self.path.__class__):
+		srcdir_node = self.basedir
+	else:
+		srcdir_node = self.path.find_dir(self.basedir)
+	if not srcdir_node:
+		raise Errors.WafError('could not find basedir %r' % self.srcdir)
 
 	tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
-	tsk.basedir = d
+	tsk.basedir = srcdir_node
 
 	jaropts.append('-C')
-	jaropts.append(d.bldpath())
+	jaropts.append(srcdir_node.bldpath())
 	jaropts.append('.')
 
 	tsk.env['JAROPTS'] = jaropts
@@ -121,7 +125,6 @@ def apply_java(self):
 	if self.jarname:
 		jar_tsk = self.create_task('jar_create')
 		jar_tsk.set_outputs(self.path.find_or_declare(self.jarname))
-		jar_tsk.set_run_after(tsk)
 
 		if not self.env['JAROPTS']:
 			if self.jaropts:
@@ -134,6 +137,7 @@ class jar_create(Task.Task):
 	color   = 'GREEN'
 	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
 	quiet   = True
+	after   = ['javac']
 
 	def runnable_status(self):
 		for t in self.run_after:
