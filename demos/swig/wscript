@@ -73,7 +73,8 @@ def build(bld):
 		vnum = '1.2.3',
 		use  = 'mylib')
 
-	bld.add_post_fun(inst_py)
+	bld.install_files('${PREFIX}/lib', 'extend/python/test_swig_waf.py')
+
 	bld.add_post_fun(exec_test)
 
 
@@ -117,10 +118,6 @@ def build(bld):
 		destfile   = 'maha.jar'
 		)
 
-
-def inst_py(bld):
-	node = bld.path.find_or_declare('extend/python/test_swig_waf.py')
-	bld.install_files('${PREFIX}/lib', node, postpone=False)
 
 def exec_test(bld):
 	import os, stat
