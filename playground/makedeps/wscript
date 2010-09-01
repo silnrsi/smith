@@ -20,15 +20,21 @@ def build(bld):
 
 	x = bld.path.make_node("wscript")
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.a'), name='a')
-	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.a'), target=x.change_ext('.aa'), name='aa')
+	def xxx(**kw):
+		kw['update_outputs'] = True
+		if not 'rule' in kw:
+			kw['rule'] = 'cp ${SRC} ${TGT}'
+		return bld(**kw)
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.b'), name='b')
-	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.b'), target=x.change_ext('.bb'), name='bb')
+	xxx(source=x, target=x.change_ext('.a'), name='a')
+	xxx(source=x.change_ext('.a'), target=x.change_ext('.aa'), name='aa')
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.c'), name='c')
+	xxx(source=x, target=x.change_ext('.b'), name='b')
+	xxx(source=x.change_ext('.b'), target=x.change_ext('.bb'), name='bb')
 
-	bld(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')], name='cc')
+	xxx(source=x, target=x.change_ext('.c'), name='c')
+
+	xxx(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')], name='cc')
 
 def makedeps(bld):
 	ins = {}
