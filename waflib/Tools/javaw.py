@@ -101,7 +101,7 @@ def apply_java(self):
 	if not srcdir_node:
 		raise Errors.WafError('could not find srcdir %r' % self.srcdir)
 
-	self.env['OUTDIR'] = [srcdir_node.srcpath()]
+	self.env['OUTDIR'] = [srcdir_node.get_src().srcpath()]
 
 	tsk = self.create_task('javac')
 	tsk.srcdir = srcdir_node
