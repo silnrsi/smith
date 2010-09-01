@@ -18,15 +18,15 @@ def build(bld):
 
 	x = bld.path.make_node(wscript)
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.a'))
-	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.a'), target=x.change_ext('.aa'))
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.a'), name='a')
+	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.a'), target=x.change_ext('.aa'), name='aa')
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.b'))
-	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.b'), target=x.change_ext('.bb'))
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.b'), name='b')
+	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.b'), target=x.change_ext('.bb'), name='bb')
 
-	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.c'))
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.c'), name='c')
 
-	bld(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')])
+	bld(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')], name='cc')
 
 def makedeps(bld):
 	ins = {}
