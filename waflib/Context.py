@@ -109,6 +109,7 @@ class Context(ctx):
 	"""
 
 	errors = Errors
+	tools = {}
 
 	def __init__(self, start=None):
 		if not start:
@@ -405,7 +406,8 @@ def load_module(file_path):
 def load_tool(tool, tooldir=None):
 	"""
 	Import the Python module that contains the specified tool from
-	the tools directory.
+	the tools directory. Store the tool in the dict Context.tools
+
 	@type  tool: string
 	@param tool: Name of the tool
 	@type  tooldir: list
@@ -420,7 +422,9 @@ def load_tool(tool, tooldir=None):
 		sys.path = tooldir + sys.path
 		try:
 			__import__(tool)
-			return sys.modules[tool]
+			ret = sys.modules[tool]
+			Context.tools[tool] = ret
+			return ret
 		finally:
 			for d in tooldir:
 				sys.path.remove(d)
@@ -437,5 +441,7 @@ def load_tool(tool, tooldir=None):
 				d = tool # user has messed with sys.path
 
 		__import__(d)
-		return sys.modules[d]
+		ret = sys.modules[d]
+		Context.tools[tool] = ret
+		return ret
 

@@ -87,7 +87,8 @@ def build(bld):
 	d = bld.path.find_dir('extend/python')
 	javanodes = [d.find_or_declare(x) for x in 'A.java  test_swig_waf.java  test_swig_wafJNI.java'.split()]
 
-	@swig.swigf
+	dec = bld.tools['swig'].swigf
+	@dec
 	def swig_java(tsk):
 		tsk.outputs.extend(javanodes)
 
