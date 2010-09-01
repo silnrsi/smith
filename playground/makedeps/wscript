@@ -12,11 +12,11 @@ def configure(conf):
 	pass
 
 def build(bld):
-	bld.add_pre_fun('makedeps')
+	bld.add_pre_fun(makedeps)
 
 	# test below
 
-	x = bld.path.make_node(wscript)
+	x = bld.path.make_node("wscript")
 
 	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.a'), name='a')
 	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.a'), target=x.change_ext('.aa'), name='aa')
@@ -41,10 +41,10 @@ def makedeps(bld):
 		except:
 			pass
 		else:
-			tg_ins[id(tg)] = s
-
 			if isinstance(s, bld.root.__class__):
 				s = [s]
+			tg_ins[id(tg)] = s
+
 			for x in s:
 				try:
 					ins[x].append(tg)
@@ -56,10 +56,10 @@ def makedeps(bld):
 		except:
 			pass
 		else:
-			tg_outs[id(tg)] = s
-
 			if isinstance(s, bld.root.__class__):
 				s = [s]
+			tg_outs[id(tg)] = s
+
 			for x in s:
 				try:
 					outs[x].append(tg)
@@ -80,11 +80,11 @@ def makedeps(bld):
 
 		up = tg_ins.get(id(tg), [])
 		for k in up:
-			for k in outs.get(k, []):
-				add_rec(outs[k])
+			for y in outs.get(k, []):
+				add_rec(y)
 
-	for name in self.targets.split(','):
-		tg = self.get_tgen_by_name(name)
+	for name in bld.targets.split(','):
+		tg = bld.get_tgen_by_name(name)
 		if not tg:
 			raise ValueError('invalid task generator %r' % name)
 		add_rec(tg)
