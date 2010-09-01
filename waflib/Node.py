@@ -384,7 +384,14 @@ class Node(object):
 
 	def ant_glob(self, *k, **kw):
 		"""
+		This method is used for finding files across folders. It behaves like ant patterns:
+		**/* find all files recursively
+		**/*.class find all files ending by .class
+		for more information see http://ant.apache.org/manual/dirtasks.html
 		IMPORTANT: the nodes that correspond to files and folders that do not exist will be removed
+
+		@param dir: return folders too (False by default)
+		@param src: return files (True by default)
 		"""
 
 		src = kw.get('src', True)
