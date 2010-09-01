@@ -119,8 +119,9 @@ def apply_java(self):
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
 	if self.jarname:
-		tsk = self.create_task('jar_create')
-		tsk.set_outputs(self.path.find_or_declare(self.jarname))
+		jar_tsk = self.create_task('jar_create')
+		jar_tsk.set_outputs(self.path.find_or_declare(self.jarname))
+		jar_tsk.set_run_after(tsk)
 
 		if not self.env['JAROPTS']:
 			if self.jaropts:
