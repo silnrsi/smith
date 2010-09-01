@@ -346,17 +346,19 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
-	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
+	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True, remove=True):
 
 		dircont = self.listdir()
+		if remove:
+			try:
+				lst = set(self.children.keys())
+				for x in lst - set(dircont):
+					del self.children[x]
+			except:
+				self.children = {}
+		else:
+			dircont.extend(self.children.keys())
 		dircont.sort()
-
-		try:
-			lst = set(self.children.keys())
-			for x in lst - set(dircont):
-				del self.children[x]
-		except:
-			self.children = {}
 
 		for name in dircont:
 
@@ -433,7 +435,7 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src)]
+		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src, remove=kw.get('remove', True))]
 		if kw.get('flat', False):
 			return ' '.join([x.path_from(self) for x in ret])
 
