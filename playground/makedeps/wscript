@@ -1,0 +1,91 @@
+#! /usr/bin/env python
+
+"""
+function for posting some task generators from the input/output nodes
+(for illustration purposes, you should use chains instead of rules anyway)
+"""
+
+top = '.'
+out = '.'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld.add_pre_fun('makedeps')
+
+	# test below
+
+	x = bld.path.make_node(wscript)
+
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.a'))
+	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.a'), target=x.change_ext('.aa'))
+
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.b'))
+	bld(rule='cp ${SRC} ${TGT}', source=x.change_ext('.b'), target=x.change_ext('.bb'))
+
+	bld(rule='cp ${SRC} ${TGT}', source=x, target=x.change_ext('.c'))
+
+	bld(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')])
+
+def makedeps(bld):
+	ins = {}
+	outs = {}
+	tg_ins = {}
+	tg_outs = {}
+
+	for tg in bld.groups[-1]:
+
+		try:
+			s = tg.source
+		except:
+			pass
+		else:
+			tg_ins[id(tg)] = s
+
+			if isinstance(s, bld.root.__class__):
+				s = [s]
+			for x in s:
+				try:
+					ins[x].append(tg)
+				except KeyError:
+					ins[x] = [tg]
+
+		try:
+			s = tg.target
+		except:
+			pass
+		else:
+			tg_outs[id(tg)] = s
+
+			if isinstance(s, bld.root.__class__):
+				s = [s]
+			for x in s:
+				try:
+					outs[x].append(tg)
+				except KeyError:
+					outs[x] = [tg]
+
+	acc = set([])
+	def add_rec(tg):
+		if id(tg) in acc:
+			return
+		else:
+			acc.add(id(tg))
+
+		try:
+			tg.post()
+		except:
+			pass
+
+		up = tg_ins.get(id(tg), [])
+		for k in up:
+			for k in outs.get(k, []):
+				add_rec(outs[k])
+
+	for name in self.targets.split(','):
+		tg = self.get_tgen_by_name(name)
+		if not tg:
+			raise ValueError('invalid task generator %r' % name)
+		add_rec(tg)
+
