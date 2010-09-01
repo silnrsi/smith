@@ -122,7 +122,7 @@ def build(bld):
 
 def exec_test_java(bld):
 	try:
-		bld.cmd_and_log('java -classpath "build/maha.jar:." foo.bar.pouet.Foo')
+		bld.cmd_and_log('LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/extend/java:build/extend java -classpath "build/maha.jar:." foo.bar.pouet.Foo')
 	except:
 		pass
 
