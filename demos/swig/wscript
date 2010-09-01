@@ -75,7 +75,7 @@ def build(bld):
 
 	bld.install_files('${PREFIX}/lib', 'extend/python/test_swig_waf.py')
 
-	bld.add_post_fun(exec_test)
+	bld.add_post_fun(exec_test_python)
 
 
 	# some java stuff
@@ -118,8 +118,15 @@ def build(bld):
 		destfile   = 'maha.jar'
 		)
 
+	bld.add_post_fun(exec_test_java)
 
-def exec_test(bld):
+def exec_test_java(bld):
+	try:
+		bld.cmd_and_log('java -classpath "build/maha.jar:." foo.bar.pouet.Foo')
+	except:
+		pass
+
+def exec_test_python(bld):
 	import os, stat
 	try:
 		import subprocess
