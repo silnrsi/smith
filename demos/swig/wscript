@@ -84,13 +84,21 @@ def build(bld):
 
 	from waflib.extras import swig
 
-	d = bld.path.find_dir('extend/python')
-	javanodes = [d.find_or_declare(x) for x in 'A.java  test_swig_waf.java  test_swig_wafJNI.java'.split()]
+	srcdir = bld.path.get_bld().make_node('extend/java/hmm') # destination for generated java file (without the packages!)
 
+	#""" # BEGIN BLOCK 1
+	d = bld.path.make_node('extend/java')
+	javanodes = [d.find_or_declare(x) for x in 'A.java  test_swig_waf.java  test_swig_wafJNI.java'.split()]
 	dec = bld.tools['swig'].swigf
 	@dec
 	def swig_java(tsk):
 		tsk.outputs.extend(javanodes)
+	""" # END BLOCK 1
+	#"""# do not remove
+
+
+
+
 
 	bld(
 		features = 'cxx cxxshlib',
@@ -102,15 +110,33 @@ def build(bld):
 		uselib = 'JAVA',
 		uselib_local = 'mylib')
 
-	bld.add_group()
-
-	# make a directory for java files
-	srcdir = bld.path.get_bld().make_node('extend/python/hmm')
-	for x in javanodes + [bld.path.find_resource('extend/java/Foo.java')]:
+	#""" # BEGIN BLOCK 2
+	for x in javanodes:
 		bld(rule='cp ${SRC} ${TGT}', source=x,
-			target=srcdir.make_node('foo/bar/pouet/' + x.name))
+			target=srcdir.make_node('foo/bar/pouet/' + x.name), before=['javac'], after=['swig'])
+	""" # END BLOCK 2
 
-	bld.add_group()
+	def move_java_files(task):
+		import os, shutil
+		from waflib import Utils
+
+		node = srcdir.make_node('foo/bar/pouet/')
+		node.mkdir()
+		orig = task.inputs[0].parent.get_bld().abspath()
+		files = Utils.listdir(orig)
+		for x in files:
+			if x.endswith('.java'):
+				# create a node in the directory we want to
+				j = node.make_node(x) # create a node
+				shutil.copy2(orig + os.sep + x, j.abspath()) # create the physical file for the node
+				j.sig = Utils.h_file(j.abspath()) # update the node signature
+	# depend on the .i file to make sure the .java files are copied after swig is executed
+	bld(name='move_and_read', rule=move_java_files, source='extend/java/test_swig_waf.i', after=['swig'], before=['javac'])
+	#"""
+
+
+	bld(rule='cp ${SRC} ${TGT}', source=bld.path.find_resource('extend/java/Foo.java'),
+		target=srcdir.make_node('foo/bar/pouet/Foo.java'), before=['javac'], after=['swig'])
 
 	bld(features   = 'javac jar',
 		srcdir     = srcdir,
@@ -120,6 +146,14 @@ def build(bld):
 		)
 
 	bld.add_post_fun(exec_test_java)
+
+	#########################################
+	# listing the java nodes is required to ensure the swig task
+	# is executed whenever the java files are removed from
+	# the build directory
+	#
+	# to list the java files automatically, comment the starting character '#' in the lines "BEGIN BLOCK 1" and "BEGIN BLOCK 2"
+
 
 def exec_test_java(bld):
 	try:
