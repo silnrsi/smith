@@ -55,6 +55,13 @@ For older interpreters, it is possible to build the +waf+ file with gzip compres
 $ python waf-light --zip-type=gz
 ---------------
 
+The files present in the folder _waflib/extras_ represent extensions (Waf tools) that are in a testing phase. They may be added to the Waf binary by using the following command-line switch:
+
+[source,shishell]
+---------------
+$ python waf-light --tools=compat15,swig
+---------------
+
 === Using the waf file
 
 ==== Permissions and aliases
