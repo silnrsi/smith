@@ -295,10 +295,10 @@ class Task(TaskBase):
 		assert isinstance(task, TaskBase)
 		self.run_after.add(task)
 
-	def add_file_dependency(self, filename):
-		"TODO user-provided file dependencies"
-		node = self.generator.bld.path.find_resource(filename)
-		self.dep_nodes.append(node)
+	#def add_file_dependency(self, filename):
+	#	"TODO user-provided file dependencies"
+	#	node = self.generator.bld.path.find_resource(filename)
+	#	self.dep_nodes.append(node)
 
 	def signature(self):
 		# compute the result one time, and suppose the scan_signature will give the good result
