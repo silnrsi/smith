@@ -90,7 +90,7 @@ def download_tool(tool, force=False):
 				return module
 		else:
 				break
-		raise Errors.WafError('Could not load the tool')
+		raise Errors.WafError('Could not load the Waf tool')
 
 class ConfigurationContext(Context.Context):
 	'''configures the project'''
@@ -249,9 +249,9 @@ class ConfigurationContext(Context.Context):
 				if Options.options.download:
 					module = download_tool(tool)
 					if not module:
-						self.fatal('Could not load the tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
+						self.fatal('Could not load the Waf tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 				else:
-					self.fatal('Could not load the tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
+					self.fatal('Could not load the Waf tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
 			except Exception as e:
 				self.to_log('check_tool %r (%r & %r)' % (tool, tooldir, funs))
 				self.to_log(Utils.ex_stack())
