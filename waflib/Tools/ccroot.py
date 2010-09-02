@@ -269,7 +269,7 @@ def apply_implib(self):
 	dll = self.link_task.outputs[0]
 	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
 	implib = dll.parent.find_or_declare(implib)
-	self.env.append_value('LINKFLAGS', (self.env['IMPLIB_ST'] % implib.bldpath()).split())
+	self.env.append_value('LINKFLAGS', self.env['IMPLIB_ST'] % implib.bldpath())
 	self.link_task.outputs.append(implib)
 
 	if getattr(self, 'defs', None) and self.bld.get_dest_binfmt() == 'pe':
