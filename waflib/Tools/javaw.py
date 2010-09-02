@@ -260,13 +260,11 @@ def check_jni_headers(conf):
 	# jni requires the jvm
 	javaHome = conf.env['JAVA_HOME'][0]
 
-	b = Build.BuildContext(top=conf.srcnode.abspath(), out=conf.bldnode.abspath())
-	b.init_dirs()
-	dir = b.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
+	dir = conf.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
 	f = dir.ant_glob('**/(jni|jni_md).h')
 	incDirs = [x.parent.abspath() for x in f]
 
-	dir = b.root.find_dir(conf.env.JAVA_HOME[0])
+	dir = conf.root.find_dir(conf.env.JAVA_HOME[0])
 	f = dir.ant_glob('**/*jvm.(so|dll)')
 	libDirs = [x.parent.abspath() for x in f] or [javaHome]
 
