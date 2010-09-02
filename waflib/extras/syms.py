@@ -20,27 +20,21 @@ class nom_nom_nom(Task):
 
 	def filter(self, x):
 		lst = self.re_nm.findall(x)
-		if self.generator.bld.get_dest_binfmt() == 'pe':
-			lst = [x[1:].strip()[1:] for x in lst] #x is like "T _foo", but we need only "foo"
-		elif self.generator.bld.get_dest_binfmt() == 'elf':
-			lst = [x[1:].strip() for x in lst]
-		else:
-			raise NotImplemented
-		return ' '.join(lst)
+		return lst != [] and '\n'.join(lst) or ''
 
 	def run(self):
 		syms = []
 		for x in self.inputs:
 			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-				self.re_nm = re.compile(r'\|\s+_' + self.generator.export_symbols_regex + r'\b')
+				self.re_nm = re.compile(r'External\s+\|\s+_(' + self.generator.export_symbols_regex + r')\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['dumpbin', '/symbols', x.abspath()], quiet=STDOUT))
 			else:
 				if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
-					self.re_nm = re.compile(r'T\s+_' + self.generator.export_symbols_regex + r'\b')
+					self.re_nm = re.compile(r'T\s+_(' + self.generator.export_symbols_regex + r')\b')
 				else:
-					self.re_nm = re.compile(r'T\s+' + self.generator.export_symbols_regex + r'\b')
+					self.re_nm = re.compile(r'T\s+(' + self.generator.export_symbols_regex + r')\b')
 				s = self.filter(self.generator.bld.cmd_and_log(['nm', x.abspath()], quiet=STDOUT))
-			syms.append(s)
+			s and syms.append(s)
 		if self.generator.bld.get_dest_binfmt() == 'pe':
 			self.outputs[0].write('EXPORTS\n' + '\n'.join(syms))
 		elif self.generator.bld.get_dest_binfmt() == 'elf':
