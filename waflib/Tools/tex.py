@@ -62,8 +62,8 @@ def tex_build(task, command='LATEX'):
 		fun = pdflatex_fun
 
 	node = task.inputs[0]
-	srcfile = node.path_from(node.parent.get_bld())
-	sr2 = node.parent.path_from(node.parent.get_bld())
+	srcfile = node.abspath()
+	sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
 
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
@@ -76,7 +76,7 @@ def tex_build(task, command='LATEX'):
 
 	warn('first pass on %s' % command)
 
-	task.env.env = {'TEXINPUTS': sr2 + os.pathsep}
+	task.env.env = {'TEXINPUTS': sr2}
 	task.env.SRCFILE = srcfile
 	ret = fun(task)
 	if ret:
@@ -94,7 +94,7 @@ def tex_build(task, command='LATEX'):
 		if fo:
 			warn('calling bibtex')
 
-			task.env.env = {'BIBINPUTS': sr2 + os.pathsep, 'BSTINPUTS': sr2 + os.pathsep}
+			task.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
 			task.env.SRCFILE = docuname
 			ret = bibtex_fun(task)
 			if ret:
