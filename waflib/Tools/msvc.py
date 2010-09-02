@@ -573,9 +573,9 @@ def msvc_common_flags(conf):
 
 	# linker
 	v['LIB_ST']           = '%s.lib' # template for adding libs
-	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
+	v['LIBPATH_ST']       = '/LIBPATH:"%s"' # template for adding libpaths
 	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
-	v['STLIBPATH_ST'] = '/LIBPATH:%s'
+	v['STLIBPATH_ST'] = '/LIBPATH:"%s"'
 
 	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
 
