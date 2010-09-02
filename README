@@ -16,6 +16,10 @@ $ ./waf-light configure build
 Or, if you have several python versions installed:
 $ python3 ./waf-light configure build
 
+The Waf tools in waflib/extras are not added to the waf script. To add
+some of them, use the --tools switch:
+$ ./waf-light --tools=compat15,swig
+
 HOW TO TRY THE EXAMPLES
 -----------------------
 
