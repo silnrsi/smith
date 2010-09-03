@@ -540,7 +540,7 @@ def find_msvc(conf):
 def msvc_common_flags(conf):
 	v = conf.env
 
-	v['CCFLAGS'] = v['CXXFLAGS'] = ['/W3', '/nologo']
+	v['CCFLAGS'] = v['CXXFLAGS'] = ['/nologo']
 	v['DEFINES_ST']     = '/D%s'
 
 	v['CC_SRC_F']     = ''
