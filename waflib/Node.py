@@ -609,7 +609,7 @@ class Node(object):
 		x = id(self.ctx.bldnode)
 		while cur.parent:
 			if id(cur) == x:
-				return self.ctxpath()
+				return self.ctx.path()
 			cur = cur.parent
 		return self.srcpath()
 
