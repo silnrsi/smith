@@ -410,8 +410,6 @@ class Task(TaskBase):
 						v = v() # dependency is a function, call it
 					upd(v)
 
-		for x in self.dep_nodes:
-			upd(x.get_bld_sig())
 		return self.m.digest()
 
 	def sig_vars(self):
