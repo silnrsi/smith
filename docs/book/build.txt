@@ -137,7 +137,7 @@ def build(ctx):
 	ctx(rule='cat ${SRC} > ${TGT}', source='foo.txt bar.txt', target='foobar.txt')
 ---------------
 
-The *ctx(...)* call is a shortcut to the class _waflib.TaskGen.task_gen_, instances of this class are called *task generator objects*. The task generators are lazy containers and will only create the tasks and the task classes whey they are actually needed:
+The *ctx(...)* call is a shortcut to the class _waflib.TaskGen.task_gen_, instances of this class are called *task generator objects*. The task generators are lazy containers and will only create the tasks and the task classes when they are actually needed:
 
 // build_lazy_tg
 [source,python]
