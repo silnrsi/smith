@@ -34,3 +34,7 @@ NEW IN WAF 1.6.0
 * waf step --file=main.c
 * post task generators in a lazy manner
 
+...
+
+* remove the /W3 flag from msvc default flags
+
