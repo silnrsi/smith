@@ -427,7 +427,7 @@ re_m4 = re.compile('@(\w+)@', re.M)
 class subst_pc(Task.Task):
 	"""
 	.pc file creation is very common
-	bld(source='foo.pc.in') will create foo.pc which will be installed into ${LIBDIR}/pkgconfig/
+	bld(source='foo.pc.in') will create foo.pc which will be installed into ${PREFIX}/lib/pkgconfig/
 	"""
 
 	def run(self):
@@ -483,5 +483,5 @@ class subst_pc(Task.Task):
 @extension('.pc.in')
 def add_pcfile(self, node):
 	tsk = self.create_task('subst_pc', node, node.change_ext('.pc'))
-	self.bld.install_files('${LIBDIR}/pkgconfig/', tsk.outputs)
+	self.bld.install_files('${PREFIX}/lib/pkgconfig/', tsk.outputs)
 
