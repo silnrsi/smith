@@ -140,7 +140,8 @@ def apply_link(self):
 		except AttributeError:
 			inst_to = self.link_task.__class__.inst_to
 		if inst_to:
-			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs, env=self.env, chmod=self.link_task.chmod)
+			# install a copy of the node list we have at this moment (implib not added)
+			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs[:], env=self.env, chmod=self.link_task.chmod)
 
 @taskgen_method
 def use_rec(self, name, objects=True, stlib=True):
@@ -280,6 +281,15 @@ def apply_implib(self):
 			self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
 		else: #gcc for windows takes *.def file a an input without any special flag
 			self.link_task.inputs.append(node)
+
+	try:
+		inst_to = self.install_path
+	except AttributeError:
+		inst_to = self.link_task.__class__.inst_to
+	if not inst_to:
+		return
+
+	self.implib_install_task = self.bld.install_as('${PREFIX}/lib/%s' % implib.name, implib, self.env)
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
