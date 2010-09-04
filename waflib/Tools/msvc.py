@@ -539,6 +539,7 @@ def msvc_common_flags(conf):
 	v = conf.env
 
 	v['DEST_BINFMT'] = 'pe'
+	v['LIBDIR'] = '${PREFIX}/bin'
 	v['CCFLAGS'] = v['CXXFLAGS'] = ['/nologo']
 	v['DEFINES_ST']     = '/D%s'
 
