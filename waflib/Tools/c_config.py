@@ -785,7 +785,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 		if isD('__ELF__'):
 			conf.env.DEST_BINFMT = 'elf'
-		elif isD('__WIN32__'):
+		elif isD('__WINNT__') or isD('__CYGWIN__'):
 			conf.env.DEST_BINFMT = 'pe'
 
 		mp2 = {
