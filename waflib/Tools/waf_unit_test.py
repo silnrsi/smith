@@ -84,9 +84,11 @@ class utest(Task.Task):
 	vars = []
 	def runnable_status(self):
 		ret = super(utest, self).runnable_status()
-		if ret == Task.SKIP_ME:
+		if ret == Task.RUN_ME:
 			if getattr(Options.options, 'all_tests', False):
 				return Task.RUN_ME
+			else:
+				return Task.SKIP_ME
 		return ret
 
 def summary(bld):
@@ -108,5 +110,5 @@ def summary(bld):
 				Logs.pprint('CYAN', '    %s' % f)
 
 def options(opt):
-	opt.add_option('--alltests', action='store_true', default=True, help='Exec all unit tests', dest='all_tests')
+	opt.add_option('--alltests', action='store_true', default=False, help='Exec all unit tests', dest='all_tests')
 
