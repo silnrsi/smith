@@ -456,11 +456,11 @@ def find_perl_program(self, filename, path_list=[], var=None, environ=None, exts
 	try:
 		app = self.find_program(filename, path_list=path_list, var=var, environ=environ, exts=exts)
 	except:
-		perl = conf.find_program('perl', var='PERL')
+		perl = self.find_program('perl', var='PERL')
 		app = self.find_file(filename, os.environ['PATH'].split(os.pathsep))
 		if not app:
 			raise
 		if var:
-			self.env[var] = Utils.to_list(conf.env['PERL']) + [app]
-	conf.msg('Checking for %r' % filename, app)
+			self.env[var] = Utils.to_list(self.env['PERL']) + [app]
+	self.msg('Checking for %r' % filename, app)
 
