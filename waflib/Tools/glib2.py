@@ -49,18 +49,16 @@ def genmarshal_func(self):
 	if ret: return ret
 
 	#print self.outputs[1].abspath(self.env)
-	f = open(self.outputs[1].abspath(self.env), 'wb')
 	c = '''#include "%s"\n''' % self.outputs[0].name
-	f.write(c.encode("utf-8"))
-	f.close()
+	self.outputs[1].write(c.encode("utf-8"))
 
 	cmd2 = "%s %s --prefix=%s --body >> %s" % (
 		get('GLIB_GENMARSHAL'),
-		self.inputs[0].srcpath(self.env),
+		self.inputs[0].srcpath(),
 		get('GLIB_GENMARSHAL_PREFIX'),
-		self.outputs[1].abspath(self.env)
+		self.outputs[1].abspath()
 	)
-	ret = Utils.exec_command(cmd2)
+	ret = bld.exec_command(cmd2)
 	if ret: return ret
 
 #

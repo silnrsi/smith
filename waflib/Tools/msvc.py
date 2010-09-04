@@ -92,9 +92,8 @@ def setup_msvc(conf, versions):
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
 	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
-	batfile = os.path.join(conf.bldnode.abspath(), 'waf-print-msvc.bat')
-	f = open(batfile, 'w')
-	f.write("""@echo off
+	batfile = conf.bldnode.make_node('waf-print-msvc.bat')
+	batfile.write("""@echo off
 set INCLUDE=
 set LIB=
 call "%s" %s
@@ -102,7 +101,6 @@ echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%
 """ % (vcvars,target))
-	f.close()
 	sout = conf.cmd_and_log(['cmd', '/E:on', '/V:on', '/C', batfile])
 	lines = sout.splitlines()
 
