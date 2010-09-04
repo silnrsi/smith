@@ -281,16 +281,6 @@ def apply_implib(self):
 		else: #gcc for windows takes *.def file a an input without any special flag
 			self.link_task.inputs.append(node)
 
-
-	try:
-		inst_to = self.install_path
-	except AttributeError:
-		inst_to = self.link_task.__class__.inst_to
-	if not inst_to:
-		return
-
-	self.implib_install_task = self.bld.install_as('${LIBDIR}/%s' % implib.name, implib, self.env)
-
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
 @feature('cshlib', 'cxxshlib', 'dshlib', 'vnum')
