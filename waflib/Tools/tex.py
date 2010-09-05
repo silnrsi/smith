@@ -215,11 +215,11 @@ def apply_tex(self):
 				self.create_task('pdf2ps', task.outputs, node.change_ext('.ps'))
 	self.source = []
 
-def configure(conf):
-	v = conf.env
+def configure(self):
+	v = self.env
 	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
 		try:
-			conf.find_program(p, var=p.upper())
+			self.find_program(p, var=p.upper())
 		except self.errors.ConfigurationError:
 			pass
 	v['DVIPSFLAGS'] = '-Ppdf'
