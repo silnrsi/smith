@@ -227,7 +227,7 @@ class ConfigurationContext(Context.Context):
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
 
-	def recurse_tool(self, input, tooldir=None, funs=None, download=True):
+	def tool(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
 
 		tools = Utils.to_list(input)
