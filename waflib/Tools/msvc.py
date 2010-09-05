@@ -101,7 +101,7 @@ echo PATH=%%PATH%%
 echo INCLUDE=%%INCLUDE%%
 echo LIB=%%LIB%%
 """ % (vcvars,target))
-	sout = conf.cmd_and_log(['cmd', '/E:on', '/V:on', '/C', batfile])
+	sout = conf.cmd_and_log(['cmd', '/E:on', '/V:on', '/C', batfile.abspath()])
 	lines = sout.splitlines()
 
 	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler'):
@@ -539,7 +539,7 @@ def msvc_common_flags(conf):
 	v = conf.env
 
 	v['DEST_BINFMT'] = 'pe'
-	v['LIBDIR'] = '${PREFIX}/bin'
+	v['LIBDIR'] = v['PREFIX'] + r'\bin'
 	v['CCFLAGS'] = v['CXXFLAGS'] = ['/nologo']
 	v['DEFINES_ST']     = '/D%s'
 
