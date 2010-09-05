@@ -16,20 +16,28 @@ import re
 from waflib.Context import STDOUT
 from waflib.Task import Task
 from waflib.Errors import WafError
-class generate_sym_task(Task):
+from waflib.TaskGen import feature, after
+class gen_sym(Task):
+	def run(self):
+		obj = self.inputs[0]
+		if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+			re_nm = re.compile(r'External\s+\|\s+_(' + self.generator.export_symbols_regex + r')\b')
+			cmd = ['dumpbin', '/symbols', obj.abspath()]
+		else:
+			if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
+				re_nm = re.compile(r'T\s+_(' + self.generator.export_symbols_regex + r')\b')
+			else:
+				re_nm = re.compile(r'T\s+(' + self.generator.export_symbols_regex + r')\b')
+			cmd = ['nm', '-g', obj.abspath()]
+		syms = re_nm.findall(self.generator.bld.cmd_and_log(cmd, quiet=STDOUT))
+		self.outputs[0].write('%r' % syms)
+
+class compile_sym(Task):
 	def run(self):
 		syms = {}
 		for x in self.inputs:
-			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-				re_nm = re.compile(r'External\s+\|\s+_(' + self.generator.export_symbols_regex + r')\b')
-				cmd = ['dumpbin', '/symbols', x.abspath()]
-			else:
-				if self.generator.bld.get_dest_binfmt() == 'pe': #gcc uses nm, and has a preceding _ on windows
-					re_nm = re.compile(r'T\s+_(' + self.generator.export_symbols_regex + r')\b')
-				else:
-					re_nm = re.compile(r'T\s+(' + self.generator.export_symbols_regex + r')\b')
-				cmd = ['nm', '-g', x.abspath()]
-			for s in re_nm.findall(self.generator.bld.cmd_and_log(cmd, quiet=STDOUT)):
+			slist = eval(x.read())
+			for s in slist:
 				syms[s] = 1
 		lsyms = syms.keys()
 		lsyms.sort()
@@ -38,23 +46,25 @@ class generate_sym_task(Task):
 		elif self.generator.bld.get_dest_binfmt() == 'elf':
 			self.outputs[0].write('{ global:\n' + ';\n'.join(lsyms) + ";\nlocal: *; };\n")
 		else:
-			raise Exception('NotImplemented')
-
-from waflib.TaskGen import before, feature, after
+			raise WafError('NotImplemented')
 
 @feature('syms')
 @after('process_source', 'process_use', 'apply_link', 'process_uselib_local')
 def do_the_symbol_stuff(self):
 	ins = [x.outputs[0] for x in self.compiled_tasks]
-	tsk = self.create_task('generate_sym', ins, self.path.find_or_declare('foo.def'))
+	self.gen_sym_tasks = [self.create_task('gen_sym', x, x.change_ext('.%d.sym' % self.idx)) for x in ins]
+
+	tsk = self.create_task('compile_sym', 
+			       [x.outputs[0] for x in self.gen_sym_tasks], 
+			       self.path.find_or_declare(getattr(self, 'sym_filename', self.target + '.def')))
 	self.link_task.set_run_after(tsk)
 	self.link_task.dep_nodes = [tsk.outputs[0]]
 	if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
 		self.link_task.env.append_value('LINKFLAGS', ['/def:' + tsk.outputs[0].bldpath()])
-	elif self.bld.get_dest_binfmt() == 'pe':
+	elif self.bld.get_dest_binfmt() == 'pe': #gcc on windows takes *.def as an additional input
 		self.link_task.inputs.append(tsk.outputs[0])
 	elif self.bld.get_dest_binfmt() == 'elf':
 		self.link_task.env.append_value('LINKFLAGS', ['-Wl,-version-script', '-Wl,' + tsk.outputs[0].bldpath()])
 	else:
-		raise Exception('NotImplemented')
+		raise WafError('NotImplemented')
 
