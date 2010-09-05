@@ -139,6 +139,24 @@ class Context(ctx):
 		finally:
 			self.free()
 
+	def recurse_tool(self, tool_list, *k, **kw):
+		"""
+		load the options that a waf tool provides (or not)
+		@type tool_list: list of string or string representing the space-separated tool list
+		@param tool_list: list of waf tools to use
+		"""
+		tools = Utils.to_list(tool_list)
+		path = Utils.to_list(kw.get('tooldir', ''))
+
+		for t in tools:
+			module = load_tool(t, path)
+			try:
+				fun = module.options
+			except AttributeError:
+				pass
+			else:
+				fun(self)
+
 	def execute(self):
 		"""executes the command represented by this context - subclasses must override this method"""
 		global g_module

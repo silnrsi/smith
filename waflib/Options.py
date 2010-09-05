@@ -148,27 +148,6 @@ class OptionsContext(Context.Context):
 	def get_option_group(self, opt_str):
 		return self.parser.get_option_group(opt_str)
 
-	def tool_options(self, tool_list, *k, **kw):
-		"""
-		load the options that a waf tool provides (or not)
-		@type tool_list: list of string or string representing the space-separated tool list
-		@param tool_list: list of waf tools to use
-		"""
-		#if not k[0]:
-		#	raise Utils.WafError('invalid tool_options call %r %r' % (k, kw))
-		tools = Utils.to_list(tool_list)
-
-		path = Utils.to_list(kw.get('tooldir', ''))
-
-		for tool in tools:
-			module = Context.load_tool(tool, path)
-			try:
-				fun = module.options
-			except AttributeError:
-				pass
-			else:
-				fun(kw.get('option_group', self))
-
 	# parse_args is defined separately to allow parsing arguments from somewhere else
 	# than the Waf command line
 	def parse_args(self, _args=None):

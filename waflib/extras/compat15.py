@@ -7,7 +7,7 @@ This file is provided to enable compatibility with waf 1.5, it will be removed i
 """
 
 import sys
-from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils, Errors
+from waflib import ConfigSet, Logs, Options, Scripting, Task, Build, Configure, Node, Runner, TaskGen, Utils, Errors, Context
 
 # the following is to bring some compatibility with waf 1.5 "import waflib.Configure → import Configure"
 sys.modules['Environment'] = ConfigSet
@@ -44,10 +44,12 @@ def name_to_obj(self, s, env=None):
 Build.BuildContext.name_to_obj = name_to_obj
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
+Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.recurse_tool
 Configure.conftest = Configure.conf
 Configure.ConfigurationError = Errors.ConfigurationError
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
+Options.OptionsContext.tool_options = Context.Context.recurse_tool
 Options.Handler = Options.OptionsContext
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory
