@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.tool('dang', tooldir='.')
+
+def configure(conf):
+	conf.tool('dang', tooldir='.')
+
+def build(bld):
+	bld.tool('dang', tooldir='.')

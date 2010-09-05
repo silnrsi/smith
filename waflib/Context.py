@@ -150,11 +150,8 @@ class Context(ctx):
 
 		for t in tools:
 			module = load_tool(t, path)
-			try:
-				fun = module.options
-			except AttributeError:
-				pass
-			else:
+			fun = getattr(module, self.fun, None)
+			if fun:
 				fun(self)
 
 	def execute(self):
