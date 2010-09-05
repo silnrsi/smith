@@ -883,14 +883,16 @@ class CleanContext(BuildContext):
 		"""clean the data and some files in the build dir .. well, TODO"""
 		Logs.debug('build: clean called')
 
-		lst = [self.path.find_or_declare(f) for f in self.env[CFG_FILES]]
-		lst += self.bldnode.ant_glob('.lock*')
-		lst += self.bldnode.ant_glob('c4che/*')
-		for n in self.bldnode.ant_glob('**/*'):
-			if n in lst:
-				continue
-			n.delete()
-		# then forget about all the nodes
+		if self.bldnode != self.srcnode:
+			# would lead to a disaster if top == out
+			lst = [self.path.find_or_declare(f) for f in self.env[CFG_FILES]]
+			lst += self.bldnode.ant_glob('.lock*')
+			lst += self.bldnode.ant_glob('config.log')
+			lst += self.bldnode.ant_glob('c4che/*')
+			for n in self.bldnode.ant_glob('**/*'):
+				if n in lst:
+					continue
+				n.delete()
 		self.root.children = {}
 
 		for v in 'node_deps task_sigs raw_deps'.split():
