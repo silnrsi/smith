@@ -255,7 +255,7 @@ class ConfigurationContext(Context.Context):
 			except Exception as e:
 				self.to_log('check_tool %r (%r & %r)' % (tool, tooldir, funs))
 				self.to_log(Utils.ex_stack())
-				raise e
+				raise
 
 			if funs is not None:
 				self.eval_rules(funs)
@@ -327,7 +327,7 @@ class ConfigurationContext(Context.Context):
 				elif ret == CONTINUE:
 					continue
 				else:
-					raise e
+					raise
 
 	def err_handler(self, fun, error):
 		"""error handler for the configuration tests, the default is to let the exceptions rise"""
