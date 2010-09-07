@@ -261,8 +261,8 @@ def validate_c(self, kw):
 
 	if not 'env' in kw:
 		kw['env'] = self.env.derive()
-
 	env = kw['env']
+
 	if not 'compiler' in kw:
 		kw['compiler'] = 'c'
 		if env['CXX_NAME'] and Task.classes.get('cxx', None):
@@ -273,26 +273,26 @@ def validate_c(self, kw):
 			if not self.env['CC']:
 				self.fatal('a c compiler is required')
 
+	if not 'compile_mode' in kw:
+		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'c'
+
 	if not 'type' in kw:
 		kw['type'] = 'cprogram'
+
+	if not 'features' in kw:
+		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram c"
+	else:
+		kw['features'] = Utils.to_list(kw['features'])
+
+	if not 'compile_filename' in kw:
+		kw['compile_filename'] = 'test.c' + ((kw['compile_mode'] == 'cxx') and 'pp' or '')
+
 
 	def to_header(dct):
 		if 'header_name' in dct:
 			dct = Utils.to_list(dct['header_name'])
 			return ''.join(['#include <%s>\n' % x for x in dct])
 		return ''
-
-	# set the file name
-	if not 'compile_mode' in kw:
-		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'c'
-
-	if not 'compile_filename' in kw:
-		kw['compile_filename'] = 'test.c' + ((kw['compile_mode'] == 'cxx') and 'pp' or '')
-
-	if not 'features' in kw:
-		kw['features'] = [kw['compile_mode'], kw['type']] # "cprogram c"
-	else:
-		kw['features'] = Utils.to_list(kw['features'])
 
 	#OSX
 	if 'framework_name' in kw:
@@ -638,7 +638,7 @@ def have_define(self, key):
 	return self.__dict__.get('HAVE_PAT', 'HAVE_%s') % Utils.quote_define_name(key)
 
 @conf
-def write_config_header(self, configfile='', guard='', top=False, env=None, remove=True):
+def write_config_header(self, configfile='', guard='', top=False, env=None, defines=True, headers=False, remove=True):
 	"""
 	save the defines into a file
 	with configfile=foo/bar.h and a script in folder xyz
@@ -654,10 +654,9 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 	node = node.make_node(configfile)
 	node.parent.mkdir()
 
-	lst = []
-	lst.append('/* WARNING! All changes made to this file will be lost! */\n')
+	lst = ['/* WARNING! All changes made to this file will be lost! */\n']
 	lst.append('#ifndef %s\n#define %s\n' % (waf_guard, waf_guard))
-	lst.append(self.get_config_header())
+	lst.append(self.get_config_header(defines, headers))
 	lst.append('\n#endif /* %s */\n' % waf_guard)
 
 	node.write('\n'.join(lst))
@@ -673,7 +672,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, remo
 		self.env[DEFKEYS] = []
 
 @conf
-def get_config_header(self):
+def get_config_header(self, defines=True, headers=False):
 	"""
 	Create the contents of a config.h file from the accumulated includes and defines
 	There is no include guard here
@@ -681,15 +680,17 @@ def get_config_header(self):
 	Override this method when you need to write your own config header
 	"""
 	lst = []
-	for x in self.env[INCKEYS]:
-		lst.append('#include <%s>' % x)
+	if headers:
+		for x in self.env[INCKEYS]:
+			lst.append('#include <%s>' % x)
 
-	for x in self.env[DEFKEYS]:
-		if self.is_defined(x):
-			val = self.get_define(x)
-			lst.append('#define %s %s' % (x, val))
-		else:
-			lst.append('/* #undef %s */' % x)
+	if defines:
+		for x in self.env[DEFKEYS]:
+			if self.is_defined(x):
+				val = self.get_define(x)
+				lst.append('#define %s %s' % (x, val))
+			else:
+				lst.append('/* #undef %s */' % x)
 	return "\n".join(lst)
 
 @conf
