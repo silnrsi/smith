@@ -9,7 +9,7 @@ import Utils, TaskGen, Task, Runner, Build
 from TaskGen import feature, before
 from Logs import error, warn, debug
 
-re_tex = re.compile(r'\\(?P<type>include|includegraphics|input|import|bringin|lstinputlisting){(?P<file>[^{}]*)}', re.M)
+re_tex = re.compile(r'\\(?P<type>include|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 def scan(self):
 	node = self.inputs[0]
 	env = self.env
