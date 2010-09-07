@@ -92,7 +92,7 @@ class link_task(Task.Task):
 			folder, name = os.path.split(target)
 
 			if self.__class__.__name__.find('shlib') > 0:
-				if self.generator.bld.get_dest_binfmt() == 'pe' and getattr(self.generator, 'vnum', None):
+				if self.env.DEST_BINFMT == 'pe' and getattr(self.generator, 'vnum', None):
 					# include the version in the dll file name,
 					# the import lib file name stays unversionned.
 					name = name + '-' + self.generator.vnum.split('.')[0]
@@ -264,7 +264,7 @@ def apply_implib(self):
 	"""On mswindows, handle dlls and their import libs
 	the .dll.a is the import lib and it is required for linking so it is installed too
 	"""
-	if not self.bld.get_dest_binfmt() == 'pe':
+	if not self.env.DEST_BINFMT == 'pe':
 		return
 
 	dll = self.link_task.outputs[0]
@@ -273,7 +273,7 @@ def apply_implib(self):
 	self.env.append_value('LINKFLAGS', self.env['IMPLIB_ST'] % implib.bldpath())
 	self.link_task.outputs.append(implib)
 
-	if getattr(self, 'defs', None) and self.bld.get_dest_binfmt() == 'pe':
+	if getattr(self, 'defs', None) and self.env.DEST_BINFMT == 'pe':
 		node = self.path.find_resource(self.defs)
 		if not node:
 			raise Errors.WafError('invalid def file %r' % self.defs)
@@ -300,7 +300,7 @@ def apply_vnum(self):
 	libfoo.so is installed as libfoo.so.1.2.3
 	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
 	"""
-	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.bld.get_dest_binfmt() not in ('elf', 'mac-o'):
+	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
 
 	link = self.link_task

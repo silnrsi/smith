@@ -36,14 +36,22 @@ class compile_sym(Task):
 	def run(self):
 		syms = {}
 		for x in self.inputs:
-			slist = eval(x.read())
-			for s in slist:
+			if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+				re_nm = re.compile(r'External\s+\|\s+_(' + self.generator.export_symbols_regex + r')\b')
+				cmd = ['dumpbin', '/symbols', x.abspath()]
+			else:
+				if self.env.DEST_BINFMT == 'pe': #gcc uses nm, and has a preceding _ on windows
+					re_nm = re.compile(r'T\s+_(' + self.generator.export_symbols_regex + r')\b')
+				else:
+					re_nm = re.compile(r'T\s+(' + self.generator.export_symbols_regex + r')\b')
+				cmd = ['nm', '-g', x.abspath()]
+			for s in re_nm.findall(self.generator.bld.cmd_and_log(cmd, quiet=STDOUT)):
 				syms[s] = 1
 		lsyms = syms.keys()
 		lsyms.sort()
-		if self.generator.bld.get_dest_binfmt() == 'pe':
+		if self.env.DEST_BINFMT == 'pe':
 			self.outputs[0].write('EXPORTS\n' + '\n'.join(lsyms))
-		elif self.generator.bld.get_dest_binfmt() == 'elf':
+		elif self.env.DEST_BINFMT == 'elf':
 			self.outputs[0].write('{ global:\n' + ';\n'.join(lsyms) + ";\nlocal: *; };\n")
 		else:
 			raise WafError('NotImplemented')

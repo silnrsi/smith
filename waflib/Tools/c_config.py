@@ -792,6 +792,11 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		elif isD('__APPLE__'):
 			conf.env.DEST_BINFMT = 'mac-o'
 
+		if not conf.env.DEST_BINFMT:
+			# Infer the binary format from the os name.
+			conf.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
+				conf.env.DEST_OS or Utils.unversioned_sys_platform())
+
 		mp2 = {
 				'__x86_64__'  : 'x86_64',
 				'__i386__'    : 'x86',
@@ -816,17 +821,6 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 @conf
 def add_as_needed(self):
-	if self.get_dest_binfmt() == 'elf' and 'gcc' in (self.env.CXX_NAME, self.env.CC_NAME):
+	if self.env.DEST_BINFMT == 'elf' and 'gcc' in (self.env.CXX_NAME, self.env.CC_NAME):
 		self.env.append_unique('LINKFLAGS', '--as-needed')
-
-@conf
-def get_dest_binfmt(self):
-	# The only thing we need for cross-compilation is DEST_BINFMT.
-	# At some point, we may reach a case where DEST_BINFMT is not enough, but for now it's sufficient.
-	# Currently, cross-compilation is auto-detected only for the gnu and intel compilers.
-	if not self.env.DEST_BINFMT:
-		# Infer the binary format from the os name.
-		self.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
-			self.env.DEST_OS or Utils.unversioned_sys_platform())
-	return self.env.DEST_BINFMT
 

@@ -134,7 +134,7 @@ def check_large_file(self, **kw):
 			kw['features'] = ['c', 'cprogram']
 
 	kw['fragment'] = LARGE_FRAGMENT
-	if self.get_dest_binfmt() == 'pe':
+	if self.env.DEST_BINFMT == 'pe':
 		kw['fragment'] = LARGE_FRAGMENT_WIN32
 
 	kw['msg'] = 'Checking for large file support'
