@@ -593,8 +593,6 @@ class c_parser(object):
 			self.defs  = dict(defines) # make a copy
 		self.state = []
 
-		self.env   = None # needed for the defines when searching for files
-
 		self.count_files = 0
 		self.currentnode_stack = []
 
@@ -677,7 +675,6 @@ class c_parser(object):
 	def start(self, node, env):
 		debug('preproc: scanning %s (in %s)', node.name, node.parent.name)
 
-		self.env = env
 		bld = node.ctx
 		try:
 			self.parse_cache = bld.parse_cache
