@@ -20,22 +20,16 @@ def scan(self):
 
 	code = Utils.readf(node.abspath())
 
-	curdirnode = self.curdirnode
-	abs = curdirnode.abspath()
 	for match in re_tex.finditer(code):
 		path = match.group('file')
 		if path:
 			for k in ['', '.tex', '.ltx']:
 				# add another loop for the tex include paths?
 				debug('tex: trying %s%s' % (path, k))
-				try:
-					os.stat(abs+os.sep+path+k)
-				except OSError:
-					continue
-				found = path+k
-				node = curdirnode.find_resource(found)
-				if node:
-					nodes.append(node)
+				fi = node.parent.find_resource(path + k)
+				if fi:
+					nodes.append(fi)
+					break
 			else:
 				debug('tex: could not find %s' % path)
 				names.append(path)
@@ -191,7 +185,6 @@ def apply_tex(self):
 			task = self.create_task('pdflatex', node, node.change_ext('.pdf'))
 
 		task.env = self.env
-		task.curdirnode = self.path
 
 		# add the manual dependencies
 		if deps_lst:
