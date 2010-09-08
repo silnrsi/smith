@@ -259,7 +259,7 @@ top = '.'
 out = 'build'
 
 def options(ctx):
-    ctx.tool_options('dang', tooldir='.') <1>
+    ctx.tool('dang', tooldir='.') <1>
 
 def configure(ctx):
     ctx.check_tool('dang', tooldir='.') <2>

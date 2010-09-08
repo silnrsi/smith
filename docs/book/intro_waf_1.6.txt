@@ -484,7 +484,7 @@ This means that the configuration API may be used during the build phase.
 [source,python]
 ---------------
 def options(ctx):
-    ctx.tool_options('compiler_cxx')
+    ctx.tool('compiler_cxx')
 
 def configure(ctx):
     ctx.check_tool('compiler_cxx')
@@ -501,7 +501,7 @@ To redirect the output, a logger (from the python logging module) must be provid
 [source,python]
 ---------------
 def options(ctx):
-    ctx.tool_options('compiler_cxx')
+    ctx.tool('compiler_cxx')
 
 def configure(ctx):
     ctx.check_tool('compiler_cxx')

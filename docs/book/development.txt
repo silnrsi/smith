@@ -58,7 +58,7 @@ The following zones are used in Waf:
 |group   | groups and task generators
 |=================
 
-WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by 'tool_options'
+WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by for the command-line options 'opt.tool()' or by the global init method function 'init.tool()'
 
 ==== Build visualization
 
@@ -67,7 +67,7 @@ The Waf tool named _parallel_debug_ is used to inject code in Waf modules and to
 [source,python]
 ---------------
 def options(ctx):
-	ctx.tool_options('parallel_debug', tooldir='.')
+	ctx.tool('parallel_debug', tooldir='.')
 
 def configure(ctx):
 	ctx.check_tool('parallel_debug', tooldir='.')

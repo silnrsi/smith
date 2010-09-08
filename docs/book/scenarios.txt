@@ -460,7 +460,7 @@ To illustrate this behaviour, we will now set up a project will use various c fi
 [source,python]
 ---------------
 def options(opt):
-    opt.tool_options('compiler_c')
+    opt.tool('compiler_c')
 
 def configure(conf):
     conf.check_tool('compiler_c')
