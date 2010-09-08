@@ -85,8 +85,8 @@ def vala_file(self, node):
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
 		includes =  []
 
-		if hasattr(self, 'uselib_local'):
-			local_packages = Utils.to_list(self.uselib_local)
+		if hasattr(self, 'use'):
+			local_packages = Utils.to_list(self.use)
 			seen = []
 			while len(local_packages) > 0:
 				package = local_packages.pop()
@@ -97,7 +97,7 @@ def vala_file(self, node):
 				# check if the package exists
 				package_obj = self.bld.get_tgen_by_name(package)
 				if not package_obj:
-					raise Errors.WafError("object %r was not found in uselib_local (required by %r)" % (package, self.name))
+					raise Errors.WafError("object %r was not found in use (required by %r)" % (package, self.name))
 				package_name = package_obj.target
 				package_node = package_obj.path
 				package_dir = package_node.relpath_gen(self.path)
@@ -113,8 +113,8 @@ def vala_file(self, node):
 							if package_dir not in includes:
 								includes.append(package_dir)
 
-				if hasattr(package_obj, 'uselib_local'):
-					lst = self.to_list(package_obj.uselib_local)
+				if hasattr(package_obj, 'use'):
+					lst = self.to_list(package_obj.use)
 					lst.reverse()
 					local_packages = [pkg for pkg in lst if pkg not in seen] + local_packages
 
