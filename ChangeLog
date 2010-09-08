@@ -37,4 +37,5 @@ NEW IN WAF 1.6.0
 ...
 
 * remove the /W3 flag from msvc default flags
+* opt.tool_options -> opt.tool (now all commands inherit the 'tool' method)
 
