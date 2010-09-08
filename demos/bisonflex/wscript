@@ -5,7 +5,7 @@ def options(opt):
 	opt.imp('compiler_cxx compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx compiler_c flex bison')
+	conf.imp('compiler_cxx compiler_c flex bison')
 	conf.env.LIB_CALC = ['fl']
 
 def build(bld):

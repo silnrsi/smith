@@ -22,8 +22,8 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-    ctx.check_tool('g++')
-    ctx.check_tool('src2cpp', tooldir='.')
+    ctx.imp('g++')
+    ctx.imp('src2cpp', tooldir='.')
 
 def build(ctx):
     ctx.program( <1>
@@ -169,7 +169,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.check_tool('g++')
+    conf.imp('g++')
 
 def build(bld):
     bld.program(
@@ -242,7 +242,7 @@ top = '.'
 out = 'out'
 
 def configure(ctx):
-    ctx.check_tool('g++')
+    ctx.imp('g++')
 
 def build(ctx):
     ctx( <1>
@@ -410,7 +410,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.check_tool('g++')
+    conf.imp('g++')
 
 def build(bld):
     bld.program(features='cxx cxxprogram', source='main.cpp', target='test')
@@ -463,7 +463,7 @@ def options(opt):
     opt.imp('compiler_c')
 
 def configure(conf):
-    conf.check_tool('compiler_c')
+    conf.imp('compiler_c')
 
 def build(bld):
     bld.program(
@@ -583,8 +583,8 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.check_tool('gcc')
-    conf.check_tool('mytool', tooldir='.')
+    conf.imp('gcc')
+    conf.imp('mytool', tooldir='.')
 
 def build(bld):
     bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath() <1>

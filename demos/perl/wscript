@@ -14,8 +14,8 @@ def options(opt):
 	opt.imp('perl')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
-	conf.check_tool('perl')
+	conf.imp('compiler_c')
+	conf.imp('perl')
 
 	# check for perl
 	conf.check_perl_version((5,6,0))

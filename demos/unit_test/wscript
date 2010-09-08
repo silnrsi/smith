@@ -18,8 +18,8 @@ def options(opt):
 	opt.add_option('--onlytests', action='store_true', default=True, help='Exec unit tests only', dest='only_tests')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx')
-	conf.check_tool('waf_unit_test')
+	conf.imp('compiler_cxx')
+	conf.imp('waf_unit_test')
 
 	# the demo files require cppunit - but the waf tool does not
 	conf.check_cfg(package='cppunit', args='--cflags --libs', mandatory=True)

@@ -11,8 +11,8 @@ def options(opt):
 	opt.imp('compiler_fc')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
-	conf.check_tool('compiler_fc')
+	conf.imp('compiler_c')
+	conf.imp('compiler_fc')
 	conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['INCLUDES'] = ['hfloupi']
 

@@ -13,7 +13,7 @@ def options(opt):
 	opt.tool_options('compiler_c')
 
 def configure(cfg):
-	cfg.check_tool('compiler_c')
+	cfg.imp('compiler_c')
 
 def build(bld):
 	dnode = bld.path.find_or_declare('depen.c')

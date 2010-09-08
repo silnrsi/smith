@@ -234,7 +234,7 @@ $ waf distclean configure build
 Waf: Entering directory `/tmp/smallproject'
 Waf: Leaving directory `/tmp/smallproject'
 Cannot guess how to process bld:///tmp/smallproject/uh.a2 (got mappings ['.a1', '.in'] in
-   class TaskGen.task_gen) -> try conf.check_tool(..)?
+   class TaskGen.task_gen) -> try conf.imp(..)?
 --------------
 
 The error message indicates that there is no way to process 'uh.a2'. Only files of extension '.a1' or '.in' can be processed. Internally, extension names are bound to callback methods. The error is raised because no such method could be found, and here is how to register an extension callback globally:

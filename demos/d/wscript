@@ -12,7 +12,7 @@ def options(opt):
 	opt.imp('compiler_d')
 
 def configure(conf):
-	conf.check_tool('compiler_d')
+	conf.imp('compiler_d')
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
 

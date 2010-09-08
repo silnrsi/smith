@@ -6,8 +6,8 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.check_tool('gcc')
-	conf.check_tool('mytool', tooldir='.')
+	conf.imp('gcc')
+	conf.imp('mytool', tooldir='.')
 
 def build(bld):
 	bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath()

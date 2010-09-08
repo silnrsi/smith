@@ -11,7 +11,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.check_tool('ocaml')
+	conf.imp('ocaml')
 
 def build(bld):
 

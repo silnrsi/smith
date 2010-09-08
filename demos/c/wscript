@@ -16,9 +16,9 @@ def options(opt):
 	opt.imp('gnu_dirs')
 
 def configure(conf):
-	#conf.check_tool('akakak')
-	conf.check_tool('compiler_c')
-	#conf.check_tool('gnu_dirs')
+	#conf.imp('akakak')
+	conf.imp('compiler_c')
+	#conf.imp('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')

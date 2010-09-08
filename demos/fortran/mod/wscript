@@ -10,7 +10,7 @@ def options(opt):
 	opt.imp('fakecc', tooldir='.')
 
 def configure(conf):
-	conf.check_tool('fakecc', tooldir='.')
+	conf.imp('fakecc', tooldir='.')
 
 def build(bld):
 	bld(source='hello_main.a hello.a', target='hello')

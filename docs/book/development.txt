@@ -70,7 +70,7 @@ def options(ctx):
 	ctx.tool('parallel_debug', tooldir='.')
 
 def configure(ctx):
-	ctx.check_tool('parallel_debug', tooldir='.')
+	ctx.imp('parallel_debug', tooldir='.')
 
 def build(ctx):
 	bld(rule='touch ${TGT}', target='foo')

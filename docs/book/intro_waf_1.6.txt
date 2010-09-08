@@ -223,7 +223,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-    ctx.check_tool('gcc')
+    ctx.imp('gcc')
 
 def build(ctx):
     tg = ctx(features='cc', source='main.c')
@@ -359,7 +359,7 @@ In the case of includes, the node may be used to control exactly the include pat
 [source,python]
 ---------------
 def configure(ctx):
-    ctx.check_tool('gcc')
+    ctx.imp('gcc')
 
 def build(ctx):
 	ctx(features='cc', source='main.c', includes=[ctx.path])
@@ -467,7 +467,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.check_tool('gcc')
+	ctx.imp('gcc')
 
 def build(ctx):
 	ctx(rule='touch ${TGT}', target='foo.h', ext_out=['.h'])
@@ -487,7 +487,7 @@ def options(ctx):
     ctx.tool('compiler_cxx')
 
 def configure(ctx):
-    ctx.check_tool('compiler_cxx')
+    ctx.imp('compiler_cxx')
     ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(bld):
@@ -504,7 +504,7 @@ def options(ctx):
     ctx.tool('compiler_cxx')
 
 def configure(ctx):
-    ctx.check_tool('compiler_cxx')
+    ctx.imp('compiler_cxx')
     ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(bld):
@@ -519,7 +519,7 @@ Note that the logger must be removed after the configuration API is used, else t
 
 === Downloading Waf tools
 
-The call to 'conf.check_tool' will normally fail if a tool cannot be found.
+The call to 'conf.imp' will normally fail if a tool cannot be found.
 
 [source,python]
 ---------------
@@ -527,7 +527,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.check_tool('swig')
+	conf.imp('swig')
 ---------------
 
 By configuring with the option '--download', it is possible to go and download the missing tools
@@ -565,7 +565,7 @@ def check(path):
 Configure.download_check = check
 
 def configure(conf):
-    conf.check_tool('swig')
+    conf.imp('swig')
 ---------------
 
 === The command 'list'

@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.check_tool('gcc')
+	conf.imp('gcc')
 
 def build(bld):
 

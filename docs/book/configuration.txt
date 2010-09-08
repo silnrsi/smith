@@ -251,7 +251,7 @@ def configure(ctx): <3>
 <2> Provide a detection method to set ctx.env.DANG and print a message on the console
 <3> Provide a method named _configure_
 
-For loading a tool, the method 'check_tool' must be used during the configuration:
+For loading a tool, the method 'imp' must be used during the configuration:
 
 [source,python]
 ---------------
@@ -262,14 +262,14 @@ def options(ctx):
     ctx.tool('dang', tooldir='.') <1>
 
 def configure(ctx):
-    ctx.check_tool('dang', tooldir='.') <2>
+    ctx.imp('dang', tooldir='.') <2>
 
 def build(ctx):
     print(ctx.env.DANG) <3>
 ---------------
 
 <1> Load the options defined in _dang.py_
-<2> Load the tool dang.py. By default, check_tool calls the method 'configure' defined in the tools.
+<2> Load the tool dang.py. By default, imp calls the method 'configure' defined in the tools.
 <3> The tool modifies the value of _ctx.env.DANG_ during the configuration
 
 Upon execution, the output will be the following:
@@ -289,7 +289,7 @@ Waf: Leaving directory `/tmp/configuration_dang/build'
 'build' finished successfully (0.004s)
 ---------------
 
-<1> First the tool is imported as a python module, and then the method _configure_ is called by _check_tool_
+<1> First the tool is imported as a python module, and then the method _configure_ is called by _imp_
 <2> The tools loaded during the configuration will be loaded during the build phase
 
 === Exception handling
@@ -395,7 +395,7 @@ def error_handler(fun, exc):
 	return BREAK
 ---------------
 
-The following diagram illustrates the test execution loop performed from conf.check_tool
+The following diagram illustrates the test execution loop performed from conf.imp
 
 image::conftest{PIC}["Configuration tests"{backend@docbook:,width=210:},align="center"]
 

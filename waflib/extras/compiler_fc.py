@@ -27,7 +27,7 @@ def configure(conf):
 		try:
 			conf.start_msg('Checking for %r (fortran compiler)' % compiler)
 			conf.env = orig.derive()
-			conf.check_tool(compiler)
+			conf.imp(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.end_msg(False)
 			debug('compiler_fortran: %r' % e)

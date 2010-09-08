@@ -51,8 +51,8 @@ def common_flags_dmd(conf):
 
 def configure(conf):
 	conf.find_dmd()
-	conf.check_tool('ar')
-	conf.check_tool('d')
+	conf.imp('ar')
+	conf.imp('d')
 	conf.common_flags_dmd()
 	conf.d_platform_flags()
 

@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.check_tool('tex')
+	conf.imp('tex')
 	if not conf.env.PDFLATEX:
 		conf.fatal('could not find the program pdflatex')
 

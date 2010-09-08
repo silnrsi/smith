@@ -39,8 +39,8 @@ def common_flags_gdc(conf):
 
 def configure(conf):
 	conf.find_gdc()
-	conf.check_tool('ar')
-	conf.check_tool('d')
+	conf.imp('ar')
+	conf.imp('d')
 	conf.common_flags_gdc()
 	conf.d_platform_flags()
 

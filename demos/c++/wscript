@@ -14,7 +14,7 @@ def options(opt):
 	opt.imp('compiler_cxx')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx')
+	conf.imp('compiler_cxx')
 	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
 
 def build(bld):

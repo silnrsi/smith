@@ -15,8 +15,8 @@ def options(opt):
 	opt.tool_options('daemon', tooldir='.')
 
 def configure(conf):
-	conf.check_tool('gcc')
-	conf.check_tool('daemon', tooldir='.')
+	conf.imp('gcc')
+	conf.imp('daemon', tooldir='.')
 
 def build(bld):
 	bld.program(

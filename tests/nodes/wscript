@@ -7,7 +7,7 @@ def options(opt):
 	opt.tool_options('compiler_cc')
 
 def configure(conf):
-	conf.check_tool('compiler_cc')
+	conf.imp('compiler_cc')
 
 def build(bld):
 

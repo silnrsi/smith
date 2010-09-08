@@ -4,7 +4,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.check_tool('g++')
+    conf.imp('g++')
 
 def build(bld):
 	bld.program(

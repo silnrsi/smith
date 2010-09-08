@@ -34,7 +34,7 @@ def configure(conf):
 		conf.env.stash()
 		conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 		try:
-			conf.check_tool(compiler)
+			conf.imp(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.env.revert()
 			conf.end_msg(False)

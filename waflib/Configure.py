@@ -227,7 +227,7 @@ class ConfigurationContext(Context.Context):
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
 
-	def tool(self, input, tooldir=None, funs=None, download=True):
+	def imp(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
 
 		tools = Utils.to_list(input)
@@ -253,7 +253,7 @@ class ConfigurationContext(Context.Context):
 				else:
 					self.fatal('Could not load the Waf tool %r from %r (try the --download option?):\n%s' % (tool, sys.path, e))
 			except Exception as e:
-				self.to_log('check_tool %r (%r & %r)' % (tool, tooldir, funs))
+				self.to_log('imp %r (%r & %r)' % (tool, tooldir, funs))
 				self.to_log(Utils.ex_stack())
 				raise
 

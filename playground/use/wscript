@@ -4,7 +4,7 @@ def options(ctx):
 	ctx.tool_options('compiler_c')
 
 def configure(ctx):
-	ctx.check_tool('compiler_c')
+	ctx.imp('compiler_c')
 
 def build(ctx):
 	sub = ctx.add_subdirs

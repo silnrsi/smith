@@ -9,8 +9,8 @@ def options(opt):
 	opt.tool_options('compiler_cxx')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx') # cuda does not compile in c mode
-	conf.check_tool('cuda', tooldir='.')
+	conf.imp('compiler_cxx') # cuda does not compile in c mode
+	conf.imp('cuda', tooldir='.')
 
 def build(bld):
 	t = bld.program(

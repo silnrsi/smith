@@ -12,7 +12,7 @@ def options(opt):
 	opt.imp('compiler_cxx qt4')
 
 def configure(conf):
-	conf.check_tool('compiler_cxx qt4')
+	conf.imp('compiler_cxx qt4')
 	conf.env.append_value('CXXFLAGS', ['-g']) # test
 
 def build(bld):

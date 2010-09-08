@@ -8,7 +8,7 @@ def options(ctx):
 	ctx.imp('parallel_debug')
 
 def configure(ctx):
-	ctx.check_tool('parallel_debug')
+	ctx.imp('parallel_debug')
 
 def build(ctx):
 

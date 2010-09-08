@@ -44,7 +44,7 @@ def name_to_obj(self, s, env=None):
 Build.BuildContext.name_to_obj = name_to_obj
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
-Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.tool
+Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.imp
 Configure.conftest = Configure.conf
 Configure.ConfigurationError = Errors.ConfigurationError
 

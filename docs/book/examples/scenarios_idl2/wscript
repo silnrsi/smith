@@ -4,7 +4,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.check_tool('g++')
+	ctx.imp('g++')
 
 def build(ctx):
 	ctx(

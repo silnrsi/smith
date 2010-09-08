@@ -4,7 +4,7 @@ def options(opt):
 	opt.imp('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
+	conf.imp('compiler_c')
 
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
 	pango_version = conf.check_cfg(modversion='pango')

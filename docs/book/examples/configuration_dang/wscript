@@ -7,7 +7,7 @@ def options(ctx):
 	ctx.imp('dang', tooldir='.')
 
 def configure(ctx):
-	ctx.check_tool('dang', tooldir='.')
+	ctx.imp('dang', tooldir='.')
 
 def build(ctx):
 	print(ctx.env.DANG)

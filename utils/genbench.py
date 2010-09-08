@@ -244,7 +244,7 @@ top  = '.'
 out  = 'out'
 
 def configure(conf):
-	conf.check_tool('g++')
+	conf.imp('g++')
 
 def build(bld):
 	for i in xrange(%d):

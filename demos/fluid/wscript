@@ -10,8 +10,8 @@ def options(opt):
 
 def configure(conf):
 	#conf.recurse('gni')
-	conf.check_tool('compiler_cxx')
-	conf.check_tool('fluid')
+	conf.imp('compiler_cxx')
+	conf.imp('fluid')
 
 def build(bld):
 	bld.program(

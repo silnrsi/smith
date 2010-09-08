@@ -21,7 +21,7 @@ def options(opt):
 	opt.imp('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c') <1>
+	conf.imp('compiler_c') <1>
 
 def build(bld):
 	bld.program(source='main.c', target='app', use='myshlib mystlib') <2>
@@ -70,7 +70,7 @@ def options(opt):
 	opt.imp('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
+	conf.imp('compiler_c')
 
 def build(bld):
 	bld.program(
@@ -427,7 +427,7 @@ def options(opt):
 	opt.imp('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
+	conf.imp('compiler_c')
 	conf.env.INCLUDES_TEST      = ['/usr/include'] <1>
 
 	if sys.platform != 'win32': <2>
@@ -639,7 +639,7 @@ def options(opt):
 	opt.imp('compiler_c')
 
 def configure(conf):
-	conf.check_tool('compiler_c')
+	conf.imp('compiler_c')
 
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
 	pango_version = conf.check_cfg(modversion='pango') <2>
