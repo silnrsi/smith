@@ -28,7 +28,7 @@ def __list_possible_compiler(platform):
 
 def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
-	except AttributeError: conf.fatal("Add options(opt): opt.tool('compiler_cxx')")
+	except AttributeError: conf.fatal("Add options(opt): opt.pimp('compiler_cxx')")
 
 	for compiler in test_for_compiler.split():
 		conf.env.stash()
@@ -58,5 +58,5 @@ def options(opt):
 		dest="check_cxx_compiler")
 
 	for cxx_compiler in test_for_compiler.split():
-		opt.tool('%s' % cxx_compiler, option_group=cxx_compiler_opts)
+		opt.pimp('%s' % cxx_compiler, option_group=cxx_compiler_opts)
 

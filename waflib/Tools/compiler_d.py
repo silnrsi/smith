@@ -40,5 +40,5 @@ def options(opt):
 			default=False)
 
 	for d_compiler in ['gdc', 'dmd']:
-		opt.tool('%s' % d_compiler, option_group=d_compiler_opts)
+		opt.pimp('%s' % d_compiler, option_group=d_compiler_opts)
 

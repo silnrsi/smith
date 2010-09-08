@@ -139,7 +139,7 @@ class Context(ctx):
 		finally:
 			self.free()
 
-	def tool(self, tool_list, *k, **kw):
+	def pimp(self, tool_list, *k, **kw):
 		"""
 		load the options that a waf tool provides (or not)
 		@type tool_list: list of string or string representing the space-separated tool list

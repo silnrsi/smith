@@ -12,8 +12,8 @@ import waflib.Configure
 waflib.Configure.autoconfig = True
 
 def options(opt):
-	opt.tool_options('compiler_c')
-	opt.tool_options('gnu_dirs')
+	opt.pimp('compiler_c')
+	opt.pimp('gnu_dirs')
 
 def configure(conf):
 	#conf.check_tool('akakak')
