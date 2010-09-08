@@ -18,7 +18,7 @@ To conceal the implementation details and the portability concerns, each target 
 [source,python]
 ---------------
 def options(opt):
-	opt.pimp('compiler_c')
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c') <1>
@@ -67,7 +67,7 @@ The methods described previously can process many more attributes than just 'use
 [source,python]
 ---------------
 def options(opt):
-	opt.pimp('compiler_c')
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')
@@ -424,7 +424,7 @@ When an element in the attribute 'use' does not match a local library, it is ass
 import sys
 
 def options(opt):
-	opt.pimp('compiler_c')
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')
@@ -636,7 +636,7 @@ The method 'check_cfg' is provided to ease the interaction with these applicatio
 [source,python]
 ---------------
 def options(opt):
-	opt.pimp('compiler_c')
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

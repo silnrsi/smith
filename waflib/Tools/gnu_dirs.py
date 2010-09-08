@@ -4,7 +4,7 @@
 
 """
 To use this module do not forget to call
-opt.pimp('gnu_dirs')
+opt.imp('gnu_dirs')
 AND
 conf.check_tool('gnu_dirs')
 

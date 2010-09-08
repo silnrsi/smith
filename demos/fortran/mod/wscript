@@ -7,7 +7,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('fakecc', tooldir='.')
+	opt.imp('fakecc', tooldir='.')
 
 def configure(conf):
 	conf.check_tool('fakecc', tooldir='.')

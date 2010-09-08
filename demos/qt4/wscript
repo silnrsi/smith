@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('compiler_cxx qt4')
+	opt.imp('compiler_cxx qt4')
 
 def configure(conf):
 	conf.check_tool('compiler_cxx qt4')

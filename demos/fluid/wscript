@@ -6,7 +6,7 @@ top = '.'
 out = 'out'
 
 def options(opt):
-	opt.pimp('compiler_cxx')
+	opt.imp('compiler_cxx')
 
 def configure(conf):
 	#conf.recurse('gni')

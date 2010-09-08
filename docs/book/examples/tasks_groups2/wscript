@@ -5,7 +5,7 @@ waf configure clean build -j4 --dwidth=800 --dtitle='Parallel build representati
 """
 
 def options(ctx):
-	ctx.pimp('parallel_debug')
+	ctx.imp('parallel_debug')
 
 def configure(ctx):
 	ctx.check_tool('parallel_debug')

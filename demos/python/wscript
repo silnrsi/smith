@@ -11,8 +11,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('python') # options for disabling pyc or pyo compilation
-	opt.pimp('compiler_c')
+	opt.imp('python') # options for disabling pyc or pyo compilation
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

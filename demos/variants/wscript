@@ -11,7 +11,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('compiler_c')
+	opt.imp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

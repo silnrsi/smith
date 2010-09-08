@@ -49,7 +49,7 @@ Configure.conftest = Configure.conf
 Configure.ConfigurationError = Errors.ConfigurationError
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
-Options.OptionsContext.tool_options = Context.Context.pimp
+Options.OptionsContext.tool_options = Context.Context.imp
 Options.Handler = Options.OptionsContext
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory

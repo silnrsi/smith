@@ -7,8 +7,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('compiler_c')
-	opt.pimp('compiler_fc')
+	opt.imp('compiler_c')
+	opt.imp('compiler_fc')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

@@ -21,7 +21,7 @@ def configure(conf):
 	try:
 		test_for_compiler = Options.options.check_fc
 	except AttributeError:
-		raise Configure.ConfigurationError("Add set_options(opt): opt.pimp('compiler_fortran')")
+		raise Configure.ConfigurationError("Add set_options(opt): opt.imp('compiler_fortran')")
 	orig = conf.env
 	for compiler in test_for_compiler.split():
 		try:
@@ -54,5 +54,5 @@ def options(opt):
 		dest="check_fc")
 
 	for compiler in test_for_compiler.split():
-		opt.pimp('%s' % compiler, option_group=fortran_compiler_opts)
+		opt.imp('%s' % compiler, option_group=fortran_compiler_opts)
 

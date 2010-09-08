@@ -13,8 +13,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('compiler_cxx')
-	opt.pimp('waf_unit_test')
+	opt.imp('compiler_cxx')
+	opt.imp('waf_unit_test')
 	opt.add_option('--onlytests', action='store_true', default=True, help='Exec unit tests only', dest='only_tests')
 
 def configure(conf):

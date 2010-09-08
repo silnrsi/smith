@@ -15,7 +15,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.pimp('g++ python')
+	opt.imp('g++ python')
 
 def configure(conf):
 	conf.check_tool('g++ python')
