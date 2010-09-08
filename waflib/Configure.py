@@ -405,11 +405,15 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 		environ = os.environ
 
 	ret = ''
-	if var:
-		if self.env[var]:
-			ret = self.env[var]
-		elif var in environ:
-			ret = environ[var]
+	filename = Utils.to_list(filename)
+
+	if not var:
+		var = filename[0].upper()
+
+	if self.env[var]:
+		ret = self.env[var]
+	elif var in environ:
+		ret = environ[var]
 
 	if not ret:
 		if path_list:
@@ -437,7 +441,6 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 					if os.path.isfile(x):
 						ret = x
 
-	filename = Utils.to_list(filename)
 	self.msg('Checking for program ' + ','.join(filename), ret or False)
 	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 
