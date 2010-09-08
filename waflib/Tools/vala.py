@@ -86,7 +86,7 @@ def vala_file(self, node):
 		includes =  []
 
 		if hasattr(self, 'use'):
-			local_packages = Utils.to_list(self.use)
+			local_packages = Utils.to_list(self.use)[:] # make sure to have a copy
 			seen = []
 			while len(local_packages) > 0:
 				package = local_packages.pop()
@@ -97,7 +97,8 @@ def vala_file(self, node):
 				# check if the package exists
 				package_obj = self.bld.get_tgen_by_name(package)
 				if not package_obj:
-					raise Errors.WafError("object %r was not found in use (required by %r)" % (package, self.name))
+					continue
+					#raise Errors.WafError("object %r was not found in use (required by %r)" % (package, self.name))
 				package_name = package_obj.target
 				package_node = package_obj.path
 				package_dir = package_node.relpath_gen(self.path)
