@@ -10,8 +10,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
-	opt.tool_options('perl')
+	opt.pimp('compiler_c')
+	opt.pimp('perl')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

@@ -11,8 +11,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
-	opt.tool_options('vala')
+	opt.pimp('compiler_c')
+	opt.pimp('vala')
 
 def configure(conf):
 	conf.check_tool('compiler_c vala')
