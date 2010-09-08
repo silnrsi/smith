@@ -98,7 +98,7 @@ def vala_file(self, node):
 				try:
 					package_obj = self.bld.get_tgen_by_name(package)
 				except Errors.WafError:
-					pass
+					continue
 				package_name = package_obj.target
 				package_node = package_obj.path
 				package_dir = package_node.relpath_gen(self.path)
