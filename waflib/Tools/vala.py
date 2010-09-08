@@ -3,7 +3,7 @@
 # Ali Sabil, 2007
 
 import os.path, shutil, re
-from waflib import Task, Runner, Utils, Logs, Build, Node, Options
+from waflib import Task, Runner, Utils, Logs, Build, Node, Options, Errors
 from waflib.TaskGen import extension, after, before
 
 class valac_task(Task.Task):
@@ -95,10 +95,10 @@ def vala_file(self, node):
 				seen.append(package)
 
 				# check if the package exists
-				package_obj = self.bld.get_tgen_by_name(package)
-				if not package_obj:
-					continue
-					#raise Errors.WafError("object %r was not found in use (required by %r)" % (package, self.name))
+				try:
+					package_obj = self.bld.get_tgen_by_name(package)
+				except Errors.WafError:
+					pass
 				package_name = package_obj.target
 				package_node = package_obj.path
 				package_dir = package_node.relpath_gen(self.path)
