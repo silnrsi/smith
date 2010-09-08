@@ -33,7 +33,7 @@ def configure(conf):
 	pretends to be something it is not (setting CC=icc and trying to configure gcc)
 	"""
 	try: test_for_compiler = Options.options.check_c_compiler
-	except AttributeError: conf.fatal("Add options(opt): opt.tool_options('compiler_cc')")
+	except AttributeError: conf.fatal("Add options(opt): opt.tool('compiler_cc')")
 	for compiler in test_for_compiler.split():
 		conf.env.stash()
 		conf.start_msg('Checking for %r (c compiler)' % compiler)
@@ -62,5 +62,5 @@ def options(opt):
 		dest="check_c_compiler")
 
 	for c_compiler in test_for_compiler.split():
-		opt.tool_options('%s' % c_compiler, option_group=cc_compiler_opts)
+		opt.tool('%s' % c_compiler, option_group=cc_compiler_opts)
 
