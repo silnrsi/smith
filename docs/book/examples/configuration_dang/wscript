@@ -4,7 +4,7 @@ top = '.'
 out = 'build'
 
 def options(ctx):
-	ctx.tool_options('dang', tooldir='.')
+	ctx.pimp('dang', tooldir='.')
 
 def configure(ctx):
 	ctx.check_tool('dang', tooldir='.')

@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
+	opt.pimp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')

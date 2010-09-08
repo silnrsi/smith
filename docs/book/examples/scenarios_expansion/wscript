@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
+	opt.pimp('compiler_c')
 
 def configure(conf):
 	conf.check_tool('compiler_c')
@@ -22,7 +22,6 @@ def build(bld):
 		source   = '${MAIN}',
 		target   = 'app',
 		includes = '. ${FOO}')
-
 
 from waflib import Utils, TaskGen
 @TaskGen.feature('*')
