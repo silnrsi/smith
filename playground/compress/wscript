@@ -114,31 +114,18 @@ def build(bld):
 	for kind in KINDS:
 		p = bld.bldnode
 
-		ini = p.make_node('size_%s_1.txt' % kind)
-		dist = p.make_node('size_%s_2.txt' % kind)
-		plot = p.make_node('size_%s_3.plot' % kind)
-		png = p.make_node('size_%s_4.png' % kind)
+		ini  = p.make_node('size_%s_1.txt' % kind)  # list of file sizes
+		dist = p.make_node('size_%s_2.txt' % kind)  # distribution file (count the results)
+		plot = p.make_node('size_%s_3.plot' % kind) # script file created for gnuplot
+		png  = p.make_node('size_%s_4.png' % kind)  # picture created
 
-		# Two ways to do the same thing
 		for x in range(bld.options.num):
-			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
-		#bld(features='compress', target=ini, kind=kind, frompath=node, files=rels)
+			# the same target cannot have the signature of all the tasks that update it
+			# so the tasks will be executed each time
+			bld(rule=try_compress, target=ini, always=True, kind=kind, frompath=node, files=rels)
 
-		bld(rule=count_result, target=dist, source=ini)
-
+		# for the same reason, count_result will be executed each time
+		bld(rule=count_result, target=dist, source=ini, always=True, update_outputs=True)
 		bld(rule=write_template, target=plot, triplet=[png, kind, dist], always=True)
 		bld(rule='${GNUPLOT} < ${SRC[1].abspath()}', target=png, source=[dist, plot])
-
-#from waflib.Task import Task
-#class cpress_task(Task):
-#	quiet          = True
-#	update_outputs = True
-#	always         = True
-#	run            = try_compress
-#
-#from waflib.TaskGen import feature
-#@feature('compress')
-#def create_compress_tasks(self):
-#	for x in range(self.bld.options.num):
-#		self.create_task('cpress', [], self.target)
 
