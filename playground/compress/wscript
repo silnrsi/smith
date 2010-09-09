@@ -16,7 +16,7 @@ TEMPLATE = """
 set terminal png
 set output "%s"
 set ylabel "Amount of files created"
-set xlabel "File size"
+set xlabel "File size in kB"
 set title "Compressed tar file distribution (%s)"
 plot '%s' using 1:2 with lines lt 3 title ""
 """
