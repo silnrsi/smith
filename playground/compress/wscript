@@ -1,0 +1,105 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build'
+
+KINDS = ['gzip']#, 'bzip2']
+
+TEMPLATE = """
+#! /usr/bin/gnuplot -persist
+# output file, compression type, input file
+set terminal png
+set output "%s"
+set ylabel "Amount of files created"
+set xlabel "File size"
+set title "Compressed tar file distribution (%s)"
+plot '%s' using 1:2 with lines lt 3
+"""
+
+import random, bz2, os, threading
+lock = threading.Lock()
+
+def options(opt):
+	opt.add_option('--num', action='store', type='int', default=200, help='amount of compressed files to create')
+
+
+mi=1000000
+ma=0
+
+def try_compress(self):
+	tmpnode = self.generator.tmpnode
+
+	global mi, ma
+
+	self.generator.files = self.generator.files[:]
+	random.shuffle(self.generator.files)
+	self.generator.bld.exec_command('tar cjf %s   %s' % (tmpnode.name, ' '.join(self.generator.files)), cwd=tmpnode.parent.abspath())
+	st = os.stat(tmpnode.abspath())
+	siz = st.st_size
+
+	try:
+		lock.acquire()
+		self.outputs[0].write('%d\n' % siz, 'a')
+
+		if siz < mi:
+			mi = siz
+			os.rename(tmpnode.abspath(), self.generator.bld.bldnode.abspath() + os.sep + 'min%d.tar.bz2' % siz)
+		elif siz > ma:
+			ma = siz
+			os.rename(tmpnode.abspath(), self.generator.bld.bldnode.abspath() + os.sep + 'max%d.tar.bz2' % siz)
+
+		tmpnode.delete()
+
+	finally:
+		lock.release()
+
+def count_result(self):
+	txt = self.inputs[0].read().strip()
+	lst = txt.split()
+	lst = [int(x) for x in lst if x]
+	mi = min(lst)
+	ma = max(lst)
+
+	dc = {}
+	for x in lst:
+		try:
+			dc[x] += 1
+		except KeyError:
+			dc[x] = 1
+
+	nlst = ['%d %d' % (x, dc.get(x, 0)) for x in range(mi, ma+1)]
+	self.outputs[0].write('\n'.join(nlst))
+
+def write_template(self):
+	t = self.generator.triplet
+	self.outputs[0].write(TEMPLATE % (t[0].abspath(), t[1], t[2].abspath()))
+
+def configure(conf):
+	conf.find_program('gzip')
+	conf.find_program('bzip2')
+	conf.find_program('gnuplot', var='GNUPLOT')
+
+def build(bld):
+	lst = bld.srcnode.ant_glob('.waf-1.6*', dir=True)
+	if not lst:
+		bld.fatal('Missing local Waf directory')
+	node = lst[0]
+	#rels = [(x.path_from(node), x.read()) for x in node.ant_glob('**/*.py')]
+	rels = [x.path_from(node) for x in node.ant_glob('**/*.py')]
+
+	for kind in KINDS:
+		p = bld.bldnode
+		ini = p.make_node('size_%s_1.txt' % kind)
+		dist = p.make_node('size_%s_2.txt' % kind)
+		plot = p.make_node('size_%s_3.plot' % kind)
+		png = p.make_node('size_%s_4.png' % kind)
+
+		for x in range(bld.options.num):
+			nd = node.make_node('test%d.tar.bz2' % x)
+			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels, tmpnode=nd)
+
+		bld(rule=count_result, target=dist, source=ini)
+
+		bld(rule=write_template, target=plot, triplet=[png, kind, dist], always=True)
+		bld(rule='${GNUPLOT} < ${SRC[1].abspath()}', target=png, source=[dist, plot])
+
