@@ -3,6 +3,8 @@
 """
 You will need either bzip2 or gzip, and a local waf copy
 (unset the variable WAFDIR if set)
+
+Using more than 100000 tasks may eat your memory
 """
 
 top = '.'
@@ -37,8 +39,8 @@ def try_compress(self):
 	uid = id(threading.current_thread())
 	filename = frompath.abspath() + os.sep + 'test%d.bin' % uid
 
-	self.generator.files = self.generator.files[:]
-	random.shuffle(self.generator.files)
+	self.files = self.generator.files[:]
+	random.shuffle(self.files)
 
 	if self.generator.kind == 'bzip2':
 		store = bzip2
@@ -47,7 +49,7 @@ def try_compress(self):
 		store = gzip
 		cmd = 'czf'
 
-	self.generator.bld.exec_command('tar %s  %s  %s' % (cmd, filename, ' '.join(self.generator.files)), cwd=frompath.abspath())
+	self.generator.bld.exec_command('tar %s  %s  %s' % (cmd, filename, ' '.join(self.files)), cwd=frompath.abspath())
 
 	siz = os.stat(filename).st_size
 	if siz == 0:
@@ -117,11 +119,26 @@ def build(bld):
 		plot = p.make_node('size_%s_3.plot' % kind)
 		png = p.make_node('size_%s_4.png' % kind)
 
-		for x in range(bld.options.num):
-			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
+		# Two ways to do the same thing
+		#for x in range(bld.options.num):
+		#	bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
+		bld(features='compress', target=ini, kind=kind, frompath=node, files=rels)
 
 		bld(rule=count_result, target=dist, source=ini)
 
 		bld(rule=write_template, target=plot, triplet=[png, kind, dist], always=True)
 		bld(rule='${GNUPLOT} < ${SRC[1].abspath()}', target=png, source=[dist, plot])
+
+from waflib.Task import Task
+class cpress_task(Task):
+	quiet          = True
+	update_outputs = True
+	always         = True
+	run            = try_compress
+
+from waflib.TaskGen import feature
+@feature('compress')
+def create_compress_tasks(self):
+	for x in range(self.bld.options.num):
+		self.create_task('cpress', [], self.target)
 
