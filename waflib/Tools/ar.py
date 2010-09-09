@@ -10,7 +10,7 @@ from waflib.Configure import conf
 
 @conf
 def find_ar(conf):
-	conf.imp('ar')
+	conf.load('ar')
 
 def configure(conf):
 	conf.find_program('ar', var='AR')

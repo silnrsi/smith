@@ -7,10 +7,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('fakecc', tooldir='.')
+	opt.load('fakecc', tooldir='.')
 
 def configure(conf):
-	conf.imp('fakecc', tooldir='.')
+	conf.load('fakecc', tooldir='.')
 
 def build(bld):
 	bld(source='hello_main.a hello.a', target='hello')

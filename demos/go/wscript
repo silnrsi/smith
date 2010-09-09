@@ -14,10 +14,10 @@ def options(opt):
 	opt.add_option('--exe', action='store_true', default=False, help='Execute the program after it is compiled')
 
 def configure(ctx):
-	ctx.imp('go')
+	ctx.load('go')
 
 	try:
-		ctx.imp('gcc')
+		ctx.load('gcc')
 		ctx.check_cc(fragment='#include <gmp.h>\nint main() {return 0;}\n', uselib_store='GMP', lib='gmp')
 	except ctx.errors.ConfigurationError:
 		ctx.env.TRY_CGO = False

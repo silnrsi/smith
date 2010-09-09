@@ -262,7 +262,7 @@ def options(ctx):
     ctx.tool('dang', tooldir='.') <1>
 
 def configure(ctx):
-    ctx.imp('dang', tooldir='.') <2>
+    ctx.load('dang', tooldir='.') <2>
 
 def build(ctx):
     print(ctx.env.DANG) <3>

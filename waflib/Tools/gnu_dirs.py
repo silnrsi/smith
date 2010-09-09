@@ -4,9 +4,9 @@
 
 """
 To use this module do not forget to call
-opt.imp('gnu_dirs')
+opt.load('gnu_dirs')
 AND
-conf.imp('gnu_dirs')
+conf.load('gnu_dirs')
 
 Add options for the standard GNU directories, this tool will add the options
 found in autotools, and will update the environment with the following

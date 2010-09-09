@@ -58,7 +58,7 @@ The following zones are used in Waf:
 |group   | groups and task generators
 |=================
 
-WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by for the command-line options 'opt.imp()' or by the global init method function 'init.tool()'
+WARNING: Debugging information can be displayed only after the command-line has been parsed. For example, no debugging information will be displayed when a waf tool is being by for the command-line options 'opt.load()' or by the global init method function 'init.tool()'
 
 ==== Build visualization
 
@@ -70,7 +70,7 @@ def options(ctx):
 	ctx.tool('parallel_debug', tooldir='.')
 
 def configure(ctx):
-	ctx.imp('parallel_debug', tooldir='.')
+	ctx.load('parallel_debug', tooldir='.')
 
 def build(ctx):
 	bld(rule='touch ${TGT}', target='foo')

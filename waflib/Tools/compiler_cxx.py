@@ -28,13 +28,13 @@ def __list_possible_compiler(platform):
 
 def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
-	except AttributeError: conf.fatal("Add options(opt): opt.imp('compiler_cxx')")
+	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cxx')")
 
 	for compiler in test_for_compiler.split():
 		conf.env.stash()
 		conf.start_msg('Checking for %r (c++ compiler)' % compiler)
 		try:
-			conf.imp(compiler)
+			conf.load(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.env.revert()
 			conf.end_msg(False)
@@ -58,5 +58,5 @@ def options(opt):
 		dest="check_cxx_compiler")
 
 	for cxx_compiler in test_for_compiler.split():
-		opt.imp('%s' % cxx_compiler, option_group=cxx_compiler_opts)
+		opt.load('%s' % cxx_compiler, option_group=cxx_compiler_opts)
 

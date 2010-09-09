@@ -22,7 +22,7 @@ def build(bld):
 lst = 'debug release foo bar one two'.split()
 
 def configure(conf):
-	conf.imp('compiler_cc')
+	conf.load('compiler_cc')
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 	conf.write_config_header('config.h')
 

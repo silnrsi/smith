@@ -9,10 +9,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_cxx qt4')
+	opt.load('compiler_cxx qt4')
 
 def configure(conf):
-	conf.imp('compiler_cxx qt4')
+	conf.load('compiler_cxx qt4')
 	conf.env.append_value('CXXFLAGS', ['-g']) # test
 
 def build(bld):

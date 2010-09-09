@@ -10,7 +10,7 @@ def options(opt):
 	opt.tool_options('errcheck')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 def build(bld):
 	bld(feature='c cprogram', source='main.c', target='app1')

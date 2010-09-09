@@ -227,7 +227,7 @@ class ConfigurationContext(Context.Context):
 			tmpenv = self.all_envs[key]
 			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
 
-	def imp(self, input, tooldir=None, funs=None, download=True):
+	def load(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
 
 		tools = Utils.to_list(input)

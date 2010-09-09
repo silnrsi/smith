@@ -12,13 +12,13 @@ import waflib.Configure
 waflib.Configure.autoconfig = True
 
 def options(opt):
-	opt.imp('compiler_c')
-	opt.imp('gnu_dirs')
+	opt.load('compiler_c')
+	opt.load('gnu_dirs')
 
 def configure(conf):
-	#conf.imp('akakak')
-	conf.imp('compiler_c')
-	#conf.imp('gnu_dirs')
+	#conf.load('akakak')
+	conf.load('compiler_c')
+	#conf.load('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
 
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')

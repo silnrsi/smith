@@ -6,12 +6,12 @@ top = '.'
 out = 'out'
 
 def options(opt):
-	opt.imp('compiler_cxx')
+	opt.load('compiler_cxx')
 
 def configure(conf):
 	#conf.recurse('gni')
-	conf.imp('compiler_cxx')
-	conf.imp('fluid')
+	conf.load('compiler_cxx')
+	conf.load('fluid')
 
 def build(bld):
 	bld.program(

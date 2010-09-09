@@ -18,10 +18,10 @@ To conceal the implementation details and the portability concerns, each target 
 [source,python]
 ---------------
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c') <1>
+	conf.load('compiler_c') <1>
 
 def build(bld):
 	bld.program(source='main.c', target='app', use='myshlib mystlib') <2>
@@ -67,10 +67,10 @@ The methods described previously can process many more attributes than just 'use
 [source,python]
 ---------------
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 def build(bld):
 	bld.program(
@@ -424,10 +424,10 @@ When an element in the attribute 'use' does not match a local library, it is ass
 import sys
 
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 	conf.env.INCLUDES_TEST      = ['/usr/include'] <1>
 
 	if sys.platform != 'win32': <2>
@@ -636,10 +636,10 @@ The method 'check_cfg' is provided to ease the interaction with these applicatio
 [source,python]
 ---------------
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0') <1>
 	pango_version = conf.check_cfg(modversion='pango') <2>

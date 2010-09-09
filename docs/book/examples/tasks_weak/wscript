@@ -6,10 +6,10 @@ waf configure clean build -j2 --dwidth=800 --dtitle='Weak order for "waf -j2"' -
 """
 
 def options(ctx):
-	ctx.imp('parallel_debug')
+	ctx.load('parallel_debug')
 
 def configure(ctx):
-	ctx.imp('parallel_debug')
+	ctx.load('parallel_debug')
 
 def build(ctx):
 	for x in range(5):

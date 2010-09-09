@@ -321,7 +321,7 @@ def make_copy(inf, outf):
 	f.close()
 
 def configure(conf):
-	conf.imp('python')
+	conf.load('python')
 	conf.check_python_version((2,4))
 
 

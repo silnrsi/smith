@@ -13,13 +13,13 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_cxx')
-	opt.imp('waf_unit_test')
+	opt.load('compiler_cxx')
+	opt.load('waf_unit_test')
 	opt.add_option('--onlytests', action='store_true', default=True, help='Exec unit tests only', dest='only_tests')
 
 def configure(conf):
-	conf.imp('compiler_cxx')
-	conf.imp('waf_unit_test')
+	conf.load('compiler_cxx')
+	conf.load('waf_unit_test')
 
 	# the demo files require cppunit - but the waf tool does not
 	conf.check_cfg(package='cppunit', args='--cflags --libs', mandatory=True)

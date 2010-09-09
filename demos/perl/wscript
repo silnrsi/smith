@@ -10,12 +10,12 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_c')
-	opt.imp('perl')
+	opt.load('compiler_c')
+	opt.load('perl')
 
 def configure(conf):
-	conf.imp('compiler_c')
-	conf.imp('perl')
+	conf.load('compiler_c')
+	conf.load('perl')
 
 	# check for perl
 	conf.check_perl_version((5,6,0))

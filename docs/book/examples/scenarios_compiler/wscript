@@ -4,8 +4,8 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.imp('g++')
-	ctx.imp('src2cpp', tooldir='.')
+	ctx.load('g++')
+	ctx.load('src2cpp', tooldir='.')
 
 def build(ctx):
 	ctx.program(

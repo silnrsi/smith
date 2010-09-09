@@ -93,7 +93,7 @@ def do_start(self):
 	try:
 		Options.options.dband
 	except AttributeError:
-		self.bld.fatal('use def options(opt): opt.imp("parallel_debug")!')
+		self.bld.fatal('use def options(opt): opt.load("parallel_debug")!')
 
 	self.taskinfo = Queue.Queue()
 	old_start(self)

@@ -21,7 +21,7 @@ def options(opt):
 def configure(conf):
 	"""the configuration should not raise any assert"""
 
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 	conf.define('AAA', 1)
 	tt('define AAA', "['AAA=1']", repr(conf.env.DEFINES))

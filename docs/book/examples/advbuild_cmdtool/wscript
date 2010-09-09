@@ -4,7 +4,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('some_tool', tooldir='.')
+	opt.load('some_tool', tooldir='.')
 
 def configure(conf):
 	pass

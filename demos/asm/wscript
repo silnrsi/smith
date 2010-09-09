@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 def configure(conf):
-	conf.imp('gcc gas')
+	conf.load('gcc gas')
 
 def build(bld):
 	bld.program(

@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 	conf.check_cfg(atleast_pkgconfig_version='0.0.0')
 	pango_version = conf.check_cfg(modversion='pango')

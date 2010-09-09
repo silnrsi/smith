@@ -22,8 +22,8 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-    ctx.imp('g++')
-    ctx.imp('src2cpp', tooldir='.')
+    ctx.load('g++')
+    ctx.load('src2cpp', tooldir='.')
 
 def build(ctx):
     ctx.program( <1>
@@ -169,7 +169,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.imp('g++')
+    conf.load('g++')
 
 def build(bld):
     bld.program(
@@ -242,7 +242,7 @@ top = '.'
 out = 'out'
 
 def configure(ctx):
-    ctx.imp('g++')
+    ctx.load('g++')
 
 def build(ctx):
     ctx( <1>
@@ -410,7 +410,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.imp('g++')
+    conf.load('g++')
 
 def build(bld):
     bld.program(features='cxx cxxprogram', source='main.cpp', target='test')
@@ -460,10 +460,10 @@ To illustrate this behaviour, we will now set up a project will use various c fi
 [source,python]
 ---------------
 def options(opt):
-    opt.imp('compiler_c')
+    opt.load('compiler_c')
 
 def configure(conf):
-    conf.imp('compiler_c')
+    conf.load('compiler_c')
 
 def build(bld):
     bld.program(
@@ -583,8 +583,8 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-    conf.imp('gcc')
-    conf.imp('mytool', tooldir='.')
+    conf.load('gcc')
+    conf.load('mytool', tooldir='.')
 
 def build(bld):
     bld.env.COMP = bld.path.find_resource('evil_comp.py').abspath() <1>

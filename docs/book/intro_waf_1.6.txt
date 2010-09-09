@@ -223,7 +223,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-    ctx.imp('gcc')
+    ctx.load('gcc')
 
 def build(ctx):
     tg = ctx(features='cc', source='main.c')
@@ -359,7 +359,7 @@ In the case of includes, the node may be used to control exactly the include pat
 [source,python]
 ---------------
 def configure(ctx):
-    ctx.imp('gcc')
+    ctx.load('gcc')
 
 def build(ctx):
 	ctx(features='cc', source='main.c', includes=[ctx.path])
@@ -467,7 +467,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.imp('gcc')
+	ctx.load('gcc')
 
 def build(ctx):
 	ctx(rule='touch ${TGT}', target='foo.h', ext_out=['.h'])
@@ -487,7 +487,7 @@ def options(ctx):
     ctx.tool('compiler_cxx')
 
 def configure(ctx):
-    ctx.imp('compiler_cxx')
+    ctx.load('compiler_cxx')
     ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(bld):
@@ -504,7 +504,7 @@ def options(ctx):
     ctx.tool('compiler_cxx')
 
 def configure(ctx):
-    ctx.imp('compiler_cxx')
+    ctx.load('compiler_cxx')
     ctx.check(header_name='stdio.h', features='cxx cxxprogram')
 
 def build(bld):
@@ -527,7 +527,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.imp('swig')
+	conf.load('swig')
 ---------------
 
 By configuring with the option '--download', it is possible to go and download the missing tools
@@ -565,7 +565,7 @@ def check(path):
 Configure.download_check = check
 
 def configure(conf):
-    conf.imp('swig')
+    conf.load('swig')
 ---------------
 
 === The command 'list'

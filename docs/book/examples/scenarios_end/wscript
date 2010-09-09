@@ -9,10 +9,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
-	conf.imp('compiler_c')
+	conf.load('compiler_c')
 
 def build(bld):
 	bld.program(

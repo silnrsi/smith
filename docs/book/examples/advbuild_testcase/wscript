@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 
 def options(ctx):
-	ctx.imp('compiler_cc')
+	ctx.load('compiler_cc')
 
 def configure(ctx):
-	ctx.imp('compiler_cc')
+	ctx.load('compiler_cc')
 
 def setup(ctx):
 	n = ctx.path.make_node('main.c')

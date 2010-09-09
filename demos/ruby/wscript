@@ -10,12 +10,12 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_c')
-	opt.imp('ruby')
+	opt.load('compiler_c')
+	opt.load('ruby')
 
 def configure(conf):
-	conf.imp('compiler_c')
-	conf.imp('ruby')
+	conf.load('compiler_c')
+	conf.load('ruby')
 
 	# check for ruby
 	conf.check_ruby_version((1,8,0))

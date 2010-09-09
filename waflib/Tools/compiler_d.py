@@ -16,7 +16,7 @@ def configure(conf):
 		conf.env.stash()
 		conf.start_msg('Checking for %r (d compiler)' % compiler)
 		try:
-			conf.imp(compiler)
+			conf.load(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.env.revert()
 			conf.end_msg(False)
@@ -40,5 +40,5 @@ def options(opt):
 			default=False)
 
 	for d_compiler in ['gdc', 'dmd']:
-		opt.imp('%s' % d_compiler, option_group=d_compiler_opts)
+		opt.load('%s' % d_compiler, option_group=d_compiler_opts)
 

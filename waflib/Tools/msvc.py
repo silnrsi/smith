@@ -11,8 +11,8 @@ usage:
 
 conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
 conf.env['MSVC_TARGETS'] = ['x64']
-conf.imp('msvc')
-OR conf.imp('msvc', funs='no_autodetect')
+conf.load('msvc')
+OR conf.load('msvc', funs='no_autodetect')
 conf.check_lib_msvc('gdi32')
 conf.check_libs_msvc('kernel32 user32')
 ...
@@ -529,7 +529,7 @@ def find_msvc(conf):
 		v['MT'] = [manifesttool]
 		v['MTFLAGS'] = ['/NOLOGO']
 
-	conf.imp('winres')
+	conf.load('winres')
 
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')

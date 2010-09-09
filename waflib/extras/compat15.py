@@ -44,12 +44,12 @@ def name_to_obj(self, s, env=None):
 Build.BuildContext.name_to_obj = name_to_obj
 
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
-Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.imp
+Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.load
 Configure.conftest = Configure.conf
 Configure.ConfigurationError = Errors.ConfigurationError
 
 Options.OptionsContext.sub_options = Options.OptionsContext.recurse
-Options.OptionsContext.tool_options = Context.Context.imp
+Options.OptionsContext.tool_options = Context.Context.load
 Options.Handler = Options.OptionsContext
 
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory

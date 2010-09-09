@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def configure(conf):
-	conf.imp('java')
+	conf.load('java')
 	conf.check_java_class('java.io.FileOutputStream')
 	conf.check_java_class('FakeClass')
 

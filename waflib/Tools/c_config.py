@@ -708,11 +708,11 @@ def link_add_flags(conf):
 
 @conf
 def cc_load_tools(conf):
-	conf.imp('c')
+	conf.load('c')
 
 @conf
 def cxx_load_tools(conf):
-	conf.imp('cxx')
+	conf.load('cxx')
 
 @conf
 def get_cc_version(conf, cc, gcc=False, icc=False):

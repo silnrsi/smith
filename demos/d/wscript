@@ -9,10 +9,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.imp('compiler_d')
+	opt.load('compiler_d')
 
 def configure(conf):
-	conf.imp('compiler_d')
+	conf.load('compiler_d')
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
 
