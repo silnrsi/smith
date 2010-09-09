@@ -8,8 +8,6 @@ You will need either bzip2 or gzip, and a local waf copy
 top = '.'
 out = 'build'
 
-KINDS = ['gzip']#, 'bzip2']
-
 TEMPLATE = """
 #! /usr/bin/gnuplot -persist
 # output file, compression type, input file
@@ -27,34 +25,47 @@ lock = threading.Lock()
 def options(opt):
 	opt.add_option('--num', action='store', type='int', default=200, help='amount of compressed files to create')
 
-
-mi=1000000
-ma=0
+# values for storing the min and max
+gzip  = [10000000, 0]
+bzip2 = [10000000, 0]
 
 def try_compress(self):
-	tmpnode = self.generator.tmpnode
-
 	global mi, ma
+
+	frompath = self.generator.frompath
+
+	uid = id(threading.current_thread())
+	filename = frompath.abspath() + os.sep + 'test%d.bin' % uid
+	print 'temporary file', filename
 
 	self.generator.files = self.generator.files[:]
 	random.shuffle(self.generator.files)
-	self.generator.bld.exec_command('tar cjf %s   %s' % (tmpnode.name, ' '.join(self.generator.files)), cwd=tmpnode.parent.abspath())
-	st = os.stat(tmpnode.abspath())
-	siz = st.st_size
+
+	if self.generator.kind == 'bzip2':
+		store = bzip2
+		cmd = 'cjf'
+	else:
+		store = gzip
+		cmd = 'czf'
+
+	self.generator.bld.exec_command('tar %s  %s  %s' % (cmd, filename, ' '.join(self.generator.files)), cwd=frompath.abspath())
+
+	siz = os.stat(filename).st_size
+	if siz == 0:
+		return -1
 
 	try:
 		lock.acquire()
 		self.outputs[0].write('%d\n' % siz, 'a')
 
-		if siz < mi:
-			mi = siz
-			os.rename(tmpnode.abspath(), self.generator.bld.bldnode.abspath() + os.sep + 'min%d.tar.bz2' % siz)
-		elif siz > ma:
-			ma = siz
-			os.rename(tmpnode.abspath(), self.generator.bld.bldnode.abspath() + os.sep + 'max%d.tar.bz2' % siz)
-
-		tmpnode.delete()
-
+		if siz < store[0]:
+			store[0] = siz
+			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'min%d.tar.bz2' % siz)
+		elif siz > store[1]:
+			store[1] = siz
+			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'max%d.tar.bz2' % siz)
+		else:
+			os.unlink(filename)
 	finally:
 		lock.release()
 
@@ -87,23 +98,28 @@ def configure(conf):
 	conf.find_program('gnuplot', var='GNUPLOT')
 
 def build(bld):
-	lst = bld.srcnode.ant_glob('.waf-1.6*', dir=True)
+	wafdir_lst = bld.srcnode.ant_glob('.waf-1.6*', dir=True)
 	if not lst:
 		bld.fatal('Missing local Waf directory')
-	node = lst[0]
-	#rels = [(x.path_from(node), x.read()) for x in node.ant_glob('**/*.py')]
+	node = wafdir_lst[0]
 	rels = [x.path_from(node) for x in node.ant_glob('**/*.py')]
+
+	KINDS = []
+	if self.env.BZIP2:
+		KINDS.append('bzip2')
+	if self.env.GZIP:
+		KINDS.append('gzip')
 
 	for kind in KINDS:
 		p = bld.bldnode
+
 		ini = p.make_node('size_%s_1.txt' % kind)
 		dist = p.make_node('size_%s_2.txt' % kind)
 		plot = p.make_node('size_%s_3.plot' % kind)
 		png = p.make_node('size_%s_4.png' % kind)
 
 		for x in range(bld.options.num):
-			nd = node.make_node('test%d.tar.bz2' % x)
-			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels, tmpnode=nd)
+			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
 
 		bld(rule=count_result, target=dist, source=ini)
 
