@@ -120,25 +120,25 @@ def build(bld):
 		png = p.make_node('size_%s_4.png' % kind)
 
 		# Two ways to do the same thing
-		#for x in range(bld.options.num):
-		#	bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
-		bld(features='compress', target=ini, kind=kind, frompath=node, files=rels)
+		for x in range(bld.options.num):
+			bld(rule=try_compress, target=ini, always=True, update_outputs=True, kind=kind, frompath=node, files=rels)
+		#bld(features='compress', target=ini, kind=kind, frompath=node, files=rels)
 
 		bld(rule=count_result, target=dist, source=ini)
 
 		bld(rule=write_template, target=plot, triplet=[png, kind, dist], always=True)
 		bld(rule='${GNUPLOT} < ${SRC[1].abspath()}', target=png, source=[dist, plot])
 
-from waflib.Task import Task
-class cpress_task(Task):
-	quiet          = True
-	update_outputs = True
-	always         = True
-	run            = try_compress
-
-from waflib.TaskGen import feature
-@feature('compress')
-def create_compress_tasks(self):
-	for x in range(self.bld.options.num):
-		self.create_task('cpress', [], self.target)
+#from waflib.Task import Task
+#class cpress_task(Task):
+#	quiet          = True
+#	update_outputs = True
+#	always         = True
+#	run            = try_compress
+#
+#from waflib.TaskGen import feature
+#@feature('compress')
+#def create_compress_tasks(self):
+#	for x in range(self.bld.options.num):
+#		self.create_task('cpress', [], self.target)
 
