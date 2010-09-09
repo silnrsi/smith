@@ -45,9 +45,11 @@ def try_compress(self):
 	if self.generator.kind == 'bzip2':
 		store = bzip2
 		cmd = 'cjf'
+		ext = '.bz2'
 	else:
 		store = gzip
 		cmd = 'czf'
+		ext = '.gz'
 
 	self.generator.bld.exec_command('tar %s  %s  %s' % (cmd, filename, ' '.join(self.files)), cwd=frompath.abspath())
 
@@ -61,10 +63,10 @@ def try_compress(self):
 
 		if siz < store[0]:
 			store[0] = siz
-			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'min%d.tar.bz2' % siz)
+			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'min%d.tar.%s' % (siz, ext))
 		elif siz > store[1]:
 			store[1] = siz
-			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'max%d.tar.bz2' % siz)
+			os.rename(filename, self.generator.bld.bldnode.abspath() + os.sep + 'max%d.tar.%s' % (siz, ext))
 		else:
 			os.unlink(filename)
 	finally:
