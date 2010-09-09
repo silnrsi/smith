@@ -16,7 +16,7 @@ set output "%s"
 set ylabel "Amount of files created"
 set xlabel "File size"
 set title "Compressed tar file distribution (%s)"
-plot '%s' using 1:2 with lines lt 3
+plot '%s' using 1:2 with lines lt 3 title ""
 """
 
 import random, bz2, os, threading
@@ -36,7 +36,6 @@ def try_compress(self):
 
 	uid = id(threading.current_thread())
 	filename = frompath.abspath() + os.sep + 'test%d.bin' % uid
-	print 'temporary file', filename
 
 	self.generator.files = self.generator.files[:]
 	random.shuffle(self.generator.files)
@@ -99,15 +98,15 @@ def configure(conf):
 
 def build(bld):
 	wafdir_lst = bld.srcnode.ant_glob('.waf-1.6*', dir=True)
-	if not lst:
+	if not wafdir_lst:
 		bld.fatal('Missing local Waf directory')
 	node = wafdir_lst[0]
 	rels = [x.path_from(node) for x in node.ant_glob('**/*.py')]
 
 	KINDS = []
-	if self.env.BZIP2:
+	if bld.env.BZIP2:
 		KINDS.append('bzip2')
-	if self.env.GZIP:
+	if bld.env.GZIP:
 		KINDS.append('gzip')
 
 	for kind in KINDS:
