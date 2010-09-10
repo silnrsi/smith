@@ -518,10 +518,13 @@ def find_msvc(conf):
 
 	# staticlib linker
 	if not v['AR']:
+		#on windows lib_name happends to be 'LIB', which conflicts with var name for libraries
+		old_lib_name_var = v[lib_name]
 		stliblink = conf.find_program(lib_name, path_list=path)
 		if not stliblink: return
 		v['AR']   = stliblink
 		v['ARFLAGS'] = ['/NOLOGO']
+		v[lib_name] = old_lib_name_var
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
 	manifesttool = conf.find_program('MT', path_list=path)
