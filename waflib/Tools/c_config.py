@@ -374,14 +374,14 @@ def validate_c(self, kw):
 		if not 'msg' in kw:
 			kw['msg'] = 'Checking for code snippet'
 		if not 'errmsg' in kw:
-			kw['errmsg'] = 'fail'
+			kw['errmsg'] = 'no'
 
 	for (flagsname,flagstype) in [('cxxflags','compiler'), ('cflags','compiler'), ('linkflags','linker')]:
 		if flagsname in kw:
 			if not 'msg' in kw:
 				kw['msg'] = 'Checking for %s flags %s' % (flagstype, kw[flagsname])
 			if not 'errmsg' in kw:
-				kw['errmsg'] = 'fail'
+				kw['errmsg'] = 'no'
 
 	if not 'execute' in kw:
 		kw['execute'] = False

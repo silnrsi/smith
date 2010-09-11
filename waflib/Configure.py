@@ -398,15 +398,23 @@ def find_file(self, filename, path_list=[]):
 	self.fatal('Could not find %r' % filename)
 
 @conf
-def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
-	"""Search for a program on the operating system"""
+def find_program(self, filename, **kw):
+	"""
+	Search for a program on the operating system
+	Additional arguments in kw:
+	* path_list: list of paths to look into
+	* var: store the result to conf.env[var], by default use filename.upper()
+	* ext: list of extensions for the binary (do not forget the empty extension)
+	"""
 
-	if not environ:
-		environ = os.environ
+	exts = kw.get('exts', Options.platform == 'win32' and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
+
+	environ = kw.get('environ', os.environ)
 
 	ret = ''
 	filename = Utils.to_list(filename)
 
+	var = kw.get('var', '')
 	if not var:
 		var = filename[0].upper()
 
@@ -416,6 +424,7 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 		ret = environ[var]
 
 	if not ret:
+		path_list = kw.get('path_list', '')
 		if path_list:
 			path_list = Utils.to_list(path_list)
 		else:
@@ -423,10 +432,6 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 
 		if not isinstance(filename, list):
 			filename = [filename]
-
-		if not exts:
-			if Options.platform == 'win32':
-				exts = '.exe,.com,.bat,.cmd'
 
 		for a in exts.split(','):
 			if ret:
@@ -445,7 +450,7 @@ def find_program(self, filename, path_list=[], var=None, environ=None, exts=''):
 	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 
 	if not ret:
-		self.fatal('Could not find the program %s' % ','.join(filename))
+		self.fatal(kw.get('errmsg', '') or 'Could not find the program %s' % ','.join(filename))
 
 	if var:
 		self.env[var] = ret
