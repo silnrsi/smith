@@ -423,8 +423,8 @@ def find_program(self, filename, **kw):
 	elif var in environ:
 		ret = environ[var]
 
+	path_list = kw.get('path_list', '')
 	if not ret:
-		path_list = kw.get('path_list', '')
 		if path_list:
 			path_list = Utils.to_list(path_list)
 		else:
