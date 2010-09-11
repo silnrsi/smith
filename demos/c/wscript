@@ -30,7 +30,6 @@ def configure(conf):
 	conf.write_config_header('config.h')
 
 def build(bld):
-
 	bld.env.DEFINES=['WAF=1']
 
 	bld.recurse('program stlib shlib')
@@ -40,11 +39,20 @@ def build(bld):
 	bld.install_as('${PREFIX}/gnigni.txt', 'wscript')
 	bld.symlink_as('${PREFIX}/libfoo.so', 'wscript')
 
-
 	bld.env.FOO =['m', 'ncurses']
 	bld.env.ST = '-L%s'
 	bld(rule='echo ${ST:FOO}', always=True, shell=1)
 
+	# illustrate how to add a command 'foo' and to execute things in it
+	if bld.cmd == 'foo':
+		def bar(bld):
+			print('myprogram exit status is',
+				bld.exec_command(bld.get_tgen_by_name('myprogram').link_task.outputs[0].abspath()))
+		bld.add_post_fun(bar)
+
+from waflib.Build import BuildContext
+class foo_class(BuildContext):
+	cmd = 'foo'
 
 from waflib.Context import Context
 class package_class(Context):
