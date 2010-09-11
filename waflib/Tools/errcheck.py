@@ -21,7 +21,7 @@ typos = {
 
 meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 
-from waflib import Logs, Build
+from waflib import Logs, Build, Node
 import waflib.Tools.ccroot
 
 def replace(m):
@@ -42,6 +42,15 @@ def replace(m):
 def enhance_lib():
 	for m in meths_typos:
 		replace(m)
+
+	# catch '..' in ant_glob patterns
+	old_ant_glob = Node.Node.ant_glob
+	def ant_glob(self, *k, **kw):
+		for x in k[0].split('/'):
+			if x == '..':
+				Logs.error("In ant_glob pattern %r: '..' means 'any character, two times', not 'parent directory'" % k[0])
+		return old_ant_glob(self, *k, **kw)
+	Node.Node.ant_glob = ant_glob
 
 def options(opt):
 	"""
