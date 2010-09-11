@@ -387,6 +387,7 @@ class Node(object):
 		This method is used for finding files across folders. It behaves like ant patterns:
 		**/* find all files recursively
 		**/*.class find all files ending by .class
+		.. find all files having two characters such as 'aa' or 'bb'
 		for more information see http://ant.apache.org/manual/dirtasks.html
 		IMPORTANT: the nodes that correspond to files and folders that do not exist will be removed
 
