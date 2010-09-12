@@ -2,31 +2,61 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='cxx_test'
 
-# these variables are mandatory ('/' are converted automatically)
 top = '.'
 out = 'build'
-
-from waflib.Build import BuildContext
 
 def options(opt):
 	opt.load('compiler_cxx')
 
+def build(bld):
+	bld.fatal('no build here, only the configuration is interesting')
+
 def configure(conf):
 	conf.load('compiler_cxx')
+	conf.multicheck(
+		{'header':'stdio.h'},
+		{'header':'unistd.h'}
+	)
 
-	bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
-	bld.all_envs['default'] = conf.env
-	bld.init_dirs()
-	bld.logger = make_logger('test1', conf.logger)
-	bld.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
-	bld.logger.memhandler.flush()
+# ------------------------------------------------------------------------
 
-def build(bld):
-	pass
+from waflib.Build import BuildContext
+from waflib.Runner import Parallel
+from waflib.Task import TaskBase
+
+class cfgtask(TaskBase):
+	def run(self):
+		print "cool, executing a task!"
+		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
+		bld.all_envs['default'] = conf.env
+		bld.init_dirs()
+		bld.logger = make_logger('test1', conf.logger)
+		bld.check(**self.args)
+		#bld.logger.memhandler.flush()
+
+from waflib.Configure import conf
+
+@conf
+def multicheck(self, *k):
+	"""
+	pass a tuple of checks to perform in parallel
+	"""
+	tasks = [cfgtask(bld=self, generator=self, args=dct) for dct in k]
+
+	class fu(object):
+		def total(self):
+			return len(tasks)
+
+	def it():
+		yield tasks
+		while 1:
+			yield []
+	p = Parallel(fu(), 2) # 2 jobs, for testing
+	p.biter = it()
+	p.start()
 
 import logging
 from logging.handlers import MemoryHandler
