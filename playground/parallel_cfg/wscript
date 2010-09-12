@@ -42,6 +42,14 @@ def make_logger(name, to_log):
 	logger.setLevel(logging.DEBUG)
 	return logger
 
+class SilentBuildContext(BuildContext):
+	def start_msg(self, *k, **kw):
+		pass
+	def end_msg(self, *k, **kw):
+		pass
+	def msg(self, *k, **kw):
+		pass
+
 class cfgtask(TaskBase):
 	def display(self):
 		return ''
@@ -50,18 +58,22 @@ class cfgtask(TaskBase):
 		return Task.RUN_ME
 
 	def run(self):
+		#print "begin run", self.args
 		conf = self.conf
-		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
+		bld = SilentBuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
 		bld.all_envs['default'] = conf.env
 		bld.init_dirs()
 		bld.logger = self.logger
 		bld.check(**self.args)
+		#print "end run", self.args
 
 @conf
 def multicheck(self, *k):
 	"""
 	pass a tuple of checks to perform in parallel
 	"""
+	self.start_msg('Executing %d configuration tests' % len(k))
+
 	class fu(object):
 		def __init__(self):
 			self.keep = False
@@ -94,4 +106,6 @@ def multicheck(self, *k):
 	# flush the logs in order into the config.log
 	for x in tasks:
 		x.logger.memhandler.flush()
+
+	self.end_msg('ok')
 
