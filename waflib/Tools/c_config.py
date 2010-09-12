@@ -505,9 +505,12 @@ COMPILE_ERRORS = 2
 @conf
 def run_c_code(self, *k, **kw):
 	"""
-	To use the cache in your scripts, provide:
+	To use the cache in your scripts, provide the following option
+	and execute  "waf configure --confcache"
+
 	def options(opt):
-		opt.add_option(...)
+		opt.add_option('--confcache', dest='confcache', default=0,
+			action='count', help='Use a configuration cache')
 	"""
 
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
