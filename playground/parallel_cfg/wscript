@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+# the following two variables are used by the target "waf dist"
+VERSION='0.0.1'
+APPNAME='cxx_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.load('compiler_cxx')
+
+def configure(conf):
+
+	test1 = make_logger('test1', conf.logger)
+	test1.debug('1111')
+	test2 = make_logger('test2', conf.logger)
+	test2.debug('2222')
+	test2.memhandler.flush()
+	test1.memhandler.flush()
+
+	return
+	conf.load('compiler_cxx')
+	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
+	from waflib import Logs
+	bld.logger = make_logger('build', self.log) # just to get a clean output
+	bld.check(header_name='sadlib.h', features='cxx cprogram', mandatory=False)
+	bld.logger = None
+
+def build(bld):
+	pass
+
+import logging
+from logging.handlers import MemoryHandler
+def make_logger(name, to_log):
+	logger = logging.getLogger(name)
+	hdlr = MemoryHandler(10000, target=to_log)
+	formatter = logging.Formatter('%(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr)
+	logger.memhandler = hdlr
+	logger.setLevel(logging.DEBUG)
+	return logger
+
