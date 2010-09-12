@@ -28,6 +28,19 @@ from waflib import Task
 from waflib.Build import BuildContext
 from waflib.Runner import Parallel
 from waflib.Task import TaskBase
+from waflib.Configure import conf
+
+import logging
+from logging.handlers import MemoryHandler
+def make_logger(name, to_log):
+	logger = logging.getLogger(name)
+	hdlr = MemoryHandler(10000, target=to_log)
+	formatter = logging.Formatter('%(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr)
+	logger.memhandler = hdlr
+	logger.setLevel(logging.DEBUG)
+	return logger
 
 class cfgtask(TaskBase):
 	def display(self):
@@ -43,8 +56,6 @@ class cfgtask(TaskBase):
 		bld.init_dirs()
 		bld.logger = self.logger
 		bld.check(**self.args)
-
-from waflib.Configure import conf
 
 @conf
 def multicheck(self, *k):
@@ -83,16 +94,4 @@ def multicheck(self, *k):
 	# flush the logs in order into the config.log
 	for x in tasks:
 		x.logger.memhandler.flush()
-
-import logging
-from logging.handlers import MemoryHandler
-def make_logger(name, to_log):
-	logger = logging.getLogger(name)
-	hdlr = MemoryHandler(10000, target=to_log)
-	formatter = logging.Formatter('%(message)s')
-	hdlr.setFormatter(formatter)
-	logger.addHandler(hdlr)
-	logger.memhandler = hdlr
-	logger.setLevel(logging.DEBUG)
-	return logger
 
