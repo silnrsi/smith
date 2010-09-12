@@ -238,7 +238,7 @@ class BuildContext(Context.Context):
 
 		self.init_dirs()
 
-	def save(self):
+	def store(self):
 		"Stores the cache on disk (pickle), see self.load - uses a temporary file to avoid problems with ctrl+c"
 
 		data = {}
@@ -276,11 +276,11 @@ class BuildContext(Context.Context):
 			self.producer.start() # vroom
 		except KeyboardInterrupt:
 			if self.producer.dirty:
-				self.save()
+				self.store()
 			raise
 		else:
 			if self.producer.dirty:
-				self.save()
+				self.store()
 
 		if self.producer.error:
 			raise Errors.BuildError(self.producer.error)
@@ -877,7 +877,7 @@ class CleanContext(BuildContext):
 		try:
 			self.clean()
 		finally:
-			self.save()
+			self.store()
 
 	def clean(self):
 		"""clean the data and some files in the build dir .. well, TODO"""
@@ -992,6 +992,6 @@ class StepContext(BuildContext):
 							ret = tsk.run()
 							Logs.info('%s -> %r' % (str(tsk), ret))
 
-BuildContext.save = Utils.nogc(BuildContext.save)
+BuildContext.store = Utils.nogc(BuildContext.store)
 BuildContext.load = Utils.nogc(BuildContext.load)
 
