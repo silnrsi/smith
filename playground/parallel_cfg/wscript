@@ -17,23 +17,32 @@ def build(bld):
 def configure(conf):
 	conf.load('compiler_cxx')
 	conf.multicheck(
-		{'header':'stdio.h'},
-		{'header':'unistd.h'}
+		{'header_name':'stdio.h'},
+		{'header_name':'unistd.h'},
+		{'header_name':'stdlib.h'}
 	)
 
 # ------------------------------------------------------------------------
 
+from waflib import Task
 from waflib.Build import BuildContext
 from waflib.Runner import Parallel
 from waflib.Task import TaskBase
 
 class cfgtask(TaskBase):
+	def display(self):
+		return ''
+
+	def runnable_status(self):
+		return Task.RUN_ME
+
 	def run(self):
-		print "cool, executing a task!"
+		conf = self.conf
 		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
 		bld.all_envs['default'] = conf.env
 		bld.init_dirs()
-		bld.logger = make_logger('test1', conf.logger)
+		#bld.logger = make_logger('test1', conf.logger)
+		bld.logger = conf.logger
 		bld.check(**self.args)
 		#bld.logger.memhandler.flush()
 
@@ -44,17 +53,29 @@ def multicheck(self, *k):
 	"""
 	pass a tuple of checks to perform in parallel
 	"""
-	tasks = [cfgtask(bld=self, generator=self, args=dct) for dct in k]
-
 	class fu(object):
+		def __init__(self):
+			self.keep = False
 		def total(self):
 			return len(tasks)
+		def to_log(self, *k, **kw):
+			return
+
+	bld = fu()
+	tasks = []
+	for dct in k:
+		x = cfgtask(bld=bld)
+		tasks.append(x)
+		x.args = dct
+		x.bld = bld
+		x.conf = self
+		x.args = dct
 
 	def it():
 		yield tasks
 		while 1:
 			yield []
-	p = Parallel(fu(), 2) # 2 jobs, for testing
+	p = Parallel(bld, 3) # 3 jobs, for testing purposes
 	p.biter = it()
 	p.start()
 
