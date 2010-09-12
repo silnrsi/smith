@@ -10,25 +10,20 @@ APPNAME='cxx_test'
 top = '.'
 out = 'build'
 
+from waflib.Build import BuildContext
+
 def options(opt):
 	opt.load('compiler_cxx')
 
 def configure(conf):
-
-	test1 = make_logger('test1', conf.logger)
-	test1.debug('1111')
-	test2 = make_logger('test2', conf.logger)
-	test2.debug('2222')
-	test2.memhandler.flush()
-	test1.memhandler.flush()
-
-	return
 	conf.load('compiler_cxx')
-	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
-	from waflib import Logs
-	bld.logger = make_logger('build', self.log) # just to get a clean output
-	bld.check(header_name='sadlib.h', features='cxx cprogram', mandatory=False)
-	bld.logger = None
+
+	bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
+	bld.all_envs['default'] = conf.env
+	bld.init_dirs()
+	bld.logger = make_logger('test1', conf.logger)
+	bld.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
+	bld.logger.memhandler.flush()
 
 def build(bld):
 	pass
