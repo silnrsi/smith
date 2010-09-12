@@ -566,17 +566,21 @@ def run_c_code(self, *k, **kw):
 
 	# compile the program
 	bld.targets = '*'
+
+	ret = -1
 	try:
-		bld.compile()
-	except Errors.WafError:
-		self.fatal('Test does not build: %s' % Utils.ex_stack())
+		try:
+			bld.compile()
+		except Errors.WafError:
+			self.fatal('Test does not build: %s' % Utils.ex_stack())
+		else:
+			ret = getattr(bld, 'retval', 0)
+	finally:
+		# cache the results each time
+		proj = ConfigSet.ConfigSet()
+		proj['cache_run_c_code'] = ret
+		proj.store(os.path.join(dir, 'cache_run_c_code'))
 
-	ret = getattr(bld, 'retval', 0)
-
-	# cache the results each time
-	proj = ConfigSet.ConfigSet()
-	proj['cache_run_c_code'] = ret
-	proj.store(os.path.join(dir, 'cache_run_c_code'))
 	return ret
 
 @conf
