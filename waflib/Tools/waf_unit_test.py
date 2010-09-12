@@ -84,7 +84,7 @@ class utest(Task.Task):
 	vars = []
 	def runnable_status(self):
 		ret = super(utest, self).runnable_status()
-		if ret == Task.RUN_ME:
+		if ret == Task.SKIP_ME:
 			if getattr(Options.options, 'all_tests', False):
 				return Task.RUN_ME
 			else:
