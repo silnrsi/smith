@@ -41,10 +41,8 @@ class cfgtask(TaskBase):
 		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
 		bld.all_envs['default'] = conf.env
 		bld.init_dirs()
-		#bld.logger = make_logger('test1', conf.logger)
-		bld.logger = conf.logger
+		bld.logger = self.logger
 		bld.check(**self.args)
-		#bld.logger.memhandler.flush()
 
 from waflib.Configure import conf
 
@@ -71,6 +69,9 @@ def multicheck(self, *k):
 		x.conf = self
 		x.args = dct
 
+		# bind a logger that will keep the info in memory
+		x.logger = make_logger(str(id(x)), self.logger)
+
 	def it():
 		yield tasks
 		while 1:
@@ -78,6 +79,10 @@ def multicheck(self, *k):
 	p = Parallel(bld, 3) # 3 jobs, for testing purposes
 	p.biter = it()
 	p.start()
+
+	# flush the logs in order into the config.log
+	for x in tasks:
+		x.logger.memhandler.flush()
 
 import logging
 from logging.handlers import MemoryHandler
