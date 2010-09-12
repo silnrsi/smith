@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006-2010 (ita)
+# Thomas Nagy, 2010 (ita)
 
 VERSION='0.0.1'
 APPNAME='cxx_test'
@@ -22,6 +22,7 @@ def configure(conf):
 		{'header_name':'stdlib.h'}
 	)
 
+# the details below
 # ------------------------------------------------------------------------
 
 from waflib import Task
@@ -33,6 +34,9 @@ from waflib.Configure import conf
 import logging
 from logging.handlers import MemoryHandler
 def make_logger(name, to_log):
+	"""
+	create a memory logger to avoid writing concurrently to the main logger
+	"""
 	logger = logging.getLogger(name)
 	hdlr = MemoryHandler(10000, target=to_log)
 	formatter = logging.Formatter('%(message)s')
@@ -42,15 +46,13 @@ def make_logger(name, to_log):
 	logger.setLevel(logging.DEBUG)
 	return logger
 
-class SilentBuildContext(BuildContext):
-	def start_msg(self, *k, **kw):
-		pass
-	def end_msg(self, *k, **kw):
-		pass
-	def msg(self, *k, **kw):
-		pass
-
 class cfgtask(TaskBase):
+	"""
+	A task that executes configuration tests
+	make sure that the checks write to conf.env in a thread-safe manner
+
+	for the moment it only executes conf.check
+	"""
 	def display(self):
 		return ''
 
@@ -58,19 +60,18 @@ class cfgtask(TaskBase):
 		return Task.RUN_ME
 
 	def run(self):
-		#print "begin run", self.args
 		conf = self.conf
-		bld = SilentBuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
+		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
 		bld.all_envs['default'] = conf.env
 		bld.init_dirs()
+		bld.in_msg = 1 # suppress top-level start_msg
 		bld.logger = self.logger
 		bld.check(**self.args)
-		#print "end run", self.args
 
 @conf
 def multicheck(self, *k):
 	"""
-	pass a tuple of checks to perform in parallel
+	use tuples to perform parallel configuration tests
 	"""
 	self.start_msg('Executing %d configuration tests' % len(k))
 
