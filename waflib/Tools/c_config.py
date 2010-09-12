@@ -531,7 +531,10 @@ def run_c_code(self, *k, **kw):
 	if cachemode == CACHE_RESULTS:
 		try:
 			proj = ConfigSet.ConfigSet(os.path.join(dir, 'cache_run_c_code'))
-			return proj['cache_run_c_code']
+			ret = proj['cache_run_c_code']
+			if ret.startswith('Test does not build'):
+				self.fatal(ret)
+			return ret
 		except:
 			pass
 
@@ -572,7 +575,8 @@ def run_c_code(self, *k, **kw):
 		try:
 			bld.compile()
 		except Errors.WafError:
-			self.fatal('Test does not build: %s' % Utils.ex_stack())
+			ret = 'Test does not build: %s' % Utils.ex_stack()
+			self.fatal(ret)
 		else:
 			ret = getattr(bld, 'retval', 0)
 	finally:
