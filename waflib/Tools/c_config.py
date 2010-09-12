@@ -7,7 +7,7 @@ c/c++ configuration routines
 """
 
 import os, imp, sys, shlex, shutil
-from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors
+from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet
 from waflib.TaskGen import before, after, feature
 from waflib.Configure import conf
 from waflib.Utils import subprocess
@@ -499,8 +499,17 @@ def test_exec_fun(self):
 	"""
 	self.create_task('test_exec', self.link_task.outputs[0])
 
+CACHE_RESULTS = 1
+COMPILE_ERRORS = 2
+
 @conf
 def run_c_code(self, *k, **kw):
+	"""
+	To use the cache in your scripts, provide:
+	def options(opt):
+		opt.add_option(...)
+	"""
+
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
 	h = Utils.h_list(lst)
 	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
@@ -515,13 +524,22 @@ def run_c_code(self, *k, **kw):
 	except:
 		self.fatal('cannot use the configuration test folder %r' % dir)
 
+	cachemode = getattr(Options.options, 'confcache', None)
+	if cachemode == CACHE_RESULTS:
+		try:
+			proj = ConfigSet.ConfigSet(os.path.join(dir, 'cache_run_c_code'))
+			return proj['cache_run_c_code']
+		except:
+			pass
+
 	bdir = os.path.join(dir, 'testbuild')
 
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
 	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir) # keep the temporary build context on an attribute for debugging
-	if getattr(Options.options, 'confcache', None):
+	if cachemode == COMPILE_ERRORS:
+		# TODO unlikely to be used, remove
 		bld.load()
 	else:
 		bld.init_dirs()
@@ -550,7 +568,13 @@ def run_c_code(self, *k, **kw):
 	except Errors.WafError:
 		self.fatal('Test does not build: %s' % Utils.ex_stack())
 
-	return getattr(bld, 'retval', 0)
+	ret = getattr(bld, 'retval', 0)
+
+	# cache the results each time
+	proj = ConfigSet.ConfigSet()
+	proj['cache_run_c_code'] = ret
+	proj.store(os.path.join(dir, 'cache_run_c_code'))
+	return ret
 
 @conf
 def check_cxx(self, *k, **kw):
