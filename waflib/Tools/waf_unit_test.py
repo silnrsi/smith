@@ -87,8 +87,6 @@ class utest(Task.Task):
 		if ret == Task.SKIP_ME:
 			if getattr(Options.options, 'all_tests', False):
 				return Task.RUN_ME
-			else:
-				return Task.SKIP_ME
 		return ret
 
 def summary(bld):
