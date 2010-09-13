@@ -9,7 +9,7 @@ import Utils, TaskGen, Task, Runner, Build
 from TaskGen import feature, before
 from Logs import error, warn, debug
 
-re_tex = re.compile(r'\\(?P<type>include|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
+re_tex = re.compile(r'\\(?P<type>include|bibliography|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 def scan(self):
 	node = self.inputs[0]
 	env = self.env
@@ -23,7 +23,7 @@ def scan(self):
 	for match in re_tex.finditer(code):
 		path = match.group('file')
 		if path:
-			for k in ['', '.tex', '.ltx']:
+			for k in ['', '.tex', '.ltx', '.bib']:
 				# add another loop for the tex include paths?
 				debug('tex: trying %s%s' % (path, k))
 				fi = node.parent.find_resource(path + k)
