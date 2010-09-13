@@ -29,7 +29,7 @@ def scan(self):
 				fi = node.parent.find_resource(path + k)
 				if fi:
 					nodes.append(fi)
-					break
+					# no break, people are crazy
 			else:
 				debug('tex: could not find %s' % path)
 				names.append(path)
