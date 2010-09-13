@@ -532,11 +532,12 @@ def run_c_code(self, *k, **kw):
 		try:
 			proj = ConfigSet.ConfigSet(os.path.join(dir, 'cache_run_c_code'))
 			ret = proj['cache_run_c_code']
-			if ret.startswith('Test does not build'):
-				self.fatal(ret)
-			return ret
 		except:
 			pass
+		else:
+			if isinstance(ret, str) and ret.startswith('Test does not build'):
+				self.fatal(ret)
+			return ret
 
 	bdir = os.path.join(dir, 'testbuild')
 
