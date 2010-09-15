@@ -22,7 +22,7 @@ class WafError(Exception):
 			for i in range(len(self.stack)):
 				tup = self.stack[i]
 				if tup[0] == '<string>':
-					self.msg = "%s:%d %s" % (pyfile, tup[1], self.msg)
+					self.msg = "in %s:%d %s" % (pyfile, tup[1], self.msg)
 					self.stack[i] = [pyfile] + list(tup[1:])
 					break
 			else:
@@ -31,8 +31,6 @@ class WafError(Exception):
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
 	def __str__(self):
-		if self.pyfile:
-			return "in %s: %s" % (self.pyfile, str(self.msg))
 		return str(self.msg)
 
 class BuildError(WafError):
