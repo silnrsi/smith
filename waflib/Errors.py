@@ -15,7 +15,7 @@ class WafError(Exception):
 			self.msg = str(msg)
 			self.stack = traceback.extract_tb(sys.exc_info()[2])
 		else:
-			self.stack = traceback.extract_stack()
+			self.stack = traceback.extract_stack()[:-1]
 
 		# modify the stack to add the file name
 		if pyfile:
