@@ -381,7 +381,7 @@ def fatal(self, msg):
 		msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
 	except:
 		pass
-	raise self.errors.ConfigurationError(msg)
+	raise self.errors.ConfigurationError(msg, pyfile=self.path.abspath())
 
 @conf
 def find_file(self, filename, path_list=[]):
