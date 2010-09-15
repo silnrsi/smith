@@ -108,7 +108,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	try:
 		run_commands()
 	except Errors.WafError as e:
-		if Logs.verbose:
+		if Logs.verbose > 1:
 			Logs.pprint('RED', e.verbose_msg)
 		Logs.error(e.msg)
 		sys.exit(1)
