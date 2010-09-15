@@ -145,7 +145,7 @@ class task_gen(object):
 						tmp.append(x)
 
 		if prec:
-			raise Errors.WafError("graph has a cycle %s" % str(prec))
+			raise Errors.WafError('Cycle detected in the method execution %r' % prec)
 		out.reverse()
 		self.meths = out
 

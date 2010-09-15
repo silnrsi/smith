@@ -205,7 +205,7 @@ class Context(ctx):
 				try:
 					exec(function_code, self.exec_dict)
 				except Exception as e:
-					raise Errors.WafError(e, d)
+					raise Errors.WafError(ex=e, pyfile=d)
 				self.post_recurse(node)
 
 			else:
@@ -321,7 +321,7 @@ class Context(ctx):
 				self.to_log(str(err))
 			except:
 				pass
-			raise Errors.WafError('execution failure %r' % e)
+			raise Errors.WafError('Execution failure', ex=e)
 
 		if not isinstance(out, str):
 			out = out.decode('utf-8')
@@ -420,7 +420,7 @@ def load_module(file_path):
 	try:
 		exec(code, module.__dict__)
 	except Exception as e:
-		raise Errors.WafError(e, file_path)
+		raise Errors.WafError(ex=e, pyfile=file_path)
 	sys.path.remove(module_dir)
 
 	cache_modules[file_path] = module
