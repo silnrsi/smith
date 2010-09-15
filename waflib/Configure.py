@@ -374,16 +374,6 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	self.end_msg('ok')
 
 @conf
-def fatal(self, msg):
-	"""raise a configuration error"""
-	self.to_log('from %s: %s' % (self.path.abspath(), msg))
-	try:
-		msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
-	except:
-		pass
-	raise self.errors.ConfigurationError(msg, pyfile=self.path.abspath())
-
-@conf
 def find_file(self, filename, path_list=[]):
 	"""finds a file in a list of paths
 	@param filename: name of the file to search for

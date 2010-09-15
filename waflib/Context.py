@@ -220,6 +220,15 @@ class Context(ctx):
 				user_function(self)
 				self.post_recurse(node)
 
+	def fatal(self, msg):
+		"""raise a configuration error"""
+		self.to_log('from %s: %s' % (self.path.abspath(), msg))
+		try:
+			msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
+		except:
+			pass
+		raise self.errors.ConfigurationError(msg, pyfile=self.path.abspath())
+
 	def to_log(self, var):
 		if not var:
 			return
