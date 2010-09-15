@@ -6,28 +6,28 @@ import traceback, os, sys
 
 class WafError(Exception):
 	"""Base for all waf errors"""
-	def __init__(self, msg, pyfile=None):
+	def __init__(self, msg='', ex=None, pyfile=None):
 		"""the parameter msg can be an error message or an exception"""
 		self.msg = msg
 		self.pyfile = pyfile
 
-		if isinstance(msg, Exception):
-			self.msg = str(msg)
+		assert not isinstance(msg, Exception)
+
+		self.stack = []
+		if ex:
+			if not msg:
+				self.msg = str(ex)
 			self.stack = traceback.extract_tb(sys.exc_info()[2])
-		else:
-			self.stack = traceback.extract_stack()[:-1]
+		self.stack += traceback.extract_stack()[:-1]
 
 		# modify the stack to add the file name
 		if pyfile:
 			for i in range(len(self.stack)):
 				tup = self.stack[i]
 				if tup[0] == '<string>':
-					self.msg = "in %s:%d %s" % (pyfile, tup[1], self.msg)
+					#self.msg = "in %s:%d %s" % (pyfile, tup[1], self.msg)
 					self.stack[i] = [pyfile] + list(tup[1:])
-					break
-			else:
-				self.msg = self.msg.replace('<string>', pyfile)
-
+			self.msg = self.msg.replace('<string>', pyfile)
 		self.verbose_msg = ''.join(traceback.format_list(self.stack))
 
 	def __str__(self):
