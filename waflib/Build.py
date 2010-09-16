@@ -150,7 +150,7 @@ class BuildContext(Context.Context):
 				self.all_envs[name] = env
 
 				for f in env[CFG_FILES]:
-					newnode = self.path.find_or_declare(f)
+					newnode = self.root.find_resource(f)
 					try:
 						h = Utils.h_file(newnode.abspath())
 					except (IOError, AttributeError):

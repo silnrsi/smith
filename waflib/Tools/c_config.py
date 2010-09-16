@@ -700,7 +700,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, defi
 	env = env or self.env
 
 	# config files are not removed on "waf clean"
-	env.append_unique(Build.CFG_FILES, [node.path_from(self.bldnode)])
+	env.append_unique(Build.CFG_FILES, [node.abspath()])
 
 	if remove:
 		for key in self.env[DEFKEYS]:
