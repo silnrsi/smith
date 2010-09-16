@@ -15,9 +15,15 @@ def options(opt):
 
 def configure(conf):
 	conf.load('compiler_c')
+	conf.define("A", 1)
+	# the configuration file must be written in each variant
+	conf.write_config_header('config.h', remove=False)
+	conf.write_config_header('debug/config.h', remove=False)
 
 def build(bld):
-	bld.program(source='main.c', target='app')
+	# the includes='.' add the build directory path to the command arguments
+	# (look at the -I flags by using waf -v)
+	bld.program(source='main.c', target='app', includes='.')
 
 	if bld.variant == 'debug':
 		bld.env.append_value('CCFLAGS', ['-O2'])
