@@ -606,7 +606,7 @@ def define(self, key, val, quote=True):
 	"""
 	assert key and isinstance(key, str)
 
-	if isinstance(val, int):
+	if isinstance(val, int) or isinstance(val, float):
 		s = '%s=%s'
 	else:
 		s = quote and '%s="%s"' or '%s=%s'
