@@ -17,6 +17,7 @@ def configure(conf):
 	conf.load('compiler_c')
 	conf.define("A", 1)
 	conf.define("B", 1.1)
+	conf.define("C", "1.1e19", quote=False)
 	# the configuration file must be written in each variant
 	conf.write_config_header('config.h', remove=False)
 	conf.write_config_header('debug/config.h', remove=False)
