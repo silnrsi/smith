@@ -386,12 +386,16 @@ class Timer(object):
 if is_win32:
 	old = shutil.copy2
 	def copy2(src, dst):
+		"""
+		shutil.copy2 does not copy the file attributes on windows, so we
+		hack into the shutil module to fix the problem
+		"""
 		old(src, dst)
 		shutil.copystat(src, src)
 	setattr(shutil, 'copy2', copy2)
 
 if os.name == 'java':
-	# For Jython (they should really fix the inconsistency)
+	# Jython cannot disable the gc but they can enable it ... wtf?
 	try:
 		gc.disable()
 		gc.enable()
@@ -399,7 +403,7 @@ if os.name == 'java':
 		gc.disable = gc.enable
 
 def read_la_file(path):
-	"""untested, used by msvc.py, unclosed file risk"""
+	"""Untested, used by msvc.py, unclosed file risk"""
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
 	dc = {}
 	file = open(path, "r")
@@ -413,6 +417,10 @@ def read_la_file(path):
 	return dc
 
 def nogc(fun):
+	"""
+	Disable the gc in a particular method execution
+	Used with pickle for storing/loading the build cache file
+	"""
 	def f(*k, **kw):
 		try:
 			gc.disable()
@@ -421,7 +429,6 @@ def nogc(fun):
 			gc.enable()
 		return ret
 	return f
-
 
 def h_rec(obj):
 	"""compute the hash of a complex object (dict of lists, etc)"""
