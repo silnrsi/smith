@@ -66,7 +66,10 @@ classes = {}
 "class tasks created by user scripts or Waf tools are kept in this dict name -> class object"
 
 class store_task_type(type):
-	"store the task types that have a name ending in _task into a map (remember the existing task types)"
+	"""
+	store the task types that have a name ending in _task into a map (remember the existing task types)
+	the attribute 'run_str' will be processed to compute a method 'run' on the task class
+	"""
 	def __init__(cls, name, bases, dict):
 		super(store_task_type, cls).__init__(name, bases, dict)
 		name = cls.__name__
@@ -129,7 +132,7 @@ class TaskBase(evil):
 			self.generator = self
 
 	def __repr__(self):
-		"used for debugging"
+		"for debugging purposes"
 		return '\n\t{task: %s %s}' % (self.__class__.__name__, str(getattr(self, "fun", "")))
 
 	def __str__(self):
@@ -139,6 +142,7 @@ class TaskBase(evil):
 		return self.__class__.__name__ + '\n'
 
 	def __hash__(self):
+		"very fast hashing scheme but not persistent (replace/implement in subclasses and see Task.uid)"
 		return id(self)
 
 	def exec_command(self, cmd, **kw):
@@ -261,6 +265,7 @@ class Task(TaskBase):
 		return '%s: %s%s%s\n' % (self.__class__.__name__.replace('_task', ''), src_str, sep, tgt_str)
 
 	def __repr__(self):
+		"for debugging purposes"
 		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
 	def uid(self):
@@ -278,10 +283,12 @@ class Task(TaskBase):
 			return self.uid_
 
 	def set_inputs(self, inp):
+		"access the input attribute"
 		if isinstance(inp, list): self.inputs += inp
 		else: self.inputs.append(inp)
 
 	def set_outputs(self, out):
+		"access the output attribute"
 		if isinstance(out, list): self.outputs += out
 		else: self.outputs.append(out)
 
@@ -291,13 +298,16 @@ class Task(TaskBase):
 		assert isinstance(task, TaskBase)
 		self.run_after.add(task)
 
-	#def add_file_dependency(self, filename):
-	#	"TODO user-provided file dependencies"
-	#	node = self.generator.bld.path.find_resource(filename)
-	#	self.dep_nodes.append(node)
-
 	def signature(self):
-		# compute the result one time, and suppose the scan_signature will give the good result
+		"""
+		Task signatures are stored between build executions, they are use to track the changes
+		made to the input nodes (not to the outputs!). The signature hashes data from various sources:
+		* files listed in the inputs (list of node objects)
+		* list of nodes returned by scanner methods (when present)
+		* variables/values read from task.__class__.vars/task.env
+
+		if the signature is expected to give a different result, clear the result stored in self.cache_sig
+		"""
 		try: return self.cache_sig
 		except AttributeError: pass
 
@@ -310,7 +320,7 @@ class Task(TaskBase):
 		# env vars
 		self.sig_vars()
 
-		# implicit deps
+		# implicit deps / scanner results
 		if self.scan:
 			try:
 				imp_sig = self.sig_implicit_deps()
@@ -321,7 +331,7 @@ class Task(TaskBase):
 		return ret
 
 	def runnable_status(self):
-		"SKIP_ME RUN_ME or ASK_LATER"
+		"return a status to tell if the task must be executed or not, see the constants SKIP_ME RUN_ME or ASK_LATER"
 		#return 0 # benchmarking
 
 		for t in self.run_after:
@@ -356,7 +366,12 @@ class Task(TaskBase):
 		return SKIP_ME
 
 	def post_run(self):
-		"called after a successful task run"
+		"""
+		The method post_run is called after the task is executed successfully
+		It stores the task signature as signature for the output nodes
+		the output nodes may also get the signature of the file contents (a bit slower),
+		a decorator method is provided to provide this behaviour to classes
+		"""
 		bld = self.generator.bld
 		env = self.env
 		sig = self.signature()
@@ -377,6 +392,9 @@ class Task(TaskBase):
 		bld.task_sigs[self.uid()] = self.cache_sig
 
 	def sig_explicit_deps(self):
+		"""
+		Used by Task.signature, hash the input nodes, and perhaps other direct dependencies
+		"""
 		bld = self.generator.bld
 		upd = self.m.update
 
@@ -409,6 +427,9 @@ class Task(TaskBase):
 		return self.m.digest()
 
 	def sig_vars(self):
+		"""
+		Used by Task.signature, hash self.env variables/values
+		"""
 		bld = self.generator.bld
 		env = self.env
 		upd = self.m.update
@@ -424,18 +445,22 @@ class Task(TaskBase):
 
 		return self.m.digest()
 
-	#def scan(self, node):
-	#	"""this method returns a tuple containing:
-	#	* a list of nodes corresponding to real files
-	#	* a list of names for files not found in path_lst
-	#	the input parameters may have more parameters that the ones used below
-	#	"""
-	#	return ((), ())
 	scan = None
+	"""this method, when provided, returns a tuple containing:
+	* a list of nodes corresponding to real files
+	* a list of names for files not found in path_lst
+	example:
 
-	# compute the signature, recompute it if there is no match in the cache
+	def scan(self, node):
+		return ((), ())
+	"""
+
 	def sig_implicit_deps(self):
-		"the signature obtained may not be the one if the files have changed, we do it in two steps"
+		"""
+		Used by Task.signature.
+		A special exception is thrown if a file has changed. When this occurs, Task.signature is called
+		once again, and this method will be executed once again to execute Task.scan for dependencies
+		"""
 
 		bld = self.generator.bld
 
@@ -467,9 +492,11 @@ class Task(TaskBase):
 		return sig
 
 	def compute_sig_implicit_deps(self):
-		"""it is intended for .cpp and inferred .h files
+		"""
+		it is intended for .cpp and inferred .h files
 		there is a single list (no tree traversal)
-		this is a hot spot so ... do not touch"""
+		this is a hot spot so ... do not touch
+		"""
 
 		upd = self.m.update
 
@@ -493,7 +520,7 @@ class Task(TaskBase):
 		return self.m.digest()
 
 def compare_exts(t1, t2):
-	"extension production"
+	"compare the extensions provided/used ext_in/ext_out"
 	x = "ext_in"
 	y = "ext_out"
 	in_ = t1.attr(x, ())
@@ -509,7 +536,7 @@ def compare_exts(t1, t2):
 	return 0
 
 def compare_partial(t1, t2):
-	"partial relations after/before"
+	"order relations between classes after/before"
 	m = "after"
 	n = "before"
 	name = t2.__class__.__name__
@@ -565,6 +592,7 @@ def set_precedence_constraints(tasks):
 				x.run_after.update(cstr_groups[keys[a]])
 
 def funex(c):
+	"""compile a function by 'exec', return the result"""
 	dc = {}
 	exec(c, dc)
 	return dc['f']
@@ -664,7 +692,11 @@ def compile_fun_noshell(line):
 	return (funex(fun), dvars)
 
 def compile_fun(line, shell=False):
-	"commands can be launched by the shell or not"
+	"""
+	parse a string expression such as "${CC} ${SRC} -o ${TGT}" and return a pair containing
+	* the function created as python code
+	* the list of variables that imply a dependency from self.env
+	"""
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		shell = True
 
