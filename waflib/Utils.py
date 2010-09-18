@@ -403,17 +403,15 @@ if os.name == 'java':
 		gc.disable = gc.enable
 
 def read_la_file(path):
-	"""Untested, used by msvc.py, unclosed file risk"""
+	"""Untested, used by msvc.py"""
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
 	dc = {}
-	file = open(path, "r")
-	for line in file.readlines():
+	for line in readf(path).splitlines():
 		try:
 			_, left, right, _ = sp.split(line.strip())
 			dc[left] = right
 		except ValueError:
 			pass
-	file.close()
 	return dc
 
 def nogc(fun):
@@ -450,7 +448,13 @@ def h_rec(obj):
 
 runonce_ret = {}
 def runonce(fun):
-	"""decorator, make a function cache its results"""
+	"""
+	decorator, make a function cache its results, use like this:
+
+	@runonce
+	def foo():
+		return 345*2343
+	"""
 	def wrap(*k, **kw):
 		global runonce_ret
 		key = hash((h_rec(k), h_rec(kw)))
