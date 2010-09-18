@@ -56,9 +56,7 @@ def process_task(tsk):
 
 	try:
 		tsk.generator.bld.to_log(tsk.display())
-		if tsk.__class__.stat: ret = tsk.__class__.stat(tsk)
-		# actual call to task's run() function
-		else: ret = tsk.call_run()
+		ret = tsk.run()
 	except Exception as e:
 		tsk.err_msg = Utils.ex_stack()
 		tsk.hasrun = Task.EXCEPTION

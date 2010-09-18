@@ -24,7 +24,7 @@ Custom task clases may be created by subclassing or factories
 import os, shutil, re
 from waflib import Utils, Logs, Errors
 
-# task state
+# task states
 NOT_RUN = 0
 MISSING = 1
 CRASHED = 2
@@ -63,6 +63,7 @@ def f(tsk):
 '''
 
 classes = {}
+"class tasks created by user scripts or Waf tools are kept in this dict name -> class object"
 
 class store_task_type(type):
 	"store the task types that have a name ending in _task into a map (remember the existing task types)"
@@ -85,8 +86,8 @@ class store_task_type(type):
 			elif getattr(cls, 'run', None) and not getattr(cls, 'hcode', None):
 				cls.hcode = Utils.h_fun(cls.run)
 
-# avoid a metaclass, code can run in python 2.6 and 3.x unmodified
 evil = store_task_type('evil', (object,), {})
+"this variable is used to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
 
 class TaskBase(evil):
 	"""Base class for all Waf tasks
@@ -104,7 +105,6 @@ class TaskBase(evil):
 	"""
 
 	color = "GREEN"
-	stat = None
 
 	ext_in = []
 	"""file extensions that objects of this task class might need"""
@@ -123,7 +123,6 @@ class TaskBase(evil):
 
 	def __init__(self, *k, **kw):
 		self.hasrun = NOT_RUN
-
 		try:
 			self.generator = kw['generator']
 		except KeyError:
@@ -158,9 +157,6 @@ class TaskBase(evil):
 	def runnable_status(self):
 		"RUN_ME SKIP_ME or ASK_LATER"
 		return RUN_ME
-
-	def call_run(self):
-		return self.run()
 
 	def run(self):
 		"called if the task must run"
