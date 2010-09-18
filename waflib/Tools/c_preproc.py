@@ -119,6 +119,12 @@ for x in range(len(ops)):
 	for u in syms.split():
 		prec[u] = x
 
+def trimquotes(s):
+	if not s: return ''
+	s = s.rstrip()
+	if s[0] == "'" and s[-1] == "'": return s[1:-1]
+	return s
+
 def reduce_nums(val_1, val_2, val_op):
 	"""apply arithmetic rules and try to return an integer result"""
 	#print val_1, val_2, val_op
@@ -686,7 +692,7 @@ class c_parser(object):
 
 		# macros may be defined on the command-line, so they must be parsed as if they were part of the file
 		if env['DEFINES']:
-			lst = ['%s %s' % (x[0], Utils.trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
+			lst = ['%s %s' % (x[0], trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
 			lst.reverse()
 			self.lines.extend([('define', x) for x in lst])
 

@@ -266,12 +266,6 @@ def quote_define_name(s):
 	fu = fu.upper()
 	return fu
 
-def trimquotes(s):
-	if not s: return ''
-	s = s.rstrip()
-	if s[0] == "'" and s[-1] == "'": return s[1:-1]
-	return s
-
 def h_list(lst):
 	"""Hash a list."""
 	m = md5()
