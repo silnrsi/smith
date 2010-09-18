@@ -267,13 +267,17 @@ def quote_define_name(s):
 	return fu
 
 def h_list(lst):
-	"""Hash a list."""
+	"""Hash the contents of a list."""
 	m = md5()
 	m.update(str(lst).encode())
 	return m.digest()
 
 def h_fun(fun):
-	"""Get the source of a function for hashing."""
+	"""
+	Get the source of a function for hashing. In cpython, only the functions
+	defined in modules can be hashed, so it will not work for functions defined
+	in wscript files (but it will for the ones defined in Waf tools)
+	"""
 	try:
 		return fun.code
 	except AttributeError:
@@ -355,14 +359,6 @@ def unversioned_sys_platform():
 def nada(*k, **kw):
 	"""A function that does nothing."""
 	pass
-
-def diff_path(top, subdir):
-	"""difference between two absolute paths"""
-	top = os.path.normpath(top).replace('\\', '/').split('/')
-	subdir = os.path.normpath(subdir).replace('\\', '/').split('/')
-	if len(top) == len(subdir): return ''
-	diff = subdir[len(top) - len(subdir):]
-	return os.path.join(*diff)
 
 class Timer(object):
 	"""
