@@ -13,6 +13,15 @@ from waflib import TaskGen, Node, Task, Utils, Build
 from waflib.TaskGen import feature, after, before
 from waflib.Logs import debug
 
+def copy_attrs(orig, dest, names, only_if_set=False):
+	"""
+	copy class attributes from an object to another
+	"""
+	for a in to_list(names):
+		u = getattr(orig, a, ())
+		if u or not only_if_set:
+			setattr(dest, a, u)
+
 def copy_func(tsk):
 	"Make a file copy. This might be used to make other kinds of file processing (even calling a compiler is possible)"
 	env = tsk.env
@@ -379,7 +388,7 @@ use command_is_external=True''') % (self.command,)
 	cwd = self.bld.variant_dir
 	task = command_output(self.env, cmd, cmd_node, self.argv, stdin, stdout, cwd, self.os_env, stderr)
 	task.generator = self
-	Utils.copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
+	copy_attrs(self, task, 'before after ext_in ext_out', only_if_set=True)
 	self.tasks.append(task)
 
 	task.inputs = inputs

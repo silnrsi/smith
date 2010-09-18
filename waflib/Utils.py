@@ -28,7 +28,8 @@ except:
 try:
 	import threading
 except:
-	# broken platforms
+	# broken platforms, these fixes are only to avoid broken imports
+	# use waf -j1 on those platforms
 	class threading(object):
 		pass
 	class Lock(object):
@@ -60,8 +61,10 @@ O755 = 493
 try:
 	from collections import defaultdict
 except ImportError:
-	# defaultdict was introduced in python 2.5
 	class defaultdict(dict):
+		"""
+		defaultdict was introduced in python 2.5, so we leave it for python 2.4 and 2.3
+		"""
 		def __init__(self, default_factory):
 			super(defaultdict, self).__init__()
 			self.default_factory = default_factory
@@ -78,7 +81,7 @@ indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 def readf(fname, m='r'):
 	"""
-	Read an entire file into a string.
+	Read an entire file into a string, in practice yuo should rather use node.read(..)
 	@type  fname: string
 	@param fname: Path to file
 	@type  m: string
@@ -94,6 +97,9 @@ def readf(fname, m='r'):
 	return txt
 
 def h_file(filename):
+	"""
+	compute a hash file, this method may be replaced if necessary
+	"""
 	f = open(filename, 'rb')
 	m = md5()
 	while (filename):
@@ -113,12 +119,18 @@ except:
 		return ret
 else:
 	def to_hex(s):
+		"""
+		return the hexadecimal representation of a string
+		"""
 		return s.encode('hex')
 
 listdir = os.listdir
 if is_win32:
 	def listdir_win32(s):
-
+		"""
+		list the contents of a folder, because the behaviour is platform-dependent
+		you should always use Utils.listdir
+		"""
 		if not s:
 			return []
 
@@ -146,6 +158,9 @@ def num2ver(ver):
 	return ver
 
 def ex_stack():
+	"""
+	extract the stack to display exceptions
+	"""
 	exc_type, exc_value, tb = sys.exc_info()
 	exc_lines = traceback.format_exception(exc_type, exc_value, tb)
 	return ''.join(exc_lines)
@@ -186,6 +201,10 @@ rot_idx = 0
 "Index of the current throbber character"
 
 def split_path(path):
+	"""
+	split a path on unix platforms, os.path.split
+	has a different behaviour so we do not use it
+	"""
 	return path.split('/')
 
 def split_path_cygwin(path):
@@ -207,12 +226,6 @@ if sys.platform == 'cygwin':
 	split_path = split_path_cygwin
 elif is_win32:
 	split_path = split_path_win32
-
-def copy_attrs(orig, dest, names, only_if_set=False):
-	for a in to_list(names):
-		u = getattr(orig, a, ())
-		if u or not only_if_set:
-			setattr(dest, a, u)
 
 def check_dir(path):
 	"""
