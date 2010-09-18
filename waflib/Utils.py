@@ -266,9 +266,6 @@ def quote_define_name(s):
 	fu = fu.upper()
 	return fu
 
-def quote_whitespace(path):
-	return (path.strip().find(' ') > 0 and '"%s"' % path or path).replace('""', '"')
-
 def trimquotes(s):
 	if not s: return ''
 	s = s.rstrip()
