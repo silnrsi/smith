@@ -696,7 +696,7 @@ def compile_fun(line, shell=False):
 	else:
 		return compile_fun_noshell(line)
 
-def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, quiet=False, scan=None):
+def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, scan=None):
 	"""return a new Task subclass with the function run compiled from the line given"""
 
 	params = {
@@ -708,7 +708,6 @@ def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[],
 		'before': Utils.to_list(before),
 		'after': Utils.to_list(after),
 		'shell': shell,
-		'quiet': quiet,
 		'scan': scan,
 	}
 

@@ -78,7 +78,6 @@ def exec_test(self):
 
 class utest(Task.Task):
 	color = 'PINK'
-	quiet = True
 	ext_in = ['.bin']
 	run = exec_test
 	vars = []

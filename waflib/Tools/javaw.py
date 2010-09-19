@@ -136,7 +136,6 @@ def apply_java(self):
 class jar_create(Task.Task):
 	color   = 'GREEN'
 	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
-	quiet   = True
 	after   = ['javac']
 
 	def runnable_status(self):
@@ -152,7 +151,6 @@ class jar_create(Task.Task):
 class javac(Task.Task):
 	color   = 'BLUE'
 	run_str = '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}'
-	quiet   = True
 
 	def runnable_status(self):
 		"""

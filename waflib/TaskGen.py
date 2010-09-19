@@ -342,7 +342,7 @@ def process_rule(self):
 	# create the task class
 	name = getattr(self, 'name', None) or str(self.target) or self.rule
 	cls = Task.task_factory(name, self.rule,
-		getattr(self, 'vars', []), quiet=True,
+		getattr(self, 'vars', []),
 		shell=getattr(self, 'shell', True), color=getattr(self, 'color', 'BLUE'))
 
 	# now create one instance

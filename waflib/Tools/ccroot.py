@@ -350,14 +350,12 @@ class vnum_task(Task.Task):
 				return 1
 
 class fake_shlib(link_task):
-	quiet = True
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
 
 class fake_stlib(stlink_task):
-	quiet = True
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())

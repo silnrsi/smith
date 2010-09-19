@@ -52,13 +52,16 @@ def enhance_lib():
 		return old_ant_glob(self, *k, **kw)
 	Node.Node.ant_glob = ant_glob
 
+	# catch conflicting ext_in/ext_out/before/after declarations
 	old = Task.is_before
 	def is_before(t1, t2):
 		ret = old(t1, t2)
 		if ret and old(t2, t1):
-			Logs.error("Contradictory order constraints in classes %r %r" % (t1, t2))
+			Logs.error('Contradictory order constraints in classes %r %r' % (t1, t2))
 		return ret
 	Task.is_before = is_before
+
+	# catch more
 
 def options(opt):
 	"""
