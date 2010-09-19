@@ -751,20 +751,14 @@ def always_run(cls):
 
 def update_outputs(cls):
 	"""
-	Task class decorator
+	decorator for Task classes
 
-	When a command is always run, it is possible that the output only change
-	sometimes. By default the build node have as a hash the signature of the task
-	which may not change. With this, the output nodes (produced) are hashed,
-	and the hashes are set to the build nodes
-
-	This may avoid unnecessary recompilations, but it uses more resources
-	(hashing the output files) so it is not used by default
+	Used to avoid unnecessary recompilations, but consumes more resources
+	(hashing the output files) so it should be enabled only on the classes that need it
 	"""
 	old_post_run = cls.post_run
 	def post_run(self):
 		old_post_run(self)
-		bld = self.generator.bld
 		for node in self.outputs:
 			node.sig = Utils.h_file(node.abspath())
 	cls.post_run = post_run
@@ -777,6 +771,9 @@ def update_outputs(cls):
 			return status
 
 		try:
+			# by default, we check that the output nodes have the signature of the task
+			# perform a second check, returning 'SKIP_ME' as we are expecting that
+			# the signatures do not match
 			bld = self.generator.bld
 			new_sig  = self.signature()
 			prev_sig = bld.task_sigs[self.uid()]
