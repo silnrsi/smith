@@ -31,7 +31,7 @@ def build(ctx):
 		target   = 'other',
 		source   = [
 			'other/a.go',
-			#'other/b.go', # using two source files for gopack does not seem to work anymore
+			'other/b.go', # gopack sux
 		],
 	)
 
@@ -42,6 +42,8 @@ def build(ctx):
 		source   = 'main.go',
 		includes = '.',
 	)
+
+	# NOTE: if you use ant_glob, use it like this:     bld.path.ant_glob('*.go', excl='*_test.go')
 
 	if ctx.env.TRY_CGO:
 		# see http://code.google.com/p/go/issues/detail?id=533
