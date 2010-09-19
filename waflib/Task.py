@@ -519,32 +519,27 @@ class Task(TaskBase):
 
 		return self.m.digest()
 
-def compare_exts(t1, t2):
-	"compare the extensions provided/used ext_in/ext_out"
-	x = "ext_in"
-	y = "ext_out"
-	in_ = t1.attr(x, ())
-	out_ = t2.attr(y, ())
-	for k in in_:
-		if k in out_:
-			return -1
-	in_ = t2.attr(x, ())
-	out_ = t1.attr(y, ())
-	for k in in_:
-		if k in out_:
-			return 1
-	return 0
+def is_before(t1, t2):
+	"""
+	return non-zero if t1 is to be executed before t2
 
-def compare_partial(t1, t2):
-	"order relations between classes after/before"
-	m = "after"
-	n = "before"
-	name = t2.__class__.__name__
-	if name in Utils.to_list(t1.attr(m, ())): return -1
-	elif name in Utils.to_list(t1.attr(n, ())): return 1
-	name = t1.__class__.__name__
-	if name in Utils.to_list(t2.attr(m, ())): return 1
-	elif name in Utils.to_list(t2.attr(n, ())): return -1
+	t1.ext_out = '.h' and t2.ext_in = '.h' => return 1
+	t2.after = ['t1']
+	t1.before = ['t2']
+
+	return 0
+	"""
+	to_list = Utils.to_list
+	for k in to_list(t2.ext_in):
+		if k in to_list(t1.ext_out):
+			return 1
+
+	if t1.__class__.__name__ in to_list(t2.after):
+		return 1
+
+	if t2.__class__.__name__ in to_list(t1.before):
+		return 1
+
 	return 0
 
 def set_file_constraints(tasks):
@@ -579,15 +574,14 @@ def set_precedence_constraints(tasks):
 			t2 = cstr_groups[keys[j]][0]
 
 			# add the constraints based on the comparisons
-			val = (compare_exts(t1, t2) or compare_partial(t1, t2))
-			if not val:
-				continue
-			if val > 0:
+			if is_before(t1, t2):
 				a = i
 				b = j
-			elif val < 0:
+			elif is_before(t2, t1):
 				a = j
 				b = i
+			else:
+				continue
 			for x in cstr_groups[keys[b]]:
 				x.run_after.update(cstr_groups[keys[a]])
 
