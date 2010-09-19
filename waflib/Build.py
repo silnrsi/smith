@@ -885,7 +885,7 @@ class CleanContext(BuildContext):
 
 		if self.bldnode != self.srcnode:
 			# would lead to a disaster if top == out
-			lst = [self.path.find_or_declare(f) for f in self.env[CFG_FILES]]
+			lst = [self.root.find_or_declare(f) for f in self.env[CFG_FILES]]
 			lst += self.bldnode.ant_glob('.lock*')
 			lst += self.bldnode.ant_glob('config.log')
 			lst += self.bldnode.ant_glob('c4che/*')
