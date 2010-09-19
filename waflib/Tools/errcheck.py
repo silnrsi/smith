@@ -21,7 +21,7 @@ typos = {
 
 meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 
-from waflib import Logs, Build, Node
+from waflib import Logs, Build, Node, Task
 import waflib.Tools.ccroot
 
 def replace(m):
@@ -51,6 +51,14 @@ def enhance_lib():
 				Logs.error("In ant_glob pattern %r: '..' means 'two dots', not 'parent directory'" % k[0])
 		return old_ant_glob(self, *k, **kw)
 	Node.Node.ant_glob = ant_glob
+
+	old = Task.is_before
+	def is_before(t1, t2):
+		ret = old(t1, t2)
+		if ret and old(t2, t1):
+			Logs.error("Contradictory order constraints in classes %r %r" % (t1, t2))
+		return ret
+	Task.is_before = is_before
 
 def options(opt):
 	"""

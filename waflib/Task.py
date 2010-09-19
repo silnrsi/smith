@@ -521,13 +521,10 @@ class Task(TaskBase):
 
 def is_before(t1, t2):
 	"""
-	return non-zero if t1 is to be executed before t2
-
-	t1.ext_out = '.h' and t2.ext_in = '.h' => return 1
+	return non-zero if task class t1 is to be executed before task class t2
+	t1.ext_out = '.h' and t2.ext_in = '.h'
 	t2.after = ['t1']
 	t1.before = ['t2']
-
-	return 0
 	"""
 	to_list = Utils.to_list
 	for k in to_list(t2.ext_in):
