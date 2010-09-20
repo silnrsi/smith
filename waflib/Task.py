@@ -324,7 +324,7 @@ class Task(TaskBase):
 		if self.scan:
 			try:
 				imp_sig = self.sig_implicit_deps()
-			except ValueError:
+			except TaskRescan:
 				return self.signature()
 
 		ret = self.cache_sig = self.m.digest()
@@ -342,7 +342,10 @@ class Task(TaskBase):
 		bld = self.generator.bld
 
 		# first compute the signature
-		new_sig = self.signature()
+		try:
+			new_sig = self.signature()
+		except Errors.TaskNotReady:
+			return ASK_LATER
 
 		# compare the signature to a signature computed previously
 		key = self.uid()
@@ -476,7 +479,7 @@ class Task(TaskBase):
 			except IOError: # raised if a file was renamed
 				pass
 			del bld.task_sigs[(key, 'imp')]
-			raise ValueError('rescan')
+			raise TaskRescan('rescan')
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
