@@ -324,7 +324,7 @@ class Task(TaskBase):
 		if self.scan:
 			try:
 				imp_sig = self.sig_implicit_deps()
-			except TaskRescan:
+			except Errors.TaskRescan:
 				return self.signature()
 
 		ret = self.cache_sig = self.m.digest()
@@ -479,7 +479,7 @@ class Task(TaskBase):
 			except IOError: # raised if a file was renamed
 				pass
 			del bld.task_sigs[(key, 'imp')]
-			raise TaskRescan('rescan')
+			raise Errors.TaskRescan('rescan')
 
 		# no previous run or the signature of the dependencies has changed, rescan the dependencies
 		(nodes, names) = self.scan()
@@ -489,6 +489,9 @@ class Task(TaskBase):
 		# store the dependencies in the cache
 		bld.node_deps[key] = nodes
 		bld.raw_deps[key] = names
+
+		# might happen
+		self.are_implicit_nodes_ready()
 
 		# recompute the signature and return it
 		bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
@@ -506,6 +509,8 @@ class Task(TaskBase):
 		bld = self.generator.bld
 		env = self.env
 
+		self.are_implicit_nodes_ready()
+
 		try:
 			for k in bld.node_deps.get(self.uid(), []):
 				# can do an optimization here
@@ -521,6 +526,39 @@ class Task(TaskBase):
 			raise Errors.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
 
 		return self.m.digest()
+
+	def are_implicit_nodes_ready(self):
+		"""
+		For each node returned by the scanner, see if there is a task creating it
+		Not enabled until the exact impact on performance is measured
+		"""
+		return
+
+		bld = self.generator.bld
+		try:
+			cache = bld.dct_implicit_nodes
+		except:
+			bld.dct_implicit_nodes = cache = {}
+
+		try:
+			dct = cache[bld.cur]
+		except KeyError:
+			dct = cache[bld.cur] = {}
+			for tsk in bld.cur_tasks:
+				for x in tsk.outputs:
+					dct[x] = tsk
+
+		modified = False
+		for x in bld.node_deps.get(self.uid(), []):
+			if x in dct:
+				self.run_after.add(dct[x])
+				modified = True
+
+		if modified:
+			for tsk in self.run_after:
+				if not tsk.hasrun:
+					#print "task is not ready..."
+					raise Errors.TaskNotReady('not ready')
 
 def is_before(t1, t2):
 	"""
