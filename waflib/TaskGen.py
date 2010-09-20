@@ -77,7 +77,14 @@ class task_gen(object):
 			setattr(self, key, val)
 
 	def __str__(self):
-		return "<task_gen '%s' declared in %s>" % (self.name, self.path)
+		return "<task_gen %r declared in %s>" % (self.name, self.path.abspath())
+
+	def __repr__(self):
+		lst = []
+		for x in self.__dict__.keys():
+			if x not in ['env', 'bld', 'compiled_tasks', 'tasks']:
+				lst.append("%s=%r" % (x, repr(getattr(self, x))))
+		return "bld(%s) in %s" % (" ".join(lst), self.path.abspath())
 
 	def get_name(self):
 		try:

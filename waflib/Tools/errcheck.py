@@ -61,11 +61,6 @@ def enhance_lib():
 		return ret
 	Task.is_before = is_before
 
-	# TODO: catch c files without any c or cxx feature
-	def c_without_feature(self):
-		pass
-	TaskGen.feature('*')(c_without_feature)
-
 def options(opt):
 	"""
 	Add a few methods

@@ -769,10 +769,16 @@ def scan(task):
 	"""
 
 	global go_absolute
+
+	try:
+		incn = task.generator.includes_nodes
+	except AttributeError:
+		raise Errors.WafError('%r is missing a feature such as "c" or "cxx"' % task.generator)
+
 	if go_absolute:
-		nodepaths = task.generator.includes_nodes
+		nodepaths = incn
 	else:
-		nodepaths = [x for x in task.generator.includes_nodes if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
+		nodepaths = [x for x in incn if x.is_child_of(x.ctx.srcnode) or x.is_child_of(x.ctx.bldnode)]
 
 	tmp = c_parser(nodepaths)
 	tmp.start(task.inputs[0], task.env)
