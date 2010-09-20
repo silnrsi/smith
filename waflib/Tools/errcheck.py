@@ -21,7 +21,7 @@ typos = {
 
 meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 
-from waflib import Logs, Build, Node, Task
+from waflib import Logs, Build, Node, Task, TaskGen
 import waflib.Tools.ccroot
 
 def replace(m):
@@ -60,6 +60,17 @@ def enhance_lib():
 			Logs.error('Contradictory order constraints in classes %r %r' % (t1, t2))
 		return ret
 	Task.is_before = is_before
+
+	# check for bld(feature='cshlib') where no 'c' is given - this can be either a mistake or on purpose
+	# so we only issue a warning
+	def check_err_features(self):
+		lst = self.to_list(self.features)
+		if 'shlib' in lst:
+			Logs.error('feature shlib -> cshlib, dshlib or cxxshlib')
+		for x in ('c', 'cxx', 'd', 'fc'):
+			if not x in lst and lst and lst[0] in [x+y for y in ('program', 'shlib', 'stlib')]:
+				Logs.error('%r features is probably missing %r' % (self, x))
+	TaskGen.feature('*')(check_err_features)
 
 def options(opt):
 	"""
