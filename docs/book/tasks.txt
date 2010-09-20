@@ -207,6 +207,7 @@ A function is used to reorder the tasks from a group before they are passed to t
 // tasks_weak
 [source,python]
 ---------------
+from waflib import Task
 old = Task.set_file_constraints
 def meth(lst):
     lst.sort(cmp=lambda x, y: cmp(x.__class__.__name__, y.__class__.__name__)) <1>
