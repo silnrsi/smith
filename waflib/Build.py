@@ -585,6 +585,7 @@ class BuildContext(Context.Context):
 			Task.set_file_constraints(tasks)
 			Task.set_precedence_constraints(tasks)
 
+			self.cur_tasks = tasks
 			self.cur += 1
 			if not tasks: # return something else the build will stop
 				continue
