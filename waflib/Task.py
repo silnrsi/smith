@@ -529,11 +529,14 @@ class Task(TaskBase):
 
 	def are_implicit_nodes_ready(self):
 		"""
-		For each node returned by the scanner, see if there is a task creating it
-		Not enabled until the exact impact on performance is measured
-		"""
-		return
+		For each node returned by the scanner, see if there is a task behind it, and force the build order
 
+		The performance impact on null builds is nearly invisible (1.66s->1.86s)
+		yet, it would not work without caching (1.86s->28s)
+
+		On a full build, the consequence of leaving waf figure out the build order can be visible,
+		for example, the preprocesor time can increase the build from 1m36s -> 2m13s
+		"""
 		bld = self.generator.bld
 		try:
 			cache = bld.dct_implicit_nodes
