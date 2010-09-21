@@ -296,10 +296,12 @@ class exeContext(Build.BuildContext) :
 
     def pre_build(self) :
         
+        thisdir = os.path.dirname(__file__)
         # create a taskgen to expand the installer.nsi
         self.env.fonts = Font.fonts
+        self.env.basedir = thisdir
         task = templater.Copier(env = self.env)
-        task.set_inputs(self.path.find_resource('bin/installer.nsi'))
+        task.set_inputs(self.path.find_resource(os.path.join(thisdir, 'installer.nsi')))
         task.set_outputs(self.path.find_or_declare('installer.nsi'))
         self.add_to_group(task)
 

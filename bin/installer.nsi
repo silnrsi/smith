@@ -22,8 +22,8 @@
 ;-----------------------------
 ; Macros for Font installation
 ;-----------------------------
-!addplugindir @os.path.join('..', 'bin', 'nsis')@
-!addincludedir @os.path.join('..', 'bin', 'nsis')@
+!addplugindir @os.path.join('..', env.basedir, 'nsis')@
+!addincludedir @os.path.join('..', env.basedir, 'nsis')@
 !include FileFunc.nsh
 !include FontRegAdv.nsh
 !include FontName.nsh
