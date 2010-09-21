@@ -18,10 +18,6 @@ def build(bld):
 		target   = 'app',
 		uselib = 'CUDA')
 
-	t.env.LIB_CUDA = ['cuda', 'cudart']
-	t.env.LIBPATH_CUDA = ['/usr/local/cuda/lib64']
-	t.env.RPATH_CUDA   = ['/usr/local/cuda/lib64']
-
 #t.env.CUDAFLAGS = '-deviceemu'
 #CUDAFLAGS=-deviceemu
 #CUDAFLAGS=--ptxas-options="-v"
