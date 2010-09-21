@@ -5,48 +5,6 @@ from waflib.TaskGen import feature, after
 import font_tests, templater
 import sys, os, re
 
-def add_depend_after(base) :
-    old_runnable_status = base.runnable_status
-    old_post_run = base.post_run
-
-    def runnable_status(self) :
-        state = old_runnable_status(self)
-        if state == Task.SKIP_ME and getattr(self, 'depend_after', None) :
-            for t in self.depend_after :
-                if t.hasrun == Task.SUCCESS :
-                    state = Task.RUN_ME
-                    break
-        return state
-
-    def set_depend_after(self, t) :
-        if getattr(self, 'depend_after', None) :
-            self.depend_after.append(t)
-        else :
-            self.depend_after = [t]
-        self.set_run_after(t)       # can't run before t
-
-    def post_run(self) :
-        old_post_run(self)
-        try :
-            for t in self.depend_after :
-                t.post_run()
-        except :
-            pass
-
-    base.runnable_status = runnable_status
-    base.set_depend_after = set_depend_after
-    base.post_run = post_run
-
-@feature('*')
-@after('process_rule')
-def process_depend_afters(self) :
-    if not getattr(self, 'depend_after', None) :
-        return
-    for name in self.depend_after :
-        othert = self.bld.get_tgen_by_name(name).tasks[-1]
-        for myt in self.tasks :
-            if othert : myt.set_depend_after(othert)
-
 @feature('*')
 @after('process_rule')
 def process_depends(self) :
@@ -318,7 +276,6 @@ class exeContext(Build.BuildContext) :
         # taskgen to run nsismake
         self(rule='makensis -Oinstaller.log ${SRC}', source = 'installer.nsi', target = '%s-%s.exe' % (self.env['DESC_NAME'] or self.env['APPNAME'].title(), self.env['VERSION']))
 
-add_depend_after(Task.Task)
 sort_tasks(Build.BuildContext)
 add_configure()
 add_build()
