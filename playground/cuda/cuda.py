@@ -24,14 +24,14 @@ def c_hook(self, node):
 
 def configure(conf):
 	conf.find_program('nvcc', var='NVCC')
-	conf.find_cuda_dirs()
+	conf.find_cuda_libs()
 
 @conf
-def find_cuda_dirs(self):
+def find_cuda_libs(self):
 	"""
 	find the cuda include and library folders
 
-	use ctx.program(source='main.c', target='app', use='CUDA')
+	use ctx.program(source='main.c', target='app', use='CUDA CUDART')
 	"""
 
 	if not self.env.NVCC:
@@ -42,18 +42,14 @@ def find_cuda_dirs(self):
 	node = d.find_node('include')
 	_includes = node and node.abspath() or ''
 
-	node = d.find_node('lib')
-	_libpath = node and node.abspath() or ''
+	_libpath = []
+	for x in ('lib64', 'lib'):
+		try:
+			_libpath.append(d.find_node(x).abspath())
+		except:
+			pass
 
 	# this should not raise any error
 	self.check_cxx(header='cuda.h', lib='cuda', libpath=_libpath, includes=_includes)
-
-	# TODO set conf.env.LIB_CUDA = ['cuda']
-	# TODO set conf.env.INCLUDES_CUDA = ["path1", "path2"]
-	# TODO set conf.env.LIBPATH_CUDA = ["libpath1"]
-
-	#self.env.LIB_CUDA = ['cuda', 'cudart']
-	#self.env.LIBPATH_CUDA = ['/comp/cuda/lib64']
-	#self.env.RPATH_CUDA   = ['/comp/cuda/lib64']
-
+	self.check_cxx(header='cuda.h', lib='cudart', libpath=_libpath, includes=_includes)
 

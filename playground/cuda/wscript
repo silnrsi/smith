@@ -14,9 +14,9 @@ def configure(conf):
 
 def build(bld):
 	t = bld.program(
-		source   = 'test.cu main.cpp',
-		target   = 'app',
-		uselib = 'CUDA')
+		source = 'test.cu main.cpp',
+		target = 'app',
+		use    = 'CUDA CUDART')
 
 #t.env.CUDAFLAGS = '-deviceemu'
 #CUDAFLAGS=-deviceemu
