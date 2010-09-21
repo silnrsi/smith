@@ -28,31 +28,31 @@ def gcc_common_flags(conf):
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = ''
 	v['CCLNK_TGT_F']         = ['-o', ''] # shell hack for -MD
-	v['CPPPATH_ST'] = '-I%s'
-	v['DEFINES_ST'] = '-D%s'
+	v['CPPPATH_ST']          = '-I%s'
+	v['DEFINES_ST']          = '-D%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STLIB_ST']        = '-l%s'
-	v['STLIBPATH_ST']    = '-L%s'
+	v['STLIB_ST']            = '-l%s'
+	v['STLIBPATH_ST']        = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
-	v['STLIB_MARKER']    = '-Wl,-Bstatic'
+	v['STLIB_MARKER']        = '-Wl,-Bstatic'
 	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
-	v['cprogram_PATTERN']     = '%s'
+	v['cprogram_PATTERN']    = '%s'
 
-	# shared library
-	v['CCFLAGS_cshlib']       = ['-fPIC']
-	v['LINKFLAGS_cshlib']     = ['-shared']
-	v['cshlib_PATTERN']       = 'lib%s.so'
+	# shared librar
+	v['CCFLAGS_cshlib']      = ['-fPIC']
+	v['LINKFLAGS_cshlib']    = ['-shared']
+	v['cshlib_PATTERN']      = 'lib%s.so'
 
 	# static lib
-	v['LINKFLAGS_cstlib'] = ['-Wl,-Bstatic']
-	v['cstlib_PATTERN']   = 'lib%s.a'
+	v['LINKFLAGS_cstlib']    = ['-Wl,-Bstatic']
+	v['cstlib_PATTERN']      = 'lib%s.a'
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
@@ -62,15 +62,15 @@ def gcc_common_flags(conf):
 @conf
 def gcc_modifier_win32(conf):
 	v = conf.env
-	v['cprogram_PATTERN']     = '%s.exe'
+	v['cprogram_PATTERN']    = '%s.exe'
 
-	v['cshlib_PATTERN']       = '%s.dll'
+	v['cshlib_PATTERN']      = '%s.dll'
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
-	v['cshlib_CCFLAGS'] = []
+	v['CCFLAGS_cshlib']      = []
 
-	v.append_value('cshlib_CCFLAGS', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
+	v.append_value('CCFLAGS_cshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
 	# Auto-import is enabled by default even without this option,
 	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
@@ -81,19 +81,20 @@ def gcc_modifier_win32(conf):
 def gcc_modifier_cygwin(conf):
 	gcc_modifier_win32(conf)
 	v = conf.env
-	v['cshlib_PATTERN']       = 'cyg%s.dll'
+	v['cshlib_PATTERN'] = 'cyg%s.dll'
 	v.append_value('LINKFLAGS_cshlib', ['-Wl,--enable-auto-image-base'])
+	v['CCFLAGS_cshlib'] = []
 
 @conf
 def gcc_modifier_darwin(conf):
 	v = conf.env
-	v['CCFLAGS_cshlib']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
-	v['LINKFLAGS_cshlib']     = ['-dynamiclib']
-	v['cshlib_PATTERN']       = 'lib%s.dylib'
-	v['FRAMEWORKPATH_ST'] = '-F%s'
-	v['FRAMEWORK_ST'] = '-framework %s'
+	v['CCFLAGS_cshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['LINKFLAGS_cshlib']    = ['-dynamiclib']
+	v['cshlib_PATTERN']      = 'lib%s.dylib'
+	v['FRAMEWORKPATH_ST']    = '-F%s'
+	v['FRAMEWORK_ST']        = '-framework %s'
 
-	v['LINKFLAGS_cstlib'] = []
+	v['LINKFLAGS_cstlib']    = []
 
 	v['SHLIB_MARKER']        = ''
 	v['STLIB_MARKER']        = ''
@@ -102,9 +103,9 @@ def gcc_modifier_darwin(conf):
 @conf
 def gcc_modifier_aix(conf):
 	v = conf.env
-	v['LINKFLAGS_cprogram']   = ['-Wl,-brtl']
+	v['LINKFLAGS_cprogram']  = ['-Wl,-brtl']
 
-	v['LINKFLAGS_cshlib']     = ['-shared','-Wl,-brtl,-bexpfull']
+	v['LINKFLAGS_cshlib']    = ['-shared','-Wl,-brtl,-bexpfull']
 
 	v['SHLIB_MARKER']        = ''
 
