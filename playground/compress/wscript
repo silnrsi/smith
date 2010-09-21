@@ -30,6 +30,7 @@ def options(opt):
 # values for storing the min and max
 gzip  = [10000000, 0]
 bzip2 = [10000000, 0]
+xz    = [10000000, 0]
 
 def try_compress(self):
 	global mi, ma
@@ -46,6 +47,10 @@ def try_compress(self):
 		store = bzip2
 		cmd = 'cjf'
 		ext = '.bz2'
+	elif self.generator.kind == 'xz':
+		store = xz
+		cmd = 'cJf'
+		ext = '.xz'
 	else:
 		store = gzip
 		cmd = 'czf'
@@ -98,6 +103,10 @@ def configure(conf):
 	conf.find_program('bzip2', mandatory=False)
 	if not conf.env.GZIP and not conf.env.BZIP2:
 		conf.fatal('Either gzip or bzip2 is necessary for this')
+
+	# xz is a gzip-like, lzma-based compression tool
+	conf.find_program('xz', mandatory=False)
+
 	conf.find_program('gnuplot', var='GNUPLOT')
 
 def build(bld):
@@ -112,6 +121,8 @@ def build(bld):
 		KINDS.append('bzip2')
 	if bld.env.GZIP:
 		KINDS.append('gzip')
+	if bld.env.XZ:
+		KINDS.append('xz')
 
 	for kind in KINDS:
 		p = bld.bldnode
