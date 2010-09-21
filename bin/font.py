@@ -205,13 +205,15 @@ def make_tempnode(n, bld) :
 def build_modifys(bld, tgen_map) :
     count = 0
     for key, item in modifications.items() :
+        oldtask = None
         task = tgen_map.get(key, None)
         for i in item :
             if task :
                 outnode = bld.path.find_or_declare(key)
                 tmpnode = make_tempnode(outnode, bld)
-                kw = {'depend_after' : [task.get_name()], 'tempcopy' : [tmpnode, outnode]}
+                kw = {'tempcopy' : [tmpnode, outnode]}
                 cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
+                if not oldtask : oldtask = task
             else :
                 outnode = bld.srcnode.find_node(key)
                 kw = {'target' : outnode.get_bld().bldpath() }
@@ -219,32 +221,39 @@ def build_modifys(bld, tgen_map) :
             temp = dict(kw)
             temp.update(i[3])
             if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
-            oldtask = bld(rule = cmd, source = i[1], shell = i[2], after = oldtask.get_name() if count else "", **temp)
+            oldtask = bld(rule = cmd, source = i[1], shell = i[2], after = oldtask.get_name() if oldtask else "", **temp)
             count += 1
+        tgen_map[key] = oldtask
 
 def sort_tasks(base) :
     old_biter = base.get_build_iterator
 
     def top_sort(tasks) :
-        if not len(tasks) : return tasks
+        if len(tasks) < 2 : return tasks
+#        print "input: " + str(tasks)
         icntmap = {}
+        amap = {}
+        roots = []
         for t in tasks :
             icntmap[id(t)] = 0
         for t in tasks :
             if getattr(t, 'run_after', None) :
+                icntmap[id(t)] = len(t.run_after)
                 for a in t.run_after :
-                    icntmap[id(a)] += 1
-                    print str(t) + " :after: " + str(a)
-        roots = [t for t in tasks if icntmap[id(t)] == 0]
+                    if id(a) in amap :
+                        amap[id(a)].append(t)
+                    else :
+                        amap[id(a)] = [t]
+            else :
+                roots.append(t)
         res = []
         for r in roots :
             res.append(r)
-            if getattr(r, 'run_after', None):
-                for a in r.run_after :
+            if id(r) in amap :
+                for a in amap[id(r)] :
                     icntmap[id(a)] -= 1
                     if icntmap[id(a)] == 0 : roots.append(a)
-        res.reverse()
-        print res
+#        print "output: " + str(res)
         return res
 
     def wrap_biter(self) :
@@ -297,6 +306,7 @@ class exeContext(Build.BuildContext) :
     def pre_build(self) :
         
         thisdir = os.path.dirname(__file__)
+        self.add_group('exe')
         # create a taskgen to expand the installer.nsi
         self.env.fonts = Font.fonts
         self.env.basedir = thisdir
