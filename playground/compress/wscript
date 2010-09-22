@@ -46,15 +46,15 @@ def try_compress(self):
 	if self.generator.kind == 'bzip2':
 		store = bzip2
 		cmd = 'cjf'
-		ext = '.bz2'
+		ext = 'bz2'
 	elif self.generator.kind == 'xz':
 		store = xz
 		cmd = 'cJf'
-		ext = '.xz'
+		ext = 'xz'
 	else:
 		store = gzip
 		cmd = 'czf'
-		ext = '.gz'
+		ext = 'gz'
 
 	self.generator.bld.exec_command('tar %s  %s  %s' % (cmd, filename, ' '.join(self.files)), cwd=frompath.abspath())
 
