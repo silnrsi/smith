@@ -640,6 +640,7 @@ class c_parser(object):
 			found = self.cached_find_resource(n, filename)
 
 		if found:
+			# TODO the duplicates do not increase the no-op build times too much, but they may be worth removing
 			self.nodes.append(found)
 			if filename[-4:] != '.moc':
 				self.addlines(found)
