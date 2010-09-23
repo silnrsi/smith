@@ -7,29 +7,25 @@ import sys, os, re
 
 @feature('*')
 @after('process_rule')
-def process_depends(self) :
-    if not getattr(self, 'depends', None) : return
-
-    for node in self.depends :
-        for myt in self.tasks :
-            myt.add_file_dependency(node.bldpath())
-
-@feature('*')
-@after('process_rule')
 def process_tempcopy(tgen) :
     import os, shutil
     if not getattr(tgen, 'tempcopy', None) : return
 
     (tmpnode, outnode) = tgen.tempcopy
     tmpnode.parent.mkdir()
-
     for t in tgen.tasks :
+        t.tempcopy = tgen.tempcopy
         fn = t.__class__.run
         def f(self) :
             if os.path.exists(tmpnode.abspath()) :
                 os.remove(tmpnode.abspath())
-            sys.stderr.write(outnode.abspath() + "-->" + tmpnode.abspath())
-            shutil.move(outnode.abspath(), tmpnode.abspath())
+#            sys.stderr.write(outnode.abspath() + "-->" + tmpnode.abspath())
+            if os.path.exists(outnode.abspath()) :
+                shutil.move(outnode.abspath(), tmpnode.abspath())
+            else :
+                sourcenode = outnode.get_src()
+                shutil.copy2(sourcenode.abspath(), tmpnode.abspath())
+                t.outputs.append(outnode)
             ret = fn(self)
             if not ret : os.remove(tmpnode.abspath())
             return ret
@@ -119,7 +115,7 @@ class Font(object) :
                 cmd += " -i ${SRC[" + str(ind) + "].bldpath()}"
                 srcs.append(self.volt_master)
                 ind += 1
-            vgen = bld(rule = "${MAKE_VOLT}" + cmd + " -t " + bld.path.find_or_declare(self.target).bldpath() + " > ${TGT}", shell = 1, depend_after = [res[self.target]], source = srcs, target = self.volt_source)
+            vgen = bld(rule = "${MAKE_VOLT}" + cmd + " -t " + bld.path.find_or_declare(self.target).bldpath() + " > ${TGT}", shell = 1, after = [res[self.target]], source = srcs, target = self.volt_source)
             res[self.volt_source] = vgen
             vtgen = modify("${VOLT2TTF} " + self.volt_params + " -t ${SRC} ${DEP} ${TGT}", self.target, [self.volt_source])
 
@@ -136,17 +132,16 @@ class Font(object) :
                 cmd += " -i ${SRC[" + ind + "].bldpath()}"
                 ind += 1
                 srcs.append(self.gdl_master)
-            ggen = bld(rule = "${MAKE_GDL}" + cmd + " " + bld.path.find_or_declare(self.target).bldpath() + " > ${TGT}", shell = 1, depend_after = [res[self.target]], source = srcs, target = self.gdl_source)
+            ggen = bld(rule = "${MAKE_GDL}" + cmd + " " + bld.path.find_or_declare(self.target).bldpath() + " > ${TGT}", shell = 1, after = [res[self.target]], source = srcs, target = self.gdl_source)
             res[self.gdl_source] = ggen
             gtgen = modify("${GRCOMPILER} " + self.gdl_params + " ${SRC} ${DEP} ${TGT}", self.target, [self.gdl_source])
         elif getattr(self, 'gdl_master', None) :
             gtgen = modify("${GRCOMPILER} " + self.gdl_params + " ${SRC} ${DEP} ${TGT}", self.target, [self.gdl_master])
 
-        return res
-
 modifications = {}
 
 def modify(cmd, infile, inputs = [], shell = 0, **kw) :
+    # can't create taskgens here because we have no bld context
     if not infile in modifications :
         modifications[infile] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py
@@ -160,28 +155,19 @@ def make_tempnode(n, bld) :
     res = bld.bldnode.find_or_declare(path + os.sep + n.name)
     return res
 
-def build_modifys(bld, tgen_map) :
+def build_modifys(bld) :
     count = 0
     for key, item in modifications.items() :
-        oldtask = None
-        task = tgen_map.get(key, None)
+        outnode = bld.path.find_or_declare(key)
         for i in item :
-            if task :
-                outnode = bld.path.find_or_declare(key)
-                tmpnode = make_tempnode(outnode, bld)
-                kw = {'tempcopy' : [tmpnode, outnode]}
-                cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
-                if not oldtask : oldtask = task
-            else :
-                outnode = bld.srcnode.find_node(key)
-                kw = {'target' : outnode.get_bld().bldpath() }
-                cmd = i[0].replace('${DEP}', outnode.bldpath())
+            tmpnode = make_tempnode(outnode, bld)
+            kw = {'tempcopy' : [tmpnode, outnode]}
+            cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
             temp = dict(kw)
             temp.update(i[3])
             if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
-            oldtask = bld(rule = cmd, source = i[1], shell = i[2], after = oldtask.get_name() if oldtask else "", **temp)
+            bld(rule = cmd, source = i[1], shell = i[2], **temp)
             count += 1
-        tgen_map[key] = oldtask
 
 def sort_tasks(base) :
     old_biter = base.get_build_iterator
@@ -214,8 +200,27 @@ def sort_tasks(base) :
 #        print "output: " + str(res)
         return res
 
+    def inject_modifiers(tasks) :
+        tmap = {}
+        for t in tasks :
+            for n in getattr(t, 'outputs', []) :
+                tmap[id(n)] = t
+        for t in tasks :
+            tmpnode, outnode = getattr(t, 'tempcopy', (None, None))
+            if outnode :
+                if id(outnode) in tmap :
+                    t.set_run_after(tmap[id(outnode)])
+                    print str(t) + " run_after " + str(tmap[id(outnode)])
+                tmap[id(outnode)] = t
+        for t in tasks :
+            for n in getattr(t, 'inputs', []) :
+                if id(n) in tmap :
+                    t.set_run_after(tmap[id(n)])
+                    print str(t) + " run_after: " + str(tmap[id(n)])
+
     def wrap_biter(self) :
         for b in old_biter(self) :
+            inject_modifiers(b)
             tlist = top_sort(b)
             yield tlist
 
@@ -243,10 +248,9 @@ def add_build() :
     old_build = getattr(Context.g_module, "build", None)
 
     def build(bld) :
-        tgen_map = {}
         for f in Font.fonts :
-            tgen_map.update(f.build(bld))
-        build_modifys(bld, tgen_map)
+            f.build(bld)
+        build_modifys(bld)
 
     Context.g_module.build = build
 
@@ -255,8 +259,16 @@ class pdfContext(Build.BuildContext) :
     func = 'pdfs'
 
     def pre_build(self) :
-        self.add_group('tests')
+        self.add_group('pdfs')
         font_tests.build_tests(self, Font.fonts, 'pdfs')
+
+class svgContext(Build.BuildContext) :
+    cmd = 'svg'
+    func = 'svg'
+
+    def pre_build(self) :
+        self.add_group('svg')
+        font_tests.build_tests(self, Font.fonts, 'svg')
 
 class exeContext(Build.BuildContext) :
     cmd = 'exe'
