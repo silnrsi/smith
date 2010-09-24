@@ -697,69 +697,73 @@ class c_parser(object):
 			lst.reverse()
 			self.lines.extend([('define', x) for x in lst])
 
-		while self.lines:
-			(kind, line) = self.lines.pop()
-			if kind == POPFILE:
-				self.currentnode_stack.pop()
-				continue
-			try:
-				self.process_line(kind, line)
-			except Exception as e:
-				if Logs.verbose:
-					debug('preproc: line parsing failed (%s): %s %s', e, line, Utils.ex_stack())
+		line = ''
+		try:
+			while self.lines:
+				(token, line) = self.lines.pop()
+				if token == POPFILE:
+					self.currentnode_stack.pop()
+					continue
 
-	def process_line(self, token, line):
-		ve = Logs.verbose
-		if ve: debug('preproc: line is %s - %s state is %s', token, line, self.state)
-		state = self.state
+				ve = Logs.verbose
+				if ve: debug('preproc: line is %s - %s state is %s', token, line, self.state)
+				state = self.state
 
-		if token == 'endif':
-			state.pop()
-		elif token == 'elif':
-			if state[-1] == accepted:
-				state[-1] = skipped
-			elif state[-1] == ignored:
-				if eval_macro(tokenize(line), self.defs):
-					state[-1] = accepted
-		elif token == 'else':
-			if state[-1] == accepted: state[-1] = skipped
-			elif state[-1] == ignored: state[-1] = accepted
+				# make certain we define the state if we are about to enter in an if block
+				if token[:2] == 'if':
+					state.append(undefined)
+				elif token == 'endif':
+					state.pop()
 
-		if skipped in state or ignored in state:
-			return
+				# skip lines when in a dead 'if' branch, wait for the endif
+				if token[0] != 'e':
+					if skipped in self.state or ignored in self.state:
+						return
 
-		if token == 'if':
-			ret = eval_macro(tokenize(line), self.defs)
-			if ret: state.append(accepted)
-			else: state.append(ignored)
-		elif token == 'ifdef':
-			m = re_mac.match(line)
-			if m and m.group(0) in self.defs: state.append(accepted)
-			else: state.append(ignored)
-		elif token == 'ifndef':
-			m = re_mac.match(line)
-			if m and m.group(0) in self.defs: state.append(ignored)
-			else: state.append(accepted)
-		elif token == 'include' or token == 'import':
-			(kind, inc) = extract_include(line, self.defs)
-			if inc in self.ban_includes: return
-			if token == 'import': self.ban_includes.add(inc)
-			if ve: debug('preproc: include found %s    (%s)', inc, kind)
-			if kind == '"' or not strict_quotes:
-				self.tryfind(inc)
-		elif token == 'define':
-			try:
-				self.defs[re_mac.match(line).group(0)]=line
-			except:
-				raise PreprocError("invalid define line %s" % line)
-		elif token == 'undef':
-			m = re_mac.match(line)
-			if m and m.group(0) in self.defs:
-				self.defs.__delitem__(m.group(0))
-				#print "undef %s" % name
-		elif token == 'pragma':
-			if re_pragma_once.search(line.lower()):
-				self.ban_includes.add(self.curfile)
+				if token == 'if':
+					ret = eval_macro(tokenize(line), self.defs)
+					if ret: state[-1] = accepted
+					else: state[-1] = ignored
+				elif token == 'ifdef':
+					m = re_mac.match(line)
+					if m and m.group(0) in self.defs: state[-1] = accepted
+					else: state[-1] = ignored
+				elif token == 'ifndef':
+					m = re_mac.match(line)
+					if m and m.group(0) in self.defs: state[-1] = ignored
+					else: state[-1] = accepted
+				elif token == 'include' or token == 'import':
+					(kind, inc) = extract_include(line, self.defs)
+					if inc in self.ban_includes: return
+					if token == 'import': self.ban_includes.add(inc)
+					if ve: debug('preproc: include found %s    (%s) ', inc, kind)
+					if kind == '"' or not strict_quotes:
+						self.tryfind(inc)
+				elif token == 'elif':
+					if state[-1] == accepted:
+						state[-1] = skipped
+					elif state[-1] == ignored:
+						if eval_macro(tokenize(line), self.defs):
+							state[-1] = accepted
+				elif token == 'else':
+					if state[-1] == accepted: state[-1] = skipped
+					elif state[-1] == ignored: state[-1] = accepted
+				elif token == 'define':
+					try:
+						self.defs[re_mac.match(line).group(0)] = line
+					except:
+						raise PreprocError("invalid define line %s" % line)
+				elif token == 'undef':
+					m = re_mac.match(line)
+					if m and m.group(0) in self.defs:
+						self.defs.__delitem__(m.group(0))
+						#print "undef %s" % name
+				elif token == 'pragma':
+					if re_pragma_once.match(line.lower()):
+						self.ban_includes.add(self.curfile)
+		except Exception as e:
+			if Logs.verbose:
+				debug('preproc: line parsing failed (%s): %s %s', e, line, Utils.ex_stack())
 
 def scan(task):
 	"""
