@@ -197,11 +197,7 @@ def vala_file(self, node):
 
 	if valatask.is_lib:
 		headers_list = [o for o in valatask.outputs if o.suffix() == ".h"]
-		self.install_vheader = []
-		for header in headers_list:
-			top_src = self.bld.srcnode
-			install_path = '%s/%s' % (valatask.header_path, header.path_from(top_src))
-			self.install_vheader.append(self.bld.install_as(install_path, header, self.env))
+		self.install_vheader = self.bld.install_files(valatask.header_path, headers_list, self.env)
 
 		vapi_list = [o for o in valatask.outputs if (o.suffix() in (".vapi", ".deps"))]
 		self.install_vapi = self.bld.install_files(valatask.vapi_path, vapi_list, self.env)
