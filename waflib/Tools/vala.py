@@ -32,7 +32,7 @@ class valac_task(Task.Task):
 			for x in self.outputs:
 				if x.name.endswith('.h'):
 					cmd.append('--header=' + x.name)
-			if hasattr(self, 'gir'):
+			if self.gir:
 				cmd.append('--gir=%s.gir' % self.gir)
 
 		for vapi_dir in self.vapi_dirs:
@@ -181,7 +181,7 @@ def vala_file(self, node):
 			valatask.outputs.append(self.path.find_or_declare('%s.h' % self.target))
 			valatask.outputs.append(self.path.find_or_declare('%s.vapi' % self.target))
 
-			if self.gir:
+			if valatask.gir:
 				valatask.outputs.append(self.path.find_or_declare('%s.gir' % self.gir))
 
 			if valatask.packages:
