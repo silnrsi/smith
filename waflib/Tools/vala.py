@@ -181,7 +181,7 @@ def vala_file(self, node):
 			valatask.outputs.append(self.path.find_or_declare('%s.h' % self.target))
 			valatask.outputs.append(self.path.find_or_declare('%s.vapi' % self.target))
 
-			if hasattr(self, 'gir'):
+			if self.gir:
 				valatask.outputs.append(self.path.find_or_declare('%s.gir' % self.gir))
 
 			if valatask.packages:
