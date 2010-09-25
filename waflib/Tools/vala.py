@@ -67,6 +67,16 @@ def vala_file(self, node):
 	valatask = getattr(self, "valatask", None)
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
+		def _get_api_version():
+			api_version = getattr (Utils.g_module, 'API_VERSION', None)
+			if api_version == None:
+				version = Utils.g_module.VERSION.split(".")
+				if version[0] == "0":
+					api_version = "0." + version[1]
+				else:
+					api_version = version[0] + ".0"
+			return api_version
+
 		valatask = self.create_task('valac')
 		self.valatask = valatask # this assumes one vala task by task generator
 		self.includes = Utils.to_list(getattr(self, 'includes', []))
@@ -77,13 +87,19 @@ def vala_file(self, node):
 		valatask.target = self.target
 		valatask.threading = False
 		valatask.install_path = getattr(self, 'install_path', '')
-		valatask.profile = getattr (self, 'profile', 'gobject')
+		valatask.profile = getattr(self, 'profile', 'gobject')
 		valatask.vala_defines = getattr(self, 'vala_defines', [])
 		valatask.target_glib = None
+		valatask.gir_path = getattr(self, 'gir_path', '${DATAROOTDIR}/gir-1.0')
+		valatask.vapi_path = getattr(self, 'vapi_path', None)
+		valatask.header_path = None
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
 		includes =  []
+        		
+		valatask.header_path = getattr(self, 'header_path',
+		                               '${INCLUDEDIR}/%s-%s' % (self.env['PACKAGE'], _get_api_version()))
 
 		if hasattr(self, 'use'):
 			local_packages = Utils.to_list(self.use)[:] # make sure to have a copy
@@ -183,23 +199,14 @@ def vala_file(self, node):
 		self.install_vheader = []
 		for header in headers_list:
 			top_src = self.bld.srcnode
-			package = self.env['PACKAGE']
-			try:
-				api_version = Utils.g_module.API_VERSION
-			except AttributeError:
-				version = Utils.g_module.VERSION.split(".")
-				if version[0] == "0":
-					api_version = "0." + version[1]
-				else:
-					api_version = version[0] + ".0"
-			install_path = '${INCLUDEDIR}/%s-%s/%s' % (package, api_version, header.path_from(top_src))
+			install_path = '%s/%s' % (valatask.header_path, header.path_from(top_src))
 			self.install_vheader.append(self.bld.install_as(install_path, header, self.env))
 
 		vapi_list = [o for o in valatask.outputs if (o.suffix() in (".vapi", ".deps"))]
-		self.install_vapi = self.bld.install_files('${DATAROOTDIR}/vala/vapi', vapi_list, self.env)
+		self.install_vapi = self.bld.install_files(valatask.vapi_path, vapi_list, self.env)
 
 		gir_list = [o for o in valatask.outputs if o.suffix() == ".gir"]
-		self.install_gir = self.bld.install_files('${DATAROOTDIR}/gir-1.0', gir_list, self.env)
+		self.install_gir = self.bld.install_files(valatask.gir_path, gir_list, self.env)
 
 valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
