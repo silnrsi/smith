@@ -3,7 +3,7 @@
 # Ali Sabil, 2007
 
 import os.path, shutil, re
-from waflib import Task, Runner, Utils, Logs, Build, Node, Options, Errors
+from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
 from waflib.TaskGen import extension, after, before
 
 class valac_task(Task.Task):
@@ -26,7 +26,7 @@ class valac_task(Task.Task):
 		if self.target_glib:
 			cmd.append('--target-glib=%s' % self.target_glib)
 
-		if getattr(self.generator, 'link_task', []).__class__.__name__.find('program') < 0:
+		if self.is_lib:
 			output_dir = self.outputs[0].bld_dir()
 			cmd.append('--library=' + self.target)
 			for x in self.outputs:
@@ -68,9 +68,9 @@ def vala_file(self, node):
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
 		def _get_api_version():
-			api_version = getattr (Utils.g_module, 'API_VERSION', None)
+			api_version = getattr (Context.g_module, 'API_VERSION', None)
 			if api_version == None:
-				version = Utils.g_module.VERSION.split(".")
+				version = Context.g_module.VERSION.split(".")
 				if version[0] == "0":
 					api_version = "0." + version[1]
 				else:
@@ -90,16 +90,21 @@ def vala_file(self, node):
 		valatask.profile = getattr(self, 'profile', 'gobject')
 		valatask.vala_defines = getattr(self, 'vala_defines', [])
 		valatask.target_glib = None
+		valatask.gir = getattr(self, 'gir', None)
 		valatask.gir_path = getattr(self, 'gir_path', '${DATAROOTDIR}/gir-1.0')
-		valatask.vapi_path = getattr(self, 'vapi_path', None)
-		valatask.header_path = None
+		valatask.vapi_path = getattr(self, 'vapi_path', '${DATAROOTDIR}/vala/vapi')
+		valatask.pkg_name = getattr(self, 'pkg_name', self.env['PACKAGE'])
+		valatask.header_path = getattr(self, 'header_path',
+		                               '${INCLUDEDIR}/%s-%s' % (valatask.pkg_name, _get_api_version()))
+		
+		valatask.is_lib = False
+		if not 'cprogram' in self.features:
+			valatask.is_lib = True
+			
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
 		includes =  []
-        		
-		valatask.header_path = getattr(self, 'header_path',
-		                               '${INCLUDEDIR}/%s-%s' % (self.env['PACKAGE'], _get_api_version()))
 
 		if hasattr(self, 'use'):
 			local_packages = Utils.to_list(self.use)[:] # make sure to have a copy
@@ -172,11 +177,7 @@ def vala_file(self, node):
 				#Vala doesn't have threading support for dova nor posix
 				Logs.warn("Profile %s does not have threading support" % valatask.profile)
 
-		if hasattr(self, 'gir'):
-			valatask.gir = self.gir
-
-		features = self.features
-		if not 'cprogram' in features:
+		if valatask.is_lib:
 			valatask.outputs.append(self.path.find_or_declare('%s.h' % self.target))
 			valatask.outputs.append(self.path.find_or_declare('%s.vapi' % self.target))
 
@@ -194,7 +195,7 @@ def vala_file(self, node):
 	valatask.outputs.append(c_node)
 	self.source.append(c_node)
 
-	if valatask.attr("install_path") and ('cshlib' in features or 'cstlib' in features):
+	if valatask.is_lib:
 		headers_list = [o for o in valatask.outputs if o.suffix() == ".h"]
 		self.install_vheader = []
 		for header in headers_list:
@@ -211,6 +212,7 @@ def vala_file(self, node):
 valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
 def configure(self):
+	self.load ('gnu_dirs')
 	min_version = (0, 8, 0)
 	min_version_str = "%d.%d.%d" % min_version
 
@@ -249,6 +251,7 @@ def configure(self):
 	self.env.VALAFLAGS     = []
 
 def options (opt):
+	opt.load ('gnu_dirs')
 	valaopts = opt.add_option_group('Vala Compiler Options')
 	valaopts.add_option ('--vala-target-glib', default=None,
 		dest='vala_target_glib', metavar='MAJOR.MINOR',

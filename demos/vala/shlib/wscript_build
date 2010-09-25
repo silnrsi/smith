@@ -5,7 +5,10 @@ bld.shlib(
 	features = 'c cshlib',
 	target   = 'hello-world',
 	#uselib   = 'GTK GLIB',
-	source   = bld.path.ant_glob('src/*.vala'),
-	gir      = 'hello-1.0'
+	source   = 'hello.vala',
+	gir      = 'hello-1.0',
+	#gir_path  = '/tmp',
+	#vapi_path = '/tmp',
+	#pkg_name = 'hello'
 	)
 
