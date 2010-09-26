@@ -466,7 +466,7 @@ def check(self, *k, **kw):
 		self.end_msg(self.ret_msg(kw['okmsg'], kw))
 
 	self.post_check(*k, **kw)
-	if not kw.get('execute', False):
+	if isinstance(ret, int):
 		return ret == 0
 	return ret
 
