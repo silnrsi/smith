@@ -121,7 +121,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	#"""
 
 def set_main_module(file_path):
-	"Load custom options, if defined"
+	"Read the main wscript file into a module and add missing functions if necessary"
 	Context.g_module = Context.load_module(file_path)
 	Context.g_module.root_path = file_path
 
@@ -143,6 +143,7 @@ def set_main_module(file_path):
 		Context.g_module.options = Utils.nada
 
 def parse_options():
+	"""parse the command-line options and initialize the logging system"""
 	opt = Options.OptionsContext().call_execute()
 
 	if not Options.commands:
@@ -163,7 +164,7 @@ def parse_options():
 		Logs.zones = ['*']
 
 def run_command(cmd_name):
-	"""Run a command like it was invoked from the command line."""
+	"""run a single command (usually given on the command line)"""
 	ctx = Context.create_context(cmd_name)
 	ctx.options = Options.options # provided for convenience
 	ctx.cmd = cmd_name
@@ -171,6 +172,7 @@ def run_command(cmd_name):
 	return ctx
 
 def run_commands():
+	"""execute the commands that were given on the command-line, depends on parse_options"""
 	run_command('init')
 	while Options.commands:
 		cmd_name = Options.commands.pop(0)
@@ -187,6 +189,10 @@ def run_commands():
 excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg _MTN _darcs Makefile Makefile.in config.log'.split()
 dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
 def dont_dist(name, src, build_dir):
+	"""
+	files to ignore
+	TODO use ant_glob instead
+	"""
 	global excludes, dist_exts
 
 	if (name.startswith(',,')
@@ -204,9 +210,12 @@ def dont_dist(name, src, build_dir):
 
 	return False
 
-# like shutil.copytree
-# exclude files and to raise exceptions immediately
 def copytree(src, dst, build_dir):
+	"""
+	like shutil.copytree
+	excludes files and raises exceptions immediately
+	TODO use ant_glob instead
+	"""
 	names = os.listdir(src)
 	os.makedirs(dst)
 	for name in names:
@@ -364,7 +373,7 @@ def distcheck(ctx):
 	shutil.rmtree(path)
 
 def update(ctx):
-
+	"""download a specific tool into the local waf directory"""
 	lst = os.listdir(Context.waf_dir + '/waflib/extras')
 	for x in lst:
 		if not x.endswith('.py'):
@@ -373,7 +382,7 @@ def update(ctx):
 		Configure.download_tool(tool, force=True)
 
 def autoconfigure(execute_method):
-	"""decorator, sets the commands that can be autoconfigured automatically"""
+	"""decorator used to set the commands that can be configured automatically"""
 	def execute(self):
 		if not Configure.autoconfig:
 			return execute_method(self)
@@ -398,6 +407,5 @@ def autoconfigure(execute_method):
 
 		return execute_method(self)
 	return execute
-
 Build.BuildContext.execute = autoconfigure(Build.BuildContext.execute)
 
