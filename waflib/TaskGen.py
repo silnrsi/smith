@@ -29,7 +29,12 @@ feats = Utils.defaultdict(set)
 
 class task_gen(object):
 	"""
-	generate task objects which may be executed in parallel by the scheduler
+	Generate task objects by calling the method post() from the main thread
+	the tasks created should be added to the attribute tasks
+	the attribute 'path' is a node representing the location of the task generator
+	the attribute 'idx' is a counter of task generators in the same path
+	the 'features' are used to add methods to self.meths and then execute them
+	the methods are sorted before execution
 	"""
 
 	mappings = {}
@@ -55,9 +60,11 @@ class task_gen(object):
 		# list of methods to execute (by name)
 		self.features = []
 
+		# tasks created
 		self.tasks = []
 
 		if not 'bld' in kwargs:
+			# task generators without a build context :-/
 			self.env = ConfigSet.ConfigSet()
 			self.idx = 0
 			self.path = None
@@ -77,9 +84,11 @@ class task_gen(object):
 			setattr(self, key, val)
 
 	def __str__(self):
+		"""for debugging purposes"""
 		return "<task_gen %r declared in %s>" % (self.name, self.path.abspath())
 
 	def __repr__(self):
+		"""for debugging purposes"""
 		lst = []
 		for x in self.__dict__.keys():
 			if x not in ['env', 'bld', 'compiled_tasks', 'tasks']:
@@ -87,6 +96,7 @@ class task_gen(object):
 		return "bld(%s) in %s" % (" ".join(lst), self.path.abspath())
 
 	def get_name(self):
+		"""the name is computed from the target name, if possible"""
 		try:
 			return self._name
 		except AttributeError:
@@ -102,12 +112,12 @@ class task_gen(object):
 	name = property(get_name, set_name)
 
 	def to_list(self, value):
-		"helper: returns a list"
+		"""helper: returns a list"""
 		if isinstance(value, str): return value.split()
 		else: return value
 
 	def apply(self):
-		"order the methods to execute using self.prec or task_gen.prec"
+		"""order the methods to execute using self.prec or task_gen.prec"""
 		keys = set(self.meths)
 
 		# add the methods listed in the features
@@ -190,6 +200,7 @@ class task_gen(object):
 		raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, task_gen.mappings.keys()))
 
 	def create_task(self, name, src=None, tgt=None):
+		"""wrapper for creating task object creation"""
 		task = Task.classes[name](env=self.env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
@@ -199,7 +210,7 @@ class task_gen(object):
 		return task
 
 	def clone(self, env):
-		""
+		"""make a copy of a task generator, make sure to avoid creating the same tasks twice"""
 		newobj = self.bld()
 		for x in self.__dict__:
 			if x in ['env', 'bld']:
