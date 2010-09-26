@@ -284,14 +284,9 @@ class Dist(Context.Context):
 			pass
 
 		try:
-			self.exclude_regs
-		except:
-			self.exclude_regs = Node.exclude_regs + ' **/,,*  */\\+\\+*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/.lock-w*'
-
-		try:
 			files = self.files
 		except:
-			files = self.base_path.ant_glob('**/*', excl=self.exclude_regs)
+			files = self.base_path.ant_glob('**/*', excl=self.get_exclude_regs())
 
 		if self.algo.startswith('tar.'):
 			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
@@ -332,6 +327,17 @@ class Dist(Context.Context):
 			digest = ''
 
 		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
+
+	def get_exclude_regs(self):
+		try:
+			return self.exclude_regs
+		except:
+			self.exclude_regs = Node.exclude_regs + ' **/,,*  */\\+\\+*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/.lock-w*'
+			nd = self.root.find_node(Context.out_dir)
+			if nd:
+				self.exclude_regs += ' ' + nd.path_from(self.base_path)
+			return self.exclude_regs
+
 
 def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
