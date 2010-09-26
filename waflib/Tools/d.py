@@ -12,6 +12,7 @@ from waflib.Tools import d_scan, d_config
 from waflib.Tools.ccroot import link_task, stlink_task
 
 class d(Task.Task):
+	"Compile a d file into an object file"
 	color   = 'GREEN'
 	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	scan    = d_scan.scan
@@ -28,14 +29,16 @@ class d(Task.Task):
 		return super(d, self).exec_command(*k, **kw)
 
 class d_with_header(d):
+	"Compile a d file and generate a header"
 	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
 
 class d_header(Task.Task):
+	"Compile d headers"
 	color   = 'BLUE'
 	run_str = '${D} ${D_HEADER} ${SRC}'
 
-
 class dprogram(link_task):
+	"Link object files into a d program"
 	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${RPATH_ST:RPATH} ${DSTLIB_MARKER} ${DSTLIBPATH_ST:STLIBPATH} ${DSTLIB_ST:STLIB} ${DSHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
@@ -52,10 +55,12 @@ class dprogram(link_task):
 		return super(dprogram, self).exec_command(*k, **kw)
 
 class dshlib(dprogram):
+	"Link object files into a d shared library"
 	inst_to = '${LIBDIR}'
 
 class dstlib(stlink_task):
-	pass
+	"Link object files into a d static library"
+	pass # do not remove
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
@@ -78,6 +83,7 @@ def generate_header(self, filename, install_path=None):
 
 @feature('d')
 def process_header(self):
+	"process the attribute 'header_lst' to create the d header compilation tasks"
 	for i in getattr(self, 'header_lst', []):
 		node = self.path.find_resource(i[0])
 		if not node:
