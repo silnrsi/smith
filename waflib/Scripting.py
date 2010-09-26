@@ -283,10 +283,7 @@ class Dist(Context.Context):
 		except:
 			pass
 
-		try:
-			files = self.files
-		except:
-			files = self.base_path.ant_glob('**/*', excl=self.get_exclude_regs())
+		files = self.get_files()
 
 		if self.algo.startswith('tar.'):
 			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
@@ -337,6 +334,13 @@ class Dist(Context.Context):
 			if nd:
 				self.exclude_regs += ' ' + nd.path_from(self.base_path)
 			return self.exclude_regs
+
+	def get_files(self):
+		try:
+			files = self.files
+		except:
+			files = self.base_path.ant_glob('**/*', excl=self.get_exclude_regs())
+		return files
 
 
 def dist(ctx):
