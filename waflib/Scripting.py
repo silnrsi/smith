@@ -9,7 +9,7 @@ if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
 import os, shutil, traceback, datetime, inspect, errno, subprocess
-from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build
+from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build, Node
 
 build_dir_override = None
 
@@ -184,50 +184,6 @@ def run_commands():
 
 ###########################################################################################
 
-excludes = '.bzr .bzrignore .git .gitignore .svn CVS .cvsignore .arch-ids {arch} SCCS BitKeeper .hg _MTN _darcs Makefile Makefile.in config.log'.split()
-dist_exts = '~ .rej .orig .pyc .pyo .bak .tar.bz2 tar.gz .zip .swp'.split()
-def dont_dist(name, src, build_dir):
-	"""
-	files to ignore
-	TODO use ant_glob instead
-	"""
-	global excludes, dist_exts
-
-	if (name.startswith(',,')
-		or name.startswith('++')
-		or name.startswith('.waf-1.')
-		or (src == '.' and name == Options.lockfile)
-		or name in excludes
-		or name == build_dir
-		):
-		return True
-
-	for ext in dist_exts:
-		if name.endswith(ext):
-			return True
-
-	return False
-
-def copytree(src, dst, build_dir):
-	"""
-	like shutil.copytree
-	excludes files and raises exceptions immediately
-	TODO use ant_glob instead
-	"""
-	names = os.listdir(src)
-	os.makedirs(dst)
-	for name in names:
-		srcname = os.path.join(src, name)
-		dstname = os.path.join(dst, name)
-
-		if dont_dist(name, src, build_dir):
-			continue
-
-		if os.path.isdir(srcname):
-			copytree(srcname, dstname, build_dir)
-		else:
-			shutil.copy2(srcname, dstname)
-
 def _can_distclean(name):
 	"""
 	this method can change anytime and without prior notice
@@ -328,9 +284,14 @@ class Dist(Context.Context):
 			pass
 
 		try:
+			self.exclude_regs
+		except:
+			self.exclude_regs = Node.exclude_regs + ' **/,,*  */++*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/' + Options.lockfile
+
+		try:
 			files = self.files
 		except:
-			files = self.base_path.ant_glob('**/*')
+			files = self.base_path.ant_glob('**/*', excl=exclude_regs)
 
 		if self.algo.startswith('tar.'):
 			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
@@ -373,7 +334,7 @@ class Dist(Context.Context):
 		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
 
 def dist(ctx):
-	print '''makes a tarball for redistributing the sources'''
+	'''makes a tarball for redistributing the sources'''
 	pass
 
 def distcheck(ctx):
