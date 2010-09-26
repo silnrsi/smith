@@ -169,7 +169,7 @@ class BuildContext(Context.Context):
 
 	def execute(self):
 		"""see Context.execute"""
-		self.load()
+		self.restore()
 		if not self.all_envs:
 			self.load_envs()
 
@@ -196,7 +196,7 @@ class BuildContext(Context.Context):
 			Logs.info("Waf: Leaving directory `%s'" % self.variant_dir)
 		self.post_build()
 
-	def load(self):
+	def restore(self):
 		"Loads the cache from the disk (pickle)"
 		try:
 			env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, 'build.config.py'))
@@ -235,7 +235,7 @@ class BuildContext(Context.Context):
 		self.init_dirs()
 
 	def store(self):
-		"Stores the cache on disk (pickle), see self.load - uses a temporary file to avoid problems with ctrl+c"
+		"Stores the cache on disk (pickle), see self.restore - uses a temporary file to avoid problems with ctrl+c"
 
 		data = {}
 		for x in SAVED_ATTRS:
@@ -683,7 +683,7 @@ class InstallContext(BuildContext):
 
 	def execute(self):
 		"""see Context.execute"""
-		self.load()
+		self.restore()
 		if not self.all_envs:
 			self.load_envs()
 
@@ -866,7 +866,7 @@ class CleanContext(BuildContext):
 	cmd = 'clean'
 	def execute(self):
 		"""see Context.execute"""
-		self.load()
+		self.restore()
 		if not self.all_envs:
 			self.load_envs()
 
@@ -901,7 +901,7 @@ class ListContext(BuildContext):
 	cmd = 'list'
 	def execute(self):
 		"""see Context.execute"""
-		self.load()
+		self.restore()
 		if not self.all_envs:
 			self.load_envs()
 

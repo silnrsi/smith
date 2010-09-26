@@ -547,7 +547,7 @@ def run_c_code(self, *k, **kw):
 	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir) # keep the temporary build context on an attribute for debugging
 	if cachemode == COMPILE_ERRORS:
 		# TODO unlikely to be used, remove
-		bld.load()
+		bld.restore()
 	else:
 		bld.init_dirs()
 	bld.progress_bar = 0
