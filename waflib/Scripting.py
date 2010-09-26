@@ -301,9 +301,10 @@ class Dist(Context.Context):
 	ext_algo = {}
 
 	def execute(self):
-
 		self.recurse([os.path.dirname(Context.g_module.root_path)])
+		self.archive()
 
+	def archive(self):
 		import tarfile
 
 		appname = getattr(Context.g_module, Context.APPNAME, 'noname')
@@ -315,22 +316,39 @@ class Dist(Context.Context):
 		except:
 			self.arch_name = tmp_folder + '.' + self.ext_algo.get(self.algo, self.algo)
 
-		node = self.path.make_node(self.arch_name)
+		try:
+			self.base_path
+		except:
+			self.base_path = self.path
+
+		node = self.base_path.make_node(self.arch_name)
 		try:
 			node.delete()
 		except:
 			pass
 
 		try:
-			self.base_path
+			files = self.files
 		except:
-			self.base_path = self.path
-
-		files = self.path.ant_glob('**/*')
+			files = self.base_path.ant_glob('**/*')
 
 		if self.algo.startswith('tar.'):
 			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
-			#tar.add....
+
+			for x in files:
+				tinfo = tar.gettarinfo(name=x.abspath(), arcname=x.path_from(self.base_path))
+				tinfo.uid   = 0
+				tinfo.gid   = 0
+				tinfo.uname = 'root'
+				tinfo.gname = 'root'
+
+				fu = None
+				try:
+					fu = open(x.abspath())
+					tar.addfile(tinfo, fileobj=fu)
+				finally:
+					fu.close()
+
 			tar.close()
 		elif self.algo == 'zip':
 			import zipfile
