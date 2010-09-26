@@ -3,11 +3,7 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-Dependency tree holder
-
-The class Build holds all the info related to a build:
-* file system representation (tree of Node instances)
-* various cached objects (task signatures, file scan results, ..)
+Classes related to the build phase (build, clean, install, step, etc)
 """
 
 import os, sys, errno, re, datetime, shutil

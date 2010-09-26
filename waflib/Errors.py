@@ -2,6 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+"""
+Exceptions used in the Waf code
+"""
+
 import traceback, os, sys
 
 class WafError(Exception):

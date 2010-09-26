@@ -2,6 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
+"""
+logging, colors, terminal width and pretty-print
+"""
+
 import os, re, logging, traceback, sys
 
 try:
