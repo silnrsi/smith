@@ -45,3 +45,9 @@ class clean_debug(Build.CleanContext):
 	cmd = 'clean_debug'
 	variant = 'debug'
 
+class install_debug(Build.InstallContext):
+	cmd = 'install_debug'
+	variant = 'debug'
+
+# and yes, you may need "uninstall_debug" too
+
