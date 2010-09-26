@@ -21,7 +21,7 @@ Additionally, task_gen provides the method "process_source"
 WARNING: subclasses must reimplement the clone method
 """
 
-import traceback, copy, re
+import copy, re
 from waflib import Task, Utils, Logs, Errors
 
 feats = Utils.defaultdict(set)
@@ -501,6 +501,7 @@ class subst_pc(Task.Task):
 
 @extension('.pc.in')
 def add_pcfile(self, node):
+	""".pc.in -> .pc + install the .pc file into ${PREFIX}/lib/pkgconfig/"""
 	tsk = self.create_task('subst_pc', node, node.change_ext('.pc'))
 	self.bld.install_files('${PREFIX}/lib/pkgconfig/', tsk.outputs)
 
