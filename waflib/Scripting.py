@@ -304,8 +304,11 @@ def dist(ctx):
 	version = getattr(Context.g_module, Context.VERSION, '1.0')
 
 	tmp_folder = appname + '-' + version
-	arch_name = tmp_folder+'.tar.'+g_gz
-
+	if g_gz in ['gz', 'bz2']:
+		arch_name = tmp_folder + '.tar.' + g_gz
+	else:
+		arch_name = tmp_folder + '.' + 'zip'
+ 
 	# remove the previous dir
 	try:
 		shutil.rmtree(tmp_folder)
@@ -332,13 +335,19 @@ def dist(ctx):
 			# go back to the root directory
 			os.chdir(back)
 
-	tar = tarfile.open(arch_name, 'w:' + g_gz)
-	tar.add(tmp_folder)
-	tar.close()
-
-	from hashlib import sha1
+	if g_gz in ['gz', 'bz2']:
+		tar = tarfile.open(arch_name, 'w:' + g_gz)
+		tar.add(tmp_folder)
+		tar.close()
+	else:
+		Utils.zip_folder(tmp_folder, arch_name, tmp_folder)
+ 
 	try:
-		digest = " (sha=%r)" % sha1(Utils.readf(arch_name)).hexdigest()
+		from hashlib import sha1 as sha
+	except ImportError:
+		from sha import sha
+	try:
+		digest = " (sha=%r)" % sha(Utils.readf(arch_name)).hexdigest()
 	except:
 		digest = ''
 
