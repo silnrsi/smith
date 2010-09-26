@@ -286,12 +286,12 @@ class Dist(Context.Context):
 		try:
 			self.exclude_regs
 		except:
-			self.exclude_regs = Node.exclude_regs + ' **/,,*  */++*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/' + Options.lockfile
+			self.exclude_regs = Node.exclude_regs + ' **/,,*  */\\+\\+*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/.lock-w*'
 
 		try:
 			files = self.files
 		except:
-			files = self.base_path.ant_glob('**/*', excl=exclude_regs)
+			files = self.base_path.ant_glob('**/*', excl=self.exclude_regs)
 
 		if self.algo.startswith('tar.'):
 			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
