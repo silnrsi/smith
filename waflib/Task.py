@@ -162,8 +162,47 @@ class TaskBase(evil):
 		"RUN_ME SKIP_ME or ASK_LATER"
 		return RUN_ME
 
+	def process(self):
+		"""
+		process a task and then put it back in the queue "master.out"
+		"""
+		m = self.master
+		if m.stop:
+			m.out.put(self)
+			return
+
+		try:
+			self.generator.bld.to_log(self.display())
+			ret = self.run()
+		except Exception as e:
+			self.err_msg = Utils.ex_stack()
+			self.hasrun = EXCEPTION
+
+			# TODO cleanup
+			m.error_handler(self)
+			m.out.put(self)
+			return
+
+		if ret:
+			self.err_code = ret
+			self.hasrun = CRASHED
+		else:
+			try:
+				self.post_run()
+			except Errors.WafError:
+				pass
+			except Exception:
+				self.err_msg = Utils.ex_stack()
+				self.hasrun = EXCEPTION
+			else:
+				self.hasrun = SUCCESS
+		if self.hasrun != SUCCESS:
+			m.error_handler(self)
+
+		m.out.put(self)
+
 	def run(self):
-		"called if the task must run"
+		"called to execute the task"
 		if hasattr(self, 'fun'):
 			return self.fun(self)
 		return 0

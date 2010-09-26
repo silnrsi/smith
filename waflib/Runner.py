@@ -15,6 +15,10 @@ GAP = 15
 MAXJOBS = 999
 
 class TaskConsumer(Utils.threading.Thread):
+	"""
+	task consumers belong to a pool of workers
+	they wait for tasks in the queue and then use task.process(...)
+	"""
 	ready = Queue(0)
 	pool = []
 
@@ -32,43 +36,7 @@ class TaskConsumer(Utils.threading.Thread):
 	def loop(self):
 		while 1:
 			tsk = TaskConsumer.ready.get()
-			process_task(tsk)
-
-def process_task(tsk):
-	m = tsk.master
-	if m.stop:
-		m.out.put(tsk)
-		return
-
-	try:
-		tsk.generator.bld.to_log(tsk.display())
-		ret = tsk.run()
-	except Exception as e:
-		tsk.err_msg = Utils.ex_stack()
-		tsk.hasrun = Task.EXCEPTION
-
-		# TODO cleanup
-		m.error_handler(tsk)
-		m.out.put(tsk)
-		return
-
-	if ret:
-		tsk.err_code = ret
-		tsk.hasrun = Task.CRASHED
-	else:
-		try:
-			tsk.post_run()
-		except Errors.WafError:
-			pass
-		except Exception:
-			tsk.err_msg = Utils.ex_stack()
-			tsk.hasrun = Task.EXCEPTION
-		else:
-			tsk.hasrun = Task.SUCCESS
-	if tsk.hasrun != Task.SUCCESS:
-		m.error_handler(tsk)
-
-	m.out.put(tsk)
+			tsk.process()
 
 class Parallel(object):
 	"""
@@ -217,7 +185,7 @@ class Parallel(object):
 				self.processed += 1
 
 				if self.numjobs == 1:
-					process_task(tsk)
+					tsk.process()
 				else:
 					TaskConsumer.ready.put(tsk)
 					# create the consumer threads only if there is something to consume
