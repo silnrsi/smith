@@ -466,22 +466,3 @@ def runonce(fun):
 			return ret
 	return wrap
 
-def zip_folder(dir, zip_file_name, prefix):
-	"""
-	prefix represents the app to add in the archive
-	"""
-	import zipfile
-	zip = zipfile.ZipFile(zip_file_name, 'w', compression=zipfile.ZIP_DEFLATED)
-	base = os.path.abspath(dir)
-
-	if prefix:
-		if prefix[-1] != os.sep:
-			prefix += os.sep
-
-	n = len(base)
-	for root, dirs, files in os.walk(base):
-		for f in files:
-			archive_name = prefix + root[n:] + os.sep + f
-			zip.write(root + os.sep + f, archive_name, zipfile.ZIP_DEFLATED)
-	zip.close()
-

@@ -11,8 +11,6 @@ if sys.hexversion<0x206000f:
 import os, shutil, traceback, datetime, inspect, errno, subprocess
 from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build
 
-g_gz = 'bz2'
-
 build_dir_override = None
 
 no_climb_commands = ['configure']
@@ -296,54 +294,69 @@ def distclean(ctx):
 		if f.startswith('.waf-') and not Options.commands:
 			shutil.rmtree(f, ignore_errors=True)
 
+class Dist(Context.Context):
+	cmd = 'dist'
+	fun = 'dist'
+	algo = 'tar.bz2'
+	ext_algo = {}
+
+	def execute(self):
+
+		self.recurse([os.path.dirname(Context.g_module.root_path)])
+
+		import tarfile
+
+		appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+		version = getattr(Context.g_module, Context.VERSION, '1.0')
+
+		tmp_folder = appname + '-' + version
+		try:
+			self.arch_name
+		except:
+			self.arch_name = tmp_folder + '.' + self.ext_algo.get(self.algo, self.algo)
+
+		node = self.path.make_node(self.arch_name)
+		try:
+			node.delete()
+		except:
+			pass
+
+		try:
+			self.base_path
+		except:
+			self.base_path = self.path
+
+		files = self.path.ant_glob('**/*')
+
+		if self.algo.startswith('tar.'):
+			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
+			#tar.add....
+			tar.close()
+		elif self.algo == 'zip':
+			import zipfile
+			zip = zipfile.ZipFile(self.arch_name, 'w', compression=zipfile.ZIP_DEFLATED)
+
+			for x in files:
+				archive_name = x.path_from(self.base_path)
+				zip.write(x.abspath(), archive_name, zipfile.ZIP_DEFLATED)
+			zip.close()
+		else:
+			self.fatal('Valid algo types are tar.bz2, tar.gz or zip')
+
+		try:
+			from hashlib import sha1 as sha
+		except ImportError:
+			from sha import sha
+		try:
+			digest = " (sha=%r)" % sha(node.read()).hexdigest()
+		except:
+			digest = ''
+
+		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
+
 def dist(ctx):
-	'''makes a tarball for redistributing the sources'''
-	import tarfile
-
-	appname = getattr(Context.g_module, Context.APPNAME, 'noname')
-	version = getattr(Context.g_module, Context.VERSION, '1.0')
-
-	tmp_folder = appname + '-' + version
-	if g_gz in ['gz', 'bz2']:
-		arch_name = tmp_folder + '.tar.' + g_gz
-	else:
-		arch_name = tmp_folder + '.' + 'zip'
-
-	# remove the previous dir
-	try:
-		shutil.rmtree(tmp_folder)
-	except (OSError, IOError):
-		pass
-
-	# remove the previous archive
-	try:
-		os.remove(arch_name)
-	except (OSError, IOError):
-		pass
-
-	# copy the files into the temporary folder
-	copytree('.', tmp_folder, getattr(Context.g_module, Context.OUT, None))
-
-	if g_gz in ['gz', 'bz2']:
-		tar = tarfile.open(arch_name, 'w:' + g_gz)
-		tar.add(tmp_folder)
-		tar.close()
-	else:
-		Utils.zip_folder(tmp_folder, arch_name, tmp_folder)
-
-	try:
-		from hashlib import sha1 as sha
-	except ImportError:
-		from sha import sha
-	try:
-		digest = " (sha=%r)" % sha(Utils.readf(arch_name)).hexdigest()
-	except:
-		digest = ''
-
-	Logs.info('New archive created: %s%s' % (arch_name, digest))
-
-	if os.path.exists(tmp_folder): shutil.rmtree(tmp_folder)
-	return arch_name
+	print '''makes a tarball for redistributing the sources'''
+	pass
 
 def distcheck(ctx):
 	'''checks if the project compiles (tarball from 'dist')'''
