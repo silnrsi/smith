@@ -116,8 +116,16 @@ class task_gen(object):
 		if isinstance(value, str): return value.split()
 		else: return value
 
-	def apply(self):
-		"""order the methods to execute using self.prec or task_gen.prec"""
+	def post(self):
+		"""create the task objects; order the methods to execute using self.prec or task_gen.prec"""
+
+		# we could add a decorator to let the task run once, but then python 2.3 will be difficult to support
+
+		if getattr(self, 'posted', None):
+			#error("OBJECT ALREADY POSTED" + str( self))
+			return False
+		self.posted = True
+
 		keys = set(self.meths)
 
 		# add the methods listed in the features
@@ -176,13 +184,6 @@ class task_gen(object):
 			Logs.debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 
-	def post(self):
-		"runs the code to create the tasks, do not subclass"
-		if getattr(self, 'posted', None):
-			#error("OBJECT ALREADY POSTED" + str( self))
-			return False
-		self.posted = True
-		self.apply()
 		Logs.debug('task_gen: posted %s' % self.name)
 		return True
 

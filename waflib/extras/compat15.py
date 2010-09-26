@@ -89,8 +89,8 @@ def load_module(path):
 	return ret
 Context.load_module = load_module
 
-old_apply = TaskGen.task_gen.apply
-def apply(self):
+old_post = TaskGen.task_gen.post
+def post(self):
 	self.features = self.to_list(self.features)
 	if 'cc' in self.features:
 		Logs.warn('compat: the feature cc does not exist anymore (use "c")')
@@ -100,8 +100,8 @@ def apply(self):
 		Logs.warn('compat: the feature cstaticlib does not exist anymore (use "cstlib" or "cxxstlib")')
 		self.features.remove('cstaticlib')
 		self.features.append(('cxx' in self.features) and 'cxxstlib' or 'cstlib')
-	old_apply(self)
-TaskGen.task_gen.apply = apply
+	return old_post(self)
+TaskGen.task_gen.post = post
 
 def waf_version(*k, **kw):
 	Logs.warn('wrong version (waf_version was removed in waf 1.6)')
