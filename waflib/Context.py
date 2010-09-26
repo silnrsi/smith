@@ -132,13 +132,6 @@ class Context(ctx):
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 		self.logger = None
 
-	def call_execute(self):
-		"""leave this indirection if necessary"""
-		try:
-			self.execute()
-		finally:
-			self.free()
-
 	def load(self, tool_list, *k, **kw):
 		"""
 		load the options that a waf tool provides (or not)
@@ -158,13 +151,6 @@ class Context(ctx):
 		"""executes the command represented by this context - subclasses must override this method"""
 		global g_module
 		self.recurse([os.path.dirname(g_module.root_path)])
-
-	def free(self):
-		"""
-		close the log file (config.log) or any log file if present (__del__ does not work properly everywher)
-		override this method if necessary
-		"""
-		pass
 
 	def pre_recurse(self, node):
 		"""from the context class"""

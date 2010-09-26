@@ -142,7 +142,7 @@ def set_main_module(file_path):
 
 def parse_options():
 	"""parse the command-line options and initialize the logging system"""
-	opt = Options.OptionsContext().call_execute()
+	opt = Options.OptionsContext().execute()
 
 	if not Options.commands:
 		Options.commands = ['build']
@@ -166,7 +166,7 @@ def run_command(cmd_name):
 	ctx = Context.create_context(cmd_name)
 	ctx.options = Options.options # provided for convenience
 	ctx.cmd = cmd_name
-	ctx.call_execute()
+	ctx.execute()
 	return ctx
 
 def run_commands():
