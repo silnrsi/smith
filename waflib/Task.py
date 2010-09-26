@@ -165,6 +165,7 @@ class TaskBase(evil):
 	def process(self):
 		"""
 		process a task and then put it back in the queue "master.out"
+		TODO find a better name for this method
 		"""
 		m = self.master
 		if m.stop:

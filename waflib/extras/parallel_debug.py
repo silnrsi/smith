@@ -46,7 +46,7 @@ def map_to_color(name):
 		return color2code[cls.color]
 	return color2code['RED']
 
-def process_task(tsk):
+def process(tsk):
 	m = tsk.master
 	if m.stop:
 		m.out.put(tsk)
@@ -84,7 +84,7 @@ def process_task(tsk):
 	tsk.master.set_running(-1, id(Utils.threading.current_thread()), tsk)
 	m.out.put(tsk)
 
-Runner.process_task = process_task
+Task.Task.process = process
 
 old_start = Runner.Parallel.start
 def do_start(self):
