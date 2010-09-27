@@ -31,11 +31,12 @@ def configure(conf):
 
 def build(bld):
 	if bld.variant == 'debug':
+		bld.set_env('default', bld.env_of_name('debug'))
 		bld.env.append_value('CCFLAGS', ['-O2'])
 
 	# the includes='.' add the build directory path to the command arguments
 	# (look at the -I flags by using waf -v)
-	bld.program(source='main.c', target='app', includes='.', env=bld.env_of_name('debug'))
+	bld.program(source='main.c', target='app', includes='.')
 
 # ------ new declaration for variants -------
 #
