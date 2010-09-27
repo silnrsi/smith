@@ -697,14 +697,13 @@ class c_parser(object):
 			lst.reverse()
 			self.lines.extend([('define', x) for x in lst])
 
-		line = ''
-		try:
-			while self.lines:
-				(token, line) = self.lines.pop()
-				if token == POPFILE:
-					self.currentnode_stack.pop()
-					continue
+		while self.lines:
+			(token, line) = self.lines.pop()
+			if token == POPFILE:
+				self.currentnode_stack.pop()
+				continue
 
+			try:
 				ve = Logs.verbose
 				if ve: debug('preproc: line is %s - %s state is %s', token, line, self.state)
 				state = self.state
@@ -761,9 +760,9 @@ class c_parser(object):
 				elif token == 'pragma':
 					if re_pragma_once.match(line.lower()):
 						self.ban_includes.add(self.curfile)
-		except Exception as e:
-			if Logs.verbose:
-				debug('preproc: line parsing failed (%s): %s %s', e, line, Utils.ex_stack())
+			except Exception as e:
+				if Logs.verbose:
+					debug('preproc: line parsing failed (%s): %s %s', e, line, Utils.ex_stack())
 
 def scan(task):
 	"""
