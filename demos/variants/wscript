@@ -22,13 +22,20 @@ def configure(conf):
 	conf.write_config_header('config.h', remove=False)
 	conf.write_config_header('debug/config.h', remove=False)
 
-def build(bld):
-	# the includes='.' add the build directory path to the command arguments
-	# (look at the -I flags by using waf -v)
-	bld.program(source='main.c', target='app', includes='.')
 
+	# you may change the options...
+	conf.options.prefix = '/opt'
+	conf.setenv('debug') # new empty 'conf.env'
+	conf.load('compiler_c')
+	conf.define('E', 1)
+
+def build(bld):
 	if bld.variant == 'debug':
 		bld.env.append_value('CCFLAGS', ['-O2'])
+
+	# the includes='.' add the build directory path to the command arguments
+	# (look at the -I flags by using waf -v)
+	bld.program(source='main.c', target='app', includes='.', env=bld.env_of_name('debug'))
 
 # ------ new declaration for variants -------
 #
