@@ -329,7 +329,7 @@ class Dist(Context.Context):
 		try:
 			return self.exclude_regs
 		except:
-			self.exclude_regs = Node.exclude_regs + ' **/,,*  */\\+\\+*  **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp  **/.lock-w*'
+			self.exclude_regs = Node.exclude_regs + ' **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp **/.lock-w*'
 			nd = self.root.find_node(Context.out_dir)
 			if nd:
 				self.exclude_regs += ' ' + nd.path_from(self.base_path)
