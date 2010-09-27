@@ -24,7 +24,7 @@ def build_tests(ctx, fonts, target) :
 
     for n in htxtfiles :
         targ = n.get_bld().change_ext('.txt')
-        ctx(rule=r"perl -CSD -pe 's/\[uU]([0-9A-Fa-f]+)/pack(\"U\", hex($1))/oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
+        ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
         htxttfiles.append(targ)
 
 #    import pdb; pdb.set_trace()

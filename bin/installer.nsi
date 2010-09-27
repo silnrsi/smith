@@ -293,7 +293,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + os.path.join('..', env.LICENSE) + '"' if env.LICENSE else ""@
+  @'!insertmacro MUI_PAGE_LICENSE "' + os.path.join('..', env.LICENSE) + '"' if env.LICENSE else '"'@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
