@@ -101,7 +101,7 @@ class fortran_parser(object):
 		found = None
 		for n in self.incpaths:
 			found = n.find_resource(filename)
-			if found and not found in self.outputs:
+			if found:
 				self.nodes.append(found)
 				self.waiting.append(found)
 				break

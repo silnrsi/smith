@@ -110,7 +110,7 @@ class fc(Task.Task):
 				if x.startswith('USE@'):
 					name = x.replace('USE@', '') + '.mod'
 					node = bld.srcnode.find_resource(name)
-					if node:
+					if node and node not in tsk.outputs:
 						if not node in bld.node_deps[key]:
 							bld.node_deps[key].append(node)
 						ins[id(node)].add(tsk)
