@@ -553,8 +553,10 @@ def parse_char(txt):
 		try: return chr_esc[c]
 		except KeyError: raise PreprocError("could not parse char literal '%s'" % txt)
 
+@Utils.run_once
 def tokenize(s):
 	"""convert a string into a list of tokens (shlex.split does not apply to c/c++/d)"""
+	# the same headers are read again and again - 10% improvement on preprocessing the samba headers
 	ret = []
 	for match in re_clexer.finditer(s):
 		m = match.group
