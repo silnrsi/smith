@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import os, sys, imp, types
-from waflib import Utils, Configure, Options
+from waflib import Utils, Configure, Options, Logs
 from waflib.extras import fc
 
 fc_compiler = {
@@ -30,7 +30,7 @@ def configure(conf):
 			conf.load(compiler)
 		except conf.errors.ConfigurationError as e:
 			conf.end_msg(False)
-			debug('compiler_fortran: %r' % e)
+			Logs.debug('compiler_fortran: %r' % e)
 		else:
 			if conf.env['FC']:
 				orig.table = conf.env.get_merged_dict()
