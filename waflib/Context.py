@@ -132,6 +132,9 @@ class Context(ctx):
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 		self.logger = None
 
+	def __hash__(self):
+		return id(self)
+
 	def load(self, tool_list, *k, **kw):
 		"""
 		load the options that a waf tool provides (or not)

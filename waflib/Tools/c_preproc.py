@@ -591,6 +591,10 @@ def tokenize(s):
 				break
 	return ret
 
+@Utils.run_once
+def define_name(line):
+	return re_mac.match(line).group(0)
+
 class c_parser(object):
 	def __init__(self, nodepaths=None, defines=None):
 		self.lines = []
@@ -751,7 +755,7 @@ class c_parser(object):
 					elif state[-1] == ignored: state[-1] = accepted
 				elif token == 'define':
 					try:
-						self.defs[re_mac.match(line).group(0)] = line
+						self.defs[define_name(line)] = line
 					except:
 						raise PreprocError("invalid define line %s" % line)
 				elif token == 'undef':
