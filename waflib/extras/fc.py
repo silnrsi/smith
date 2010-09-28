@@ -48,7 +48,7 @@ def dummy(self):
 #	ret = task.exec_command(*cmd)
 #	return ret
 
-@TaskGen.extension('.f')
+@TaskGen.extension('.f', '.f90')
 def fc_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
@@ -129,7 +129,7 @@ class fc(Task.Task):
 
 		return super(fc, self).runnable_status()
 
-@extension('.F')
+@extension('.F', '.F90')
 def fcpp_hook(self, node):
 	return self.create_compiled_task('fcpp', node)
 
