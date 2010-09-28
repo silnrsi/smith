@@ -446,23 +446,23 @@ def h_rec(obj):
 		h = hash(obj)
 	return h
 
-runonce_ret = {}
-def runonce(fun):
+def run_once(fun):
 	"""
 	decorator, make a function cache its results, use like this:
 
-	@runonce
+	@run_once
 	def foo():
 		return 345*2343
 	"""
+	cache = {}
 	def wrap(*k, **kw):
-		global runonce_ret
 		key = hash((h_rec(k), h_rec(kw)))
 		try:
-			return runonce_ret[key]
+			return cache[key]
 		except KeyError:
 			ret = fun(*k, **kw)
-			runonce_ret[key] = ret
+			cache[key] = ret
 			return ret
+	wrap.__cache__ = cache
 	return wrap
 
