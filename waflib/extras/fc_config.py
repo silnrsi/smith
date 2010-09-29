@@ -41,6 +41,8 @@ def fc_flags(conf):
 	v['FCSTLIB_MARKER'] = '-Wl,-Bstatic'
 	v['FCSHLIB_MARKER'] = '-Wl,-Bdynamic'
 
+	v['SONAME_ST']           = '-Wl,-h,%s'
+
 @conf
 def check_fortran(self, *k, **kw):
 	"""see if the compiler works by compiling a fragment"""

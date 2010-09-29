@@ -200,7 +200,7 @@ def use_rec(self, name, objects=True, stlib=True):
 	if getattr(y, 'export_includes', None):
 		self.includes.extend(y.to_incnodes(y.export_includes))
 
-@feature('c', 'cxx', 'd', 'use')
+@feature('c', 'cxx', 'd', 'use', 'fc')
 @before('apply_incpaths', 'propagate_uselib_vars')
 @after('apply_link', 'process_source')
 def process_use(self):
@@ -293,7 +293,7 @@ def apply_implib(self):
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
-@feature('cshlib', 'cxxshlib', 'dshlib', 'vnum')
+@feature('cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
 @after('apply_link')
 def apply_vnum(self):
 	"""
