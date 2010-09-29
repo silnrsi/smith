@@ -19,7 +19,7 @@ def gfortran_flags(conf):
 	v['FCFLAGS_DEBUG'] = ['-Werror'] # why not
 
 @conf
-def gcc_modifier_darwin(conf):
+def gfortran_modifier_darwin(conf):
 	v = conf.env
 	v['FCFLAGS_fcshlib']   = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_fcshlib'] = ['-dynamiclib']
