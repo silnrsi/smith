@@ -52,6 +52,14 @@ def dummy(self):
 def fc_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
+def get_fortran_tasks(bld):
+	tasks = []
+	for gp in bld.groups:
+		for tg in gp:
+			try: tasks.extend(tg.tasks)
+			except TypeError: tasks.append(tg.tasks)
+	return [task for task in tasks if isinstance(task, fc)]
+
 class fc(Task.Task):
 	color = 'GREEN'
 	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT[0].abspath()} ${FC_SRC_F}${SRC[0].abspath()}'
@@ -70,7 +78,7 @@ class fc(Task.Task):
 		bld = self.generator.bld
 
 		# obtain the fortran tasks
-		lst = [tsk for tsk in bld.producer.outstanding + bld.producer.frozen if isinstance(tsk, fc)]
+		lst = get_fortran_tasks(bld)
 
 		# disable this method for other tasks
 		for tsk in lst:
