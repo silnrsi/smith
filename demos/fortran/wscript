@@ -32,12 +32,13 @@ def build(bld):
 		features = 'fc fcprogram',
 		source   = 'hello.f',
 		target   = 'hello',
-		uselib   = 'DEBUG')
+		use      = 'DEBUG')
 
 	bld(
 		features = 'fc fcshlib',
 		source   = 'foo.f',
-		target   = 'foo')
+		target   = 'shlib1',
+		vnum     = '2.3.9')
 
 	bld(
 		features = 'fc fcstlib',
@@ -48,7 +49,8 @@ def build(bld):
 		features = 'fc fcprogram',
 		source   = 'foo_pp.F',
 		target   = 'foo',
-		defines  = ['USEFOO', 'blah=1'])
+		defines  = ['USEFOO', 'blah=1'],
+		use      = 'shlib1')
 
 	bld(
 		features = 'fc fcprogram',
