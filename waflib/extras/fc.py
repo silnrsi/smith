@@ -139,12 +139,7 @@ class fc(Task.Task):
 
 @extension('.F', '.F90')
 def fcpp_hook(self, node):
-	return self.create_compiled_task('fcpp', node)
-
-class fcpp(Task.Task):
-	# FIXME why another task? what's the problem?
-	color = 'GREEN'
-	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${FC_TGT_F}${TGT} ${FC_SRC_F}${SRC}'
+	return self.create_compiled_task('fc', node)
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
