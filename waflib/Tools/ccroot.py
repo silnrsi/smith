@@ -46,6 +46,9 @@ def create_compiled_task(self, name, node):
 
 @taskgen_method
 def to_incnodes(self, inlst):
+	"""
+	return a list of node objects from a list of includes (string/nodes)
+	"""
 	lst = []
 	seen = set([])
 	for x in self.to_list(inlst):
@@ -80,6 +83,7 @@ def apply_incpaths(self):
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
 class link_task(Task.Task):
+	"""base class for all link tasks (c_link, cxx_link, etc)"""
 	color   = 'YELLOW'
 	inst_to = None
 	chmod   = Utils.O644
@@ -102,6 +106,7 @@ class link_task(Task.Task):
 		self.set_outputs(target)
 
 class stlink_task(link_task):
+	"""link static libraries (with ar)"""
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 	def run(self):
 		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
@@ -146,7 +151,7 @@ def apply_link(self):
 @taskgen_method
 def use_rec(self, name, objects=True, stlib=True):
 	"""
-	recursion sucks absolutely but we are forced to use it :-/
+	process the use keyword, recursively
 	"""
 	if name in self.seen_libs:
 		return
@@ -223,6 +228,7 @@ def process_use(self):
 
 @taskgen_method
 def get_uselib_vars(self):
+	"helper function"
 	_vars = set([])
 	for x in self.features:
 		if x in USELIB_VARS:
@@ -232,6 +238,7 @@ def get_uselib_vars(self):
 @feature('c', 'cxx', 'd', 'fc', 'cs', 'uselib')
 @after('process_use')
 def propagate_uselib_vars(self):
+	"""process uselib variables for adding flags"""
 	_vars = self.get_uselib_vars()
 	env = self.env
 
@@ -333,6 +340,7 @@ def apply_vnum(self):
 		self.vnum_install_task = (t1, t2, t3)
 
 class vnum_task(Task.Task):
+	"""create the symbolic links for a versioned shared library"""
 	color = 'CYAN'
 	quient = True
 	ext_in = ['.bin']
@@ -350,12 +358,14 @@ class vnum_task(Task.Task):
 				return 1
 
 class fake_shlib(link_task):
+	"""task used for reading a foreign library and adding the dependency on it"""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
 
 class fake_stlib(stlink_task):
+	"""task used for reading a foreign library and adding the dependency on it""""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
@@ -363,10 +373,12 @@ class fake_stlib(stlink_task):
 
 @conf
 def read_shlib(self, name, paths=[]):
+	"""read a foreign shared library for the use system"""
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='shlib')
 
 @conf
 def read_stlib(self, name, paths=[]):
+	"""read a foreign static library for the use system"""
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='stlib')
 
 lib_patterns = {
@@ -376,6 +388,9 @@ lib_patterns = {
 
 @feature('fake_lib')
 def process_lib(self):
+	"""
+	find the location of a foreign library
+	"""
 	node = None
 
 	names = [x % self.name for x in lib_patterns[self.lib_type]]

@@ -20,7 +20,7 @@ def get_extensions(lst):
 	return ret
 
 def sniff_features(**kw):
-	"""look at the source files and return the features (mainly cc and cxx)"""
+	"""look at the source files and return the features for a task generator (mainly cc and cxx)"""
 	exts = get_extensions(kw['source'])
 	type = kw['_type']
 

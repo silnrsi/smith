@@ -5,7 +5,7 @@
 """
 Search for common mistakes
 
-There is a performance hit, so this tool must be loaded manually
+There is a performance hit, so this tool is only loaded when running "waf -vv"
 """
 
 typos = {
@@ -40,6 +40,9 @@ def replace(m):
 	setattr(Build.BuildContext, m, call)
 
 def enhance_lib():
+	"""
+	modify existing classes and methods
+	"""
 	for m in meths_typos:
 		replace(m)
 
