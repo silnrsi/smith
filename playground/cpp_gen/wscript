@@ -25,6 +25,7 @@ from waflib.Tools import cxx
 
 @TaskGen.feature('copya')
 @TaskGen.after('process_source')
+@TaskGen.before('apply_link')
 def copya_create_task(self):
 	for x in self.tasks:
 		if x.inputs and x.inputs[0].name == 'a.cpp' and x.__class__.__name__ != 'copy':
