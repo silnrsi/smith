@@ -58,9 +58,8 @@ from waflib import Build, Options
 class debug_context(Build.BuildContext):
 	cmd = 'debug'
 	fun = 'build'
+	variant = 'test'
 	def __init__(self, start=None):
-		self.cache_dir = Options.out_dir + os.sep + Build.CACHE_DIR
-		self.out_dir = Options.out_dir + os.sep + 'test'
 		Build.BuildContext.__init__(self, start=start)
 
 # looks evil
