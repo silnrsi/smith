@@ -8,7 +8,7 @@ import sys
 if sys.hexversion<0x206000f:
 	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
 
-import os, shutil, traceback, datetime, inspect, errno, subprocess
+import os, shutil, traceback, datetime, inspect, errno
 from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build, Node
 
 build_dir_override = None
@@ -407,7 +407,7 @@ class DistCheck(Dist):
 				t.close()
 
 		instdir = tempfile.mkdtemp('.inst', self.get_base_name())
-		ret = subprocess.Popen([sys.argv[0], 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=self.get_base_name()).wait()
+		ret = Utils.subprocess.Popen([sys.argv[0], 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=self.get_base_name()).wait()
 		if ret:
 			raise Errors.WafError('distcheck failed with code %i' % ret)
 

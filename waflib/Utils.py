@@ -7,8 +7,21 @@ Utilities and cross-platform fixes.
 """
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc
-import subprocess # leave this line exactly as it is (enable module replacement if necessary)
-from collections import deque # do not touch
+try:
+	import subprocess
+except:
+	try:
+		import waflib.extras.subprocess as subprocess
+	except:
+		print("the subprocess module is missing, try to add it to the folder waflib/extras (python 2.3?)")
+
+try:
+	from collections import deque
+except ImportError: # for python 2.3 :-/
+	class deque(list):
+		def popleft(self):
+			return self.pop(0)
+
 from waflib import Errors
 
 try:
