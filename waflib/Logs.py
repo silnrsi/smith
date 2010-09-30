@@ -125,10 +125,12 @@ class log_filter(logging.Filter):
 		return True
 
 class formatter(logging.Formatter):
+	"simple log formatter"
 	def __init__(self):
 		logging.Formatter.__init__(self, LOG_FORMAT, HOUR_FORMAT)
 
 	def format(self, rec):
+		"handles colors"
 		if rec.levelno >= logging.WARNING or rec.levelno == logging.INFO:
 			try:
 				return '%s%s%s' % (rec.c1, rec.msg.decode('utf-8'), rec.c2)
@@ -137,8 +139,10 @@ class formatter(logging.Formatter):
 		return logging.Formatter.format(self, rec)
 
 log = None
+"""global logger for Logs.debug, Logs.error, etc"""
 
 def debug(*k, **kw):
+	"simple wrapper for logging.debug, suppress the input for performance reasons"
 	if verbose:
 		k = list(k)
 		k[0] = k[0].replace('\n', ' ')

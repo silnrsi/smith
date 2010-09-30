@@ -23,16 +23,18 @@ Its Node class is referenced here as self.__class__
 import os, re, sys, shutil
 from waflib import Utils, Errors
 
-# These fnmatch expressions are used by default to prune the directory tree
-# while doing the recursive traversal in the find_iter method of the Node class.
 prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
+"""
+These fnmatch expressions are used by default to prune the directory tree
+while doing the recursive traversal in the find_iter method of the Node class.
+"""
 
-# These fnmatch expressions are used by default to exclude files and dirs
-# while doing the recursive traversal in the find_iter method of the Node class.
 exclude_pats = prune_pats + '*~ #*# .#* %*% ._* .gitignore .cvsignore vssver.scc .DS_Store'.split()
+"""
+These fnmatch expressions are used by default to exclude files and dirs
+while doing the recursive traversal in the find_iter method of the Node class.
+"""
 
-# These Utils.jar_regexp expressions are used by default to exclude files and dirs and also prune the directory tree
-# while doing the recursive traversal in the ant_glob method of the Node class.
 exclude_regs = '''
 **/*~
 **/#*#
@@ -63,10 +65,17 @@ exclude_regs = '''
 **/_darcs
 **/_darcs/**
 **/.DS_Store'''
+"""
+These Utils.jar_regexp expressions are used by default to exclude files and dirs and also prune the directory tree
+while doing the recursive traversal in the ant_glob method of the Node class.
+"""
 
 # TODO optimize split_path by performing a replacement when unpacking?
 
 def split_path(path):
+	"""
+	split a path, but faster than os.path.split
+	"""
 	return path.split('/')
 
 def split_path_cygwin(path):
@@ -106,6 +115,7 @@ class Node(object):
 			parent.children[name] = self
 
 	def __setstate__(self, data):
+		"serialization stuff"
 		self.name = data[0]
 		self.parent = data[1]
 		if data[2] is not None:
@@ -114,19 +124,23 @@ class Node(object):
 			self.sig = data[3]
 
 	def __getstate__(self):
+		"serialization stuff"
 		return (self.name, self.parent, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
+		"for debugging purposes"
 		return self.name
 
 	def __repr__(self):
+		"for debugging purposes"
 		return self.abspath()
 
 	def __hash__(self):
-		return id(self) # TODO see if it is still the case
-		#raise Errors.WafError('do not hash nodes (too expensive)')
+		"this hash is not persistent"
+		return id(self)
 
 	def __eq__(self, node):
+		"there can be only one node for a path so we compare with the ids"
 		return id(self) == id(node)
 
 	def __copy__(self):
@@ -354,7 +368,7 @@ class Node(object):
 		return id(p) == id(node)
 
 	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
-
+		"semi-private method used by ant_glob"
 		dircont = self.listdir()
 		dircont.sort()
 
@@ -648,8 +662,9 @@ class Node(object):
 
 
 pickle_lock = Utils.threading.Lock()
-"""thread-safe node serialization requires this"""
+"""lock mandatory for thread-safe node serialization"""
 
 class Nod3(Node):
-	pass
+	"""mandatory subclass for thread-safe node serialization"""
+	pass # do not remove
 
