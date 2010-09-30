@@ -17,8 +17,8 @@ class c(Task.Task):
 	"Task for compiling c files into object files"
 	color   = 'GREEN'
 	run_str = '${CC} ${CCFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
-	vars    = ['CCDEPS']
-	ext_in  = ['.h']
+	vars    = ['CCDEPS'] # unused variable to depend on, just in case
+	ext_in  = ['.h'] # set the build order easily by using ext_out=['.h']
 	scan    = c_preproc.scan
 
 Task.classes['cc'] = cc = c # compat, remove in waf 1.7

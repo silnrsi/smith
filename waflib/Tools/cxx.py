@@ -20,8 +20,8 @@ class cxx(Task.Task):
 	"Compile c++ files into object files"
 	color   = 'GREEN'
 	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
-	vars    = ['CXXDEPS']
-	ext_in  = ['.h']
+	vars    = ['CXXDEPS'] # unused variable to depend on, just in case
+	ext_in  = ['.h'] # set the build order easily by using ext_out=['.h']
 	scan    = c_preproc.scan
 
 class cxxprogram(link_task):
