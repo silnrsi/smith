@@ -32,7 +32,7 @@ API DOCS
 --------
 
 Use this command:
-epydoc -v -o wafdoc160p2 --name epydoc --css white waflib/
+epydoc -v -o wafdoc160p3 --name wafdoc --css white waflib/
 
 ---------------------------
 Thomas Nagy, 2010 (ita)
