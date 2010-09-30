@@ -69,7 +69,7 @@ class cfgtask(TaskBase):
 		bld.check(**self.args)
 
 @conf
-def multicheck(self, *k):
+def multicheck(self, *k, **kw):
 	"""
 	use tuples to perform parallel configuration tests
 	"""
@@ -107,6 +107,11 @@ def multicheck(self, *k):
 	# flush the logs in order into the config.log
 	for x in tasks:
 		x.logger.memhandler.flush()
+
+	for x in tasks:
+		if x.hasrun != Task.SUCCESS:
+			self.end_msg('no')
+			self.fatal(kw.get('errmsg', None) or 'One of the tests has failed, see the config.log for more information')
 
 	self.end_msg('ok')
 
