@@ -24,30 +24,6 @@ ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
 def dummy(self):
 	pass
 
-
-
-# FIXME what was this for??????
-#def fortran_compile(task):
-#	env = task.env
-#	def tolist(xx):
-#		if isinstance(xx, str):
-#			return [xx]
-#		return xx
-#	cmd = []
-#	cmd.extend(tolist(env["FC"]))
-#	cmd.extend(tolist(env["FCFLAGS"]))
-#	cmd.extend(tolist(env["_FCINCFLAGS"]))
-#	cmd.extend(tolist(env["_FCMODOUTFLAGS"]))
-#	for a in task.outputs:
-#		cmd.extend(tolist(env["FC_TGT_F"] + tolist(a.bldpath(env))))
-#	for a in task.inputs:
-#		cmd.extend(tolist(env["FC_SRC_F"]) + tolist(a.srcpath(env)))
-#	cmd = [x for x in cmd if x]
-#	cmd = [cmd]
-#
-#	ret = task.exec_command(*cmd)
-#	return ret
-
 @TaskGen.extension('.f', '.f90')
 def fc_hook(self, node):
 	return self.create_compiled_task('fc', node)
