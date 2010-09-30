@@ -365,7 +365,7 @@ class fake_shlib(link_task):
 		return Task.SKIP_ME
 
 class fake_stlib(stlink_task):
-	"""task used for reading a foreign library and adding the dependency on it""""
+	"""task used for reading a foreign library and adding the dependency on it"""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
