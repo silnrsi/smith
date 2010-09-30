@@ -20,7 +20,7 @@ The BuildContext is referenced here as self.ctx
 Its Node class is referenced here as self.__class__
 """
 
-import os, re, sys
+import os, re, sys, shutil
 from waflib import Utils, Errors
 
 # These fnmatch expressions are used by default to prune the directory tree
@@ -154,7 +154,10 @@ class Node(object):
 	def delete(self):
 		"delete the file physically, do not destroy the nodes (meant for FILES)"
 		try:
-			os.unlink(self.abspath())
+			if getattr(self, 'children', None):
+				shutil.rmtree(self.abspath())
+			else:
+				os.unlink(self.abspath())
 		except:
 			pass
 
