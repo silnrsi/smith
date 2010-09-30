@@ -39,4 +39,9 @@ NEW IN WAF 1.6.0
 * remove the /W3 flag from msvc default flags
 * opt.tool_options -> opt.load (now all commands inherit the 'tool' method)
 * conf.check_tool -> conf.load
+* do not copy files when creating tar files in 'waf dist'
+* add zip files in 'waf dist'
+* fix the behaviour of 'waf distcheck'
+* preprocessor optimizations
+* python 2 fixes
 
