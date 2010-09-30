@@ -34,7 +34,7 @@ class ConfigSet(object):
 		except AttributeError: return False # parent may not exist
 
 	def __str__(self):
-		"""for debugging"""
+		"""for debugging purposes"""
 		keys = set()
 		cur = self
 		while cur:
@@ -45,6 +45,7 @@ class ConfigSet(object):
 		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in keys])
 
 	def __getitem__(self, key):
+		"dict interface"
 		try:
 			while 1:
 				x = self.table.get(key, None)
@@ -55,16 +56,17 @@ class ConfigSet(object):
 			return []
 
 	def __setitem__(self, key, value):
+		"dict interface"
 		self.table[key] = value
 
 	def __delitem__(self, key, value):
+		"dict interface"
 		del self.table[key]
 
 	def __getattr__(self, name):
 		"""
-		access the data by env.value instead of env['value']
-
-		waf was too fast so we had to slow i down a bit
+		attribute access provided for convenience
+		env.value == env['value']
 		"""
 		if name in self.__slots__:
 			return object.__getattr__(self, name)
@@ -72,12 +74,14 @@ class ConfigSet(object):
 			return self[name]
 
 	def __setattr__(self, name, value):
+		"attribute access provided for convenience"
 		if name in self.__slots__:
 			object.__setattr__(self, name, value)
 		else:
 			self[name] = value
 
 	def __delattr__(self, name):
+		"attribute access provided for convenience"
 		if name in self.__slots__:
 			object.__delattr__(self, name)
 		else:

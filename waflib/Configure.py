@@ -98,9 +98,8 @@ class ConfigurationContext(Context.Context):
 	cmd = 'configure'
 
 	error_handlers = []
-	def __init__(self, start_dir=None):
-
-		super(self.__class__, self).__init__(start_dir)
+	def __init__(self, **kw):
+		super(self.__class__, self).__init__(**kw)
 		self.env = None
 		self.envname = ''
 

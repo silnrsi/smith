@@ -53,6 +53,7 @@ def subst(*k):
 
 @subst('*')
 def r1(code):
+	"utf-8 fixes for python < 2.6"
 	code = code.replace('as e:', ',e:')
 	code = code.replace(".decode('utf-8')", '')
 	code = code.replace('.encode()', '')
@@ -60,16 +61,19 @@ def r1(code):
 
 @subst('Utils.py')
 def r2(code):
+	"byte objects for python < 2.6"
 	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
 	return code
 
 @subst('Tools/c_config.py')
 def r3(code):
+	"more byte objects"
 	code = code.replace("b'\\n'", "'\\n'")
 	return code
 
 @subst('Runner.py')
 def r4(code):
+	"generator syntax"
 	code = code.replace('next(self.biter)', 'self.biter.next()')
 	return code
 

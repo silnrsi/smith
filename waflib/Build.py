@@ -45,8 +45,8 @@ class BuildContext(Context.Context):
 	cmd = 'build'
 	variant = ''
 
-	def __init__(self, *k, **kw):
-		super(BuildContext, self).__init__(kw.get('start', None))
+	def __init__(self, **kw):
+		super(BuildContext, self).__init__(**kw)
 
 		self.top_dir = kw.get('top_dir', Context.top_dir)
 
@@ -674,8 +674,8 @@ class InstallContext(BuildContext):
 	'''installs the targets on the system'''
 	cmd = 'install'
 
-	def __init__(self, start=None):
-		super(InstallContext, self).__init__(start)
+	def __init__(self, **kw):
+		super(InstallContext, self).__init__(**kw)
 
 		# list of targets to uninstall for removing the empty folders after uninstalling
 		self.uninstall = []
@@ -805,8 +805,8 @@ class UninstallContext(InstallContext):
 	'''removes the targets installed'''
 	cmd = 'uninstall'
 
-	def __init__(self, start=None):
-		super(UninstallContext, self).__init__(start)
+	def __init__(self, **kw):
+		super(UninstallContext, self).__init__(**kw)
 		self.is_install = UNINSTALL
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
@@ -931,8 +931,8 @@ class StepContext(BuildContext):
 	'''executes tasks in a step-by-step fashion, for debugging'''
 	cmd = 'step'
 
-	def __init__(self, *k, **kw):
-		super(StepContext, self).__init__(*k, **kw)
+	def __init__(self, **kw):
+		super(StepContext, self).__init__(**kw)
 		self.files = Options.options.files
 
 	def compile(self):

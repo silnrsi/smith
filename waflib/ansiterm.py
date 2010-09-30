@@ -40,6 +40,9 @@ else:
 	STD_ERROR_HANDLE = -12
 
 	class AnsiTerm(object):
+		"""
+		emulate a vt100 terminal in cmd.exe
+		"""
 		def __init__(self):
 			self.encoding = sys.stdout.encoding
 			self.hconsole = windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)

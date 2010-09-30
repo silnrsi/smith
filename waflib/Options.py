@@ -116,11 +116,11 @@ class OptionsContext(Context.Context):
 	cmd = ''
 	fun = 'options'
 
-	def __init__(self):
+	def __init__(self, **kw):
 		"""
 		holds an instance of opt_parser in self.parser
 		"""
-		super(self.__class__, self).__init__()
+		super(self.__class__, self).__init__(**kw)
 		self.parser = opt_parser(self)
 
 	def jobs(self):

@@ -109,12 +109,17 @@ class Context(ctx):
 	"""
 
 	errors = Errors
-	tools = {}
+	"Alias provided for convenience"
 
-	def __init__(self, start=None):
-		if not start:
+	tools = {}
+	"a cache for modules"
+
+	def __init__(self, **kw):
+		try:
+			start_dir = kw['start_dir']
+		except KeyError:
 			global run_dir
-			start = run_dir
+			start_dir = run_dir
 
 		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(waflib.Node.Node):
@@ -126,13 +131,14 @@ class Context(ctx):
 
 		self.root = self.node_class('', None)
 		self.cur_script = None
-		self.path = self.root.find_dir(start)
+		self.path = self.root.find_dir(start_dir)
 
 		self.stack_path = []
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
 		self.logger = None
 
 	def __hash__(self):
+		"hash value for storing context objects in dicts or sets"
 		return id(self)
 
 	def load(self, tool_list, *k, **kw):
@@ -219,6 +225,7 @@ class Context(ctx):
 		raise self.errors.ConfigurationError(msg, ex=ex, pyfile=self.path.abspath())
 
 	def to_log(self, var):
+		"""log some information to the logger (if present)"""
 		if not var:
 			return
 		if self.logger:
