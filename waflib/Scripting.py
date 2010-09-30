@@ -270,21 +270,14 @@ class Dist(Context.Context):
 		"""
 		import tarfile
 
-		appname = getattr(Context.g_module, Context.APPNAME, 'noname')
-		version = getattr(Context.g_module, Context.VERSION, '1.0')
-
-		tmp_folder = appname + '-' + version
-		try:
-			self.arch_name
-		except:
-			self.arch_name = tmp_folder + '.' + self.ext_algo.get(self.algo, self.algo)
+		arch_name = self.get_arch_name()
 
 		try:
 			self.base_path
 		except:
 			self.base_path = self.path
 
-		node = self.base_path.make_node(self.arch_name)
+		node = self.base_path.make_node(arch_name)
 		try:
 			node.delete()
 		except:
@@ -293,10 +286,10 @@ class Dist(Context.Context):
 		files = self.get_files()
 
 		if self.algo.startswith('tar.'):
-			tar = tarfile.open(self.arch_name, 'w:' + self.algo.replace('tar.', ''))
+			tar = tarfile.open(arch_name, 'w:' + self.algo.replace('tar.', ''))
 
 			for x in files:
-				tinfo = tar.gettarinfo(name=x.abspath(), arcname=x.path_from(self.base_path))
+				tinfo = tar.gettarinfo(name=x.abspath(), arcname=self.get_base_name() + '/' + x.path_from(self.base_path))
 				tinfo.uid   = 0
 				tinfo.gid   = 0
 				tinfo.uname = 'root'
@@ -312,10 +305,10 @@ class Dist(Context.Context):
 			tar.close()
 		elif self.algo == 'zip':
 			import zipfile
-			zip = zipfile.ZipFile(self.arch_name, 'w', compression=zipfile.ZIP_DEFLATED)
+			zip = zipfile.ZipFile(arch_name, 'w', compression=zipfile.ZIP_DEFLATED)
 
 			for x in files:
-				archive_name = x.path_from(self.base_path)
+				archive_name = self.get_base_name() + '/' + x.path_from(self.base_path)
 				zip.write(x.abspath(), archive_name, zipfile.ZIP_DEFLATED)
 			zip.close()
 		else:
@@ -331,6 +324,29 @@ class Dist(Context.Context):
 			digest = ''
 
 		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
+
+	def get_arch_name(self):
+		"""
+		return the name of the archive to create
+		if it does not work, set "self.arch_name"
+		"""
+		try:
+			self.arch_name
+		except:
+			self.arch_name = self.get_base_name() + '.' + self.ext_algo.get(self.algo, self.algo)
+		return self.arch_name
+
+	def get_base_name(self):
+		"""
+		name of the directory in the archive
+		"""
+		try:
+			self.base_name
+		except:
+			appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+			version = getattr(Context.g_module, Context.VERSION, '1.0')
+			self.base_name = appname + '-' + version
+		return self.base_name
 
 	def get_exclude_regs(self):
 		"""
@@ -362,30 +378,49 @@ def dist(ctx):
 	'''makes a tarball for redistributing the sources'''
 	pass
 
+class DistCheck(Dist):
+	"""
+	create an archive with 'waf dist', then try to build it in a temporary directory
+	this is less useful with waf, as all files are included by default (vs excluded for autotools)
+	"""
+
+	fun = 'distcheck'
+	cmd = 'distcheck'
+
+	def execute(self):
+		self.recurse([os.path.dirname(Context.g_module.root_path)])
+		self.archive()
+		self.check()
+
+	def check(self):
+		import tempfile, tarfile
+
+		tarball = Context.g_module.dist(ctx)
+		t = None
+		try:
+			t = tarfile.open(self.get_arch_name())
+			for x in t:
+				t.extract(x)
+		finally:
+			if t:
+				t.close()
+
+		path = appname + '-' + version
+
+		instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
+		ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
+		if ret:
+			raise Errors.WafError('distcheck failed with code %i' % ret)
+
+		if os.path.exists(instdir):
+			raise Errors.WafError('distcheck succeeded, but files were left in %s' % instdir)
+
+		shutil.rmtree(path)
+
+
 def distcheck(ctx):
 	'''checks if the project compiles (tarball from 'dist')'''
-	import tempfile, tarfile
-
-	appname = getattr(Context.g_module, Context.APPNAME, 'noname')
-	version = getattr(Context.g_module, Context.VERSION, '1.0')
-
-	waf = os.path.abspath(sys.argv[0])
-	tarball = Context.g_module.dist(ctx)
-	t = tarfile.open(tarball)
-	for x in t: t.extract(x)
-	t.close()
-
-	path = appname + '-' + version
-
-	instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-	ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
-	if ret:
-		raise Errors.WafError('distcheck failed with code %i' % ret)
-
-	if os.path.exists(instdir):
-		raise Errors.WafError('distcheck succeeded, but files were left in %s' % instdir)
-
-	shutil.rmtree(path)
+	pass
 
 def update(ctx):
 	"""download a specific tool into the local waf directory"""
