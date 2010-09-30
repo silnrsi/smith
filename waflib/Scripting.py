@@ -388,11 +388,13 @@ class DistCheck(Dist):
 	cmd = 'distcheck'
 
 	def execute(self):
+		"See waflib.Context.Context.execute"
 		self.recurse([os.path.dirname(Context.g_module.root_path)])
 		self.archive()
 		self.check()
 
 	def check(self):
+		"""create the archive, uncompress it and try to build the project"""
 		import tempfile, tarfile
 
 		t = None

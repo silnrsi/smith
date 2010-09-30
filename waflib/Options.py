@@ -22,6 +22,9 @@ platform = Utils.unversioned_sys_platform()
 
 
 class opt_parser(optparse.OptionParser):
+	"""
+	command-line option parser
+	"""
 	def __init__(self, ctx):
 		optparse.OptionParser.__init__(self, conflict_handler="resolve", version='waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
 
@@ -71,6 +74,9 @@ class opt_parser(optparse.OptionParser):
 		gr.add_option('-f', '--force', dest='force', default=False, action='store_true', help='force file installation')
 
 	def get_usage(self):
+		"""
+		return the message to print on "waf --help"
+		"""
 		cmds_str = {}
 		for cls in Context.classes:
 			if not cls.cmd:
@@ -111,6 +117,9 @@ class OptionsContext(Context.Context):
 	fun = 'options'
 
 	def __init__(self):
+		"""
+		holds an instance of opt_parser in self.parser
+		"""
 		super(self.__class__, self).__init__()
 		self.parser = opt_parser(self)
 
@@ -140,17 +149,23 @@ class OptionsContext(Context.Context):
 			count = 1024
 		return count
 
-	# pass through to optparse
 	def add_option(self, *k, **kw):
+		"wrapper for optparse.add_option"
 		self.parser.add_option(*k, **kw)
+
 	def add_option_group(self, *k, **kw):
+		"wrapper for optparse.add_option_group"
 		return self.parser.add_option_group(*k, **kw)
+
 	def get_option_group(self, opt_str):
+		"wrapper for optparse.get_option_group"
 		return self.parser.get_option_group(opt_str)
 
-	# parse_args is defined separately to allow parsing arguments from somewhere else
-	# than the Waf command line
 	def parse_args(self, _args=None):
+		"""
+		parse_args is defined separately to allow parsing arguments from somewhere else
+		than the Waf command line
+		"""
 		global options, commands
 		(options, leftover_args) = self.parser.parse_args(args=_args)
 		commands = leftover_args
@@ -162,6 +177,7 @@ class OptionsContext(Context.Context):
 			self.tool_options('errcheck')
 
 	def execute(self):
+		"see waflib.Context.Context.execute"
 		super(OptionsContext, self).execute()
 		self.parse_args()
 

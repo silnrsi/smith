@@ -11,8 +11,15 @@ except:
 	from Queue import Queue
 from waflib import Utils, Logs, Task, Errors
 
-GAP = 15
+GAP = 10
+"""
+wait for free tasks if there are at least GAP * njobs in the queue
+"""
+
 MAXJOBS = 999
+"""
+maximum amount of jobs - cpython cannot really spawn more than 100 without crashing
+"""
 
 class TaskConsumer(Utils.threading.Thread):
 	"""
@@ -44,13 +51,13 @@ class Parallel(object):
 	when no more tasks can be added (end of the build, etc)
 	"""
 	def __init__(self, bld, j=2):
-
+		"""
+		The initialization requires a build context reference for computing the total
+		"""
 		# number of consumers in the pool
 		self.numjobs = j
 
 		self.bld = bld # build context
-
-		self.total = self.bld.total()
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
@@ -88,7 +95,7 @@ class Parallel(object):
 	def refill_task_list(self):
 		"called to set the next group of tasks"
 
-		while self.count > self.numjobs + GAP or self.count >= self.maxjobs:
+		while self.count > self.numjobs * GAP or self.count >= self.maxjobs:
 			self.get_out()
 
 		while not self.outstanding:
@@ -113,6 +120,7 @@ class Parallel(object):
 				break
 
 	def add_more_tasks(self, tsk):
+		"tasks may be added dynamically during the build by binding to the list attribute 'more_tasks'"
 		if getattr(tsk, 'more_tasks', None):
 			self.outstanding += tsk.more_tasks
 			self.total += len(tsk.more_tasks)
@@ -133,6 +141,8 @@ class Parallel(object):
 
 	def start(self):
 		"execute the tasks"
+
+		self.total = self.bld.total()
 
 		if TaskConsumer.pool:
 			# the worker pool is usually loaded lazily (see below)
