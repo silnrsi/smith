@@ -125,6 +125,9 @@ class TaskBase(evil):
 	"""string representing an additional hash for the class representation"""
 
 	def __init__(self, *k, **kw):
+		"""
+		The base task class requires a task generator, which will be itself if missing
+		"""
 		self.hasrun = NOT_RUN
 		try:
 			self.generator = kw['generator']
@@ -281,6 +284,9 @@ class Task(TaskBase):
 	vars = []
 	shell = False
 	def __init__(self, *k, **kw):
+		"""
+		a task is (still) associated with a ConfigSet object, so make sure to pass an 'env'
+		"""
 		TaskBase.__init__(self, *k, **kw)
 		self.env = kw['env']
 
@@ -674,14 +680,9 @@ def funex(c):
 
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun_shell(line):
-	"""Compiles a string (once) into a function, eg:
-	compile_fun_shell('c++', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
-
-	The env variables (CXX, ..) on the task must not hold dicts (order)
-	The reserved keywords TGT and SRC represent the task input and output nodes
-
-	quick test:
-	bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
+	"""
+	create a compiled function to execute a process without the shell
+	WARNING: this method may disappear, so use compile_fun instead
 	"""
 
 	extr = []
@@ -722,7 +723,10 @@ def compile_fun_shell(line):
 	return (funex(c), dvars)
 
 def compile_fun_noshell(line):
-
+	"""
+	create a compiled function to execute a process without the shell
+	WARNING: this method may disappear, so use compile_fun instead
+	"""
 	extr = []
 	def repl(match):
 		g = match.group
@@ -771,6 +775,16 @@ def compile_fun(line, shell=False):
 	parse a string expression such as "${CC} ${SRC} -o ${TGT}" and return a pair containing
 	* the function created as python code
 	* the list of variables that imply a dependency from self.env
+
+	example:
+	compile_fun('cxx', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
+
+	The env variables (CXX, ..) on the task must not hold dicts (order)
+	The reserved keywords TGT and SRC represent the task input and output nodes
+
+	quick test:
+	bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
+
 	"""
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
 		shell = True
@@ -781,7 +795,10 @@ def compile_fun(line, shell=False):
 		return compile_fun_noshell(line)
 
 def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, scan=None):
-	"""return a new Task subclass with the function run compiled from the line given"""
+	"""
+	return a new Task subclass with the function run compiled from the line given
+	provided for compatibility with waf 1.5
+	"""
 
 	params = {
 		'vars': vars,
