@@ -4,10 +4,10 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool('dang', tooldir='.')
+	opt.load('dang', tooldir='.')
 
 def configure(conf):
-	conf.tool('dang', tooldir='.')
+	conf.load('dang', tooldir='.')
 
 def build(bld):
-	bld.tool('dang', tooldir='.')
+	bld.load('dang', tooldir='.')
