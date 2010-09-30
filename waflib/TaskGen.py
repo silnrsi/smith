@@ -40,11 +40,20 @@ class task_gen(object):
 	mappings = {}
 	prec = Utils.defaultdict(list)
 
-	def __init__(self, *kw, **kwargs):
+	def __init__(self, *k, **kw):
+		"""
+		The task generator objects predefine various attributes (source, target) for possible
+		processing by process_rule (make-like rules) or process_source (extensions, misc methods)
+
+		The tasks are stored on the attribute 'tasks'. They are created by calling methods
+		listed in self.meths *or* referenced in the attribute features
+		A topological sort is performed to ease the method re-use.
+
+		The extra key/value elements passed in kw are set as attributes
+		"""
 
 		# so we will have to play with directed acyclic graphs
 		# detect cycles, etc
-
 		self.source = ''
 		self.target = ''
 
@@ -63,13 +72,13 @@ class task_gen(object):
 		# tasks created
 		self.tasks = []
 
-		if not 'bld' in kwargs:
+		if not 'bld' in kw:
 			# task generators without a build context :-/
 			self.env = ConfigSet.ConfigSet()
 			self.idx = 0
 			self.path = None
 		else:
-			self.bld = kwargs['bld']
+			self.bld = kw['bld']
 			self.env = self.bld.env.derive()
 			self.path = self.bld.path # emulate chdir when reading scripts
 
@@ -80,7 +89,7 @@ class task_gen(object):
 				self.bld.idx = {}
 				self.idx = self.bld.idx[id(self.path)] = 0
 
-		for key, val in kwargs.items():
+		for key, val in kw.items():
 			setattr(self, key, val)
 
 	def __str__(self):
@@ -484,10 +493,14 @@ class subst_pc(Task.Task):
 		except AttributeError: pass
 
 	def sig_vars(self):
+		"""
+		Compute a hash (signature) of the variables used in the substitution
+		"""
 		bld = self.generator.bld
 		env = self.env
 		upd = self.m.update
 
+		# raw_deps: persistent custom values returned by the scanner
 		vars = self.generator.bld.raw_deps.get(self.uid(), [])
 
 		# hash both env vars and task generator attributes

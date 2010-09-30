@@ -186,7 +186,7 @@ def run_commands():
 
 def _can_distclean(name):
 	"""
-	this method can change anytime and without prior notice
+	WARNING: this method may disappear anytime
 	"""
 	for k in '.o .moc .exe'.split():
 		if name.endswith(k):
@@ -251,16 +251,23 @@ def distclean(ctx):
 			shutil.rmtree(f, ignore_errors=True)
 
 class Dist(Context.Context):
+	"""
+	Create an archive containing the source code on 'waf dist'
+	"""
 	cmd = 'dist'
 	fun = 'dist'
 	algo = 'tar.bz2'
 	ext_algo = {}
 
 	def execute(self):
+		"See waflib.Context.Context.execute"
 		self.recurse([os.path.dirname(Context.g_module.root_path)])
 		self.archive()
 
 	def archive(self):
+		"""
+		Create the archive (override or subclass)
+		"""
 		import tarfile
 
 		appname = getattr(Context.g_module, Context.APPNAME, 'noname')
@@ -326,6 +333,10 @@ class Dist(Context.Context):
 		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
 
 	def get_exclude_regs(self):
+		"""
+		return the patterns to exclude, which is important for the build directory
+		if it does not work, set "self.exclude_regs"
+		"""
 		try:
 			return self.exclude_regs
 		except:
@@ -336,6 +347,10 @@ class Dist(Context.Context):
 			return self.exclude_regs
 
 	def get_files(self):
+		"""
+		return the list of nodes representing the files to include
+		if it is not satisfactory, set "self.files"
+		"""
 		try:
 			files = self.files
 		except:

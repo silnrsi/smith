@@ -682,7 +682,7 @@ reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>
 def compile_fun_shell(line):
 	"""
 	create a compiled function to execute a process without the shell
-	WARNING: this method may disappear, so use compile_fun instead
+	WARNING: this method may disappear anytime, so use compile_fun instead
 	"""
 
 	extr = []
@@ -725,7 +725,7 @@ def compile_fun_shell(line):
 def compile_fun_noshell(line):
 	"""
 	create a compiled function to execute a process without the shell
-	WARNING: this method may disappear, so use compile_fun instead
+	WARNING: this method may disappear anytime, so use compile_fun instead
 	"""
 	extr = []
 	def repl(match):
