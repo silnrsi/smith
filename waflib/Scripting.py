@@ -395,7 +395,6 @@ class DistCheck(Dist):
 	def check(self):
 		import tempfile, tarfile
 
-		tarball = Context.g_module.dist(ctx)
 		t = None
 		try:
 			t = tarfile.open(self.get_arch_name())
@@ -405,17 +404,15 @@ class DistCheck(Dist):
 			if t:
 				t.close()
 
-		path = appname + '-' + version
-
-		instdir = tempfile.mkdtemp('.inst', '%s-%s' % (appname, version))
-		ret = subprocess.Popen([waf, 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=path).wait()
+		instdir = tempfile.mkdtemp('.inst', self.get_base_name())
+		ret = subprocess.Popen([sys.argv[0], 'configure', 'install', 'uninstall', '--destdir=' + instdir], cwd=self.get_base_name()).wait()
 		if ret:
 			raise Errors.WafError('distcheck failed with code %i' % ret)
 
 		if os.path.exists(instdir):
 			raise Errors.WafError('distcheck succeeded, but files were left in %s' % instdir)
 
-		shutil.rmtree(path)
+		shutil.rmtree(self.get_base_name())
 
 
 def distcheck(ctx):
