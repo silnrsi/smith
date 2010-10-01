@@ -905,6 +905,7 @@ def cache_outputs(cls):
 
 	old = cls.post_run
 	def post_run(self):
+		bld = self.generator.bld
 		ret = old(self)
 		if not bld.cache_global or bld.nocache or not self.outputs:
 			return ret
