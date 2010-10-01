@@ -21,7 +21,7 @@ in the computation of the signature:
 Custom task clases may be created by subclassing or factories
 """
 
-import os, shutil, re
+import os, shutil, re, tempfile
 from waflib import Utils, Logs, Errors
 
 # task states
@@ -976,6 +976,8 @@ def put_files_cache(self):
 	if getattr(self, 'cached', None):
 		return None
 
+	sig = self.signature()
+	ssig = Utils.to_hex(sig)
 	dname = os.path.join(self.generator.bld.cache_global, ssig)
 	tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
 
