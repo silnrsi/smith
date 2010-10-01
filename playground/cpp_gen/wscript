@@ -20,21 +20,26 @@ def build(bld):
 
 #--------
 
+import os, shutil
 from waflib import Task, TaskGen, Utils
 from waflib.Tools import cxx
 
 @TaskGen.extension('.cpp')
 def more_tasks_at_once(self, node):
    task1 = self.create_task('prog1', node, [])
-   task2 = cxx.cxx_hook(self, node)
+   task2 = self.create_compiled_task('cxx', node)
 
 def cmpnodes(a, b):
 	return cmp(a.abspath(), b.abspath())
 
 class prog1(Task.Task):
-	before=['cxxprogram', 'cxxshlib', 'cxxstlib']
+	before = ['cxxprogram', 'cxxshlib', 'cxxstlib']
 
 	def runnable_status(self):
+		"""
+		since it is called after the build has started,
+		any task added must be passed through 'more_tasks'
+		"""
 		for x in self.run_after:
 			if not x.hasrun:
 				return Task.ASK_LATER
@@ -43,20 +48,24 @@ class prog1(Task.Task):
 		for x in self.generator.bld.raw_deps.get(sig, []):
 			self.outputs.append(self.generator.bld.srcnode.find_node(x))
 
-		#if not self.outputs:
-		#	ret = Task.can_retrieve_cache(self)
-		#	if ret:
-		#		self.add_nodes()
+		if not self.outputs:
+			self.read_outputs_from_cache()
 
 		if self.outputs:
 			tsk = cxx.cxx_hook(self.generator, self.outputs[0])
+			tsk.set_run_after(self)
 			self.generator.link_task.inputs.append(tsk.outputs[0])
 			self.generator.link_task.inputs.sort(cmp=cmpnodes)
+			self.generator.link_task.set_run_after(tsk)
+			self.more_tasks = [tsk]
 
 		ret = Task.Task.runnable_status(self)
 		return ret
 
 	def add_nodes(self):
+		"""
+		used by run only
+		"""
 		inp = self.inputs[0]
 		node = inp.parent.get_bld().find_node(inp.name.replace('.cpp', '.ser.cpp'))
 		if node:
@@ -82,14 +91,26 @@ class prog1(Task.Task):
 
 			delattr(self, 'uid_') # necessary at the moment, as the task id depends on the outputs
 
-	#def post_run(self):
-	#	bld = self.generator.bld
-	#	ret = Task.Task.post_run(self)
-	#	if not bld.cache_global or bld.nocache or not self.outputs:
-	#		return ret
-	#	Task.put_files_cache(self)
-	#	return ret
+	def read_outputs_from_cache(self):
+		"""
+		set the outputs from the results found in the cache
+		"""
+		env = self.env
+		sig = self.signature()
+		ssig = Utils.to_hex(sig)
 
-# normally a decorator but we may use it like this
-#Task.cache_outputs(prog1)
+		# first try to access the cache folder for the task
+		dname = os.path.join(self.generator.bld.cache_global, ssig)
+		try:
+			t1 = os.stat(dname).st_mtime
+		except OSError:
+			return None
+
+		try:
+			lst = os.listdir(dname)
+		except:
+			return
+
+		for x in lst:
+			self.outputs.append(self.inputs[0].parent.find_or_declare(x))
 
