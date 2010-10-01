@@ -20,7 +20,7 @@ def build(bld):
 
 #--------
 
-import os, shutil
+import os
 from waflib import Task, TaskGen, Utils
 from waflib.Tools import cxx
 
@@ -55,6 +55,8 @@ class prog1(Task.Task):
 			if not x.hasrun:
 				return Task.ASK_LATER
 
+		# so this is a bit special, the goal here is to set the output nodes
+		# and to create the c++ tasks before the normal processing is done
 		sig = self.signature()
 		for x in self.generator.bld.raw_deps.get(sig, []):
 			self.outputs.append(self.generator.bld.srcnode.find_node(x))
@@ -106,7 +108,6 @@ class prog1(Task.Task):
 		if self.outputs:
 			self.create_cxx_task()
 			self.generator.bld.raw_deps[self.signature()] = [x.path_from(self.generator.bld.srcnode) for x in self.outputs]
-			#delattr(self, 'uid_') # necessary at the moment, as the task id depends on the outputs
 
 	def read_outputs_from_cache(self):
 		"""
