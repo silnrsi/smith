@@ -895,18 +895,18 @@ def cache_outputs(cls):
 
 	the files may also be retrieved from that folder, if it exists
 	"""
-	old = cls.run
+	m1 = cls.run
 	def run(self):
 		bld = self.generator.bld
 		if not bld.cache_global or bld.nocache or not self.outputs:
-			return old(self)
-		return can_retrieve_cache(self) or old(self)
+			return m1(self)
+		return can_retrieve_cache(self) or m1(self)
 	cls.run = run
 
-	old = cls.post_run
+	m2 = cls.post_run
 	def post_run(self):
 		bld = self.generator.bld
-		ret = old(self)
+		ret = m2(self)
 		if not bld.cache_global or bld.nocache or not self.outputs:
 			return ret
 		put_files_cache(self)
