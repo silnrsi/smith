@@ -16,24 +16,70 @@ def configure(conf):
 	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
 
 def build(bld):
-	bld(features='cxx cxxprogram copya', source='main.cpp a.cpp', target='app')
+	bld.program(source='main.cpp a.cpp', target='app')
 
 #--------
 
-from waflib import Task, TaskGen
+from waflib import Task, TaskGen, Utils
 from waflib.Tools import cxx
 
-@TaskGen.feature('copya')
-@TaskGen.after('process_source')
-@TaskGen.before('apply_link')
-def copya_create_task(self):
-	for x in self.tasks:
-		if x.inputs and x.inputs[0].name == 'a.cpp' and x.__class__.__name__ != 'copy':
-			node = x.inputs[0]
-			copy_tsk = self.create_task('copy', node, node.change_ext('.cpp.cpp'))
-			cxx_tsk = cxx.cxx_hook(self, copy_tsk.outputs[0])
-			cxx_tsk.set_run_after(copy_tsk) # recommended
+@TaskGen.extension('.cpp')
+def more_tasks_at_once(self, node):
+   task1 = self.create_task('prog1', node, [])
+   task2 = cxx.cxx_hook(self, node)
 
-class copy(Task.Task):
-	run_str = 'cp ${SRC} ${TGT}'
+def cmpnodes(a, b):
+	return cmp(a.abspath(), b.abspath())
+
+class prog1(Task.Task):
+	before=['cxxprogram', 'cxxshlib', 'cxxstlib']
+
+	def runnable_status(self):
+		for x in self.run_after:
+			if not x.hasrun:
+				return Task.ASK_LATER
+		sig = self.signature()
+		for x in self.generator.bld.raw_deps.get(sig, []):
+			self.outputs.append(self.generator.bld.srcnode.find_node(x))
+
+		if self.outputs:
+
+			tsk = cxx.cxx_hook(self.generator, self.outputs[0])
+			self.generator.link_task.inputs.append(tsk.outputs[0])
+			self.generator.link_task.inputs.sort(cmp=cmpnodes)
+
+		ret = Task.Task.runnable_status(self)
+		return ret
+
+	def run(self):
+		if self.inputs[0].name == 'a.cpp':
+			# simulate the creation of an interface file
+			out = self.inputs[0].parent.get_bld().make_node('a.ser.cpp')
+			out.write('\n\n')
+
+		if not self.outputs:
+			inp = self.inputs[0]
+			node = inp.parent.get_bld().find_node(inp.name.replace('.cpp', '.ser.cpp'))
+
+			# TODO what if there is no file to generate? is it removed from the build dir automatically?
+			if node:
+				self.outputs.append(node)
+
+				# assume it creates a .h file too
+				h_node = inp.parent.find_node(inp.name.replace('.cpp', '.ser.h'))
+				if h_node:
+					self.outputs.append(h_node)
+
+				tsk = cxx.cxx_hook(self.generator, node)
+				self.more_tasks = [tsk]
+				self.generator.bld.raw_deps[self.signature()] = [x.path_from(self.generator.bld.srcnode) for x in self.outputs]
+				self.generator.link_task.inputs.append(tsk.outputs[0])
+				self.generator.link_task.inputs.sort(cmp=cmpnodes)
+				self.generator.link_task.set_run_after(tsk)
+
+				delattr(self, 'uid_') # necessary at the moment, as the task id depends on the outputs
+
+
+# normally a decorator but we may use it like this
+#Task.cache_outputs(prog1)
 
