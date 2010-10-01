@@ -35,6 +35,17 @@ def cmpnodes(a, b):
 class prog1(Task.Task):
 	before = ['cxxprogram', 'cxxshlib', 'cxxstlib']
 
+	def uid(self):
+		"""
+		the unique id of this task should only depend on the file inputs
+		"""
+		m = Utils.md5()
+		up = m.update
+		up(self.__class__.__name__.encode())
+		for x in self.inputs:
+			up(x.abspath().encode())
+		return m.digest()
+
 	def runnable_status(self):
 		"""
 		since it is called after the build has started,
@@ -52,15 +63,22 @@ class prog1(Task.Task):
 			self.read_outputs_from_cache()
 
 		if self.outputs:
-			tsk = cxx.cxx_hook(self.generator, self.outputs[0])
-			tsk.set_run_after(self)
-			self.generator.link_task.inputs.append(tsk.outputs[0])
-			self.generator.link_task.inputs.sort(cmp=cmpnodes)
-			self.generator.link_task.set_run_after(tsk)
-			self.more_tasks = [tsk]
+			self.create_cxx_task()
 
 		ret = Task.Task.runnable_status(self)
 		return ret
+
+	def create_cxx_task(self):
+		"""
+		create a task dynamically during the build
+		notice the use of 'more_tasks'
+		"""
+		tsk = cxx.cxx_hook(self.generator, self.outputs[0])
+		tsk.set_run_after(self)
+		self.more_tasks = [tsk]
+		self.generator.link_task.inputs.append(tsk.outputs[0])
+		self.generator.link_task.inputs.sort(cmp=cmpnodes)
+		self.generator.link_task.set_run_after(tsk)
 
 	def add_nodes(self):
 		"""
@@ -75,6 +93,10 @@ class prog1(Task.Task):
 				self.outputs.append(h_node)
 
 	def run(self):
+		"""
+		actual execution
+		this code should not be executed if the files are retrieved from the cache
+		"""
 		if self.inputs[0].name == 'a.cpp':
 			# simulate the creation of an interface file
 			out = self.inputs[0].parent.get_bld().make_node('a.ser.cpp')
@@ -82,18 +104,16 @@ class prog1(Task.Task):
 
 		self.add_nodes()
 		if self.outputs:
-			tsk = cxx.cxx_hook(self.generator, self.outputs[0])
-			self.more_tasks = [tsk]
+			self.create_cxx_task()
 			self.generator.bld.raw_deps[self.signature()] = [x.path_from(self.generator.bld.srcnode) for x in self.outputs]
-			self.generator.link_task.inputs.append(tsk.outputs[0])
-			self.generator.link_task.inputs.sort(cmp=cmpnodes)
-			self.generator.link_task.set_run_after(tsk)
-
-			delattr(self, 'uid_') # necessary at the moment, as the task id depends on the outputs
+			#delattr(self, 'uid_') # necessary at the moment, as the task id depends on the outputs
 
 	def read_outputs_from_cache(self):
 		"""
 		set the outputs from the results found in the cache
+		we assume that the files are created in the same folder as the inputs
+		if it is not like this, the nodes should be restored by another system, for example
+		by storing them in a separate file during run()
 		"""
 		env = self.env
 		sig = self.signature()
