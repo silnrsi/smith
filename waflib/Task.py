@@ -74,8 +74,8 @@ def cache_outputs(cls):
 	m1 = cls.run
 	def run(self):
 		bld = self.generator.bld
-		if bld.cache_global and not bld.nocache and self.outputs:
-			if can_retrieve_cache(self):
+		if bld.cache_global and not bld.nocache:
+			if self.can_retrieve_cache():
 				return 0
 		return m1(self)
 	cls.run = run
@@ -84,8 +84,8 @@ def cache_outputs(cls):
 	def post_run(self):
 		bld = self.generator.bld
 		ret = m2(self)
-		if bld.cache_global and not bld.nocache and self.outputs:
-			put_files_cache(self)
+		if bld.cache_global and not bld.nocache:
+			self.put_files_cache()
 		return ret
 	cls.post_run = post_run
 
@@ -643,6 +643,100 @@ class Task(TaskBase):
 					#print "task is not ready..."
 					raise Errors.TaskNotReady('not ready')
 
+	def can_retrieve_cache(self):
+		"""
+		used by cache_outputs, see above
+
+		Retrieve build nodes from the cache
+		update the file timestamps to help cleaning the least used entries from the cache
+		additionally, set an attribute 'cached' to avoid re-creating the same cache files
+
+		suppose there are files in cache/dir1/file1 and cache/dir2/file2
+		first, read the timestamp of dir1
+		then try to copy the files
+		then look at the timestamp again, if it has changed, the data may have been corrupt (cache update by another process)
+		should an exception occur, ignore the data
+		"""
+
+		env = self.env
+		sig = self.signature()
+		ssig = Utils.to_hex(sig)
+
+		# first try to access the cache folder for the task
+		dname = os.path.join(self.generator.bld.cache_global, ssig)
+		try:
+			t1 = os.stat(dname).st_mtime
+		except OSError:
+			return None
+
+		for node in self.outputs:
+			orig = os.path.join(dname, node.name)
+			try:
+				shutil.copy2(orig, node.abspath())
+				# mark the cache file as used recently (modified)
+				os.utime(orig, None)
+			except (OSError, IOError):
+				Logs.debug('task: failed retrieving file')
+				return None
+
+		# is it the same folder?
+		try:
+			t2 = os.stat(dname).st_mtime
+		except OSError:
+			return None
+
+		if t1 != t2:
+			return None
+
+		for node in self.outputs:
+			node.sig = sig
+			if self.generator.bld.progress_bar < 1:
+				self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
+
+		self.cached = True
+		return True
+
+	def put_files_cache(self):
+		"""used by cache_outputs, see above"""
+
+		# file caching, if possible
+		# try to avoid data corruption as much as possible
+		if getattr(self, 'cached', None):
+			return None
+
+		sig = self.signature()
+		ssig = Utils.to_hex(sig)
+		dname = os.path.join(self.generator.bld.cache_global, ssig)
+		tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
+
+		try:
+			shutil.rmtree(dname)
+		except:
+			pass
+
+		try:
+			for node in self.outputs:
+				dest = os.path.join(tmpdir, node.name)
+				shutil.copy2(node.abspath(), dest)
+		except (OSError, IOError):
+			try:
+				shutil.rmtree(tmpdir)
+			except:
+				pass
+		else:
+			try:
+				os.rename(tmpdir, dname)
+			except OSError:
+				try:
+					shutil.rmtree(tmpdir)
+				except:
+					pass
+			else:
+				try:
+					os.chmod(dname, Utils.O755)
+				except:
+					pass
+
 def is_before(t1, t2):
 	"""
 	return non-zero if task class t1 is to be executed before task class t2
@@ -916,101 +1010,4 @@ def update_outputs(cls):
 
 	return cls
 
-
-
-# ---------------------------------------------------
-
-def can_retrieve_cache(self):
-	"""
-	used by cache_outputs, see above
-
-	Retrieve build nodes from the cache
-	update the file timestamps to help cleaning the least used entries from the cache
-	additionally, set an attribute 'cached' to avoid re-creating the same cache files
-
-	suppose there are files in cache/dir1/file1 and cache/dir2/file2
-	first, read the timestamp of dir1
-	then try to copy the files
-	then look at the timestamp again, if it has changed, the data may have been corrupt (cache update by another process)
-	should an exception occur, ignore the data
-	"""
-
-	env = self.env
-	sig = self.signature()
-	ssig = Utils.to_hex(sig)
-
-	# first try to access the cache folder for the task
-	dname = os.path.join(self.generator.bld.cache_global, ssig)
-	try:
-		t1 = os.stat(dname).st_mtime
-	except OSError:
-		return None
-
-	for node in self.outputs:
-		orig = os.path.join(dname, node.name)
-		try:
-			shutil.copy2(orig, node.abspath())
-			# mark the cache file as used recently (modified)
-			os.utime(orig, None)
-		except (OSError, IOError):
-			Logs.debug('task: failed retrieving file')
-			return None
-
-	# is it the same folder?
-	try:
-		t2 = os.stat(dname).st_mtime
-	except OSError:
-		return None
-
-	if t1 != t2:
-		return None
-
-	for node in self.outputs:
-		node.sig = sig
-		if self.generator.bld.progress_bar < 1:
-			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
-
-	self.cached = True
-	return True
-
-def put_files_cache(self):
-	"""used by cache_outputs, see above"""
-
-	# file caching, if possible
-	# try to avoid data corruption as much as possible
-	if getattr(self, 'cached', None):
-		return None
-
-	sig = self.signature()
-	ssig = Utils.to_hex(sig)
-	dname = os.path.join(self.generator.bld.cache_global, ssig)
-	tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
-
-	try:
-		shutil.rmtree(dname)
-	except:
-		pass
-
-	try:
-		for node in self.outputs:
-			dest = os.path.join(tmpdir, node.name)
-			shutil.copy2(node.abspath(), dest)
-	except (OSError, IOError):
-		try:
-			shutil.rmtree(tmpdir)
-		except:
-			pass
-	else:
-		try:
-			os.rename(tmpdir, dname)
-		except OSError:
-			try:
-				shutil.rmtree(tmpdir)
-			except:
-				pass
-		else:
-			try:
-				os.chmod(dname, Utils.O755)
-			except:
-				pass
 
