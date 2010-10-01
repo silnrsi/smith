@@ -62,6 +62,36 @@ def f(tsk):
 	return tsk.exec_command(lst, cwd=wd, env=env.env or None)
 '''
 
+def cache_outputs(cls):
+	"""
+	Task class decorator
+
+	If bld.cache_global is defined and if the task instances produces output nodes,
+	the files will be copied into a folder in the cache directory
+
+	the files may also be retrieved from that folder, if it exists
+	"""
+	m1 = cls.run
+	def run(self):
+		bld = self.generator.bld
+		if bld.cache_global and not bld.nocache and self.outputs:
+			if can_retrieve_cache(self):
+				return 0
+		return m1(self)
+	cls.run = run
+
+	m2 = cls.post_run
+	def post_run(self):
+		bld = self.generator.bld
+		ret = m2(self)
+		if bld.cache_global and not bld.nocache and self.outputs:
+			put_files_cache(self)
+		return ret
+	cls.post_run = post_run
+
+	return cls
+
+
 classes = {}
 "class tasks created by user scripts or Waf tools are kept in this dict name -> class object"
 
@@ -78,7 +108,6 @@ class store_task_type(type):
 			name = name.replace('_task', '')
 		if name != 'evil' and name != 'TaskBase':
 			global classes
-			classes[name] = cls
 
 			if getattr(cls, 'run_str', None):
 				# if a string is provided, convert it to a method
@@ -88,6 +117,11 @@ class store_task_type(type):
 				cls.vars.extend(dvars)
 			elif getattr(cls, 'run', None) and not getattr(cls, 'hcode', None):
 				cls.hcode = Utils.h_fun(cls.run)
+
+			if not getattr(cls, 'nocache', None):
+				cls = cache_outputs(cls)
+
+			classes[name] = cls
 
 evil = store_task_type('evil', (object,), {})
 "this variable is used to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
@@ -885,35 +919,6 @@ def update_outputs(cls):
 
 
 # ---------------------------------------------------
-
-def cache_outputs(cls):
-	"""
-	Task class decorator
-
-	If bld.cache_global is defined and if the task instances produces output nodes,
-	the files will be copied into a folder in the cache directory
-
-	the files may also be retrieved from that folder, if it exists
-	"""
-	m1 = cls.run
-	def run(self):
-		bld = self.generator.bld
-		if bld.cache_global and not bld.nocache and self.outputs:
-			if can_retrieve_cache(self):
-				return 0
-		return m1(self)
-	cls.run = run
-
-	m2 = cls.post_run
-	def post_run(self):
-		bld = self.generator.bld
-		ret = m2(self)
-		if bld.cache_global and not bld.nocache and self.outputs:
-			put_files_cache(self)
-		return ret
-	cls.post_run = post_run
-
-	return cls
 
 def can_retrieve_cache(self):
 	"""
