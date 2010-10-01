@@ -898,18 +898,18 @@ def cache_outputs(cls):
 	m1 = cls.run
 	def run(self):
 		bld = self.generator.bld
-		if not bld.cache_global or bld.nocache or not self.outputs:
-			return m1(self)
-		return can_retrieve_cache(self) or m1(self)
+		if bld.cache_global and not bld.nocache and self.outputs:
+			if can_retrieve_cache(self):
+				return 0
+		return m1(self)
 	cls.run = run
 
 	m2 = cls.post_run
 	def post_run(self):
 		bld = self.generator.bld
 		ret = m2(self)
-		if not bld.cache_global or bld.nocache or not self.outputs:
-			return ret
-		put_files_cache(self)
+		if bld.cache_global and not bld.nocache and self.outputs:
+			put_files_cache(self)
 		return ret
 	cls.post_run = post_run
 
