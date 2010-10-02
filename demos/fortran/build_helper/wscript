@@ -1,0 +1,113 @@
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.load('compiler_c')
+	opt.load('compiler_fc')
+
+def configure(conf):
+	conf.load('compiler_c')
+	conf.load('compiler_fc')
+	conf.check_fortran()
+	conf.check_fortran_verbose_flag()
+	conf.check_fortran_clib()
+
+def build(bld):
+
+	bld(
+		features = 'fc',
+		source = 'fsrc.f90',
+		name = 'orig_fsrc',
+		)
+
+	# FIXME: this is the kludge that needs to be turned into a tool.
+	# ideally, I'd do something like:
+	# bld(
+	#     features = 'fort_c_type_map',
+	#     source = 'type_map.in',
+	#     target = 'type_maps.f90 type_maps.h',
+	#     depends_on = 'orig_fsrc')
+	# instead of calling the conf helper.
+	# The sticking point is the check_cc call (see below).
+	bld.gen_type_map_files()
+
+class ctp(object):
+	def __init__(self, name, basetype, odecl):
+		self.name = name
+		self.basetype = basetype
+		self.odecl = odecl
+		self.fc_type = None
+
+from waflib.Configure import conf
+
+@conf
+def gen_type_map_files(self, *k, **kw):
+	# the ctps would be configured from a configuration file...
+	ctps = [ctp(name='integer_8', basetype='integer', odecl='integer(kind=8)')]
+
+	find_types(self, ctps)
+
+	# write fortran -> C mapping to file.
+	write_type_map(self, ctps, 'type_maps.f90')
+
+def find_types(self, ctps):
+	for ctp in ctps:
+		fc_type = None
+		fc_type = find_fc_type(self, ctp.basetype,
+					ctp.odecl)
+		if not fc_type:
+			raise RuntimeError(
+					"unable to find C type for type %s" % ctp.odecl)
+		ctp.fc_type = fc_type
+
+type_dict = {'integer' : ['c_char', 'c_short', 'c_int', 'c_long']}
+
+def find_fc_type(self, base_type, decl):
+	fsrc_tmpl = '''\
+subroutine outer(a)
+  use, intrinsic :: iso_c_binding
+  implicit none
+  %(TEST_DECL)s, intent(inout) :: a
+  interface
+	subroutine inner(a)
+	  use, intrinsic :: iso_c_binding
+	  implicit none
+	  %(TYPE_DECL)s, intent(inout) :: a
+	end subroutine inner
+  end interface
+  call inner(a)
+end subroutine outer
+'''
+	for ctype in type_dict[base_type]:
+		test_decl = '%s(kind=%s)' % (base_type, ctype)
+		fsrc = fsrc_tmpl % {'TYPE_DECL' : decl,
+							'TEST_DECL' : test_decl}
+		try:
+			self.check_cc(
+					fragment=fsrc,
+					compile_filename='test.f90',
+					features='fc'
+					)
+		except self.errors.ConfigurationError:
+			pass
+		else:
+			res = ctype
+			break
+	else:
+		res = ''
+	return res
+
+def write_type_map(self, ctps, fname):
+	nd = self.path.make_node(fname)
+	nd.write('''\
+module type_maps
+use, intrinsic :: iso_c_binding
+implicit none
+''', flags='w')
+	for ctp in ctps:
+		nd.write('integer, parameter :: %s = %s\n' % (ctp.name, ctp.fc_type),
+				flags='a')
+	nd.write('end module type_maps\n', flags='a')
+
+
+# vim:ft=python:noet
