@@ -106,6 +106,8 @@ class prog1(Task.Task):
 		# if there are outputs, create a new c++ task
 		if self.outputs:
 			self.create_cxx_task()
+
+			# access the scanner data
 			self.generator.bld.raw_deps[self.signature()] = [x.path_from(self.generator.bld.srcnode) for x in self.outputs]
 
 	def read_outputs_from_cache(self):
@@ -133,4 +135,7 @@ class prog1(Task.Task):
 
 		for x in lst:
 			self.outputs.append(self.inputs[0].parent.find_or_declare(x))
+
+		# not a fresh build and the cache is removed -> remember the files in the scanner data
+		self.generator.bld.raw_deps[self.signature()] = [x.path_from(self.generator.bld.srcnode) for x in self.outputs]
 
