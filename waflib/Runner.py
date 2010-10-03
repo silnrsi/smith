@@ -26,11 +26,9 @@ class TaskConsumer(Utils.threading.Thread):
 	task consumers belong to a pool of workers
 	they wait for tasks in the queue and then use task.process(...)
 	"""
-	ready = Queue(0)
-	pool = []
-
 	def __init__(self):
 		Utils.threading.Thread.__init__(self)
+		self.ready = Queue()
 		self.setDaemon(1)
 		self.start()
 
@@ -42,8 +40,19 @@ class TaskConsumer(Utils.threading.Thread):
 
 	def loop(self):
 		while 1:
-			tsk = TaskConsumer.ready.get()
+			tsk = self.ready.get()
 			tsk.process()
+
+pool = Queue()
+def get_pool():
+	try:
+		return pool.get(False)
+	except:
+		return TaskConsumer()
+
+def put_pool(x):
+	pool.put(x)
+
 
 class Parallel(object):
 	"""
@@ -66,7 +75,7 @@ class Parallel(object):
 		# tasks that are awaiting for another task to complete
 		self.frozen = []
 
-		# tasks waiting to be run by the consumers pool
+		# tasks returned the consumers pool
 		self.out = Queue(0)
 
 		self.count = 0 # tasks not in the producer area
@@ -139,16 +148,25 @@ class Parallel(object):
 			self.stop = True
 		self.error.append(tsk)
 
+	def add_task(self, tsk):
+		"add a task to one of the consumers"
+		try:
+			pool = self.pool
+		except AttributeError:
+			pool = self.pool = [get_pool() for i in range(self.numjobs)]
+
+		a = pool[random.randint(0, len(pool) - 1)]
+		b = pool[random.randint(0, len(pool) - 1)]
+
+		if a.ready.qsize() > b.ready.qsize():
+			b.ready.put(tsk)
+		else:
+			a.ready.put(tsk)
+
 	def start(self):
 		"execute the tasks"
 
 		self.total = self.bld.total()
-
-		if TaskConsumer.pool:
-			# the worker pool is usually loaded lazily (see below)
-			# in case it is re-used with a different value of numjobs:
-			while len(TaskConsumer.pool) < self.numjobs:
-				TaskConsumer.pool.append(TaskConsumer())
 
 		while not self.stop:
 
@@ -203,16 +221,20 @@ class Parallel(object):
 				if self.numjobs == 1:
 					tsk.process()
 				else:
-					TaskConsumer.ready.put(tsk)
-					# create the consumer threads only if there is something to consume
-					if not TaskConsumer.pool:
-						TaskConsumer.pool = [TaskConsumer() for i in range(self.numjobs)]
-
+					self.add_task(tsk)
 
 		# self.count represents the tasks that have been made available to the consumer threads
 		# collect all the tasks after an error else the message may be incomplete
 		while self.error and self.count:
 			self.get_out()
+
+		# free the task pool, if any
+		try:
+			while self.pool:
+				x = self.pool.pop()
+				put_pool(x)
+		except AttributeError:
+			pass
 
 		#print loop
 		assert (self.count == 0 or self.stop)
