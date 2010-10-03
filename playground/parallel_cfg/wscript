@@ -102,7 +102,7 @@ def multicheck(self, *k, **kw):
 		yield tasks
 		while 1:
 			yield []
-	p = Parallel(bld, len(tasks) * 2) # 3 jobs, so the pool must be 2x times as big
+	p = Parallel(bld, Options.options.jobs)
 	p.biter = it()
 	p.start()
 
