@@ -150,15 +150,22 @@ class Parallel(object):
 
 	def add_task(self, tsk):
 		"add a task to one of the consumers"
+		self.bld.to_log(tsk.display())
 		try:
 			pool = self.pool
 		except AttributeError:
+			# lazy creation
 			pool = self.pool = [get_pool() for i in range(self.numjobs)]
 
+		# better load distribution across the consumers (makes more sense on distributed systems)
+		# there are probably ways to have consumers use a unique queue
 		a = pool[random.randint(0, len(pool) - 1)]
-		b = pool[random.randint(0, len(pool) - 1)]
+		siz = a.ready.qsize()
+		if not siz:
+			a.ready.put(tsk)
 
-		if a.ready.qsize() > b.ready.qsize():
+		b = pool[random.randint(0, len(pool) - 1)]
+		if siz > b.ready.qsize():
 			b.ready.put(tsk)
 		else:
 			a.ready.put(tsk)
