@@ -25,7 +25,7 @@ def configure(conf):
 # the details below
 # ------------------------------------------------------------------------
 
-from waflib import Task
+from waflib import Task, Options
 from waflib.Build import BuildContext
 from waflib.Runner import Parallel
 from waflib.Task import TaskBase
@@ -78,6 +78,8 @@ def multicheck(self, *k, **kw):
 	class fu(object):
 		def __init__(self):
 			self.keep = False
+			self.cache_global = Options.cache_global
+			self.nocache = Options.options.nocache
 		def total(self):
 			return len(tasks)
 		def to_log(self, *k, **kw):
