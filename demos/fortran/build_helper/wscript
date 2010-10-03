@@ -132,6 +132,9 @@ implicit none
 
 # ---- at the end it is really simple -_-
 
+import os
+from waflib import Logs, Build, Utils
+
 from waflib import TaskGen, Task
 @TaskGen.feature('typemap')
 @TaskGen.after('apply_link')
@@ -142,7 +145,7 @@ def process_typemaps(self):
 	f90out = node.change_ext('.f90')
 	lst = [node]
 	for x in self.tasks:
-		if x.inputs and x.inputs[0].name.startswith('.f90'):
+		if x.inputs and x.inputs[0].name.endswith('.f90'):
 			lst.append(x.inputs[0])
 	self.typemap_task = self.create_task('modmap', lst, [f90out, node.change_ext('.h')])
 
@@ -154,6 +157,21 @@ class modmap(Task.Task):
 	"""dynamic tasks are fashionable"""
 	ext_out = ['.h']
 	def run(self):
+
+		obld = self.generator.bld
+		bld = Build.BuildContext(top_dir=obld.srcnode.abspath(), out_dir=obld.bldnode.abspath())
+		bld.init_dirs()
+		bld.all_envs['default'] = self.env.derive()
+		node = self.inputs[0]
+		bld.logger = Logs.make_logger(node.parent.get_bld().abspath() + os.sep + node.name + '.log', 'build')
+
+		# so now you can perform configuration checks ...
+		# NOTE there is a bug with the thread pool which may cause starvation...
+		try:
+			bld.check(header_name='stdio.h', features='cxx cprogram')
+		except:
+			pass
+
 		for x in self.outputs:
 			x.write('\tsubroutine foo\n\tend\n')
 
