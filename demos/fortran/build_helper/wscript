@@ -161,6 +161,7 @@ class modmap(Task.Task):
 		obld = self.generator.bld
 		bld = Build.BuildContext(top_dir=obld.srcnode.abspath(), out_dir=obld.bldnode.abspath())
 		bld.init_dirs()
+		bld.in_msg = 1
 		bld.all_envs['default'] = self.env.derive()
 		node = self.inputs[0]
 		bld.logger = Logs.make_logger(node.parent.get_bld().abspath() + os.sep + node.name + '.log', 'build')
