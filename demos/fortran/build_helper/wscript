@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 top = '.'
 out = 'build'
 
@@ -15,7 +17,7 @@ def configure(conf):
 def build(bld):
 
 	bld(
-		features = 'fc',
+		features = 'fc typemap fcshlib',
 		source = 'fsrc.f90 basetypes.f90',
 		name = 'orig_fsrc',
 		)
@@ -128,5 +130,30 @@ implicit none
 				flags='a')
 	nd.write('end module type_maps\n', flags='a')
 
+# ---- at the end it is really simple -_-
 
-# vim:ft=python:noet
+from waflib import TaskGen, Task
+@TaskGen.feature('typemap')
+@TaskGen.after('apply_link')
+def process_typemaps(self):
+	node = self.path.find_resource(getattr(self, 'typemap', 'fwrap_ktp.in'))
+	if not node:
+		raise self.bld.errors.WafError('no typemap found for %r' % self)
+	f90out = node.change_ext('.f90')
+	lst = [node]
+	for x in self.tasks:
+		if x.inputs and x.inputs[0].name.startswith('.f90'):
+			lst.append(x.inputs[0])
+	self.typemap_task = self.create_task('modmap', lst, [f90out, node.change_ext('.h')])
+
+	# yeah well
+	tsk = self.create_compiled_task('fc', f90out)
+	self.link_task.inputs.append(tsk.outputs[0])
+
+class modmap(Task.Task):
+	"""dynamic tasks are fashionable"""
+	ext_out = ['.h']
+	def run(self):
+		for x in self.outputs:
+			x.write('\tsubroutine foo\n\tend\n')
+
