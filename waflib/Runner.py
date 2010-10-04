@@ -117,7 +117,15 @@ class Parallel(object):
 					pass
 				else:
 					if cond:
-						raise Errors.WafError("Deadlock detected, check the build order for the tasks: %r" % self.frozen)
+						msg = 'check the build order for the tasks'
+						for tsk in self.frozen:
+							if not tsk.run_after:
+								msg = 'check the methods runnable_status'
+								break
+						lst = []
+						for tsk in self.frozen:
+							lst.append('%s\t-> %r' % (repr(tsk), [id(x) for x in tsk.run_after]))
+						raise Errors.WafError("Deadlock detected: %s%s" % (msg, ''.join(lst)))
 				self.deadlock = self.processed
 
 			if self.frozen:

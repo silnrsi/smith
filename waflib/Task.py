@@ -170,7 +170,7 @@ class TaskBase(evil):
 
 	def __repr__(self):
 		"for debugging purposes"
-		return '\n\t{task: %s %s}' % (self.__class__.__name__, str(getattr(self, "fun", "")))
+		return '\n\t{task %r: %s %s}' % (self.__class__.__name__, id(self), str(getattr(self, "fun", "")))
 
 	def __str__(self):
 		"string to display to the user"
@@ -345,7 +345,7 @@ class Task(TaskBase):
 
 	def __repr__(self):
 		"for debugging purposes"
-		return "".join(['\n\t{task: ', self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
+		return "".join(['\n\t{task %r: ' % id(self), self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
 	def uid(self):
 		"get a unique id: hash the node paths, the class, the function"
