@@ -30,13 +30,19 @@ def fc_hook(self, node):
 
 def get_fortran_tasks(bld):
 	tasks = []
-	for gp in bld.groups:
+	for gp in bld.groups: # FIXME the current group only
 		for tg in gp:
 			try: tasks.extend(tg.tasks)
 			except TypeError: tasks.append(tg.tasks)
 	return [task for task in tasks if isinstance(task, fc) and not getattr(task, 'nomod', None)]
 
 class fc(Task.Task):
+	"""
+	the fortran tasks can only run if all the tasks in the current group are ready to be executed
+	there may be a deadlock if another fortran task is waiting for something that won't happen (circular dependency)
+	in this case, set the 'nomod=True' on the task instance to break the loop
+	"""
+
 	color = 'GREEN'
 	run_str = '${FC} ${FCFLAGS} ${FCINCPATH_ST:INCPATHS} ${FCDEFINES_ST:DEFINES} ${_FCMODOUTFLAGS} ${FC_TGT_F}${TGT[0].abspath()} ${FC_SRC_F}${SRC[0].abspath()}'
 	vars = ["FORTRANMODPATHFLAG"]
