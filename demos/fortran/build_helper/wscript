@@ -139,12 +139,12 @@ def process_typemaps(self):
 			lst.append(x.inputs[0])
 	tmtsk = self.typemap_task = self.create_task('modmap', lst, [f90out, node.change_ext('.h')])
 
-	# FIXME: set_run_after here results in a deadlock.
 	for x in self.tasks:
 		if x.inputs and x.inputs[0].name.endswith('.f90'):
 			tmtsk.set_run_after(x)
 
 	tsk = self.create_compiled_task('fc', f90out)
+	tsk.nomod = True # do not skip this
 	self.link_task.inputs.append(tsk.outputs[0])
 
 class modmap(Task.Task):
