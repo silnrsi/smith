@@ -47,7 +47,7 @@ def gopackage_is_foobar(self):
 @feature('gopackage', 'goprogram')
 @after('process_source', 'apply_incpaths')
 def go_local_libs(self):
-	names = self.to_list(getattr(self, 'uselib_local', []))
+	names = self.to_list(getattr(self, 'use', []))
 	for name in names:
 		tg = self.bld.get_tgen_by_name(name)
 		if not tg:
