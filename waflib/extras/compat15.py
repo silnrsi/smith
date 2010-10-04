@@ -128,6 +128,8 @@ def apply_uselib_local(self):
 	get = self.bld.get_tgen_by_name
 	seen = set([])
 	tmp = Utils.deque(names) # consume a copy of the list of names
+	if tmp:
+		Logs.warn('"uselib_local" is deprecated, replace by "use"')
 	while tmp:
 		lib_name = tmp.popleft()
 		# visit dependencies only once
