@@ -19,20 +19,10 @@ def build(bld):
 	bld(
 		features = 'fc typemap fcshlib',
 		source = 'fsrc.f90 basetypes.f90',
+		target = 'foo',
 		name = 'orig_fsrc',
 		)
 
-	# FIXME: this is the kludge that needs to be turned into a tool.
-	# ideally, I'd do something like:
-	# bld(
-	#     features = 'fort_c_type_map',
-	#     source = 'type_map.in',
-	#     target = 'type_maps.f90 type_maps.h',
-	#     depends_on = 'orig_fsrc')
-	# instead of calling the conf helper.
-	# The sticking point is the check_cc call (see below).
-
-	# This currently doesn't work since it can't find the example_mod.mod file in build.
 	# bld.gen_type_map_files()
 
 class ctp(object):
@@ -43,9 +33,9 @@ class ctp(object):
 		self.use = use
 		self.fc_type = None
 
-from waflib.Configure import conf
+# from waflib.Configure import conf
 
-@conf
+# @conf
 def gen_type_map_files(self, *k, **kw):
 	# The ctp properties (name, basetype, odecl, etc.) would be listed in a
 	# configuration file and the ctp list below would be loaded from that file.
@@ -147,9 +137,13 @@ def process_typemaps(self):
 	for x in self.tasks:
 		if x.inputs and x.inputs[0].name.endswith('.f90'):
 			lst.append(x.inputs[0])
-	self.typemap_task = self.create_task('modmap', lst, [f90out, node.change_ext('.h')])
+	tmtsk = self.typemap_task = self.create_task('modmap', lst, [f90out, node.change_ext('.h')])
 
-	# yeah well
+	# FIXME: set_run_after here results in a deadlock.
+	for x in self.tasks:
+		if x.inputs and x.inputs[0].name.endswith('.f90'):
+			tmtsk.set_run_after(x)
+
 	tsk = self.create_compiled_task('fc', f90out)
 	self.link_task.inputs.append(tsk.outputs[0])
 
@@ -176,3 +170,4 @@ class modmap(Task.Task):
 		for x in self.outputs:
 			x.write('\tsubroutine foo\n\tend\n')
 
+# vim:ft=python:noet
