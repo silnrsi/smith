@@ -2,6 +2,14 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2010
 
+"""
+to make a custom waf file use the option --tools
+
+if you want to add a tool that does not exixt in the folder compat15, pass an absolute path:
+./waf-light --make-waf --tools=compat15,/comp/waf/aba.py --prelude=$'\tfrom waflib.extras import aba\n\taba.foo()'
+"""
+
+
 VERSION="1.6.0"
 APPNAME='waf'
 REVISION=''
@@ -234,7 +242,13 @@ def create_waf(*k, **kw):
 	tarFiles = []
 
 	files = []
-	add3rdparty = [x + '.py' for x in Options.options.add3rdparty.split(',')]
+	add3rdparty = []
+	for x in Options.options.add3rdparty.split(','):
+		if os.path.isabs(x):
+			files.append(x)
+		else:
+			add3rdparty.append(x + '.py')
+
 	for d in '. Tools extras'.split():
 		dd = os.path.join('waflib', d)
 		for k in os.listdir(dd):
@@ -246,12 +260,17 @@ def create_waf(*k, **kw):
 					continue
 			if k.endswith('.py'):
 				files.append(os.path.join(dd, k))
+
 	for x in files:
 		tarinfo = tar.gettarinfo(x, x)
 		tarinfo.uid   = tarinfo.gid   = 0
 		tarinfo.uname = tarinfo.gname = 'root'
 		(code, size, cnt) = sfilter(x)
 		tarinfo.size = size
+
+		if os.path.isabs(x):
+			tarinfo.name = 'waflib/extras/' + os.path.split(x)[1]
+
 		tar.addfile(tarinfo, code)
 	tar.close()
 
