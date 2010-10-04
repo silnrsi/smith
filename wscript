@@ -283,7 +283,7 @@ def create_waf(*k, **kw):
 	#reg = re.compile('^REVISION=(.*)', re.M)
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
 
-	code1 = code1.replace('\t#PRELUDE', Options.options.prelude)
+	code1 = code1.replace('\timport waflib.extras.compat15#PRELUDE', Options.options.prelude)
 
 	prefix = ''
 	reg = re.compile('^INSTALL=(.*)', re.M)
