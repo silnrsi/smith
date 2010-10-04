@@ -288,7 +288,7 @@ def link_main_routines_tg_method(self):
 	bld(rule=write_test_file, target='main.c', code=MAIN_CODE % self.__dict__)
 	bld(rule=write_test_file, target='test.f', code=ROUTINES_CODE)
 	bld(features='fc fcstlib', source='test.f', target='test')
-	bld(features='c fcprogram', source='main.c', target='app', uselib_local='test')
+	bld(features='c fcprogram', source='main.c', target='app', use='test')
 
 def mangling_schemes():
 	"""
