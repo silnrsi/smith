@@ -210,7 +210,6 @@ class TaskBase(evil):
 			return
 
 		try:
-			self.generator.bld.to_log(self.display())
 			ret = self.run()
 		except Exception as e:
 			self.err_msg = Utils.ex_stack()
