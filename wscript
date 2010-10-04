@@ -12,6 +12,8 @@ out = 'build'
 demos = ['cpp', 'qt4', 'tex', 'ocaml', 'kde3', 'adv', 'cc', 'idl', 'docbook', 'xmlwaf', 'gnome']
 zip_types = ['bz2', 'gz']
 
+PRELUDE = '\timport waflib.extras.compat15'
+
 #from tokenize import *
 import tokenize
 
@@ -99,7 +101,8 @@ def options(opt):
 		dest='strip_comments')
 	opt.add_option('--tools', action='store', help='Comma-separated 3rd party tools to add, eg: "compat,ocaml" [Default: "compat15"]',
 		dest='add3rdparty', default='compat15')
-	opt.tool_options('python')
+	opt.add_option('--prelude', action='store', help='Code to execute before calling waf', dest='prelude', default=PRELUDE)
+	opt.load('python')
 
 def compute_revision():
 	global REVISION
@@ -252,7 +255,7 @@ def create_waf(*k, **kw):
 		tar.addfile(tarinfo, code)
 	tar.close()
 
-	f = open('waf-light', 'rb')
+	f = open('waf-light', 'rU')
 	code1 = f.read()
 	f.close()
 
@@ -260,6 +263,8 @@ def create_waf(*k, **kw):
 	#compute_revision()
 	#reg = re.compile('^REVISION=(.*)', re.M)
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
+
+	code1 = code1.replace('\t#PRELUDE', Options.options.prelude)
 
 	prefix = ''
 	reg = re.compile('^INSTALL=(.*)', re.M)
