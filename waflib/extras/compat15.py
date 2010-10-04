@@ -110,7 +110,7 @@ Utils.waf_version = waf_version
 
 import os
 @TaskGen.feature('c', 'cxx', 'd')
-@TaskGen.before('apply_incpaths')
+@TaskGen.before('apply_incpaths', 'propagate_uselib_vars')
 @TaskGen.after('apply_link', 'process_source')
 def apply_uselib_local(self):
 	"""
@@ -176,14 +176,10 @@ def apply_uselib_local(self):
 				if not v in self.uselib:
 					self.uselib.insert(0, v)
 
-		# if the library task generator provides 'export_incdirs', add to the include path
-		# the export_incdirs must be a list of paths relative to the other library
-		if getattr(y, 'export_incdirs', None):
-			for x in self.to_list(y.export_incdirs):
-				node = y.path.find_dir(x)
-				if not node:
-					raise Errors.WafError('object %r: invalid folder %r in export_incdirs' % (y.target, x))
-				self.includes.append(node)
+		# if the library task generator provides 'export_includes', add to the include path
+		# the export_includes must be a list of paths relative to the other library
+		if getattr(y, 'export_includes', None):
+			self.includes.extend(y.to_incnodes(y.export_includes))
 
 @TaskGen.feature('cprogram', 'cxxprogram', 'cstlib', 'cxxstlib', 'cshlib', 'cxxshlib', 'dprogram', 'dstlib', 'dshlib')
 @TaskGen.after('apply_link')
