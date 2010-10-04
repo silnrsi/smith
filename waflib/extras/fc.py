@@ -34,7 +34,7 @@ def get_fortran_tasks(bld):
 		for tg in gp:
 			try: tasks.extend(tg.tasks)
 			except TypeError: tasks.append(tg.tasks)
-	return [task for task in tasks if isinstance(task, fc)]
+	return [task for task in tasks if isinstance(task, fc) and not getattr(task, 'nomod', None)]
 
 class fc(Task.Task):
 	color = 'GREEN'
