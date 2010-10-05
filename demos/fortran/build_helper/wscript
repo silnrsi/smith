@@ -149,7 +149,7 @@ def process_typemaps(self):
 			tmtsk.set_run_after(x)
 
 	tsk = self.create_compiled_task('fc', f90out)
-	tsk.nomod = True # do not skip this
+	tsk.nomod = True # the fortran files won't compile unless all the .mod files are set, ick
 	self.link_task.inputs.append(tsk.outputs[0])
 
 class modmap(Task.Task):
@@ -158,11 +158,13 @@ class modmap(Task.Task):
 	"""
 	ext_out = ['.h'] # before any c task is not mandatory since #732 but i want to be sure (ita)
 	def run(self):
-		# we need another build context, because we cannot really disable the logger
+		"""
+		we need another build context, because we cannot really disable the logger here
+		"""
 		obld = self.generator.bld
 		bld = Build.BuildContext(top_dir=obld.srcnode.abspath(), out_dir=obld.bldnode.abspath())
 		bld.init_dirs()
-		bld.in_msg = 1
+		bld.in_msg = 1 # disable all that comes from bld.msg(..), bld.start_msg(..) and bld.end_msg(...)
 		bld.all_envs['default'] = self.env.derive()
 		node = self.inputs[0]
 		bld.logger = Logs.make_logger(node.parent.get_bld().abspath() + os.sep + node.name + '.log', 'build')
