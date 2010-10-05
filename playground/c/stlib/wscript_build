@@ -9,5 +9,5 @@ bld(
 	features     = 'c cprogram',
 	source       = 'main.c',
 	target       = 'test_static_link',
-	uselib_local = 'my_static_lib')
+	use          = 'my_static_lib')
 

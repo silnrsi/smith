@@ -11,5 +11,5 @@ bld(
 	features     = 'c cprogram',
 	source       = 'main.c',
 	target       = 'test_shared_link',
-	uselib_local = 'my_shared_lib')
+	use          = 'my_shared_lib')
 
