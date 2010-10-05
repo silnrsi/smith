@@ -13,16 +13,7 @@ from waflib.TaskGen import feature
 
 DOXY_STR = '${DOXYGEN} - '
 DOXY_FMTS = 'html latex man rft xml'.split()
-DOXY_EXTS = '''
-*.c *.cc *.cxx *.cpp *.c++ *.C
-*.h *.hh *.hxx *.hpp *.h++ *.H
-*.py *.java *.cs
-*.ii *.ixx *.ipp *.i++ *.inl
-*.idl *.odl *.php *.php3 *.inc *.m *.mm
-'''.split()
-
-re_join = re.compile(r'\\(\r)*\n', re.M)
-re_nl = re.compile('\r*\n', re.M)
+DOXY_EXTS = '**/*.(c|cc|cxx|cpp|c\\+\\+|C|h|hh|hxx|hpp|h\\+\\+|H|py|java|cs|ii|ixx|ipp|i\\+\\+|inl|idl|odl|php|php3|inc|m|mm)'
 
 class doxygen(Task.Task):
 	vars  = ['DOXYGEN', 'DOXYFLAGS']
@@ -48,7 +39,7 @@ class doxygen(Task.Task):
 		includes = self.pars.get('FILE_PATTERNS', '').split()
 		if not includes:
 			includes = DOXY_EXTS
-		ret = self.inputs[0].parent.ant_glob('**/*.(c|cpp)')
+		ret = [x for x in self.inputs[0].parent.ant_glob(includes) if not x.is_child_of(self.generator.bld.bldnode)]
 		return (ret, [])
 
 	def run(self):
