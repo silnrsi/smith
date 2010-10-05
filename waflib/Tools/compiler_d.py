@@ -7,12 +7,7 @@ import os, sys, imp, types
 from waflib import Utils, Configure, Options, Logs
 
 def configure(conf):
-	if getattr(Options.options, 'check_dmd_first', None):
-		test_for_compiler = ['dmd', 'gdc']
-	else:
-		test_for_compiler = ['gdc', 'dmd']
-
-	for compiler in test_for_compiler:
+	for compiler in conf.options.dcheck.split(','):
 		conf.env.stash()
 		conf.start_msg('Checking for %r (d compiler)' % compiler)
 		try:
@@ -34,11 +29,8 @@ def configure(conf):
 
 def options(opt):
 	d_compiler_opts = opt.add_option_group('D Compiler Options')
-	d_compiler_opts.add_option('--check-dmd-first', action='store_true',
-			help='checks for the gdc compiler before dmd (default is the other way round)',
-			dest='check_dmd_first',
-			default=False)
-
+	d_compiler_opts.add_option('--check-d-compiler', default='gdc,dmd', action='store',
+		help='check for the compiler [Default:gdc,dmd]', dest='dcheck')
 	for d_compiler in ['gdc', 'dmd']:
 		opt.load('%s' % d_compiler, option_group=d_compiler_opts)
 
