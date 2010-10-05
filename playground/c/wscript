@@ -136,7 +136,7 @@ def check_features(self):
 	except:
 		pass
 
-	t = Utils.to_hashtable(mp)
+	t = Utils.str2dict(mp)
 	try:
 		is_big = int(t['bigendian'])
 	except KeyError:
