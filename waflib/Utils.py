@@ -193,7 +193,7 @@ def to_list(sth):
 		return sth
 
 re_nl = re.compile('\r*\n', re.M)
-def str2dict(txt):
+def str_to_dict(txt):
 	"""
 	Parse a string with key = value pairs into a dictionary.
 	@type  s: string

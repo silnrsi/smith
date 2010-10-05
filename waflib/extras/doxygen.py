@@ -27,7 +27,7 @@ class doxygen(Task.Task):
 		set output_dir (node) for the output
 		'''
 		if not getattr(self, 'pars', None):
-			self.pars = Utils.str2dict(self.inputs[0].read())
+			self.pars = Utils.str_to_dict(self.inputs[0].read())
 			if not self.pars.get('OUTPUT_DIRECTORY'):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.get_bld().abspath()
 			if not self.pars.get('INPUT'):
