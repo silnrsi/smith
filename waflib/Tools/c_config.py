@@ -744,10 +744,14 @@ def link_add_flags(conf):
 
 @conf
 def cc_load_tools(conf):
+	if not conf.env.DEST_OS:
+		conf.env.DEST_OS = Utils.unversioned_sys_platform()
 	conf.load('c')
 
 @conf
 def cxx_load_tools(conf):
+	if not conf.env.DEST_OS:
+		conf.env.DEST_OS = Utils.unversioned_sys_platform()
 	conf.load('cxx')
 
 @conf

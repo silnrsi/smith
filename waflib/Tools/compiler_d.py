@@ -21,7 +21,7 @@ def configure(conf):
 				orig.table = conf.env.get_merged_dict()
 				conf.end_msg(True)
 				conf.env['COMPILER_D'] = compiler
-				conf.env.D_COMPILER = conf.env.D # TODO remove this
+				conf.env.D_COMPILER = conf.env.D # TODO remove this, left for compatibility
 				break
 			conf.end_msg(False)
 	else:
