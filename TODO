@@ -4,27 +4,19 @@ Waf 1.6
 General
 
 - MAKEFLAGS?
-- recurse: from top or from current folder? into a file of a given name?
-- remove the files on 'waf clean'
-- broken conf.check_cfg and problems with default uselib (capital letters)
+- recurse: from top or from current folder?
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
-- refactor the environment thing ?
 
-Low priority
-
-- refactor the c and d preprocessor functions
-- detect user typos (the checks have been removed)
-- enable a Vigor-like mode to print suggestions (i.e. no task generators => print warnings, no build dir => print warnings)
-
-Potential sub-projects (contributions will be welcome)
+Low priority and potential sub-projects (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)
 + CMake file interpreter
 + multiprocess for distributed compilation (vs threads?)
-+ autoconf-like configuration library?
 + rewrite the boost detection (boost.py)
 
 Docs
+
+- to make a fully static app, replace env.SHLIB_MARKER and env.STLIB_MARKER
 
 - string expansion on other attributes
 - compile targets at the end
