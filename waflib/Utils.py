@@ -192,7 +192,8 @@ def to_list(sth):
 	else:
 		return sth
 
-def to_hashtable(s):
+re_nl = re.compile('\r*\n', re.M)
+def str2dict(s):
 	"""
 	Parse a string with key = value pairs into a dictionary.
 	@type  s: string
@@ -201,11 +202,15 @@ def to_hashtable(s):
 	@return: Dictionary containing parsed key-value pairs
 	"""
 	tbl = {}
-	lst = s.split('\n')
-	for line in lst:
-		if not line: continue
-		mems = line.split('=')
-		tbl[mems[0]] = mems[1]
+
+	txt = re_join.sub('', txt)
+	lines = re_nl.split(txt)
+	for x in lines:
+		x = x.strip()
+		if not x or x.startswith('#') or x.find('=') < 0:
+			continue
+		tmp = x.split('=')
+		tbl[tmp[0].strip()] = '='.join(tmp[1:]).strip()
 	return tbl
 
 rot_chr = ['\\', '|', '/', '-']
