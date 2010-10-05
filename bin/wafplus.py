@@ -122,20 +122,19 @@ def sort_tasks(base) :
     old_biter = base.get_build_iterator
 
     def top_sort(tasks) :
+        """ Topologically sort the tasks so that they are processed in
+            dependency order. """
         if not tasks or len(tasks) < 2 : return tasks
-#        print "input: " + str(tasks)
         icntmap = {}
         amap = {}
         roots = []
         for t in tasks :
             icntmap[id(t)] = 0
         for t in tasks :
-#            print str(t) + ":--"
             if getattr(t, 'run_after', None) :
                 icntmap[id(t)] = len(t.run_after)
                 if len(t.run_after) == 0 : roots.append(t)
                 for a in t.run_after :
-#                    print "     " + str(a)
                     if id(a) in amap :
                         amap[id(a)].append(t)
                     else :
@@ -161,11 +160,14 @@ def sort_tasks(base) :
         return res
 
     def inject_modifiers(tasks) :
+        """ Sort out run_after dependency tree taking modifiers into account.
+            Works out where in a chain of modifications a particular dependant task
+            should have its direct run_after dependency set. Such tasks are set as
+            late in the chain as possible. """
         tmap = {}
         for t in tasks :
             for n in getattr(t, 'outputs', []) :
                 tmap[id(n)] = [t]
-#                print str(id(n)) + " = " + repr(n) + " from: " + str(t)
         for t in tasks :
             tmpnode, outnode = getattr(t, 'tempcopy', (None, None))
             if outnode :
@@ -174,9 +176,6 @@ def sort_tasks(base) :
                     tmap[id(outnode)].append(t)
                 else :
                     tmap[id(outnode)] = [t]
-#                    print str(id(outnode)) + " = " + repr(outnode) + " from:  " + str(t)
-#        print tmap
-#        import pdb; pdb.set_trace()
         for t in tasks :
             for n in getattr(t, 'inputs', []) :
                 if id(n) in tmap :
@@ -195,6 +194,7 @@ def sort_tasks(base) :
     Task.TaskBase.runs_after = runs_after
 
 def runs_after(self, task, cache = set()) :
+    """ Returns whether this task must run after another task based on run_after """
     res = False
     for t in self.run_after :
         if t == task : return True
