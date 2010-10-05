@@ -5,7 +5,7 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, TaskGen, Task, Runner, Build
+import Utils, Task, Runner, Build
 from TaskGen import feature, before
 from Logs import error, warn, debug
 
@@ -152,10 +152,6 @@ def latex_build(task):
 pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
 def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
-
-class tex_taskgen(TaskGen.task_gen):
-	def __init__(self, *k, **kw):
-		TaskGen.task_gen.__init__(self, *k, **kw)
 
 @feature('tex')
 @before('process_source')
