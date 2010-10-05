@@ -20,6 +20,5 @@ def build(bld):
 	bld(
 		features='doxygen',
 		doxyfile='test.conf',
-		doxy_tar='docs.tar.bz2',
-		install_to='${PREFIX}/share/doc/doxy_test/manual')
+		doxy_tar='docs.tar.bz2')
 
