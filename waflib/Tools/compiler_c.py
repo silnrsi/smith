@@ -20,12 +20,6 @@ c_compiler = {
 'default': ['gcc']
 }
 
-def __list_possible_compiler(platform):
-	try:
-		return c_compiler[platform]
-	except KeyError:
-		return c_compiler["default"]
-
 def configure(conf):
 	"""
 	for each compiler for the platform, try to configure the compiler
@@ -53,8 +47,9 @@ def configure(conf):
 		conf.fatal('could not configure a c compiler!')
 
 def options(opt):
+	global c_compiler
 	build_platform = Utils.unversioned_sys_platform()
-	possible_compiler_list = __list_possible_compiler(build_platform)
+	possible_compiler_list = c_compiler.get(build_platform, 'default')
 	test_for_compiler = ' '.join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,

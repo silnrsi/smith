@@ -20,12 +20,6 @@ cxx_compiler = {
 'default': ['g++']
 }
 
-def __list_possible_compiler(platform):
-	try:
-		return cxx_compiler[platform]
-	except KeyError:
-		return cxx_compiler["default"]
-
 def configure(conf):
 	try: test_for_compiler = Options.options.check_cxx_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cxx')")
@@ -49,8 +43,9 @@ def configure(conf):
 		conf.fatal('could not configure a c++ compiler!')
 
 def options(opt):
+	global cxx_compiler
 	build_platform = Utils.unversioned_sys_platform()
-	possible_compiler_list = __list_possible_compiler(build_platform)
+	possible_compiler_list = cxx_compiler.get(build_platform, 'default')
 	test_for_compiler = ' '.join(possible_compiler_list)
 	cxx_compiler_opts = opt.add_option_group('C++ Compiler Options')
 	cxx_compiler_opts.add_option('--check-cxx-compiler', default="%s" % test_for_compiler,
