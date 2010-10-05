@@ -5,7 +5,7 @@
 """
 to make a custom waf file use the option --tools
 
-if you want to add a tool that does not exixt in the folder compat15, pass an absolute path:
+To add a tool that does not exist in the folder compat15, pass an absolute path:
 ./waf-light --make-waf --tools=compat15,/comp/waf/aba.py --prelude=$'\tfrom waflib.extras import aba\n\taba.foo()'
 """
 
