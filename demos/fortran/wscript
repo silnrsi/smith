@@ -9,6 +9,7 @@ out = 'build'
 def options(opt):
 	opt.load('compiler_c')
 	opt.load('compiler_fc')
+	opt.recurse('typemap')
 
 def configure(conf):
 	conf.load('compiler_c')
@@ -21,6 +22,7 @@ def configure(conf):
 	conf.check_fortran_clib()
 	conf.check_fortran_dummy_main()
 	conf.check_fortran_mangling()
+	conf.recurse('typemap')
 
 def build(bld):
 
@@ -68,3 +70,4 @@ def build(bld):
 		source = 'mod/two_mods.f90',
 		target = 'mod/two_mods')
 
+	bld.recurse('typemap')
