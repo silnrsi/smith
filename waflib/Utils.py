@@ -193,7 +193,7 @@ def to_list(sth):
 		return sth
 
 re_nl = re.compile('\r*\n', re.M)
-def str2dict(s):
+def str2dict(txt):
 	"""
 	Parse a string with key = value pairs into a dictionary.
 	@type  s: string
@@ -203,7 +203,6 @@ def str2dict(s):
 	"""
 	tbl = {}
 
-	txt = re_join.sub('', txt)
 	lines = re_nl.split(txt)
 	for x in lines:
 		x = x.strip()

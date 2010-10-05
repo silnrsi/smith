@@ -24,25 +24,6 @@ DOXY_EXTS = '''
 re_join = re.compile(r'\\(\r)*\n', re.M)
 re_nl = re.compile('\r*\n', re.M)
 
-def read_into_dict(name):
-	'''Reads the Doxygen configuration file into a dictionary.'''
-	txt = Utils.readf(name)
-
-	ret = {}
-
-	txt = re_join.sub('', txt)
-	lines = re_nl.split(txt)
-	vals = []
-
-	for x in lines:
-		x.strip()
-		if len(x) < 2: continue
-		if x[0] == '#': continue
-		tmp = x.split('=')
-		if len(tmp) < 2: continue
-		ret[tmp[0].strip()] = '='.join(tmp[1:]).strip()
-	return ret
-
 class doxygen(Task.Task):
 	vars  = ['DOXYGEN', 'DOXYFLAGS']
 	color = 'BLUE'
@@ -53,10 +34,9 @@ class doxygen(Task.Task):
 		run *before* both self.pars "consumers" - scan() and run()
 		'''
 		if not getattr(self, 'pars', None):
-			infile = self.inputs[0].abspath()
-			self.pars = read_into_dict(infile)
+			self.pars = Utils.str2dict(self.inputs[0].read())
 			if not self.pars.get('OUTPUT_DIRECTORY'):
-				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.abspath()
+				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.get_bld().abspath()
 			if not self.pars.get('INPUT'):
 				self.pars['INPUT'] = self.inputs[0].parent.abspath()
 		self.signature()
@@ -68,9 +48,7 @@ class doxygen(Task.Task):
 		includes = self.pars.get('FILE_PATTERNS', '').split()
 		if not includes:
 			includes = DOXY_EXTS
-
-		# TODO
-		ret = self.inputs[0].parent.ant_glob('**/*.cpp')
+		ret = self.inputs[0].parent.ant_glob('**/*.(c|cpp)')
 		return (ret, [])
 
 	def run(self):
