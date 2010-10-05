@@ -47,7 +47,8 @@ def create_compiled_task(self, name, node):
 @taskgen_method
 def to_incnodes(self, inlst):
 	"""
-	return a list of node objects from a list of includes (string/nodes)
+	return a list of node objects from a list of includes, assuming
+	self.includes is a space-delimited string or a list of string/nodes
 
 	paths are relative to the task generator path, except if they begin by #
 	in which case they are relative to the top directory (bld.srcnode)
