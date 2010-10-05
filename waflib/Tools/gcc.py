@@ -40,7 +40,6 @@ def gcc_common_flags(conf):
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STLIB_MARKER']        = '-Wl,-Bstatic'
-	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
 	v['cprogram_PATTERN']    = '%s'

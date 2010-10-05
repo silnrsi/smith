@@ -39,7 +39,6 @@ def xlc_common_flags(conf):
 	v['SONAME_ST']           = ''
 	v['SHLIB_MARKER']        = ''
 	v['STLIB_MARKER']    = ''
-	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
 	v['LINKFLAGS_cprogram']   = ['-Wl,-brtl']

@@ -40,7 +40,6 @@ def gxx_common_flags(conf):
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Wl,-Bdynamic'
 	v['STLIB_MARKER']        = '-Wl,-Bstatic'
-	v['FULLSTATIC_MARKER']   = '-static'
 
 	# program
 	v['cxxprogram_PATTERN']  = '%s'
