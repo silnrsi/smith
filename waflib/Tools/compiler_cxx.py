@@ -52,6 +52,6 @@ def options(opt):
 		help='On this platform (%s) the following C++ Compiler will be checked by default: "%s"' % (build_platform, test_for_compiler),
 		dest="check_cxx_compiler")
 
-	for cxx_compiler in test_for_compiler.split():
-		opt.load('%s' % cxx_compiler, option_group=cxx_compiler_opts)
+	for x in test_for_compiler.split():
+		opt.load('%s' % x, option_group=cxx_compiler_opts)
 
