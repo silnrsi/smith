@@ -2,9 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
-"""ConfigSet representation
+"""
+ConfigSet: a special dict
 
-Values must be lists. Everywhere.
+The values must be lists
 
 There is one gotcha: getitem returns [] if the contents evals to False
 This means env['foo'] = {}; print env['foo'] will print [] not {}
@@ -21,6 +22,9 @@ class ConfigSet(object):
 	"""
 	__slots__ = ('table', 'parent')
 	def __init__(self, filename=None):
+		"""
+		The internal dict is kept in self.table
+		"""
 		self.table = {}
 		#self.parent = None
 
