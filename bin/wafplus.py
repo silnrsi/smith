@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from waflib import Task, Build, Logs, Context
+from waflib import Task, Build, Logs, Context, Utils
 import os
 from waflib.TaskGen import feature, after
 
@@ -48,7 +48,7 @@ def process_tempcopy(tgen) :
         def f(self) :
             if os.path.exists(tmpnode.abspath()) :
                 os.remove(tmpnode.abspath())
-#            sys.stderr.write(outnode.abspath() + "-->" + tmpnode.abspath())
+            Logs.debug("runner: " + outnode.abspath() + "-->" + tmpnode.abspath())
             if os.path.exists(outnode.abspath()) :
                 shutil.move(outnode.abspath(), tmpnode.abspath())
             else :
@@ -117,6 +117,7 @@ def add_reasons() :
         return res
 
     Task.Task.runnable_status = reasonable_runnable
+
 def sort_tasks(base) :
     old_biter = base.get_build_iterator
 
@@ -153,35 +154,54 @@ def sort_tasks(base) :
             if icntmap.get(id(t), 0) :
                 print "Circular dependency: " + str(t)
                 print "   comes after: " + str(t.run_after)
-#        print "output: " + str(res)
+                res.append(t)
+        Logs.debug("order: " + "\n".join(map(repr,res)))
+        for r in res :
+            Logs.debug("after: " + str(r) + " comes after " + str(r.run_after))
         return res
 
     def inject_modifiers(tasks) :
         tmap = {}
         for t in tasks :
             for n in getattr(t, 'outputs', []) :
-                tmap[id(n)] = t
+                tmap[id(n)] = [t]
+#                print str(id(n)) + " = " + repr(n) + " from: " + str(t)
         for t in tasks :
             tmpnode, outnode = getattr(t, 'tempcopy', (None, None))
             if outnode :
                 if id(outnode) in tmap :
-                    t.set_depend_after(tmap[id(outnode)])
-#                    print str(t) + " run_after " + str(tmap[id(outnode)])
-                tmap[id(outnode)] = t
+                    t.set_depend_after(tmap[id(outnode)][-1])
+                    tmap[id(outnode)].append(t)
+                else :
+                    tmap[id(outnode)] = [t]
+#                    print str(id(outnode)) + " = " + repr(outnode) + " from:  " + str(t)
+#        print tmap
+#        import pdb; pdb.set_trace()
         for t in tasks :
             for n in getattr(t, 'inputs', []) :
                 if id(n) in tmap :
-                    t.set_run_after(tmap[id(n)])
-#                    print str(t) + " run_after: " + str(tmap[id(n)])
+                    for l in tmap[id(n)][::-1] :
+                        if not l.runs_after(t) :
+                            t.set_run_after(l)
+                            break
 
     def wrap_biter(self) :
         for b in old_biter(self) :
-#            import pdb; pdb.set_trace()
             inject_modifiers(b)
             tlist = top_sort(b)
             yield tlist
 
     base.get_build_iterator = wrap_biter
+    Task.TaskBase.runs_after = runs_after
+
+def runs_after(self, task, cache = set()) :
+    res = False
+    for t in self.run_after :
+        if t == task : return True
+        if not id(t) in cache :
+            cache.add(id(t))
+            res = res or t.runs_after(task, cache = cache)
+    return res
 
 def add_build_wafplus() :
     old_prerecurse = Build.BuildContext.pre_recurse
@@ -197,6 +217,36 @@ def add_build_wafplus() :
 
     Build.BuildContext.pre_recurse = pre_recurse
     Build.BuildContext.post_recurse = post_recurse
+
+class DotContext(Build.BuildContext):
+    '''generates dot description the targets to execute'''
+    cmd='dot'
+    def execute(self):
+        self.load()
+        if not self.all_envs:
+            self.load_envs()
+        self.recurse([self.run_dir])
+        self.pre_build()
+        self.timer=Utils.Timer()
+        tasks = []
+        for t in self.get_build_iterator() :
+            if len(t) > 0 :
+                tasks.extend(t)
+            else :
+                break
+        print "digraph tasks { rankdir=BT;"
+        tmap = {}
+        count = 0
+        for l in tasks :
+            nname = "n" + str(count)
+            tmap[id(l)] = nname
+            count += 1
+            print "    " + nname + ' [label="' + l.name + '"];'
+        for l in tasks :
+            for d in l.run_after :
+#                print "    " + tmap[d.name] + " -> " + tmap[l.name]
+                print "    " + tmap[id(l)] + " -> " + tmap[id(d)]
+        print "}"
 
 sort_tasks(Build.BuildContext)
 add_reasons()
