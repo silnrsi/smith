@@ -23,6 +23,8 @@ class doxygen(Task.Task):
 		'''
 		self.pars are populated in runnable_status - because this function is being
 		run *before* both self.pars "consumers" - scan() and run()
+
+		set output_dir (node) for the output
 		'''
 		if not getattr(self, 'pars', None):
 			self.pars = Utils.str2dict(self.inputs[0].read())
@@ -30,6 +32,10 @@ class doxygen(Task.Task):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.get_bld().abspath()
 			if not self.pars.get('INPUT'):
 				self.pars['INPUT'] = self.inputs[0].parent.abspath()
+
+		if getattr(self, 'output_dir', None):
+			self.output_dir = self.generator.bld.root.find_dir(self.pars['OUTPUT_DIRECTORY'])
+
 		self.signature()
 		return Task.Task.runnable_status(self)
 
@@ -51,12 +57,10 @@ class doxygen(Task.Task):
 		return proc.returncode
 
 	def post_run(self):
-
-		nodes = self.inputs[0].parent.get_bld().ant_glob('**/*')
+		nodes = self.output_dir.ant_glob('**/*')
 		for x in nodes:
 			x.sig = Utils.h_file(x.abspath())
 		self.outputs += nodes
-
 		return Task.Task.post_run(self)
 
 	#def install(self):
