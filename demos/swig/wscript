@@ -101,14 +101,14 @@ def build(bld):
 
 
 	bld(
-		features = 'cxx cxxshlib',
-		source = 'extend/java/test_swig_waf.i',
-		target = 'extend/java/_test_swig_waf',
+		features   = 'cxx cxxshlib',
+		source     = 'extend/java/test_swig_waf.i',
+		target     = 'extend/java/_test_swig_waf',
 		swig_flags = '-c++ -java -package foo.bar.pouet',
-		includes = 'extend',
-		vnum = '1.2.3',
-		uselib = 'JAVA',
-		uselib_local = 'mylib')
+		includes   = 'extend',
+		vnum       = '1.2.3',
+		uselib     = 'JAVA',
+		use        = 'mylib')
 
 	#""" # BEGIN BLOCK 2
 	for x in javanodes:
