@@ -349,7 +349,7 @@ class BuildContext(Context.Context):
 			except KeyError:
 				pass
 
-		lst = [str(env[a]) for a in vars_lst]
+		lst = [env[a] for a in vars_lst]
 		ret = Utils.h_list(lst)
 		Logs.debug('envhash: %r %r', ret, lst)
 
