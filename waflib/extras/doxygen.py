@@ -43,12 +43,9 @@ def read_into_dict(name):
 		ret[tmp[0].strip()] = '='.join(tmp[1:]).strip()
 	return ret
 
-class doxygen_task(Task.Task):
+class doxygen(Task.Task):
 	vars  = ['DOXYGEN', 'DOXYFLAGS']
-	color  = 'BLUE'
-	after  = 'cxx_link cc_link'
-	before = ['tar']
-	quiet  = True
+	color = 'BLUE'
 
 	def runnable_status(self):
 		'''
@@ -78,8 +75,6 @@ class doxygen_task(Task.Task):
 
 	def run(self):
 		code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
-		if not self.env['DOXYFLAGS']:
-			self.env['DOXYFLAGS'] = ''
 		#fmt = DOXY_STR % (self.inputs[0].parent.abspath())
 		cmd = Utils.subst_vars(DOXY_STR, self.env)
 		proc = Utils.subprocess.Popen(cmd, shell=True, stdin=Utils.subprocess.PIPE)
@@ -105,6 +100,7 @@ class tar(Task.Task):
 	"quick tar creation"
 	run_str = '${TAR} ${TAROPTS} ${TGT} ${SRC}'
 	color   = 'RED'
+	after   = ['doxygen']
 	def runnable_status(self):
 		for x in getattr(self, 'input_tasks', []):
 			if not x.hasrun:
@@ -126,7 +122,7 @@ class tar(Task.Task):
 @feature('doxygen')
 def process_doxy(self):
 	if not getattr(self, 'doxyfile', None):
-		return
+		self.generator.bld.fatal('no doxyfile??')
 
 	node = self.path.find_resource(self.doxyfile)
 	if not node:
