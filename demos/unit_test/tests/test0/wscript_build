@@ -5,7 +5,6 @@ bld(
 	features = 'cxx cxxprogram test',
 	source   = 'HelloWorldTest.cpp',
 	target   = 'unit_test_program',
-	uselib   = 'CPPUNIT',
-	uselib_local = 'unittestmain useless',
+	use      = 'unittestmain useless CPPUNIT',
 )
 
