@@ -33,7 +33,7 @@ class doxygen(Task.Task):
 			if not self.pars.get('INPUT'):
 				self.pars['INPUT'] = self.inputs[0].parent.abspath()
 
-		if getattr(self, 'output_dir', None):
+		if not getattr(self, 'output_dir', None):
 			self.output_dir = self.generator.bld.root.find_dir(self.pars['OUTPUT_DIRECTORY'])
 
 		self.signature()
