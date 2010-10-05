@@ -328,19 +328,14 @@ def subst_vars(expr, params):
 			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
-def unversioned_sys_platform_to_binary_format(unversioned_sys_platform):
+def destos_to_binfmt(val):
 	"""
 	Get the binary format based on the unversioned platform name.
 	"""
-	if unversioned_sys_platform in ('linux', 'freebsd', 'netbsd', 'openbsd', 'sunos', 'gnu'):
-		return 'elf'
-	elif unversioned_sys_platform == 'darwin':
+	if key == 'darwin':
 		return 'mac-o'
-	elif unversioned_sys_platform in ('win32', 'cygwin', 'uwin', 'msys'):
+	elif key in ('win32', 'cygwin', 'uwin', 'msys'):
 		return 'pe'
-	# TODO we assume all other operating systems are elf, which is not true.
-	# we may set this to 'unknown' and have ccroot and other tools handle
-	# the case "gracefully" (whatever that means).
 	return 'elf'
 
 def unversioned_sys_platform():

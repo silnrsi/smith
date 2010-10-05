@@ -831,8 +831,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 		if not conf.env.DEST_BINFMT:
 			# Infer the binary format from the os name.
-			conf.env.DEST_BINFMT = Utils.unversioned_sys_platform_to_binary_format(
-				conf.env.DEST_OS or Utils.unversioned_sys_platform())
+			conf.env.DEST_BINFMT = Utils.destos_to_binfmt(conf.env.DEST_OS)
 
 		mp2 = {
 				'__x86_64__'  : 'x86_64',
