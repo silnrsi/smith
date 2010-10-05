@@ -28,12 +28,16 @@ def dummy(self):
 def fc_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
-def get_fortran_tasks(bld):
+def get_fortran_tasks(tsk):
+	"""
+	other fortran tasks from the same group
+	"""
 	tasks = []
-	for gp in bld.groups: # FIXME the current group only
-		for tg in gp:
-			try: tasks.extend(tg.tasks)
-			except TypeError: tasks.append(tg.tasks)
+	bld = tsk.generator.bld
+	gp = bld.groups[bld.get_group_idx(tsk.generator)]
+	for tg in gp:
+		try: tasks.extend(tg.tasks)
+		except TypeError: tasks.append(tg)
 	return [task for task in tasks if isinstance(task, fc) and not getattr(task, 'nomod', None)]
 
 class fc(Task.Task):
@@ -51,7 +55,7 @@ class fc(Task.Task):
 	def runnable_status(self):
 		"""
 		set the mod file outputs and the dependencies on the mod files over all the fortran tasks
-		there are no concurrency issues since the method runnable_status is executed by the main thread
+		executed by the main thread so there are no concurrency issues
 		"""
 		if getattr(self, 'mod_fortran_done', None):
 			return super(fc, self).runnable_status()
@@ -60,7 +64,7 @@ class fc(Task.Task):
 		bld = self.generator.bld
 
 		# obtain the fortran tasks
-		lst = get_fortran_tasks(bld)
+		lst = get_fortran_tasks(self)
 
 		# disable this method for other tasks
 		for tsk in lst:
