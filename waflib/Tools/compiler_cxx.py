@@ -4,7 +4,7 @@
 
 import os, sys, imp, types
 from waflib.Tools import ccroot
-from waflib import Utils, Configure, Options
+from waflib import Utils, Configure
 from waflib.Logs import debug
 
 cxx_compiler = {
@@ -21,7 +21,7 @@ cxx_compiler = {
 }
 
 def configure(conf):
-	try: test_for_compiler = Options.options.check_cxx_compiler
+	try: test_for_compiler = conf.options.check_cxx_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cxx')")
 
 	for compiler in test_for_compiler.split():

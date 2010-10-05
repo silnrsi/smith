@@ -4,7 +4,7 @@
 
 import os, sys, imp, types
 from waflib.Tools import ccroot
-from waflib import Utils, Configure, Options
+from waflib import Utils, Configure
 from waflib.Logs import debug
 
 c_compiler = {
@@ -26,7 +26,7 @@ def configure(conf):
 	in theory the tools should raise a configuration error if the compiler
 	pretends to be something it is not (setting CC=icc and trying to configure gcc)
 	"""
-	try: test_for_compiler = Options.options.check_c_compiler
+	try: test_for_compiler = conf.options.check_c_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cc')")
 	for compiler in test_for_compiler.split():
 		conf.env.stash()
