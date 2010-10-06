@@ -11,6 +11,7 @@ import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
 from waflib.TaskGen import feature, after, before
 from waflib import Build, Utils
+from waflib.Utils import subprocess
 
 FC_FRAGMENT = '        program main\n        end     program main\n'
 FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual difference between these?
@@ -253,6 +254,49 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 		self.env.CLIB_LINKFLAGS = flags
 		return flags
 	return []
+
+@conf
+def get_fc_version(conf, fc, gfortran=False, ifort=False):
+	"""get the compiler version"""
+
+	if ifort:
+		conf.fatal('cannot determine ifort version currently.')
+
+	cmd = fc + ['-dM', '-E', '-']
+	try:
+		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p.stdin.write(b'\n')
+		out = p.communicate()[0]
+	except:
+		conf.fatal('could not determine the compiler version %r' % cmd)
+
+	if not isinstance(out, str):
+		out = out.decode('utf-8')
+
+	if gfortran:
+		if out.find('__GNUC__') < 0:
+			conf.fatal('Could not determine the compiler type')
+
+	k = {}
+	if gfortran:
+		out = out.split('\n')
+		import shlex
+
+		for line in out:
+			lst = shlex.split(line)
+			if len(lst)>2:
+				key = lst[1]
+				val = lst[2]
+				k[key] = val
+
+		def isD(var):
+			return var in k
+
+		def isT(var):
+			return var in k and k[var] != '0'
+
+		conf.env['FC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
+	return k
 
 # ------------------------------------------------------------------------
 
