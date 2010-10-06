@@ -259,26 +259,42 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 def get_fc_version(conf, fc, gfortran=False, ifort=False):
 	"""get the compiler version"""
 
+	def getoutput(cmd, stdin=False):
+		try:
+			if stdin:
+				stdin = subprocess.PIPE
+			else:
+				stdin = None
+			p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			if stdin:
+				p.stdin.write(b'\n')
+			out = p.communicate()[0]
+		except:
+			conf.fatal('could not determine the compiler version %r' % cmd)
+		else:
+			if not isinstance(out, str):
+				out = out.decode('utf-8')
+			return out
+
 	if ifort:
-		conf.fatal('cannot determine ifort version currently.')
+		version_re = re.compile(r"Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+		cmd = fc + ['-logo']
+		out = getoutput(cmd, stdin=False)
+		match = version_re(out)
+		if not match:
+			conf.fatal('cannot determine ifort version.')
+		k = match.groupdict()
+		conf.env['FC_VERSION'] = (k['major'], k['minor'])
+		return
 
-	cmd = fc + ['-dM', '-E', '-']
-	try:
-		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		p.stdin.write(b'\n')
-		out = p.communicate()[0]
-	except:
-		conf.fatal('could not determine the compiler version %r' % cmd)
+	elif gfortran:
+		cmd = fc + ['-dM', '-E', '-']
+		out = getoutput(cmd, stdin=True)
 
-	if not isinstance(out, str):
-		out = out.decode('utf-8')
-
-	if gfortran:
 		if out.find('__GNUC__') < 0:
 			conf.fatal('Could not determine the compiler type')
 
-	k = {}
-	if gfortran:
+		k = {}
 		out = out.split('\n')
 		import shlex
 
@@ -296,7 +312,6 @@ def get_fc_version(conf, fc, gfortran=False, ifort=False):
 			return var in k and k[var] != '0'
 
 		conf.env['FC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
-	return k
 
 # ------------------------------------------------------------------------
 

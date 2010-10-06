@@ -8,7 +8,9 @@ from waflib.Configure import conf
 
 @conf
 def find_ifort(conf):
-	conf.find_program('ifort', var='FC')
+	fc = conf.find_program('ifort', var='FC')
+	fc = conf.cmd_to_list(fc)
+	conf.get_fc_version(fc, ifort=True)
 	conf.env.FC_NAME = 'IFORT'
 
 @conf
