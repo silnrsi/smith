@@ -104,7 +104,7 @@ def build(bld):
 <6> Static libraries and link paths
 <7> Use linkflags for specific link flags (not for passing libraries)
 <8> rpath and vnum, ignored on platforms that do not support them
-<9> Installation path (support variables)
+<9> Programs and shared libraries are installed by default. To disable the installation, set None.
 <10> Miscalleneous flags, applied to the source files that support them (if present)
 
 === Include processing
