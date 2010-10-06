@@ -256,7 +256,7 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 	return []
 
 @conf
-def get_fc_version(conf, fc, gfortran=False, ifort=False):
+def get_fc_version(conf, fc, gfortran=False, g95=False, ifort=False):
 	"""get the compiler version"""
 
 	def getoutput(cmd, stdin=False):
@@ -288,6 +288,20 @@ def get_fc_version(conf, fc, gfortran=False, ifort=False):
 			match = version_re(err)
 		if not match:
 			conf.fatal('cannot determine ifort version.')
+		k = match.groupdict()
+		conf.env['FC_VERSION'] = (k['major'], k['minor'])
+		return
+
+	elif g95:
+		version_re = re.compile(r"g95\s*(?P<major>\d*)\.(?P<minor>\d*)").search
+		cmd = fc + ['-dumpversion']
+		out, err = getoutput(cmd, stdin=False)
+		if out:
+			match = version_re(out)
+		else:
+			match = version_re(err)
+		if not match:
+			conf.fatal('cannot determine g95 version')
 		k = match.groupdict()
 		conf.env['FC_VERSION'] = (k['major'], k['minor'])
 		return

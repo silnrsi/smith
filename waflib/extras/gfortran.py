@@ -10,7 +10,10 @@ from waflib.Configure import conf
 def find_gfortran(conf):
 	fc = conf.find_program(['gfortran', 'g95'], var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_fc_version(fc, gfortran=True)
+	if 'g95' in conf.env['FC']:
+		conf.get_fc_version(fc, g95=True)
+	elif 'gfortran' in conf.env['FC']:
+		conf.get_fc_version(fc, gfortran=True)
 	conf.env.FC_NAME = 'GFORTRAN'
 
 @conf
