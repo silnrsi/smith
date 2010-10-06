@@ -171,7 +171,7 @@ class XMLHandler(ContentHandler):
 			self.buf = []
 	def endElement(self, name):
 		if name == 'file':
-			self.files.append(''.join(self.buf))
+			self.files.append(''.join(self.buf).encode())
 	def characters(self, cars):
 		self.buf.append(cars)
 
