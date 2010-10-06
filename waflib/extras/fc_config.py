@@ -268,19 +268,24 @@ def get_fc_version(conf, fc, gfortran=False, ifort=False):
 			p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			if stdin:
 				p.stdin.write(b'\n')
-			out = p.communicate()[0]
+			stdout, stderr = p.communicate()
 		except:
 			conf.fatal('could not determine the compiler version %r' % cmd)
 		else:
-			if not isinstance(out, str):
-				out = out.decode('utf-8')
-			return out
+			if not isinstance(stdout, str):
+				stdout = stdout.decode('utf-8')
+			if not isinstance(stderr, str):
+				stderr = stderr.decode('utf-8')
+			return stdout, stderr
 
 	if ifort:
 		version_re = re.compile(r"Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
 		cmd = fc + ['-logo']
-		out = getoutput(cmd, stdin=False)
-		match = version_re(out)
+		out, err = getoutput(cmd, stdin=False)
+		if out:
+			match = version_re(out)
+		else:
+			match = version_re(err)
 		if not match:
 			conf.fatal('cannot determine ifort version.')
 		k = match.groupdict()
@@ -289,7 +294,7 @@ def get_fc_version(conf, fc, gfortran=False, ifort=False):
 
 	elif gfortran:
 		cmd = fc + ['-dM', '-E', '-']
-		out = getoutput(cmd, stdin=True)
+		out, err = getoutput(cmd, stdin=True)
 
 		if out.find('__GNUC__') < 0:
 			conf.fatal('Could not determine the compiler type')
