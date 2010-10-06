@@ -471,7 +471,7 @@ class Task(TaskBase):
 			# important, store the signature for the next run
 			node.sig = sig
 
-		bld.task_sigs[self.uid()] = self.cache_sig
+		bld.task_sigs[self.uid()] = self.signature()
 
 	def sig_explicit_deps(self):
 		"""
