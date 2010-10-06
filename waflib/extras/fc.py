@@ -38,7 +38,7 @@ def get_fortran_tasks(tsk):
 	for tg in gp:
 		try: tasks.extend(tg.tasks)
 		except TypeError: tasks.append(tg)
-	return [x for x in tasks if isinstance(x, fc) and not getattr(x, 'nomod', None)]
+	return [x for x in tasks if isinstance(x, fc) and not getattr(x, 'nomod', None) and not getattr(x, 'mod_fortran_done', None)]
 
 class fc(Task.Task):
 	"""
@@ -57,7 +57,7 @@ class fc(Task.Task):
 		set the mod file outputs and the dependencies on the mod files over all the fortran tasks
 		executed by the main thread so there are no concurrency issues
 		"""
-		if getattr(self, 'mod_fortran_done', None) or getattr(x, 'nomod', None):
+		if getattr(self, 'mod_fortran_done', None):
 			return super(fc, self).runnable_status()
 
 		# now, if we reach this part it is because this fortran task is the first in the list
