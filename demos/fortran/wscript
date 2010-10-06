@@ -14,9 +14,13 @@ def options(opt):
 def configure(conf):
 	conf.load('compiler_c')
 	conf.load('compiler_fc')
-	print conf.env.FC_VERSION
-	conf.env['FCFLAGS'] = ['-Wall', '-W']
+	if conf.env.FC_NAME == 'IFORT':
+		conf.env['FCFLAGS'] = ['-warn']
+	elif conf.env.FC_NAME == 'GFORTRAN':
+		conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['INCLUDES'] = ['hfloupi']
+
+	print conf.env['FC_VERSION']
 
 	conf.check_fortran()
 	conf.check_fortran_verbose_flag()
