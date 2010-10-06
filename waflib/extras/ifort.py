@@ -22,8 +22,8 @@ def ifort_modifier_win32(conf):
 def get_ifort_version(conf, fc):
 	"""get the compiler version"""
 
-	version_re = re.compile(r"Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
-	cmd = fc + ['-logo']
+	version_re = re.compile(r"ifort\s*\(IFORT\)\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = fc + ['--version']
 	out, err = fc_config.getoutput(conf, cmd, stdin=False)
 	if out:
 		match = version_re(out)
@@ -38,4 +38,3 @@ def configure(conf):
 	conf.find_ifort()
 	conf.find_ar()
 	conf.fc_flags()
-

@@ -3,6 +3,7 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
+import re
 from waflib.extras import fc, fc_config
 from waflib.Configure import conf
 
@@ -10,7 +11,7 @@ from waflib.Configure import conf
 def find_gfortran(conf):
 	fc = conf.find_program('gfortran', var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_gfortran_version(fc, mandatory=False)
+	conf.get_gfortran_version(fc)
 	conf.env.FC_NAME = 'GFORTRAN'
 
 @conf
@@ -46,6 +47,16 @@ def gfortran_modifier_platform(conf):
 def get_gfortran_version(conf, fc):
 	"""get the compiler version"""
 
+	# ensure this is actually gfortran, not an imposter.
+	version_re = re.compile(r"GNU\s*Fortran", re.I).search
+	cmd = fc + ['--version']
+	out, err = fc_config.getoutput(conf, cmd, stdin=False)
+	if out: match = version_re(out)
+	else: match = version_re(err)
+	if not match:
+		conf.fatal('Could not determine the compiler type')
+
+	# --- now get more detailed info -- see c_config.get_cc_version
 	cmd = fc + ['-dM', '-E', '-']
 	out, err = fc_config.getoutput(conf, cmd, stdin=True)
 
