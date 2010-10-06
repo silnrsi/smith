@@ -6,8 +6,8 @@ from waflib import Utils, Configure, Options, Logs
 from waflib.extras import fc
 
 fc_compiler = {
-	'darwin' : ['gfortran', 'ifort'],
-	'linux'  : ['gfortran', 'ifort'],
+	'darwin' : ['gfortran', 'g95', 'ifort'],
+	'linux'  : ['gfortran', 'g95', 'ifort'],
 	'default': ['gfortran']
 }
 
