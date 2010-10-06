@@ -255,82 +255,24 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 		return flags
 	return []
 
-@conf
-def get_fc_version(conf, fc, gfortran=False, g95=False, ifort=False):
-	"""get the compiler version"""
-
-	def getoutput(cmd, stdin=False):
-		try:
-			if stdin:
-				stdin = subprocess.PIPE
-			else:
-				stdin = None
-			p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-			if stdin:
-				p.stdin.write(b'\n')
-			stdout, stderr = p.communicate()
-		except:
-			conf.fatal('could not determine the compiler version %r' % cmd)
+def getoutput(conf, cmd, stdin=False):
+	try:
+		if stdin:
+			stdin = subprocess.PIPE
 		else:
-			if not isinstance(stdout, str):
-				stdout = stdout.decode('utf-8')
-			if not isinstance(stderr, str):
-				stderr = stderr.decode('utf-8')
-			return stdout, stderr
-
-	if ifort:
-		version_re = re.compile(r"Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
-		cmd = fc + ['-logo']
-		out, err = getoutput(cmd, stdin=False)
-		if out:
-			match = version_re(out)
-		else:
-			match = version_re(err)
-		if not match:
-			conf.fatal('cannot determine ifort version.')
-		k = match.groupdict()
-		conf.env['FC_VERSION'] = (k['major'], k['minor'])
-		return
-
-	elif g95:
-		version_re = re.compile(r"g95\s*(?P<major>\d*)\.(?P<minor>\d*)").search
-		cmd = fc + ['-dumpversion']
-		out, err = getoutput(cmd, stdin=False)
-		if out:
-			match = version_re(out)
-		else:
-			match = version_re(err)
-		if not match:
-			conf.fatal('cannot determine g95 version')
-		k = match.groupdict()
-		conf.env['FC_VERSION'] = (k['major'], k['minor'])
-		return
-
-	elif gfortran:
-		cmd = fc + ['-dM', '-E', '-']
-		out, err = getoutput(cmd, stdin=True)
-
-		if out.find('__GNUC__') < 0:
-			conf.fatal('Could not determine the compiler type')
-
-		k = {}
-		out = out.split('\n')
-		import shlex
-
-		for line in out:
-			lst = shlex.split(line)
-			if len(lst)>2:
-				key = lst[1]
-				val = lst[2]
-				k[key] = val
-
-		def isD(var):
-			return var in k
-
-		def isT(var):
-			return var in k and k[var] != '0'
-
-		conf.env['FC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
+			stdin = None
+		p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		if stdin:
+			p.stdin.write(b'\n')
+		stdout, stderr = p.communicate()
+	except:
+		conf.fatal('could not determine the compiler version %r' % cmd)
+	else:
+		if not isinstance(stdout, str):
+			stdout = stdout.decode('utf-8')
+		if not isinstance(stderr, str):
+			stderr = stderr.decode('utf-8')
+		return stdout, stderr
 
 # ------------------------------------------------------------------------
 

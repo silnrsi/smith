@@ -3,14 +3,14 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
-from waflib.extras import fc
+from waflib.extras import fc, fc_config
 from waflib.Configure import conf
 
 @conf
 def find_gfortran(conf):
 	fc = conf.find_program('gfortran', var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_fc_version(fc, gfortran=True)
+	conf.get_gfortran_version(fc, mandatory=False)
 	conf.env.FC_NAME = 'GFORTRAN'
 
 @conf
@@ -42,10 +42,38 @@ def gfortran_modifier_platform(conf):
 	if gfortran_modifier_func:
 			gfortran_modifier_func(conf)
 
+@conf
+def get_gfortran_version(conf, fc):
+	"""get the compiler version"""
+
+	cmd = fc + ['-dM', '-E', '-']
+	out, err = fc_config.getoutput(conf, cmd, stdin=True)
+
+	if out.find('__GNUC__') < 0:
+		conf.fatal('Could not determine the compiler type')
+
+	k = {}
+	out = out.split('\n')
+	import shlex
+
+	for line in out:
+		lst = shlex.split(line)
+		if len(lst)>2:
+			key = lst[1]
+			val = lst[2]
+			k[key] = val
+
+	def isD(var):
+		return var in k
+
+	def isT(var):
+		return var in k and k[var] != '0'
+
+	conf.env['FC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
+
 def configure(conf):
 	conf.find_gfortran()
 	conf.find_ar()
 	conf.fc_flags()
 	conf.gfortran_flags()
 	conf.gfortran_modifier_platform()
-

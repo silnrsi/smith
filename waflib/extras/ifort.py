@@ -3,19 +3,36 @@
 # DC 2008
 # Thomas Nagy 2010 (ita)
 
-from waflib.extras import fc
+import re
+from waflib.extras import fc, fc_config
 from waflib.Configure import conf
 
 @conf
 def find_ifort(conf):
 	fc = conf.find_program('ifort', var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_fc_version(fc, ifort=True)
+	conf.get_ifort_version(fc, mandatory=False)
 	conf.env.FC_NAME = 'IFORT'
 
 @conf
 def ifort_modifier_win32(conf):
     raise NotImplementedError("Ifort on win32 not yet implemented")
+
+@conf
+def get_ifort_version(conf, fc):
+	"""get the compiler version"""
+
+	version_re = re.compile(r"Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = fc + ['-logo']
+	out, err = fc_config.getoutput(conf, cmd, stdin=False)
+	if out:
+		match = version_re(out)
+	else:
+		match = version_re(err)
+	if not match:
+		conf.fatal('cannot determine ifort version.')
+	k = match.groupdict()
+	conf.env['FC_VERSION'] = (k['major'], k['minor'])
 
 def configure(conf):
 	conf.find_ifort()
