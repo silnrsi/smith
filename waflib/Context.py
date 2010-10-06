@@ -97,7 +97,7 @@ class store_context(type):
 			cls.fun = cls.cmd
 
 		global classes
-		classes.append(cls)
+		classes.insert(0, cls)
 
 # metaclass
 ctx = store_context('ctx', (object,), {})
