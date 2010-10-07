@@ -597,7 +597,8 @@ class Node(object):
 		node = self.find_node(lst)
 		try:
 			os.path.isdir(node.abspath())
-		except OSError:
+		except (OSError, AttributeError):
+			# the node might be None, and raise an AttributeError
 			return None
 		return node
 
