@@ -1,0 +1,14 @@
+#! /usr/bin/env python
+
+top = '.'
+out = 'build_directory'
+
+def configure(ctx):
+	pass
+
+def build(ctx):
+	if ctx.cmd == 'clean':
+		print('cleaning!')
+	else:
+		print(ctx.cmd)
+
