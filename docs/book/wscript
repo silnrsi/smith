@@ -133,8 +133,8 @@ def build(bld):
 """
 Add the following to asciidoc/dblatex/asciidoc-dblatex.sty
 
-\usepackage{color}
-\usepackage{listings}
+\\usepackage{color}
+\\usepackage{listings}
 \definecolor{gray}{gray}{0.5}
 \definecolor{plum}{rgb}{0.55078125,0.09765625,0.55859375}
 \lstset{commentstyle=\color{plum}}
@@ -160,6 +160,5 @@ colors:
  yellow fffea6
  green  aef9a5
  blue   d2d5ff
-
 """
 
