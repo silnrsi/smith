@@ -43,6 +43,12 @@ def waf_entry_point(current_directory, version, wafdir):
 			Context.top_dir = env.top_dir
 			Context.out_dir = env.out_dir
 
+			# the directory of the wscript file was moved
+			try:
+				os.stat(Context.run_dir)
+			except:
+				Context.run_dir = cur
+
 			break
 
 		if not Context.run_dir:
