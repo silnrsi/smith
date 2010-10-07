@@ -5,9 +5,9 @@
 "TeX/LaTeX/PDFLaTeX support"
 
 import os, re
-import Utils, Task, Runner, Build
-from TaskGen import feature, before
-from Logs import error, warn, debug
+from waflib import Utils, Task, Runner, Build
+from waflib.TaskGen import feature, before
+from waflib.Logs import error, warn, debug
 
 re_tex = re.compile(r'\\(?P<type>include|bibliography|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 def scan(self):
