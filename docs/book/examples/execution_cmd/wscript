@@ -4,7 +4,7 @@ top = '.'
 out = 'build_directory'
 
 def configure(ctx):
-	pass
+	print(ctx.cmd)
 
 def build(ctx):
 	if ctx.cmd == 'clean':

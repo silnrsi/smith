@@ -543,5 +543,40 @@ The following commands all use the same function _build_ from the wscript file:
 . +list:+ list the task generators in the build section (to use with waf --targets=name)
 . +step:+ force the rebuild of particular files for debugging purposes
 
-Their usage will be described in details in the next chapters.
+The attribute 'cmd' holds the name of the command being executed:
+
+// execution_cmd
+[source,python]
+---------------
+top = '.'
+out = 'build_directory'
+
+def configure(ctx):
+	print(ctx.cmd)
+
+def build(ctx):
+	if ctx.cmd == 'clean':
+		print('cleaning!')
+	else:
+		print(ctx.cmd)
+---------------
+
+The execution will produce the following output:
+
+[source,shishell]
+---------------
+$ waf configure clean build
+Setting top to : /tmp/execution_cmd
+Setting out to : /tmp/execution_cmd/build_directory
+configure
+'configure' finished successfully (0.002s)
+cleaning!
+'clean' finished successfully (0.002s)
+Waf: Entering directory `/tmp/execution_cmd/build_directory'
+build
+Waf: Leaving directory `/tmp/execution_cmd/build_directory'
+'build' finished successfully (0.001s)
+---------------
+
+The build command usage will be described in details in the next chapters.
 
