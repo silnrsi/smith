@@ -10,4 +10,5 @@ def dosomething(ctx):
 	print(ctx.path.ant_glob('wsc*'))
 	print(ctx.path.ant_glob('w?cr?p?'))
 	print(ctx.root.ant_glob('usr/include/**/zlib*', dir=False, src=True))
+	print(ctx.path.ant_glob(['**/*py'], excl=['**/default*']))
 
