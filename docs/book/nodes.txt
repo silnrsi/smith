@@ -164,11 +164,13 @@ def dosomething(ctx):
 	print(ctx.path.ant_glob('wsc*')) <1>
 	print(ctx.path.ant_glob('w?cr?p?')) <2>
 	print(ctx.root.ant_glob('usr/include/**/zlib*', dir=False, src=True)) <3>
+	print(ctx.path.ant_glob(['**/*py'], excl=['**/default*'])) <4>
 ---------------
 
 <1> The method ant_glob is called on a node object, and not on the build context
-<2> The patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
+<2> Patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
 <3> The '**' indicates to consider folders recursively. Use with care.
+<4> Patterns are either lists of strings or space-delimited values. Patterns to exclude are defined in 'waflib.Node.exclude_regs'.
 
 The execution output will be the following:
 
@@ -180,8 +182,8 @@ Setting out to    : /tmp/nodes_ant_glob/build
 'configure' finished successfully (0.006s)
 [/tmp/nodes_ant_glob/wscript]
 [/tmp/nodes_ant_glob/wscript]
-[/usr/include/boost/iostreams/detail/config/zlib.hpp,
-  /usr/include/boost/iostreams/filter/zlib.hpp, /usr/include/zlib.h]
+[/usr/include/zlib.h]
+[/tmp/nodes_ant_glob/build/c4che/build.config.py]
 ---------------
 
 ==== path manipulation: abspath, path_from
