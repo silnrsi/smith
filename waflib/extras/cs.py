@@ -12,9 +12,8 @@ bld(features='cs', source='main.cs', target='foo')
 from waflib import TaskGen, Utils, Task, Options, Logs
 from TaskGen import before, after, feature
 from waflib.Tools import ccroot
-from waflib.Tools.c_use import USELIB_VARS
 
-USELIB_VARS['cs'] = set(['CSFLAGS', 'ASSEMBLIES', 'RESOURCES'])
+ccroot.USELIB_VARS['cs'] = set(['CSFLAGS', 'ASSEMBLIES', 'RESOURCES'])
 
 @feature('cs')
 @after('apply_uselib_cs')

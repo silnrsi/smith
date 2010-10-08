@@ -6,7 +6,7 @@ import os.path, shutil, re
 from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
 from waflib.TaskGen import extension, after, before
 
-class valac(Task.Task):
+class valac_task(Task.Task):
 
 	vars = ["VALAC", "VALAC_VERSION", "VALAFLAGS"]
 	ext_out = ['.h']
@@ -96,9 +96,11 @@ def vala_file(self, node):
 		valatask.pkg_name = getattr(self, 'pkg_name', self.env['PACKAGE'])
 		valatask.header_path = getattr(self, 'header_path',
 		                               '${INCLUDEDIR}/%s-%s' % (valatask.pkg_name, _get_api_version()))
+		
 		valatask.is_lib = False
 		if not 'cprogram' in self.features:
 			valatask.is_lib = True
+			
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))
@@ -203,7 +205,7 @@ def vala_file(self, node):
 		gir_list = [o for o in valatask.outputs if o.suffix() == ".gir"]
 		self.install_gir = self.bld.install_files(valatask.gir_path, gir_list, self.env)
 
-valac = Task.update_outputs(valac) # no decorators for python2 classes
+valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
 def configure(self):
 	self.load ('gnu_dirs')

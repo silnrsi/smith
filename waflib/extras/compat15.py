@@ -118,7 +118,7 @@ def apply_uselib_local(self):
 	execute after apply_link because of the execution order set on 'link_task'
 	"""
 	env = self.env
-	from waflib.Tools.c_use import stlink
+	from waflib.Tools.ccroot import stlink_task
 
 	# 1. the case of the libs defined in the project (visit ancestors first)
 	# the ancestors external libraries (uselib) will be prepended

@@ -6,7 +6,7 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import c_preproc
-from waflib.Tools.ccroot import link, stlink
+from waflib.Tools.ccroot import link_task, stlink_task
 
 def cxx_hook(self, node):
 	"map c++ files to the c++ task"
@@ -24,7 +24,7 @@ class cxx(Task.Task):
 	ext_in  = ['.h'] # set the build order easily by using ext_out=['.h']
 	scan    = c_preproc.scan
 
-class cxxprogram(link):
+class cxxprogram(link_task):
 	"Link object files into a c++ program"
 	run_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${FRAMEWORK_ST:FRAMEWORK} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	ext_out = ['.bin']
@@ -35,7 +35,7 @@ class cxxshlib(cxxprogram):
 	"Link object files into a c++ shared library"
 	inst_to = '${LIBDIR}'
 
-class cxxstlib(stlink):
+class cxxstlib(stlink_task):
 	"Link object files into a c++ static library"
 	pass # do not remove
 

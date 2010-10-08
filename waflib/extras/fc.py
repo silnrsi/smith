@@ -10,16 +10,15 @@ fortran support
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-from waflib.Tools import ccroot, c_use
+from waflib.Tools import ccroot
 from waflib.extras import fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
-from waflib.Tools.c_use import USELIB_VARS
 
-USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
-USELIB_VARS['fcprogram_test'] = USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
+ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
+ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+ccroot.USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
 
 @feature('fcprogram', 'fcshlib', 'fcstlib', 'fcprogram_test')
 def dummy(self):
@@ -128,7 +127,7 @@ class fc(Task.Task):
 def fcpp_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
-class fcprogram(c_use.link):
+class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
 	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${FCSTLIB_MARKER} ${FCSTLIBPATH_ST:STLIBPATH} ${FCSTLIB_ST:STLIB} ${FCSHLIB_MARKER} ${FCLIBPATH_ST:LIBPATH} ${FCLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
@@ -168,7 +167,7 @@ class fcprogram_test(fcprogram):
 		if bld.err:
 			bld.to_log("err: %s\n" % bld.err)
 
-class fcstlib(c_use.stlink):
+class fcstlib(ccroot.stlink_task):
 	"""just use ar normally"""
 	pass # do not remove the pass statement
 

@@ -7,14 +7,9 @@ import os, sys
 from waflib import Utils, Task, Errors
 from waflib.TaskGen import taskgen_method, feature, after, before, extension
 from waflib.Configure import conf
-from waflib.Tools.c_use import link, stlink
+from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
-from waflib.Tools.c_use import USELIB_VARS
-
-USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
-USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-USELIB_VARS['dshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-USELIB_VARS['dstlib']   = set(['ARFLAGS', 'LINKDEPS'])
+from waflib.Tools.ccroot import link_task, stlink_task
 
 class d(Task.Task):
 	"Compile a d file into an object file"
@@ -42,7 +37,7 @@ class d_header(Task.Task):
 	color   = 'BLUE'
 	run_str = '${D} ${D_HEADER} ${SRC}'
 
-class dprogram(link):
+class dprogram(link_task):
 	"Link object files into a d program"
 	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${RPATH_ST:RPATH} ${DSTLIB_MARKER} ${DSTLIBPATH_ST:STLIBPATH} ${DSTLIB_ST:STLIB} ${DSHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
@@ -63,7 +58,7 @@ class dshlib(dprogram):
 	"Link object files into a d shared library"
 	inst_to = '${LIBDIR}'
 
-class dstlib(stlink):
+class dstlib(stlink_task):
 	"Link object files into a d static library"
 	pass # do not remove
 
