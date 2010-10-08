@@ -8,10 +8,6 @@ import os, sys
 import waflib.Task
 from waflib.TaskGen import extension, feature
 
-@feature('asm')
-def apply_asm_vars(self):
-	self.env.append_value('ASFLAGS', self.to_list(getattr(self, 'asflags', [])))
-
 class asm(waflib.Task.Task):
 	color = 'BLUE'
 	run_str = '${AS} ${ASFLAGS} ${CPPPATH_ST:INCPATHS} ${SRC} -o ${TGT}'

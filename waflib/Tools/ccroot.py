@@ -27,6 +27,8 @@ USELIB_VARS['dstlib']   = set(['ARFLAGS', 'LINKDEPS'])
 USELIB_VARS['go'] = set(['GOCFLAGS'])
 USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
 
+USELIB_VARS['asm'] = set(['ASFLAGS'])
+
 # =================================================================================================
 
 @taskgen_method
