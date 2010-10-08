@@ -5,7 +5,7 @@
 Build Order::
 	The build order is the sequence in which tasks must be executed. Because tasks can be executed in parallel, several build orders can be computed depending on the constraints between the tasks. When a build order cannot be computed (usually by contradictory order constraints), the build is said to be in a deadlock.
 Dependency::
-	A dependency is a condition that indicates if a task has to be executed. The dependencies can be explicit (file inputs and outputs) or abstract (dependency on a value for example).
+	A dependency represents the conditions by which a task can be considered up-to-date or not (execution status). The dependencies can be explicit (file inputs and outputs) or abstract (dependency on a value for example).
 Task generator::
 	A task generator is an object instance of the class Task.task_gen. The task generators encapsulate the creation of various task instances at a time, and simplify the creation of ordering constraints between them (for example, compilation tasks are executed before link tasks).
 Task::
