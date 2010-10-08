@@ -10,7 +10,7 @@ from waflib.Configure import conf
 from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config
 from waflib.Tools.ccroot import link_task, stlink_task
-import waflib.Tools.c_use.USELIB_VARS
+from waflib.Tools.c_use import USELIB_VARS
 
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])

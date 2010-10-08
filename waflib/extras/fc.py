@@ -14,11 +14,12 @@ from waflib.Tools import ccroot
 from waflib.extras import fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
+from waflib.Tools.c_use import USELIB_VARS
 
-ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
-ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-ccroot.USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
-ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
+USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
+USELIB_VARS['fcprogram_test'] = USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
+USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
 
 @feature('fcprogram', 'fcshlib', 'fcstlib', 'fcprogram_test')
 def dummy(self):

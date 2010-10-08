@@ -7,7 +7,7 @@
 import os, sys
 import waflib.Task
 from waflib.TaskGen import extension, feature
-import waflib.Tools.c_use.USELIB_VARS
+from waflib.Tools.c_use import USELIB_VARS
 
 USELIB_VARS['asm'] = set(['ASFLAGS'])
 
