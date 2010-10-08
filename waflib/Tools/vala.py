@@ -246,11 +246,6 @@ def check_vala_deps(self):
 	"""
 	vala seems to require the gobject and gthread flags
 	"""
-	if self.env['VALAFLAGS']:
-		self.env['VALAFLAGS'] = [self.env['VALAFLAGS']]
-	else:
-		self.env['VALAFLAGS'] = []
-
 	if not self.env['HAVE_GOBJECT']:
 		pkg_args = {'package':      'gobject-2.0',
 		            'uselib_store': 'GOBJECT',
