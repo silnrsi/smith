@@ -186,7 +186,9 @@ Setting out to    : /tmp/nodes_ant_glob/build
 [/tmp/nodes_ant_glob/build/c4che/build.config.py]
 ---------------
 
-==== path manipulation: abspath, path_from
+NOTE: The '.' character means 'exactly one dot character' and not 'any character'.
+
+==== Path manipulation: abspath, path_from
 
 The method 'abspath' is used to obtain the absolute path for a node. In the following example, three nodes are used:
 
