@@ -1,6 +1,7 @@
 NEW IN WAF 1.6.0
 ----------------
 
+General:
 * Python 3 syntax by default (runs unmodified for 2.6, 2.7, 3.0 and 3.1)
 * Environment -> ConfigSet
 * only lists are allowed in ConfigSet
@@ -34,8 +35,7 @@ NEW IN WAF 1.6.0
 * waf step --file=main.c
 * post task generators in a lazy manner
 
-...
-
+preview 3:
 * remove the /W3 flag from msvc default flags
 * opt.tool_options -> opt.load (now all commands inherit the 'tool' method)
 * conf.check_tool -> conf.load
@@ -44,4 +44,15 @@ NEW IN WAF 1.6.0
 * fix the behaviour of 'waf distcheck'
 * preprocessor optimizations
 * python 2 fixes
+
+release candidate:
+* cache fixes
+* fortran fixes
+* python 2 and 3 fixes
+* docs and docstrings
+* support for custom waf files and preludes
+* fix in waflib.Context for overriding command classes
+* port the doxygen tool
+* Utils.to_hashtable -> Utils.str2dict
+* change the thread pool to enable thread pool sharing
 
