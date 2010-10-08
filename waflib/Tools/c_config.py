@@ -469,7 +469,7 @@ def check(self, *k, **kw):
 		return ret == 0
 	return ret
 
-class test_exec_task(Task.Task):
+class test_exec(Task.Task):
 	"""
 	a task for executing a program after it is built
 	"""

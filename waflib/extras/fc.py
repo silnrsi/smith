@@ -10,7 +10,7 @@ fortran support
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-from waflib.Tools import ccroot
+from waflib.Tools import ccroot, c_use
 from waflib.extras import fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
@@ -128,7 +128,7 @@ class fc(Task.Task):
 def fcpp_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
-class fcprogram(ccroot.link_task):
+class fcprogram(c_use.link):
 	color = 'YELLOW'
 	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${FCSTLIB_MARKER} ${FCSTLIBPATH_ST:STLIBPATH} ${FCSTLIB_ST:STLIB} ${FCSHLIB_MARKER} ${FCLIBPATH_ST:LIBPATH} ${FCLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
@@ -168,7 +168,7 @@ class fcprogram_test(fcprogram):
 		if bld.err:
 			bld.to_log("err: %s\n" % bld.err)
 
-class fcstlib(ccroot.stlink_task):
+class fcstlib(c_use.stlink):
 	"""just use ar normally"""
 	pass # do not remove the pass statement
 

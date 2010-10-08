@@ -6,7 +6,7 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import c_preproc
-from waflib.Tools.ccroot import link_task, stlink_task
+from waflib.Tools.c_use import link, stlink
 
 @TaskGen.extension('.c')
 def c_hook(self, node):
@@ -23,7 +23,7 @@ class c(Task.Task):
 
 Task.classes['cc'] = cc = c # compat, remove in waf 1.7
 
-class cprogram(link_task):
+class cprogram(link):
 	"Link object files into a c program"
 	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${FRAMEWORK_ST:FRAMEWORK} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	ext_out = ['.bin']
@@ -34,7 +34,7 @@ class cshlib(cprogram):
 	"Link object files into a c shared library"
 	inst_to = '${LIBDIR}'
 
-class cstlib(stlink_task):
+class cstlib(stlink):
 	"Link object files into a c static library"
 	pass # do not remove
 

@@ -2,6 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+import os
+from waflib import Utils, Task, Errors
+from waflib.TaskGen import taskgen_method, feature, before, after
+
 USELIB_VARS = Utils.defaultdict(set)
 USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
@@ -9,6 +13,41 @@ USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CX
 USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH'])
 USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH'])
 USELIB_VARS['cstlib']   = USELIB_VARS['cxxstlib']   = set(['ARFLAGS', 'LINKDEPS'])
+
+class link(Task.Task):
+	"""base class for all link tasks (c_link, cxx_link, etc)"""
+	color   = 'YELLOW'
+	inst_to = None
+	chmod   = Utils.O644
+
+	def add_target(self, target):
+		if isinstance(target, str):
+			pattern = self.env[self.__class__.__name__ + '_PATTERN']
+			if not pattern:
+				pattern = '%s'
+			folder, name = os.path.split(target)
+
+			if self.__class__.__name__.find('shlib') > 0:
+				if self.env.DEST_BINFMT == 'pe' and getattr(self.generator, 'vnum', None):
+					# include the version in the dll file name,
+					# the import lib file name stays unversionned.
+					name = name + '-' + self.generator.vnum.split('.')[0]
+
+			tmp = folder + os.sep + pattern % name
+			target = self.generator.path.find_or_declare(tmp)
+		self.set_outputs(target)
+
+class stlink(link):
+	"""link static libraries (with ar)"""
+	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
+	def run(self):
+		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
+		try:
+			os.remove(self.outputs[0].abspath())
+		except OSError:
+			pass
+		return Task.Task.run(self)
+
 
 @taskgen_method
 def use_rec(self, name, objects=True, stlib=True):
@@ -29,7 +68,7 @@ def use_rec(self, name, objects=True, stlib=True):
 
 	y.post()
 	has_link = getattr(y, 'link_task', None)
-	is_static = has_link and isinstance(y.link_task, stlink_task)
+	is_static = has_link and isinstance(y.link_task, stlink)
 
 	# depth-first processing
 	for x in self.to_list(getattr(y, 'use', [])):
@@ -39,7 +78,7 @@ def use_rec(self, name, objects=True, stlib=True):
 	if getattr(self, 'link_task', None):
 		if has_link:
 			if (not is_static) or (is_static and stlib):
-				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
+				var = isinstance(y.link_task, stlink) and 'STLIB' or 'LIB'
 				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
 
 				# the order

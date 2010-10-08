@@ -104,8 +104,6 @@ class store_task_type(type):
 		super(store_task_type, cls).__init__(name, bases, dict)
 		name = cls.__name__
 
-		if name.endswith('_task'):
-			name = name.replace('_task', '')
 		if name != 'evil' and name != 'TaskBase':
 			global classes
 

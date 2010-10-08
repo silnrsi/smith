@@ -8,7 +8,7 @@ import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
-from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
+from waflib.Tools import c_use, c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
 from waflib.Configure import conf
 
 # =================================================================================================
@@ -70,40 +70,6 @@ def apply_incpaths(self):
 	self.includes_nodes = lst
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
-class link_task(Task.Task):
-	"""base class for all link tasks (c_link, cxx_link, etc)"""
-	color   = 'YELLOW'
-	inst_to = None
-	chmod   = Utils.O644
-
-	def add_target(self, target):
-		if isinstance(target, str):
-			pattern = self.env[self.__class__.__name__ + '_PATTERN']
-			if not pattern:
-				pattern = '%s'
-			folder, name = os.path.split(target)
-
-			if self.__class__.__name__.find('shlib') > 0:
-				if self.env.DEST_BINFMT == 'pe' and getattr(self.generator, 'vnum', None):
-					# include the version in the dll file name,
-					# the import lib file name stays unversionned.
-					name = name + '-' + self.generator.vnum.split('.')[0]
-
-			tmp = folder + os.sep + pattern % name
-			target = self.generator.path.find_or_declare(tmp)
-		self.set_outputs(target)
-
-class stlink_task(link_task):
-	"""link static libraries (with ar)"""
-	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
-	def run(self):
-		"""remove the file before creating it (ar behaviour is to append to the existin file)"""
-		try:
-			os.remove(self.outputs[0].abspath())
-		except OSError:
-			pass
-		return Task.Task.run(self)
-
 @feature('c', 'cxx', 'd', 'go', 'fc')
 @after('process_source')
 def apply_link(self):
@@ -116,7 +82,7 @@ def apply_link(self):
 			x = 'cxxshlib'
 
 		if x in Task.classes:
-			if issubclass(Task.classes[x], link_task):
+			if issubclass(Task.classes[x], c_use.link):
 				link = x
 				break
 	else:
@@ -213,7 +179,7 @@ def apply_vnum(self):
 		t3 = bld.symlink_as(path + os.sep + libname, name3)
 		self.vnum_install_task = (t1, t2, t3)
 
-class vnum_task(Task.Task):
+class vnum(Task.Task):
 	"""create the symbolic links for a versioned shared library"""
 	color = 'CYAN'
 	quient = True
@@ -231,14 +197,14 @@ class vnum_task(Task.Task):
 			except OSError:
 				return 1
 
-class fake_shlib(link_task):
+class fake_shlib(c_use.link):
 	"""task used for reading a foreign library and adding the dependency on it"""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
 
-class fake_stlib(stlink_task):
+class fake_stlib(c_use.stlink):
 	"""task used for reading a foreign library and adding the dependency on it"""
 	def runnable_status(self):
 		for x in self.outputs:
