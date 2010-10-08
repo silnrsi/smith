@@ -240,6 +240,7 @@ def check_vala(self, min_version=(0,8,0), branch=None):
 		# Try again with the unversioned name
 		find_valac(self, 'valac', min_version)
 
+@conf
 def check_vala_deps(self):
 	if self.env['VALAFLAGS']:
 		self.env['VALAFLAGS'] = [self.env['VALAFLAGS']]
