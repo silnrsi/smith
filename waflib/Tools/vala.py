@@ -243,6 +243,9 @@ def check_vala(self, min_version=(0,8,0), branch=None):
 
 @conf
 def check_vala_deps(self):
+	"""
+	vala seems to require the gobject and gthread flags
+	"""
 	if self.env['VALAFLAGS']:
 		self.env['VALAFLAGS'] = [self.env['VALAFLAGS']]
 	else:
