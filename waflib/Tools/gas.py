@@ -8,4 +8,4 @@ import waflib.Tools.ccroot # - leave this
 
 def configure(conf):
 	conf.find_program(['gas', 'as', 'gcc'], var='AS')
-
+	conf.env.AS_TGT_F = '-o'
