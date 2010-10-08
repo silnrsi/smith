@@ -259,7 +259,8 @@ class BuildContext(Context.Context):
 		try:
 			st = os.stat(db)
 			os.unlink(db)
-			os.chown(db + '.tmp', st.st_uid, st.st_gid)
+			if sys.platform != 'win32':
+				os.chown(db + '.tmp', st.st_uid, st.st_gid)
 		except OSError:
 			pass
 
