@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # Ali Sabil, 2007
+# Radosław Szkodziński, 2010
 
 import os.path, shutil, re
 from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
 from waflib.TaskGen import extension, after, before
+from waflib.Configure import conf
 
 class valac_task(Task.Task):
 
@@ -207,47 +209,71 @@ def vala_file(self, node):
 
 valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
-def configure(self):
-	self.load ('gnu_dirs')
-	min_version = (0, 8, 0)
-	min_version_str = "%d.%d.%d" % min_version
-
-	valac = self.find_program('valac', var='VALAC')
-
-	if not self.env["HAVE_GOBJECT"]:
-		pkg_args = {'package':      'gobject-2.0',
-			'uselib_store': 'GOBJECT',
-			'args':         '--cflags --libs'}
-		if getattr(Options.options, 'vala_target_glib', None):
-			pkg_args['atleast_version'] = Options.options.vala_target_glib
-		self.check_cfg(**pkg_args)
-
-	if not self.env["HAVE_GTHREAD"]:
-		pkg_args = {'package':      'gthread-2.0',
-			'uselib_store': 'GTHREAD',
-			'args':         '--cflags --libs'}
-		if getattr(Options.options, 'vala_target_glib', None):
-			pkg_args['atleast_version'] = Options.options.vala_target_glib
-		self.check_cfg(**pkg_args)
-
+@conf
+def find_valac(self, valac_name, min_version):
+	valac = self.find_program(valac_name, var='VALAC')
 	try:
 		output = self.cmd_and_log(valac + ' --version')
 	except Exception:
-		valac_version = (0, 0, 0)
+		valac_version = None
 	else:
 		ver = re.search(r'\d+.\d+.\d+', output).group(0).split('.')
 		valac_version = tuple([int(x) for x in ver])
 
-	self.msg('Checking for valac version >= ' + min_version_str, "%d.%d.%d" % valac_version, valac_version >= min_version)
+	self.msg('Checking for %s version >= %r' % (valac_name, min_version),
+	         valac_version, valac_version and valac_version >= min_version)
+	if valac and valac_version < min_version:
+		self.fatal("%s version %r is too old, need >= %r" % (valac_name, valac_version, min_version))
 
-	if valac_version < min_version:
-		self.fatal("the valac version %r is too old %r" % (valac_version, min_version))
+	self.env['VALAC_VERSION'] = valac_version
+	return valac
 
-	self.env.VALAC_VERSION = valac_version
-	self.env.VALAFLAGS     = []
+@conf
+def check_vala(self, min_version=(0,8,0), branch=None):
+	"""
+	Check if vala compiler from a given branch exists of at least a given
+	version.
+	"""
+	if not branch:
+		branch = min_version[:2]
+	if not find_valac(self, 'valac-%d.%d' % (branch[0], branch[1]), min_version):
+		# Try again with the unversioned name
+		find_valac(self, 'valac', min_version)
 
-def options (opt):
-	opt.load ('gnu_dirs')
+def check_vala_deps(self):
+	if self.env['VALAFLAGS']:
+		self.env['VALAFLAGS'] = [self.env['VALAFLAGS']]
+	else:
+		self.env['VALAFLAGS'] = []
+
+	if not self.env['HAVE_GOBJECT']:
+		pkg_args = {'package':      'gobject-2.0',
+		            'uselib_store': 'GOBJECT',
+		            'args':         '--cflags --libs'}
+		if getattr(Options.options, 'vala_target_glib', None):
+			pkg_args['atleast_version'] = Options.options.vala_target_glib
+		self.check_cfg(**pkg_args)
+
+	if not self.env['HAVE_GTHREAD']:
+		pkg_args = {'package':      'gthread-2.0',
+		            'uselib_store': 'GTHREAD',
+		            'args':         '--cflags --libs'}
+		if getattr(Options.options, 'vala_target_glib', None):
+			pkg_args['atleast_version'] = Options.options.vala_target_glib
+		self.check_cfg(**pkg_args)
+
+def configure(self):
+	"""
+	You may want to use
+	conf.load('vala', funs='')
+	conf.check_vala(min_version=(0,10,0))
+	"""
+	self.load('gnu_dirs')
+	self.check_vala_deps()
+	self.check_vala()
+
+def options(opt):
+	opt.load('gnu_dirs')
 	valaopts = opt.add_option_group('Vala Compiler Options')
 	valaopts.add_option ('--vala-target-glib', default=None,
 		dest='vala_target_glib', metavar='MAJOR.MINOR',
