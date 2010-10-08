@@ -147,9 +147,9 @@ NOTE: More methods may be found in the http://freehackers.org/~tnagy/wafdoc160/[
 
 WARNING: These methods are not safe for concurrent access. The node class methods are not thread-safe.
 
-==== Finding files recursively
+==== Listing files and folders
 
-Files and folders may be found recursively by using the method *ant_glob*:
+The method *ant_glob* is used to list find and folders recursively:
 
 // nodes_ant_glob
 [source,python]
@@ -163,14 +163,15 @@ def configure(ctx):
 def dosomething(ctx):
 	print(ctx.path.ant_glob('wsc*')) <1>
 	print(ctx.path.ant_glob('w?cr?p?')) <2>
-	print(ctx.root.ant_glob('usr/include/**/zlib*', dir=False, src=True)) <3>
-	print(ctx.path.ant_glob(['**/*py'], excl=['**/default*'])) <4>
+	print(ctx.root.ant_glob('usr/include/**/zlib*', <3> dir=False, src=True)) <4>
+	print(ctx.path.ant_glob(['**/*py', '**/*p'], excl=['**/default*'])) <5>
 ---------------
 
-<1> The method ant_glob is called on a node object, and not on the build context
-<2> Patterns may contain wildcards such as * or ?, but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
-<3> The '**' indicates to consider folders recursively. Use with care.
-<4> Patterns are either lists of strings or space-delimited values. Patterns to exclude are defined in 'waflib.Node.exclude_regs'.
+<1> The method ant_glob is called on a node object, and not on the build context, it returns only files by default
+<2> Patterns may contain wildcards such as '*' or '?', but they are http://ant.apache.org/manual/dirtasks.html[Ant patterns], not regular expressions
+<3> The symbol '**' enable recursion. Complex folder hierarchies may take a lot of time, so use with care.
+<4> Even though recursion is enabled, only files are returned by default. To turn directory listing on, use 'dir=True'
+<5> Patterns are either lists of strings or space-delimited values. Patterns to exclude are defined in 'waflib.Node.exclude_regs'.
 
 The execution output will be the following:
 
@@ -186,7 +187,16 @@ Setting out to    : /tmp/nodes_ant_glob/build
 [/tmp/nodes_ant_glob/build/c4che/build.config.py]
 ---------------
 
-NOTE: The '.' character means 'exactly one dot character' and not 'any character'.
+The sequence '..' represents exactly two dot characters, and not the parent directory. This is used to guarantee that the search will terminate, and that the same files will not be listed multiple times. Consider the following:
+
+[source,python]
+---------------
+ctx.path.ant_glob('../wscript') <1>
+ctx.path.parent.ant_glob('wscript') <2>
+---------------
+
+<1> Invalid, this pattern will never return anything
+<2> Call 'ant_glob' from the parent directory
 
 ==== Path manipulation: abspath, path_from
 
