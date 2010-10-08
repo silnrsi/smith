@@ -14,6 +14,10 @@ import os, platform
 from waflib import Utils, Task
 from waflib.TaskGen import feature, extension, after, before
 from waflib.Tools.ccroot import link_task, stlink_task
+import waflib.Tools.c_use.USELIB_VARS
+
+USELIB_VARS['go'] = set(['GOCFLAGS'])
+USELIB_VARS['goprogram'] = set(['GOLFLAGS'])
 
 class go(Task.Task):
 	run_str = '${GOC} ${GOCFLAGS} ${CPPPATH_ST:INCPATHS} -o ${TGT} ${SRC}'

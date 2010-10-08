@@ -7,6 +7,9 @@
 import os, sys
 import waflib.Task
 from waflib.TaskGen import extension, feature
+import waflib.Tools.c_use.USELIB_VARS
+
+USELIB_VARS['asm'] = set(['ASFLAGS'])
 
 class asm(waflib.Task.Task):
 	color = 'BLUE'
