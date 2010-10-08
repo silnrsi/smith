@@ -236,8 +236,9 @@ def check_vala(self, min_version=(0,8,0), branch=None):
 	"""
 	if not branch:
 		branch = min_version[:2]
-	if not find_valac(self, 'valac-%d.%d' % (branch[0], branch[1]), min_version):
-		# Try again with the unversioned name
+	try:
+		find_valac(self, 'valac-%d.%d' % (branch[0], branch[1]), min_version)
+	except self.errors.ConfigurationError:
 		find_valac(self, 'valac', min_version)
 
 @conf
@@ -265,7 +266,8 @@ def check_vala_deps(self):
 
 def configure(self):
 	"""
-	You may want to use
+	You may want to use this to force a particular minimum version:
+
 	conf.load('vala', funs='')
 	conf.check_vala(min_version=(0,10,0))
 	"""
