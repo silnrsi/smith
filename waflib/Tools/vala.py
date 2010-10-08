@@ -17,7 +17,7 @@ class valac_task(Task.Task):
 		env = self.env
 
 		cmd = [env['VALAC'], '-C', '--quiet']
-		cmd.extend(env['VALAFLAGS'])
+		cmd.extend(Utils.to_list(env['VALAFLAGS']))
 
 		if self.threading:
 			cmd.append('--thread')
