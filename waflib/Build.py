@@ -256,9 +256,14 @@ class BuildContext(Context.Context):
 		finally:
 			waflib.Node.pickle_lock.release()
 
+		try:
+			st = os.stat(db)
+			os.unlink(db)
+			os.chown(db + '.tmp', st.st_uid, st.st_gid)
+		except OSError:
+			pass
+
 		# do not use shutil.move (copy is not thread-safe)
-		try: os.unlink(db)
-		except OSError: pass
 		os.rename(db + '.tmp', db)
 
 	def compile(self):
