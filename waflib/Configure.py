@@ -394,6 +394,9 @@ def find_program(self, filename, **kw):
 	* path_list: list of paths to look into
 	* var: store the result to conf.env[var], by default use filename.upper()
 	* ext: list of extensions for the binary (do not forget the empty extension)
+
+	when var is used, you may set os.environ[var] to help finding a specific program version, for example
+	$ VALAC=/usr/bin/valac_test waf configure
 	"""
 
 	exts = kw.get('exts', Options.platform == 'win32' and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
