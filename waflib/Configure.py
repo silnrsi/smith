@@ -106,6 +106,7 @@ class ConfigurationContext(Context.Context):
 		self.tool_cache = []
 
 		self.all_envs['default'] = ConfigSet.ConfigSet()
+		self.prepare_env(self.env)
 
 	def get_env(self):
 		"""getter for the env property"""
