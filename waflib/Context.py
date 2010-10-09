@@ -116,10 +116,10 @@ class Context(ctx):
 
 	def __init__(self, **kw):
 		try:
-			start_dir = kw['start_dir']
+			run_dir = kw['run_dir']
 		except KeyError:
 			global run_dir
-			start_dir = run_dir
+			run_dir = run_dir
 
 		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(waflib.Node.Node):
@@ -131,7 +131,7 @@ class Context(ctx):
 
 		self.root = self.node_class('', None)
 		self.cur_script = None
-		self.path = self.root.find_dir(start_dir)
+		self.path = self.root.find_dir(run_dir)
 
 		self.stack_path = []
 		self.exec_dict = {'ctx':self, 'conf':self, 'bld':self, 'opt':self}
