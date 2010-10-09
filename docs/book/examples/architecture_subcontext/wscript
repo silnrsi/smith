@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+
+import os
+from waflib.Configure import conf
+from waflib import Task, Build, Logs
+
+def run_test(self):
+	top = self.generator.bld.srcnode.abspath()
+	out = self.generator.bld.bldnode.abspath()
+
+	bld = Build.BuildContext(top_dir=top, out_dir=out)
+	bld.init_dirs()
+
+	bld.in_msg = 1
+	bld.all_envs['default'] = self.env.derive()
+
+	header = self.generator.header_name
+
+	logfile = self.generator.path.get_bld().abspath() + os.sep \
+		+ header + '.log'
+	bld.logger = Logs.make_logger(logfile, header)
+
+	bld.check(header_name=header)
+
+@conf
+def hello(ctx):
+	print('hello')
+
+def options(ctx):
+	ctx.load('compiler_c')
+
+def configure(ctx):
+	ctx.load('compiler_c')
+
+def build(ctx):
+	ctx(rule=run_test, always=True, header_name='stdio.h')
+	ctx(rule=run_test, always=True, header_name='unistd.h')
+
