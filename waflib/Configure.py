@@ -100,21 +100,26 @@ class ConfigurationContext(Context.Context):
 	error_handlers = []
 	def __init__(self, **kw):
 		super(self.__class__, self).__init__(**kw)
-		self.env = None
-		self.envname = ''
-
 		self.environ = dict(os.environ)
-
 		self.all_envs = {}
 
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
-
-		self.setenv('default')
 
 		self.hash = 0
 		self.files = []
 
 		self.tool_cache = []
+
+		self.all_envs['default'] = ConfigSet.ConfigSet()
+
+	def get_env(self):
+		"""getter for the env property"""
+		return self.all_envs['default']
+	def set_env(self, val):
+		"""setter for the env property"""
+		self.all_envs['default'] = val
+
+	env = property(get_env, set_env)
 
 	def execute(self):
 		"""See Context.prepare"""
@@ -271,28 +276,6 @@ class ConfigurationContext(Context.Context):
 		super(ConfigurationContext, self).post_recurse(node)
 		self.hash = hash((self.hash, node.read('rb')))
 		self.files.append(node.abspath())
-
-	def set_env_name(self, name, env):
-		"adds a new environment called name"
-		self.all_envs[name] = env
-		return env
-
-	def retrieve(self, name, fromenv=None):
-		"retrieve an environment called name"
-		try:
-			env = self.all_envs[name]
-		except KeyError:
-			env = ConfigSet.ConfigSet()
-			self.prepare_env(env)
-			self.all_envs[name] = env
-		else:
-			if fromenv: Logs.warn("The environment %s may have been configured already" % name)
-		return env
-
-	def setenv(self, name):
-		"""Sets the environment called name"""
-		self.env = self.retrieve(name)
-		self.envname = name
 
 	def add_os_flags(self, var, dest=None):
 		"""Imports operating system environment values into an env dict"""

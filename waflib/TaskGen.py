@@ -189,7 +189,7 @@ class task_gen(object):
 			try:
 				v = getattr(self, x)
 			except AttributeError:
-				raise Errors.WafError("tried to retrieve %s which is not a valid method" % x)
+				raise Errors.WafError('%r is not a valid task generator method' % x)
 			Logs.debug('task_gen: -> %s (%d)' % (x, id(self)))
 			v()
 

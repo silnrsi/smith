@@ -51,6 +51,29 @@ def env_of_name(self, name):
 		return None
 Build.BuildContext.env_of_name = env_of_name
 
+
+def set_env_name(self, name, env):
+	self.all_envs[name] = env
+	return env
+Configure.ConfigurationContext.set_env_name = set_env_name
+
+def setenv(self, name):
+	self.env = self.retrieve(name)
+	self.envname = name
+Configure.ConfigurationContext.setenv = setenv
+
+def retrieve(self, name, fromenv=None):
+	try:
+		env = self.all_envs[name]
+	except KeyError:
+		env = ConfigSet.ConfigSet()
+		self.prepare_env(env)
+		self.all_envs[name] = env
+	else:
+		if fromenv: Logs.warn("The environment %s may have been configured already" % name)
+	return env
+Configure.ConfigurationContext.retrieve = retrieve
+
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.load
 Configure.conftest = Configure.conf
