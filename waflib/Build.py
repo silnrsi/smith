@@ -298,20 +298,12 @@ class BuildContext(Context.Context):
 
 	def get_env(self):
 		"""getter for the env property"""
-		return self.env_of_name('default')
+		return self.all_envs['default']
 	def set_env(self, val):
 		"""setter for the env property"""
 		self.all_envs['default'] = val
 
 	env = property(get_env, set_env)
-
-	def env_of_name(self, name):
-		"""Configuration data access"""
-		try:
-			return self.all_envs[name]
-		except KeyError:
-			Logs.error('no such environment: '+name)
-			return None
 
 	def add_manual_dependency(self, path, value):
 		"""Adds a dependency from a node object to a path (string or node)"""

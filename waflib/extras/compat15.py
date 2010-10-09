@@ -43,6 +43,14 @@ def name_to_obj(self, s, env=None):
 	return self.get_tgen_by_name(s)
 Build.BuildContext.name_to_obj = name_to_obj
 
+def env_of_name(self, name):
+	try:
+		return self.all_envs[name]
+	except KeyError:
+		Logs.error('no such environment: '+name)
+		return None
+Build.BuildContext.env_of_name = env_of_name
+
 Configure.ConfigurationContext.sub_config = Configure.ConfigurationContext.recurse
 Configure.ConfigurationContext.check_tool = Configure.ConfigurationContext.load
 Configure.conftest = Configure.conf
