@@ -46,12 +46,12 @@ conf_template = '''# project %(app)s configured on %(now)s by
 # using %(args)s
 #'''
 
-def download_check(path):
+def download_check(node):
 	"""
 	hook to check for the tools which are downloaded
 	a white list is a possibility (list of sha1 hashes for example)
 	"""
-	Logs.warn('replace me to check %r' % path)
+	Logs.warn('replace me to check %r' % node)
 
 def download_tool(tool, force=False):
 	"""downloads a tool from the waf repository"""
@@ -66,16 +66,8 @@ def download_tool(tool, force=False):
 				# on python3 urlopen throws an exception
 				continue
 			else:
-
-				loc = None
-				try:
-					tmp = os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py'))
-					loc = open(tmp, 'wb')
-					loc.write(web.read())
-					web.close()
-				finally:
-					if loc:
-						loc.close()
+				tmp = self.root.make_node(os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py')))
+				tmp.write(web.read())
 				Logs.warn('downloaded %s from %s' % (tool, url))
 				download_check(tmp)
 				try:
@@ -83,7 +75,7 @@ def download_tool(tool, force=False):
 				except:
 					Logs.warn('module %s from %s is unusable' % (tool, url))
 					try:
-						os.unlink(tmp)
+						tmp.delete()
 					except:
 						pass
 					continue
@@ -157,7 +149,8 @@ class ConfigurationContext(Context.Context):
 		"""See Context.prepare"""
 		self.init_dirs()
 
-		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
+		self.cachedir = self.bldnode.make_node(Build.CACHE_DIR)
+		self.cachedir.mkdir()
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
 		self.logger = Logs.make_logger(path, 'cfg')
@@ -224,21 +217,15 @@ class ConfigurationContext(Context.Context):
 
 	def store(self):
 		"""Saves the config results into the cache file"""
-		try:
-			os.makedirs(self.cachedir)
-		except:
-			pass
-
-		f = open(os.path.join(self.cachedir, 'build.config.py'), 'w')
-		f.write('version = 0x%x\n' % Context.HEXVERSION)
-		f.write('tools = %r\n' % self.tools)
-		f.close()
+		n = self.cachedir.make_node('build.config.py')
+		n.write('version = 0x%x\ntools = %r\n' % (Context.HEXVERSION, self.tools))
 
 		if not self.all_envs:
 			self.fatal('nothing to store in the configuration context!')
+
 		for key in self.all_envs:
 			tmpenv = self.all_envs[key]
-			tmpenv.store(os.path.join(self.cachedir, key + Build.CACHE_SUFFIX))
+			tmpenv.store(os.path.join(self.cachedir.abspath(), key + Build.CACHE_SUFFIX))
 
 	def load(self, input, tooldir=None, funs=None, download=True):
 		"loads a waf tool"
