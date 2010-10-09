@@ -57,11 +57,6 @@ def set_env_name(self, name, env):
 	return env
 Configure.ConfigurationContext.set_env_name = set_env_name
 
-def setenv(self, name):
-	self.env = self.retrieve(name)
-	self.envname = name
-Configure.ConfigurationContext.setenv = setenv
-
 def retrieve(self, name, fromenv=None):
 	try:
 		env = self.all_envs[name]

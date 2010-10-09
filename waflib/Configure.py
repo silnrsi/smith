@@ -105,15 +105,23 @@ class ConfigurationContext(Context.Context):
 
 		self.tool_cache = []
 
-		self.all_envs['default'] = ConfigSet.ConfigSet()
-		self.prepare_env(self.env)
+		self.setenv('default')
+
+	def setenv(self, name, env=None):
+		if not env:
+			env = ConfigSet.ConfigSet()
+			self.prepare_env(env)
+		else:
+			env = env.derive()
+		self.all_envs[name] = env
+		self.current_env = name
 
 	def get_env(self):
 		"""getter for the env property"""
-		return self.all_envs['default']
+		return self.all_envs[self.current_env]
 	def set_env(self, val):
 		"""setter for the env property"""
-		self.all_envs['default'] = val
+		self.all_envs[self.current_env] = val
 
 	env = property(get_env, set_env)
 
