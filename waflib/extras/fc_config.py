@@ -251,7 +251,7 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 		out = self.test_bld.err
 		flags = parse_fortran_link(out.splitlines())
 		self.end_msg('ok (%s)' % ' '.join(flags))
-		self.env.CLIB_LINKFLAGS = flags
+		self.env.LINKFLAGS_CLIB = flags
 		return flags
 	return []
 
