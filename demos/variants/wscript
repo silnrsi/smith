@@ -1,38 +1,53 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006-2010 (ita)
+# Thomas Nagy, 2010 (ita)
 
-# the following two variables are used by the target "waf dist"
 VERSION='0.0.1'
 APPNAME='cc_test'
 
-# these variables are mandatory ('/' are converted automatically)
 top = '.'
 out = 'build'
+
+"""
+Variant system for waf 1.6
+
+call for example
+$ waf configure debug release clean_debug clean_release
+"""
 
 def options(opt):
 	opt.load('compiler_c')
 
 def configure(conf):
+
+	conf.setenv('debug')
 	conf.load('compiler_c')
 	conf.define("A", 1)
 	conf.define("B", 1.1)
 	conf.define("C", "1.1e19", quote=False)
 	# the configuration file must be written in each variant
-	conf.write_config_header('config.h', remove=False)
 	conf.write_config_header('debug/config.h', remove=False)
 
-
-	# you may change the options...
-	conf.options.prefix = '/opt'
-	conf.setenv('debug') # new empty 'conf.env'
+	conf.setenv('release', env=conf.env.derive()) # start with a copy instead of a new env
+	conf.env.CCFLAGS = ['-O2']
+	conf.options.prefix = '/opt' # warning: this changes the options globally
 	conf.load('compiler_c')
 	conf.define('E', 1)
+	conf.write_config_header('release/config.h')
 
 def build(bld):
+
+	# cleaning from the top-level directory might remove
+	# the file 'config.h' from the variants, so we
+	# are forcing the use of *debug or *release commands
+
 	if bld.variant == 'debug':
 		bld.env = bld.env_of_name('debug')
-		bld.env.append_value('CCFLAGS', ['-O2'])
+		bld.env.append_value('CCFLAGS', ['-g'])
+	elif bld.variant == 'release':
+		bld.env = bld.env_of_name('release')
+	else:
+		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
 
 	# the includes='.' add the build directory path to the command arguments
 	# (look at the -I flags by using waf -v)
@@ -43,19 +58,24 @@ def build(bld):
 # calling 'waf clean_debug debug' will build into another output directory
 # note how "bld.variant" is used to detect the current variant
 #
-
 from waflib import Build
-class one_variant(Build.BuildContext):
-	cmd = 'debug'
-	variant = 'debug'
+for x in 'debug release'.split():
+	# the class names do not really matter, *BUT*, you cannot have a class
+	# of a name that will shadow a function (no class 'build' for example)
 
-class clean_debug(Build.CleanContext):
-	cmd = 'clean_debug'
-	variant = 'debug'
+	class cls_build(Build.BuildContext):
+		cmd = x
+		variant = x
 
-class install_debug(Build.InstallContext):
-	cmd = 'install_debug'
-	variant = 'debug'
+	class cls_clean(Build.CleanContext):
+		cmd = 'clean_'+x
+		variant = x
 
-# and yes, you may need "uninstall_debug" too
+	class cls_install(Build.InstallContext):
+		cmd = 'install_' + x
+		variant = x
+
+	class cls_uninstall(Build.UninstallContext):
+		cmd = 'uninstall_' + x
+		variant = x
 
