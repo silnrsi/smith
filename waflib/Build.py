@@ -299,9 +299,9 @@ class BuildContext(Context.Context):
 	def get_env(self):
 		"""getter for the env property"""
 		return self.env_of_name('default')
-	def set_env(self, name, val):
+	def set_env(self, val):
 		"""setter for the env property"""
-		self.all_envs[name] = val
+		self.all_envs['default'] = val
 
 	env = property(get_env, set_env)
 
