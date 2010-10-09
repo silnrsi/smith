@@ -354,19 +354,19 @@ class Dist(Context.Context):
 			self.base_name = appname + '-' + version
 		return self.base_name
 
-	def get_exclude_regs(self):
+	def get_excl(self):
 		"""
 		return the patterns to exclude, which is important for the build directory
-		if it does not work, set "self.exclude_regs"
+		if it does not work, set "self.excl"
 		"""
 		try:
-			return self.exclude_regs
+			return self.excl
 		except:
-			self.exclude_regs = Node.exclude_regs + ' **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp **/.lock-w*'
+			self.excl = Node.exclude_regs + ' **/.waf-1* **/*~ **/*.rej **/*.orig **/*.pyc **/*.pyo **/*.bak **/*.swp **/.lock-w*'
 			nd = self.root.find_node(Context.out_dir)
 			if nd:
-				self.exclude_regs += ' ' + nd.path_from(self.base_path)
-			return self.exclude_regs
+				self.excl += ' ' + nd.path_from(self.base_path)
+			return self.excl
 
 	def get_files(self):
 		"""
@@ -376,7 +376,7 @@ class Dist(Context.Context):
 		try:
 			files = self.files
 		except:
-			files = self.base_path.ant_glob('**/*', excl=self.get_exclude_regs())
+			files = self.base_path.ant_glob('**/*', excl=self.get_excl())
 		return files
 
 
