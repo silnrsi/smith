@@ -325,21 +325,21 @@ New archive created: webe-2.0.tar.bz2 (sha='7ccc338e2ff99b46d97e5301793824e5941d
 'dist' finished successfully (0.006s)
 ---------------
 
-The default compression format is http://www.bzip.org/[bzip2]. It may be changed to http://www.gzip.org/[gzip] by using the symbol 'gz':
+More parameters may be given to alter the archive by adding a function 'dist' in the script:
 
 [source,python]
 ---------------
-from waflib import Scripting
-Scripting.g_gz = 'gz'
+def dist(ctx):
+	ctx.base_name = 'foo_2.0' <1>
+	ctx.algo      = 'zip' <2>
+	ctx.excl      = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w*' <3>
+	ctx.files     = ctx.path.ant_glob('**/wscript') <4>
 ---------------
 
-Or 'zip' for http://en.wikipedia.org/wiki/ZIP_%28file_format%29[zip] files:
-
-[source,python]
----------------
-from waflib import Scripting
-Scripting.g_gz = 'zip'
----------------
+<1> The archive name may be given directly instead of computing from 'APPNAME' and 'VERSION'
+<2> The default compression format is 'tar.bz2'. Other valid formats are 'zip' and 'tar.gz'
+<3> Exclude patterns passed to give to 'ctx.path.ant_glob()' which is used to find the files
+<4> The files to add to the archive may be given as Waf node objects ('excl' is therefore ignored)
 
 ==== Defining command-line options (the _options_ command)
 
