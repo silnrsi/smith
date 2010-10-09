@@ -121,8 +121,16 @@ class ConfigurationContext(Context.Context):
 
 	env = property(get_env, set_env)
 
-	def execute(self):
-		"""See Context.prepare"""
+	def init_dirs(self):
+		"""Initializes the project directory and the build directory"""
+
+		#if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
+		#	raise Errors.WafError('The project was not configured: run "waf configure" first!')
+
+		#self.path = self.srcnode = self.root.find_dir(self.top_dir)
+		#self.bldnode = self.root.make_node(self.variant_dir)
+		#self.bldnode.mkdir()
+
 		top = Options.options.top
 		if not top:
 			top = getattr(Context.g_module, Context.TOP, None)
@@ -138,16 +146,17 @@ class ConfigurationContext(Context.Context):
 			out = os.path.abspath(out)
 		out = os.path.abspath(out)
 
-		try:
-			os.makedirs(out)
-		except OSError:
-			if not os.path.isdir(out):
-				conf.fatal('could not create the build directory %s' % out)
-
 		self.srcnode = self.root.find_dir(top)
-		self.bldnode = self.root.find_dir(out)
+		self.bldnode = self.root.make_node(out)
+		self.bldnode.mkdir()
 
-		#self.post_init()
+		if not os.path.isdir(self.bldnode.abspath()):
+			conf.fatal('could not create the build directory %s' % self.bldnode.abspath())
+
+	def execute(self):
+		"""See Context.prepare"""
+		self.init_dirs()
+
 		self.cachedir = os.path.join(self.bldnode.abspath(), Build.CACHE_DIR)
 
 		path = os.path.join(self.bldnode.abspath(), WAF_CONFIG_LOG)
@@ -167,8 +176,8 @@ class ConfigurationContext(Context.Context):
 		abi = Context.ABI
 		self.to_log(conf_template % vars())
 
-		self.msg('Setting top to', top)
-		self.msg('Setting out to', out)
+		self.msg('Setting top to', self.srcnode.abspath())
+		self.msg('Setting out to', self.bldnode.abspath())
 
 		if id(self.srcnode) == id(self.bldnode):
 			Logs.warn('setting top == out')
