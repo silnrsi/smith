@@ -160,10 +160,7 @@ class BuildContext(Context.Context):
 		if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
 			raise Errors.WafError('The project was not configured: run "waf configure" first!')
 
-		if not self.root:
-			self.root = self.node_class('', None)
 		self.path = self.srcnode = self.root.find_dir(self.top_dir)
-
 		self.bldnode = self.root.make_node(self.variant_dir)
 		self.bldnode.mkdir()
 
