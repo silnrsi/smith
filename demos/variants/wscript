@@ -44,7 +44,7 @@ def build(bld):
 # note how "bld.variant" is used to detect the current variant
 #
 
-import Build
+from waflib import Build
 class one_variant(Build.BuildContext):
 	cmd = 'debug'
 	variant = 'debug'
