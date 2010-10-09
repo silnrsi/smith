@@ -263,7 +263,7 @@ def getoutput(conf, cmd, stdin=False):
 			stdin = None
 		p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		if stdin:
-			p.stdin.write(b'\n')
+			p.stdin.write('\n')
 		stdout, stderr = p.communicate()
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
