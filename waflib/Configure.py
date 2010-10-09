@@ -95,6 +95,9 @@ class ConfigurationContext(Context.Context):
 		self.environ = dict(os.environ)
 		self.all_envs = {}
 
+		self.top_dir = None
+		self.out_dir = None
+
 		self.tools = [] # tools loaded in the configuration, and that will be loaded when building
 
 		self.hash = 0
@@ -116,30 +119,27 @@ class ConfigurationContext(Context.Context):
 	def init_dirs(self):
 		"""Initializes the project directory and the build directory"""
 
-		#if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
-		#	raise Errors.WafError('The project was not configured: run "waf configure" first!')
-
-		#self.path = self.srcnode = self.root.find_dir(self.top_dir)
-		#self.bldnode = self.root.make_node(self.variant_dir)
-		#self.bldnode.mkdir()
-
-		top = Options.options.top
+		top = self.top_dir
+		if not top:
+			top = Options.options.top
 		if not top:
 			top = getattr(Context.g_module, Context.TOP, None)
 		if not top:
-			top = os.path.abspath('.')
+			top = self.path.abspath()
 		top = os.path.abspath(top)
 
-		out = Options.options.out
+		self.srcnode = (os.path.isabs(top) and self.root or self.path).find_dir(top)
+		assert(self.srcnode)
+
+		out = self.out_dir
+		if not out:
+			out = Options.options.out
 		if not out:
 			out = getattr(Context.g_module, Context.OUT, None)
 		if not out:
 			out = Options.lockfile.replace('.lock-waf', '')
-			out = os.path.abspath(out)
-		out = os.path.abspath(out)
 
-		self.srcnode = self.root.find_dir(top)
-		self.bldnode = self.root.make_node(out)
+		self.bldnode = (os.path.isabs(out) and self.root or self.path).make_node(out)
 		self.bldnode.mkdir()
 
 		if not os.path.isdir(self.bldnode.abspath()):
