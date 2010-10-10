@@ -15,7 +15,7 @@ import waflib.Node
 CACHE_DIR = 'c4che'
 """location of the cache files"""
 
-CACHE_SUFFIX = '.cache.py'
+CACHE_SUFFIX = '_cache.py'
 """suffix for the cache files"""
 
 INSTALL = 1337
@@ -62,7 +62,7 @@ class BuildContext(Context.Context):
 		if not self.cache_dir:
 			self.cache_dir = self.out_dir + os.sep + CACHE_DIR
 
-		# map names to environments, the 'default' must be defined
+		# map names to environments, the '' must be defined
 		self.all_envs = {}
 
 		# ======================================= #
@@ -295,10 +295,13 @@ class BuildContext(Context.Context):
 
 	def get_env(self):
 		"""getter for the env property"""
-		return self.all_envs['default']
+		try:
+			return self.all_envs[self.variant]
+		except KeyError:
+			return self.all_envs['']
 	def set_env(self, val):
 		"""setter for the env property"""
-		self.all_envs['default'] = val
+		self.all_envs[self.variant] = val
 
 	env = property(get_env, set_env)
 

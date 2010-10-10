@@ -105,7 +105,7 @@ class ConfigurationContext(Context.Context):
 
 		self.tool_cache = []
 
-		self.setenv('default')
+		self.setenv('')
 
 	def setenv(self, name, env=None):
 		if not env:
