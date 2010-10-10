@@ -165,6 +165,13 @@ Waf: Leaving directory `/tmp/architecture_link/build'
 NOTE: Task generator instances have at most one link task instance
 
 ////
+==== Context commands
+
+The task consumers are located in a thread pool. The thread pool can be accessed by different build contexts concurrently.
+////
+
+
+////
 ==== include processing
 
 TODO

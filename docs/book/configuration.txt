@@ -21,16 +21,18 @@ def configure(ctx):
 	ctx.env.FOO = ctx.options.foo <1>
 	ctx.find_program('touch', var='TOUCH') <2>
 
-def build(ctx):
-	print(ctx.env.FOO) <3>
-	print(ctx.env.TOUCH)
+def build(bld):
+	print(bld.env.FOO) <3>
+	print(bld.env.TOUCH)
 	bld(rule='${TOUCH} ${TGT}', target='foo.txt') <4>
 ---------------
 
 <1> Store the option _foo_ into the variable _env_ (dict-like structure)
-<2> Configuration routine used to find the program _touch_ and to store it into _ctx.env.TOUCH_
+<2> Configuration routine used to find the program _touch_ and to store it into _ctx.env.TOUCH_ footnote:['find_program' may use the same variable from the OS environment during the search, for example 'CC=gcc waf configure']
 <3> Print the value of _ctx.env.FOO_ that was set during the configuration
-<4> The variable _$\{TOUCH}_ corresponds to the variable _env.TOUCH_
+<4> The variable _$\{TOUCH}_ corresponds to the variable _ctx.env.TOUCH_.
+
+Here is the execution output:
 
 [source,shishell]
 ---------------
