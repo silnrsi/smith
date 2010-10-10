@@ -235,7 +235,7 @@ Upon execution, the following output will be produced:
 
 [source,shishell]
 ---------------
-waf distclean configure build install --exe
+$ waf distclean configure build install --exe
 'distclean' finished successfully (0.005s)
 'configure' finished successfully (0.011s)
 Waf: Entering directory `/tmp/build_pre_post/build'

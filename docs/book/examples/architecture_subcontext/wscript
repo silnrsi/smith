@@ -21,10 +21,6 @@ def run_test(self):
 
 	ctx.check(header_name=header)
 
-@conf
-def hello(ctx):
-	print('hello')
-
 def options(ctx):
 	ctx.load('compiler_c')
 

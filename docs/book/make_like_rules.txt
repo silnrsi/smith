@@ -162,7 +162,7 @@ Upon execution, the results will be similar to the following:
 
 [source,shishell]
 ---------------
-waf distclean configure build --zones=runner,action
+$ waf distclean configure build --zones=runner,action
 'distclean' finished successfully (0.004s)
 'configure' finished successfully (0.001s)
 Waf: Entering directory `/tmp/rule/out'
