@@ -33,9 +33,10 @@
 #       * make certain a demo is provided (in demos/adv for example)
 
 import os.path, glob, types, re, sys
-import Configure, config_c, Options, Utils, Logs
-from Logs import warn, debug
-from Configure import conf
+from waflib import Configure, Options, Utils, Logs
+from waflib.Tools import c_config
+from waflib.Logs import warn, debug
+from waflib.Configure import conf
 
 boost_code = '''
 #include <iostream>
