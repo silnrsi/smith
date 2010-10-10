@@ -16,4 +16,5 @@ Node::
 	The Node class is a data structure used to represent the filesystem in an efficient manner. The node objects may represent files or folders. File nodes are associated to signatures objects. The signature can be hashes of the file contents (source files) or task signatures (build files).
 Command::
 	Function present in the top-level project file (wscript) and accepting a 'waflib.Context.Context' instance as unique input parameter. The function is executed when its name is given on the command-line (for example running 'waf configure' will execute the function 'configure')
-
+Variant::
+	Additional output directory used to enable several (build) commands to create the same targets with different compilation flags.
