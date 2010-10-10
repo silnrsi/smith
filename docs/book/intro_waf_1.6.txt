@@ -519,7 +519,7 @@ Note that the logger must be removed after the configuration API is used, else t
 
 === Downloading Waf tools
 
-The call to 'conf.imp' will normally fail if a tool cannot be found.
+The call to 'conf.load' will normally fail if a tool cannot be found.
 
 [source,python]
 ---------------
