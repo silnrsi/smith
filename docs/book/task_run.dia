@@ -250,7 +250,7 @@
         <dia:point val="30.9763,11.1359"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="30.9055,11.0652;33.047,13.2066"/>
+        <dia:rectangle val="30.9056,11.0652;33.047,13.2066"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -365,7 +365,7 @@
         <dia:point val="31.9763,9.0217"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="31.6144,8.9717;32.3381,11.2477"/>
+        <dia:rectangle val="31.6145,8.9717;32.3381,11.2477"/>
       </dia:attribute>
       <dia:attribute name="conn_endpoints">
         <dia:point val="31.9763,9.0217"/>
