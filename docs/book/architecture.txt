@@ -3,7 +3,7 @@
 
 This chapter provides describes the Waf library and the interaction between the components.
 
-=== The core library
+=== Modules and classes
 
 ==== Core modules
 
@@ -43,6 +43,80 @@ image::classes{PIC}["Context classes"{backend@docbook:,width=500:},align="center
 The structure of the build classes is represented on the following diagram:
 
 image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:},align="center"]
+
+=== Context objects
+
+==== Context commands and recursion
+
+The context commands are designed to be as independent as possible, and may be executed concurrently. The main application is the execution of small builds as part of configuration tests. For example, the method 'waflib.Tools.c_config.run_c_code' creates a private build context internally to perform the tests.
+Here is an example of a build that creates and executes simple configuration contexts concurrently:
+
+// architecture_link
+[source,python]
+---------------
+import os
+from waflib.Configure import conf, ConfigurationContext
+from waflib import Task, Build, Logs
+
+def options(ctx):
+	ctx.load('compiler_c')
+
+def configure(ctx):
+	ctx.load('compiler_c')
+
+def build(ctx):
+	ctx(rule=run_test, always=True, header_name='stdio.h') <1>
+	ctx(rule=run_test, always=True, header_name='unistd.h')
+
+def run_test(self):
+	top = self.generator.bld.srcnode.abspath()
+	out = self.generator.bld.bldnode.abspath()
+
+	ctx = ConfigurationContext(top_dir=top, out_dir=out) <2>
+	ctx.init_dirs() <3>
+
+	ctx.in_msg = 1 <4>
+	ctx.msg('test') <5>
+
+	header = self.generator.header_name
+	logfile = self.generator.path.get_bld().abspath() + os.sep \
+		+ header + '.log'
+	ctx.logger = Logs.make_logger(logfile, header) <6>
+
+	ctx.env = ctx.all_envs['default'] = self.env.derive() <7>
+	ctx.check(header_name=header) <8>
+---------------
+
+<1> Create task generators which will run the method 'run_test' method defined below
+<2> Create a new configuration context as part of a 'Task.run' call
+<3> Initialize ctx.srcnode and ctx.bldnode (build and configuration contexts only)
+<4> Set the internal counter for the context methods 'msg', 'start_msg' and 'end_msg'
+<5> The console output is disabled (non-zero counter value to disable nested messages)
+<6> Each context may have a logger to redirect the error messages
+<7> Initialize the default environment to a copy of the task one
+<8> Perform a configuration check
+
+After executing 'waf build', the project folder will contain the new log files:
+
+[source,shishell]
+---------------
+$ tree
+.
+|-- build
+|   |-- c4che
+|   |   |-- build.config.py
+|   |   `-- default.cache.py
+|   |-- config.log
+|   |-- stdio.h.log
+|   `-- unistd.h.log
+`-- wscript
+---------------
+
+A few measures are set to ensure that the contexts can be executed concurrently:
+
+. Context objects may use different loggers derived from the 'waflib.Logs' module.
+. Each context object is associated to a private subclass of 'waflib.Node.Node' to ensure that the node objects are unique. To pickle Node objects, it is important to prevent concurrent access by using the lock object 'waflib.Node.pickle_lock'.
+. Each build context is associated with a fixed amount of thread consumers. Because some interpreters cannot destroy thread objects, the consumers are returned to a thread pool after use
 
 ==== Build context and persistence
 
@@ -163,78 +237,6 @@ Waf: Leaving directory `/tmp/architecture_link/build'
 ---------------
 
 NOTE: Task generator instances have at most one link task instance
-
-==== Context commands
-
-The context commands are designed to be as independent as possible, and may be executed concurrently. The main application is the execution of small builds as part of configuration tests. For example, the method 'waflib.Tools.c_config.run_c_code' creates a private build context internally to perform the tests.
-Here is an example of a build that creates and executes simple configuration contexts concurrently:
-
-// architecture_link
-[source,python]
----------------
-import os
-from waflib.Configure import conf, ConfigurationContext
-from waflib import Task, Build, Logs
-
-def options(ctx):
-	ctx.load('compiler_c')
-
-def configure(ctx):
-	ctx.load('compiler_c')
-
-def build(ctx):
-	ctx(rule=run_test, always=True, header_name='stdio.h') <1>
-	ctx(rule=run_test, always=True, header_name='unistd.h')
-
-def run_test(self):
-	top = self.generator.bld.srcnode.abspath()
-	out = self.generator.bld.bldnode.abspath()
-
-	ctx = ConfigurationContext(top_dir=top, out_dir=out) <2>
-	ctx.init_dirs() <3>
-
-	ctx.in_msg = 1 <4>
-	ctx.msg('test') <5>
-
-	header = self.generator.header_name
-	logfile = self.generator.path.get_bld().abspath() + os.sep \
-		+ header + '.log'
-	ctx.logger = Logs.make_logger(logfile, header) <6>
-
-	ctx.env = ctx.all_envs['default'] = self.env.derive() <7>
-	ctx.check(header_name=header) <8>
----------------
-
-<1> Create task generators which will run the method 'run_test' method defined below
-<2> Create a new configuration context as part of a 'Task.run' call
-<3> Initialize ctx.srcnode and ctx.bldnode (build and configuration contexts only)
-<4> Set the internal counter for the context methods 'msg', 'start_msg' and 'end_msg'
-<5> The console output is disabled (non-zero counter value to disable nested messages)
-<6> Each context may have a logger to redirect the error messages
-<7> Initialize the default environment to a copy of the task one
-<8> Perform a configuration check
-
-After executing 'waf build', the project folder will contain the new log files:
-
-[source,shishell]
----------------
-$ tree
-.
-|-- build
-|   |-- c4che
-|   |   |-- build.config.py
-|   |   `-- default.cache.py
-|   |-- config.log
-|   |-- stdio.h.log
-|   `-- unistd.h.log
-`-- wscript
----------------
-
-A few measures are set to ensure that the contexts can be executed concurrently:
-
-. Context objects may use different loggers derived from the 'waflib.Logs' module.
-. Each context object is associated to a private subclass of 'waflib.Node.Node' to ensure that the node objects are unique. To pickle Node objects, it is important to prevent concurrent access by using the lock object 'waflib.Node.pickle_lock'.
-. Each build context is associated with a fixed amount of thread consumers. Because some interpreters cannot destroy thread objects, the consumers are returned to a thread pool after use
 
 
 ////
