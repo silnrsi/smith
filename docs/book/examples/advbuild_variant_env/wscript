@@ -29,21 +29,13 @@ def build(bld):
 		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
 	bld.program(source='main.c', target='app', includes='.')
 
-from waflib import Build
+from waflib.Build import BuildContext, CleanContext, \
+	InstallContext, UninstallContext
+
 for x in 'debug release'.split():
-	class cls_build(Build.BuildContext):
-		cmd = x
-		variant = x
-
-	class cls_clean(Build.CleanContext):
-		cmd = 'clean_'+x
-		variant = x
-
-	class cls_install(Build.InstallContext):
-		cmd = 'install_' + x
-		variant = x
-
-	class cls_uninstall(Build.UninstallContext):
-		cmd = 'uninstall_' + x
-		variant = x
+	for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
+		name = y.__name__.replace('Context','').lower()
+		class tmp(y):
+			cmd = name + '_' + x
+			variant = x
 
