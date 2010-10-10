@@ -50,7 +50,10 @@ print("------> Executing code from the top-level wscript <-----")
 def init(*k, **kw):
 	if Options.options.setver: # maintainer only (ita)
 		ver = Options.options.setver
-		hexver = '0x'+ver.replace('.','0')
+		hexver = [(2 - len(x)) * '0' + x for x in ver.split('.')]
+		hexver = ''.join(hexver).replace('06', '060')
+		hexver = hexver.lstrip('0')
+		hexver = '0x'+''.join(hexver)
 		sub_file('wscript', (('^VERSION=(.*)', 'VERSION="%s"' % ver), ))
 		sub_file('waf-light', (('^VERSION=(.*)', 'VERSION="%s"' % ver), ))
 
@@ -59,7 +62,7 @@ def init(*k, **kw):
 		pats.append(('^HEXVERSION(.*)', 'HEXVERSION=%s' % hexver))
 
 		try:
-			rev = k[0].cmd_and_log('svnversion').strip()
+			rev = k[0].cmd_and_log('svnversion').strip().replace('M', '')
 			pats.append(('^WAFREVISION(.*)', 'WAFREVISION="%s"' % rev))
 		except:
 			pass
