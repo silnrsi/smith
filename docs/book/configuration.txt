@@ -271,7 +271,7 @@ def build(ctx):
 ---------------
 
 <1> Load the options defined in _dang.py_
-<2> Load the tool dang.py. By default, imp calls the method 'configure' defined in the tools.
+<2> Load the tool dang.py. By default, load calls the method 'configure' defined in the tools.
 <3> The tool modifies the value of _ctx.env.DANG_ during the configuration
 
 Upon execution, the output will be the following:
