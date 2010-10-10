@@ -16,7 +16,7 @@ layer (storing the names in the ConfigSet instances)
 In the new model, the logic is more object-oriented, and the user scripts provide the
 logic. The data files (ConfigSets) must contain configuration data only (flags, ..).
 
-Note: the c/c++ related code is in the module config_c
+Note: the c/c++ related code is in the module waflib.Tools.c_config
 """
 
 import os, shlex, sys, time
