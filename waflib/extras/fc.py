@@ -15,7 +15,7 @@ from waflib.extras import fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
-ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES'])
+ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES', 'INCLUDES'])
 ccroot.USELIB_VARS['fcprogram_test'] = ccroot.USELIB_VARS['fcprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
 ccroot.USELIB_VARS['fcshlib'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
 ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
