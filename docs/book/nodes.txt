@@ -262,7 +262,7 @@ $ tree
 |-- build
 |   |-- c4che
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   |-- config.h
 |   |-- config.log
 |   `-- program

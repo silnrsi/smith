@@ -189,7 +189,7 @@ $ tree -a
 |-- build_directory/ <3>
 |   |-- c4che/ <4>
 |   |   |-- build.config.py <5>
-|   |   `-- default.cache.py <6>
+|   |   `-- _cache.py <6>
 |   `-- config.log <7>
 |--.lock-wafbuild <8>
 `-- wscript
@@ -211,7 +211,7 @@ $ waf ping <9>
 <3> The build directory was created
 <4> The configuration data is stored in the folder 'c4che/'
 <5> The command-line options and environment variables in use are stored in 'build.config.py'
-<6> The user configuration set is stored in this 'default.cache.py'
+<6> The user configuration set is stored in this '_cache.py'
 <7> Configuration log (duplicate of the output generated during the configuration)
 <8> Hidden file pointing at the relevant project file and build directory
 <9> Calling _waf_ from a subfolder will execute the commands from the same wscript file used for the configuration
@@ -232,7 +232,7 @@ $ tree -a
 |-- build_directory/
 |   |-- c4che/
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   `-- config.log
 |--.lock-wafbuild
 `-- wscript
@@ -482,7 +482,7 @@ $ tree -a
 |   |-- bar.txt <2>
 |   |-- c4che/
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   |-- foo.txt
 |   |-- config.log
 |   `-- .wafpickle <3>

@@ -43,7 +43,7 @@ $ tree build
 build/
 |-- c4che
 |   |-- build.config.py
-|   `-- default.cache.py
+|   `-- _cache.py
 |-- a.c.1.o
 |-- app <1>
 |-- b.c.2.o
@@ -477,7 +477,7 @@ The variables used for C/C++ are the following:
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use
 |=================
 
-The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, default.cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
+The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, _cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
 
 === Configuration helpers
 
@@ -542,7 +542,7 @@ Here is an example of a +config.h+ produced with the previous test code:
 #endif /* _CONFIG_H_WAF */
 ---------------
 
-The file +default.cache.py+ will contain the following variables:
+The file +_cache.py+ will contain the following variables:
 
 [source,python]
 ---------------
@@ -604,7 +604,7 @@ The code snipped will produce the following 'config.h' in the build directory:
 build/
 |-- c4che
 |   |-- build.config.py
-|   `-- default.cache.py
+|   `-- _cache.py
 |-- config.log
 `-- config.h
 ---------------

@@ -250,14 +250,14 @@ $ tree -a
 |   |-- .wafpickle-7
 |   |-- c4che
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   |-- config.log
 |   `-- foo.txt
 |-- release
 |   |-- .wafpickle-7
 |   |-- c4che
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   |-- config.log
 |   `-- foo.txt
 `-- wscript
@@ -326,7 +326,7 @@ $ tree
 |   |-- build.txt <2>
 |   |-- c4che
 |   |   |-- build.config.py
-|   |   `-- default.cache.py
+|   |   `-- _cache.py
 |   |-- config.log
 |   `-- debug
 |       `-- debug.txt <3>
@@ -357,13 +357,9 @@ def configure(conf):
 	conf.env.CCFLAGS = ['-O2']
 
 def build(bld):
-	if bld.variant == 'debug':
-		bld.env = bld.env_of_name('debug') <3>
-	elif bld.variant == 'release':
-		bld.env = bld.env_of_name('release')
-	else:
+	if not bld.variant: <3>
 		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
-	bld.program(source='main.c', target='app', includes='.')
+	bld.program(source='main.c', target='app', includes='.') <4>
 
 from waflib.Build import BuildContext, CleanContext, \
 	InstallContext, UninstallContext
@@ -371,15 +367,16 @@ from waflib.Build import BuildContext, CleanContext, \
 for x in 'debug release'.split():
 	for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
 		name = y.__name__.replace('Context','').lower()
-		class tmp(y): <4>
+		class tmp(y): <5>
 			cmd = name + '_' + x
 			variant = x
 ---------------
 
-<1> Create a new configuration set to be returned by 'conf.env', and stored in 'c4che/debug.cache.py'
+<1> Create a new configuration set to be returned by 'conf.env', and stored in 'c4che/debug_cache.py'
 <2> Modify some data in the configuration set
-<3> Obtain the configuration set stored in 'c4che/debug.cache.py'
-<4> Create new commands such as 'clean_debug' or 'install_debug' (the class name does not matter)
+<3> Make sure a variant is set, this will disable the normal commands 'build', 'clean' and 'install'
+<4> 'bld.env' will load the configuration set of the appropriate variant ('debug_cache.py' when in 'debug')
+<5> Create new commands such as 'clean_debug' or 'install_debug' (the class name does not matter)
 
 The execution output will be similar to the following:
 

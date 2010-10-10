@@ -61,10 +61,10 @@ build/
 |-- bar.txt
 |-- c4che
 |   |-- build.config.py
-|   `-- default.cache.py
+|   `-- _cache.py
 `-- config.log
 
-$ cat build/c4che/default.cache.py
+$ cat build/c4che/_cache.py
 FOO = 'abcd'
 PREFIX = '/usr/local'
 TOUCH = '/usr/bin/touch'
@@ -110,7 +110,7 @@ $ waf configure
 'PREFIX' '/usr/local'
 [] <3>
 
-$ cat build/c4che/default.cache.py <4>
+$ cat build/c4che/_cache.py <4>
 CCFLAGS = ['-O3', '-g', '-O2']
 CXXFLAGS = ['-O2', '-g']
 PREFIX = '/usr/local'
