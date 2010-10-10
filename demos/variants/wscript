@@ -12,7 +12,7 @@ out = 'build'
 Variant system for waf 1.6
 
 call for example
-$ waf configure debug release clean_debug clean_release
+$ waf configure build_debug build_release clean_debug clean_release
 """
 
 def options(opt):
@@ -58,24 +58,14 @@ def build(bld):
 # calling 'waf clean_debug debug' will build into another output directory
 # note how "bld.variant" is used to detect the current variant
 #
-from waflib import Build
+
+from waflib.Build import BuildContext, CleanContext, \
+	InstallContext, UninstallContext
+
 for x in 'debug release'.split():
-	# the class names do not really matter, *BUT*, you cannot have a class
-	# of a name that will shadow a function (no class 'build' for example)
-
-	class cls_build(Build.BuildContext):
-		cmd = x
-		variant = x
-
-	class cls_clean(Build.CleanContext):
-		cmd = 'clean_'+x
-		variant = x
-
-	class cls_install(Build.InstallContext):
-		cmd = 'install_' + x
-		variant = x
-
-	class cls_uninstall(Build.UninstallContext):
-		cmd = 'uninstall_' + x
-		variant = x
+	for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
+		name = y.__name__.replace('Context','').lower()
+		class tmp(y):
+			cmd = name + '_' + x
+			variant = x
 
