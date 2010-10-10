@@ -278,7 +278,9 @@ Options.lockfile = '.lock-wafname'
 
 NOTE: The output directory pointed at by the waf lock file only has effect when not given in the waf script
 
-==== Changing the output directory (variant builds)
+==== Changing the output directory
+
+===== Variant builds
 
 In the previous section, two different configurations were used for similar builds. We will now show how to inherit the same configuration by two different builds, and how to output the targets in different folders. Let's start with the project file:
 
@@ -335,5 +337,66 @@ $ tree
 <2> The default _build_ command does not have any variant
 <3> The target _debug_ is under the variant directory in the build directory
 
-NOTE: The configuration data is shared between the build commands. If there are several differences between the commands, use multiple configuration data sets.
+===== Configuration sets for variants
+
+The variants may require different configuration sets created during the configuration. Here is an example:
+
+// advbuild_variant
+[source,python]
+---------------
+def options(opt):
+	opt.load('compiler_c')
+
+def configure(conf):
+	conf.setenv('debug') <1>
+	conf.load('compiler_c')
+	conf.env.CCFLAGS = ['-g'] <2>
+
+	conf.setenv('release')
+	conf.load('compiler_c')
+	conf.env.CCFLAGS = ['-O2']
+
+def build(bld):
+	if bld.variant == 'debug':
+		bld.env = bld.env_of_name('debug') <3>
+	elif bld.variant == 'release':
+		bld.env = bld.env_of_name('release')
+	else:
+		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
+	bld.program(source='main.c', target='app', includes='.')
+
+from waflib.Build import BuildContext, CleanContext, \
+	InstallContext, UninstallContext
+
+for x in 'debug release'.split():
+	for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
+		name = y.__name__.replace('Context','').lower()
+		class tmp(y): <4>
+			cmd = name + '_' + x
+			variant = x
+---------------
+
+<1> Create a new configuration set to be returned by 'conf.env', and stored in 'c4che/debug.cache.py'
+<2> Modify some data in the configuration set
+<3> Obtain the configuration set stored in 'c4che/debug.cache.py'
+<4> Create new commands such as 'clean_debug' or 'install_debug' (the class name does not matter)
+
+The execution output will be similar to the following:
+
+[source,shishell]
+---------------
+$ waf clean_debug build_debug clean_release build_release
+'clean_debug' finished successfully (0.005s)
+Waf: Entering directory `/tmp/examples/advbuild_variant_env/build/debug'
+[1/2] c: main.c -> build/debug/main.c.0.o
+[2/2] cprogram: build/debug/main.c.0.o -> build/debug/app
+Waf: Leaving directory `/tmp/examples/advbuild_variant_env/build/debug'
+'build_debug' finished successfully (0.051s)
+'clean_release' finished successfully (0.003s)
+Waf: Entering directory `/tmp/examples/advbuild_variant_env/build/release'
+[1/2] c: main.c -> build/release/main.c.0.o
+[2/2] cprogram: build/release/main.c.0.o -> build/release/app
+Waf: Leaving directory `/tmp/examples/advbuild_variant_env/build/release'
+'build_release' finished successfully (0.052s)
+---------------
 
