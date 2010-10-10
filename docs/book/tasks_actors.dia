@@ -341,7 +341,7 @@
         <dia:point val="9.8472,9.1006"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="6.20375,6.92507;12.1059,9.17129"/>
+        <dia:rectangle val="6.30375,6.92507;12.1059,9.17129"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -363,7 +363,7 @@
         <dia:enum val="0"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="8.3,8.35"/>
+        <dia:point val="8.4,8.25"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O2" connection="8"/>
@@ -500,7 +500,7 @@
         <dia:point val="15.946,9.1006"/>
       </dia:attribute>
       <dia:attribute name="obj_bb">
-        <dia:rectangle val="13.5585,6.91712;20.1771,9.17118"/>
+        <dia:rectangle val="13.5585,6.91712;19.6463,9.17118"/>
       </dia:attribute>
       <dia:attribute name="meta">
         <dia:composite type="dict"/>
@@ -522,7 +522,7 @@
         <dia:enum val="0"/>
       </dia:attribute>
       <dia:attribute name="text_pos">
-        <dia:point val="18.0808,8.22512"/>
+        <dia:point val="17.55,8.25"/>
       </dia:attribute>
       <dia:connections>
         <dia:connection handle="0" to="O5" connection="8"/>
