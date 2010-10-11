@@ -248,6 +248,10 @@ class TaskBase(evil):
 		"update the dependency tree (node stats)"
 		pass
 
+	def log_display(self, bld):
+		"write the execution status on the context logger"
+		bld.to_log(self.display())
+
 	def display(self):
 		"print either the description (using __str__) or the progress bar or the ide output"
 		col1 = Logs.colors(self.color)

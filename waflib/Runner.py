@@ -233,9 +233,7 @@ class Parallel(object):
 				tsk.master = self
 				self.processed += 1
 
-				dis = tsk.display()
-				if dis:
-					self.bld.to_log(dis)
+				tsk.log_display(self.bld)
 
 				if self.numjobs == 1:
 					tsk.process()
