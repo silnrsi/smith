@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+"""
+To list the targets to build, use 'waf list'
+
+Try the following
+$ waf configure clean build
+$ waf list
+$ waf clean build --targets=bar
+"""
+
 top = '.'
 out = 'build'
 
