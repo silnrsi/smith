@@ -149,7 +149,7 @@ WARNING: These methods are not safe for concurrent access. The node class method
 
 ==== Listing files and folders
 
-The method *ant_glob* is used to list find and folders recursively:
+The method *ant_glob* is used to list files and folders recursively:
 
 // nodes_ant_glob
 [source,python]
