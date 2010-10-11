@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+"""
+This example demonstrates a few attributes that may be passed to
+bld.program, bld.shlib and bld.stlib
+"""
+
 def options(opt):
 	opt.load('compiler_c')
 
@@ -21,7 +26,7 @@ def build(bld):
 		stlibpath    = ['/usr/local/lib'],
 		linkflags    = ['-g'],
 
-		install_path = '${SOME_PATH}/bin',
+		install_path = '${SOME_PATH}/bin', # None to disable
 		vnum         = '1.2.3',
 		ccflags      = ['-O2', '-Wall'],
 		cxxflags     = ['-O3'],
