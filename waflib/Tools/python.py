@@ -353,10 +353,14 @@ def check_python_module(conf, module_name):
 
 def configure(conf):
 
-	if not conf.env.PYTHON:
+	try:
+		conf.find_program('python', var='PYTHON')
+	except conf.errors.ConfigurationError:
+		warn("could not find a python executable, setting to sys.executable '%s'" % sys.executable)
 		conf.env.PYTHON = sys.executable
 
-	conf.find_program('python', var='PYTHON')
+	if conf.env.PYTHON != sys.executable:
+		warn("python executable '%s' different from sys.executable '%s'" % (conf.env.PYTHON, sys.executable))
 
 	v = conf.env
 	v['PYCMD'] = '"import sys, py_compile;py_compile.compile(sys.argv[1], sys.argv[2])"'
