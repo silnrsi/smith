@@ -108,20 +108,28 @@ class ConfigurationContext(Context.Context):
 		self.setenv('')
 
 	def setenv(self, name, env=None):
+		"""
+		set a new config set for conf.env
+
+		the name is the filename prefix to save to  c4che/name_cache.py
+		the name is also used as variants by the build commands
+		although related to variants, you may store whatever kind of data you
+		like, and obtain it during the build by calling bld.env_of_name[name]
+		"""
 		if not env:
 			env = ConfigSet.ConfigSet()
 			self.prepare_env(env)
 		else:
 			env = env.derive()
 		self.all_envs[name] = env
-		self.current_env = name
+		self.variant = name
 
 	def get_env(self):
 		"""getter for the env property"""
-		return self.all_envs[self.current_env]
+		return self.all_envs[self.variant]
 	def set_env(self, val):
 		"""setter for the env property"""
-		self.all_envs[self.current_env] = val
+		self.all_envs[self.variant] = val
 
 	env = property(get_env, set_env)
 
