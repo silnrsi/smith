@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+"""
+find_node -> create or return a node corresponding to an existing path
+make_node -> create a node object, even if there is no folder or file
+search -> search for a node in the existing node hierarchy (do not ask the file system)
+
+Try:
+$ waf configure dosomething
+"""
+
 top = '.'
 out = 'build'
 
