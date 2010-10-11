@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""
+Commands may aggregate other commands
+
+Try for example
+$ waf configure
+$ waf test
+"""
+
 def options(ctx):
 	ctx.load('compiler_cc')
 
