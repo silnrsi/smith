@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""
+The configuration tests such as conf.check* do not have to execute
+c/c++ tests. By changing the features, it is possible to turn
+almost any kind of build into a configuration test
+
+Try 'waf configure' and look at the config.log file
+"""
+
 from waflib.TaskGen import feature, before
 
 @feature('special_test')
