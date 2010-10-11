@@ -83,7 +83,7 @@ def run_test(self):
 		+ header + '.log'
 	ctx.logger = Logs.make_logger(logfile, header) <6>
 
-	ctx.env = ctx.all_envs['default'] = self.env.derive() <7>
+	ctx.env = self.env.derive() <7>
 	ctx.check(header_name=header) <8>
 ---------------
 

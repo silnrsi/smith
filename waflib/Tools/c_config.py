@@ -557,8 +557,8 @@ def run_c_code(self, *k, **kw):
 		node.write(kw['code'])
 
 	bld.logger = self.logger
-	bld.all_envs.update(self.all_envs)
-	bld.all_envs['default'] = kw['env']
+	bld.all_envs.update(self.all_envs) # not really necessary
+	bld.env = kw['env']
 
 	o = bld(features=kw['features'], source=kw['compile_filename'], target='testprog')
 

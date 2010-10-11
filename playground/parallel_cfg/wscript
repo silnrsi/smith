@@ -62,7 +62,7 @@ class cfgtask(TaskBase):
 	def run(self):
 		conf = self.conf
 		bld = BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
-		bld.all_envs['default'] = conf.env
+		bld.env = conf.env
 		bld.init_dirs()
 		bld.in_msg = 1 # suppress top-level start_msg
 		bld.logger = self.logger

@@ -12,7 +12,7 @@ def run_test(self):
 	ctx.init_dirs()
 
 	ctx.in_msg = 1
-	ctx.env = ctx.all_envs['default'] = self.env.derive()
+	ctx.env = self.env.derive()
 
 	header = self.generator.header_name
 	logfile = self.generator.path.get_bld().abspath() + os.sep \
