@@ -217,7 +217,8 @@ class Context(ctx):
 
 	def fatal(self, msg, ex=None):
 		"""raise a configuration error"""
-		self.to_log('from %s: %s' % (self.path.abspath(), msg))
+		if self.logger:
+			self.logger.info('from %s: %s' % (self.path.abspath(), msg))
 		try:
 			msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
 		except:
