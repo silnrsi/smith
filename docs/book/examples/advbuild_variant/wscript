@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 
+"""
+Typical projects are build by using:
+$ waf configure build
+Other build commands may build the same project in a different output directory
+$ waf configure debug
+"""
+
 def configure(ctx):
 	pass
 
