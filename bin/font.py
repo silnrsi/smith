@@ -2,8 +2,9 @@
 
 from waflib import Context
 from wafplus import *
-import font_tests, templater
+import font_tests, font_package
 import sys, os, re
+from random import randint
 
 progset = set()
 
@@ -22,20 +23,24 @@ class Font(object) :
             self.legacy = self.source
             self.source = self.legacy.target
         self.fonts.append(self)
+        if not hasattr(self, 'package') :
+            self.package = font_package.global_package()
+        self.package.add_font(self)
 
     def get_build_tools(self) :
         res = set()
+        res.add("makensis")
         if getattr(self, 'source', "").endswith(".sfd") :
             res.add('fontforge')
             res.add('sfdmeld')
-            if getattr(self, 'source_ap', None) :
+            if hasattr(self, 'source_ap') :
                 res.add('sfd2ap')
-        if getattr(self, 'version', None) :
+        if hasattr(self, 'version') :
             res.add('ttfsetver')
-        if getattr(self, 'classes', None) :
+        if hasattr(self, 'classes') :
             res.add('add_classes')
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy')) :
-            if x :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license')) :
+            if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools())
         return res
 
@@ -43,7 +48,7 @@ class Font(object) :
         res = {}
 
         # convert from legacy
-        if getattr(self, 'legacy', None) :
+        if hasattr(self, 'legacy') :
             self.legacy.build(bld, getattr(self, 'ap', None))
 
         # build font
@@ -51,20 +56,26 @@ class Font(object) :
             bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = self.target)
         else :
             srcnode = bld.path.find_or_declare(self.source)
-            if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
+            if getattr(self, "sfd_master", '') != self.source:
                 tarnode = srcnode.get_bld()
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], before = self.target)
                 srcnode = tarnode
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target)
 
-        if getattr(self, 'version') :
+        if hasattr(self, 'version') :
             modify("${TTFSETVER} " + self.version + " ${DEP} ${TGT}", self.target)
+        if hasattr(self, 'copyright') :
+            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target)
+        if hasattr(self, 'license') :
+            if hasattr(self.license, 'reserve') :
+                self.package.add_reservedofls(*self.license.reserve)
+            self.license.build(bld, self)
 
         # add smarts
-        if getattr(self, 'ap', None) :
+        if hasattr(self, 'ap') :
             if self.source.endswith(".sfd") :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
-            if getattr(self, 'classes', None) :
+            if hasattr(self, 'classes') :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1)
         
         # add smarts
@@ -90,7 +101,7 @@ class Legacy(object) :
     def build(self, bld, targetap) :
         cmd = ""
         srcs = [self.source, self.xml]
-        if getattr(self, 'ap', None) :
+        if hasattr(self, 'ap') :
             srcs.append(self.ap)
             cmd += " -x ${SRC[2].bldpath()}"
         trgt = [re.sub(r'\..*', '.ttf', self.target)]
@@ -117,11 +128,11 @@ class Volt(object) :
         cmd = getattr(self, 'make_params', '') + " "
         ind = 0
         srcs = []
-        if getattr(font, 'ap', None) :
+        if hasattr(font, 'ap') :
             srcs.append(font.ap)
             cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
-        if getattr(self, 'master', None) :
+        if hasattr(self, 'master') :
             srcs.append(self.master)
             cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
@@ -146,11 +157,11 @@ class Gdl(object) :
             srcs = []
             cmd = getattr(self, 'make_params', '') + " "
             ind = 0
-            if getattr(font, 'ap', None) :
+            if hasattr(font, 'ap') :
                 srcs.append(font.ap)
                 cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
-            if getattr(self, 'master', None) :
+            if hasattr(self, 'master') :
                 srcs.append(self.master)
                 cmd += "-i ../${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
@@ -159,6 +170,59 @@ class Gdl(object) :
         elif self.master :
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master])
 
+class Ofl(object) :
+
+    def __init__(self, *reserved, **kw) :
+        if not 'version' in kw : kw['version'] = 1.1
+        if not 'copyright' in kw : kw['copyright'] = getattr(Context.g_module, 'COPYRIGHT', '')
+        self.reserve = reserved
+        for k, v in kw.items() :
+            setattr(self, k, v)
+
+    def get_build_tools(self) :
+        return ["ttfname"]
+
+    def build(self, bld, font) :
+        modify(self.insert_ofl, font.target)
+        
+    def globalofl(self, task) :
+        bld = task.generator.bld
+        make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright)
+        return True
+
+    def build_global(self, bld) :
+        if not hasattr(self, 'file') : self.file = 'OFL.txt'
+        bld(rule = self.globalofl)
+
+    def insert_ofl(self, task) :
+        bld = task.generator.bld
+        fname = make_tempnode(bld)
+        make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
+        tempfn = make_tempnode(bld)
+        # ttfname -t 13 -s fname inputs[0] temp
+        # ttfname -t 14 -p "http://scripts.sil.org/ofl" temp outputs[0]
+        task.exec_command([task.env.get_flat("TTFNAME"), "-t", "13", "-s", fname, task.dep.path_from(bld.bldnode), tempfn], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
+        os.unlink(fname)
+        res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/ofl", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
+        os.unlink(tempfn)
+        return res
+
+def make_ofl(fname, names, version, copyright = None) :
+    oflh = file(fname, "w+")
+    if copyright : oflh.write(copyright + "\n")
+    if names :
+        oflh.write("Reserved names: " + ", ".join(map(lambda x: '"%s"' % x, names)) + "\n")
+    oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
+    thisdir = os.path.dirname(__file__)
+    oflbaseh = file(os.path.join(thisdir, oflbasefn), "r")
+    for l in oflbaseh.readlines() : oflh.write(l)
+    oflbaseh.close()
+    oflh.close()
+    return fname
+
+def make_tempnode(bld) :
+    return os.path.join(bld.cwd, ".tmp", "tmp" + str(randint(0, 100000)))
+    
 def process(tgt, *cmds, **kw) :
     for c in cmds :
         res = c(tgt)
@@ -210,8 +274,8 @@ def add_build() :
     old_build = getattr(Context.g_module, "build", None)
 
     def build(bld) :
-        for f in Font.fonts :
-            f.build(bld)
+        for p in font_package.Package.packages :
+            p.build(bld)
         if old_build : old_build(bld)
 
     Context.g_module.build = build
@@ -232,24 +296,6 @@ class svgContext(Build.BuildContext) :
         self.add_group('svg')
         font_tests.build_tests(self, Font.fonts, 'svg')
 
-class exeContext(Build.BuildContext) :
-    cmd = 'exe'
-
-    def pre_build(self) :
-        
-        thisdir = os.path.dirname(__file__)
-        self.add_group('exe')
-        # create a taskgen to expand the installer.nsi
-        self.env.fonts = Font.fonts
-        self.env.basedir = thisdir
-        task = templater.Copier(env = self.env)
-        task.set_inputs(self.root.find_resource(os.path.join(thisdir, 'installer.nsi')))
-        task.set_outputs(self.path.find_or_declare('installer.nsi'))
-        self.add_to_group(task)
-
-        # taskgen to run nsismake
-        self(rule='makensis -Oinstaller.log ${SRC}', source = 'installer.nsi', target = '%s-%s.exe' % (self.env['DESC_NAME'] or self.env['APPNAME'].title(), self.env['VERSION']))
-
 add_configure()
 add_build()
 Context.g_module.font = Font
@@ -260,3 +306,4 @@ Context.g_module.process = process
 Context.g_module.create = create
 Context.g_module.cmd = cmd
 Context.g_module.name = name
+Context.g_module.ofl = Ofl

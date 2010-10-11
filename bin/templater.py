@@ -60,6 +60,7 @@ class Copier(Task.Task):
     def __init__(self,  *k, **kw) :
         "Initialize self's attributes"
         Task.Task.__init__(self, *k, **kw)
+        self.vars = kw
         self.regex   = re.compile(kw.get('regex', '(?<!@)@([^@]+)@'))
         self.locals  = { '_cb':self.copyblock }
         self.restat  = re.compile(kw.get('restat', '\+'))
@@ -68,7 +69,8 @@ class Copier(Task.Task):
 
     def run(self) :
         self.locals['_bl'] = [t + "\n" for t in self.inputs[0].read().split('\n')]
-        self.globals = { 'env' : self.env, 'gen' : self.generator, 'ctx' : self.generator.bld, 'task' : self, 'os' : os }
+        self.globals = { 'gen' : self.generator, 'ctx' : self.generator.bld, 'task' : self, 'os' : os }
+        for k, v in self.vars.items() : self.globals[k] = v
         self.outf = open(self.outputs[0].abspath(), "w")
 #        import pdb; pdb.set_trace()
         self.copyblock()

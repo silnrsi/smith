@@ -44,6 +44,9 @@ def process_tempcopy(tgen) :
     tmpnode.parent.mkdir()
     for t in tgen.tasks :
         t.tempcopy = tgen.tempcopy
+        if hasattr(tgen, 'dep') : 
+            t.dep = tgen.dep
+            t.tgt = outnode
         fn = t.__class__.run
         def f(self) :
             if os.path.exists(tmpnode.abspath()) :
@@ -88,10 +91,15 @@ def build_modifys(bld) :
         for i in item :
             tmpnode = make_tempnode(outnode, bld)
             kw = {'tempcopy' : [tmpnode, outnode]}
-            cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
             temp = dict(kw)
+            if isinstance(i[0], basestring) :
+                cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
+                if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
+            else :
+                temp['dep'] = tmpnode
+                cmd = i[0]
+                if not 'name' in temp : temp['name'] = '%s[%d]' % (key, count)
             temp.update(i[3])
-            if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             bld(rule = cmd, source = i[1], shell = i[2], **temp)
             count += 1
 

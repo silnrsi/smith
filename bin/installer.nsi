@@ -1,5 +1,5 @@
 ;NSIS Modern User Interface
-;@env.APPNAME@ Font NSIS Installer script
+;@prj.APPNAME@ Font NSIS Installer script
 ;Written by Martin Hosken
 
 ; This line is included to pull in the MS system.dll plugin rather than the
@@ -8,22 +8,22 @@
 
 ; Some useful definitions that may need changing for different font versions
 !ifndef VERSION
-  !define VERSION @env.VERSION@
+  !define VERSION @prj.VERSION@
 !endif
 
-!define FONTNAME "@env.DESC_NAME or env.APPNAME.title()@"
-!define SRC_ARCHIVE "ttf-sil-@env.APPNAME@-${VERSION}.zip"
-+for f in env.fonts :
+!define FONTNAME "@getattr(prj, 'DESC_NAME', prj.APPNAME.title())@"
+!define SRC_ARCHIVE "ttf-sil-@prj.APPNAME@-${VERSION}.zip"
++for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
 -
-!define INSTALL_SUFFIX "SIL\Fonts\@env.APPNAME.title()@"
+!define INSTALL_SUFFIX "SIL\Fonts\@prj.APPNAME.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 
 ;-----------------------------
 ; Macros for Font installation
 ;-----------------------------
-!addplugindir @os.path.join('..', env.basedir, 'nsis')@
-!addincludedir @os.path.join('..', env.basedir, 'nsis')@
+!addplugindir @os.path.join('..', basedir, 'nsis')@
+!addincludedir @os.path.join('..', basedir, 'nsis')@
 !include FileFunc.nsh
 !include FontRegAdv.nsh
 !include FontName.nsh
@@ -275,7 +275,7 @@ ${Index}:
 
   ;Name and file
   Name "${FONTNAME} Font (${VERSION})"
-  Caption "@env.DESC_SHORTER or ""@"
+  Caption "@getattr(prj, 'DESC_SHORT', '')@"
 
   OutFile "${FONTNAME}-${VERSION}.exe"
   InstallDir $PROGRAMFILES\${INSTALL_SUFFIX}
@@ -293,7 +293,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + os.path.join('..', env.LICENSE) + '"' if env.LICENSE else '"'@
+  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if getattr(prj, 'LICENSE', None) else '"'@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -308,7 +308,7 @@ ${Index}:
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_STARTMENUPAGE_FONT_VARIABLE $R9
-  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@env.APPNAME@"
+  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@prj.APPNAME@"
 
 ;--------------------------------
 ;Languages
@@ -319,10 +319,10 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "SIL International"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@env.DESC_SHORT or ""@"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.DESC_SHORT or ""@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${FONTNAME} Font installer"
-  @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + env.COPYRIGHT + '"' if env.COPYRIGHT else ""@
-  VIProductVersion @env.WINDOWS_VERSION or ".".join((str(env.VERSION).split('.') + ["0", "0", "0", "0"])[0:4])@
+  @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.COPYRIGHT + '"' if prj.COPYRIGHT else ""@
+  VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.VERSION).split('.') + ["0", "0", "0", "0"])[0:4]))@
 
 ;--------------------------------
 ;Installer Sections
@@ -353,7 +353,7 @@ Section "!${FONTNAME} Font" SecFont
     ;File "${FONT_REG_FILE}"  ; done by InstallTTF
     ;File "${FONT_BOLD_FILE}" ; done by InstallTTF
 
-+ for f in env.fonts :
++ for f in fonts :
     !insertmacro InstallTTF "@f.target@"
 -
     
@@ -378,7 +378,7 @@ Section "!${FONTNAME} Font" SecFont
     Goto BranchDone
 
   BranchTestRem:
-+for f in env.fonts:
++for f in fonts:
     IfFileExists "$WINDIR/Fonts/@f.target@" 0 BranchNoExist
 -
 ;    IfFileExists "$WINDIR\Fonts\${FONT_REG_FILE}" 0 BranchNoExist
@@ -388,7 +388,7 @@ Section "!${FONTNAME} Font" SecFont
     Abort
 
   BranchOverwrite:
-+for f in env.fonts :
++for f in fonts :
     !insertmacro RemoveTTF "@f.target@"
 -
       SetOverwrite try
@@ -401,8 +401,8 @@ Section "!${FONTNAME} Font" SecFont
 SectionEnd
 
 Section -StartMenu
-  @'File "' + os.path.join('..', env.LICENSE) + '"' if env.LICENSE else ""@
-+for dp, dn, fs in os.walk(env.DOCDIR or 'docs') :
+  @'File "' + os.path.join('..', prj.LICENSE) + '"' if prj.LICENSE else ""@
++for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
 + for fn in fs :
   File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join(dp, fn)@"
 -
@@ -415,7 +415,7 @@ Section -StartMenu
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
   createIcons:
-+for dp, dn, fs in os.walk(env.DOCDIR or 'docs') : 
++for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) : 
 +for fn in fs :
   CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp, fn)@
 -
@@ -432,13 +432,13 @@ Section "Documentation" SecSrc
   SetOverwrite ifnewer
   ;ADD YOUR OWN FILES HERE...
 +d = {}; 
-+ for f in (env.EXTRA_DIST or '').split(' ') :
++ for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
 +  if f and not os.path.dirname(f) in d :
   CreateDirectory @os.path.dirname(f).replace('/','\\')@
 -d[f] = 1
 -
 -
-+for f in (env.EXTRA_DIST or '').split(' ') :
++for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
   @'File "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
 -
   
@@ -449,7 +449,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${FONTNAME} font (version ${VERSION}). @env.DESC_SHORT or ""@"
+  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${FONTNAME} font (version ${VERSION}). @prj.DESC_SHORT or ""@"
 ;  LangString DESC_SecSrc ${LANG_ENGLISH} "Install the source font and Graphite code for ${FONTNAME} (version ${VERSION}). You only need this if you are a font developer."
 
 
@@ -473,7 +473,7 @@ Section "Uninstall"
 
     StrCpy $FONT_DIR $FONTS
 ;    DetailPrint "unRemoveTTF ${FONT_REG_FILE}"
-+for f in env.fonts :
++for f in fonts :
     !insertmacro unRemoveTTF "@f.target@"
 -
 ;  Delete  /REBOOTOK "$WINDIR\Fonts\${FONT_REG_FILE}"
@@ -482,24 +482,24 @@ Section "Uninstall"
   
 ;  !insertmacro MUI_STARTMENU_GETFOLDER FONT ${MUI_STARTMENU_FONT_VARIABLE}
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" "Menus"
-+for f in (env.EXTRA_DIST or '').split(' ') :
++for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
   Delete "$INSTDIR\\@f.replace('/','\\')@"
 -
-+for dp, dn, fs in os.walk(env.DOCDIR or 'docs') :
++for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
 + for fn in fs :
   Delete "$INSTDIR\@os.path.join(dp, fn).replace('/','\\')@"
 -
 -
   Delete "$INSTDIR\Uninstall.exe"
 +d = {}; 
-+for f in (env.EXTRA_DIST or '').split(' ') :
++for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
 + if not os.path.dirname(f) in d :
   RmDir "$INSTDIR\@os.path.dirname(f).replace('/','\\')@"
 -d[f] = 1
 -
 -
   RMDir "$INSTDIR"
-+for dp, dn, fs in os.walk(env.DOCTDIR or 'docs') :
++for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
 + for fn in fs :
   Delete "$0\@fn@.lnk"
 -
