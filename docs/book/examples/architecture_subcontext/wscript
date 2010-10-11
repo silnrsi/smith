@@ -1,5 +1,15 @@
 #! /usr/bin/env python
 
+"""
+Task generators may create any kind of task
+
+In this example, the tasks create configuration contexts
+and execute configuration tests.
+
+Execute
+$ waf configure build
+"""
+
 import os
 from waflib.Configure import conf, ConfigurationContext
 from waflib import Task, Build, Logs
