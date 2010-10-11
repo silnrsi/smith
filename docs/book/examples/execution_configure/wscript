@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+"""
+$ waf configure ping
+"""
+
 top = '.'
 out = 'build_directory'
 
