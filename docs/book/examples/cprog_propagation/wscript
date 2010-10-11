@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+"""
+The program below will link against all other libraries (except the static one)
+"""
+
 def options(opt):
 	opt.load('compiler_c')
 
@@ -13,7 +17,7 @@ def build(bld):
 
 	bld.stlib(
 		source = 'b.c',
-		use    = 'cshlib',
+		use    = 'cshlib', # add the shared library flags
 		target = 'lib2')
 
 	bld.shlib(
