@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 
+"""
+Create task generators to create tasks when necessary,
+it is equivalent to the example 'build_manual_tasks'
+
+$ waf configure clean build
+"""
+
 def configure(ctx):
 	pass
 
