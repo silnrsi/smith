@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+"""
+share the idl outputs by other task generators
+$ waf configure clean build
+"""
+
 top = '.'
 out = 'build'
 
@@ -33,7 +38,7 @@ def process_idl(self, node):
 	self.more_source = [cpp_node]
 
 @feature('*')
-@before('apply_core')
+@before('process_source')
 def process_add_source(self):
 	for x in self.to_list(getattr(self, 'add_idl', [])):
 		y = self.bld.get_tgen_by_name(x)
