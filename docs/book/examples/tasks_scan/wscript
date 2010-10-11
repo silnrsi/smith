@@ -1,6 +1,10 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+"""
+A simple scanner method
+"""
+
 import time
 from waflib.Task import Task
 class copy(Task):
@@ -29,5 +33,5 @@ def build(ctx):
 	tsk.set_inputs(ctx.path.find_resource('a.in'))
 	tsk.set_outputs(ctx.path.find_or_declare('b.out'))
 	ctx.add_to_group(tsk)
- 
- 
+
+

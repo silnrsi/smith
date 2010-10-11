@@ -1,6 +1,11 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+"""
+The attribute run_str is assumed to be a string and will be compiled into
+a method 'run' by a metaclass (that is, when the class is defined)
+"""
+
 def configure(ctx):
 	ctx.env.COPY      = '/bin/cp'
 	ctx.env.COPYFLAGS = ['-f']

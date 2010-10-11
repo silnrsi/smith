@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
 """
+Illustrate the effect of weak order constraints for the build (generates diagrams)
+
 waf configure clean build -j2 --dwidth=800 --dtitle='No particular order for "waf -j2"' --dmaxtime=7.08
 waf configure clean build -j2 --dwidth=800 --dtitle='Weak order for "waf -j2"' --dmaxtime=7.08
 """

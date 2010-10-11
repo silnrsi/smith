@@ -1,6 +1,11 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+"""
+The variables from cls.vars are then used to compute the task signature
+and may trigger rebuilds
+"""
+
 from waflib.Task import Task
 class foo(Task):
 	vars = ['FLAGS']
