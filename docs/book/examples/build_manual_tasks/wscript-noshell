@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+"""
+The wscript file in this directory uses external commands in the
+task execution. We may as well use node objects to write to them
+directly.
+"""
+
 def configure(ctx):
 	pass
 

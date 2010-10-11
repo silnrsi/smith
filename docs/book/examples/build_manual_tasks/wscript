@@ -1,5 +1,15 @@
 #! /usr/bin/env python
 
+"""
+Task objects may be created manually
+This is tedious and leads to spaghetti code
+
+Yet, it it interesting to see this to understand
+why the task generator abstraction is necessary
+
+$ waf configure build
+"""
+
 def configure(ctx):
 	pass
 
@@ -41,4 +51,3 @@ def build(ctx):
 	cat_1.set_run_after(cp_1)
 	cat_1.set_run_after(cp_2)
 
- 
