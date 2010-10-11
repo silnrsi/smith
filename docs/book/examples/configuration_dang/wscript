@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+"""
+The context methods may execute the same methods from waf tools
+
+observe how the dang.py file is used and compare
+
+$ waf configure build
+$ waf configure build --dang=test
+"""
+
 top = '.'
 out = 'build'
 
