@@ -158,7 +158,6 @@ class Parallel(object):
 
 	def add_task(self, tsk):
 		"add a task to one of the consumers"
-		self.bld.to_log(tsk.display())
 		try:
 			pool = self.pool
 		except AttributeError:
@@ -233,6 +232,10 @@ class Parallel(object):
 				self.count += 1
 				tsk.master = self
 				self.processed += 1
+
+				dis = tsk.display()
+				if dis:
+					self.bld.to_log(dis)
 
 				if self.numjobs == 1:
 					tsk.process()
