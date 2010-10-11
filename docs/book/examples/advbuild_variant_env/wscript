@@ -2,6 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+"""
+Define build commands for several variants at once
+Try executing
+$ waf clean_debug build_debug clean_release build_release
+"""
+
 VERSION='0.0.1'
 APPNAME='cc_test'
 
