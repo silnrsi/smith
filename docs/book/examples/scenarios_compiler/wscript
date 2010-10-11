@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""
+The call 'add_group' is used to split the build:
+all the tasks from one group will be executed before the
+tasks from the next group are even considered
+
+$ waf configure clean build
+"""
+
 top = '.'
 out = 'build'
 

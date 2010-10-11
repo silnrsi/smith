@@ -2,6 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
+"""
+Compile 'about.c' after all other c tasks have been compiled
+
+$ waf configure clean build
+"""
+
 VERSION='1.0.1'
 APPNAME='cc_test'
 

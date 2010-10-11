@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""
+A task generator that will copy a file from the source directory
+to another file in the build directory
+
+Try:
+$ waf configure clean build
+"""
+
 top = '.'
 out = 'build'
 
