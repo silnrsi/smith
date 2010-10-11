@@ -1,5 +1,13 @@
 #! /usr/bin/env python
 
+"""
+This example demonstrates how to create custom compilation and link tasks
+
+NOTE: to avoid redefining the method call_apply_link, you could use this:
+import waflib.TaskGen
+waflib.TaskGen.feats['mylink'] = ['apply_link']
+"""
+
 def configure(ctx):
 	pass
 
@@ -25,7 +33,4 @@ class ext2o(Task):
 def process_ext(self, node):
 	self.create_compiled_task('ext2o', node)
 
-# NOTE: to avoid redefining the method call_apply_link, you would use this:
-#import waflib.TaskGen
-#waflib.TaskGen.feats['mylink'] = ['apply_link']
 
