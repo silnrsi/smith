@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+"""
+Calling 'waf clean build' can be shortened to 'waf cleanbuild'
+The cleanbuild command is defined below
+"""
+
 def configure(ctx):
 	pass
 
