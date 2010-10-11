@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+"""
+Link against existing libraries from the project
+"""
+
 def options(opt):
 	opt.load('compiler_c')
 
