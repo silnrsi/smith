@@ -1,6 +1,15 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
+"""
+Task generators with a rule= attribute will create a single task
+that will execute the corresponding function. The rule below is
+equivalent to rule='cp ${SRC} ${TGT}'
+
+Try:
+$ waf configure clean build
+"""
+
 top = '.'
 out = 'build'
 
