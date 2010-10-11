@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 
+"""
+Simple copy task
+
+The attribute 'run_str' is compiled into the task method 'run' by a metaclass
+"""
+
 def configure(ctx):
 	pass
 

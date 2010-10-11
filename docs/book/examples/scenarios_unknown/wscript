@@ -2,6 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2008-2010 (ita)
 
+"""
+a compiler that creates files unknown in advance
+see mytool.py
+"""
+
 top = '.'
 out = 'build'
 
