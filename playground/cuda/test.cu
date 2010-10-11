@@ -1,188 +1,52 @@
-
-
 #include <stdio.h>
 #include <assert.h>
 #include <cuda.h>
 
 #include "test.h"
 
-#define N 624
-#define M 397
-#define MATRIX_A 0x9908b0dfUL
-#define UPPER_MASK 0x80000000UL
-#define LOWER_MASK 0x7fffffffUL
+// these macros are really really helpful
+#  define CUDA_SAFE_CALL( call) {                                            \
+    cudaError err = call;                                                    \
+    if( cudaSuccess != err) {                                                \
+        fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",        \
+                __FILE__, __LINE__, cudaGetErrorString( err) );              \
+        exit(EXIT_FAILURE);                                                  \
+    } }
 
-#define DIFFLEN 2688
-#define REALDIFFLEN 81792
-#define NUMCAND 3072
-#define ORISIZ 81776
+#define CHECKLASTERROR   {                                                 \
+	cudaError_t err = cudaGetLastError();                                    \
+	if (err != cudaSuccess) {                                                \
+		fprintf(stderr, "Cuda error in file '%s' in line %i : %s.\n",        \
+                __FILE__, __LINE__, cudaGetErrorString( err) );              \
+        exit(EXIT_FAILURE);                                                  \
+	} }
 
-#define DEVLEN (DIFFLEN * NUMCAND)
 
+#define SIZ 128
 
-__device__ void init_gengrk(unsigned int s, unsigned int* mt)
-{
-	mt[0]= s & 0xffffffffUL;
-	unsigned int mti;
-	for (mti=1; mti<N; mti++) {
-		mt[mti] = (1812433253UL * (mt[mti-1] ^ (mt[mti-1] >> 30)) + mti);
-		mt[mti] &= 0xffffffffUL;
+__global__ void truc(unsigned int * buf) {
+	if (threadIdx.x < SIZ) {
+		buf[threadIdx.x] = buf[threadIdx.x] << 5;
 	}
-	mt[N] = mti;
-}
-__device__ void init_by_seed(unsigned int seed, unsigned int* mt) {
-	int i, j, k;
-	init_gengrk(19650218UL, mt);
-	i=1; j=0;
-	k = (N>1 ? N : 1);
-	for (; k; k--) {
-		mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 1664525UL)) + seed + j;
-		mt[i] &= 0xffffffffUL;
-		i++; j++;
-		if (i>=N) { mt[0] = mt[N-1]; i=1; }
-		if (j>=1) j=0;
-	}
-	for (k=N-1; k; k--) {
-		mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 1566083941UL)) - i;
-		mt[i] &= 0xffffffffUL;
-		i++;
-		if (i>=N) { mt[0] = mt[N-1]; i=1; }
-	}
-
-	mt[0] = 0x80000000UL;
-}
-
-__device__ void init_by_array(unsigned int init_key[], unsigned int key_length, unsigned int* mt) {
-	int i, j, k;
-	init_gengrk(19650218UL, mt);
-	i=1; j=0;
-	k = (N>key_length ? N : key_length);
-	for (; k; k--) {
-		mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 1664525UL)) + init_key[j] + j;
-		mt[i] &= 0xffffffffUL;
-		i++; j++;
-		if (i>=N) { mt[0] = mt[N-1]; i=1; }
-		if (j>=key_length) j=0;
-	}
-	for (k=N-1; k; k--) {
-		mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >> 30)) * 1566083941UL)) - i;
-		mt[i] &= 0xffffffffUL;
-		i++;
-		if (i>=N) { mt[0] = mt[N-1]; i=1; }
-	}
-
-	mt[0] = 0x80000000UL;
-}
-
-__device__ unsigned int gengrk_int32(unsigned int* mt)
-{
-	unsigned int y;
-	if (mt[N] >= N) {
-		int kk;
-
-		for (kk=0;kk<N-M;kk++) {
-			y = (mt[kk]&UPPER_MASK)|(mt[kk+1]&LOWER_MASK);
-			mt[kk] = mt[kk+M] ^ (y >> 1) ^ (y & 0x1UL ? MATRIX_A : 0x0UL);
-		}
-		for (;kk<N-1;kk++) {
-			y = (mt[kk]&UPPER_MASK)|(mt[kk+1]&LOWER_MASK);
-			mt[kk] = mt[kk+(M-N)] ^ (y >> 1) ^ (y & 0x1UL ? MATRIX_A : 0x0UL);
-		}
-		y = (mt[N-1]&UPPER_MASK)|(mt[0]&LOWER_MASK);
-		mt[N-1] = mt[M-1] ^ (y >> 1) ^ (y & 0x1UL ? MATRIX_A : 0x0UL);
-		mt[N] = 0;
-	}
-
-	y = mt[ mt[N] ++ ];
-
-	y ^= (y >> 11);
-	y ^= (y << 7) & 0x9d2c5680UL;
-	y ^= (y << 15) & 0xefc60000UL;
-	y ^= (y >> 18);
-
-	return y;
-}
-
-__global__ void init_grk(unsigned int off, unsigned int* buf) {
-	unsigned int idx = (blockIdx.x * blockDim.x + threadIdx.x);
-
-	unsigned int seed = (idx + off * NUMCAND) & 0xffffffffU;
-	unsigned int ft[N + 1];
-	init_by_array(&seed, 1, ft);
-
-	for (int i = 0; i < DIFFLEN; ++i) {
-		unsigned int k = 0;
-		for (int j = 0; j < 32; ++j) {
-			unsigned int a = gengrk_int32(ft);
-			gengrk_int32(ft);
-			unsigned int u = a > 2147483648;
-
-			if (i*32 + j < ORISIZ)
-				k += u << j;
-		}
-		buf[i + idx * DIFFLEN] = k;
-	}
-}
-
-__global__ void eval_arr(unsigned int* grk_buf, unsigned int* result, unsigned int* iter) {
-	//unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-	__shared__ unsigned int cop[384];
-
-	unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	__syncthreads();
-
-	unsigned int cnt = 0;
-	for (unsigned int kk = 0; kk < DIFFLEN; kk += 384) {
-
-		cop[threadIdx.x] = grk_buf[threadIdx.x + kk];
-		__syncthreads();
-
-		for (unsigned int ii = 0; ii < 384; ++ii) {
-
-			unsigned int n = cop[ii] & iter[  idx + NUMCAND * (ii + kk)];
-			//cnt += __popc(n);
-			while (n) {
-				cnt++;
-				n &= (n - 1);
-			}
-			/*n = n - ((n >> 1) & 0x55555555);
-			n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
-			cnt += ((n + (n >> 4) & 0xF0F0F0F) * 0x1010101) >> 24;*/
-		}
-		__syncthreads();
-	}
-	result[idx] = cnt;
 }
 
 int testcuda()
 {
-	// compare ARRLEN seeds at once
-	unsigned int nblocks = NUMCAND / 384;
-	unsigned int nthreads = 384;
+	unsigned int* foo = (unsigned int*) malloc(SIZ * sizeof(unsigned int));
+	for (int x = 0; x < SIZ; ++x) {
+		foo[x] = 1;
+	}
 
-	unsigned int *grk_buf = NULL;
-	unsigned int *device_result = NULL;
-	unsigned int *ref = NULL;
-	unsigned int *host_result = NULL;
+	unsigned int * recf = NULL;
+	CUDA_SAFE_CALL( cudaMalloc((void **) &recf, SIZ * sizeof(unsigned int)) );
+	CUDA_SAFE_CALL(cudaMemcpy(recf, foo,  SIZ * sizeof(unsigned int), cudaMemcpyHostToDevice));
+	truc<<<1, SIZ>>>(recf);
+	CHECKLASTERROR
+	CUDA_SAFE_CALL(cudaMemcpy(foo, recf, SIZ * sizeof(unsigned int), cudaMemcpyDeviceToHost));
+	printf("2^5 -> %u\n", foo[5]);
 
-	host_result = (unsigned int*) malloc(NUMCAND * sizeof(unsigned int));
-	cudaMalloc((void **) &device_result, NUMCAND * sizeof(unsigned int));
-
-	// init grk_buf with n*m values at once
-	cudaMalloc((void **) &grk_buf, NUMCAND * DIFFLEN *  sizeof(unsigned int));
-
-	dim3 dim_grid(nblocks, 1, 1);
-	dim3 dim_block(nthreads, 1, 1);
-
-	cudaMalloc((void **) &ref, DEVLEN * sizeof(unsigned int));
-	//cudaMemcpy(ref, vec,  DEVLEN * sizeof(unsigned int), cudaMemcpyHostToDevice);
-
-	unsigned int best = 520;
-	unsigned int bestidx = 0;
-
-	//for (unsigned int n = 0; n < 10; ++n;
-
+	CUDA_SAFE_CALL(cudaFree(recf));
 
 /*
 int deviceCount;
@@ -213,50 +77,6 @@ cudaDeviceProp* pDeviceProp = &dP;
      printf( "\nTexture Alignment \t - %d bytes", pDeviceProp->textureAlignment );  
      printf( "\nDevice Overlap \t - %s", pDeviceProp-> deviceOverlap?"Allowed":"Not Allowed" );  
      printf( "\nNumber of Multi processors \t - %d\n", pDeviceProp->multiProcessorCount );  
-
-*/
-
-/*
-	for (unsigned int n = 0; n < 30000; ++n) {
-	//for (unsigned int n = 50; n < 100; ++n) {
-
-		if (n % 10 == 0) { printf("# iter %d\n", n); fflush(stdout); }
-
-		init_grk <<< dim_grid, dim_block >>> (n, grk_buf);
-		for (unsigned int i = 0; i < NUMCAND; ++i) {
-			eval_arr <<< dim_grid, dim_block >>> (grk_buf + i * DIFFLEN, device_result, ref);
-			cudaMemcpy(host_result, device_result, NUMCAND * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-
-			unsigned int s1 = 0;
-			unsigned int s2 = 0;
-			for (unsigned int k = 0; k < NUMCAND; ++k) {
-				if (host_result[k] > s1) s1 = host_result[k];
-				else if (valz[k] - host_result[k] > s2) s2 = valz[k] - host_result[k];
-			}
-			if (s1 + s2 >= 530) {
-				if ((s1 + s2) > best) {
-					best = s1 + s2;
-					bestidx = i + n * NUMCAND;
-				}
-				unsigned int ss1 = 0;
-				unsigned int ss2 = 0;
-				unsigned int sss1 = 0;
-				unsigned int sss2 = 0;
-				for (unsigned int k = 0; k < NUMCAND; ++k) {
-					if      (host_result[k] >= s1          ) { s1 = host_result[k];           ss1 = seedz[k]; sss1 = seedz_off[k]; }
-					else if (valz[k] - host_result[k] >= s2) { s2 = valz[k] - host_result[k]; ss2 = seedz[k]; sss2 = seedz_off[k]; }
-				}
-				printf("(%d, %d, %d, %d, %d, %d), # %d+%d  best %d, %d\n", i + n * NUMCAND, ss1, sss1, ss2, sss2, s1+s2, s1, s2, best, bestidx);
-				fflush(stdout);
-			}
-		}
-
-	}
-
-	cudaFree(grk_buf);
-	cudaFree(device_result);
-	cudaFree(ref);
-	free(host_result);
 */
 
 	return 0;
