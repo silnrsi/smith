@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 
+"""
+The configuration set such as conf.env behave like dicts
+Lists are usually stored in them, and may be shared by several
+configuration sets.
+
+For this reason, the methods append_unique, append_value
+and prepend_value should be used whenever possible
+"""
+
 top = '.'
 out = 'build'
 
