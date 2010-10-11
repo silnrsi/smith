@@ -2,6 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
+"""
+Add a task generator method that will expand ${} expressons from various
+attributes such as includes, target, source, etc
+"""
+
 VERSION='0.0.1'
 APPNAME='cc_test'
 
