@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 
+"""
+Demonstrate how to bind functions to be executed before or after the build
+
+Try executing:
+$ waf configure clean build
+"""
+
 top = '.'
 out = 'build'
 
@@ -21,6 +28,8 @@ def post(ctx):
 			ctx.exec_command('/sbin/ldconfig')
 
 def build(ctx):
+	ctx(rule='touch ${TGT}', target='bar.txt', always=True)
+
 	ctx.add_pre_fun(pre)
 	ctx.add_post_fun(post)
 
