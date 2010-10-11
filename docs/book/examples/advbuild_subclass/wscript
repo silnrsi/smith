@@ -1,5 +1,12 @@
 #! /usr/bin/env python
 
+"""
+Context commands usually derive from different classe.
+The command 'foo' uses a normal context, while bar uses
+a different class. Try executing
+$ waf configure foo bar tak
+"""
+
 def configure(ctx):
 	print(type(ctx))
 
