@@ -66,7 +66,7 @@ class modmap(Task.Task):
 		bld = Build.BuildContext(top_dir=obld.srcnode.abspath(), out_dir=obld.bldnode.abspath())
 		bld.init_dirs()
 		bld.in_msg = 1 # disable all that comes from bld.msg(..), bld.start_msg(..) and bld.end_msg(...)
-		bld.all_envs[''] = self.env.derive()
+		bld.env = self.env.derive()
 		node = self.inputs[0]
 		bld.logger = Logs.make_logger(node.parent.get_bld().abspath() + os.sep + node.name + '.log', 'build')
 
