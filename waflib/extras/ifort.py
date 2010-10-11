@@ -16,7 +16,18 @@ def find_ifort(conf):
 
 @conf
 def ifort_modifier_win32(conf):
-    raise NotImplementedError("Ifort on win32 not yet implemented")
+	raise NotImplementedError("Ifort on win32 not yet implemented")
+
+@conf
+def ifort_modifier_cygwin(conf):
+	raise NotImplementedError("Ifort on cygwin not yet implemented")
+
+@conf
+def ifort_modifier_platform(conf):
+	dest_os = conf.env['DEST_OS'] or Utils.unversioned_sys_platform()
+	ifort_modifier_func = globals().get('ifort_modifier_' + dest_os)
+	if ifort_modifier_func:
+			ifort_modifier_func(conf)
 
 @conf
 def get_ifort_version(conf, fc):
@@ -38,3 +49,4 @@ def configure(conf):
 	conf.find_ifort()
 	conf.find_ar()
 	conf.fc_flags()
+	conf.ifort_modifier_platform()

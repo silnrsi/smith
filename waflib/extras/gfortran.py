@@ -22,19 +22,16 @@ def gfortran_flags(conf):
 	v['FCFLAGS_DEBUG'] = ['-Werror'] # why not
 
 @conf
+def gfortran_modifier_win32(conf):
+	fc_config.fortran_modifier_win32(conf)
+
+@conf
+def gfortran_modifier_cygwin(conf):
+	fc_config.fortran_modifier_cygwin(conf)
+
+@conf
 def gfortran_modifier_darwin(conf):
-	v = conf.env
-	v['FCFLAGS_fcshlib']   = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
-	v['LINKFLAGS_fcshlib'] = ['-dynamiclib']
-	v['fcshlib_PATTERN']   = 'lib%s.dylib'
-	v['FRAMEWORKPATH_ST']  = '-F%s'
-	v['FRAMEWORK_ST']      = '-framework %s'
-
-	v['LINKFLAGS_fcstlib'] = []
-
-	v['FCSHLIB_MARKER']    = ''
-	v['FCSTLIB_MARKER']    = ''
-	v['SONAME_ST']         = ''
+	fc_config.fortran_modifier_darwin(conf)
 
 @conf
 def gfortran_modifier_platform(conf):

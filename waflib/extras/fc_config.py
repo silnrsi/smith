@@ -44,6 +44,7 @@ def fc_flags(conf):
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 
+
 @conf
 def check_fortran(self, *k, **kw):
 	"""see if the compiler works by compiling a fragment"""
@@ -53,6 +54,52 @@ def check_fortran(self, *k, **kw):
 		features         = 'fc fcprogram',
 		msg              = 'Compiling a simple fortran app')
 
+# ------------------------------------------------------------------------
+# --- These are the default platform modifiers, refactored here for
+#     convenience.  gfortran and g95 have much overlap.
+# ------------------------------------------------------------------------
+
+@conf
+def fortran_modifier_darwin(conf):
+	v = conf.env
+	v['FCFLAGS_fcshlib']   = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['LINKFLAGS_fcshlib'] = ['-dynamiclib']
+	v['fcshlib_PATTERN']   = 'lib%s.dylib'
+	v['FRAMEWORKPATH_ST']  = '-F%s'
+	v['FRAMEWORK_ST']      = '-framework %s'
+
+	v['LINKFLAGS_fcstlib'] = []
+
+	v['FCSHLIB_MARKER']    = ''
+	v['FCSTLIB_MARKER']    = ''
+	v['SONAME_ST']         = ''
+
+
+@conf
+def fortran_modifier_win32(conf):
+	v = conf.env
+	v['fcprogram_PATTERN']    = '%s.exe'
+
+	v['fcshlib_PATTERN']      = '%s.dll'
+	v['implib_PATTERN']      = 'lib%s.dll.a'
+	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
+
+	v['FCFLAGS_fcshlib']      = []
+
+	v.append_value('FCFLAGS_fcshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
+
+	# Auto-import is enabled by default even without this option,
+	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
+	# that the linker emits otherwise.
+	v.append_value('LINKFLAGS', ['-Wl,--enable-auto-import'])
+
+@conf
+def fortran_modifier_cygwin(conf):
+	fortran_modifier_win32(conf)
+	v = conf.env
+	v['fcshlib_PATTERN'] = 'cyg%s.dll'
+	v.append_value('LINKFLAGS_fcshlib', ['-Wl,--enable-auto-image-base'])
+	v['FCFLAGS_fcshlib'] = []
 # ------------------------------------------------------------------------
 
 @conf
