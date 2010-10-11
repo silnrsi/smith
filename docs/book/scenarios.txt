@@ -116,7 +116,7 @@ def configure(conf):
     dest.parent.mkdir()
     dest.write(txt) <2>
 
-    conf.env.append_value('cfg_files', cfg_file) <3>
+    conf.env.append_value('cfg_files', dest.abspath()) <3>
 
 def build(ctx):
     ctx(rule='cp ${SRC} ${TGT}', source=cfg_file, target='bar.txt')
