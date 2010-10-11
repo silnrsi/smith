@@ -28,11 +28,11 @@ def configure(conf):
 	# find rc.exe
 	if not conf.env.WINRC:
 		if v.CC_NAME == 'msvc':
-			winrc = conf.find_program('RC', var='WINRC')
+			winrc = conf.find_program('RC', var='WINRC', path_list = v['PATH'])
 			v['WINRC_TGT_F'] = '/fo'
 			v['WINRC_SRC_F'] = ''
 		else:
-			winrc = conf.find_program('windres', var='WINRC')
+			winrc = conf.find_program('windres', var='WINRC', path_list = v['PATH'])
 	if not conf.env.WINRC:
 		conf.fatal('winrc was not found!')
 
