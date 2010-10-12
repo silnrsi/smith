@@ -411,3 +411,7 @@ def check_fortran_mangling(self, *k, **kw):
 
 	return (u, du, c)
 
+@feature('pyext')
+@before('propagate_uselib_vars', 'apply_link')
+def set_lib_pat(self):
+	self.env['fcshlib_PATTERN'] = self.env['pyext_PATTERN']
