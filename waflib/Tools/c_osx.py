@@ -125,7 +125,7 @@ def apply_bundle(self):
 		return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
 		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['macbundle_PATTERN']
-		uselib = self.uselib = self.to_list(self.uselib)
+		uselib = self.uselib = self.to_list(getattr(self, 'use', []))
 		if not 'MACBUNDLE' in uselib:
 			uselib.append('MACBUNDLE')
 
