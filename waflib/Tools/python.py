@@ -91,8 +91,6 @@ def init_pyext(self):
 		self.uselib.append('PYEXT')
 	# override shlib_PATTERN set by the osx module
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
-	if self.env['fcshlib_PATTERN']:
-		self.env['fcshlib_PATTERN'] = self.env['pyext_PATTERN']
 
 @before('propagate_uselib_vars')
 @feature('pyembed')
