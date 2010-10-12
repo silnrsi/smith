@@ -32,12 +32,8 @@ def get_fortran_tasks(tsk):
 	"""
 	other fortran tasks from the same group
 	"""
-	tasks = []
 	bld = tsk.generator.bld
-	gp = bld.groups[bld.get_group_idx(tsk.generator)]
-	for tg in gp:
-		try: tasks.extend(tg.tasks)
-		except TypeError: tasks.append(tg)
+	tasks = bld.get_tasks_group(bld.get_group_idx(tsk.generator))
 	return [x for x in tasks if isinstance(x, fc) and not getattr(x, 'nomod', None) and not getattr(x, 'mod_fortran_done', None)]
 
 class fc(Task.Task):
