@@ -59,6 +59,8 @@ def build(bld):
 		defines  = ['USEFOO', 'blah=1'],
 		use      = 'shlib1')
 
+	bld.add_group()
+
 	bld(
 		features = 'fc fcprogram',
 		includes = 'src/include',
