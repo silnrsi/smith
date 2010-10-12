@@ -542,6 +542,17 @@ class BuildContext(Context.Context):
 					if tg.path.is_child_of(ln):
 						f()
 
+	def get_tasks_group(self, idx):
+		"""obtain all the tasks for the group of num idx"""
+		tasks = []
+		for tg in self.groups[idx]:
+			# TODO a try-except might be more efficient
+			if isinstance(tg, Task.TaskBase):
+				tasks.append(tg)
+			else:
+				tasks.extend(tg.tasks)
+		return tasks
+
 	def get_build_iterator(self):
 		"""creates a generator object that returns tasks executable in parallel (yield)"""
 		self.cur = 0
@@ -562,14 +573,7 @@ class BuildContext(Context.Context):
 				self.post_group()
 
 			# then extract the tasks
-			tasks = []
-			for tg in self.groups[self.cur]:
-				# TODO a try-except might be more efficient
-				if isinstance(tg, Task.TaskBase):
-					tasks.append(tg)
-				else:
-					tasks.extend(tg.tasks)
-
+			tasks = self.get_tasks_group(self.cur)
 			# if the constraints are set properly (ext_in/ext_out, before/after)
 			# the call to set_file_constraints may be removed (can be a 15% penalty on no-op rebuilds)
 			# (but leave set_file_constraints for the installation step)
