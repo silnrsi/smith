@@ -434,7 +434,7 @@ def configure(conf):
 		conf.env.DEFINES_TEST   = ['TEST']
 		conf.env.CCFLAGS_TEST   = ['-O0'] <3>
 		conf.env.LIB_TEST       = ['m']
-		conf.env.LIBPATH_TEST   = ['/usr/lib'] <4>
+		conf.env.LIBPATH_TEST   = ['/usr/lib']
 		conf.env.LINKFLAGS_TEST = ['-g']
 		conf.env.INCLUDES_TEST  = ['/opt/gnome/include']
 
@@ -442,18 +442,17 @@ def build(bld):
 	mylib = bld.stlib(
 		source   = 'test_staticlib.c',
 		target   = 'teststaticlib',
-		use      = 'TEST') <5>
+		use      = 'TEST') <4>
 
 	if mylib.env.CC_NAME == 'gcc':
-		mylib.cxxflags = ['-O2'] <6>
+		mylib.cxxflags = ['-O2'] <5>
 ---------------
 
 <1> For portability reasons, it is recommended to use INCLUDES instead of giving flags of the form -I/include. Note that the INCLUDES use used by both c and c++
 <2> Variables may be left undefined in platform-specific settings, yet the build scripts will remain identical.
 <3> Declare a few variables during the configuration, the variables follow the convention VAR_NAME
-<4> Values should be declared as lists excepts for LIB and STATICLIB
-<5> Add all the VAR_NAME corresponding to the _use variable_ NAME, which is 'TEST' in this example
-<6> 'Model to avoid': setting the flags and checking for the configuration should be performed in the configuration section
+<4> Add all the VAR_NAME corresponding to the _use variable_ NAME, which is 'TEST' in this example
+<5> 'Model to avoid': setting the flags and checking for the configuration should be performed in the configuration section
 
 The variables used for C/C++ are the following:
 
