@@ -195,7 +195,7 @@ def check_fortran_verbose_flag(self, *k, **kw):
 # ------------------------------------------------------------------------
 
 # linkflags which match those are ignored
-LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9]*\.o', r'-lc$', r'-lSystem', r'-libmil', r'-LIST:*', r'-LNO:*']
+LINKFLAGS_IGNORED = [r'-lang*', r'-lcrt[a-zA-Z0-9\.]*\.o', r'-lc$', r'-lSystem', r'-libmil', r'-LIST:*', r'-LNO:*']
 if os.name == 'nt':
 	LINKFLAGS_IGNORED.extend([r'-lfrt*', r'-luser32', r'-lkernel32', r'-ladvapi32', r'-lmsvcrt', r'-lshell32', r'-lmingw', r'-lmoldname'])
 else:
