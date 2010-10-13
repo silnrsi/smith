@@ -482,7 +482,7 @@ def find_msvc(conf):
 	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
-	has_msvc_manifest = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)    or (compiler == 'intel' and float(version) >= 11)
+	has_msvc_manifest = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)	or (compiler == 'intel' and float(version) >= 11)
 
 	# compiler
 	cxx = None
@@ -632,46 +632,55 @@ def apply_manifest(self):
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
 	Problems with this tool: it is always called whether MSVC creates manifests or not."""
 
-	if self.env.CC_NAME != 'msvc' or not getattr(self, 'link_task', None):
-		return
-
-	tsk = self.create_task('msvc_manifest')
-	tsk.set_inputs(self.link_task.outputs[0])
+	if self.env.CC_NAME == 'msvc' and self.env.MSVC_MANIFEST and getattr(self, 'link_task', None):
+		out_node = self.link_task.outputs[0]
+		man_node = out_node.parent.find_or_declare(out_node.name + '.manifest')
+		self.link_task.outputs.append(man_node)
+		self.link_task.do_manifest = True
 
 def exec_mf(self):
 	env = self.env
-	outfile = self.inputs[0].bldpath()
-	manifest = outfile + '.manifest'
-	if os.path.exists(manifest):
-		debug('msvc: manifesttool')
-		mtool = env['MT']
-		if not mtool:
-			return 0
+	mtool = env['MT']
+	if not mtool:
+		return 0
 
-		mode = ''
-		# embedding mode. Different for EXE's and DLL's.
-		# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
-		if 'cprogram' in self.generator.features:
-			mode = '1'
-		elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features:
-			mode = '2'
+	self.do_manifest = False
 
-		debug('msvc: embedding manifest')
-		#flags = ' '.join(env['MTFLAGS'] or [])
+	outfile = self.outputs[0].abspath()
 
-		lst = []
-		lst.extend(Utils.to_list(env['MT']))
-		lst.extend(Utils.to_list(env['MTFLAGS']))
-		lst.extend(Utils.to_list("-manifest"))
-		lst.extend(Utils.to_list(manifest))
-		lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
+	manifest = None
+	for out_node in self.outputs:
+		if out_node.name.endswith('.manifest'):
+			manifest = out_node.abspath()
+			break
+	if manifest is None:
+		# Should never get here.  If we do, it means the manifest file was
+		# never added to the outputs list, thus we don't have a manifest file
+		# to embed, so we just return.
+		return 0
 
-		#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
-		#	manifest, outfile, mode)
-		lst = [lst]
-		ret = self.exec_command(*lst)
+	# embedding mode. Different for EXE's and DLL's.
+	# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
+	mode = ''
+	if 'cprogram' in self.generator.features:
+		mode = '1'
+	elif 'cshlib' in self.generator.features:
+		mode = '2'
 
-		return ret
+	debug('msvc: embedding manifest')
+	#flags = ' '.join(env['MTFLAGS'] or [])
+
+	lst = []
+	lst.extend([env['MT']])
+	lst.extend(Utils.to_list(env['MTFLAGS']))
+	lst.extend(Utils.to_list("-manifest"))
+	lst.extend(Utils.to_list(manifest))
+	lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
+
+	#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
+	#	manifest, outfile, mode)
+	lst = [lst]
+	return self.exec_command(*lst)
 
 msvc_manifest = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 
@@ -695,7 +704,11 @@ def exec_command_msvc(self, *k, **kw):
 		env.update(PATH = ';'.join(self.env['PATH']))
 		kw['env'] = env
 
-	return Task.Task.exec_command(self, *k, **kw)
+	ret = self.generator.bld.exec_command(*k, **kw)
+	if ret: return ret
+	if getattr(self, 'do_manifest', None):
+		ret = exec_mf(self)
+	return ret
 
 for k in 'c cxx winrc cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib qxx'.split():
 	cls = Task.classes.get(k, None)
