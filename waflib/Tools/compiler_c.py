@@ -17,7 +17,7 @@ c_compiler = {
 'irix':   ['gcc'],
 'hpux':   ['gcc'],
 'gnu':    ['gcc'],
-'default': ['gcc']
+'default':['gcc'],
 }
 
 def configure(conf):
@@ -49,7 +49,7 @@ def configure(conf):
 def options(opt):
 	global c_compiler
 	build_platform = Utils.unversioned_sys_platform()
-	possible_compiler_list = c_compiler.get(build_platform, 'default')
+	possible_compiler_list = c_compiler.get(build_platform in c_compiler or 'default')
 	test_for_compiler = ' '.join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
@@ -57,5 +57,5 @@ def options(opt):
 		dest="check_c_compiler")
 
 	for x in test_for_compiler.split():
-		opt.load('%s' % x, option_group=cc_compiler_opts)
+		opt.load('%s' % x)# TODO, option_group=cc_compiler_opts)
 
