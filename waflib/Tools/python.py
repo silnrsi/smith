@@ -165,7 +165,8 @@ def check_python_headers(conf):
 	env['pyext_PATTERN'] = '%s' + dct['SO'] # not a mistake
 
 	# Check for python libraries for embedding
-	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS'], 'PYEMBED')
+	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'], 'PYEMBED')
+	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS'], 'PYEXT')
 
 	result = None
 	name = 'python' + env['PYTHON_VERSION']
