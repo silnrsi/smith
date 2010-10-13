@@ -182,7 +182,7 @@ def check_python_headers(conf):
 
 	if not result:
 		conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
-		path = [os.path.join(dct['PREFIX'], "libs")]
+		path = [os.path.join(dct['prefix'], "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
