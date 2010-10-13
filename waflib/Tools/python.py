@@ -225,9 +225,9 @@ def check_python_headers(conf):
 		env['INCLUDES_PYEMBED'] = includes
 	else:
 		conf.to_log("Include path for Python extensions "
-			       "(found via distutils module): %r\n" % (INCLUDEPY,))
-		env['INCLUDES_PYEXT'] = [INCLUDEPY]
-		env['INCLUDES_PYEMBED'] = [INCLUDEPY]
+			       "(found via distutils module): %r\n" % (dct['INCLUDEPY'],))
+		env['INCLUDES_PYEXT'] = [dct['INCLUDEPY']]
+		env['INCLUDES_PYEMBED'] = [dct['INCLUDEPY']]
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC_NAME'] == 'gcc':
