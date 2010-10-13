@@ -200,7 +200,7 @@ class Context(ctx):
 				try:
 					exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
 				except Exception as e:
-					raise Errors.WafError(ex=e, pyfile=d)
+					raise Errors.WafError(ex=e)
 				self.post_recurse(node)
 
 			else:
@@ -223,7 +223,7 @@ class Context(ctx):
 			msg = '%s\n(complete log in %s)' % (msg, self.logger.handlers[0].baseFilename)
 		except:
 			pass
-		raise self.errors.ConfigurationError(msg, ex=ex, pyfile=self.path.abspath())
+		raise self.errors.ConfigurationError(msg, ex=ex)
 
 	def to_log(self, var):
 		"""log some information to the logger (if present)"""
@@ -417,7 +417,7 @@ def load_module(file_path):
 	try:
 		exec(compile(code, file_path, 'exec'), module.__dict__)
 	except Exception as e:
-		raise Errors.WafError(ex=e, pyfile=file_path)
+		raise Errors.WafError(ex=e)
 	sys.path.remove(module_dir)
 
 	cache_modules[file_path] = module
