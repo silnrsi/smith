@@ -180,16 +180,6 @@ MACOSX_DEPLOYMENT_TARGET = %r
 
 	# Check for python libraries for embedding
 	conf.parse_flags(python_SYSLIBS + ' ' + python_SHLIBS, 'PYEMBED')
-	"""if python_SYSLIBS is not None:
-		for lib in python_SYSLIBS.split():
-			if lib.startswith('-l'):
-				lib = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', [lib])
-	if python_SHLIBS is not None:
-		for lib in python_SHLIBS.split():
-			if lib.startswith('-l'):
-				lib = lib[2:] # strip '-l'
-			env.append_value('LIB_PYEMBED', [lib])"""
 
 	if Options.platform != 'darwin' and python_LDFLAGS:
 		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())
