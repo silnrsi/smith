@@ -17,6 +17,7 @@ c_compiler = {
 'irix':   ['gcc'],
 'hpux':   ['gcc'],
 'gnu':    ['gcc'],
+'java':   ['gcc', 'msvc', 'icc'],
 'default':['gcc'],
 }
 

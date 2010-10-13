@@ -17,6 +17,7 @@ cxx_compiler = {
 'irix':   ['g++'],
 'hpux':   ['g++'],
 'gnu':    ['g++'],
+'java':   ['g++', 'msvc', 'icpc'],
 'default': ['g++']
 }
 
