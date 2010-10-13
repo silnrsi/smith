@@ -83,15 +83,15 @@ def setup_msvc(conf, versions):
 			for target in platforms:
 				try:
 					arch,(p1,p2,p3) = targets[target]
-					compiler,version = version.split()
-					return compiler,p1,p2,p3
+					compiler,revision = version.split()
+					return compiler,revision,p1,p2,p3
 				except KeyError: continue
 		except KeyError: continue
 	conf.fatal('msvc: Impossible to find a valid architecture for building (in setup_msvc)')
 
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
-	debug('msvc: get_msvc_version: ' + compiler + ' ' + version + ' ' + target + ' ...')
+	debug('msvc: get_msvc_version: %r %r %r', compiler, version, target)
 	batfile = conf.bldnode.make_node('waf-print-msvc.bat')
 	batfile.write("""@echo off
 set INCLUDE=
@@ -108,7 +108,7 @@ echo LIB=%%LIB%%
 		if lines[0].find(x) != -1:
 			break
 	else:
-		debug('msvc: get_msvc_version: %r %r %r -> not found' % (compiler, version, target))
+		debug('msvc: get_msvc_version: %r %r %r -> not found', compiler, version, target)
 		conf.fatal('msvc: Impossible to find a valid architecture for building (in get_msvc_version)')
 
 	for line in lines[1:]:
@@ -140,7 +140,7 @@ echo LIB=%%LIB%%
 		debug(str(e))
 		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
 	else:
-		debug('msvc: get_msvc_version: %r %r %r -> OK' % (compiler, version, target))
+		debug('msvc: get_msvc_version: %r %r %r -> OK', compiler, version, target)
 
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
@@ -298,10 +298,11 @@ def gather_icl_versions(conf, versions):
 @conf
 def get_msvc_versions(conf):
 	if not conf.env['MSVC_INSTALLED_VERSIONS']:
-		conf.env['MSVC_INSTALLED_VERSIONS'] = []
-		conf.gather_msvc_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
-		conf.gather_wsdk_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
-		conf.gather_icl_versions(conf.env['MSVC_INSTALLED_VERSIONS'])
+		lst = []
+		conf.gather_msvc_versions(lst)
+		conf.gather_wsdk_versions(lst)
+		conf.gather_icl_versions(lst)
+		conf.env['MSVC_INSTALLED_VERSIONS'] = lst
 	return conf.env['MSVC_INSTALLED_VERSIONS']
 
 @conf
@@ -449,7 +450,7 @@ link_add_flags
 @conf
 def autodetect(conf):
 	v = conf.env
-	compiler, path, includes, libdirs = detect_msvc(conf)
+	compiler, version, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
@@ -475,19 +476,19 @@ def find_msvc(conf):
 
 	v = conf.env
 
-	compiler, path, includes, libdirs = detect_msvc(conf)
+	compiler, version, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
+	has_msvc_manifest = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)    or (compiler == 'intel' and float(version) >= 11)
 
 	# compiler
 	cxx = None
 	if v['CXX']: cxx = v['CXX']
 	elif 'CXX' in conf.environ: cxx = conf.environ['CXX']
-	if not cxx: cxx = conf.find_program(compiler_name, var='CXX', path_list=path)
-	if not cxx: conf.fatal('%s was not found (compiler)' % compiler_name)
+	cxx = conf.find_program(compiler_name, var='CXX', path_list=path)
 	cxx = conf.cmd_to_list(cxx)
 
 	# before setting anything, check if the compiler is really msvc
@@ -501,7 +502,7 @@ def find_msvc(conf):
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
 	# environment flags
-	try: v.prepend_value('INCLUDES', conf.environ['INCLUDE'])
+	try: v.prepend_value('INCLUDES', conf.environ['INCLUDE']) # notice the 'S'
 	except KeyError: pass
 	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
 	except KeyError: pass
@@ -523,9 +524,8 @@ def find_msvc(conf):
 		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	manifesttool = conf.find_program('MT', path_list=path)
-	if manifesttool:
-		v['MT'] = [manifesttool]
+	if has_msvc_manifest:
+		mt = conf.find_program('MT', path_list=path, var='MT')
 		v['MTFLAGS'] = ['/NOLOGO']
 
 	conf.load('winres')
