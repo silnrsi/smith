@@ -411,10 +411,7 @@ def load_module(file_path):
 	module_dir = os.path.dirname(file_path)
 	sys.path.insert(0, module_dir)
 
-	try:
-		exec(compile(code, file_path, 'exec'), module.__dict__)
-	except Exception as e:
-		raise Errors.WafError(ex=e)
+	exec(compile(code, file_path, 'exec'), module.__dict__)
 	sys.path.remove(module_dir)
 
 	cache_modules[file_path] = module
