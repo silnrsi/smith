@@ -50,7 +50,7 @@ def configure(conf):
 def options(opt):
 	global c_compiler
 	build_platform = Utils.unversioned_sys_platform()
-	possible_compiler_list = c_compiler.get(build_platform in c_compiler or 'default')
+	possible_compiler_list = c_compiler[build_platform in c_compiler and build_platform or 'default']
 	test_for_compiler = ' '.join(possible_compiler_list)
 	cc_compiler_opts = opt.add_option_group("C Compiler Options")
 	cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
