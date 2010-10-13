@@ -100,9 +100,13 @@ def parse_flags(self, line, uselib, env=None):
 			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-Wl'):
 			app('LINKFLAGS_' + uselib, [x])
-		elif x.startswith('-m') or x.startswith('-f'):
+		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
 			app('CCFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
+		elif x.startswith('-arch') or x.startswith('-isysroot'):
+			tmp = [x, lst.pop(0)]
+			app('CCFLAGS_' + uselib, tmp)
+			app('CXXFLAGS_' + uselib, tmp)
 
 @conf
 def ret_msg(self, f, kw):
