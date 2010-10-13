@@ -229,7 +229,7 @@ class Context(ctx):
 		if self.logger:
 			self.logger.info(var)
 		else:
-			sys.stderr.write(var)
+			sys.stderr.write(str(var))
 
 	def exec_command(self, cmd, **kw):
 		"""

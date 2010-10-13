@@ -139,7 +139,7 @@ class OptionsContext(Context.Context):
 						count = int(os.sysconf('SC_NPROCESSORS_ONLN'))
 					elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
 						count = int(os.sysconf('SC_NPROCESSORS_CONF'))
-				else:
+				elif os.name != 'java':
 					tmp = self.cmd_and_log(['sysctl', '-n', 'hw.ncpu'])
 					if re.match('^[0-9]+$', tmp):
 						count = int(tmp)
