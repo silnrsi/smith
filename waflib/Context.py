@@ -197,10 +197,7 @@ class Context(ctx):
 				self.pre_recurse(node)
 				function_code = node.read('rU')
 
-				try:
-					exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
-				except Exception as e:
-					raise Errors.WafError(ex=e)
+				exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
 				self.post_recurse(node)
 
 			else:
