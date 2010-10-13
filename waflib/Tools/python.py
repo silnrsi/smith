@@ -147,59 +147,41 @@ def check_python_headers(conf):
 	if not python:
 		conf.fatal('could not find the python executable')
 
+	v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET LDSHARED'.split()
 	try:
-		# Get some python configuration variables using distutils
-		v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET'.split()
-		(python_prefix, python_SO, python_SYSLIBS, python_LDFLAGS, python_SHLIBS,
-		 python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED,
-		 python_MACOSX_DEPLOYMENT_TARGET) = \
-			conf.get_python_variables(python, ["get_config_var('%s')" % x for x in v],
-					      ['from distutils.sysconfig import get_config_var'])
+		lst = conf.get_python_variables(python, ["get_config_var('%s')" % x for x in v],
+			['from distutils.sysconfig import get_config_var'])
 	except RuntimeError:
 		conf.fatal("Python development headers not found (-v for details).")
 
-	conf.to_log("""Configuration returned from %r:
-python_prefix = %r
-python_SO = %r
-python_SYSLIBS = %r
-python_LDFLAGS = %r
-python_SHLIBS = %r
-python_LIBDIR = %r
-python_LIBPL = %r
-INCLUDEPY = %r
-Py_ENABLE_SHARED = %r
-MACOSX_DEPLOYMENT_TARGET = %r
-""" % (python, python_prefix, python_SO, python_SYSLIBS, python_LDFLAGS, python_SHLIBS,
-	python_LIBDIR, python_LIBPL, INCLUDEPY, Py_ENABLE_SHARED, python_MACOSX_DEPLOYMENT_TARGET))
+	vals = ['%s = %r' % (x, y) for (x, y) in zip(v, lst)]
+	conf.to_log("Configuration returned from %r:\n%r\n" % (python, '\n'.join(vals)))
 
-	if python_MACOSX_DEPLOYMENT_TARGET:
-		conf.env['MACOSX_DEPLOYMENT_TARGET'] = python_MACOSX_DEPLOYMENT_TARGET
-		conf.environ['MACOSX_DEPLOYMENT_TARGET'] = python_MACOSX_DEPLOYMENT_TARGET
+	dct = dict(zip(v, lst))
+	x = 'MACOSX_DEPLOYMENT_TARGET'
+	if dct[x]:
+		conf.env[x] = conf.environ[x] = dct[x]
 
-	env['pyext_PATTERN'] = '%s'+python_SO
+	env['pyext_PATTERN'] = '%s' + dct['SO'] # not a mistake
 
 	# Check for python libraries for embedding
-	conf.parse_flags(python_SYSLIBS + ' ' + python_SHLIBS, 'PYEMBED')
-
-	if Options.platform != 'darwin' and python_LDFLAGS:
-		env.append_value('LINKFLAGS_PYEMBED', python_LDFLAGS.split())
+	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'] + ' ' + dct['LDSHARED'], 'PYEMBED')
 
 	result = None
 	name = 'python' + env['PYTHON_VERSION']
 
-	if python_LIBDIR is not None:
-		path = [python_LIBDIR]
-		conf.to_log("\n\n# Trying LIBDIR: %r\n" % path)
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+	path = [dct['LIBDIR'] or '']
+	conf.to_log("\n\n# Trying LIBDIR: %r\n" % path)
+	result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
-	if not result and python_LIBPL is not None:
+	if not result:
 		conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
-		path = [python_LIBPL]
+		path = [dct['LIBPL'] or '']
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
 	if not result:
 		conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
-		path = [os.path.join(python_prefix, "libs")]
+		path = [os.path.join(dct['PREFIX'], "libs")]
 		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
@@ -212,7 +194,7 @@ MACOSX_DEPLOYMENT_TARGET = %r
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
 	if (sys.platform == 'win32' or sys.platform.startswith('os2')
-		or sys.platform == 'darwin' or Py_ENABLE_SHARED):
+		or sys.platform == 'darwin' or dct['Py_ENABLE_SHARED']):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
