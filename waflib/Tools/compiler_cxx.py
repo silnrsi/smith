@@ -54,5 +54,5 @@ def options(opt):
 		dest="check_cxx_compiler")
 
 	for x in test_for_compiler.split():
-		opt.load('%s' % x, option_group=cxx_compiler_opts)
+		opt.load('%s' % x)
 

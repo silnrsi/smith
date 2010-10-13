@@ -55,5 +55,5 @@ def options(opt):
 		dest="check_fc")
 
 	for compiler in test_for_compiler.split():
-		opt.load('%s' % compiler, option_group=fortran_compiler_opts)
+		opt.load('%s' % compiler)
 

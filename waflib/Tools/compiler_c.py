@@ -56,7 +56,6 @@ def options(opt):
 	cc_compiler_opts.add_option('--check-c-compiler', default="%s" % test_for_compiler,
 		help='On this platform (%s) the following C-Compiler will be checked by default: "%s"' % (build_platform, test_for_compiler),
 		dest="check_c_compiler")
-
 	for x in test_for_compiler.split():
-		opt.load('%s' % x)# TODO, option_group=cc_compiler_opts)
+		opt.load('%s' % x)
 

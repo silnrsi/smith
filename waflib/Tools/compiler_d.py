@@ -32,5 +32,5 @@ def options(opt):
 	d_compiler_opts.add_option('--check-d-compiler', default='gdc,dmd', action='store',
 		help='check for the compiler [Default:gdc,dmd]', dest='dcheck')
 	for d_compiler in ['gdc', 'dmd']:
-		opt.load('%s' % d_compiler, option_group=d_compiler_opts)
+		opt.load('%s' % d_compiler)
 
