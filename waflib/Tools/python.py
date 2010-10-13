@@ -147,7 +147,7 @@ def check_python_headers(conf):
 	if not python:
 		conf.fatal('could not find the python executable')
 
-	v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET LDSHARED CFLAGS'.split()
+	v = 'prefix SO SYSLIBS LDFLAGS SHLIBS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET LDSHARED CCSHARED'.split()
 	try:
 		lst = conf.get_python_variables(python, ["get_config_var('%s')" % x for x in v],
 			['from distutils.sysconfig import get_config_var'])
@@ -166,7 +166,7 @@ def check_python_headers(conf):
 
 	# Check for python libraries for embedding
 	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'], 'PYEMBED')
-	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS'], 'PYEXT')
+	conf.parse_flags(dct['SYSLIBS'] + ' ' + dct['SHLIBS'] + ' ' + dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CCSHARED'], 'PYEXT')
 
 	result = None
 	name = 'python' + env['PYTHON_VERSION']
