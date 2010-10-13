@@ -107,6 +107,7 @@ def parse_flags(self, line, uselib, env=None):
 			tmp = [x, lst.pop(0)]
 			app('CCFLAGS_' + uselib, tmp)
 			app('CXXFLAGS_' + uselib, tmp)
+			app('LINKFLAGS_' + uselib, tmp)
 
 @conf
 def ret_msg(self, f, kw):
