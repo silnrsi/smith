@@ -17,7 +17,7 @@ def configure(conf):
 
 	if sys.platform != 'win32':
 		conf.env.DEFINES_TEST    = ['TEST']
-		conf.env.CCFLAGS_TEST    = ['-O0']
+		conf.env.CFLAGS_TEST     = ['-O0']
 		conf.env.LIB_TEST        = ['m']
 		conf.env.LIBPATH_TEST    = ['/usr/lib']
 		conf.env.LINKFLAGS_TEST  = ['-g']
