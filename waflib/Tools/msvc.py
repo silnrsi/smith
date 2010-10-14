@@ -527,6 +527,7 @@ def find_msvc(conf):
 	if has_msvc_manifest:
 		mt = conf.find_program('MT', path_list=path, var='MT')
 		v['MTFLAGS'] = ['/NOLOGO']
+		v.MSVC_MANIFEST = has_msvc_manifest
 
 	conf.load('winres')
 
