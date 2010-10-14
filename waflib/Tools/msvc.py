@@ -142,6 +142,7 @@ echo LIB=%%LIB%%
 	else:
 		debug('msvc: get_msvc_version: %r %r %r -> OK', compiler, version, target)
 
+	conf.env[compiler_name] = ''
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
 @conf
@@ -210,15 +211,18 @@ def gather_msvc_versions(conf, versions):
 					supported_wince_platforms.append((device, platforms))
 	# checks MSVC
 	version_pattern = re.compile('^..?\...?')
-	for vcver,vcvar in [('VCExpress','exp'), ('VisualStudio','')]:
+	for vcver,vcvar in [('VCExpress','Exp'), ('VisualStudio','')]:
 		try:
-			all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Microsoft\\'+vcver)
+			prefix = 'SOFTWARE\\Wow6432node\\Microsoft\\'+vcver
+			all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, prefix)
 		except WindowsError:
 			try:
-				all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\'+vcver)
+				prefix = 'SOFTWARE\\Microsoft\\'+vcver
+				all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, prefix)
 			except WindowsError:
 				continue
 		index = 0
+		detected_versions = []
 		while 1:
 			try:
 				version = _winreg.EnumKey(all_versions, index)
@@ -227,39 +231,46 @@ def gather_msvc_versions(conf, versions):
 			index = index + 1
 			if not version_pattern.match(version):
 				continue
-			try:
-				msvc_version = _winreg.OpenKey(all_versions, version + "\\Setup\\VS")
-				path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
-				path=str(path)
-				targets = []
-				if ce_sdk:
-					for device,platforms in supported_wince_platforms:
-						cetargets = []
-						for platform,compiler,include,lib in platforms:
-							winCEpath = os.path.join(path, 'VC', 'ce')
-							if os.path.isdir(winCEpath):
-								common_bindirs,_1,_2 = conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat'))
-								if os.path.isdir(os.path.join(winCEpath, 'lib', platform)):
-									bindirs = [os.path.join(winCEpath, 'bin', compiler), os.path.join(winCEpath, 'bin', 'x86_'+compiler)] + common_bindirs
-									incdirs = [include, os.path.join(winCEpath, 'include'), os.path.join(winCEpath, 'atlmfc', 'include')]
-									libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
-									cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
-						versions.append((device+' '+version, cetargets))
-				if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
-					for target,realtarget in all_msvc_platforms[::-1]:
-						try:
-							targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
-						except:
-							pass
-				elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
+			if version.endswith('Exp'):
+				versionnumber = float(version[:-3])
+			else:
+				versionnumber = float(version)
+			detected_versions.append((versionnumber, version, prefix+"\\"+version))
+	detected_versions.sort(key = lambda (x,y,z):x)
+	for (v,version,reg) in detected_versions:
+		try:
+			msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\VS")
+			path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
+			path=str(path)
+			targets = []
+			if ce_sdk:
+				for device,platforms in supported_wince_platforms:
+					cetargets = []
+					for platform,compiler,include,lib in platforms:
+						winCEpath = os.path.join(path, 'VC', 'ce')
+						if os.path.isdir(winCEpath):
+							common_bindirs,_1,_2 = conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat'))
+							if os.path.isdir(os.path.join(winCEpath, 'lib', platform)):
+								bindirs = [os.path.join(winCEpath, 'bin', compiler), os.path.join(winCEpath, 'bin', 'x86_'+compiler)] + common_bindirs
+								incdirs = [include, os.path.join(winCEpath, 'include'), os.path.join(winCEpath, 'atlmfc', 'include')]
+								libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
+								cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
+					versions.append((device+' '+version, cetargets))
+			if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
+				for target,realtarget in all_msvc_platforms[::-1]:
 					try:
-						targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
-					except conf.errors.ConfigurationError:
+						targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
+					except:
 						pass
-				versions.append(('msvc '+version, targets))
+			elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
+				try:
+					targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
+				except conf.errors.ConfigurationError:
+					pass
+			versions.append(('msvc '+version, targets))
 
-			except WindowsError:
-				continue
+		except WindowsError:
+			continue
 
 @conf
 def gather_icl_versions(conf, versions):
@@ -299,9 +310,9 @@ def gather_icl_versions(conf, versions):
 def get_msvc_versions(conf):
 	if not conf.env['MSVC_INSTALLED_VERSIONS']:
 		lst = []
-		conf.gather_msvc_versions(lst)
-		conf.gather_wsdk_versions(lst)
 		conf.gather_icl_versions(lst)
+		conf.gather_wsdk_versions(lst)
+		conf.gather_msvc_versions(lst)
 		conf.env['MSVC_INSTALLED_VERSIONS'] = lst
 	return conf.env['MSVC_INSTALLED_VERSIONS']
 
