@@ -83,11 +83,11 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.env['CCFLAGS'] = ['-g'] <1>
-	ctx.env.CCFLAGS = ['-g'] <2>
+	ctx.env['CFLAGS'] = ['-g'] <1>
+	ctx.env.CFLAGS = ['-g'] <2>
 	ctx.env.append_value('CXXFLAGS', ['-O2', '-g']) <3>
-	ctx.env.append_unique('CCFLAGS', ['-g', '-O2'])
-	ctx.env.prepend_value('CCFLAGS', ['-O3']) <4>
+	ctx.env.append_unique('CFLAGS', ['-g', '-O2'])
+	ctx.env.prepend_value('CFLAGS', ['-O3']) <4>
 
 	print(type(ctx.env))
 	print(ctx.env)
@@ -105,13 +105,13 @@ The execution will produce the following output:
 ---------------
 $ waf configure
 <class 'waflib.ConfigSet.ConfigSet'> <1>
-'CCFLAGS' ['-O3', '-g', '-O2'] <2>
+'CFLAGS' ['-O3', '-g', '-O2'] <2>
 'CXXFLAGS' ['-O2', '-g']
 'PREFIX' '/usr/local'
 [] <3>
 
 $ cat build/c4che/_cache.py <4>
-CCFLAGS = ['-O3', '-g', '-O2']
+CFLAGS = ['-O3', '-g', '-O2']
 CXXFLAGS = ['-O2', '-g']
 PREFIX = '/usr/local'
 ---------------

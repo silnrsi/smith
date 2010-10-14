@@ -228,7 +228,7 @@ def configure(ctx):
 def build(ctx):
     tg = ctx(features='cc', source='main.c')
     if ctx.cmd == 'debug':
-        tg.ccflags = ['-g']
+        tg.cflags = ['-g']
 
 from waflib.Build import BuildContext, CleanContext
 class debug_build(BuildContext):
@@ -422,10 +422,10 @@ image::cls.eps["Class hierarchy",width=420,align="center"]
 
 The uselib attribute processing has been split from the local library processing. The main operations are the following:
 
-. the variables names are extracted from the task generator attribute 'features', for example 'CCFLAGS' and 'LINKFLAGS'
-. for each variable, the task generator attributes in lowercase are processed, for example the contents of 'tg.ccflags' is added to 'tg.env.CCFLAGS'
-. for each feature, the corresponding variables are added if they are set, for example, if 'tg.features = "cc cprogram"' is set, then 'cc_CCFLAGS' and 'cshlib_CCFLAGS' are added to 'tg.env.CCFLAGS'
-. for each variable defined in the task generator attribute 'uselib', add the corresponding variable, for example, if 'tg.uselib = "M"' is set, then 'tg.env.CCFLAGS_M' is added to 'tg.env.CCFLAGS'
+. the variables names are extracted from the task generator attribute 'features', for example 'CFLAGS' and 'LINKFLAGS'
+. for each variable, the task generator attributes in lowercase are processed, for example the contents of 'tg.cflags' is added to 'tg.env.CFLAGS'
+. for each feature, the corresponding variables are added if they are set, for example, if 'tg.features = "cc cprogram"' is set, then 'cc_CFLAGS' and 'cshlib_CFLAGS' are added to 'tg.env.CFLAGS'
+. for each variable defined in the task generator attribute 'uselib', add the corresponding variable, for example, if 'tg.uselib = "M"' is set, then 'tg.env.CFLAGS_M' is added to 'tg.env.CFLAGS'
 
 The variable names are defined in 'waflib.Tools.ccroot.USELIB_VARS' and are bound to the feature names.
 

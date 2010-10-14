@@ -90,7 +90,7 @@ def build(bld):
 		vnum         = '1.2.3',
 
 		install_path = '${SOME_PATH}/bin', <9>
-		ccflags      = ['-O2', '-Wall'], <10>
+		cflags       = ['-O2', '-Wall'], <10>
 		cxxflags     = ['-O3'],
 		dflags       = ['-g'],
 	)
@@ -378,12 +378,12 @@ Here is how to enable specific compilation flags for particular files:
 def build(bld):
 	bld.objects( <1>
 		source  = 'test.c',
-		ccflags = '-O3',
+		cflags  = '-O3',
 		target  = 'my_objs')
 
 	bld.shlib(
 		source  = 'a.c',
-		ccflags = '-O2', <2>
+		cflags  = '-O2', <2>
 		target  = 'lib1',
 		use     = 'my_objs') <3>
 
@@ -432,7 +432,7 @@ def configure(conf):
 
 	if sys.platform != 'win32': <2>
 		conf.env.DEFINES_TEST   = ['TEST']
-		conf.env.CCFLAGS_TEST   = ['-O0'] <3>
+		conf.env.CFLAGS_TEST   = ['-O0'] <3>
 		conf.env.LIB_TEST       = ['m']
 		conf.env.LIBPATH_TEST   = ['/usr/lib']
 		conf.env.LINKFLAGS_TEST = ['-g']
@@ -465,7 +465,7 @@ The variables used for C/C++ are the following:
 |LIBPATH  |libpath  | list of search path for shared and static libraries
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
 |CXXFLAGS |cxxflags | flags to use for c++ files
-|CCFLAGS  |ccflags  | flags to use for c files
+|CFLAGS   |cflags   | flags to use for c files
 |DFLAGS   |dflags   | flags to use for d files
 |INCLUDES |includes | include paths
 |CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
@@ -502,7 +502,7 @@ def configure(conf):
 	conf.check(header_name='time.h', compile_mode='cc') <1>
 	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=True) <2>
 	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah") <3>
-	conf.check_cc(lib='m', ccflags='-Wall', defines=['var=foo', 'x=y'],
+	conf.check_cc(lib='m', cflags='-Wall', defines=['var=foo', 'x=y'],
 		uselib_store='M') <4>
 	conf.check_cxx(lib='linux', use='M', cxxflags='-O2') <5>
 
@@ -520,7 +520,7 @@ def configure(conf):
 <1> Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define HAVE_TIME_H will be added
 <2> Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). The parameter mandatory will make the test raise an exception if it fails. Note that convenience methods 'check_cc' and 'check_cxx' only define the compilation mode 'compile_mode'
 <3> Try to compile a piece of code, and if the test is successful, define the name boobah
-<4> Modifications made to the task generator environment are not stored. When the test is successful and when the attribute uselib_store is provided, the names lib, cflags and defines will be converted into _use variables_ LIB_M, CCFLAGS_M and DEFINES_M and the flag values are added to the configuration environment.
+<4> Modifications made to the task generator environment are not stored. When the test is successful and when the attribute uselib_store is provided, the names lib, cflags and defines will be converted into _use variables_ LIB_M, CFLAGS_M and DEFINES_M and the flag values are added to the configuration environment.
 <5> Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm by _use_
 <6> Execute a simple program, collect the output, and put it in a define when successful
 <7> After all the tests are executed, write a configuration header in the build directory (optional). The configuration header is used to limit the size of the command-line.
@@ -547,7 +547,7 @@ The file +_cache.py+ will contain the following variables:
 ---------------
 DEFINES_M = ['var=foo', 'x=y']
 CXXFLAGS_M = ['-Wall']
-CCFLAGS_M = ['-Wall']
+CFLAGS_M = ['-Wall']
 LIB_M = ['m']
 boobah = 1
 booeah = '4'
@@ -725,8 +725,8 @@ After such a configuration, the configuration set contents will be similar to th
 
 [source,python]
 ---------------
-'CCFLAGS_OPEN_MPI' ['-pthread']
-'CCFLAGS_PANGO' ['-pthread']
+'CFLAGS_OPEN_MPI' ['-pthread']
+'CFLAGS_PANGO' ['-pthread']
 'CXXFLAGS_OPEN_MPI' ['-pthread']
 'CXXFLAGS_PANGO' ['-pthread']
 'DEFINES' ['HAVE_PANGO=1', 'HAVE_MYPANGO=1', 'HAVE_SDL=1', 'HAVE_OPEN_MPI=1']

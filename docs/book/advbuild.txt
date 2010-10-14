@@ -350,11 +350,11 @@ def options(opt):
 def configure(conf):
 	conf.setenv('debug') <1>
 	conf.load('compiler_c')
-	conf.env.CCFLAGS = ['-g'] <2>
+	conf.env.CFLAGS = ['-g'] <2>
 
 	conf.setenv('release')
 	conf.load('compiler_c')
-	conf.env.CCFLAGS = ['-O2']
+	conf.env.CFLAGS = ['-O2']
 
 def build(bld):
 	if not bld.variant: <3>
