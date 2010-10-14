@@ -29,7 +29,7 @@ def configure(conf):
 	conf.write_config_header('debug/config.h', remove=False)
 
 	conf.setenv('release', env=conf.env.derive()) # start with a copy instead of a new env
-	conf.env.CCFLAGS = ['-O2']
+	conf.env.CFLAGS = ['-O2']
 	conf.options.prefix = '/opt' # warning: this changes the options globally
 	conf.load('compiler_c')
 	conf.define('E', 1)
