@@ -482,7 +482,7 @@ def find_msvc(conf):
 	v['LIBPATH'] = libdirs
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
-	has_msvc_manifest = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6)	or (compiler == 'intel' and float(version) >= 11)
+	v.MSVC_MANIFEST = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6) or (compiler == 'intel' and float(version) >= 11)
 
 	# compiler
 	cxx = None
@@ -524,10 +524,9 @@ def find_msvc(conf):
 		v['ARFLAGS'] = ['/NOLOGO']
 
 	# manifest tool. Not required for VS 2003 and below. Must have for VS 2005 and later
-	if has_msvc_manifest:
+	if v.MSVC_MANIFEST:
 		mt = conf.find_program('MT', path_list=path, var='MT')
 		v['MTFLAGS'] = ['/NOLOGO']
-		v.MSVC_MANIFEST = has_msvc_manifest
 
 	conf.load('winres')
 
@@ -684,8 +683,6 @@ def exec_mf(self):
 	#	manifest, outfile, mode)
 	lst = [lst]
 	return self.exec_command(*lst)
-
-msvc_manifest = Task.task_factory('msvc_manifest', vars=['MT', 'MTFLAGS'], color='BLUE', func=exec_mf, ext_in='.bin')
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
