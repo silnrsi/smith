@@ -577,7 +577,9 @@ def msvc_common_flags(conf):
 	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 	v['STLIBPATH_ST'] = '/LIBPATH:%s'
 
-	v['LINKFLAGS']            = ['/NOLOGO', '/MANIFEST']
+	v['LINKFLAGS']            = ['/NOLOGO']
+	if v['MSVC_MANIFEST']:
+		v.append_value('LINKFLAGS', '/MANIFEST')
 
 	# shared library
 	v['CCFLAGS_cshlib']  = ['']
