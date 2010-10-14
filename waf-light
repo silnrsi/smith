@@ -137,13 +137,13 @@ def find_lib():
 		if w: return w
 		err('waf-light requires waflib -> export WAFDIR=/folder')
 
-	dirname = '%s-%s-%s' % (WAF, VERSION, REVISION)
+	dirname = '.%s-%s-%s' % (WAF, VERSION, REVISION)
 	for i in [INSTALL,'/usr','/usr/local','/opt']:
 		w = test(i + '/lib/' + dirname)
 		if w: return w
 
 	#waf-local
-	dir = join(base, (sys.platform != 'win32' and '.' or '') + dirname)
+	dir = join(base, dirname)
 	w = test(dir)
 	if w: return w
 
