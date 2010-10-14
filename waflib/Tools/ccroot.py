@@ -12,7 +12,7 @@ from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
 from waflib.Configure import conf
 
 USELIB_VARS = Utils.defaultdict(set)
-USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CCFLAGS'])
+USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CFLAGS'])
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 

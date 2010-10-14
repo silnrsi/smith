@@ -550,7 +550,7 @@ def msvc_common_flags(conf):
 
 	v['DEST_BINFMT'] = 'pe'
 	v['LIBDIR'] = v['PREFIX'] + r'\bin'
-	v['CCFLAGS'] = v['CXXFLAGS'] = ['/nologo']
+	v['CFLAGS'] = v['CXXFLAGS'] = ['/nologo']
 	v['DEFINES_ST']     = '/D%s'
 
 	v['CC_SRC_F']     = ''
@@ -563,18 +563,18 @@ def msvc_common_flags(conf):
 	v['AR_TGT_F'] = v['CCLNK_TGT_F'] = v['CXXLNK_TGT_F'] = '/OUT:'
 
 	# Subsystem specific flags
-	v['CCFLAGS_CONSOLE']   = v['CXXFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
-	v['CCFLAGS_NATIVE']    = v['CXXFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
-	v['CCFLAGS_POSIX']     = v['CXXFLAGS_POSIX']     = ['/SUBSYSTEM:POSIX']
-	v['CCFLAGS_WINDOWS']   = v['CXXFLAGS_WINDOWS']   = ['/SUBSYSTEM:WINDOWS']
-	v['CCFLAGS_WINDOWSCE'] = v['CXXFLAGS_WINDOWSCE'] = ['/SUBSYSTEM:WINDOWSCE']
+	v['CFLAGS_CONSOLE']   = v['CXXFLAGS_CONSOLE']   = ['/SUBSYSTEM:CONSOLE']
+	v['CFLAGS_NATIVE']    = v['CXXFLAGS_NATIVE']    = ['/SUBSYSTEM:NATIVE']
+	v['CFLAGS_POSIX']     = v['CXXFLAGS_POSIX']     = ['/SUBSYSTEM:POSIX']
+	v['CFLAGS_WINDOWS']   = v['CXXFLAGS_WINDOWS']   = ['/SUBSYSTEM:WINDOWS']
+	v['CFLAGS_WINDOWSCE'] = v['CXXFLAGS_WINDOWSCE'] = ['/SUBSYSTEM:WINDOWSCE']
 
 	# CRT specific flags
-	v['CCFLAGS_CRT_MULTITHREADED']     = v['CXXFLAGS_CRT_MULTITHREADED']     = ['/MT']
-	v['CCFLAGS_CRT_MULTITHREADED_DLL'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
+	v['CFLAGS_CRT_MULTITHREADED']     = v['CXXFLAGS_CRT_MULTITHREADED']     = ['/MT']
+	v['CFLAGS_CRT_MULTITHREADED_DLL'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL'] = ['/MD']
 
-	v['CCFLAGS_CRT_MULTITHREADED_DBG']     = v['CXXFLAGS_CRT_MULTITHREADED_DBG']     = ['/MTd']
-	v['CCFLAGS_CRT_MULTITHREADED_DLL_DBG'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
+	v['CFLAGS_CRT_MULTITHREADED_DBG']     = v['CXXFLAGS_CRT_MULTITHREADED_DBG']     = ['/MTd']
+	v['CFLAGS_CRT_MULTITHREADED_DLL_DBG'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
 
 	#v['DEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
 	#v['DEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
@@ -592,7 +592,7 @@ def msvc_common_flags(conf):
 		v.append_value('LINKFLAGS', '/MANIFEST')
 
 	# shared library
-	v['CCFLAGS_cshlib']  = ['']
+	v['CFLAGS_cshlib']  = ['']
 	v['CXXFLAGS_cxxshlib'] = ['']
 	v['LINKFLAGS_cshlib'] = v['LINKFLAGS_cxxshlib'] = ['/DLL']
 	v['cshlib_PATTERN'] = v['cxxshlib_PATTERN'] = '%s.dll'

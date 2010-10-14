@@ -88,7 +88,7 @@ def check_ruby_ext_devel(self):
 	self.env.LIBPATH_RUBYEXT = read_config('libdir')
 	self.env.LIBPATH_RUBYEXT += archdir
 	self.env.INCLUDES_RUBYEXT = cpppath
-	self.env.CCFLAGS_RUBYEXT = read_config('CCDLFLAGS')
+	self.env.CFLAGS_RUBYEXT = read_config('CCDLFLAGS')
 	self.env.rubyext_PATTERN = '%s.' + read_config('DLEXT')[0]
 
 	# ok this is really stupid, but the command and flags are combined.

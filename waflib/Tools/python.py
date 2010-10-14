@@ -240,8 +240,8 @@ def check_python_headers(conf):
 
 	# Code using the Python API needs to be compiled with -fno-strict-aliasing
 	if env['CC_NAME'] == 'gcc':
-		env.append_value('CCFLAGS_PYEMBED', ['-fno-strict-aliasing'])
-		env.append_value('CCFLAGS_PYEXT', ['-fno-strict-aliasing'])
+		env.append_value('CFLAGS_PYEMBED', ['-fno-strict-aliasing'])
+		env.append_value('CFLAGS_PYEXT', ['-fno-strict-aliasing'])
 	if env['CXX_NAME'] == 'gcc':
 		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])

@@ -87,7 +87,7 @@ def parse_flags(self, line, uselib, env=None):
 			if not ot: ot = lst.pop(0)
 			app('LIBPATH_' + uselib, [ot])
 		elif x == '-pthread' or x.startswith('+'):
-			app('CCFLAGS_' + uselib, [x])
+			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
 			app('LINKFLAGS_' + uselib, [x])
 		elif x == '-framework':
@@ -95,17 +95,17 @@ def parse_flags(self, line, uselib, env=None):
 		elif x.startswith('-F'):
 			app('FRAMEWORKPATH_' + uselib, [x[2:]])
 		elif x.startswith('-std'):
-			app('CCFLAGS_' + uselib, [x])
+			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
 			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-Wl'):
 			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
-			app('CCFLAGS_' + uselib, [x])
+			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
-			app('CCFLAGS_' + uselib, tmp)
+			app('CFLAGS_' + uselib, tmp)
 			app('CXXFLAGS_' + uselib, tmp)
 			app('LINKFLAGS_' + uselib, tmp)
 
@@ -735,7 +735,7 @@ def get_config_header(self, defines=True, headers=False):
 
 @conf
 def cc_add_flags(conf):
-	conf.add_os_flags('CFLAGS', 'CCFLAGS')
+	conf.add_os_flags('CFLAGS')
 
 @conf
 def cxx_add_flags(conf):

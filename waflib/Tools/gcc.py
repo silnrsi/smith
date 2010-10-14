@@ -45,7 +45,7 @@ def gcc_common_flags(conf):
 	v['cprogram_PATTERN']    = '%s'
 
 	# shared librar
-	v['CCFLAGS_cshlib']      = ['-fPIC']
+	v['CFLAGS_cshlib']      = ['-fPIC']
 	v['LINKFLAGS_cshlib']    = ['-shared']
 	v['cshlib_PATTERN']      = 'lib%s.so'
 
@@ -55,7 +55,7 @@ def gcc_common_flags(conf):
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
-	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
+	v['CFLAGS_MACBUNDLE']   = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
 @conf
@@ -67,9 +67,9 @@ def gcc_modifier_win32(conf):
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
-	v['CCFLAGS_cshlib']      = []
+	v['CFLAGS_cshlib']      = []
 
-	v.append_value('CCFLAGS_cshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
+	v.append_value('CFLAGS_cshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
 	# Auto-import is enabled by default even without this option,
 	# but enabling it explicitly has the nice effect of suppressing the rather boring, debug-level messages
@@ -82,12 +82,12 @@ def gcc_modifier_cygwin(conf):
 	v = conf.env
 	v['cshlib_PATTERN'] = 'cyg%s.dll'
 	v.append_value('LINKFLAGS_cshlib', ['-Wl,--enable-auto-image-base'])
-	v['CCFLAGS_cshlib'] = []
+	v['CFLAGS_cshlib'] = []
 
 @conf
 def gcc_modifier_darwin(conf):
 	v = conf.env
-	v['CCFLAGS_cshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['CFLAGS_cshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_cshlib']    = ['-dynamiclib']
 	v['cshlib_PATTERN']      = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST']    = '-F%s'

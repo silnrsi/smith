@@ -19,8 +19,8 @@ preprocessor_flag = '-MD'
 @feature('cc')
 @before('apply_core')
 def add_mmd_cc(self):
-	if self.env.get_flat('CCFLAGS').find(preprocessor_flag) < 0:
-		self.env.append_value('CCFLAGS', [preprocessor_flag])
+	if self.env.get_flat('CFLAGS').find(preprocessor_flag) < 0:
+		self.env.append_value('CFLAGS', [preprocessor_flag])
 
 @feature('cxx')
 @before('apply_core')

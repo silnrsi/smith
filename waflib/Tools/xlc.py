@@ -45,7 +45,7 @@ def xlc_common_flags(conf):
 	v['cprogram_PATTERN']     = '%s'
 
 	# shared library
-	v['CCFLAGS_cshlib']       = ['-fPIC']
+	v['CFLAGS_cshlib']       = ['-fPIC']
 	v['LINKFLAGS_cshlib']     = ['-G', '-Wl,-brtl,-bexpfull']
 	v['cshlib_PATTERN']       = 'lib%s.so'
 

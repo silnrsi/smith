@@ -81,6 +81,13 @@ Options.Handler = Options.OptionsContext
 Task.simple_task_type = Task.task_type_from_func = Task.task_factory
 Task.TaskBase.classes = Task.classes
 
+def setitem(self, key, value):
+	if key.startswith('CCFLAGS'):
+		key = key[1:]
+		print key, value
+	self.table[key] = value
+ConfigSet.ConfigSet.__setitem__ = setitem
+
 @TaskGen.feature('d')
 @TaskGen.before('apply_incpaths')
 def old_importpaths(self):
@@ -126,6 +133,9 @@ def post(self):
 		Logs.warn('compat: the feature cstaticlib does not exist anymore (use "cstlib" or "cxxstlib")')
 		self.features.remove('cstaticlib')
 		self.features.append(('cxx' in self.features) and 'cxxstlib' or 'cstlib')
+	if getattr(self, 'ccflags', None):
+		Logs.warn('compat: "ccflags" was renamed to "cflags"')
+		self.cflags = self.ccflags
 	return old_post(self)
 TaskGen.task_gen.post = post
 
