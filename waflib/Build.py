@@ -656,7 +656,7 @@ class inst_task(Task.Task):
 		destpath = self.get_install_path()
 		for x, y in zip(self.source, self.inputs):
 			if self.relative_trick:
-				destfile = os.path.join(destpath, x)
+				destfile = os.path.join(destpath, y.path_from(self.path))
 				Utils.check_dir(os.path.dirname(destfile))
 			else:
 				destfile = os.path.join(destpath, y.name)
