@@ -157,30 +157,17 @@ def i_file(self, node):
 	#	tsk.env.append_value('SWIGFLAGS', ['-outdir', node.parent.abspath()])
 
 @conf
-def check_swig_version(self, minver=None):
+def check_swig_version(self):
 	"""Check for a minimum swig version like conf.check_swig_version('1.3.28')
 	or conf.check_swig_version((1,3,28)) """
 	reg_swig = re.compile(r'SWIG Version\s(.*)', re.M)
-
 	swig_out = self.cmd_and_log('%s -version' % self.env['SWIG'])
 
-	swigver = [int(s) for s in reg_swig.findall(swig_out)[0].split('.')]
-	if isinstance(minver, str):
-		minver = [int(s) for s in minver.split(".")]
-	if isinstance(minver, tuple):
-		minver = [int(s) for s in minver]
-	result = (minver is None) or (minver[:3] <= swigver[:3])
-	swigver_full = '.'.join(map(str, swigver))
-	if result:
-		self.env['SWIG_VERSION'] = swigver_full
-	minver_str = '.'.join(map(str, minver))
-	if minver is None:
-		msg = 'swig version'
-	else:
-		msg = 'swig version >= %s' % (minver_str,)
-
-	self.msg(msg, result)
-	return result
+	swigver = tuple([int(s) for s in reg_swig.findall(swig_out)[0].split('.')])
+	self.env['SWIG_VERSION'] = swigver
+	msg = 'Checking for swig version'
+	self.msg(msg, '.'.join(map(str, swigver)))
+	return swigver
 
 def configure(conf):
 	swig = conf.find_program('swig', var='SWIG')
