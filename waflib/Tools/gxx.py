@@ -55,7 +55,7 @@ def gxx_common_flags(conf):
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
-	v['CCFLAGS_MACBUNDLE']   = ['-fPIC']
+	v['CXXFLAGS_MACBUNDLE']   = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
 @conf
