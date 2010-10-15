@@ -66,14 +66,16 @@ def to_incnodes(self, inlst):
 			lst.append(x)
 		else:
 			if os.path.isabs(x):
-				lst.append(self.bld.root.make_node(x))
+				lst.append(self.bld.root.find_dir(x))
 			else:
 				if x[0] == '#':
-					lst.append(self.bld.bldnode.make_node(x[1:]))
-					lst.append(self.bld.srcnode.make_node(x[1:]))
+					lst.append(self.bld.bldnode.find_dir(x[1:]))
+					lst.append(self.bld.srcnode.find_dir(x[1:]))
 				else:
-					lst.append(self.path.get_bld().make_node(x))
-					lst.append(self.path.make_node(x))
+					lst.append(self.path.get_bld().find_dir(x))
+					lst.append(self.path.find_dir(x))
+	# TODO this is ugly
+	lst = [x for x in lst if x]
 	return lst
 
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
