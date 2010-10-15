@@ -47,14 +47,16 @@ def build(ctx):
 
 	if ctx.env.TRY_CGO:
 		# see http://code.google.com/p/go/issues/detail?id=1203
-		# so we have to move the files, grrrrr
+		# so we still have to move the files, grrrrr
 		ctx(name='cgo', rule='${CGO} ${SRC} && mv .._${TGT[0].name} ${TGT[0].abspath()} && mv .._${TGT[1].name} ${TGT[1].abspath()}',
 			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
 			source='gmp.go',
 			shell=True)
 		ctx(features='c cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), use='GMP')
-		ctx.add_group()
-		ctx(features='go goprogram uselib', source='pi.go', target='pi', gocflags=['-I.', '-I..'])
+
+		# go files can only use go packages, so pi.go cannot compile
+		#ctx.add_group()
+		#ctx(features='go goprogram uselib', source='pi.go', target='pi', gocflags=['-I.', '-I..'])
 
 	from waflib import Options, Utils
 	if ctx.env.TRY_CGO and Options.options.exe:
