@@ -29,9 +29,11 @@ class goprogram(link_task):
 def compile_go(self, node):
 	return self.create_compiled_task('go', node)
 
-@feature('gopackage')
+@feature('gopackage', 'goprogram')
 @before('process_source')
-def gopackage_is_foobar(self):
+def go_compiler_is_foobar(self):
+	if self.env.GONAME == 'gcc':
+		return
 	self.source = self.to_nodes(self.source)
 	src = []
 	go = []
@@ -41,7 +43,7 @@ def gopackage_is_foobar(self):
 		else:
 			src.append(node)
 	self.source = src
-	tsk =self.create_compiled_task('go', go[0])
+	tsk = self.create_compiled_task('go', go[0])
 	tsk.inputs.extend(go[1:])
 
 @feature('gopackage', 'goprogram')
