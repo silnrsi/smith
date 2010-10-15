@@ -211,6 +211,7 @@ def gather_msvc_versions(conf, versions):
 					supported_wince_platforms.append((device, platforms))
 	# checks MSVC
 	version_pattern = re.compile('^..?\...?')
+	detected_versions = []
 	for vcver,vcvar in [('VCExpress','Exp'), ('VisualStudio','')]:
 		try:
 			prefix = 'SOFTWARE\\Wow6432node\\Microsoft\\'+vcver
@@ -222,7 +223,6 @@ def gather_msvc_versions(conf, versions):
 			except WindowsError:
 				continue
 		index = 0
-		detected_versions = []
 		while 1:
 			try:
 				version = _winreg.EnumKey(all_versions, index)
@@ -235,6 +235,7 @@ def gather_msvc_versions(conf, versions):
 				versionnumber = float(version[:-3])
 			else:
 				versionnumber = float(version)
+				version += vcvar
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
 	detected_versions.sort(key = lambda (x,y,z):x)
 	for (v,version,reg) in detected_versions:
