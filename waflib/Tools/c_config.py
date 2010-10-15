@@ -105,9 +105,9 @@ def parse_flags(self, line, uselib, env=None):
 			app('CXXFLAGS_' + uselib, [x])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
-			app('CFLAGS_' + uselib, tmp)
-			app('CXXFLAGS_' + uselib, tmp)
-			app('LINKFLAGS_' + uselib, tmp)
+			env.append_all_unique('CFLAGS_' + uselib, tmp)
+			env.append_all_unique('CXXFLAGS_' + uselib, tmp)
+			env.append_all_unique('LINKFLAGS_' + uselib, tmp)
 
 @conf
 def ret_msg(self, f, kw):
