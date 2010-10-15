@@ -539,18 +539,14 @@ class Node(object):
 			lst = [x for x in split_path(lst) if x and x != '.']
 
 		node = self.get_bld().search(lst)
-		if node:
-			return node
-
-		self = self.get_src()
-		node = self.search(lst)
-		if node:
-			return node
-
-		node = self.find_node(lst)
-		if node:
-			return node
-
+		if not node:
+			self = self.get_src()
+			node = self.search(lst)
+			if not node:
+				node = self.find_node(lst)
+		pat = node.abspath()
+		if (not os.path.exists(pat)) or os.path.isdir(pat):
+			return None
 		return node
 
 	def find_or_declare(self, lst):
@@ -588,15 +584,15 @@ class Node(object):
 
 	def find_dir(self, lst):
 		"""
-		search a folder in the filesystem
-		create the corresponding mappings source <-> build directories
+		search for a folder in the filesystem
 		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
 
 		node = self.find_node(lst)
 		try:
-			os.path.isdir(node.abspath())
+			if not os.path.isdir(node.abspath()):
+				return None
 		except (OSError, AttributeError):
 			# the node might be None, and raise an AttributeError
 			return None
