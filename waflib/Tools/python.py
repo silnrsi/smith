@@ -203,7 +203,7 @@ def check_python_headers(conf):
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
 	if (sys.platform == 'win32' or sys.platform.startswith('os2')
-		or dct['Py_ENABLE_SHARED']):
+		or sys.platform == 'darwin' or dct['Py_ENABLE_SHARED']):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
