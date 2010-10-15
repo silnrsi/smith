@@ -545,7 +545,7 @@ class Node(object):
 			if not node:
 				node = self.find_node(lst)
 		pat = node.abspath()
-		if (not os.path.exists(pat)) or os.path.isdir(pat):
+		if os.path.isdir(pat):
 			return None
 		return node
 
