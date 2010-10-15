@@ -90,7 +90,7 @@ def parse_flags(self, line, uselib, env=None):
 		elif st == '-L':
 			if not ot: ot = lst.pop(0)
 			appu('LIBPATH_' + uselib, [ot])
-		elif x == '-pthread' or x.startswith('+') or x.startwith('-std'):
+		elif x == '-pthread' or x.startswith('+') or x.startswith('-std'):
 			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
 			app('LINKFLAGS_' + uselib, [x])
