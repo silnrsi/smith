@@ -52,9 +52,9 @@ def build(ctx):
 			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
 			source='gmp.go',
 			shell=True)
-		ctx(features='c cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), use='GMP')
+		ctx(features='c cshlib', source='gmp.cgo2.c', cflags='-m64', target=ctx.path.find_or_declare('cgo_gmp.so'), use='GMP')
 		ctx.add_group()
-		ctx(features='go goprogram', source='pi.go', target='pi')
+		ctx(features='go goprogram uselib', source='pi.go', target='pi', gocflags=['-I.', '-I..'])
 
 	from waflib import Options, Utils
 	if ctx.env.TRY_CGO and Options.options.exe:
