@@ -67,7 +67,11 @@ def parse_flags(self, line, uselib, env=None):
 
 	env = env or self.env
 
-	app = env.append_unique
+	# append_unique is not always possible
+	# for example, apple flags may require both -arch i386 and -arch ppc
+
+	app = env.append_value
+	appu = env.append_unique
 	lst = shlex.split(line)
 	while lst:
 		x = lst.pop(0)
@@ -76,28 +80,24 @@ def parse_flags(self, line, uselib, env=None):
 
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
-			app('INCLUDES_' + uselib, [ot])
+			appu('INCLUDES_' + uselib, [ot])
 		elif st == '-D':
 			if not ot: ot = lst.pop(0)
 			app('DEFINES_' + uselib, [ot])
 		elif st == '-l':
 			if not ot: ot = lst.pop(0)
-			app('LIB_' + uselib, [ot])
+			appu('LIB_' + uselib, [ot])
 		elif st == '-L':
 			if not ot: ot = lst.pop(0)
-			app('LIBPATH_' + uselib, [ot])
-		elif x == '-pthread' or x.startswith('+'):
+			appu('LIBPATH_' + uselib, [ot])
+		elif x == '-pthread' or x.startswith('+') or x.startwith('-std'):
 			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
 			app('LINKFLAGS_' + uselib, [x])
 		elif x == '-framework':
-			app('FRAMEWORK_' + uselib, [lst.pop(0)])
+			appu('FRAMEWORK_' + uselib, [lst.pop(0)])
 		elif x.startswith('-F'):
-			app('FRAMEWORKPATH_' + uselib, [x[2:]])
-		elif x.startswith('-std'):
-			app('CFLAGS_' + uselib, [x])
-			app('CXXFLAGS_' + uselib, [x])
-			app('LINKFLAGS_' + uselib, [x])
+			appu('FRAMEWORKPATH_' + uselib, [x[2:]])
 		elif x.startswith('-Wl'):
 			app('LINKFLAGS_' + uselib, [x])
 		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
@@ -105,9 +105,9 @@ def parse_flags(self, line, uselib, env=None):
 			app('CXXFLAGS_' + uselib, [x])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
-			env.append_all_unique('CFLAGS_' + uselib, tmp)
-			env.append_all_unique('CXXFLAGS_' + uselib, tmp)
-			env.append_all_unique('LINKFLAGS_' + uselib, tmp)
+			app('CFLAGS_' + uselib, tmp)
+			app('CXXFLAGS_' + uselib, tmp)
+			app('LINKFLAGS_' + uselib, tmp)
 
 @conf
 def ret_msg(self, f, kw):

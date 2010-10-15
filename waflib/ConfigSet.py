@@ -165,24 +165,6 @@ class ConfigSet(object):
 			if x not in current_value:
 				current_value.append(x)
 
-	def append_all_unique(self, var, vals):
-		"""
-		if vals is not a subsequence of var, extends var with vals
-
-		vals must be a list or a tuple
-		"""
-
-		if not isinstance(vals, (list, tuple)):
-			raise TypeError("vals must be a list/tuple")
-		current_value = self._get_list_value_for_modification(var)
-
-		vallen = len(vals)
-		for idx, x in enumerate(current_value):
-			if current_value[idx:idx+vallen] == vals:
-				break
-		else:
-			current_value.extend(vals)
-
 	def get_merged_dict(self):
 		"""compute a merged table"""
 		table_list = []
