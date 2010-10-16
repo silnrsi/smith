@@ -45,7 +45,7 @@ int main() { std::cout << BOOST_VERSION << std::endl; }
 '''
 
 boost_libpath = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
-boost_cpppath = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+boost_includes = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
 
 STATIC_NOSTATIC = 'nostatic'
 STATIC_BOTH = 'both'
@@ -145,7 +145,7 @@ def validate_boost(self, kw):
 	set_default(kw, 'env', self.env)
 
 	set_default(kw, 'libpath', boost_libpath)
-	set_default(kw, 'cpppath', boost_cpppath)
+	set_default(kw, 'includes', boost_includes)
 
 	for x in 'tag_threading tag_version tag_toolset'.split():
 		set_default(kw, x, None)
@@ -171,7 +171,7 @@ def validate_boost(self, kw):
 @conf
 def find_boost_includes(self, kw):
 	"""
-	check every path in kw['cpppath'] for subdir
+	check every path in kw['includes'] for subdir
 	that either starts with boost- or is named boost.
 
 	Then the version is checked and selected accordingly to
@@ -179,13 +179,13 @@ def find_boost_includes(self, kw):
 	selected!
 
 	If no versiontag is set the versiontag is set accordingly to the
-	selected library and CPPPATH_BOOST is set.
+	selected library and INCLUDES_BOOST is set.
 	"""
 	boostPath = getattr(Options.options, 'boostincludes', '')
 	if boostPath:
 		boostPath = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
 	else:
-		boostPath = Utils.to_list(kw['cpppath'])
+		boostPath = Utils.to_list(kw['includes'])
 
 	min_version = string_to_version(kw.get('min_version', ''))
 	max_version = string_to_version(kw.get('max_version', '')) or (sys.maxint - 1)
@@ -219,7 +219,7 @@ def find_boost_includes(self, kw):
 	elif kw['tag_version'] != versiontag:
 		warn('boost header version %r and tag_version %r do not match!' % (versiontag, kw['tag_version']))
 	env = self.env
-	env['CPPPATH_BOOST'] = boost_path
+	env['INCLUDES_BOOST'] = boost_path
 	env['BOOST_VERSION'] = found_version
 	self.found_includes = 1
 	ret = 'Version %s (%s)' % (found_version, boost_path)
@@ -307,7 +307,7 @@ def check_boost(self, *k, **kw):
 	ret = None
 	try:
 		if not kw.get('found_includes', None):
-			self.start_msg(kw.get('msg_includes', 'boost headers'))
+			self.start_msg(kw.get('msg_includes', 'Checking for boost headers'))
 			ret = self.find_boost_includes(kw)
 
 	except Configure.ConfigurationError, e:
