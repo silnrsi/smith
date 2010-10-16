@@ -57,7 +57,7 @@ is_abitag = re.compile('^[sgydpn]+$')
 is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|vc|mgw|qcc|sun|vacpp)\d*$')
 is_pythontag=re.compile('^py[0-9]{2}$')
 
-def set_options(opt):
+def options(opt):
 	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
 	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
 
@@ -85,10 +85,7 @@ def libfiles(lib, pattern, lib_paths):
 @conf
 def get_boost_version_number(self, dir):
 	"""silently retrieve the boost version number"""
-	try:
-		return self.run_c_code(compiler='cxx', code=boost_code, includes=dir, execute=1, env=self.env.copy(), type='cprogram', compile_mode='cxx', compile_filename='test.cpp')
-	except Configure.ConfigurationError, e:
-		return -1
+	return self.check_cxx(fragment=boost_code, includes=[dir], execute=True, define_ret=True)
 
 def set_default(kw, var, val):
 	if not var in kw:
@@ -257,11 +254,11 @@ def find_boost_library(self, lib, kw):
 	(libname, file) = (None, None)
 	if kw['static'] in [STATIC_NOSTATIC, STATIC_BOTH]:
 		st_env_prefix = 'LIB'
-		files = libfiles(lib, v['shlib_PATTERN'], lib_paths)
+		files = libfiles(lib, v['cxxshlib_PATTERN'], lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is None and kw['static'] in [STATIC_ONLYSTATIC, STATIC_BOTH]:
-		st_env_prefix = 'STATICLIB'
-		staticLibPattern = v['staticlib_PATTERN']
+		st_env_prefix = 'STLIB'
+		staticLibPattern = v['cxxstlib_PATTERN']
 		if self.env['CC_NAME'] == 'msvc':
 			staticLibPattern = 'lib' + staticLibPattern
 		files = libfiles(lib, staticLibPattern, lib_paths)
