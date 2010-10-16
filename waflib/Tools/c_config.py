@@ -452,8 +452,10 @@ def post_check(self, *k, **kw):
 
 @conf
 def check(self, *k, **kw):
-	# so this will be the generic function
-	# it will be safer to use check_cxx or check_cc
+	"""
+	It is safer to use check_cxx or check_cc
+	to force a specific compiler
+	"""
 	self.validate_c(kw)
 	self.start_msg(kw['msg'])
 	ret = None
@@ -515,6 +517,8 @@ def run_c_code(self, *k, **kw):
 	def options(opt):
 		opt.add_option('--confcache', dest='confcache', default=0,
 			action='count', help='Use a configuration cache')
+
+	The temporary build context created is kept on self.test_bld for debugging purposes
 	"""
 
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
@@ -548,12 +552,8 @@ def run_c_code(self, *k, **kw):
 	if not os.path.exists(bdir):
 		os.makedirs(bdir)
 
-	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir) # keep the temporary build context on an attribute for debugging
-	if cachemode == COMPILE_ERRORS:
-		# TODO unlikely to be used, remove
-		bld.restore()
-	else:
-		bld.init_dirs()
+	self.test_bld = bld = Build.BuildContext(top_dir=dir, out_dir=bdir)
+	bld.init_dirs()
 	bld.progress_bar = 0
 	bld.targets = '*'
 
