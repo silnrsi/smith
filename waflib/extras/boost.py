@@ -19,6 +19,8 @@
 #	# ... (e.g. conf.load('g++'))
 #	conf.load('boost')
 #   conf.check_boost(lib='signals filesystem', static='onlystatic', score_version=(-1000, 1000), tag_minscore=1000)
+#   conf.check_boost(lib='signals filesystem', score_version=(-1000, 1000), tag_minscore=1000)
+#   # i hate this
 #
 #def build(bld):
 #   bld(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
@@ -222,7 +224,7 @@ def find_boost_includes(self, kw):
 	env['INCLUDES_BOOST'] = boost_path
 	env['BOOST_VERSION'] = found_version
 	self.found_includes = 1
-	ret = 'Version %s (%s)' % (found_version, boost_path)
+	ret = '%s (ver %s)' % (boost_path, found_version)
 	return ret
 
 @conf
@@ -307,7 +309,7 @@ def check_boost(self, *k, **kw):
 	ret = None
 	try:
 		if not kw.get('found_includes', None):
-			self.start_msg(kw.get('msg_includes', 'Checking for boost headers'))
+			self.start_msg(kw.get('msg_includes', 'Checking for boost include path'))
 			ret = self.find_boost_includes(kw)
 
 	except Configure.ConfigurationError, e:
@@ -323,7 +325,7 @@ def check_boost(self, *k, **kw):
 			self.end_msg(kw.get('okmsg_includes', ret))
 
 	for lib in kw['lib']:
-		self.start_msg('library boost_'+lib)
+		self.start_msg('Checking for library boost_'+lib)
 		try:
 			self.find_boost_library(lib, kw)
 		except Configure.ConfigurationError, e:
