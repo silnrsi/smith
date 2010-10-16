@@ -310,12 +310,12 @@ def check_boost(self, *k, **kw):
 	ret = None
 	try:
 		if not kw.get('found_includes', None):
-			self.check_message_1(kw.get('msg_includes', 'boost headers'))
+			self.start_msg(kw.get('msg_includes', 'boost headers'))
 			ret = self.find_boost_includes(kw)
 
 	except Configure.ConfigurationError, e:
 		if 'errmsg' in kw:
-			self.check_message_2(kw['errmsg'], 'YELLOW')
+			self.end_msg(kw['errmsg'], 'YELLOW')
 		if 'mandatory' in kw:
 			if Logs.verbose > 1:
 				raise
@@ -323,16 +323,16 @@ def check_boost(self, *k, **kw):
 				self.fatal('the configuration failed (see %r)' % self.log.name)
 	else:
 		if 'okmsg' in kw:
-			self.check_message_2(kw.get('okmsg_includes', ret))
+			self.end_msg(kw.get('okmsg_includes', ret))
 
 	for lib in kw['lib']:
-		self.check_message_1('library boost_'+lib)
+		self.start_msg('library boost_'+lib)
 		try:
 			self.find_boost_library(lib, kw)
 		except Configure.ConfigurationError, e:
 			ret = False
 			if 'errmsg' in kw:
-				self.check_message_2(kw['errmsg'], 'YELLOW')
+				self.end_msg(kw['errmsg'], 'YELLOW')
 			if 'mandatory' in kw:
 				if Logs.verbose > 1:
 					raise
@@ -340,7 +340,7 @@ def check_boost(self, *k, **kw):
 					self.fatal('the configuration failed (see %r)' % self.log.name)
 		else:
 			if 'okmsg' in kw:
-				self.check_message_2(kw['okmsg'])
+				self.end_msg(kw['okmsg'])
 
 	return ret
 
