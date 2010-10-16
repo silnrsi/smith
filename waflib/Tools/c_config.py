@@ -244,24 +244,24 @@ def check_cfg(self, *k, **kw):
 
 	return ret
 
-# the idea is the following: now that we are certain
-# that all the code here is only for c or c++, it is
-# easy to put all the logic in one function
-#
-# this should prevent code duplication (ita)
-
-# env: an optional environment (modified -> provide a copy)
-# compiler: cc or cxx - it tries to guess what is best
-# type: program, shlib, stlib, objects
-# code: a c code to execute
-# uselib_store: where to add the variables
-# uselib: parameters to use for building
-# define: define to set, like FOO in #define FOO, if not set, add /* #undef FOO */
-# execute: True or False - will return the result of the execution
-
 @conf
 def validate_c(self, kw):
-	"""validate the parameters for the test method"""
+	"""
+	pre-check the parameters that will be given to run_c_code
+	env: an optional environment (modified -> provide a copy)
+	compiler: cc or cxx - it tries to guess what is best
+	type: cprogram, cshlib, cstlib, cobjects ...
+	feature: it is better to give the features you want directly, for example 'cxx cxxstlib'
+	code: a piece of code to execute
+	fragment: override any other piece of code
+	uselib_store: where to add the variables (IMPORTANT!)
+	use: parameters to use for building (just like the normal use keyword)
+	define_name: define to set when the check is over
+	execute: True or False - will return the result of the execution
+	define_ret: if execute is set to True, use the execution output in both the define and the return value
+	header_name: check for a header_name
+	auto_add_header_name: if header_name was set, add the headers in env.INCKEYS so the next tests will include the headers (obscure autoconf feature)
+	"""
 
 	if not 'env' in kw:
 		kw['env'] = self.env.derive()
@@ -401,6 +401,10 @@ def validate_c(self, kw):
 	if not 'code' in kw:
 		kw['code'] = SNIP_EMPTY_PROGRAM
 
+	# if there are headers to append automatically to the next tests
+	if self.env[INCKEYS]:
+		kw['code'] = '\n'.join(['#include <%s>' % x for x in self.env[INCKEYS]]) + '\n' + kw['code']
+
 	if not kw.get('success'): kw['success'] = None
 
 	assert 'msg' in kw, 'invalid parameters, read http://freehackers.org/~tnagy/wafbook/single.html#config_helpers_c'
@@ -429,6 +433,12 @@ def post_check(self, *k, **kw):
 	if 'define_name' in kw:
 		if 'header_name' in kw or 'function_name' in kw or 'type_name' in kw or 'fragment' in kw:
 			define_or_stuff()
+
+	if 'header_name' in kw:
+		print "header name in post check"
+		if kw.get('auto_add_header_name', False):
+			print "auto add!!!"
+			self.env.append_value(INCKEYS, Utils.to_list(kw['header_name']))
 
 	if is_success and 'uselib_store' in kw:
 		from waflib.Tools import ccroot
@@ -685,7 +695,9 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, defi
 	top -> build/foo/bar.h
 	!top -> build/xyz/foo/bar.h
 
-	this method will reset the define keys and values
+	defines: add the defines or not (yes by default)
+	headers: add #include in the file (if headers are defined by env.INCKEYS)
+	remove: remove the defines added to the configuration header (yes by default)
 	"""
 	if not configfile: configfile = WAF_CONFIG_H
 	waf_guard = guard or '_%s_WAF' % Utils.quote_define_name(configfile)
@@ -715,7 +727,7 @@ def write_config_header(self, configfile='', guard='', top=False, env=None, defi
 def get_config_header(self, defines=True, headers=False):
 	"""
 	Create the contents of a config.h file from the accumulated includes and defines
-	There is no include guard here
+	There are no include guards here
 
 	Override this method when you need to write your own config header
 	"""
