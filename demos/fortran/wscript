@@ -20,8 +20,6 @@ def configure(conf):
 		conf.env['FCFLAGS'] = ['-Wall', '-W']
 	#conf.env['INCLUDES'] = ['hfloupi']
 
-	print conf.env['FC_VERSION']
-
 	conf.check_fortran()
 	conf.check_fortran_verbose_flag()
 	conf.check_fortran_clib()
