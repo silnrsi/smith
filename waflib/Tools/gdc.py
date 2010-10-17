@@ -29,7 +29,7 @@ def common_flags_gdc(conf):
 	v['DINC_ST'] = '-I%s'
 
 	v['DSHLIB_MARKER'] = v['DSTLIB_MARKER'] = ''
-	v['DSTLIB_ST'] = v['DLIB_ST']           = '-l%s'
+	v['DSTLIB_ST'] = v['DSHLIB_ST']           = '-l%s'
 	v['DSTLIBPATH_ST'] = v['DLIBPATH_ST']   = '-L%s'
 
 	v['LINKFLAGS_dshlib'] = ['-shared']
