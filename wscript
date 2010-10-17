@@ -290,7 +290,7 @@ def create_waf(*k, **kw):
 
 	prefix = ''
 	reg = re.compile('^INSTALL=(.*)', re.M)
-	code1 = reg.sub(r'INSTALL=%r' % prefix, code1.decode())
+	code1 = reg.sub(r'INSTALL=%r' % prefix, code1)
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)

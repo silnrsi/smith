@@ -15,9 +15,6 @@ tasks have to be added dynamically:
 - the module name may be unknown in advance
 """
 
-def init(ctx):
-	print "gniiii"
-
 SWIG_EXTS = ['.swig', '.i']
 
 re_module = re.compile('%module(?:\s*\(.*\))?\s+(.+)', re.M)

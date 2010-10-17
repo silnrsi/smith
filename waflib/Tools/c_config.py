@@ -435,9 +435,7 @@ def post_check(self, *k, **kw):
 			define_or_stuff()
 
 	if 'header_name' in kw:
-		print "header name in post check"
 		if kw.get('auto_add_header_name', False):
-			print "auto add!!!"
 			self.env.append_value(INCKEYS, Utils.to_list(kw['header_name']))
 
 	if is_success and 'uselib_store' in kw:

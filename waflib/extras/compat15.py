@@ -84,7 +84,6 @@ Task.TaskBase.classes = Task.classes
 def setitem(self, key, value):
 	if key.startswith('CCFLAGS'):
 		key = key[1:]
-		print key, value
 	self.table[key] = value
 ConfigSet.ConfigSet.__setitem__ = setitem
 
