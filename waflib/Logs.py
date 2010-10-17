@@ -9,7 +9,8 @@ logging, colors, terminal width and pretty-print
 import os, re, logging, traceback, sys
 
 try:
-	import waflib.ansiterm
+	if 'NOCOLOR' not in os.environ:
+		import waflib.ansiterm
 except:
 	# optional module for colors on win32, just ignore if it cannot be imported
 	pass
