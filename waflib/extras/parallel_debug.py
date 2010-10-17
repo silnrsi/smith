@@ -158,7 +158,7 @@ def process_colors(producer):
 
 	seen = {}
 	acc = []
-	for x in xrange(len(tmp)):
+	for x in range(len(tmp)):
 		line = tmp[x]
 		id = line[1]
 
@@ -168,7 +168,7 @@ def process_colors(producer):
 
 		begin = line[2]
 		thread_id = line[0]
-		for y in xrange(x + 1, len(tmp)):
+		for y in range(x + 1, len(tmp)):
 			line = tmp[y]
 			if line[1] == id:
 				end = line[2]

@@ -165,7 +165,7 @@ def num2ver(ver):
 		ver = tuple(ver.split('.'))
 	if isinstance(ver, tuple):
 		ret = 0
-		for i in xrange(len(ver)):
+		for i in range(len(ver)):
 			ret += 256**(2 - i) * int(ver[i])
 		return ret
 	return ver
