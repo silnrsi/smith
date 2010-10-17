@@ -14,7 +14,7 @@ def find_dmd(conf):
 @conf
 def common_flags_ldc(conf):
 	v = conf.env
-	v['DFLAGS']         = ['-d-version=Posix']
+	v['DFLAGS']        = ['-d-version=Posix']
 	v['LINKFLAGS']     = []
 	v['dshlib_DFLAGS'] = ['-relocation-model=pic']
 
@@ -26,7 +26,7 @@ def common_flags_dmd(conf):
 
 	# Compiler is dmd so 'gdc' part will be ignored, just
 	# ensure key is there, so wscript can append flags to it
-	v['DFLAGS']            = ['-version=Posix']
+	#v['DFLAGS']            = ['-version=Posix']
 
 	v['D_SRC_F']           = ''
 	v['D_TGT_F']           = ['-c', '-of']
