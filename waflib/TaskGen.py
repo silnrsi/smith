@@ -251,7 +251,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	def x_file(self, node):
 		ext = decider and decider(self, node) or cls.ext_out
 		if ext_in:
-			ext_in = ext_in[0]
+			_ext_in = ext_in[0]
 		out_source = [node.change_ext(x, ext_in=_ext_in) for x in ext]
 		if reentrant:
 			for i in range(reentrant):
