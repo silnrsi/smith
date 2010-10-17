@@ -716,6 +716,7 @@ def exec_command_msvc(self, *k, **kw):
 		env.update(PATH = ';'.join(self.env['PATH']))
 		kw['env'] = env
 
+	bld = self.generator.bld
 	try:
 		if not kw.get('cwd', None):
 			kw['cwd'] = bld.cwd
