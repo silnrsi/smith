@@ -16,7 +16,7 @@ def configure(conf):
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
 	try:
-		conf.check(features='d', fragment='int k = 32;', compile_filename='test.d', dflags=['-version=Posix'])
+		conf.check(features='d dprogram', fragment='int main() {return 0;}', compile_filename='test.d', dflags=['-version=Posix'])
 	except:
 		pass
 	else:
