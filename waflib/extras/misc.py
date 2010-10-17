@@ -82,27 +82,21 @@ def subst_func(tsk):
 
 	m4_re = re.compile('@(\w+)@', re.M)
 
-	env = tsk.env
-	infile = tsk.inputs[0].abspath()
-	outfile = tsk.outputs[0].abspath()
-
-	code = Utils.readf(infile)
+	code = tsk.inputs[0].read() #Utils.readf(infile)
 
 	# replace all % by %% to prevent errors by % signs in the input file while string formatting
 	code = code.replace('%', '%%')
 
 	s = m4_re.sub(r'%(\1)s', code)
 
+	env = tsk.env
 	di = getattr(tsk, 'dict', {}) or getattr(tsk.generator, 'dict', {})
 	if not di:
 		names = m4_re.findall(code)
 		for i in names:
 			di[i] = env.get_flat(i) or env.get_flat(i.upper())
 
-	file = open(outfile, 'w')
-	file.write(s % di)
-	file.close()
-	if tsk.chmod: os.chmod(outfile, tsk.chmod)
+	tsk.outputs[0].write(s % di)
 
 @feature('subst')
 @before('process_source')
