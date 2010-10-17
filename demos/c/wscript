@@ -20,7 +20,8 @@ def configure(conf):
 	conf.load('compiler_c')
 	#conf.load('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
-
+	conf.check_cc(fragment="int main() { return 0; }")
+	conf.check_cc(fragment="int main() { return 0; }", execute=True)
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 
 	conf.check_large_file()
