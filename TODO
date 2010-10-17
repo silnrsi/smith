@@ -1,7 +1,10 @@
-Waf 1.6
--------
+Waf 1.6.x
+---------
 
 General
+
+- setup a build farm
+- merge the api docs with a tutorial
 
 - MAKEFLAGS?
 - recurse: from top or from current folder?
