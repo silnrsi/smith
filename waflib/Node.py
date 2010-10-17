@@ -544,9 +544,12 @@ class Node(object):
 			node = self.search(lst)
 			if not node:
 				node = self.find_node(lst)
-		pat = node.abspath()
-		if os.path.isdir(pat):
-			return None
+		try:
+			pat = node.abspath()
+			if os.path.isdir(pat):
+				return None
+		except:
+			pass
 		return node
 
 	def find_or_declare(self, lst):
