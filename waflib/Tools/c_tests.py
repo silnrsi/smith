@@ -113,7 +113,6 @@ def check_inline(self, **kw):
 ########################################################################################
 
 LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); };'
-LARGE_FRAGMENT_WIN32 = 'int main() {return 0; }'
 
 @conf
 def check_large_file(self, **kw):
@@ -129,17 +128,16 @@ def check_large_file(self, **kw):
 
 	if not 'features' in kw:
 		if self.env.CXX:
-			kw['features'] = ['cxx']
+			kw['features'] = ['cxx', 'cxxprogram']
 		else:
-			kw['features'] = ['c']
+			kw['features'] = ['c', 'cprogram']
 
 	kw['fragment'] = LARGE_FRAGMENT
-	if self.env.DEST_BINFMT == 'pe':
-		kw['fragment'] = LARGE_FRAGMENT_WIN32
 
 	kw['msg'] = 'Checking for large file support'
 	try:
-		self.check(**kw)
+		if self.env.DEST_BINFMT != 'pe':
+			self.check(**kw)
 	except self.errors.ConfigurationError:
 		pass
 	else:
