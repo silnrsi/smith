@@ -93,7 +93,7 @@ def subst_func(tsk):
 
 	s = m4_re.sub(r'%(\1)s', code)
 
-	di = tsk.dict or {}
+	di = getattr(tsk, 'dict', {}) or getattr(tsk.generator, 'dict', {})
 	if not di:
 		names = m4_re.findall(code)
 		for i in names:
