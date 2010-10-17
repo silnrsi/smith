@@ -676,9 +676,9 @@ def exec_mf(self):
 	# embedding mode. Different for EXE's and DLL's.
 	# see: http://msdn2.microsoft.com/en-us/library/ms235591(VS.80).aspx
 	mode = ''
-	if 'cprogram' in self.generator.features:
+	if 'cprogram' in self.generator.features or 'cxxprogram' in self.generator.features:
 		mode = '1'
-	elif 'cshlib' in self.generator.features:
+	elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features:
 		mode = '2'
 
 	debug('msvc: embedding manifest')
