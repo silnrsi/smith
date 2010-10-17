@@ -118,7 +118,7 @@ LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8)
 def check_large_file(self, **kw):
 	"""
 	see if large files are supported and define the macro HAVE_LARGEFILE
-	FIXME: win32 presumably has this support
+	the test is skipped for win32 systems (DEST_BINFMT == pe)
 	"""
 
 	if not 'define_name' in kw:
