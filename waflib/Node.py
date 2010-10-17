@@ -602,14 +602,17 @@ class Node(object):
 		return node
 
 	# helpers for building things
-	def change_ext(self, ext):
-		"node of the same path, but with a different extension - hot zone so do not touch"
+	def change_ext(self, ext, ext_in=None):
+		"node of the same path, but with a different extension"
 		name = self.name
-		k = name.find('.')
-		if k >= 0:
-			name = name[:k] + ext
+		if ext_in is None:
+			k = name.find('.')
+			if k >= 0:
+				name = name[:k] + ext
+			else:
+				name = name + ext
 		else:
-			name = name + ext
+			name = name[:- len(ext_in)]
 
 		return self.parent.find_or_declare([name])
 

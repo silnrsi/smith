@@ -244,12 +244,15 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	see Tools/flex.py for an example
 	while i do not like such wrappers, some people really do
 	"""
-
+	ext_in = Utils.to_list(ext_in)
+	ext_out = Utils.to_list(ext_out)
 	cls = Task.task_factory(name, rule, color=color, ext_in=ext_in, ext_out=ext_out, before=before, after=after, scan=scan)
 
 	def x_file(self, node):
 		ext = decider and decider(self, node) or cls.ext_out
-		out_source = [node.change_ext(x) for x in ext]
+		if ext_in:
+			ext_in = ext_in[0]
+		out_source = [node.change_ext(x, ext_in=_ext_in) for x in ext]
 		if reentrant:
 			for i in range(reentrant):
 				self.source.append(out_source[i])
