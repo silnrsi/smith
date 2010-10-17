@@ -256,9 +256,8 @@ class BuildContext(Context.Context):
 		try:
 			st = os.stat(db)
 			os.unlink(db)
-			if sys.platform != 'win32':
-				os.chown(db + '.tmp', st.st_uid, st.st_gid)
-		except OSError:
+			os.chown(db + '.tmp', st.st_uid, st.st_gid)
+		except (AttributeError, OSError):
 			pass
 
 		# do not use shutil.move (copy is not thread-safe)
