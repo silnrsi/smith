@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Brant Young, 2007
 
-"This hook is called when the class cpp/cc task generator encounters a '.rc' file: X{.rc -> [.res|.rc.o]}"
+"Process '.rc' files for c/c++: X{.rc -> [.res|.rc.o]}"
 
 import os, sys, re
 from waflib import TaskGen, Task

@@ -3,14 +3,17 @@
 # Carlos Rafael Giani, 2006
 
 """
-New unit test system
+Unit test system
+- executes tests in parallel (speed!)
+- executes only the tests that have changed
+- to execute all tests, use "waf --alltests" (Options.options.all_tests)
 
-The targets with feature 'test' are executed after they are built
-bld(features='cprogram cc test', ...)
+To declare a test (programs to execute after they are built), add the feature 'test':
+bld(features='cxx cxxprogram test', ...)
 
 To display the results:
-import UnitTest
-bld.add_post_fun(UnitTest.summary)
+from waflib.Tools import waf_unit_test
+bld.add_post_fun(waf_unit_test.summary)
 """
 
 import os, sys
@@ -21,65 +24,14 @@ testlock = Utils.threading.Lock()
 @feature('test')
 @after('apply_link')
 def make_test(self):
+	"""create the unit test task"""
 	if getattr(self, 'link_task', None):
 		self.default_install_path = None
 		self.create_task('utest', self.link_task.outputs)
 
-def exec_test(self):
-
-	status = 0
-
-	filename = self.inputs[0].abspath()
-	self.ut_exec = getattr(self, 'ut_exec', [filename])
-	if getattr(self.generator, 'ut_fun', None):
-		self.generator.ut_fun(self)
-
-	try:
-		fu = getattr(self.generator.bld, 'all_test_paths')
-	except AttributeError:
-		fu = os.environ.copy()
-		self.generator.bld.all_test_paths = fu
-
-		lst = []
-		for g in self.generator.bld.groups:
-			for tg in g:
-				if getattr(tg, 'link_task', None):
-					lst.append(tg.link_task.outputs[0].parent.abspath())
-
-		def add_path(dct, path, var):
-			dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
-
-		if sys.platform == 'win32':
-			add_path(fu, lst, 'PATH')
-		elif sys.platform == 'darwin':
-			add_path(fu, lst, 'DYLD_LIBRARY_PATH')
-			add_path(fu, lst, 'LD_LIBRARY_PATH')
-		else:
-			add_path(fu, lst, 'LD_LIBRARY_PATH')
-
-
-	cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
-	proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE)
-	(stdout, stderr) = proc.communicate()
-
-	tup = (filename, proc.returncode, stdout, stderr)
-	self.generator.utest_result = tup
-
-	testlock.acquire()
-	try:
-		bld = self.generator.bld
-		Logs.debug("ut: %r", tup)
-		try:
-			bld.utest_results.append(tup)
-		except AttributeError:
-			bld.utest_results = [tup]
-	finally:
-		testlock.release()
-
 class utest(Task.Task):
 	color = 'PINK'
 	ext_in = ['.bin']
-	run = exec_test
 	vars = []
 	def runnable_status(self):
 		ret = super(utest, self).runnable_status()
@@ -87,6 +39,57 @@ class utest(Task.Task):
 			if getattr(Options.options, 'all_tests', False):
 				return Task.RUN_ME
 		return ret
+
+	def run(self):
+
+		status = 0
+
+		filename = self.inputs[0].abspath()
+		self.ut_exec = getattr(self, 'ut_exec', [filename])
+		if getattr(self.generator, 'ut_fun', None):
+			self.generator.ut_fun(self)
+
+		try:
+			fu = getattr(self.generator.bld, 'all_test_paths')
+		except AttributeError:
+			fu = os.environ.copy()
+			self.generator.bld.all_test_paths = fu
+
+			lst = []
+			for g in self.generator.bld.groups:
+				for tg in g:
+					if getattr(tg, 'link_task', None):
+						lst.append(tg.link_task.outputs[0].parent.abspath())
+
+			def add_path(dct, path, var):
+				dct[var] = os.pathsep.join(Utils.to_list(path) + [os.environ.get(var, '')])
+
+			if sys.platform == 'win32':
+				add_path(fu, lst, 'PATH')
+			elif sys.platform == 'darwin':
+				add_path(fu, lst, 'DYLD_LIBRARY_PATH')
+				add_path(fu, lst, 'LD_LIBRARY_PATH')
+			else:
+				add_path(fu, lst, 'LD_LIBRARY_PATH')
+
+
+		cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
+		proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE)
+		(stdout, stderr) = proc.communicate()
+
+		tup = (filename, proc.returncode, stdout, stderr)
+		self.generator.utest_result = tup
+
+		testlock.acquire()
+		try:
+			bld = self.generator.bld
+			Logs.debug("ut: %r", tup)
+			try:
+				bld.utest_results.append(tup)
+			except AttributeError:
+				bld.utest_results = [tup]
+		finally:
+			testlock.release()
 
 def summary(bld):
 	lst = getattr(bld, 'utest_results', [])
