@@ -220,7 +220,6 @@ else:
 				wlock.release()
 
 		def writeconsole(self, txt):
-			chars_written = c_int()
 			writeconsole = windll.kernel32.WriteConsoleA
 			if isinstance(txt, _type):
 				writeconsole = windll.kernel32.WriteConsoleW
@@ -228,6 +227,7 @@ else:
 			TINY_STEP = 3000
 			for x in xrange(0, len(txt), TINY_STEP):
 			    # According MSDN, size should NOT exceed 64 kb (issue #746)
+				chars_written = c_int()
 			    tiny = txt[x : x + TINY_STEP]
 			    writeconsole(self.hconsole, tiny, len(tiny), byref(chars_written), None)
 
