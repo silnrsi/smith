@@ -45,6 +45,6 @@ version(D_Version2) {
 
 @conf
 def check_dlibrary(self):
-	ret = self.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True)
+	ret = self.check_cc(features='d dprogram', fragment=DLIB, compile_filename='test.d', execute=True, define_ret=True)
 	self.env.DLIBRARY = ret.strip()
 

@@ -18,7 +18,6 @@ def configure(conf):
 			Logs.debug('compiler_cxx: %r' % e)
 		else:
 			if conf.env.D:
-				orig.table = conf.env.get_merged_dict()
 				conf.end_msg(True)
 				conf.env['COMPILER_D'] = compiler
 				conf.env.D_COMPILER = conf.env.D # TODO remove this, left for compatibility
