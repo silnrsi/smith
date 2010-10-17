@@ -15,8 +15,16 @@ def configure(conf):
 	conf.load('compiler_d')
 	conf.env.LIB_PTHREAD = ['pthread']
 	conf.check_dlibrary()
+	try:
+		conf.check(features='d', fragment='int k = 32;', compile_filename='test.d', dflags=['-version=Posix'])
+	except:
+		pass
+	else:
+		conf.env.append_value('DFLAGS', ['-version=Posix'])
 
 def build(bld):
+
+
 	if bld.env.DLIBRARY != 'tango':
 		bld.add_subdirs('src')
 
