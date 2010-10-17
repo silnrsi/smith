@@ -682,8 +682,6 @@ def exec_mf(self):
 		mode = '2'
 
 	debug('msvc: embedding manifest in mode %r' % mode)
-	print("mode is %r" % mode)
-	#flags = ' '.join(env['MTFLAGS'] or [])
 
 	lst = []
 	lst.extend([env['MT']])
