@@ -531,7 +531,7 @@ def run_c_code(self, *k, **kw):
 
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
 	h = Utils.h_list(lst)
-	dir = self.bldnode.abspath() + os.sep + '.conf_check_' + Utils.to_hex(h)
+	dir = self.bldnode.abspath() + os.sep + (sys.platform != 'win32' and '.' or '') + 'conf_check_' + Utils.to_hex(h)
 
 	try:
 		os.makedirs(dir)
