@@ -328,7 +328,7 @@ def subst_vars(expr, params):
 			return params[m.group(3)]
 	return reg_subst.sub(repl_var, expr)
 
-def destos_to_binfmt(val):
+def destos_to_binfmt(key):
 	"""
 	Get the binary format based on the unversioned platform name.
 	"""
