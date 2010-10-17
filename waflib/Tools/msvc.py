@@ -722,7 +722,6 @@ def exec_command_msvc(self, *k, **kw):
 			kw['cwd'] = bld.cwd
 	except AttributeError:
 		bld.cwd = kw['cwd'] = bld.variant_dir
-	print("executing from cwd", kw['cwd'])
 
 	ret = self.generator.bld.exec_command(*k, **kw)
 	if ret: return ret
