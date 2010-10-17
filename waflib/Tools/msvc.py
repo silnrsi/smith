@@ -681,7 +681,8 @@ def exec_mf(self):
 	elif 'cshlib' in self.generator.features or 'cxxshlib' in self.generator.features:
 		mode = '2'
 
-	debug('msvc: embedding manifest')
+	debug('msvc: embedding manifest in mode %r' % mode)
+	print("mode is %r" % mode)
 	#flags = ' '.join(env['MTFLAGS'] or [])
 
 	lst = []
