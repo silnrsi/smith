@@ -606,13 +606,13 @@ class Node(object):
 		"node of the same path, but with a different extension"
 		name = self.name
 		if ext_in is None:
-			k = name.find('.')
+			k = name.rfind('.')
 			if k >= 0:
 				name = name[:k] + ext
 			else:
 				name = name + ext
 		else:
-			name = name[:- len(ext_in)]
+			name = name[:- len(ext_in)] + ext
 
 		return self.parent.find_or_declare([name])
 
