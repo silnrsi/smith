@@ -193,7 +193,6 @@ class TaskBase(evil):
 				kw['cwd'] = bld.cwd
 		except AttributeError:
 			bld.cwd = kw['cwd'] = bld.variant_dir
-		print("executing a command with cwd", kw['cwd'])
 		return bld.exec_command(cmd, **kw)
 
 	def runnable_status(self):
