@@ -11,6 +11,16 @@ from waflib.Logs import error, warn, debug
 
 re_tex = re.compile(r'\\(?P<type>include|bibliography|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 def scan(self):
+	"""
+	A simple regex-based scanner for latex dependencies, uses re_tex from above
+	Depending on your needs you might want to change re_tex
+	from waflib.Tools import tex
+	tex.re_tex = myregex
+	or to change
+	the method scan from the latex tasks:
+	from waflib.Task import classes
+	classes['latex'].scan = myscanfunction
+	"""
 	node = self.inputs[0]
 	env = self.env
 
@@ -20,6 +30,7 @@ def scan(self):
 
 	code = Utils.readf(node.abspath())
 
+	global re_tex
 	for match in re_tex.finditer(code):
 		path = match.group('file')
 		if path:

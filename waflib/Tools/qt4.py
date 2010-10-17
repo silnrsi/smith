@@ -31,13 +31,20 @@ EXT_UI  = ['.ui']
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 
 class qxx(cxx.cxx):
-	"A cpp task that may create a moc task dynamically"
+	"""
+	Each c++ file may have zero or several .moc files to create.
+	They are known only when the files are scanned (preprocessor)
+	To avoid scanning the c++ files each time (very slow), the results
+	are retrieved from the task cache (bld.node_deps/bld.raw_deps).
+	The moc tasks are created dynamically during the build
+	"""
 
 	def __init__(self, *k, **kw):
 		Task.Task.__init__(self, *k, **kw)
 		self.moc_done = 0
 
 	def scan(self):
+		"""re-use the c/c++ scanner, but process moc files in a different way"""
 		(nodes, names) = c_preproc.scan(self)
 		# for some reasons (variants) the moc node may end in the list of node deps
 		for x in nodes:
@@ -121,6 +128,7 @@ class qxx(cxx.cxx):
 			task.set_inputs(h_node)
 			task.set_outputs(m_node)
 
+			# direct injection in the build phase (safe because called from the main thread)
 			gen = bld.producer
 			gen.outstanding.insert(0, task)
 			gen.total += 1

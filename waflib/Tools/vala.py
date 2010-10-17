@@ -3,13 +3,21 @@
 # Ali Sabil, 2007
 # Radosław Szkodziński, 2010
 
+"""
+At this point, vala is still unstable, so do not expect
+this tool to be stable either (apis, etc)
+"""
+
 import os.path, shutil, re
 from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
 from waflib.TaskGen import extension, after, before
 from waflib.Configure import conf
 
 class valac_task(Task.Task):
-
+	"""
+	Task to compile vala files
+	There are tons of options, so it is a bit complicated
+	"""
 	vars = ["VALAC", "VALAC_VERSION", "VALAFLAGS"]
 	ext_out = ['.h']
 
@@ -66,6 +74,9 @@ class valac_task(Task.Task):
 
 @extension('.vala', '.gs')
 def vala_file(self, node):
+	"""
+	TODO: the vala task should use self.generator.attribute instead of copying attributes from self to the task
+	"""
 	valatask = getattr(self, "valatask", None)
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
@@ -96,13 +107,11 @@ def vala_file(self, node):
 		valatask.gir_path = getattr(self, 'gir_path', '${DATAROOTDIR}/gir-1.0')
 		valatask.vapi_path = getattr(self, 'vapi_path', '${DATAROOTDIR}/vala/vapi')
 		valatask.pkg_name = getattr(self, 'pkg_name', self.env['PACKAGE'])
-		valatask.header_path = getattr(self, 'header_path',
-		                               '${INCLUDEDIR}/%s-%s' % (valatask.pkg_name, _get_api_version()))
-		
+		valatask.header_path = getattr(self, 'header_path', '${INCLUDEDIR}/%s-%s' % (valatask.pkg_name, _get_api_version()))
+
 		valatask.is_lib = False
 		if not 'cprogram' in self.features:
 			valatask.is_lib = True
-			
 
 		packages = Utils.to_list(getattr(self, 'packages', []))
 		vapi_dirs = Utils.to_list(getattr(self, 'vapi_dirs', []))

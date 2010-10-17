@@ -23,7 +23,6 @@ It only works with gcc though.
 A dumb preprocessor is also available in the tool "c_dumbpreproc"
 """
 # TODO: more varargs, pragma once
-# TODO: dumb file scanner tracking all includes
 
 import re, sys, os, string, traceback
 from waflib import Logs, Build, Utils, Errors
