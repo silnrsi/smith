@@ -267,7 +267,7 @@ def validate_c(self, kw):
 		kw['env'] = self.env.derive()
 	env = kw['env']
 
-	if not 'compiler' in kw:
+	if not 'compiler' in kw and not 'features' in kw:
 		kw['compiler'] = 'c'
 		if env['CXX_NAME'] and Task.classes.get('cxx', None):
 			kw['compiler'] = 'cxx'
@@ -278,7 +278,7 @@ def validate_c(self, kw):
 				self.fatal('a c compiler is required')
 
 	if not 'compile_mode' in kw:
-		kw['compile_mode'] = (kw['compiler'] == 'cxx') and 'cxx' or 'c'
+		kw['compile_mode'] = (kw.get('compiler', '') == 'cxx') and 'cxx' or 'c'
 
 	if not 'type' in kw:
 		kw['type'] = 'cprogram'
