@@ -26,6 +26,7 @@ PRELUDE = '\timport waflib.extras.compat15'
 import tokenize
 
 import os, sys, base64, shutil, re, random, io, optparse, tempfile
+
 from waflib import Utils, Options, Build
 from hashlib import md5
 
@@ -219,13 +220,10 @@ def sfilter(path):
 		cnt = f.read()
 
 	f.close()
-
-	if path.endswith('Scripting.py'):
-		cnt = cnt.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')", '')
 	cnt = process_decorators(cnt)
 
 	if cnt.find('set(') > -1:
-                cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
+		cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
 	cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
@@ -285,7 +283,7 @@ def create_waf(*k, **kw):
 	#compute_revision()
 	#reg = re.compile('^REVISION=(.*)', re.M)
 	#code1 = reg.sub(r'REVISION="%s"' % REVISION, code1)
-
+	code1 = code1.replace("if sys.hexversion<0x206000f:\n\traise ImportError('Python >= 2.6 is required to create the waf file')\n", '')
 	code1 = code1.replace('\timport waflib.extras.compat15#PRELUDE', Options.options.prelude)
 
 	prefix = ''

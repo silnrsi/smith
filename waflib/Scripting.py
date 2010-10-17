@@ -4,11 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import sys
-if sys.hexversion<0x206000f:
-	raise ImportError('Waf 1.6 requires Python >= 2.6 (the source directory)')
-
-import os, shutil, traceback, datetime, inspect, errno
+import os, shutil, traceback, datetime, inspect, errno, sys
 from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build, Node
 
 build_dir_override = None
