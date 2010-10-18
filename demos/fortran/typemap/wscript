@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 
+"""
+See the FIXME for pickle below
+"""
+
 top = '.'
 out = 'build'
 
@@ -81,6 +85,10 @@ class ctp(object):
 		self.fc_type = None
 
 def gen_type_map_files(bld, inputs, outputs):
+	"""
+	FIXME
+	pickle won't work across different python versions, so you should better use ConfigSet.load here
+	"""
 
 	# The ctp properties (name, basetype, odecl, etc.) would be listed in a
 	# configuration file and the ctp list below would be loaded from that file.
