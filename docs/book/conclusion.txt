@@ -6,7 +6,7 @@ Due to the amount of features provided by Waf, this book is cannot be both compl
 [options="header"]
 |================
 |Link|Description
-|http://freehackers.org/~tnagy/wafdoc160p1/index.html|The apidocs
+|http://freehackers.org/~tnagy/wafdoc160/index.html|The apidocs
 |http://code.google.com/p/waf|The Waf project page
 |http://code.google.com/p/waf/w/list|The Waf wiki, including the frequently asked questions (FAQ)
 |http://groups.google.com/group/waf-users|The Waf mailing-list
