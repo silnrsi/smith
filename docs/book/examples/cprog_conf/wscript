@@ -6,10 +6,9 @@ def options(opt):
 def configure(conf):
 	conf.load('compiler_c')
 	conf.check(header_name='time.h', features='c cprogram')
-	conf.check_cc(function_name='printf', header_name="stdio.h", mandatory=True)
+	conf.check_cc(function_name='printf', header_name="stdio.h")
 	conf.check_cc(fragment='int main() {2+2==4;}\n', define_name="boobah")
-	conf.check_cc(lib='m', cflags='-Wall', defines=['var=foo', 'x=y'],
-        uselib_store='M')
+	conf.check_cc(lib='m', cflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M')
 	#conf.check_cxx(lib='linux', use='M', cxxflags='-O2')
 
 	conf.check_cc(fragment='''
