@@ -25,8 +25,11 @@ def build(bld):
 from waflib import Task, Errors, Logs
 old = Task.set_file_constraints
 def meth(lst):
-    lst.sort(cmp=lambda x, y: cmp(x.__class__.__name__, y.__class__.__name__))
-    old(lst)
+	try:
+		lst.sort(cmp=lambda x, y: cmp(x.__class__.__name__, y.__class__.__name__))
+	except:
+		lst.sort(key=lambda x: x.__class__.__name__) # python3
+	old(lst)
 Task.set_file_constraints = meth
 
 def are_implicit_nodes_ready(self):
