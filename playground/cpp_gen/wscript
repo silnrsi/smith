@@ -79,7 +79,10 @@ class prog1(Task.Task):
 		tsk.set_run_after(self) # the build has started, so the order must be set manually
 		self.more_tasks = [tsk] # add tasks dynamically during the build
 		self.generator.link_task.inputs.append(tsk.outputs[0]) # add another input for the link task
-		self.generator.link_task.inputs.sort(cmp=cmpnodes) # eliminate the random order (more tasks like this)
+		try:
+			self.generator.link_task.inputs.sort(cmp=cmpnodes) # eliminate the random order (more tasks like this)
+		except:
+			self.generator.link_task.inputs.sort(key=lambda x: x.abspath()) # python3
 		self.generator.link_task.set_run_after(tsk) # do not forget to set the build order there too
 
 	def run(self):
