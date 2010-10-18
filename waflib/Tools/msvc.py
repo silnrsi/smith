@@ -235,7 +235,6 @@ def gather_msvc_versions(conf, versions):
 				versionnumber = float(version[:-3])
 			else:
 				versionnumber = float(version)
-				version += vcvar
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
 	detected_versions.sort(key = lambda (x,y,z):x)
 	for (v,version,reg) in detected_versions:
