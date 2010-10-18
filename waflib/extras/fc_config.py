@@ -303,6 +303,9 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 	return []
 
 def getoutput(conf, cmd, stdin=False):
+	"""
+	TODO a bit redundant
+	"""
 	try:
 		if stdin:
 			stdin = subprocess.PIPE
@@ -310,7 +313,7 @@ def getoutput(conf, cmd, stdin=False):
 			stdin = None
 		p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		if stdin:
-			p.stdin.write('\n')
+			p.stdin.write(b'\n')
 		stdout, stderr = p.communicate()
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)
