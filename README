@@ -3,8 +3,8 @@ WHAT YOU WILL FIND HERE
 
 The soon-to-be-released Waf (1.6)
 
-For the manual: http://freehackers.org/~tnagy/wafbook160p3/index.html
-For the api docs: http://freehackers.org/~tnagy/wafdoc160p3/index.html
+For the manual: http://waf.googlecode.com/svn/docs/wafbook/single.html
+For the api docs: http://freehackers.org/~tnagy/wafdoc160/
 For the examples: see the folder demos/
 
 HOW TO CREATE THE WAF SCRIPT
