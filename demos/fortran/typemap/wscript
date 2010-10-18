@@ -1,9 +1,5 @@
 #! /usr/bin/env python
 
-"""
-See the FIXME for pickle below
-"""
-
 top = '.'
 out = 'build'
 
@@ -30,6 +26,8 @@ import os
 from waflib import Logs, Build, Utils
 
 from waflib import TaskGen, Task
+from waflib.ConfigSet import ConfigSet
+
 @TaskGen.feature('typemap')
 # This ordering seems clearer than @after('apply_link')
 @TaskGen.after('process_source')
@@ -85,10 +83,6 @@ class ctp(object):
 		self.fc_type = None
 
 def gen_type_map_files(bld, inputs, outputs):
-	"""
-	FIXME
-	pickle won't work across different python versions, so you should better use ConfigSet.load here
-	"""
 
 	# The ctp properties (name, basetype, odecl, etc.) would be listed in a
 	# configuration file and the ctp list below would be loaded from that file.
@@ -97,12 +91,12 @@ def gen_type_map_files(bld, inputs, outputs):
 	# fortran compiler can have a different value for the type resolution.
 	# Moreover, the type resolution can depend on an arbitrary number of .mod
 	# files and integer expressions.
-	import pickle
 
 	ktp_in = [ip for ip in inputs if ip.name.endswith('.in')][0]
-	ctps_ = pickle.loads(ktp_in.read())['ctps']
+	env = ConfigSet()
+	env.load(ktp_in.abspath())
 	ctps = []
-	for ctp_ in ctps_:
+	for ctp_ in env.CTPS:
 		ctps.append(ctp(**ctp_))
 
 	# the 'use' attribute of the ctp instances above uses the .mod file created
