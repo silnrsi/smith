@@ -774,7 +774,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	cmd = cc + ['-dM', '-E', '-']
 	try:
 		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		p.stdin.write(b'\n')
+		p.stdin.write('\n'.encode())
 		out = p.communicate()[0]
 	except:
 		conf.fatal('could not determine the compiler version %r' % cmd)

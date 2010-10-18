@@ -236,7 +236,9 @@ def gather_msvc_versions(conf, versions):
 			else:
 				versionnumber = float(version)
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
-	detected_versions.sort(key = lambda (x,y,z):x)
+	def fun(tup):
+		return tup[0]
+	detected_versions.sort(key = fun)
 	for (v,version,reg) in detected_versions:
 		try:
 			msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\VS")
