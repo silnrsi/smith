@@ -55,5 +55,6 @@ release candidate:
 * port the doxygen tool
 * Utils.to_hashtable -> Utils.str2dict
 * change the thread pool to enable thread pool sharing
-* fixed a regression on win32 + python 3 -> thanks to kesselhaus :-)
+* fixed a regression on win32 + ansiterm.py + python 3 -> thanks to kesselhaus :-)
+* various msvc fixes (thanks to Nicolas Mercier)
 
