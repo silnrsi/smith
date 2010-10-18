@@ -111,7 +111,7 @@ def configure(ctx):
 
 def build(ctx):
 	# ctx.new_task_gen('cc', 'cprogram', source='main.c', target='app') # old
-	ctx(features='cc cprogram', source='main.c', target='app')
+	ctx(features='c cprogram', source='main.c', target='app')
 ---------------
 
 
@@ -226,7 +226,7 @@ def configure(ctx):
     ctx.load('gcc')
 
 def build(ctx):
-    tg = ctx(features='cc', source='main.c')
+    tg = ctx(features='c', source='main.c')
     if ctx.cmd == 'debug':
         tg.cflags = ['-g']
 
@@ -248,12 +248,12 @@ waf clean clean_debug build debug -v
 'clean' finished successfully (0.034s)
 'clean_debug' finished successfully (0.007s)
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/gnu/build'
-[1/1] cc: main.c -> build/main.c.0.o
+[1/1] c: main.c -> build/main.c.0.o
 00:36:41 runner ['/usr/bin/gcc', '../main.c', '-c', '-o', 'main.c.0.o']
 Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build'
 'build' finished successfully (0.075s)
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
-[1/1] cc: main.c -> build/debug_/main.c.0.o
+[1/1] c: main.c -> build/debug_/main.c.0.o
 00:36:41 runner ['/usr/bin/gcc', '-g', '../../main.c', '-c', '-o', 'main.c.0.o']
 Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/gnu/build/debug_'
 'debug' finished successfully (0.082s)
@@ -362,8 +362,8 @@ def configure(ctx):
     ctx.load('gcc')
 
 def build(ctx):
-	ctx(features='cc', source='main.c', includes=[ctx.path])
-	ctx(features='cc', source='main.c', includes=[ctx.path.get_bld()])
+	ctx(features='c', source='main.c', includes=[ctx.path])
+	ctx(features='c', source='main.c', includes=[ctx.path.get_bld()])
 ---------------
 
 The output will be:
@@ -372,9 +372,9 @@ The output will be:
 ---------------
 $ waf -v
 Waf: Entering directory `/foo/test/build'
-[1/2] cc: main.c -> build/main.c.0.o
+[1/2] c: main.c -> build/main.c.0.o
 03:01:20 runner ['/usr/bin/gcc', '-I/foo/test', '../main.c', '-c', '-o', 'main.c.0.o']
-[2/2] cc: main.c -> build/main.c.1.o
+[2/2] c: main.c -> build/main.c.1.o
 03:01:20 runner ['/usr/bin/gcc', '-I/foo/test/bld', '../main.c', '-c', '-o', 'main.c.1.o']
 Waf: Leaving directory `/foo/test/build'
 'build' finished successfully (0.476s)
@@ -424,7 +424,7 @@ The uselib attribute processing has been split from the local library processing
 
 . the variables names are extracted from the task generator attribute 'features', for example 'CFLAGS' and 'LINKFLAGS'
 . for each variable, the task generator attributes in lowercase are processed, for example the contents of 'tg.cflags' is added to 'tg.env.CFLAGS'
-. for each feature, the corresponding variables are added if they are set, for example, if 'tg.features = "cc cprogram"' is set, then 'cc_CFLAGS' and 'cshlib_CFLAGS' are added to 'tg.env.CFLAGS'
+. for each feature, the corresponding variables are added if they are set, for example, if 'tg.features = "c cprogram"' is set, then 'c_CFLAGS' and 'cshlib_CFLAGS' are added to 'tg.env.CFLAGS'
 . for each variable defined in the task generator attribute 'uselib', add the corresponding variable, for example, if 'tg.uselib = "M"' is set, then 'tg.env.CFLAGS_M' is added to 'tg.env.CFLAGS'
 
 The variable names are defined in 'waflib.Tools.ccroot.USELIB_VARS' and are bound to the feature names.
@@ -446,7 +446,7 @@ def build(ctx):
 	ctx(features='cxx cxxprogram', source='main.cpp', target='app1')
 	ctx.program(source='main.cpp', target='app2')
 
-	ctx(features='cc cstlib', source='main.cpp', target='app3')
+	ctx(features='c cstlib', source='main.cpp', target='app3')
 	ctx.stlib(source='main.cpp', target='app4')
 ---------------
 
@@ -471,7 +471,7 @@ def configure(ctx):
 
 def build(ctx):
 	ctx(rule='touch ${TGT}', target='foo.h', ext_out=['.h'])
-	ctx(features='cc cprogram', source='main.c', target='app')
+	ctx(features='c cprogram', source='main.c', target='app')
 ---------------
 
 In this case, the '.h' extension is used to indicate that the unique task produced by this rule-based task generator must be processed before the c/cxx compilation (the c and cxx tasks have ext_in=['.h']).
@@ -584,7 +584,7 @@ test_static_link
 
 $ waf clean --targets=foo.exe
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
-[1/2] cc: program/main.c -> build/program/main.c.0.o
+[1/2] c: program/main.c -> build/program/main.c.0.o
 [2/2] cprogram: build/program/main.c.0.o -> build/foo.exe
 Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 'build' finished successfully (0.154s)
@@ -599,7 +599,7 @@ The new command 'step' is used to execute specific tasks and to return the exit 
 $ waf clean step --file=test_shlib.c
 'clean' finished successfully (0.017s)
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
-cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+c: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
  -> 0
 cshlib: build/shlib/test_shlib.c.1.o -> build/shlib/libmy_shared_lib.so
  -> 0
@@ -613,7 +613,7 @@ To restrict the tasks to execute, just prefix the names by 'in:' or 'out:':
 ---------------
 $ waf step --file=out:build/shlib/test_shlib.c.1.o
 Waf: Entering directory `/disk/comp/waf-1.6/demos/c/build'
-cc: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
+c: shlib/test_shlib.c -> build/shlib/test_shlib.c.1.o
  -> 0
 Waf: Leaving directory `/disk/comp/waf-1.6/demos/c/build'
 'step' finished successfully (0.091s)

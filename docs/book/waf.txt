@@ -1,5 +1,5 @@
-The Waf Book (v1.6.0 snapshot)
-==============================
+The Waf Book (v1.6.0)
+=====================
 :author: Thomas Nagy
 :quotes.++:
 :numbered!:
