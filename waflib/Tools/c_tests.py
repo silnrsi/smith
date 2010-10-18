@@ -106,7 +106,7 @@ def check_inline(self, **kw):
 		else:
 			self.end_msg(x)
 			if x != 'inline':
-				self.define('inline', i, quote=False)
+				self.define('inline', x, quote=False)
 			return x
 	self.fatal('could not use inline functions')
 
