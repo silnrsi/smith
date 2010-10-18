@@ -31,7 +31,6 @@ General:
 * improve the exception handling (WscriptError was removed, use WafError)
 * let the commands access node objects
 * infer the build directory from the lock filename
-* waf list to list the possible targets
 * waf step --file=main.c
 * post task generators in a lazy manner
 
