@@ -62,7 +62,7 @@ else:
 			sys.excepthook(*sys.exc_info())
 	threading.Thread.run = run
 
-SIG_NIL = b'iluvcuteoverload'
+SIG_NIL = 'iluvcuteoverload'.encode()
 """if you change the hash type, do not forget to change SIG_NIL"""
 
 O644 = 420

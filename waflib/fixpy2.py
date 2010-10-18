@@ -59,18 +59,6 @@ def r1(code):
 	code = code.replace('.encode()', '')
 	return code
 
-@subst('Utils.py')
-def r2(code):
-	"byte objects for python < 2.6"
-	code = code.replace("b'iluvcuteoverload'", "'iluvcuteoverload'")
-	return code
-
-@subst('Tools/c_config.py')
-def r3(code):
-	"more byte objects"
-	code = code.replace("b'\\n'", "'\\n'")
-	return code
-
 @subst('Runner.py')
 def r4(code):
 	"generator syntax"
