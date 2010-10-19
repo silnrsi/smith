@@ -108,6 +108,8 @@ def parse_flags(self, line, uselib, env=None):
 			app('CFLAGS_' + uselib, tmp)
 			app('CXXFLAGS_' + uselib, tmp)
 			app('LINKFLAGS_' + uselib, tmp)
+		elif x.endswith('.a') or x.endswith('.so') or x.endswith('.dylib'):
+			appu('LINKFLAGS_' + uselib, [x]) # not cool, #762
 
 @conf
 def ret_msg(self, f, kw):
@@ -248,18 +250,31 @@ def check_cfg(self, *k, **kw):
 def validate_c(self, kw):
 	"""
 	pre-check the parameters that will be given to run_c_code
+
 	env: an optional environment (modified -> provide a copy)
+
 	compiler: cc or cxx - it tries to guess what is best
+
 	type: cprogram, cshlib, cstlib, cobjects ...
+
 	feature: it is better to give the features you want directly, for example 'cxx cxxstlib'
+
 	code: a piece of code to execute
+
 	fragment: override any other piece of code
+
 	uselib_store: where to add the variables (IMPORTANT!)
+
 	use: parameters to use for building (just like the normal use keyword)
+
 	define_name: define to set when the check is over
+
 	execute: True or False - will return the result of the execution
+
 	define_ret: if execute is set to True, use the execution output in both the define and the return value
+
 	header_name: check for a header_name
+
 	auto_add_header_name: if header_name was set, add the headers in env.INCKEYS so the next tests will include the headers (obscure autoconf feature)
 	"""
 
