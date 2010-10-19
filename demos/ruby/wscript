@@ -31,3 +31,11 @@ def build(bld):
 		install_path = '${ARCHDIR_RUBY}')
 
 	bld.install_files('${LIBDIR_RUBY}', 'Mytest.rb')
+
+	if bld.cmd == 'runit':
+		bld.exec_command(bld.env.RUBY + ' -I' + bld.get_variant_dir() + ' -rMytest -e "Mytest.hello()"')
+
+from waflib.Build import BuildContext
+class one(BuildContext):
+	cmd = 'runit'
+
