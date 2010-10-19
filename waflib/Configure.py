@@ -362,10 +362,10 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	self.start_msg('Checking for waf version in %s-%s' % (str(mini), str(maxi)))
 	ver = Context.HEXVERSION
 	if Utils.num2ver(mini) > ver:
-		conf.fatal('waf version should be at least %r (%r found)' % (mini, ver))
+		self.fatal('waf version should be at least %r (%r found)' % (mini, ver))
 
 	if Utils.num2ver(maxi) < ver:
-		conf.fatal('waf version should be at most %r (%r found)' % (maxi, ver))
+		self.fatal('waf version should be at most %r (%r found)' % (maxi, ver))
 	self.end_msg('ok')
 
 @conf
