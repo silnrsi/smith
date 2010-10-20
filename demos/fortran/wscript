@@ -72,7 +72,7 @@ def build(bld):
 
 	bld(
 		features = 'fc fcstlib',
-		source = 'mod/two_mods.f90',
+		source = 'mod/two_mods.f90 mod/uses_two_mods.f90',
 		target = 'mod/two_mods')
 
 	bld.recurse('typemap')
