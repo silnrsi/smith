@@ -114,6 +114,14 @@ class fc(Task.Task):
 			for a in ins[k]:
 				a.run_after.update(outs[k])
 
+				# the scanner cannot output nodes, so we have to set them
+				# ourselves as task.dep_nodes (additional input nodes)
+				tmp = []
+				for t in outs[k]:
+					tmp.extend(t.outputs)
+				tmp.sort(key=lambda x: x.abspath())
+				a.dep_nodes.extend(tmp)
+
 		# the task objects have changed: clear the signature cache
 		for tsk in lst:
 			try:
