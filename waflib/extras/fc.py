@@ -24,8 +24,12 @@ ccroot.USELIB_VARS['fcstlib'] = set(['ARFLAGS', 'LINKDEPS'])
 def dummy(self):
 	pass
 
-@TaskGen.extension('.f', '.f90')
+@extension('.f', '.f90')
 def fc_hook(self, node):
+	return self.create_compiled_task('fc', node)
+
+@extension('.F', '.F90')
+def fcpp_hook(self, node):
 	return self.create_compiled_task('fc', node)
 
 def get_fortran_tasks(tsk):
@@ -118,10 +122,6 @@ class fc(Task.Task):
 				pass
 
 		return super(fc, self).runnable_status()
-
-@extension('.F', '.F90')
-def fcpp_hook(self, node):
-	return self.create_compiled_task('fc', node)
 
 class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
