@@ -43,7 +43,7 @@ def f(tsk):
 	bld = gen.bld
 	wd = getattr(tsk, 'cwd', None)
 	p = env.get_flat
-	cmd = \'\'\' %s \'\'\' % s
+	tsk.last_cmd = cmd = \'\'\' %s \'\'\' % s
 	return tsk.exec_command(cmd, cwd=wd, env=env.env or None)
 '''
 
@@ -56,7 +56,7 @@ def f(tsk):
 	def to_list(xx):
 		if isinstance(xx, str): return [xx]
 		return xx
-	lst = []
+	tsk.last_cmd = lst = []
 	%s
 	lst = [x for x in lst if x]
 	return tsk.exec_command(lst, cwd=wd, env=env.env or None)
@@ -296,17 +296,18 @@ class TaskBase(evil):
 
 	def format_error(self):
 		"error message to display to the user (when a build fails)"
+		msg = getattr(self, 'last_cmd', '')
 		if getattr(self, "err_msg", None):
 			return self.err_msg
 		elif self.hasrun == CRASHED:
 			try:
-				return " -> task failed (exit status %r): %r" % (self.err_code, self)
+				return ' -> task failed (exit status %r): %r\n%r' % (self.err_code, self, msg)
 			except AttributeError:
-				return " -> task failed: %r" % self
+				return ' -> task failed: %r\n%r' % (self, msg)
 		elif self.hasrun == MISSING:
-			return " -> missing files: %r" % self
+			return ' -> missing files: %r\n%r' % (self, msg)
 		else:
-			return ''
+			return '?'
 
 class Task(TaskBase):
 	"""The parent class is quite limited, in this version:
