@@ -28,7 +28,7 @@ def configure(conf):
 	pretends to be something it is not (setting CC=icc and trying to configure gcc)
 	"""
 	try: test_for_compiler = conf.options.check_c_compiler
-	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cc')")
+	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_c')")
 	for compiler in test_for_compiler.split():
 		conf.env.stash()
 		conf.start_msg('Checking for %r (c compiler)' % compiler)
@@ -37,7 +37,7 @@ def configure(conf):
 		except conf.errors.ConfigurationError as e:
 			conf.env.revert()
 			conf.end_msg(False)
-			debug('compiler_cc: %r' % e)
+			debug('compiler_c: %r' % e)
 		else:
 			if conf.env['CC']:
 				conf.end_msg(True)
