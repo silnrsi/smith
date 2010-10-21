@@ -426,7 +426,7 @@ class Node(object):
 			lst = Utils.to_list(s)
 			ret = []
 			for x in lst:
-				x = x.replace('//', '/')
+				x = x.replace('\\', '/').replace('//', '/')
 				if x.endswith('/'):
 					x += '**'
 				lst2 = x.split('/')
