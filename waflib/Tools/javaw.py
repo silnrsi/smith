@@ -164,7 +164,7 @@ class javac(Task.Task):
 			global SOURCE_RE
 			self.inputs  = self.srcdir.ant_glob(SOURCE_RE)
 		if not self.outputs:
-			self.outputs = [x.change_ext('.class') for x in self.inputs]
+			self.outputs = [x.change_ext('.class') for x in self.inputs if x.name != 'package-info.java']
 		return super(javac, self).runnable_status()
 
 	def post_run(self):
