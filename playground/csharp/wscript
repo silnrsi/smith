@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2010 (ita)
+
+FRAG = '''
+namespace Moo {
+	public class Test {
+		public static int Main(string[] args) {
+			return 0;
+		}
+	}
+}
+'''
+
+def configure(conf):
+	conf.load('cs')
+	try:
+		conf.check(features='cs', fragment=FRAG, compile_filename='test.cs', gen='test.exe',
+			type='exe', csflags=['-pkg:gtk-sharp-2.0'], msg='Checking for Gtksharp support')
+		conf.env.HAS_GTKSHARP = True
+	except:
+		conf.env.HAS_GTKSHARP = False
+
+def build(bld):
+	bld(features='cs', source='Hi.cs', includes='.', type='exe', gen='hi.exe')
+	if bld.env.HAS_GTKSHARP:
+		bld(features='cs', source='Simple.cs', includes='.', type='exe', gen='mono-hello.exe', csflags=['-pkg:gtk-sharp-2.0'])
+
