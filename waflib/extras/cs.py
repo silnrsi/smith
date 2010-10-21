@@ -6,7 +6,7 @@
 C# support
 
 We will need a demo to check that this works
-bld(features='cs', source='main.cs', target='foo')
+bld(features='cs', source='main.cs', gen='foo')
 """
 
 from waflib import TaskGen, Utils, Task, Options, Logs
@@ -22,16 +22,18 @@ def apply_cs(self):
 	try: self.meths.remove('process_source')
 	except ValueError: pass
 
-	# what kind of assembly are we generating?
-	self.env['CSTYPE'] = getattr(self, 'type', 'exe')
-
 	# process the sources
 	nodes = [self.path.find_resource(i) for i in self.to_list(self.source)]
-	self.create_task('mcs', nodes, self.path.find_or_declare(self.target))
+	tsk = self.create_task('mcs', nodes, self.path.find_or_declare(self.gen))
+
+	# what kind of assembly are we generating?
+	tsk.env.CSTYPE = '/target:%s' % getattr(self, 'type', 'exe')
+	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()
+
 
 class mcs(Task.Task):
 	color   = 'YELLOW'
-	run_str = '${MCS} ${SRC} /target:${CSTYPE} /out:${TGT} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES}'
+	run_str = '${MCS} ${CSTYPE} ${SRC} ${OUT} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES}'
 
 def configure(conf):
 	csc = getattr(Options.options, 'cscbinary', None)
