@@ -54,8 +54,8 @@ def build(bld):
 	import random
 	rnd = random.randint(0, 25)
 	bld(
-       rule = "sleep 5 && (echo 'int num%d = %d;' > ${TGT})" % (rnd, rnd),
-       target = 'foo_%d.c' % rnd,
+		rule           = "sleep 2 && (echo 'int num%d = %d;' > ${TGT})" % (rnd, rnd),
+		target         = 'foo_%d.c' % rnd,
        )
 
 	bld.add_group()
