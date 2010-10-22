@@ -33,13 +33,13 @@ def apply_cs(self):
 
 class mcs(Task.Task):
 	color   = 'YELLOW'
-	run_str = '${MCS} ${CSTYPE} ${SRC} ${OUT} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES}'
+	run_str = '${MCS} ${CSTYPE} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES} ${SRC} ${OUT}'
 
 def configure(conf):
 	csc = getattr(Options.options, 'cscbinary', None)
 	if csc:
 		conf.env.MCS = csc
-	conf.find_program(['gmcs', 'mcs'], var='MCS')
+	conf.find_program(['csc', 'mcs', 'gmcs'], var='MCS')
 	conf.env.ASS_ST = '/r:%s'
 	conf.env.RES_ST = '/resource:%s'
 
