@@ -33,7 +33,7 @@ def apply_cs(self):
 
 class mcs(Task.Task):
 	color   = 'YELLOW'
-	run_str = '${MCS} ${CSTYPE} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES} ${SRC} ${OUT}'
+	run_str = '${MCS} ${CSTYPE} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES} ${OUT} ${SRC}'
 
 def configure(conf):
 	csc = getattr(Options.options, 'cscbinary', None)
