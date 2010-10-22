@@ -12,6 +12,9 @@ namespace Moo {
 }
 '''
 
+def options(opt):
+	opt.load('cs')
+
 def configure(conf):
 	conf.load('cs')
 	try:
