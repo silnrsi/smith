@@ -2,17 +2,16 @@
 
 def build(bld):
 
-    bld(features  = 'javac seq',
+    bld(features  = 'javac',
         srcdir    = 'src',
         compat    = '1.5',
         name      = 'animals-src',
-		seq_start = True
     )
 
-    bld(features  = 'jar seq',
+    bld(features  = 'jar',
         basedir   = 'src',
         destfile  = 'animals.jar',
-        #use       = 'animals-src',
+        use       = 'animals-src',
         name      = 'animals'
     )
 

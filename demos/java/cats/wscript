@@ -5,18 +5,18 @@ def configure(ctx):
 
 def build(bld):
 
-    bld(features  = 'javac seq',
+    bld(features  = 'javac',
         srcdir    = 'src',
         compat    = '1.5',
         use       = 'animals',
         name      = 'cats-src',
-		seq_start = True
     )
 
-    bld(features  = 'jar seq',
+    bld(features  = 'jar',
         basedir   = 'src',
         destfile  = 'cats.jar',
-        name      = 'cats'
+        name      = 'cats',
+		use       = 'cats-src'
     )
 
 
