@@ -32,7 +32,7 @@ You would have to run:
 import os, re
 from waflib.Configure import conf
 from waflib import TaskGen, Task, Utils, Options, Build
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before, after
 
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
@@ -77,7 +77,7 @@ def jar_files(self):
 	tsk.basedir = srcdir_node
 
 	jaropts.append('-C')
-	jaropts.append(srcdir_node.bldpath())
+	jaropts.append(srcdir_node.get_bld().bldpath())
 	jaropts.append('.')
 
 	tsk.env['JAROPTS'] = jaropts
@@ -132,11 +132,25 @@ def apply_java(self):
 			else:
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
+@feature('javac')
+@after('apply_java')
+def process_use(self):
+	lst = []
+	names = self.to_list(getattr(self, 'use', []))
+	get = self.bld.get_tgen_by_name
+	for x in names:
+		y = get(x)
+		y.post()
+		lst.append(y.tasks[0].outputs[0].abspath())
+
+		self.tasks[0].set_run_after(y.tasks[0])
+
+	if lst:
+		self.env['CLASSPATH'] = (self.env.CLASSPATH or '') + os.pathsep + os.pathsep.join(lst) + os.pathsep
 
 class jar_create(Task.Task):
 	color   = 'GREEN'
 	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
-	after   = ['javac']
 
 	def runnable_status(self):
 		for t in self.run_after:
