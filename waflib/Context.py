@@ -190,7 +190,7 @@ class Context(ctx):
 				d = os.path.join(self.path.abspath(), d)
 
 			WSCRIPT     = os.path.join(d, WSCRIPT_FILE)
-			WSCRIPT_FUN = WSCRIPT + '_' + self.fun
+			WSCRIPT_FUN = WSCRIPT + '_' + (name or self.fun)
 
 			node = self.root.find_node(WSCRIPT_FUN)
 			if node:
@@ -206,9 +206,9 @@ class Context(ctx):
 					raise Errors.WafError('No wscript file in directory %s' % d)
 				self.pre_recurse(node)
 				wscript_module = load_module(node.abspath())
-				user_function = getattr(wscript_module, self.fun, None)
+				user_function = getattr(wscript_module, (name or self.fun), None)
 				if not user_function:
-					raise Errors.WafError('No function %s defined in %s' % (self.fun, node.abspath()))
+					raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
 				user_function(self)
 				self.post_recurse(node)
 
