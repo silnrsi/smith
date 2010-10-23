@@ -21,7 +21,7 @@ def build(bld):
 	#
 	# srcdir: directory containing the sources to compile
 	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
-	bld(features='javac seq', srcdir='src', compat='1.5', sourcepath=['src', 'sup'])
+	bld(features='javac seq', srcdir='src/main/java', compat='1.5', sourcepath=['src', 'sup'])
 
 	# jar
 	#
@@ -32,4 +32,6 @@ def build(bld):
 	#jaropts = '-C default/src/ .', # can be used to give files
 	#classpath = '..:.', # can be used to set a custom classpath
 	#)
+
+	bld.recurse('animals cats')
 
