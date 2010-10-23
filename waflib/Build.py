@@ -603,7 +603,6 @@ class inst_task(Task.Task):
     task used for installing files and symlinks
 	"""
 	color = 'CYAN'
-	nocache = True
 
 	def post(self):
 		buf = []

@@ -662,6 +662,9 @@ class Task(TaskBase):
 		should an exception occur, ignore the data
 		"""
 
+		if not getattr(self, 'outputs', None):
+			return None
+
 		env = self.env
 		sig = self.signature()
 		ssig = Utils.to_hex(sig)
