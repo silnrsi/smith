@@ -57,47 +57,10 @@ public class Test {
 }
 '''
 
-@feature('jar')
-@before('process_source')
-def jar_files(self):
-	basedir = getattr(self, 'basedir', '.')
-	destfile = getattr(self, 'destfile', 'test.jar')
-	jaropts = getattr(self, 'jaropts', [])
-	jarcreate = getattr(self, 'jarcreate', 'cf')
-
-	if isinstance(self.basedir, self.path.__class__):
-		srcdir_node = self.basedir
-	else:
-		srcdir_node = self.path.find_dir(self.basedir)
-	if not srcdir_node:
-		raise Errors.WafError('could not find basedir %r' % self.srcdir)
-
-	self.jar_task = tsk = self.create_task('jar_create')
-	tsk.set_outputs(self.path.find_or_declare(destfile))
-	tsk.basedir = srcdir_node
-
-	jaropts.append('-C')
-	jaropts.append(srcdir_node.get_bld().bldpath())
-	jaropts.append('.')
-
-	tsk.env['JAROPTS'] = jaropts
-	tsk.env['JARCREATE'] = jarcreate
-
-@feature('jar')
-@after('jar_files')
-def use_jar_files(self):
-	lst = []
-	names = self.to_list(getattr(self, 'use', []))
-	get = self.bld.get_tgen_by_name
-	for x in names:
-		y = get(x)
-		y.post()
-		self.jar_task.run_after.update(y.tasks)
-
 @feature('javac')
 @before('process_source')
 def apply_java(self):
-	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
+	Utils.def_attrs(self, jarname='', classpath='',
 		sourcepath='.', srcdir='.',
 		jar_mf_attributes={}, jar_mf_classpath=[])
 
@@ -133,6 +96,7 @@ def apply_java(self):
 	if names:
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
+	"""
 	if self.jarname:
 		jar_tsk = self.create_task('jar_create')
 		jar_tsk.set_outputs(self.path.find_or_declare(self.jarname))
@@ -143,6 +107,7 @@ def apply_java(self):
 			else:
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
+	"""
 
 @feature('javac')
 @after('apply_java')
@@ -158,6 +123,47 @@ def use_javac_files(self):
 
 	if lst:
 		self.env['CLASSPATH'] = (self.env.CLASSPATH or '') + os.pathsep + os.pathsep.join(lst) + os.pathsep
+
+@feature('jar')
+@after('apply_java', 'use_javac_files')
+@before('process_source')
+def jar_files(self):
+	basedir = getattr(self, 'basedir', '.')
+	destfile = getattr(self, 'destfile', 'test.jar')
+	jaropts = getattr(self, 'jaropts', [])
+	jarcreate = getattr(self, 'jarcreate', 'cf')
+
+	if isinstance(self.basedir, self.path.__class__):
+		srcdir_node = self.basedir
+	else:
+		srcdir_node = self.path.find_dir(self.basedir)
+	if not srcdir_node:
+		raise Errors.WafError('could not find basedir %r' % self.srcdir)
+
+	self.jar_task = tsk = self.create_task('jar_create')
+	tsk.set_outputs(self.path.find_or_declare(destfile))
+	tsk.basedir = srcdir_node
+
+	jaropts.append('-C')
+	jaropts.append(srcdir_node.get_bld().bldpath())
+	jaropts.append('.')
+
+	tsk.env['JAROPTS'] = jaropts
+	tsk.env['JARCREATE'] = jarcreate
+
+	if getattr(self, 'javac_task', None):
+		tsk.set_run_after(self.javac_task)
+
+@feature('jar')
+@after('jar_files')
+def use_jar_files(self):
+	lst = []
+	names = self.to_list(getattr(self, 'use', []))
+	get = self.bld.get_tgen_by_name
+	for x in names:
+		y = get(x)
+		y.post()
+		self.jar_task.run_after.update(y.tasks)
 
 class jar_create(Task.Task):
 	color   = 'GREEN'
