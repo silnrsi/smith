@@ -72,7 +72,7 @@ def jar_files(self):
 	if not srcdir_node:
 		raise Errors.WafError('could not find basedir %r' % self.srcdir)
 
-	tsk = self.create_task('jar_create')
+	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
 	tsk.basedir = srcdir_node
 
@@ -82,6 +82,17 @@ def jar_files(self):
 
 	tsk.env['JAROPTS'] = jaropts
 	tsk.env['JARCREATE'] = jarcreate
+
+@feature('jar')
+@after('jar_files')
+def use_jar_files(self):
+	lst = []
+	names = self.to_list(getattr(self, 'use', []))
+	get = self.bld.get_tgen_by_name
+	for x in names:
+		y = get(x)
+		y.post()
+		self.jar_task.run_after.update(y.tasks)
 
 @feature('javac')
 @before('process_source')
@@ -107,7 +118,7 @@ def apply_java(self):
 
 	self.env['OUTDIR'] = [srcdir_node.get_src().srcpath()]
 
-	tsk = self.create_task('javac')
+	self.javac_task = tsk = self.create_task('javac')
 	tsk.srcdir = srcdir_node
 
 	if getattr(self, 'compat', None):
@@ -132,18 +143,18 @@ def apply_java(self):
 			else:
 				dirs = '.'
 				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
+
 @feature('javac')
 @after('apply_java')
-def process_use(self):
+def use_javac_files(self):
 	lst = []
 	names = self.to_list(getattr(self, 'use', []))
 	get = self.bld.get_tgen_by_name
 	for x in names:
 		y = get(x)
 		y.post()
-		lst.append(y.tasks[0].outputs[0].abspath())
-
-		self.tasks[0].set_run_after(y.tasks[0])
+		lst.append(y.jar_task.outputs[0].abspath())
+		self.javac_task.set_run_after(y.jar_task)
 
 	if lst:
 		self.env['CLASSPATH'] = (self.env.CLASSPATH or '') + os.pathsep + os.pathsep.join(lst) + os.pathsep
