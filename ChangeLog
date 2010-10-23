@@ -4,6 +4,7 @@ NEW IN WAF 1.6.1
 * Fixed the method check_waf_version  #764
 * Rebuild fortran files when .mod files change #766
 * Fixed the name in ctx.recurse(name) #769
+* Stop caching the install tasks and tasks that have no outputs #770
 
 NEW IN WAF 1.6.0
 ----------------
