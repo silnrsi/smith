@@ -1,24 +1,18 @@
 #! /usr/bin/env python
 
-def configure(ctx):
-    ctx.load('java')
-
 def build(bld):
 
-    bld(features  = 'javac',
-        srcdir    = 'src',
-        compat    = '1.5',
-        use       = 'animals',
-        name      = 'cats-src',
-    )
+	bld(features  = 'javac',
+		srcdir    = 'src',
+		compat    = '1.5',
+		use       = 'animals',
+		name      = 'cats-src',
+	)
 
-    bld(features  = 'jar',
-        basedir   = 'src',
-        destfile  = 'cats.jar',
-        name      = 'cats',
+	bld(features  = 'jar',
+		basedir   = 'src',
+		destfile  = 'cats.jar',
+		name      = 'cats',
 		use       = 'cats-src'
-    )
-
-
-
+	)
 

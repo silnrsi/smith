@@ -2,16 +2,14 @@
 
 def build(bld):
 
-    bld(features  = 'javac',
-        srcdir    = 'src',
-        compat    = '1.5',
-        name      = 'animals-src',
-    )
+	bld(features  = 'javac jar',
+		name      = 'animals',
 
-    bld(features  = 'jar',
-        basedir   = 'src',
-        destfile  = 'animals.jar',
-        use       = 'animals-src',
-        name      = 'animals'
-    )
+		# javac
+		srcdir    = 'src',
+		compat    = '1.5',
+		# jar
+		basedir   = 'src',
+		destfile  = 'animals.jar',
+	)
 
