@@ -605,7 +605,6 @@ class inst_task(Task.Task):
 	color = 'CYAN'
 
 	def post(self):
-		self.hasrun = Task.NOT_RUN
 		buf = []
 		for x in self.source:
 			if isinstance(x, waflib.Node.Node):
@@ -750,8 +749,8 @@ class InstallContext(BuildContext):
 
 	def run_task_now(self, tsk, postpone):
 		"""execute an installation task immediately"""
+		tsk.post()
 		if not postpone:
-			tsk.post()
 			if tsk.runnable_status() == Task.ASK_LATER:
 				raise self.WafError('cannot post the task %r' % tsk)
 			tsk.run()
@@ -759,7 +758,6 @@ class InstallContext(BuildContext):
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True, postpone=True):
 		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
 		tsk = inst_task(env=env or self.env)
-		tsk.hasrun = Task.SKIPPED
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
@@ -777,7 +775,6 @@ class InstallContext(BuildContext):
 	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True, postpone=True):
 		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
 		tsk = inst_task(env=env or self.env)
-		tsk.hasrun = Task.SKIPPED
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
@@ -796,7 +793,6 @@ class InstallContext(BuildContext):
 			return
 
 		tsk = inst_task(env=env or self.env)
-		tsk.hasrun = Task.SKIPPED
 		tsk.bld = self
 		tsk.dest = dest
 		tsk.path = cwd or self.path
