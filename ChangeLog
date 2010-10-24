@@ -5,6 +5,8 @@ NEW IN WAF 1.6.1
 * Rebuild fortran files when .mod files change #766
 * Fixed the name in ctx.recurse(name) #769
 * Stop caching the install tasks and tasks that have no outputs #770
+* Updated the java tool and examples
+* Update the c# tool and examples (playground)
 
 NEW IN WAF 1.6.0
 ----------------
