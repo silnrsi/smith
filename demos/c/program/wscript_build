@@ -7,5 +7,6 @@ bld(rule=write_header, target='b.h', ext_out=['.h'])
 bld.program(
 	source   = 'main.c',
 	includes = '. ..',
-	#ccflags  = '-O3',
+	cflags  = ['-O3'],
+	defines = ['foo=bar'],
 	target   = 'myprogram')
