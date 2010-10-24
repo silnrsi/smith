@@ -1,11 +1,11 @@
 public class My {
-   private string msg = "";
+	private Dye foo;
 
-   public My(string _msg) {
-      msg = _msg;
-   }
+	public My(string msg) {
+		foo = new Dye(msg);
+	}
 
-   public void display() {
-      System.Console.WriteLine(msg);
-   }
+	public void display() {
+		foo.display();
+	}
 }

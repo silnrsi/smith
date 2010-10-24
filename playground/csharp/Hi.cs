@@ -8,7 +8,6 @@ namespace MyApp
 		{
 			My fu = new My("Hello there");
 			fu.display();
-			//Console.WriteLine("Hi there");
 			return 0;
 		}
 	}
