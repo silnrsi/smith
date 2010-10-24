@@ -24,12 +24,22 @@ def apply_cs(self):
 
 	# process the sources
 	nodes = [self.path.find_resource(i) for i in self.to_list(self.source)]
-	tsk = self.create_task('mcs', nodes, self.path.find_or_declare(self.gen))
+	self.cs_task = tsk = self.create_task('mcs', nodes, self.path.find_or_declare(self.gen))
 
 	# what kind of assembly are we generating?
 	tsk.env.CSTYPE = '/target:%s' % getattr(self, 'type', 'exe')
 	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()
 
+@feature('cs')
+@after('apply_cs')
+def use_cs(self):
+	names = self.to_list(getattr(self, 'use', []))
+	get = self.bld.get_tgen_by_name
+	for x in names:
+		y = get(x)
+		y.post()
+		self.cs_task.set_run_after(y.cs_task) # order
+		self.cs_task.dep_nodes.extend(y.cs_task.outputs) # dependency
 
 class mcs(Task.Task):
 	color   = 'YELLOW'
