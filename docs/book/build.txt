@@ -361,7 +361,7 @@ Waf: Leaving directory `/tmp/demos/c/build'
 'step' finished successfully (0.201s)
 ---------------
 
-In this case the +.so+ files were also rebuilt. Since the files attribute is interpreted a comma-separated list of regular expressions, the following will produce a different output:
+In this case the +.so+ files were also rebuilt. Since the files attribute is interpreted as a comma-separated list of regular expressions, the following will produce a different output:
 
 [source,shishell]
 ---------------
