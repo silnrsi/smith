@@ -96,7 +96,7 @@ def configure(ctx):
 
 <1> Key-based access; storing a list
 <2> Attribute-based access (the two forms are equivalent)
-<3> Append a each element value to the list _ctx.env.CXXFLAGS_, assuming it is a list
+<3> Append each element to the list _ctx.env.CXXFLAGS_, assuming it is a list
 <4> Insert the values at the beginning. Note that there is no such method as _prepend_unique_
 
 The execution will produce the following output:

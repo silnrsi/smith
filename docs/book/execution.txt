@@ -517,7 +517,7 @@ After cleaning, the targets will be created once again even if they were up-to-d
 
 [source,shishell]
 ---------------
-$ waf clean build
+$ waf clean build -v
 'clean' finished successfully (0.003s)
 Waf: Entering directory `/tmp/execution_build/build_directory' <1>
 [1/2] foo.txt:  -> build_directory/foo.txt <2>
