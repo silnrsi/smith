@@ -19,14 +19,16 @@ ccroot.USELIB_VARS['cs'] = set(['CSFLAGS', 'ASSEMBLIES', 'RESOURCES'])
 @after('apply_uselib_cs')
 @before('process_source')
 def apply_cs(self):
-	try: self.meths.remove('process_source')
-	except ValueError: pass
+	cs_nodes = []
+	no_nodes = []
+	for x in self.to_nodes(self.source):
+		if x.name.endswith('.cs'):
+			cs_nodes.append(x)
+		else:
+			no_nodes.append(x)
+	self.source = no_nodes
 
-	# process the sources
-	nodes = [self.path.find_resource(i) for i in self.to_list(self.source)]
-	self.cs_task = tsk = self.create_task('mcs', nodes, self.path.find_or_declare(self.gen))
-
-	# what kind of assembly are we generating?
+	self.cs_task = tsk = self.create_task('mcs', cs_nodes, self.path.find_or_declare(self.gen))
 	tsk.env.CSTYPE = '/target:%s' % getattr(self, 'type', 'exe')
 	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()
 
