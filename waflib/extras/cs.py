@@ -41,6 +41,8 @@ def use_cs(self):
 		self.cs_task.set_run_after(y.cs_task) # order
 		self.cs_task.dep_nodes.extend(y.cs_task.outputs) # dependency
 
+		self.cs_task.env.append_value('CSFLAGS', '/reference:%s' % y.cs_task.outputs[0].abspath())
+
 class mcs(Task.Task):
 	color   = 'YELLOW'
 	run_str = '${MCS} ${CSTYPE} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES} ${OUT} ${SRC}'
