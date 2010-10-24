@@ -25,7 +25,8 @@ def configure(conf):
 		conf.env.HAS_GTKSHARP = False
 
 def build(bld):
-	bld(features='cs', source='Hi.cs', includes='.', type='exe', gen='hi.exe')
+	bld(features='cs', source='My.cs', type='library', gen='my.dll', name='mylib')
+	bld(features='cs', source='Hi.cs', includes='.', type='exe', gen='hi.exe', use='mylib', name='hi')
 	if bld.env.HAS_GTKSHARP:
 		bld(features='cs', source='Simple.cs', includes='.', type='exe', gen='mono-hello.exe', csflags=['-pkg:gtk-sharp-2.0'])
 
