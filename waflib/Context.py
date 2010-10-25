@@ -245,12 +245,6 @@ class Context(ctx):
 		kw['shell'] = isinstance(cmd, str)
 		Logs.debug('runner: %r' % cmd)
 
-		if Utils.is_win32 and isinstance(cmd, str) and len(cmd) > 2000:
-			# win32 stuff
-			startupinfo = subprocess.STARTUPINFO()
-			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			kw['startupinfo'] = startupinfo
-
 		try:
 			if self.logger:
 				# warning: may deadlock with a lot of output (subprocess limitation)
@@ -285,12 +279,6 @@ class Context(ctx):
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
 		Logs.debug('runner: %r' % cmd)
-
-		if Utils.is_win32 and isinstance(cmd, str) and len(cmd) > 2000:
-			# win32 stuff
-			startupinfo = subprocess.STARTUPINFO()
-			startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-			kw['startupinfo'] = startupinfo
 
 		if 'quiet' in kw:
 			quiet = kw['quiet']
