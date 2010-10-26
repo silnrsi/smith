@@ -3,7 +3,7 @@
 ! FIXME:
 ! modifying two_mods.f90 should trigger this file's recompilation, too.
 
-module uses_two_mods
+module uses_TWO_mods
       use mod2
       implicit none
 
@@ -18,4 +18,4 @@ module uses_two_mods
 
       end subroutine printer
 
-end module uses_two_mods
+end module uses_TWO_mods

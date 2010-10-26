@@ -92,7 +92,8 @@ class fc(Task.Task):
 			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('MOD@'):
-					name = x.replace('MOD@', '') + '.mod'
+					# .mod filenames are lowercase.
+					name = x.replace('MOD@', '').lower() + '.mod'
 					node = bld.srcnode.find_or_declare(name)
 					tsk.set_outputs(node)
 					outs[id(node)].add(tsk)
@@ -102,7 +103,8 @@ class fc(Task.Task):
 			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('USE@'):
-					name = x.replace('USE@', '') + '.mod'
+					# .mod filenames are lowercase.
+					name = x.replace('USE@', '').lower() + '.mod'
 					node = bld.srcnode.find_resource(name)
 					if node and node not in tsk.outputs:
 						if not node in bld.node_deps[key]:
