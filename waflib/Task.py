@@ -113,6 +113,7 @@ class store_task_type(type):
 				# if a string is provided, convert it to a method
 				(f, dvars) = compile_fun(cls.run_str, cls.shell)
 				cls.hcode = cls.run_str
+				cls.run_str = None
 				cls.run = f
 				cls.vars.extend(dvars)
 			elif getattr(cls, 'run', None) and not getattr(cls, 'hcode', None):

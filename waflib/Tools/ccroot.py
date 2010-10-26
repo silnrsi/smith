@@ -115,18 +115,16 @@ class link_task(Task.Task):
 
 class stlink_task(link_task):
 	"""link static libraries (with ar)"""
-	h_code = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
-	def run(self):
-		try:
-			os.remove(self.outputs[0].abspath())
-		except OSError:
-			pass
-		return self.oldm()
+	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 
-def _wrap(cls):
-	cls.oldm, cls.vars = Task.compile_fun(cls.h_code)
-_wrap(stlink_task)
-
+def rm_tgt(cls):
+	old = cls.run
+	def wrap(self):
+		try: os.remove(self.outputs[0].abspath())
+		except OSError: pass
+		return old(self)
+	setattr(cls, 'run', wrap)
+rm_tgt(stlink_task)
 
 @feature('c', 'cxx', 'd', 'go', 'fc')
 @after('process_source')
