@@ -82,6 +82,9 @@ def libfiles(lib, pattern, lib_paths):
 	for lib_path in lib_paths:
 		libname = pattern % ('boost_%s[!_]*' % lib)
 		result += glob.glob(os.path.join(lib_path, libname))
+		if len(result)==0:
+			libname=pattern%('boost_%s'%lib)
+			result+=glob.glob(os.path.join(lib_path,libname))
 	return result
 
 @conf
