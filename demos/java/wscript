@@ -23,11 +23,18 @@ def build(bld):
 
 	# srcdir: directory containing the sources to compile
 	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
-	bld(features='javac seq', srcdir='src/main/java', compat='1.5', sourcepath=['src', 'sup'])
 
 	# basedir: directory containing the .class files to package
 	# destfile: the destination file
-	bld(features='jar seq', basedir='src', destfile='foo.jar')
+
+	bld(features   = 'javac jar',
+		srcdir     = 'src/main/java',
+		compat     = '1.5',
+		sourcepath = ['src', 'sup'],
+
+		basedir    = 'src',
+		destfile   = 'foo.jar'
+		)
 
 	#jaropts = '-C default/src/ .', # can be used to give files
 	#classpath = '..:.', # can be used to set a custom classpath
