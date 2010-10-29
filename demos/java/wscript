@@ -8,23 +8,23 @@ APPNAME = 'java_test'
 top = '.'
 out = 'build'
 
+def options(opt):
+	opt.load('junit', tooldir='.')
+
 def configure(conf):
 	conf.load('java')
+
+	if conf.load('junit', tooldir='.'):
+		conf.env.DO_JUNIT = True
 	conf.check_java_class('java.io.FileOutputStream')
 	conf.check_java_class('FakeClass')
 
 def build(bld):
 
-	# in the following, the feature 'seq' is used to force a sequential order on the tasks created
-
-	# java
-	#
 	# srcdir: directory containing the sources to compile
 	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
 	bld(features='javac seq', srcdir='src/main/java', compat='1.5', sourcepath=['src', 'sup'])
 
-	# jar
-	#
 	# basedir: directory containing the .class files to package
 	# destfile: the destination file
 	bld(features='jar seq', basedir='src', destfile='foo.jar')
