@@ -60,9 +60,10 @@ class junit_test(Task.Task):
 			if not t.hasrun:
 				return Task.ASK_LATER
 
-		n = self.generator.path.find_dir(self.generator.junitsrc).get_bld()
+		n = self.generator.path.find_dir(self.generator.junitsrc)
 		if not n:
 			self.generator.bld.fatal('no such class directory %r' % self.generator.junitsrc)
+		self.base = n = n.get_bld()
 
 		# make sure the tests are executed whenever the .class files change
 		self.inputs = n.ant_glob('**/*.class')
@@ -77,11 +78,10 @@ class junit_test(Task.Task):
 		cmd = []
 		cmd.extend(self.env.JAVA)
 		cmd.append('-classpath')
-		cmd.append(self.env.CLASSPATH_JUNIT + os.pathsep + getattr(self, 'junitclasspath', ''))
+		#cmd.append(self.env.CLASSPATH_JUNIT + os.pathsep + getattr(self, 'junitclasspath', ''))
+		cmd.append(self.generator.javac_task.env.CLASSPATH + os.pathsep + self.generator.javac_task.env.OUTDIR[0])
 		cmd.append(self.env.JUNIT_RUNNER)
-		cmd.extend([x.abspath() for x in self.inputs])
-
-		#cmd = ' '.join(cmd)
-
+		cmd.extend([x.path_from(self.base).replace('.class', '').replace(os.sep, '.') for x in self.inputs])
+		print cmd
 		return self.exec_command(cmd)
 

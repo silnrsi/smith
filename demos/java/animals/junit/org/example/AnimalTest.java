@@ -2,9 +2,12 @@ package org.example;
 
 import junit.framework.TestCase;
 
-class AnimalTest extends TestCase {
-    public void testAnimal() {
+public class AnimalTest extends TestCase {
+	public AnimalTest() {
+	}
+
+	public void testAnimal() {
 		System.out.println("Test run successfully!");
-    }
+	}
 }
 
