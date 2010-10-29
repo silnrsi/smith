@@ -67,7 +67,7 @@ The Waf tool named _parallel_debug_ is used to inject code in Waf modules and to
 [source,python]
 ---------------
 def options(ctx):
-	ctx.tool('parallel_debug', tooldir='.')
+	ctx.load('parallel_debug', tooldir='.')
 
 def configure(ctx):
 	ctx.load('parallel_debug', tooldir='.')

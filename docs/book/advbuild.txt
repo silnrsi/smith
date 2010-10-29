@@ -107,7 +107,7 @@ This technique is useful for writing testcases. By executing 'waf test', the fol
 [source,python]
 ---------------
 def options(ctx):
-	ctx.tool('compiler_cc')
+	ctx.load('compiler_cc')
 
 def configure(ctx):
 	ctx.load('compiler_cc')
