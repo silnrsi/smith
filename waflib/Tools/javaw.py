@@ -35,7 +35,7 @@ from waflib import TaskGen, Task, Utils, Options, Build
 from waflib.TaskGen import feature, before, after
 
 from waflib.Tools import ccroot
-ccroot.USELIB_VARS['java'] = set(['CLASSPATH'])
+ccroot.USELIB_VARS['javac'] = set(['CLASSPATH'])
 
 
 SOURCE_RE = '**/*.java'
@@ -114,7 +114,6 @@ def use_javac_files(self):
 def set_classpath(self):
 	self.env.append_value('CLASSPATH', getattr(self, 'classpath', []))
 	self.javac_task.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
-
 
 @feature('jar')
 @after('apply_java', 'use_javac_files')
