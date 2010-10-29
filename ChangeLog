@@ -11,6 +11,7 @@ NEW IN WAF 1.6.1
 * Fix for the boost tool #776
 * Fix the log in Context.cmd_and_log() when calling with "quiet" #778
 * c_preproc exception when a file has the same name as a directory #777
+* boost tool update (in playground) #780
 
 NEW IN WAF 1.6.0
 ----------------
