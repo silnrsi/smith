@@ -33,19 +33,19 @@ def waf_entry_point(current_directory, version, wafdir):
 			try:
 				env.load(os.path.join(cur, Options.lockfile))
 			except Exception:
-				continue
+				pass
+			else:
+				Context.run_dir = env.run_dir
+				Context.top_dir = env.top_dir
+				Context.out_dir = env.out_dir
 
-			Context.run_dir = env.run_dir
-			Context.top_dir = env.top_dir
-			Context.out_dir = env.out_dir
+				# the directory of the wscript file was moved
+				try:
+					os.stat(Context.run_dir)
+				except:
+					Context.run_dir = cur
 
-			# the directory of the wscript file was moved
-			try:
-				os.stat(Context.run_dir)
-			except:
-				Context.run_dir = cur
-
-			break
+				break
 
 		if not Context.run_dir:
 			if Context.WSCRIPT_FILE in lst:
