@@ -34,6 +34,10 @@ from waflib.Configure import conf
 from waflib import TaskGen, Task, Utils, Options, Build
 from waflib.TaskGen import feature, before, after
 
+from waflib.Tools import ccroot
+ccroot.USELIB_VARS['java'] = set(['CLASSPATH'])
+
+
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
 
@@ -66,12 +70,6 @@ def apply_java(self):
 
 	nodes_lst = []
 
-	if not self.classpath:
-		if not self.env['CLASSPATH']:
-			self.env['CLASSPATH'] = '..' + os.pathsep + '.'
-	else:
-		self.env['CLASSPATH'] = self.classpath
-
 	if isinstance(self.srcdir, self.path.__class__):
 		srcdir_node = self.srcdir
 	else:
@@ -96,19 +94,6 @@ def apply_java(self):
 	if names:
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
-	"""
-	if self.jarname:
-		jar_tsk = self.create_task('jar_create')
-		jar_tsk.set_outputs(self.path.find_or_declare(self.jarname))
-
-		if not self.env['JAROPTS']:
-			if self.jaropts:
-				self.env['JAROPTS'] = self.jaropts
-			else:
-				dirs = '.'
-				self.env['JAROPTS'] = ['-C', ''.join(self.env['OUTDIR']), dirs]
-	"""
-
 @feature('javac')
 @after('apply_java')
 def use_javac_files(self):
@@ -122,7 +107,14 @@ def use_javac_files(self):
 		self.javac_task.set_run_after(y.jar_task)
 
 	if lst:
-		self.env['CLASSPATH'] = (self.env.CLASSPATH or '') + os.pathsep + os.pathsep.join(lst) + os.pathsep
+		self.env.append_value('CLASSPATH', lst)
+
+@feature('javac')
+@after('apply_java', 'propagate_uselib_vars', 'use_javac_files')
+def set_classpath(self):
+	self.env.append_value('CLASSPATH', getattr(self, 'classpath', []))
+	self.javac_task.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
+
 
 @feature('jar')
 @after('apply_java', 'use_javac_files')
