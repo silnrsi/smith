@@ -13,6 +13,7 @@ JUnit test system
 	 - add task to run junit tests after they're compiled.
 """
 
+import os
 from waflib import Task, TaskGen, Utils, Options
 from waflib.TaskGen import feature, before, after
 from waflib.Configure import conf
@@ -28,7 +29,7 @@ def options(opt):
 @conf
 def configure(ctx):
 	cp = ctx.options.junitpath
-	val = ctx.env.JUNIT_RUNNER or JUNIT_RUNNER
+	val = ctx.env.JUNIT_RUNNER = ctx.env.JUNIT_RUNNER or JUNIT_RUNNER
 	try:
 		ctx.check_java_class(val, with_classpath=cp)
 	except:
@@ -43,22 +44,44 @@ def make_test(self):
 	if not getattr(self, 'junitsrc', None):
 		return
 	junit_task = self.create_task('junit_test')
-	#junit_task.set_outputs(self.path.find_or_declare(destdir))
+	try:
+		junit_task.set_run_after(self.javac_task)
+	except AttributeError:
+		pass
 
 class junit_test(Task.Task):
-	run_str = '${JAVA} -classpath ${CLASSPATH} ${JUNIT_RUNNER} ${JUNIT_TESTS}'
+	color = 'YELLOW'
 
 	def runnable_status(self):
-		# Only run if --junit was set as an option
+		"""
+		Only run if --junit was set as an option
+		"""
+		for t in self.run_after:
+			if not t.hasrun:
+				return Task.ASK_LATER
+
+		n = self.generator.path.find_dir(self.generator.junitsrc).get_bld()
+		if not n:
+			self.generator.bld.fatal('no such class directory %r' % self.generator.junitsrc)
+
+		# make sure the tests are executed whenever the .class files change
+		self.inputs = n.ant_glob('**/*.class')
+
 		ret = super(junit_test, self).runnable_status()
 		if ret == Task.SKIP_ME:
 			if getattr(Options.options, 'junit', False):
-				return Task.RUN_ME
+				ret = Task.RUN_ME
 		return ret
-	"""
-	def post_run(self):
-		junit_src = getattr(self.generator.bld, 'junitsrc', None)
-		if not junit_src:
-			return
-	"""
+
+	def run(self):
+		cmd = []
+		cmd.extend(self.env.JAVA)
+		cmd.append('-classpath')
+		cmd.append(self.env.CLASSPATH_JUNIT + os.pathsep + getattr(self, 'junitclasspath', ''))
+		cmd.append(self.env.JUNIT_RUNNER)
+		cmd.extend([x.abspath() for x in self.inputs])
+
+		#cmd = ' '.join(cmd)
+
+		return self.exec_command(cmd)
 

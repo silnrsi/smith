@@ -2,18 +2,28 @@
 
 def build(bld):
 
-	t = bld(features  = 'javac jar junit',
+	t = bld(
+		features  = 'javac jar',
 		name      = 'animals',
 
 		# javac
 		srcdir    = 'src',
 		compat    = '1.5',
+
 		# jar
 		basedir   = 'src',
 		destfile  = 'animals.jar',
 	)
 
 	if bld.env.DO_JUNIT:
-		t.junitsrc  = 'junit'
-		t.uselib = 'JUNIT'
+		bld(
+			features  = 'javac junit',
+			srcdir    = 'junit',
+			compat    = '1.5',
+
+			junitsrc  = 'junit',
+			junitclasspath = '.',
+			uselib    = 'JUNIT',
+			use       = 'animals'
+		)
 
