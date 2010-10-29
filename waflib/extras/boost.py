@@ -35,7 +35,7 @@
 #       * make certain a demo is provided (in demos/adv for example)
 
 import os.path, glob, types, re, sys
-from waflib import Configure, Options, Utils, Logs
+from waflib import Configure, Options, Utils, Logs, Errors
 from waflib.Tools import c_config
 from waflib.Logs import warn, debug
 from waflib.Configure import conf
@@ -315,14 +315,10 @@ def check_boost(self, *k, **kw):
 			self.start_msg(kw.get('msg_includes', 'Checking for boost include path'))
 			ret = self.find_boost_includes(kw)
 
-	except Configure.ConfigurationError, e:
+	except Errors.ConfigurationError, e:
 		if 'errmsg' in kw:
 			self.end_msg(kw['errmsg'], 'YELLOW')
-		if 'mandatory' in kw:
-			if Logs.verbose > 1:
-				raise
-			else:
-				self.fatal('the configuration failed (see %r)' % self.log.name)
+		raise e
 	else:
 		if 'okmsg' in kw:
 			self.end_msg(kw.get('okmsg_includes', ret))
@@ -331,15 +327,11 @@ def check_boost(self, *k, **kw):
 		self.start_msg('Checking for library boost_'+lib)
 		try:
 			self.find_boost_library(lib, kw)
-		except Configure.ConfigurationError, e:
+		except Errors.ConfigurationError, e:
 			ret = False
 			if 'errmsg' in kw:
 				self.end_msg(kw['errmsg'], 'YELLOW')
-			if 'mandatory' in kw:
-				if Logs.verbose > 1:
-					raise
-				else:
-					self.fatal('the configuration failed (see %r)' % self.log.name)
+			raise e
 		else:
 			if 'okmsg' in kw:
 				self.end_msg(kw['okmsg'])
