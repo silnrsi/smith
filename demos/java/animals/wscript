@@ -2,7 +2,7 @@
 
 def build(bld):
 
-	bld(features  = 'javac jar junit',
+	t = bld(features  = 'javac jar junit',
 		name      = 'animals',
 
 		# javac

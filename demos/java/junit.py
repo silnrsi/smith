@@ -30,9 +30,11 @@ def configure(ctx):
 	cp = ctx.options.junitpath
 	val = ctx.env.JUNIT_RUNNER or JUNIT_RUNNER
 	try:
-		ctx.check_java_class(val)
+		ctx.check_java_class(val, with_classpath=cp)
 	except:
 		ctx.fatal('Could not run junit from %r' % val)
+	else:
+		ctx.env.CLASSPATH_JUNIT = cp
 
 @feature('junit')
 @after('apply_java', 'use_javac_files')
@@ -41,7 +43,7 @@ def make_test(self):
 	if not getattr(self, 'junitsrc', None):
 		return
 	junit_task = self.create_task('junit_test')
-	junit_task.set_outputs(self.path.find_or_declare(destdir))
+	#junit_task.set_outputs(self.path.find_or_declare(destdir))
 
 class junit_test(Task.Task):
 	run_str = '${JAVA} -classpath ${CLASSPATH} ${JUNIT_RUNNER} ${JUNIT_TESTS}'
