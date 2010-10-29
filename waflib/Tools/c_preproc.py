@@ -25,6 +25,7 @@ A dumb preprocessor is also available in the tool "c_dumbpreproc"
 # TODO: more varargs, pragma once
 
 import re, sys, os, string, traceback
+from stat import S_ISREG, ST_MODE
 from waflib import Logs, Build, Utils, Errors
 from waflib.Logs import debug, error
 
@@ -630,6 +631,11 @@ class c_parser(object):
 			return nd[tup]
 		except KeyError:
 			ret = node.find_resource(filename)
+			try:
+				if not S_ISREG(os.stat(ret.abspath())[ST_MODE]):
+					ret = None
+			except:
+				ret = None
 			nd[tup] = ret
 			return ret
 
