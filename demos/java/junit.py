@@ -78,10 +78,8 @@ class junit_test(Task.Task):
 		cmd = []
 		cmd.extend(self.env.JAVA)
 		cmd.append('-classpath')
-		#cmd.append(self.env.CLASSPATH_JUNIT + os.pathsep + getattr(self, 'junitclasspath', ''))
 		cmd.append(self.generator.javac_task.env.CLASSPATH + os.pathsep + self.generator.javac_task.env.OUTDIR)
 		cmd.append(self.env.JUNIT_RUNNER)
 		cmd.extend([x.path_from(self.base).replace('.java', '').replace(os.sep, '.') for x in self.inputs])
-		print cmd
 		return self.exec_command(cmd)
 
