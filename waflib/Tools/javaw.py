@@ -35,7 +35,7 @@ from waflib import TaskGen, Task, Utils, Options, Build
 from waflib.TaskGen import feature, before, after
 
 from waflib.Tools import ccroot
-ccroot.USELIB_VARS['javac'] = set(['CLASSPATH'])
+ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
 
 
 SOURCE_RE = '**/*.java'
