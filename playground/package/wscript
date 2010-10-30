@@ -1,0 +1,16 @@
+#! /usr/bin/env python
+
+top = '.'
+
+def configure(conf):
+	pass
+
+def build(bld):
+	bld(rule='touch ${TGT}', target='foo.txt')
+	bld.install_files('${PREFIX}/bin', 'foo.txt')
+
+from waflib import Build
+class package_cls(Build.InstallContext):
+	cmd = 'package'
+	fun = 'build'
+
