@@ -464,7 +464,6 @@ class Task(TaskBase):
 		env = self.env
 		sig = self.signature()
 
-		cnt = 0
 		for node in self.outputs:
 			# check if the node exists ..
 			try:
