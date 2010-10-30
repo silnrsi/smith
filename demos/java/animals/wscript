@@ -15,7 +15,6 @@ def build(bld):
 		destfile  = 'animals.jar',
 	)
 
-	return
 	if bld.env.DO_JUNIT:
 		bld(
 			features  = 'javac junit',
