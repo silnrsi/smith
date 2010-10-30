@@ -291,7 +291,7 @@ class Dist(Context.Context):
 			tar = tarfile.open(arch_name, 'w:' + self.algo.replace('tar.', ''))
 
 			for x in files:
-				tinfo = tar.gettarinfo(name=x.abspath(), arcname=self.get_base_name() + '/' + x.path_from(self.base_path))
+				tinfo = tar.gettarinfo(name=x.abspath(), arcname=self.get_tar_prefix() + '/' + x.path_from(self.base_path))
 				tinfo.uid   = 0
 				tinfo.gid   = 0
 				tinfo.uname = 'root'
@@ -326,6 +326,12 @@ class Dist(Context.Context):
 			digest = ''
 
 		Logs.info('New archive created: %s%s' % (self.arch_name, digest))
+
+	def get_tar_prefix(self):
+		try:
+			return self.tar_prefix
+		except:
+			return self.get_base_name()
 
 	def get_arch_name(self):
 		"""
