@@ -40,6 +40,7 @@ ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
 
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
+re_classes = re.compile(r'\[wrote\ (.*?\.class)\]')
 
 class_check_source = '''
 public class Test {
@@ -70,12 +71,14 @@ def apply_java(self):
 
 	nodes_lst = []
 
+	self.outdir = self.path.get_bld()
+
 	if isinstance(self.srcdir, self.path.__class__):
 		srcdir_node = self.srcdir
 	else:
 		srcdir_node = self.path.find_dir(self.srcdir)
 	if not srcdir_node:
-		raise Errors.WafError('could not find srcdir %r' % self.srcdir)
+		self.fatal('could not find srcdir %r' % self.srcdir)
 
 	self.env['OUTDIR'] = [srcdir_node.get_src().srcpath()]
 
@@ -129,7 +132,7 @@ def jar_files(self):
 	else:
 		srcdir_node = self.path.find_dir(self.basedir)
 	if not srcdir_node:
-		raise Errors.WafError('could not find basedir %r' % self.srcdir)
+		self.fatal('could not find basedir %r' % self.srcdir)
 
 	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
@@ -172,7 +175,7 @@ class jar_create(Task.Task):
 
 class javac(Task.Task):
 	color   = 'BLUE'
-	run_str = '${JAVAC} -classpath ${CLASSPATH} -d ${OUTDIR} ${JAVACFLAGS} ${SRC}'
+	nocache = True
 
 	def runnable_status(self):
 		"""
@@ -185,28 +188,37 @@ class javac(Task.Task):
 		if not self.inputs:
 			global SOURCE_RE
 			self.inputs  = self.srcdir.ant_glob(SOURCE_RE)
-		if not self.outputs:
-			self.outputs = [x.change_ext('.class') for x in self.inputs if x.name != 'package-info.java']
 		return super(javac, self).runnable_status()
 
+	def run(self):
+		env = self.env
+		gen = self.generator
+		bld = gen.bld
+		wd = bld.bldnode.abspath()
+		def to_list(xx):
+			if isinstance(xx, str): return [xx]
+			return xx
+		self.last_cmd = lst = []
+		lst.extend(to_list(env['JAVAC']))
+		lst.extend(['-classpath'])
+		lst.extend(to_list(env['CLASSPATH']))
+		lst.extend(['-d'])
+		lst.extend(to_list(env['OUTDIR']))
+		lst.extend(to_list(env['JAVACFLAGS']))
+		lst.extend([a.path_from(bld.bldnode) for a in self.inputs])
+		lst = [x for x in lst if x]
+		self.out = self.generator.bld.cmd_and_log(lst, cwd=wd, env=env.env or None, output=0, quiet=0)[1]
+
 	def post_run(self):
-		"""record the inner class files created (Class$Foo) - for cleaning the folders mostly
-		it is not possible to know which inner classes in advance"""
-
-		lst = set([x.parent for x in self.outputs])
-
-		inner = []
-		for k in lst:
-			lst = k.listdir()
-			for u in lst:
-				if u.find('$') >= 0:
-					node = k.find_or_declare(u)
-					inner.append(node)
-
-		to_add = set(inner) - set(self.outputs)
-		self.outputs.extend(list(to_add))
-		self.cached = True # disable the cache for this task
-		return super(javac, self).post_run()
+		"""
+		the -verbose flags gives us the files created
+		we have to parse the output
+		"""
+		for x in re_classes.findall(self.out):
+			n = self.generator.bld.bldnode.find_node(x)
+			if not n:
+				raise ValueError('cannot find %r in %r' % (x, self.generator.bld.bldnode.abspath()))
+			n.sig = Utils.h_file(n.abspath())
 
 def configure(self):
 	# If JAVA_PATH is set, we prepend it to the path list
@@ -227,6 +239,7 @@ def configure(self):
 	if not v['JAR']: self.fatal('jar is required for making java packages')
 	if not v['JAVAC']: self.fatal('javac is required for compiling java classes')
 	v['JARCREATE'] = 'cf' # can use cvf
+	v['JAVACFLAGS'] = ['-verbose'] # required
 
 @conf
 def check_java_class(self, classname, with_classpath=None):
