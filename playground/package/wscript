@@ -6,7 +6,6 @@ def configure(conf):
 	pass
 
 def build(bld):
-	print "build"
 	bld(rule='touch ${TGT}', target='foo.txt')
 	bld.install_files('${PREFIX}/bin', 'foo.txt')
 
@@ -42,6 +41,7 @@ class package_cls(Build.InstallContext):
 		from waflib import Scripting
 		ctx = Scripting.Dist()
 		ctx.files = files
+		ctx.tar_prefix = ''
 		ctx.base_path = self.tmp
 		ctx.archive()
 
