@@ -53,7 +53,7 @@ public class Test {
 		try {
 			lib = Class.forName(argv[0]);
 		} catch (ClassNotFoundException e) {
-			System.err.println("ClassNotFoundException");
+			System.err.rintln("ClassNotFoundException");
 			System.exit(1);
 		}
 		lib = null;
@@ -71,19 +71,15 @@ def apply_java(self):
 
 	nodes_lst = []
 
-	self.outdir = self.path.get_bld()
-
-	if isinstance(self.srcdir, self.path.__class__):
-		srcdir_node = self.srcdir
+	if getattr(self, 'outdir', None):
+		self.outdir = self.path.find_dir(self.outdir).get_bld()
 	else:
-		srcdir_node = self.path.find_dir(self.srcdir)
-	if not srcdir_node:
-		self.fatal('could not find srcdir %r' % self.srcdir)
-
-	self.env['OUTDIR'] = [srcdir_node.get_src().srcpath()]
+		self.outdir = self.path.get_bld()
+	self.outdir.mkdir()
+	self.env['OUTDIR'] = self.outdir.abspath()
 
 	self.javac_task = tsk = self.create_task('javac')
-	tsk.srcdir = srcdir_node
+	tsk.srcdir = [self.path.find_dir(x) for x in Utils.to_list(getattr(self, 'srcdir', ''))]
 
 	if getattr(self, 'compat', None):
 		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
@@ -92,7 +88,7 @@ def apply_java(self):
 		fold = [isinstance(x, self.path.__class__) and x or self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
 		names = os.pathsep.join([x.srcpath() for x in fold])
 	else:
-		names = srcdir_node.srcpath()
+		names = [x.srcpath() for x in tsk.srcdir]
 
 	if names:
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
@@ -167,7 +163,6 @@ class jar_create(Task.Task):
 		for t in self.run_after:
 			if not t.hasrun:
 				return Task.ASK_LATER
-
 		if not self.inputs:
 			global JAR_RE
 			self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, dir=False) if id(x) != id(self.outputs[0])]
@@ -187,7 +182,9 @@ class javac(Task.Task):
 
 		if not self.inputs:
 			global SOURCE_RE
-			self.inputs  = self.srcdir.ant_glob(SOURCE_RE)
+			self.inputs  = []
+			for x in self.srcdir:
+				self.inputs.extend(x.ant_glob(SOURCE_RE))
 		return super(javac, self).runnable_status()
 
 	def run(self):
@@ -207,7 +204,10 @@ class javac(Task.Task):
 		lst.extend(to_list(env['JAVACFLAGS']))
 		lst.extend([a.path_from(bld.bldnode) for a in self.inputs])
 		lst = [x for x in lst if x]
-		self.out = self.generator.bld.cmd_and_log(lst, cwd=wd, env=env.env or None, output=0, quiet=0)[1]
+		try:
+			self.out = self.generator.bld.cmd_and_log(lst, cwd=wd, env=env.env or None, output=0, quiet=0)[1]
+		except:
+			self.generator.bld.cmd_and_log(lst, cwd=wd, env=env.env or None)
 
 	def post_run(self):
 		"""
@@ -215,7 +215,10 @@ class javac(Task.Task):
 		we have to parse the output
 		"""
 		for x in re_classes.findall(self.out):
-			n = self.generator.bld.bldnode.find_node(x)
+			if os.path.isabs(x):
+				n = self.generator.bld.root.find_node(x)
+			else:
+				n = self.generator.bld.bldnode.find_node(x)
 			if not n:
 				raise ValueError('cannot find %r in %r' % (x, self.generator.bld.bldnode.abspath()))
 			n.sig = Utils.h_file(n.abspath())
