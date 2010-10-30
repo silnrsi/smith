@@ -222,6 +222,7 @@ class javac(Task.Task):
 			if not n:
 				raise ValueError('cannot find %r in %r' % (x, self.generator.bld.bldnode.abspath()))
 			n.sig = Utils.h_file(n.abspath())
+		self.generator.bld.task_sigs[self.uid()] = self.cache_sig
 
 def configure(self):
 	# If JAVA_PATH is set, we prepend it to the path list
