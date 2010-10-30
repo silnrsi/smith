@@ -367,15 +367,16 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
-	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True):
+	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True, remove=True):
 		"semi-private method used by ant_glob"
 		dircont = self.listdir()
 		dircont.sort()
 
 		try:
 			lst = set(self.children.keys())
-			for x in lst - set(dircont):
-				del self.children[x]
+			if remove:
+				for x in lst - set(dircont):
+					del self.children[x]
 		except:
 			self.children = {}
 
@@ -410,10 +411,11 @@ class Node(object):
 		**/*.class find all files ending by .class
 		.. find all files having two characters such as 'aa' or 'bb'
 		for more information see http://ant.apache.org/manual/dirtasks.html
-		IMPORTANT: the nodes that correspond to files and folders that do not exist will be removed
+		GOTCHA: the nodes that correspond to files and folders that do not exist will be removed
 
 		@param dir: return folders too (False by default)
 		@param src: return files (True by default)
+		@param remove: remove files (True by default)
 		"""
 
 		src = kw.get('src', True)
@@ -465,7 +467,7 @@ class Node(object):
 				nacc = []
 			return [nacc, nrej]
 
-		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src)]
+		ret = [x for x in self.ant_iter(accept=accept, pats=[to_pat(incl), to_pat(excl)], maxdepth=25, dir=dir, src=src, remove=kw.get('remove', 'True'))]
 		if kw.get('flat', False):
 			return ' '.join([x.path_from(self) for x in ret])
 

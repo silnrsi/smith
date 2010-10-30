@@ -165,7 +165,7 @@ class jar_create(Task.Task):
 				return Task.ASK_LATER
 		if not self.inputs:
 			global JAR_RE
-			self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, dir=False) if id(x) != id(self.outputs[0])]
+			self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
@@ -184,7 +184,7 @@ class javac(Task.Task):
 			global SOURCE_RE
 			self.inputs  = []
 			for x in self.srcdir:
-				self.inputs.extend(x.ant_glob(SOURCE_RE))
+				self.inputs.extend(x.ant_glob(SOURCE_RE, remove=False))
 		return super(javac, self).runnable_status()
 
 	def run(self):
