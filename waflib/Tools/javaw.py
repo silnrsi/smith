@@ -53,7 +53,7 @@ public class Test {
 		try {
 			lib = Class.forName(argv[0]);
 		} catch (ClassNotFoundException e) {
-			System.err.rintln("ClassNotFoundException");
+			System.err.println("ClassNotFoundException");
 			System.exit(1);
 		}
 		lib = null;
