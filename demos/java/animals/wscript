@@ -11,10 +11,11 @@ def build(bld):
 		compat    = '1.5',
 
 		# jar
-		basedir   = 'src',
+		basedir   = '.',
 		destfile  = 'animals.jar',
 	)
 
+	return
 	if bld.env.DO_JUNIT:
 		bld(
 			features  = 'javac junit',

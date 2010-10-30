@@ -33,6 +33,7 @@ def build(bld):
 
 	bld(features   = 'javac jar',
 		srcdir     = 'src/main/java',
+		outdir     = 'src',
 		compat     = '1.5',
 		sourcepath = ['src', 'sup'],
 

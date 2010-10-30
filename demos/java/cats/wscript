@@ -10,7 +10,7 @@ def build(bld):
 	)
 
 	bld(features  = 'jar',
-		basedir   = 'src',
+		basedir   = '.',
 		destfile  = 'cats.jar',
 		name      = 'cats',
 		use       = 'cats-src'
