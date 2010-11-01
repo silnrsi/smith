@@ -14,8 +14,11 @@ def options(opt):
 def configure(conf):
 	conf.load('java')
 
-	if conf.load('junit', tooldir='.'):
+	try:
+		ret = conf.load('junit', tooldir='.')
 		conf.env.DO_JUNIT = True
+	except:
+		pass
 
 	conf.check_java_class('java.io.FileOutputStream')
 	conf.check_java_class('FakeClass')

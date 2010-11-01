@@ -30,12 +30,9 @@ def options(opt):
 def configure(ctx):
 	cp = ctx.options.junitpath
 	val = ctx.env.JUNIT_RUNNER = ctx.env.JUNIT_RUNNER or JUNIT_RUNNER
-	try:
-		ctx.check_java_class(val, with_classpath=cp)
-	except:
+	if ctx.check_java_class(val, with_classpath=cp):
 		ctx.fatal('Could not run junit from %r' % val)
-	else:
-		ctx.env.CLASSPATH_JUNIT = cp
+	ctx.env.CLASSPATH_JUNIT = cp
 
 @feature('junit')
 @after('apply_java', 'use_javac_files')
