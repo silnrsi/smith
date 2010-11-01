@@ -13,12 +13,13 @@ def build(bld):
 		# jar
 		basedir   = '.',
 		destfile  = 'animals.jar',
+		use       = 'NNN',
 	)
 
 	if bld.env.DO_JUNIT:
-		t.features += ' junit'
-		t.srcdir = 'src junit'
-		t.junitsrc  = 'junit'
-		t.junitclasspath = '.'
-		t.uselib    = 'JUNIT'
+		t.features       += ' junit'
+		t.srcdir          = 'src junit'
+		t.junitsrc        = 'junit'
+		t.junitclasspath  = '.'
+		t.use            += ' JUNIT'
 
