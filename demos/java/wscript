@@ -32,7 +32,7 @@ def build(bld):
 	# destfile: the destination file
 
 	bld(features   = 'javac jar',
-		srcdir     = 'src/main/java',
+		srcdir     = 'src/',
 		outdir     = 'src',
 		compat     = '1.5',
 		sourcepath = ['src', 'sup'],
