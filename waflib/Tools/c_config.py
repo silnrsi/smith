@@ -844,6 +844,8 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			'__POWERPC__' : 'powerpc',
 			}
 
+		if not conf.env.DEST_OS:
+			conf.env.DEST_OS = ''
 		for i in mp1:
 			if isD(i):
 				conf.env.DEST_OS = mp1[i]
