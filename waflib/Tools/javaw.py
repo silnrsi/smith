@@ -79,7 +79,13 @@ def apply_java(self):
 	self.env['OUTDIR'] = self.outdir.abspath()
 
 	self.javac_task = tsk = self.create_task('javac')
-	tsk.srcdir = [self.path.find_dir(x) for x in Utils.to_list(getattr(self, 'srcdir', ''))]
+	tmp = []
+	for x in Utils.to_list(getattr(self, 'srcdir', '')):
+		y = self.path.find_dir(x)
+		if not y:
+			self.bld.fatal('Could not find the folder %s from %s' % (x, self.path))
+		tmp.append(y)
+	tsk.srcdir = tmp
 
 	if getattr(self, 'compat', None):
 		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
@@ -128,7 +134,7 @@ def jar_files(self):
 	else:
 		srcdir_node = self.path.find_dir(self.basedir)
 	if not srcdir_node:
-		self.fatal('could not find basedir %r' % self.srcdir)
+		self.fatal('Could not find the basedir %r' % self.srcdir)
 
 	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
