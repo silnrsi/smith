@@ -38,15 +38,12 @@ def build(bld):
 		outdir     = 'src',
 		compat     = '1.5',
 		sourcepath = ['src', 'sup'],
-
+		classpath  = ['.', '..'],
+		#jaropts = '-C default/src/ .', # can be used to give files
 		basedir    = 'src',
 		destfile   = 'foo.jar',
 		use        = 'NNN'
 		)
-
-	#jaropts = '-C default/src/ .', # can be used to give files
-	#classpath = '..:.', # can be used to set a custom classpath
-	#)
 
 	bld.recurse('animals cats')
 
