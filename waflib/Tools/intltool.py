@@ -22,6 +22,9 @@ def iapply_intltool_in_f(self):
 	try: self.meths.remove('process_source')
 	except ValueError: pass
 
+	if not self.env.LOCALEDIR:
+		self.env.LOCALEDIR = self.env.PREFIX + '/share/locale'
+
 	for i in self.to_list(self.source):
 		node = self.path.find_resource(i)
 
@@ -45,6 +48,9 @@ def iapply_intltool_in_f(self):
 def apply_intltool_po(self):
 	try: self.meths.remove('process_source')
 	except ValueError: pass
+
+	if not self.env.LOCALEDIR:
+		self.env.LOCALEDIR = self.env.PREFIX + '/share/locale'
 
 	appname = getattr(self, 'appname', 'set_your_app_name')
 	podir = getattr(self, 'podir', '')
