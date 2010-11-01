@@ -37,23 +37,18 @@ def iapply_intltool_in_f(self):
 		self.env['INTLFLAGS'] = getattr(self, 'flags', ['-q', '-u', '-c'])
 
 		task = self.create_task('intltool', node, node.change_ext(''))
-		task.install_path = self.install_path
+		inst = getattr(self, 'install_path', '${LOCALEDIR}')
+		if inst:
+			self.install_files(inst, task.outputs)
 
 @feature('intltool_po')
 def apply_intltool_po(self):
 	try: self.meths.remove('process_source')
 	except ValueError: pass
 
-	self.default_install_path = '${LOCALEDIR}'
 	appname = getattr(self, 'appname', 'set_your_app_name')
 	podir = getattr(self, 'podir', '')
-
-	def install_translation(task):
-		out = task.outputs[0]
-		filename = out.name
-		(langname, ext) = os.path.splitext(filename)
-		inst_file = langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
-		self.bld.install_as(os.path.join(self.install_path, inst_file), out, self.env, self.chmod)
+	inst = getattr(self, 'install_path', '${LOCALEDIR}')
 
 	linguas = self.path.find_resource(os.path.join(podir, 'LINGUAS'))
 	if linguas:
@@ -70,15 +65,22 @@ def apply_intltool_po(self):
 			# Make sure that we only process lines which contain locales
 			if re_linguas.match(lang):
 				node = self.path.find_resource(os.path.join(podir, re_linguas.match(lang).group() + '.po'))
-				task = self.create_task('po')
-				task.set_inputs(node)
-				task.set_outputs(node.change_ext('.mo'))
-				if self.bld.is_install: task.install = install_translation
+				task = self.create_task('po', node, node.change_ext('.mo'))
+
+				if inst:
+					filename = task.outputs[0].name
+					(langname, ext) = os.path.splitext(filename)
+					inst_file = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
+					self.bld.install_as(inst_file, task.outputs[0], chmod=getattr(self, 'chmod', Utils.O644), env=task.env)
+
 	else:
 		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
 
-Task.task_factory('po', '${MSGFMT} -o ${TGT} ${SRC}', color='BLUE')
-Task.task_factory('intltool', '${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', color='BLUE', ext_in='.bin')
+class po(Task.Task):
+	run_str = '${MSGFMT} -o ${TGT} ${SRC}'
+	color   = 'BLUE'
+
+Task.task_factory('intltool', '${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', color='BLUE', ext_in=['.bin'])
 
 def configure(conf):
 	conf.find_program('msgfmt', var='MSGFMT')
