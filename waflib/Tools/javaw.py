@@ -177,6 +177,7 @@ class jar_create(Task.Task):
 class javac(Task.Task):
 	color   = 'BLUE'
 	nocache = True
+	vars    = ['CLASSPATH', 'JAVACFLAGS', 'JAVAC', 'OUTDIR']
 
 	def runnable_status(self):
 		"""
