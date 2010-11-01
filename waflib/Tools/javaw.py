@@ -103,13 +103,18 @@ def apply_java(self):
 @after('apply_java')
 def use_javac_files(self):
 	lst = []
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	names = self.to_list(getattr(self, 'use', []))
 	get = self.bld.get_tgen_by_name
 	for x in names:
-		y = get(x)
-		y.post()
-		lst.append(y.jar_task.outputs[0].abspath())
-		self.javac_task.set_run_after(y.jar_task)
+		try:
+			y = get(x)
+		except:
+			self.uselib.append(x)
+		else:
+			y.post()
+			lst.append(y.jar_task.outputs[0].abspath())
+			self.javac_task.set_run_after(y.jar_task)
 
 	if lst:
 		self.env.append_value('CLASSPATH', lst)
@@ -154,12 +159,17 @@ def jar_files(self):
 @after('jar_files')
 def use_jar_files(self):
 	lst = []
+	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	names = self.to_list(getattr(self, 'use', []))
 	get = self.bld.get_tgen_by_name
 	for x in names:
-		y = get(x)
-		y.post()
-		self.jar_task.run_after.update(y.tasks)
+		try:
+			y = get(x)
+		except:
+			self.uselib.append(x)
+		else:
+			y.post()
+			self.jar_task.run_after.update(y.tasks)
 
 class jar_create(Task.Task):
 	color   = 'GREEN'
