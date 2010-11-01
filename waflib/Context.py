@@ -272,6 +272,7 @@ class Context(ctx):
 
 		to obtain stdout+stderr, pass output=BOTH in the arguments (or output=0)
 		to obtain just stderr, pass output=STDERR in the arguments (or output=-1)
+		in case of an exception, both stderr and stdout are bound to the WafError object
 
 		@param cmd: args for subprocess.Popen
 		@param kw: keyword arguments for subprocess.Popen
@@ -318,6 +319,8 @@ class Context(ctx):
 		if p.returncode:
 			e = Errors.WafError('command %r returned %r' % (cmd, p.returncode))
 			e.returncode = p.returncode
+			e.stderr = err
+			e.stdout = out
 			raise e
 
 		if to_ret == BOTH:
