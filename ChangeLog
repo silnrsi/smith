@@ -13,6 +13,7 @@ NEW IN WAF 1.6.1
 * c_preproc exception when a file has the same name as a directory #777
 * boost tool update (in playground) #780
 * docs #781
+* 'intltool_po' does not install the .mo files #782
 
 NEW IN WAF 1.6.0
 ----------------
