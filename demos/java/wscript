@@ -23,6 +23,8 @@ def configure(conf):
 	conf.check_java_class('java.io.FileOutputStream')
 	conf.check_java_class('FakeClass')
 
+	conf.env.CLASSPATH_set1 = ['aaaa.jar', 'bbbb.jar']
+
 def build(bld):
 
 	# srcdir: directory containing the sources to compile
@@ -38,7 +40,8 @@ def build(bld):
 		sourcepath = ['src', 'sup'],
 
 		basedir    = 'src',
-		destfile   = 'foo.jar'
+		destfile   = 'foo.jar',
+		uselib     = 'set1'
 		)
 
 	#jaropts = '-C default/src/ .', # can be used to give files
