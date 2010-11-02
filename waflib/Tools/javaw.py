@@ -31,7 +31,7 @@ You would have to run:
 
 import os, re
 from waflib.Configure import conf
-from waflib import TaskGen, Task, Utils, Options, Build
+from waflib import TaskGen, Task, Utils, Options, Build, Errors
 from waflib.TaskGen import feature, before, after
 
 from waflib.Tools import ccroot
@@ -139,7 +139,7 @@ def jar_files(self):
 	else:
 		srcdir_node = self.path.find_dir(self.basedir)
 	if not srcdir_node:
-		self.fatal('Could not find the basedir %r' % self.srcdir)
+		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
@@ -181,7 +181,10 @@ class jar_create(Task.Task):
 				return Task.ASK_LATER
 		if not self.inputs:
 			global JAR_RE
-			self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
+			try:
+				self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
+			except:
+				raise Errors.WafError('Could not find the basedir %r for %r' % (self.basedir.get_bld(), self))
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
