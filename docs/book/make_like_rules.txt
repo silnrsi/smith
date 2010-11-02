@@ -131,8 +131,6 @@ The rule function must return a null value (0, None or False) to indicate succes
 
 Unlike string expressions, functions may execute several commands at once.
 
-WARNING: Due to limitations in the cPython interpreter, only functions defined in python modules can be hashed. This means that changing the function will trigger a rebuild only if that function was defined in a Waf tool (not in wscript files).
-
 ==== Shell usage
 
 The attribute 'shell' is used to enable the system shell for command execution. A few points are worth keeping in mind when declaring rule-based task generators:
