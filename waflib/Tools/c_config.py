@@ -59,6 +59,37 @@ int main() {
 }
 '''
 
+MACRO_TO_DESTOS = {
+'__linux__'   : 'linux',
+'__GNU__'     : 'gnu',
+'__FreeBSD__' : 'freebsd',
+'__NetBSD__'  : 'netbsd',
+'__OpenBSD__' : 'openbsd',
+'__sun'       : 'sunos',
+'__hpux'      : 'hpux',
+'__sgi'       : 'irix',
+'_AIX'        : 'aix',
+'__CYGWIN__'  : 'cygwin',
+'__MSYS__'    : 'msys',
+'_UWIN'       : 'uwin',
+'_WIN64'      : 'win32',
+'_WIN32'      : 'win32',
+'__POWERPC__' : 'powerpc',
+'__QNX__'     : 'qnx'
+}
+
+MACRO_TO_DEST_CPU = {
+'__x86_64__'  : 'x86_64',
+'__i386__'    : 'x86',
+'__ia64__'    : 'ia',
+'__mips__'    : 'mips',
+'__sparc__'   : 'sparc',
+'__alpha__'   : 'alpha',
+'__arm__'     : 'arm',
+'__hppa__'    : 'hppa',
+'__powerpc__' : 'powerpc',
+}
+
 @conf
 def parse_flags(self, line, uselib, env=None):
 	"""pkg-config still has bugs on some platforms, and there are many -config programs, parsing flags is necessary :-/"""
@@ -826,29 +857,11 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 
 		# Some documentation is available at http://predef.sourceforge.net
 		# The names given to DEST_OS must match what Utils.unversioned_sys_platform() returns.
-		mp1 = {
-			'__linux__'   : 'linux',
-			'__GNU__'     : 'gnu',
-			'__FreeBSD__' : 'freebsd',
-			'__NetBSD__'  : 'netbsd',
-			'__OpenBSD__' : 'openbsd',
-			'__sun'       : 'sunos',
-			'__hpux'      : 'hpux',
-			'__sgi'       : 'irix',
-			'_AIX'        : 'aix',
-			'__CYGWIN__'  : 'cygwin',
-			'__MSYS__'    : 'msys',
-			'_UWIN'       : 'uwin',
-			'_WIN64'      : 'win32',
-			'_WIN32'      : 'win32',
-			'__POWERPC__' : 'powerpc',
-			}
-
 		if not conf.env.DEST_OS:
 			conf.env.DEST_OS = ''
-		for i in mp1:
+		for i in MACRO_TO_DESTOS:
 			if isD(i):
-				conf.env.DEST_OS = mp1[i]
+				conf.env.DEST_OS = MACRO_TO_DESTOS[i]
 				break
 		else:
 			if isD('__APPLE__') and isD('__MACH__'):
@@ -868,20 +881,9 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			# Infer the binary format from the os name.
 			conf.env.DEST_BINFMT = Utils.destos_to_binfmt(conf.env.DEST_OS)
 
-		mp2 = {
-				'__x86_64__'  : 'x86_64',
-				'__i386__'    : 'x86',
-				'__ia64__'    : 'ia',
-				'__mips__'    : 'mips',
-				'__sparc__'   : 'sparc',
-				'__alpha__'   : 'alpha',
-				'__arm__'     : 'arm',
-				'__hppa__'    : 'hppa',
-				'__powerpc__' : 'powerpc',
-				}
-		for i in mp2:
+		for i in MACRO_TO_DEST_CPU:
 			if isD(i):
-				conf.env.DEST_CPU = mp2[i]
+				conf.env.DEST_CPU = MACRO_TO_DEST_CPU[i]
 				break
 
 		Logs.debug('ccroot: dest platform: ' + ' '.join([conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')]))
