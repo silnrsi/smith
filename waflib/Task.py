@@ -116,7 +116,8 @@ class store_task_type(type):
 				cls.run_str = None
 				cls.run = f
 				cls.vars.extend(dvars)
-			elif getattr(cls, 'run', None) and not getattr(cls, 'hcode', None):
+			elif getattr(cls, 'run', None) and not 'hcode' in cls.__dict__:
+				# getattr(cls, 'hcode') would look in the upper classes
 				cls.hcode = Utils.h_fun(cls.run)
 
 			if not getattr(cls, 'nocache', None):
