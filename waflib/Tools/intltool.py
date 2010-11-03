@@ -76,7 +76,7 @@ def apply_intltool_po(self):
 				if inst:
 					filename = task.outputs[0].name
 					(langname, ext) = os.path.splitext(filename)
-					inst_file = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
+					inst_file = inst + os.sep + langname + os.sep + 'LC_MESSAGES' + os.sep + appname + '.mo'
 					self.bld.install_as(inst_file, task.outputs[0], chmod=getattr(self, 'chmod', Utils.O644), env=task.env)
 
 	else:
