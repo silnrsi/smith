@@ -211,6 +211,9 @@ class TaskBase(evil):
 			m.out.put(self)
 			return
 
+		self.generator.bld.returned_tasks.append(self)
+		self.log_display(self.generator.bld)
+
 		try:
 			ret = self.run()
 		except Exception as e:
@@ -260,7 +263,7 @@ class TaskBase(evil):
 		col2 = Logs.colors.NORMAL
 
 		if self.generator.bld.progress_bar == 1:
-			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
+			return self.generator.bld.progress_line(len(self.generator.bld.returned_tasks), self.position[1], col1, col2)
 
 		if self.generator.bld.progress_bar == 2:
 			ela = str(self.generator.bld.timer)
@@ -272,7 +275,7 @@ class TaskBase(evil):
 				outs = ','.join([n.name for n in self.outputs])
 			except AttributeError:
 				outs = ''
-			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.position[0], ins, outs, ela)
+			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], len(self.generator.bld.returned_tasks), ins, outs, ela)
 
 		s = str(self)
 		if not s:
@@ -281,7 +284,7 @@ class TaskBase(evil):
 		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		return fs % (self.position[0], self.position[1], col1, s, col2)
+		return fs % (len(self.generator.bld.returned_tasks), self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
 		"retrieve an attribute from the instance or from the class (microoptimization here)"
