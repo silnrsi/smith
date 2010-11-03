@@ -271,9 +271,9 @@ class BuildContext(Context.Context):
 		# use another object to perform the producer-consumer logic (reduce the complexity)
 		self.producer = Runner.Parallel(self, Options.options.jobs)
 		self.producer.biter = self.get_build_iterator()
-		self.returned_tasks = []
+		self.returned_tasks = [] # not part of the API yet
 		try:
-			self.producer.start() # vroom
+			self.producer.start()
 		except KeyboardInterrupt:
 			if self.producer.dirty:
 				self.store()

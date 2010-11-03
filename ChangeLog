@@ -16,6 +16,7 @@ NEW IN WAF 1.6.1
 * 'intltool_po' does not install the .mo files #782
 * bind stderr and stdout to the exception in Context.cmd_and_log #779
 * Tasks not rebuilding properly when the 'run' method changes #786
+* Print the progress bar information as late as possible #787
 
 NEW IN WAF 1.6.0
 ----------------
