@@ -12,7 +12,7 @@ def build(bld):
 
 		# jar
 		basedir   = '.',
-		destfile  = 'animals.jar',
+		destfile  = '../animals.jar',
 		use       = 'NNN',
 	)
 
