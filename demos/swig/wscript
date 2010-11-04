@@ -80,7 +80,7 @@ def build(bld):
 
 
 	# some java stuff
-	if not bld.env.HAVE_JAVA:
+	if False and not bld.env.HAVE_JAVA:
 		return
 
 	from waflib.extras import swig
