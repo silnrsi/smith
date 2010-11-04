@@ -79,7 +79,7 @@ def build(bld):
 	bld.add_post_fun(exec_test_python)
 
 	# some java stuff
-	if True or not bld.env.HAVE_JAVA:
+	if not bld.env.HAVE_JAVA:
 		return
 
 	from waflib.extras import swig
@@ -138,10 +138,13 @@ def build(bld):
 	bld(rule='cp ${SRC} ${TGT}', source=bld.path.find_resource('extend/java/Foo.java'),
 		target=srcdir.make_node('foo/bar/pouet/Foo.java'), before=['javac'], after=['swig'])
 
+	tmp = bld.path.get_bld().make_node('maha')
+
 	bld(features   = 'javac jar',
 		srcdir     = srcdir,
 		sourcepath = [],
-		basedir    = srcdir,
+		outdir     = tmp, # we do need another folder here
+		basedir    = tmp,
 		destfile   = 'maha.jar'
 		)
 
