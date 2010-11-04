@@ -17,6 +17,7 @@ NEW IN WAF 1.6.1
 * bind stderr and stdout to the exception in Context.cmd_and_log #779
 * Tasks not rebuilding properly when the 'run' method changes #786
 * Print the progress bar information as late as possible #787
+* Verbose mode should not require the compat15 tools #790
 
 NEW IN WAF 1.6.0
 ----------------
