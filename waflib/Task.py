@@ -900,7 +900,7 @@ def compile_fun_noshell(line):
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
 		elif meth:
 			if meth.startswith(':'):
-				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+				app('lst.extend([(env[%r] %% x).split() for x in env[%r]])' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
 				app('lst.extend(gen.to_list(%s%s))' % (var, meth))
