@@ -145,18 +145,18 @@ def jar_files(self):
 	basedir = getattr(self, 'basedir', None)
 	if basedir:
 		if not isinstance(self.basedir, Node.Node):
-			basedir = self.path.find_dir(basedir)
+			basedir = self.path.get_bld().make_node(basedir)
 	else:
-		basedir = self.path.find_dir(basedir)
-		if not basedir:
-			self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
+		basedir = self.path.get_bld()
+	if not basedir:
+		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
-	tsk.basedir = srcdir_node
+	tsk.basedir = basedir
 
 	jaropts.append('-C')
-	jaropts.append(srcdir_node.get_bld().bldpath())
+	jaropts.append(basedir.bldpath())
 	jaropts.append('.')
 
 	tsk.env['JAROPTS'] = jaropts
