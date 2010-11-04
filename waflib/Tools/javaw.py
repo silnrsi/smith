@@ -31,7 +31,7 @@ You would have to run:
 
 import os, re
 from waflib.Configure import conf
-from waflib import TaskGen, Task, Utils, Options, Build, Errors
+from waflib import TaskGen, Task, Utils, Options, Build, Errors, Node
 from waflib.TaskGen import feature, before, after
 
 from waflib.Tools import ccroot
@@ -80,10 +80,17 @@ def apply_java(self):
 
 	self.javac_task = tsk = self.create_task('javac')
 	tmp = []
-	for x in Utils.to_list(getattr(self, 'srcdir', '')):
-		y = self.path.find_dir(x)
-		if not y:
-			self.bld.fatal('Could not find the folder %s from %s' % (x, self.path))
+
+	srcdir = getattr(self, 'srcdir', '')
+	if isinstance(srcdir, Node.Node):
+		srcdir = [srcdir]
+	for x in Utils.to_list(srcdir):
+		if isinstance(x, Node.Node):
+			y = x
+		else:
+			y = self.path.find_dir(x)
+			if not y:
+				self.bld.fatal('Could not find the folder %s from %s' % (x, self.path))
 		tmp.append(y)
 	tsk.srcdir = tmp
 
