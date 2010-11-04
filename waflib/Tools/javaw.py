@@ -71,12 +71,14 @@ def apply_java(self):
 
 	nodes_lst = []
 
-	if getattr(self, 'outdir', None):
-		self.outdir = self.path.find_dir(self.outdir).get_bld()
+	outdir = getattr(self, 'outdir', None)
+	if outdir:
+		if not isinstance(outdir, Node.Node):
+			outdir = self.path.find_dir(self.outdir).get_bld()
 	else:
-		self.outdir = self.path.get_bld()
-	self.outdir.mkdir()
-	self.env['OUTDIR'] = self.outdir.abspath()
+		outdir = self.path.get_bld()
+	outdir.mkdir()
+	self.env['OUTDIR'] = outdir.abspath()
 
 	self.javac_task = tsk = self.create_task('javac')
 	tmp = []
@@ -136,17 +138,18 @@ def set_classpath(self):
 @after('apply_java', 'use_javac_files')
 @before('process_source')
 def jar_files(self):
-	basedir = getattr(self, 'basedir', '.')
 	destfile = getattr(self, 'destfile', 'test.jar')
 	jaropts = getattr(self, 'jaropts', [])
 	jarcreate = getattr(self, 'jarcreate', 'cf')
 
-	if isinstance(self.basedir, self.path.__class__):
-		srcdir_node = self.basedir
+	basedir = getattr(self, 'basedir', None)
+	if basedir:
+		if not isinstance(self.basedir, Node.Node):
+			basedir = self.path.find_dir(basedir)
 	else:
-		srcdir_node = self.path.find_dir(self.basedir)
-	if not srcdir_node:
-		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
+		basedir = self.path.find_dir(basedir)
+		if not basedir:
+			self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
 	tsk.set_outputs(self.path.find_or_declare(destfile))
@@ -189,9 +192,9 @@ class jar_create(Task.Task):
 		if not self.inputs:
 			global JAR_RE
 			try:
-				self.inputs = [x for x in self.basedir.get_bld().ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
+				self.inputs = [x for x in self.basedir.ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
 			except:
-				raise Errors.WafError('Could not find the basedir %r for %r' % (self.basedir.get_bld(), self))
+				raise Errors.WafError('Could not find the basedir %r for %r' % (self.basedir, self))
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):

@@ -174,7 +174,7 @@ class OptionsContext(Context.Context):
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 
 		if options.verbose >= 2:
-			self.tool_options('errcheck')
+			self.load('errcheck')
 
 	def execute(self):
 		"see waflib.Context.Context.execute"
