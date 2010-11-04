@@ -78,9 +78,8 @@ def build(bld):
 
 	bld.add_post_fun(exec_test_python)
 
-
 	# some java stuff
-	if False and not bld.env.HAVE_JAVA:
+	if True or not bld.env.HAVE_JAVA:
 		return
 
 	from waflib.extras import swig
