@@ -18,6 +18,7 @@ NEW IN WAF 1.6.1
 * Tasks not rebuilding properly when the 'run' method changes #786
 * Print the progress bar information as late as possible #787
 * Verbose mode should not require the compat15 tools #790
+* Fix for the FRAMEWORK value processing
 
 NEW IN WAF 1.6.0
 ----------------
