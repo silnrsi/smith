@@ -2,6 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
+"""
+java example
+
+The gcj compiler has a very different command-line - see playground/gcj
+"""
+
 VERSION = '0.0.4'
 APPNAME = 'java_test'
 
@@ -27,21 +33,15 @@ def configure(conf):
 
 def build(bld):
 
-	# srcdir: directory containing the sources to compile
-	# compat: java compatibility version number (compiling with a too recent jdk may cause problems)
-
-	# basedir: directory containing the .class files to package
-	# destfile: the destination file
-
 	bld(features   = 'javac jar',
-		srcdir     = 'src/',
-		outdir     = 'src',
-		compat     = '1.5',
+		srcdir     = 'src/', # folder containing the sources to compile
+		outdir     = 'src', # folder where to output the classes (in the build directory)
+		compat     = '1.5', # java compatibility version number
 		sourcepath = ['src', 'sup'],
 		classpath  = ['.', '..'],
 		#jaropts = '-C default/src/ .', # can be used to give files
-		basedir    = 'src',
-		destfile   = 'foo.jar',
+		basedir    = 'src', # folder containing the classes and other files to package (must match outdir)
+		destfile   = 'foo.jar', # do not put the destfile in the folder of the java classes!
 		use        = 'NNN'
 		)
 
