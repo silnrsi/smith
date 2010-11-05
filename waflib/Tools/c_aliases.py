@@ -24,7 +24,7 @@ def sniff_features(**kw):
 	exts = get_extensions(kw['source'])
 	type = kw['_type']
 
-	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts:
+	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts or 'cc' in exts:
 		if type == 'program':
 			return 'cxx cxxprogram'
 		if type == 'shlib':
