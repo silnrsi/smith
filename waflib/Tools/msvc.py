@@ -134,15 +134,17 @@ echo LIB=%%LIB%%
 		del(env['CL'])
 
 	try:
-		conf.cmd_and_log(cxx + ['/help'], env=env)
-	except Exception as e:
-		debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
-		debug(str(e))
-		conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
-	else:
-		debug('msvc: get_msvc_version: %r %r %r -> OK', compiler, version, target)
+		try:
+			conf.cmd_and_log(cxx + ['/help'], env=env)
+		except Exception as e:
+			debug('msvc: get_msvc_version: %r %r %r -> failure' % (compiler, version, target))
+			debug(str(e))
+			conf.fatal('msvc: cannot run the compiler (in get_msvc_version)')
+		else:
+			debug('msvc: get_msvc_version: %r %r %r -> OK', compiler, version, target)
+	finally:
+		conf.env[compiler_name] = ''
 
-	conf.env[compiler_name] = ''
 	return (MSVC_PATH, MSVC_INCDIR, MSVC_LIBDIR)
 
 @conf
@@ -251,18 +253,22 @@ def gather_msvc_versions(conf, versions):
 					for platform,compiler,include,lib in platforms:
 						winCEpath = os.path.join(path, 'VC', 'ce')
 						if os.path.isdir(winCEpath):
-							common_bindirs,_1,_2 = conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat'))
-							if os.path.isdir(os.path.join(winCEpath, 'lib', platform)):
-								bindirs = [os.path.join(winCEpath, 'bin', compiler), os.path.join(winCEpath, 'bin', 'x86_'+compiler)] + common_bindirs
-								incdirs = [include, os.path.join(winCEpath, 'include'), os.path.join(winCEpath, 'atlmfc', 'include')]
-								libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
-								cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
+							try:
+								common_bindirs,_1,_2 = conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat'))
+							except conf.errors.ConfigurationError:
+								pass
+							else:
+								if os.path.isdir(os.path.join(winCEpath, 'lib', platform)):
+									bindirs = [os.path.join(winCEpath, 'bin', compiler), os.path.join(winCEpath, 'bin', 'x86_'+compiler)] + common_bindirs
+									incdirs = [include, os.path.join(winCEpath, 'include'), os.path.join(winCEpath, 'atlmfc', 'include')]
+									libdirs = [lib, os.path.join(winCEpath, 'lib', platform), os.path.join(winCEpath, 'atlmfc', 'lib', platform)]
+									cetargets.append((platform, (platform, (bindirs,incdirs,libdirs))))
 					versions.append((device+' '+version, cetargets))
 			if os.path.isfile(os.path.join(path, 'VC', 'vcvarsall.bat')):
 				for target,realtarget in all_msvc_platforms[::-1]:
 					try:
 						targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(path, 'VC', 'vcvarsall.bat')))))
-					except:
+					except conf.errors.ConfigurationError:
 						pass
 			elif os.path.isfile(os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')):
 				try:
