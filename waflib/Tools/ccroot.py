@@ -165,7 +165,7 @@ def apply_link(self):
 			self.install_task = self.bld.install_files(inst_to, self.link_task.outputs[:], env=self.env, chmod=self.link_task.chmod)
 
 @taskgen_method
-def use_rec(self, name, objects=True, stlib=True):
+def use_rec(self, name, **kw):
 	"""
 	process the use keyword, recursively
 	"""
@@ -173,6 +173,9 @@ def use_rec(self, name, objects=True, stlib=True):
 		return
 	else:
 		self.seen_libs.add(name)
+
+	objects = kw.get('objects', True)
+	stlib = kw.get('stlib', True)
 
 	get = self.bld.get_tgen_by_name
 	try:
@@ -187,7 +190,7 @@ def use_rec(self, name, objects=True, stlib=True):
 
 	# depth-first processing
 	for x in self.to_list(getattr(y, 'use', [])):
-		self.use_rec(x, objects and not has_link, stlib and (is_static or not has_link))
+		self.use_rec(x, objects=objects and not has_link, stlib=stlib and (is_static or not has_link))
 
 	# link task and flags
 	if getattr(self, 'link_task', None):
@@ -206,6 +209,10 @@ def use_rec(self, name, objects=True, stlib=True):
 				tmp_path = y.link_task.outputs[0].parent.bldpath()
 				if not tmp_path in self.env[var + 'PATH']:
 					self.env.prepend_value(var + 'PATH', [tmp_path])
+
+			#if is_static and stlib:
+			#	self.link_task.inputs.extend(y.link_task.inputs)
+
 		elif objects:
 			for t in getattr(y, 'compiled_tasks', []):
 				self.link_task.inputs.extend(t.outputs)
