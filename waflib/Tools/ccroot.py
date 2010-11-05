@@ -113,6 +113,12 @@ class link_task(Task.Task):
 			target = self.generator.path.find_or_declare(tmp)
 		self.set_outputs(target)
 
+	def frameworks(self):
+		lst = []
+		for x in self.env.FRAMEWORK:
+			lst.extend((self.env.FRAMEWORK_ST % x).split())
+		return lst
+
 class stlink_task(link_task):
 	"""link static libraries (with ar)"""
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
