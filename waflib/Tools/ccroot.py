@@ -188,10 +188,6 @@ def use_rec(self, name, **kw):
 	has_link = getattr(y, 'link_task', None)
 	is_static = has_link and isinstance(y.link_task, stlink_task)
 
-	# depth-first processing
-	for x in self.to_list(getattr(y, 'use', [])):
-		self.use_rec(x, objects=objects and not has_link, stlib=stlib and (is_static or not has_link))
-
 	# link task and flags
 	if getattr(self, 'link_task', None):
 		if has_link:
@@ -216,6 +212,10 @@ def use_rec(self, name, **kw):
 		elif objects:
 			for t in getattr(y, 'compiled_tasks', []):
 				self.link_task.inputs.extend(t.outputs)
+
+	for x in self.to_list(getattr(y, 'use', [])):
+		self.use_rec(x, objects=objects and not has_link, stlib=stlib and (is_static or not has_link))
+
 
 	# add ancestors uselib too - but only propagate those that have no staticlib defined
 	for v in self.to_list(getattr(y, 'uselib', [])):
