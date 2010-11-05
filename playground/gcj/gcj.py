@@ -2,21 +2,35 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2008 (ita)
 
-import os, re
-from Configure import conf
-import TaskGen, Task, Utils
-from TaskGen import feature, before
+"""
+Native compilation using gcj for the moment
+"""
 
-@feature('gcj')
+import os, re
+from waflib.Configure import conf
+from waflib import TaskGen, Task, Utils
+from waflib.TaskGen import feature, before
+from waflib.Tools import ccroot
+
+def configure(conf):
+	conf.find_program('gcj', var='GCJ')
+	conf.env.GCJLINK = conf.env.GCJ
+
+class gcj(Task.Task):
+	run_str = '${GCJ} -c -o ${TGT} ${GCJFLAGS} -classpath ${CLASSPATH} ${SRC}'
+
+class gcj_link(ccroot.link_task):
+	run_str = '${GCJLINK} ${GCJLINKFLAGS} ${SRC} -o ${TGT}'
+	color   = 'YELLOW'
+
+ccroot.USELIB_VARS['gcj_native'] = set(['CLASSPATH', 'JAVACFLAGS', 'GCJFLAGS', 'GCJLINKFLAGS'])
+
+
+@feature('gcj_native')
 @before('apply_java')
 def apply_gcj(self):
-	Utils.def_attrs(self, jarname='', jaropts='', classpath='',
-		source_root='.', jar_mf_attributes={}, jar_mf_classpath=[])
-
-	try:
-		self.meths.remove('apply_java')
-	except ValueError:
-		pass
+	if 'javac' in self.features:
+		self.bld.fatal('feature gcj_native is not compatible with javac %r' % self)
 
 	nodes_lst = []
 
@@ -58,22 +72,10 @@ def apply_gcj(self):
 
 	#self.env['OUTDIR'] = source_root_node.abspath(self.env)
 
-	tsk = self.create_task('gcj_link')
+@feature('gcj_native')
+@after('gcj_compile')
+def create_link(self)
+	self.link_task = tsk = self.create_task('gcj_link')
 	tsk.set_inputs(bld_nodes)
 	tsk.set_outputs(self.path.find_or_declare(self.target))
-	if getattr(self, 'gcjlinkflags', None):
-		tsk.env.append_unique('GCJLINKFLAGS', self.gcjlinkflags)
-
-
-cls = Task.simple_task_type('gcj', '${GCJ} -c -o ${TGT} ${GCJFLAGS} -classpath ${CLASSPATH} ${SRC}')
-cls.before = 'gcj_link jar_create'
-cls.color  = 'BLUE'
-
-cls = Task.simple_task_type('gcj_link', '${GCJLINK} ${GCJLINKFLAGS} ${SRC} -o ${TGT}')
-cls.before = 'jar_create'
-cls.color  = 'GREEN'
-
-def configure(conf):
-	conf.find_program('gcj', var='GCJ')
-	conf.env.GCJLINK = conf.env.GCJ
 
