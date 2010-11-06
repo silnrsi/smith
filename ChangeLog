@@ -2,24 +2,25 @@ NEW IN WAF 1.6.1
 ----------------
 
 * Fixed the method check_waf_version  #764
-* Rebuild fortran files when .mod files change #766
 * Fixed the name in ctx.recurse(name) #769
 * Stop caching the install tasks and tasks that have no outputs #770
-* Updated the java tool and examples
-* Update the c# tool and examples (playground)
-* Read external c# libraries #774
-* Fix for the boost tool #776
 * Fix the log in Context.cmd_and_log() when calling with "quiet" #778
 * c_preproc exception when a file has the same name as a directory #777
-* boost tool update (in playground) #780
-* docs #781
 * 'intltool_po' does not install the .mo files #782
 * bind stderr and stdout to the exception in Context.cmd_and_log #779
 * Tasks not rebuilding properly when the 'run' method changes #786
 * Print the progress bar information as late as possible #787
-* Verbose mode should not require the compat15 tools #790
 * Fix for the FRAMEWORK value processing
+* Verbose mode should not require the compat15 tools #790
 * Let static libraries use other static libraries as in 1.5 #768
+* Fix for the boost tool #776
+* boost tool update (in playground) #780
+* Updated the java tool and examples
+* New gcj tool in playground
+* Update the c# tool and examples (playground)
+* Read external c# libraries #774
+* Rebuild fortran files when .mod files change #766
+* docs #781
 
 NEW IN WAF 1.6.0
 ----------------
