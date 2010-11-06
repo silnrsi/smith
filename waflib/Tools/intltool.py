@@ -36,7 +36,7 @@ def iapply_intltool_in_f(self):
 
 		cache = getattr(self, 'intlcache', '.intlcache')
 		self.env['INTLCACHE'] = os.path.join(self.path.bldpath(), podir, cache)
-		self.env['INTLPODIR'] = podirnode.srcpath()
+		self.env['INTLPODIR'] = podirnode.bldpath()
 		self.env['INTLFLAGS'] = getattr(self, 'flags', ['-q', '-u', '-c'])
 
 		task = self.create_task('intltool', node, node.change_ext(''))
