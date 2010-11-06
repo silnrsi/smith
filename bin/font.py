@@ -33,7 +33,7 @@ class Font(object) :
         if getattr(self, 'source', "").endswith(".sfd") :
             res.add('fontforge')
             res.add('sfdmeld')
-            if hasattr(self, 'source_ap') :
+            if hasattr(self, 'ap') :
                 res.add('sfd2ap')
         if hasattr(self, 'version') :
             res.add('ttfsetver')
@@ -56,7 +56,7 @@ class Font(object) :
             bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = self.target)
         else :
             srcnode = bld.path.find_or_declare(self.source)
-            if getattr(self, "sfd_master", '') != self.source:
+            if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarnode = srcnode.get_bld()
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], before = self.target)
                 srcnode = tarnode
@@ -150,9 +150,10 @@ class Gdl(object) :
             setattr(self, k, v)
     
     def get_build_tools(self) :
-        return ("make_gdl", "grcompiler")
+        return ("make_gdl", "grcompiler", "ttftable")
 
     def build(self, bld, target, tgen, font) :
+        modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, [getattr(self, 'source', None), getattr(self, 'master', None)])
         if self.source :
             srcs = []
             cmd = getattr(self, 'make_params', '') + " "
@@ -221,7 +222,7 @@ def make_ofl(fname, names, version, copyright = None) :
     return fname
 
 def make_tempnode(bld) :
-    return os.path.join(bld.cwd, ".tmp", "tmp" + str(randint(0, 100000)))
+    return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
     
 def process(tgt, *cmds, **kw) :
     for c in cmds :
@@ -243,10 +244,16 @@ def cmd(c, inputs, **kw) :
 def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
-    opts = " "
+    opts = u" "
     if 'lang' in kw :
-        opts += "-l " + kw['lang'] + " "
+        opts += u"-l " + kw['lang'] + u" "
         del kw['lang']
+    if 'string' in kw :
+        opts += u"-t " + kw['string'] + u" "
+        del kw['string']
+    if 'full' in kw :
+        opts += u'-f "' + kw['full'] + u'" '
+        del kw['full']
     def iname(tgt) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname
@@ -296,14 +303,17 @@ class svgContext(Build.BuildContext) :
         self.add_group('svg')
         font_tests.build_tests(self, Font.fonts, 'svg')
 
-add_configure()
-add_build()
-Context.g_module.font = Font
-Context.g_module.legacy = Legacy
-Context.g_module.volt = Volt
-Context.g_module.gdl = Gdl
-Context.g_module.process = process
-Context.g_module.create = create
-Context.g_module.cmd = cmd
-Context.g_module.name = name
-Context.g_module.ofl = Ofl
+def fontinit(ctx) :
+    add_configure()
+    add_build()
+
+varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
+            'gdl' : Gdl, 'process' : process, 'create' : create,
+            'cmd' : cmd, 'name' : name, 'ofl' : Ofl, 'init' : fontinit
+         }
+for k, v in varmap.items() :
+    if hasattr(Context, 'wscript_vars') :
+        Context.wscript_vars[k] = v
+    else :
+        setattr(Context.g_module, k, v)
+

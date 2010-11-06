@@ -1,11 +1,27 @@
 #!/usr/bin/python
 
 from waflib import Context, Utils
-import os
+import os, shutil
 
 def configure_tests(ctx, fonts) :
     res = set(['xetex', 'grsvg', 'firefox', 'xdvipdfmx', 'xsltproc', 'firefox'])
     return res
+
+def make_tex(task, mf, font) :
+    texdat = r'''
+\font\test="[%s]%s" at 12pt
+\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
+\obeylines
+\test
+\input %s
+\bye
+''' % (font, mf, task.inputs[0].bldpath())
+    task.outputs[0].write(texdat)
+    return 0
+    
+def copy_task(task) :
+    shutil.copy(task.inputs[0].bldpath(), task.outputs[0].bldpath())
+    return 0
 
 def build_tests(ctx, fonts, target) :
 
@@ -30,9 +46,9 @@ def build_tests(ctx, fonts, target) :
 #    import pdb; pdb.set_trace()
     for f in fontmap :
         modes = {}
-        if getattr(fontmap[f], 'gdl_source', None) :
+        if getattr(fontmap[f], 'graphite', None) :
             modes['gr'] = "/GR"
-        if getattr(fontmap[f], 'sfd_master', None) or getattr(fontmap[f], 'volt_source', None) :
+        if getattr(fontmap[f], 'sfd_master', None) or getattr(fontmap[f], 'opentype', None) :
             t = "/ICU"
             if getattr(fontmap[f], 'script', None) :
                 t += ":script=" + fontmap[f].script
@@ -48,17 +64,9 @@ def build_tests(ctx, fonts, target) :
                 if target == "pdfs" or target == 'test' :
                     targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + "_" + m + ".tex"
                     targ = ctx.path.find_or_declare(targfile)
-                    textfiles.append(targ)
-                    texdat = r'''
-\font\test="[%s]%s" at 12pt
-\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\obeylines
-\test
-\input %s
-\bye
-''' % (fontmap[f].target, mf, n.bldpath())
-                    targ.write(texdat)
-                    targ.sig=Utils.h_file(targ.abspath())
+                    ctx(rule = lambda t: make_tex(t, mf, fontmap[f].target),
+                        source = n, target = targ)
+                    textfiles.append((targ, n))
 
                 elif target == 'svg' :
                     if m == 'gr' :
@@ -71,9 +79,17 @@ def build_tests(ctx, fonts, target) :
                     ctx(rule='${GRSVG} ' + fontmap[f].target + ' -i ${SRC} -o ${TGT} --renderer ' + rend, source = n, target = targfile)
 
         if target == 'pdfs' or target == 'test' :
-            for n in texfiles + textfiles :
-                targ = n.get_bld()
-                ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}', source = n, target = targ.change_ext('.xdv'))
+            for n in texfiles :
+                targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + ".tex"
+                targ = ctx.path.find_or_declare(targfile)
+                ctx(rule = copy_task, source = n, target = targ)
+                textfiles.append((targ, n))
+            for n in textfiles :
+                targ = n[0].get_bld()
+                print str(n) + " depends on " + str(ctx.bldnode.find_resource(fontmap[f].target).abspath())
+                ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
+                    source = n[0], target = targ.change_ext('.xdv'),
+                    scan = lambda t: ((ctx.bldnode.find_resource(fontmap[f].target),), ()))
                 if target == 'pdfs' :
                     ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 

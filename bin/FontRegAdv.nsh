@@ -91,6 +91,7 @@ ${Index}:
 
 "${Index}-GO:"
   ClearErrors
+  System::Call "GDI32::AddFontResourceA(t) i ('${FontFileName}') .s"
   !insertmacro FontName "$FONT_DIR\${FontFileName}"
   pop $R2
   IfErrors 0 "${Index}-Add"
@@ -102,7 +103,6 @@ ${Index}:
   ClearErrors
   ReadRegStr $R0 HKLM "$R1" "$R2"
   IfErrors 0 "${Index}-End"
-    System::Call "GDI32::AddFontResourceA(t) i ('${FontFileName}') .s"
     WriteRegStr HKLM "$R1" "$R2" "${FontFileName}"
     goto "${Index}-End"
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-from waflib import Task, Build, Logs, Context, Utils
-import os
+from waflib import Task, Build, Logs, Context, Utils, Configure
+import os, imp, operator
 from waflib.TaskGen import feature, after
 
 def add_depend_after(base) :
@@ -37,6 +37,7 @@ def add_depend_after(base) :
 @feature('*')
 @after('process_rule')
 def process_tempcopy(tgen) :
+    """ Wrap the task function to do the tempcopy """
     import os, shutil
     if not getattr(tgen, 'tempcopy', None) : return
 
@@ -126,12 +127,12 @@ def add_reasons() :
 
     Task.Task.runnable_status = reasonable_runnable
 
-def sort_tasks(base) :
+def add_sort_tasks(base) :
     old_biter = base.get_build_iterator
 
     def top_sort(tasks) :
         """ Topologically sort the tasks so that they are processed in
-            dependency order. """
+            dependency order. Regardless of what order they were created in. """
         if not tasks or len(tasks) < 2 : return tasks
         icntmap = {}
         amap = {}
@@ -187,10 +188,13 @@ def sort_tasks(base) :
         for t in tasks :
             for n in getattr(t, 'inputs', []) :
                 if id(n) in tmap :
-                    for l in tmap[id(n)][::-1] :
-                        if not l.runs_after(t) :
-                            t.set_run_after(l)
+                    entry = tmap[id(n)]
+                    res = len(entry) - 1
+                    for i in range(res + 1) :
+                        if entry[i].runs_after(t) :
+                            res = i - 1
                             break
+                    t.set_run_after(entry[res])
 
     def wrap_biter(self) :
         for b in old_biter(self) :
@@ -226,11 +230,35 @@ def add_build_wafplus() :
     Build.BuildContext.pre_recurse = pre_recurse
     Build.BuildContext.post_recurse = post_recurse
 
+def add_unicode_exec() :
+    old_exec = Context.Context.exec_command
+
+    def unicode_exec_command(self, cmd, **kw) :
+        if isinstance(cmd, str) :
+            cmd = cmd.decode('utf_8')
+        elif isinstance(cmd, list) :
+            cmd = map (operator.methodcaller('decode', 'utf_8'), cmd)
+        old_exec(self, cmd, **kw)
+
+    Context.Context.exec_command = unicode_exec_command
+
+def add_configure() :
+    old_config = Configure.ConfigurationContext.post_recurse
+
+    def configure(ctx, node) :
+        programs = set(['dot'])
+        for p in programs :
+            ctx.find_program(p, var=p.upper())
+        if old_config :
+            old_config(ctx, node)
+
+    Configure.ConfigurationContext.post_recurse = configure
+
 class DotContext(Build.BuildContext):
-    '''generates dot description the targets to execute'''
+    '''generates dot description of the target tasks to execute'''
     cmd='dot'
     def execute(self):
-        self.load()
+        self.restore()
         if not self.all_envs:
             self.load_envs()
         self.recurse([self.run_dir])
@@ -242,24 +270,68 @@ class DotContext(Build.BuildContext):
                 tasks.extend(t)
             else :
                 break
-        print "digraph tasks { rankdir=BT;"
+        ofh = open("wscript.dot", "w")
+        ofh.write("digraph tasks { rankdir=BT;\n")
         tmap = {}
         count = 0
         for l in tasks :
             nname = "n" + str(count)
             tmap[id(l)] = nname
             count += 1
-            print "    " + nname + ' [label="' + l.name + '"];'
+            ofh.write("    " + nname + ' [label="' + l.name + '"];\n')
         for l in tasks :
             for d in l.run_after :
 #                print "    " + tmap[d.name] + " -> " + tmap[l.name]
-                print "    " + tmap[id(l)] + " -> " + tmap[id(d)]
-        print "}"
+                ofh.write("    " + tmap[id(l)] + " -> " + tmap[id(d)] + ";\n")
+        ofh.write("}\n")
 
-sort_tasks(Build.BuildContext)
+        g = []
+        self.group_names['dot'] = g
+        self.groups = [g]       # delete all the tasks except ours
+        self.set_group(0)
+#        self(cmd='echo Create wscript.dot', target='wscript.dot', shell = 1)
+        self(rule='${DOT} -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=1)
+
+        self.compile()
+
+
+def load_module(file_path) :
+    """ Add global pushing to WSCRIPT when it loads """
+    try:
+        return Context.cache_modules[file_path]
+    except KeyError:
+        pass
+
+    module = imp.new_module(Context.WSCRIPT_FILE)
+    try:
+        code = Utils.readf(file_path, m='rU')
+    except (IOError, OSError) :
+        raise Errors.WafError('Could not read the file %r' % file_path)
+
+    module_dir = os.path.dirname(file_path)
+    sys.path.insert(0, module_dir)
+
+    for k, v in Context.wscript_vars.items() : setattr(module, k, v)
+
+    Context.g_module = module
+    try:
+        exec(code, module.__dict__)
+    except Exception as e:
+        raise Errors.WafError(ex=a, pyfile=file_path)
+    sys.path.remove(module_dir)
+
+    Context.cache_modules[file_path] = module
+    return module
+
+add_sort_tasks(Build.BuildContext)
 add_reasons()
 add_depend_after(Task.Task)
-Context.g_module.modify = modify
-Context.g_module.rule = rule
 add_build_wafplus()
+add_configure()
+#add_unicode_exec()
+Context.load_module = load_module
+Context.wscript_vars = {}
+varmap = { 'modify' : modify, 'rule' : rule }
+for k, v in varmap.items() :
+    Context.wscript_vars[k] = v
 

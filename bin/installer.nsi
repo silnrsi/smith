@@ -19,14 +19,15 @@
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.APPNAME.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 
+SetCompressor lzma
+
 ;-----------------------------
 ; Macros for Font installation
 ;-----------------------------
-!addplugindir @os.path.join('..', basedir, 'nsis')@
-!addincludedir @os.path.join('..', basedir, 'nsis')@
+!addplugindir @os.path.join('..', basedir)@
+!addincludedir @os.path.join('..', basedir)@
 !include FileFunc.nsh
 !include FontRegAdv.nsh
-!include FontName.nsh
 !include WordFunc.nsh
 
 !insertmacro VersionCompare
@@ -35,142 +36,60 @@
 
 !macro unFontName FONTFILE
   push ${FONTFILE}
-  call un.TranslateFontName
-  FontName::Name
-  call un.CheckFontNameError
+  call un.GetFontName
 !macroend
 
-Function un.TranslateFontName
-  !define Index "LINE-${__LINE__}"
+!macro FontName FONTFILE
+  push ${FONTFILE}
+  call GetFontName
+!macroend
 
-  StrCmp $LANGUAGE 1063 0 End-1063 ; Lithuanian (by Vytautas Krivickas)
-    Push "Neteisinga rifto versija"
-    Push "Planines bylos adreso klaida: %u"
-    Push "Planines bylos sukurimo klaida: %u"
-    Push "Neteisingas bylos dydis: %u"
-    Push "Neteisinga bylos rankena: %u"
-    Push "FontName %s ijungiamoji byla i NSIS"
-    goto ${Index}
-  End-1063:
-
-  StrCmp $LANGUAGE 1031 0 End-1031 ; German (by Jan T. Sott)
-    Push "Falsche Fontversion"
-    Push "MappedFile Addressfehler: %u"
-    Push "MappedFile Fehler: %u"
-    Push "Ungültige Dateigrösse: %u"
-    Push "Ungültiges Dateihandle %u"
-    Push "FontName %s Plugin für NSIS"
-    goto ${Index}
-  End-1031:
-
-  StrCmp $LANGUAGE 1037 0 End-1037 ; Hebrew (by kichik)
-    Push "âøñú ëåôï ùâåéä"
-    Push "ùâéàú ëúåáú ÷åáõ îîåôä: %u"
-    Push "ùâéàú ÷åáõ îîåôä: %u"
-    Push "âåãì ÷åáõ ìà çå÷é: %u"
-    Push "éãéú ÷åáõ ìà çå÷éú %u"
-    Push "FontName %s plugin for NSIS"
-    goto ${Index}
-  End-1037:
-
-  StrCmp $LANGUAGE 1046 0 End-1046 ; Portuguese (Brazil) (by deguix)
-    Push "Versão de Fonte Errada"
-    Push "Erro de Endereço do ArquivoMapeado: %u"
-    Push "Erro do ArquivoMapeado: %u"
-    Push "Tamanho de arquivo inválido: %u"
-    Push "Manuseio de arquivo inválido %u"
-    Push "FontName %s plugin para NSIS"
-    goto ${Index}
-  End-1046:
-
-  StrCmp $LANGUAGE 1025 0 End-1025 ; Arabic (by asdfuae)
-    Push "ÅÕÏÇÑ ÇáÎØ ÎÇØÆ"
-    Push "ÎØÇÁ ÚäæÇä ÎÑíØÉÇáãáÝ: %u"
-    Push "ÎØÇÁ ÎÑíØÉ ÇáãáÝ: %u"
-    Push "ÍÌã ÇáãáÝ ÛíÑÕÍíÍ: %u"
-    Push "ãÚÇáÌ ÇáãáÝ ÛíÑ ÕÍíÍ %u"
-    Push "ãÞÈÓ ÇÓã ÇáÎØ %s áäÓíÓ"
-    goto ${Index}
-  End-1025:
-
-  StrCmp $LANGUAGE 1028 0 End-1028 ; Chinese (Traditional) by Kii Ali <kiiali@@cpatch.org>
-    Push "¿ù»~ªºŠr«¬ª©¥»"
-    Push "¹ïÀ³ÀÉ®×Šì§}¿ù»~: %u"
-    Push "¹ïÀ³ÀÉ®×¿ù»~: %u"
-    Push "µL®ÄªºÀÉ®×€j€p: %u"
-    Push "µL®ÄªºÀÉ®×¬`µ{: %u"
-    Push "¥Î©ó NSIS ªºŠr«¬ŠWºÙ %s Ž¡¥ó"
-    goto ${Index}
-  End-1028:
-
-  StrCmp $LANGUAGE 2052 0 End-2052 ; Chinese (Simplified) by Kii Ali <kiiali@@cpatch.org>
-    Push "ŽíÎóµÄ×ÖÌå°æ±Ÿ"
-    Push "Ó³ÉäÎÄŒþµØÖ·ŽíÎó: %u"
-    Push "Ó³ÉäÎÄŒþŽíÎó: %u"
-    Push "ÎÞÐ§µÄÎÄŒþŽóÐ¡: %u"
-    Push "ÎÞÐ§µÄÎÄŒþ±ú³Ì: %u"
-    Push "ÓÃÓÚ NSIS µÄ×ÖÌåÃû³Æ %s ²åŒþ"
-    goto ${Index}
-  End-2052:
-
-  StrCmp $LANGUAGE 1036 0 End-1036 ; French by evilO/Olive
-    Push "Version de police incorrecte"
-    Push "Erreur d'adresse du fichier mappé : %u"
-    Push "Erreur de fichier mappé : %u"
-    Push "Taille de fichier invalide : %u"
-    Push "Descripteur de fichier invalide %u"
-    Push "FontName %s plugin pour NSIS"
-    goto ${Index}
-  End-1036:
-
-  StrCmp $LANGUAGE 1034 0 End-1034 ; Spanish (traditional) by Cecilio
-    Push "Versión del font incorrecta"
-    Push "Error de dirección de archivo mapeado: %u"
-    Push "Error de archivo mapeado: %u"
-    Push "Tamaño de archivo erroneo: %u"
-    Push "Manipulador de archivo erroneo: %u"
-    Push "Plugin de NSIS para FontName %s "
-    goto ${Index}
-  End-1034:
-
-  StrCmp $LANGUAGE 1071 0 End-1071 ; Macedonian by Sasko Zdravkin <wingman2083@@yahoo.com>
-    Push "Ïîãðåøíà âåðçèŒà íà Ôîíòîò"
-    Push "ÌàïèðàíàòàÄàòîòåêà Ãðåøêà íà àäðåñàòà: %u"
-    Push "ÌàïèðàíàòàÄàòîòåêà Ãðåøêà: %u"
-    Push "Ïîãðåøíà ãîëåìèíà íà äàòîòåêàòà: %u"
-    Push "Ïîãðåøíî ðàêóâàå ñî äàòîòåêàòà: %u"
-    Push "FontName %s ïëóãèí çà NSIS"
-    goto ${Index}
-  End-1071:
-
-; Add your languages here
-
-  ; Default English (1033) by Vytautas Krivickas - MUST REMAIN LAST!
-  Push "Wrong Font Version"
-  Push "MappedFile Address Error: %u"
-  Push "MappedFile Error: %u"
-  Push "Invalid file size: %u"
-  Push "Invalid file handle %u"
-  Push "FontName %s plugin for NSIS"
-  goto ${Index}
-
-${Index}:
-  !undef Index
+Function GetFontName
+  Exch $R0
+  Push $R1
+  Push $R2
+ 
+  System::Call *(i${NSIS_MAX_STRLEN})i.R1
+  System::Alloc ${NSIS_MAX_STRLEN}
+  Pop $R2
+  System::Call gdi32::GetFontResourceInfoW(wR0,iR1,iR2,i1)i.R0
+  IntCmp $R0 0 GFN_error
+    System::Call *$R2(&w${NSIS_MAX_STRLEN}.R0)
+    Goto GFN_errordone
+  GFN_error:
+    StrCpy $R0 error
+  GFN_errordone:
+  System::Free $R1
+  System::Free $R2
+ 
+  Pop $R2
+  Pop $R1
+  Exch $R0
 FunctionEnd
 
-Function un.CheckFontNameError
-  !define Index "LINE-${__LINE__}"
-
-  exch $1
-  strcmp $1 "*:*" 0 Index
-    pop $1
-    exch $1
-    SetErrors
-
-Index:
-  exch $1
-  !undef Index
+Function un.GetFontName
+  Exch $R0
+  Push $R1
+  Push $R2
+ 
+  System::Call *(i${NSIS_MAX_STRLEN})i.R1
+  System::Alloc ${NSIS_MAX_STRLEN}
+  Pop $R2
+  System::Call gdi32::GetFontResourceInfoW(wR0,iR1,iR2,i1)i.R0
+  IntCmp $R0 0 GFN_error
+    System::Call *$R2(&w${NSIS_MAX_STRLEN}.R0)
+    Goto GFN_errordone
+  GFN_error:
+    StrCpy $R0 error
+  GFN_errordone:
+  System::Free $R1
+  System::Free $R2
+ 
+  Pop $R2
+  Pop $R1
+  Exch $R0
 FunctionEnd
+
 !macro unRemoveTTF FontFile
   Push $0  
   Push $R0
@@ -264,7 +183,6 @@ ${Index}:
   Pop $0
 !macroend
 
-
 ;--------------------------------
 ;Include Modern UI
 
@@ -283,7 +201,6 @@ ${Index}:
   ;Get installation folder from registry if available
   InstallDirRegKey HKLM "Software\${INSTALL_SUFFIX}" ""
   
-  SetCompressor lzma
 ;--------------------------------
 ;Interface Settings
 
@@ -401,7 +318,7 @@ Section "!${FONTNAME} Font" SecFont
 SectionEnd
 
 Section -StartMenu
-  @'File "' + os.path.join('..', prj.LICENSE) + '"' if prj.LICENSE else ""@
+  @'File "' + (prj.LICENSE + '"' if getattr(prj, 'LICENSE', '') else '"')@
 +for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
 + for fn in fs :
   File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join(dp, fn)@"
