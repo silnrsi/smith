@@ -9,7 +9,7 @@ help welcome to improve this demo folder
 APPNAME = 'app'
 
 def configure(conf):
-	conf.load('intltool')
+	conf.load('gnu_dirs intltool')
 
 def build(bld):
 	bld.add_subdirs('data')
