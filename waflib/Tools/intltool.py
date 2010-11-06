@@ -42,7 +42,7 @@ def iapply_intltool_in_f(self):
 		task = self.create_task('intltool', node, node.change_ext(''))
 		inst = getattr(self, 'install_path', '${LOCALEDIR}')
 		if inst:
-			self.install_files(inst, task.outputs)
+			self.bld.install_files(inst, task.outputs)
 
 @feature('intltool_po')
 def apply_intltool_po(self):
