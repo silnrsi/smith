@@ -22,6 +22,7 @@ NEW IN WAF 1.6.1
 * Read external c# libraries #774
 * Rebuild fortran files when .mod files change #766
 * docs #781
+* improve the ant_glob behaviour on ctx.root + absolute paths
 
 NEW IN WAF 1.6.0
 ----------------

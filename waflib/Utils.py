@@ -144,6 +144,10 @@ if is_win32:
 		list the contents of a folder, because the behaviour is platform-dependent
 		you should always use Utils.listdir
 		"""
+
+		# FIXME if someone could add the routine to list all drive letters on win32?
+		# win32api.GetLogicalDriveStrings().split("\x00")
+		# if you do, remove the win32 Node.listdir (see Node.py)
 		if not s:
 			return []
 
