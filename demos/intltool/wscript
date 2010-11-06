@@ -12,5 +12,6 @@ def configure(conf):
 	conf.load('intltool')
 
 def build(bld):
+	bld.add_subdirs('data')
 	bld(features='intltool_po', appname=APPNAME, podir='po', install_path="${LOCALEDIR}")
 
