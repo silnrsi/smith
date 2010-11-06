@@ -7,6 +7,7 @@ NEW IN WAF 1.6.1
 * Fix the log in Context.cmd_and_log() when calling with "quiet" #778
 * c_preproc exception when a file has the same name as a directory #777
 * 'intltool_po' does not install the .mo files #782
+* 'intltool_in' was broken #792
 * bind stderr and stdout to the exception in Context.cmd_and_log #779
 * Tasks not rebuilding properly when the 'run' method changes #786
 * Print the progress bar information as late as possible #787
