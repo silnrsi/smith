@@ -302,7 +302,7 @@ class TaskBase(evil):
 	def hash_constraints(self):
 		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
 		cls = self.__class__
-		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out))
+		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out), cls.__name__)
 		h = hash(tup)
 		return h
 
