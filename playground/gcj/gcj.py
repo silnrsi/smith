@@ -8,74 +8,79 @@ Native compilation using gcj for the moment
 
 import os, re
 from waflib.Configure import conf
-from waflib import TaskGen, Task, Utils
-from waflib.TaskGen import feature, before
+from waflib import TaskGen, Task, Utils, Node
+from waflib.TaskGen import feature, before, after
 from waflib.Tools import ccroot
 
 def configure(conf):
 	conf.find_program('gcj', var='GCJ')
 	conf.env.GCJLINK = conf.env.GCJ
+	conf.env.GCJLINKFLAGS_gcj_shlib = ['-shared']
+	conf.env.GCJFLAGS_gcj_shlib = ['-fPIC']
 
 class gcj(Task.Task):
-	run_str = '${GCJ} -c -o ${TGT} ${GCJFLAGS} -classpath ${CLASSPATH} ${SRC}'
+	run_str = '${GCJ} ${GCJFLAGS} -classpath ${CLASSPATH} -c -o ${TGT} ${SRC}'
 
-class gcj_link(ccroot.link_task):
+class gcj_program(ccroot.link_task):
 	run_str = '${GCJLINK} ${GCJLINKFLAGS} ${SRC} -o ${TGT}'
 	color   = 'YELLOW'
 
-ccroot.USELIB_VARS['gcj_native'] = set(['CLASSPATH', 'JAVACFLAGS', 'GCJFLAGS', 'GCJLINKFLAGS'])
+class gcj_shlib(gcj_program):
+	pass
 
+ccroot.USELIB_VARS['gcj'] = set(['CLASSPATH', 'JAVACFLAGS', 'GCJFLAGS'])
+ccroot.USELIB_VARS['gcj_program'] = set(['CLASSPATH', 'JAVACFLAGS', 'GCJLINKFLAGS'])
+ccroot.USELIB_VARS['gcj_shlib'] = set(['CLASSPATH', 'JAVACFLAGS', 'GCJLINKFLAGS'])
+feature('gcj_program', 'gcj_shlib')(ccroot.apply_link)
+feature('gcj_program', 'gcj_shlib')(ccroot.propagate_uselib_vars)
 
-@feature('gcj_native')
+@feature('gcj')
+@after('propagate_uselib_vars', 'apply_gcj')
+def set_gcj_classpath(self):
+	lst = [isinstance(x, str) and x or x.abspath() for x in self.env.CLASSPATH]
+	self.env.CLASSPATH = os.pathsep.join(lst) + os.pathsep
+
+@feature('gcj')
 @before('apply_java')
 def apply_gcj(self):
 	if 'javac' in self.features:
 		self.bld.fatal('feature gcj_native is not compatible with javac %r' % self)
 
-	nodes_lst = []
+	srcdir = getattr(self, 'srcdir', '')
+	if isinstance(srcdir, Node.Node):
+		srcdir = [srcdir]
 
-	if not self.classpath:
-		if not self.env['CLASSPATH']:
-			self.env['CLASSPATH'] = '..' + os.pathsep + '.'
-	else:
-		self.env['CLASSPATH'] = self.classpath
+	tmp = []
+	for x in Utils.to_list(srcdir):
+		if isinstance(x, Node.Node):
+			y = x
+		else:
+			y = self.path.find_dir(x)
+			if not y:
+				self.bld.fatal('Could not find the folder %s from %s' % (x, self.path))
+		tmp.append(y)
 
-	re_foo = re.compile(self.java_source)
+	nodes = []
+	for x in tmp:
+		nodes.extend(x.ant_glob('**/*.java'))
 
-	source_root_node = self.path.find_dir(self.source_root)
+	if not getattr(self, 'gcjonce', None):
+		for x in nodes:
+			self.create_compiled_task('gcj', x)
 
-	src_nodes = []
-	bld_nodes = []
+#############################################################
+# gcj is still beta software
+# and this workaround cannot work for shared object (-fPIC)
 
-	all_at_once = getattr(self, 'gcjonce', None)
+class fix_dummy(Task.Task):
+	run_str = 'objcopy -L _ZGr8_$$_dummy ${SRC}'
+	before  = ['gcj_program', 'gcj_shlib']
 
-	prefix_path = source_root_node.abspath()
-	for (root, dirs, filenames) in os.walk(source_root_node.abspath()):
-		for x in filenames:
-			file = root + '/' + x
-			file = file.replace(prefix_path, '')
-			if file.startswith('/'):
-				file = file[1:]
-
-			if re_foo.search(file) > -1:
-				node = source_root_node.find_resource(file)
-
-				if all_at_once:
-					bld_nodes.append(node)
-				else:
-					node2 = node.change_ext('.o')
-
-					tsk = self.create_task('gcj')
-					tsk.set_inputs(node)
-					tsk.set_outputs(node2)
-					bld_nodes.append(node2)
-
-	#self.env['OUTDIR'] = source_root_node.abspath(self.env)
-
-@feature('gcj_native')
-@after('gcj_compile')
-def create_link(self)
-	self.link_task = tsk = self.create_task('gcj_link')
-	tsk.set_inputs(bld_nodes)
-	tsk.set_outputs(self.path.find_or_declare(self.target))
+@feature('gcj')
+@after('apply_gcj')
+def gcj_developers_like_duplicate_dummy_symbols(self):
+	if self.env.FIX_DUMMY:
+		for tsk in self.compiled_tasks:
+			if isinstance(tsk, gcj):
+				self.create_task('fix_dummy', tsk.outputs[0])
 

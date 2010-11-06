@@ -10,13 +10,14 @@ out = 'out'
 
 def configure(conf):
 	conf.check_tool('gcj', tooldir='.')
+	conf.env.FIX_DUMMY = True
 
 def build(bld):
 	bld(
-		features     = 'gcj',
-		java_source  = '.*java$',
-		source_root  = 'src',
+		features     = 'gcj gcj_program',
+		srcdir       = 'src',
 		target       = 'test',
 		gcjlinkflags = '--main=es.Hello',
-		gcjonce      = True)
+		classpath    = [bld.path.find_dir('src')],
+		)
 
