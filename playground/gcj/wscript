@@ -15,9 +15,9 @@ def configure(conf):
 def build(bld):
 	bld(
 		features     = 'gcj gcj_program',
-		srcdir       = 'src',
+		srcdir       = 'src more',
 		target       = 'test',
 		gcjlinkflags = '--main=es.Hello',
-		classpath    = [bld.path.find_dir('src')],
+		classpath    = [bld.path.find_dir(x) for x in ('src', 'more')],
 		)
 
