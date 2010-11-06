@@ -19,6 +19,7 @@ NEW IN WAF 1.6.1
 * Print the progress bar information as late as possible #787
 * Verbose mode should not require the compat15 tools #790
 * Fix for the FRAMEWORK value processing
+* Let static libraries use other static libraries as in 1.5 #768
 
 NEW IN WAF 1.6.0
 ----------------
