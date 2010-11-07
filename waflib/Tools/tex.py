@@ -2,7 +2,21 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"TeX/LaTeX/PDFLaTeX/XeLaTeX support"
+"""TeX/LaTeX/PDFLaTeX/XeLaTeX support
+
+Variables passed to bld():
+
+* type -- tex compiler type to use
+
+  type: string, in ["latex", "pdflatex", "xelatex"]
+  
+  default: pdflatex
+  
+* prompt -- whether to prompt for errors or use batch mode
+
+  type: boolean
+
+"""
 
 import os, re
 from waflib import Utils, Task, Runner, Build
@@ -13,13 +27,23 @@ re_tex = re.compile(r'\\(?P<type>include|bibliography|includegraphics|input|impo
 def scan(self):
 	"""
 	A simple regex-based scanner for latex dependencies, uses re_tex from above
-	Depending on your needs you might want to change re_tex
-	from waflib.Tools import tex
-	tex.re_tex = myregex
-	or to change
-	the method scan from the latex tasks:
-	from waflib.Task import classes
-	classes['latex'].scan = myscanfunction
+	
+	Depending on your needs you might want:
+	
+	* to change re_tex
+
+	::
+	
+		from waflib.Tools import tex
+		tex.re_tex = myregex
+	
+	* or to change the method scan from the latex tasks
+
+	::
+	
+		from waflib.Task import classes
+		classes['latex'].scan = myscanfunction
+	
 	"""
 	node = self.inputs[0]
 	env = self.env
@@ -56,6 +80,18 @@ makeindex_fun, _ = Task.compile_fun('${MAKEINDEX} ${MAKEINDEXFLAGS} ${SRCFILE}',
 
 g_bibtex_re = re.compile('bibdata', re.M)
 def tex_build(task, command='LATEX'):
+	"""
+	Runs the LaTeX build process.
+
+	TeX file processing may need multiple passes, depending on the
+	usage of cross-references, bibliographies, content susceptible of
+	needing such passes.
+	The appropriate TeX compiler is called until the .aux file ceases
+	changing.
+
+	Makeindex and bibtex are called if necessary.
+
+	"""
 	env = task.env
 	bld = task.generator.bld
 
