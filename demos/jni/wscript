@@ -16,11 +16,11 @@ def configure(conf):
 	conf.check_jni_headers()
 
 def build(bld):
-	bld(features='javac jar', srcdir='src/java', basedir='src/java', destfile='stringUtils.jar')
+	bld(features='javac jar', srcdir='src/java', outdir='src/java', basedir='src/java', destfile='stringUtils.jar')
 
 	bld.shlib(
-		source = 'src/jni/source/StringUtils.c',
-		includes='src/jni/include',
-		target='stringUtils',
-		uselib='JAVA')
+		source   = 'src/jni/source/StringUtils.c',
+		includes = 'src/jni/include',
+		target   = 'stringUtils',
+		uselib   = 'JAVA')
 
