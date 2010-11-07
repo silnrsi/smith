@@ -195,22 +195,25 @@ class Context(ctx):
 			node = self.root.find_node(WSCRIPT_FUN)
 			if node:
 				self.pre_recurse(node)
-				function_code = node.read('rU')
-
-				exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
-				self.post_recurse(node)
+				try:
+					function_code = node.read('rU')
+					exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
+				finally:
+					self.post_recurse(node)
 
 			else:
 				node = self.root.find_node(WSCRIPT)
 				if not node:
 					raise Errors.WafError('No wscript file in directory %s' % d)
 				self.pre_recurse(node)
-				wscript_module = load_module(node.abspath())
-				user_function = getattr(wscript_module, (name or self.fun), None)
-				if not user_function:
-					raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
-				user_function(self)
-				self.post_recurse(node)
+				try:
+					wscript_module = load_module(node.abspath())
+					user_function = getattr(wscript_module, (name or self.fun), None)
+					if not user_function:
+						raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
+					user_function(self)
+				finally:
+					self.post_recurse(node)
 
 	def fatal(self, msg, ex=None):
 		"""raise a configuration error"""
