@@ -104,7 +104,9 @@ def tex_build(task, command='LATEX'):
 		if fo:
 			warn('calling bibtex')
 
-			task.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
+			task.env.env = {}
+			task.env.env.update(os.environ)
+			task.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
 			task.env.SRCFILE = docuname
 			ret = bibtex_fun(task)
 			if ret:
