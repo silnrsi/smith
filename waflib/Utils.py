@@ -140,31 +140,32 @@ else:
 		"""
 		return s.encode('hex')
 
+def listdir(s):
+	"""
+	Lists the contents of a folder in a portable manner.
+
+	:param s: string, 
+
+	If not s, returns a listing of the root folder.
+	On Windows, returns the list of drive letters.
+	
+	"""
+	pass
+
 listdir = os.listdir
 if is_win32:
+	from ctypes import windll, byref, create_string_buffer
 	def listdir_win32(s):
-		"""
-		list the contents of a folder, because the behaviour is platform-dependent
-		you should always use Utils.listdir
-		"""
-
 		if not s:
-			from ctypes import byref, windll, c_ulong, c_wchar_p, create_unicode_buffer
-			get = windll.kernel32.GetLogicalDriveStringsW
-			buf_len = c_ulong()
-			l = c_ulong(0)
-			str_drives = c_wchar_p(0)
-			buf_len = get(l, str_drives)
-			l = buf_len
-			buf_len = 0
-			str_drives = create_unicode_buffer('\x000', l)
-			buf_len = get(l, byref(str_drives))
-			drives = [x for x in  str_drives[:-1].split('\\\x00') if x]
-			return drives
-
-		if re.match('^[A-Za-z]:$', s):
-			# os.path.isdir fails if s contains only the drive name... (x:)
+			dlen = 4 # length of "?:\\x00"
+			maxdrives = 26
+			buf = create_string_buffer(maxdrives * dlen)
+			ndrives = windll.kernel32.GetLogicalDriveStringsA(maxdrives, byref(buf))
+			return buf.raw.split("\x00")[:ndrives/dlen]
+		
+		if len(s) == 2 and s[1] == ":":
 			s += os.sep
+		
 		if not os.path.isdir(s):
 			e = OSError()
 			e.errno = errno.ENOENT
