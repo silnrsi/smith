@@ -25,15 +25,15 @@ def build(bld):
 
 	excluded = []
 	bld_excluded = []
+
+	# Define here what you don't want to cover
 	if machine in ["Potiok"]:
 		excluded += ["d", "fluid", "go", "6g", "glib2"]
-		bld_excluded.extend(excluded)
 		bld_excluded += ["jni"]
-
-	dirs = []
-	for d in os.listdir("."):
-		if not os.path.isdir(d): continue
-		dirs.append(d)
+	
+	bld_excluded.extend(excluded)
+	
+	dirs = [ d for d in os.listdir(".") if os.path.isdir(d) ]
 
 	for d in dirs:
 		if d in excluded: continue

@@ -5,16 +5,18 @@
 """
 Node: filesystem structure, contains lists of nodes
 
-1. Each file/folder is represented by exactly one node.
+#. Each file/folder is represented by exactly one node.
 
-2. Some potential class properties are stored in Build: nodes to depend on..
-unused class members increase the .wafpickle file size sensibly with lots of objects.
+#. Some potential class properties are stored in Build: nodes to depend on...
+   unused class members increase the .wafpickle file size sensibly with lots of objects.
 
-3. The build is launched from the top of the build dir (for example, in build/).
+#. The build is launched from the top of the build dir (for example, in build/).
 
-4. Although Node objects should not be created directly, the methods make_node or find_node may be used for exceptional circumstances
+#. Although Node objects should not be created directly,
+   the methods :py:func:`Node.make_node` or :py:func:`Node.find_node`
+   may be used for exceptional circumstances
 
-Each instance of Build.BuildContext has a unique Node subclass.
+Each instance of :py:class:`Build.BuildContext` has a unique :py:class:`Node` subclass.
 (aka: 'Nod3', see BuildContext initializer)
 The BuildContext is referenced here as self.ctx
 Its Node class is referenced here as self.__class__
@@ -407,15 +409,18 @@ class Node(object):
 	def ant_glob(self, *k, **kw):
 		"""
 		This method is used for finding files across folders. It behaves like ant patterns:
-		**/* find all files recursively
-		**/*.class find all files ending by .class
-		.. find all files having two characters such as 'aa' or 'bb'
-		for more information see http://ant.apache.org/manual/dirtasks.html
+		
+		* ``**/*`` find all files recursively
+		* ``**/*.class`` find all files ending by .class
+		* ``..`` find all files having two characters such as 'aa' or 'bb'
+		
+		For more information see http://ant.apache.org/manual/dirtasks.html
+		
 		GOTCHA: the nodes that correspond to files and folders that do not exist will be removed
 
-		@param dir: return folders too (False by default)
-		@param src: return files (True by default)
-		@param remove: remove files (True by default)
+		:param dir: return folders too (False by default)
+		:param src: return files (True by default)
+		:param remove: remove files (True by default)
 		"""
 
 		src = kw.get('src', True)

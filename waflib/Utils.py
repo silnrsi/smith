@@ -94,13 +94,16 @@ indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 def readf(fname, m='r'):
 	"""
-	Read an entire file into a string, in practice yuo should rather use node.read(..)
-	@type  fname: string
-	@param fname: Path to file
-	@type  m: string
-	@param m: Open mode
-	@rtype: string
-	@return: Content of the file
+	Read an entire file into a string, in practice yuo should rather
+	use node.read(..)
+	
+	:type  fname: string
+	:param fname: Path to file
+	:type  m: string
+	:param m: Open mode
+	:rtype: string
+	:return: Content of the file
+	
 	"""
 	f = open(fname, m)
 	try:
@@ -188,9 +191,10 @@ def to_list(sth):
 	Convert a string argument to a list by splitting on spaces, and pass
 	through a list argument unchanged.
 
-	@param sth: List or a string of items separated by spaces
-	@rtype: list
-	@return: Argument converted to list
+	:param sth: List or a string of items separated by spaces
+	:rtype: list
+	:return: Argument converted to list
+	
 	"""
 	if isinstance(sth, str):
 		return sth.split()
@@ -201,10 +205,11 @@ re_nl = re.compile('\r*\n', re.M)
 def str_to_dict(txt):
 	"""
 	Parse a string with key = value pairs into a dictionary.
-	@type  s: string
-	@param s: String to parse
-	@rtype: dict
-	@return: Dictionary containing parsed key-value pairs
+	
+	:type  s: string
+	:param s: String to parse
+	:rtype: dict
+	:return: Dictionary containing parsed key-value pairs
 	"""
 	tbl = {}
 
@@ -252,8 +257,8 @@ elif is_win32:
 def check_dir(path):
 	"""
 	Ensure that a directory exists, and try to avoid thread issues (similar to mkdir -p)
-	@type  dir: string
-	@param dir: Path to directory
+	:type  dir: string
+	:param dir: Path to directory
 	"""
 	if not os.path.isdir(path):
 		try:
@@ -263,15 +268,16 @@ def check_dir(path):
 				raise Errors.WafError('Cannot create folder %r' % path, ex=e)
 
 def def_attrs(cls, **kw):
-	'''
+	"""
 	set attributes for class.
-	@type cls: class
-	@param cls: the class to update the given attributes in.
-	@type kw: dict
-	@param kw: dictionary of attributes names and values.
+	
+	:type cls: class
+	:param cls: the class to update the given attributes in.
+	:type kw: dict
+	:param kw: dictionary of attributes names and values.
 
 	if the given class hasn't one (or more) of these attributes, add the attribute with its value to the class.
-	'''
+	"""
 	for k, v in kw.items():
 		if not hasattr(cls, k):
 			setattr(cls, k, v)
@@ -279,10 +285,11 @@ def def_attrs(cls, **kw):
 def quote_define_name(s):
 	"""
 	Convert a string to an identifier suitable for C defines.
-	@type  s: string
-	@param s: String to convert
-	@rtype: string
-	@return: Identifier suitable for C defines
+	
+	:type  s: string
+	:param s: String to convert
+	:rtype: string
+	:return: Identifier suitable for C defines
 	"""
 	fu = re.compile("[^a-zA-Z0-9]").sub("_", s)
 	fu = fu.upper()
@@ -317,9 +324,9 @@ reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"""
 	Replaces ${VAR} with the value of VAR taken from the dictionary
-	@type  expr: string
-	@param expr: String to perform substitution on
-	@param params: Dictionary to look up variable values.
+	:type  expr: string
+	:param expr: String to perform substitution on
+	:param params: Dictionary to look up variable values.
 	"""
 	def repl_var(m):
 		if m.group(1):
@@ -350,8 +357,8 @@ def unversioned_sys_platform():
 	the build environment, e.g. linux2, freebsd6, etc.
 	This returns the name without the version number. Exceptions are
 	os2 and win32, which are returned verbatim.
-	@rtype: string
-	@return: Unversioned platform name
+	:rtype: string
+	:return: Unversioned platform name
 	"""
 	s = sys.platform
 	if s == 'java':
@@ -447,11 +454,11 @@ def nogc(fun):
 
 def run_once(fun):
 	"""
-	decorator, make a function cache its results, use like this:
+	decorator, make a function cache its results, use like this::
 
-	@run_once
-	def foo(k):
-		return 345*2343
+		@run_once
+		def foo(k):
+			return 345*2343
 	"""
 	cache = {}
 	def wrap(k):
