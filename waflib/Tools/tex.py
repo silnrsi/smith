@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Thomas Nagy, 2006 (ita)
 
-"TeX/LaTeX/PDFLaTeX support"
+"TeX/LaTeX/PDFLaTeX/XeLaTeX support"
 
 import os, re
 from waflib import Utils, Task, Runner, Build
@@ -116,7 +116,7 @@ def tex_build(task, command='LATEX'):
 		idx_path = idx_node.abspath()
 		os.stat(idx_path)
 	except OSError:
-		error('error file.idx scan')
+		warn('index file %s absent, not calling makeindex' % idx_path)
 	else:
 		warn('calling makeindex')
 
