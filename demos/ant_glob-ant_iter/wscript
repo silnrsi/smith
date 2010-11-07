@@ -3,7 +3,7 @@
 # Thomas Nagy, 2006-2010 (ita)
 
 import sys, os, re, time
-import Options
+import Options, Utils
 
 top = "src"
 out = "bld"
@@ -31,16 +31,26 @@ def configure(conf):
 
 def options(opt):
 	opt.load("compiler_c")
-	opt.add_option('--depth', type="int", default=6, help='Depth of file hierarchy to build')
+	opt.add_option('--depth', type="int", default=3, help='Depth of file hierarchy to build')
 
 def build(bld):
+
+	if Utils.is_win32:
+		# test for special case
+		print("Drive letters: %s" % Utils.listdir(None))
+	
 	a = time.time()
 	src = [ x for x in bld.path.find_nodes() if x.name.endswith(".c") ]
 	b = time.time()
 	print("Sources: %d" % len(src))
 	print("Delta: %fs" % (b-a))
-	#"\n".join([ x.abspath() for x in src ]))
-	sys.stdin.readline()
+	try:
+		import resource
+		ret = resource.getrusage(resource.RUSAGE_SELF)
+		print("Resource usage: %s" % ret)
+		os.system('ps -F -p %d' % os.getpid())
+	except:
+		pass
 	return
 	bld(
 	 features="c",
