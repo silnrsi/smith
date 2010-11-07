@@ -3,6 +3,12 @@
 # Thomas Nagy 2008-2010 (ita)
 
 """
+
+Doxygen support
+
+Variables passed to bld():
+* doxyfile -- the Doxyfile to use
+
 ported from waf 1.5 (incomplete)
 """
 
@@ -13,7 +19,7 @@ from waflib.TaskGen import feature
 
 DOXY_STR = '${DOXYGEN} - '
 DOXY_FMTS = 'html latex man rft xml'.split()
-DOXY_EXTS = '**/*.(c|cc|cxx|cpp|c\\+\\+|C|h|hh|hxx|hpp|h\\+\\+|H|py|java|cs|ii|ixx|ipp|i\\+\\+|inl|idl|odl|php|php3|inc|m|mm)'
+DOXY_EXTS = '**/*.(c|cc|cxx|cpp|c++|C|h|hh|hxx|hpp|h++|H|py|java|cs|ii|ixx|ipp|i++|inl|idl|odl|php|php3|inc|m|mm)'
 
 class doxygen(Task.Task):
 	vars  = ['DOXYGEN', 'DOXYFLAGS']
