@@ -3,7 +3,11 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-Utilities and cross-platform fixes.
+Utilities, portability fixes.
+
+The portability fixes try to provide a consistent behavior
+ of waf API through Python versions 2.3 to 3.X
+ as well as on all supported platforms.
 """
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc
@@ -17,8 +21,9 @@ except:
 
 try:
 	from collections import deque
-except ImportError: # for python 2.3 :-/
+except ImportError:
 	class deque(list):
+		"""A deque for Python 2.3 which does not have one"""
 		def popleft(self):
 			return self.pop(0)
 
@@ -41,11 +46,14 @@ except:
 try:
 	import threading
 except:
-	# broken platforms, these fixes are only to avoid broken imports
-	# use waf -j1 on those platforms
 	class threading(object):
+		"""
+			A fake threading class for platforms lacking the threading module.
+			Use ``waf -j1`` on these platforms
+		"""
 		pass
 	class Lock(object):
+		"""Fake Lock class"""
 		def acquire(self):
 			pass
 		def release(self):
@@ -135,27 +143,25 @@ except:
 		return ret
 else:
 	def to_hex(s):
-		"""
-		return the hexadecimal representation of a string
-		"""
 		return s.encode('hex')
 
-def listdir(s):
-	"""
-	Lists the contents of a folder in a portable manner.
-
-	:param s: string, 
-
-	If not s, returns a listing of the root folder.
-	On Windows, returns the list of drive letters.
-	
-	"""
-	pass
+to_hex.__doc__ = """
+Returns the hexadecimal representation of a string
+"""
 
 listdir = os.listdir
 if is_win32:
 	from ctypes import windll, byref, create_string_buffer
 	def listdir_win32(s):
+		"""
+		Lists the contents of a folder in a portable manner.
+
+		:param s: string, 
+
+		If not s, returns a listing of the root folder.
+		On Windows, returns the list of drive letters.
+			
+		"""
 		if not s:
 			dlen = 4 # length of "?:\\x00"
 			maxdrives = 26
@@ -237,10 +243,6 @@ rot_idx = 0
 "Index of the current throbber character"
 
 def split_path(path):
-	"""
-	split a path on unix platforms, os.path.split
-	has a different behaviour so we do not use it
-	"""
 	return path.split('/')
 
 def split_path_cygwin(path):
@@ -263,9 +265,22 @@ if sys.platform == 'cygwin':
 elif is_win32:
 	split_path = split_path_win32
 
+split_path.__doc__ = """
+Splits a path on supported platforms.
+
+On UNIX platforms, os.path.split has a different behaviour
+so we do not use it
+
+On Cygwin, forward slash is used.
+
+On Win32, backward slash is used is used.
+
+"""
+
 def check_dir(path):
 	"""
-	Ensure that a directory exists, and try to avoid thread issues (similar to mkdir -p)
+	Ensure that a directory exists, and try to avoid thread issues (similar to ``mkdir -p``)
+
 	:type  dir: string
 	:param dir: Path to directory
 	"""
@@ -362,10 +377,13 @@ def destos_to_binfmt(key):
 def unversioned_sys_platform():
 	"""
 	Get the unversioned platform name.
+
 	Some Python platform names contain versions, that depend on
 	the build environment, e.g. linux2, freebsd6, etc.
+
 	This returns the name without the version number. Exceptions are
 	os2 and win32, which are returned verbatim.
+
 	:rtype: string
 	:return: Unversioned platform name
 	"""
