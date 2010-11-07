@@ -63,7 +63,7 @@ def daemon(ctx):
 		try:
 			bld.options = Options.options
 			bld.cmd = 'build'
-			bld.call_execute()
+			bld.execute()
 		except ctx.errors.WafError as e:
 			print(e)
 		except KeyboardInterrupt:
