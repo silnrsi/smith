@@ -161,7 +161,7 @@ if is_win32:
 			maxdrives = 26
 			buf = create_string_buffer(maxdrives * dlen)
 			ndrives = windll.kernel32.GetLogicalDriveStringsA(maxdrives, byref(buf))
-			return buf.raw.split("\x00")[:ndrives/dlen]
+			return [ buf.raw[4*i:4*i+3].decode("ascii") for i in range(int(ndrives/dlen)) ]
 		
 		if len(s) == 2 and s[1] == ":":
 			s += os.sep

@@ -51,8 +51,10 @@ def scan(self):
 	nodes = []
 	names = []
 	if not node: return (nodes, names)
-
-	code = Utils.readf(node.abspath())
+	if self.name == "xelatex":
+		code = Utils.readf(node.abspath(), "rb").decode("utf-8")
+	else:
+		code = Utils.readf(node.abspath())
 
 	global re_tex
 	for match in re_tex.finditer(code):
