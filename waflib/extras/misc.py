@@ -3,9 +3,12 @@
 # Thomas Nagy, 2006-2010 (ita)
 
 """
-Custom objects:
- - execute a function everytime
- - copy a file somewhere else
+This tool is totally deprecated
+
+Try using:
+	.pc.in files for .pc files
+	the feature intltool_in - see demos/intltool
+	make-like rules
 """
 
 import shutil, re, os, subprocess
