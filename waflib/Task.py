@@ -19,6 +19,7 @@ in the computation of the signature:
 * hashed data (from the data set associated)
 
 Custom task clases may be created by subclassing or factories
+
 """
 
 import os, shutil, re, tempfile

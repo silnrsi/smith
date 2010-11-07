@@ -3,7 +3,7 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-Search for common mistakes
+errheck: Search for common mistakes
 
 There is a performance hit, so this tool is only loaded when running "waf -vv"
 """

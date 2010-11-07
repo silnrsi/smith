@@ -2,7 +2,12 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
-"base for all c/c++ programs and libraries"
+"""
+Base tool for all C/C++/D/Go programs and libraries
+
+Provides the list of used configuration variables
+
+"""
 
 import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
@@ -34,7 +39,7 @@ USELIB_VARS['asm'] = set(['ASFLAGS'])
 @taskgen_method
 def create_compiled_task(self, name, node):
 	"""
-	creates the compilation task: c, cxx, asm, ...
+	Creates the compilation task: c, cxx, asm, ...
 	the task is appended to the list 'compiled_tasks' which is used by
 	'apply_link'
 	"""
@@ -49,10 +54,10 @@ def create_compiled_task(self, name, node):
 @taskgen_method
 def to_incnodes(self, inlst):
 	"""
-	return a list of node objects from a list of includes, assuming
+	Returns a list of node objects from a list of includes, assuming
 	self.includes is a space-delimited string or a list of string/nodes
 
-	paths are relative to the task generator path, except if they begin by #
+	Paths are relative to the task generator path, except if they begin by #
 	in which case they are relative to the top directory (bld.srcnode)
 	"""
 	lst = []
@@ -81,7 +86,9 @@ def to_incnodes(self, inlst):
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
-	"""used by the scanner
+	"""
+	Used by the scanner
+
 	after processing the uselib for INCLUDES
 	after process_source because some processing may add include paths
 	"""
@@ -91,7 +98,10 @@ def apply_incpaths(self):
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
 class link_task(Task.Task):
-	"""base class for all link tasks (c_link, cxx_link, etc)"""
+	"""
+	Base class for all link tasks (c_link, cxx_link, etc)
+
+	"""
 	color   = 'YELLOW'
 	inst_to = None
 	chmod   = Utils.O644
@@ -120,7 +130,9 @@ class link_task(Task.Task):
 		return lst
 
 class stlink_task(link_task):
-	"""link static libraries (with ar)"""
+	"""
+	Link static libraries (with ar)
+	"""
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 
 def rm_tgt(cls):
@@ -135,7 +147,10 @@ rm_tgt(stlink_task)
 @feature('c', 'cxx', 'd', 'go', 'fc')
 @after('process_source')
 def apply_link(self):
-	"""executes after process_source for collecting 'compiled_tasks' and creating a 'link_task'"""
+	"""
+	Executes after process_source for collecting ``compiled_tasks``
+	and creating a :py:class:`link_task`
+	"""
 
 	for x in self.features:
 		if x == 'cprogram' and 'cxx' in self.features: # limited compat
@@ -167,7 +182,7 @@ def apply_link(self):
 @taskgen_method
 def use_rec(self, name, **kw):
 	"""
-	process the use keyword, recursively
+	Processes the ``use`` keyword, recursively
 	"""
 	if name in self.seen_libs:
 		return
@@ -233,12 +248,13 @@ def use_rec(self, name, **kw):
 @after('apply_link', 'process_source')
 def process_use(self):
 	"""
-	process the 'use' attribute which is like uselib+uselib_local+add_objects
-	execute after apply_link because of the execution order must be set on 'link_task'
+	Process the ``use`` attribute which is like uselib+uselib_local+add_objects
+	execute after :py:func:`apply_link` because of the execution order
+	which must be set on :py:class:`link_task`
 
-	propagation rules:
-	a static library is found -> propagation on anything stops
-	a shared library (non-static) is found -> propagation continues, but objects are not added
+	Propagation rules:
+	* a static library is found -> propagation on anything stops
+	* a shared library (non-static) is found -> propagation continues, but objects are not added
 	"""
 
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
@@ -261,26 +277,32 @@ def get_uselib_vars(self):
 @feature('c', 'cxx', 'd', 'fc', 'javac', 'cs', 'uselib')
 @after('process_use')
 def propagate_uselib_vars(self):
-	"""process uselib variables for adding flags"""
+	"""
+	Process uselib variables for adding flags
+	
+	Process:
+
+	#. add the attributes defined in a lowercase manner such as obj.cxxflags
+
+	#. each compiler defines variables like 'CXXFLAGS_cshlib', 'LINKFLAGS_cshlib', etc
+	   so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
+	   the order was reversed compared to waf 1.5: cshlib_LINKFLAGS -> LINKFLAGS_cshlib
+	
+	#. the case of the libs defined outside
+
+	"""
 	_vars = self.get_uselib_vars()
 	env = self.env
 
-	# 1. add the attributes defined in a lowercase manner such as obj.cxxflags
 	for x in _vars:
-
-		# TODO for debugging, detect the invalid variables such as ldflags, ccflag, header, etc (plurals, capitalization, ...)
 		y = x.lower()
 		env.append_unique(x, self.to_list(getattr(self, y, [])))
 
-	# 2. each compiler defines variables like 'CXXFLAGS_cshlib', 'LINKFLAGS_cshlib', etc
-	# so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
-	# the order was reversed compared to waf 1.5: cshlib_LINKFLAGS -> LINKFLAGS_cshlib
 	for x in self.features:
 		for var in _vars:
 			compvar = '%s_%s' % (var, x)
 			env.append_value(var, env[compvar])
 
-	# 3. the case of the libs defined outside
 	for x in self.to_list(getattr(self, 'uselib', [])):
 		for v in _vars:
 			env.append_value(v, env[v + '_' + x])
@@ -291,8 +313,11 @@ def propagate_uselib_vars(self):
 @after('apply_link')
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
-	"""On mswindows, handle dlls and their import libs
-	the .dll.a is the import lib and it is required for linking so it is installed too
+	"""
+	On Windows, handle dlls and their import libs
+
+	A ``.dll.a`` file is also generated, it is the import lib
+	 and it is required for linking so it is installed too
 	"""
 	if not self.env.DEST_BINFMT == 'pe':
 		return
@@ -327,8 +352,20 @@ def apply_implib(self):
 @after('apply_link')
 def apply_vnum(self):
 	"""
-	libfoo.so is installed as libfoo.so.1.2.3
-	create symlinks libfoo.so → libfoo.so.1.2.3 and libfoo.so.1 → libfoo.so.1.2.3
+	Applies library version numbering
+
+	``libfoo.so`` is installed as ``libfoo.so.1.2.3``
+
+	create symlinks::
+
+		libfoo.so → libfoo.so.1.2.3
+
+	and::
+
+		libfoo.so.1 → libfoo.so.1.2.3
+	
+	TODO I think libfoo.so.1.2 is also recommended
+
 	"""
 	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
@@ -412,7 +449,7 @@ lib_patterns = {
 @feature('fake_lib')
 def process_lib(self):
 	"""
-	find the location of a foreign library
+	Finds the location of a foreign library
 	"""
 	node = None
 

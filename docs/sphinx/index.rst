@@ -60,7 +60,7 @@ Build
 
 
 Configure
--------
+---------
 
 .. automodule:: waflib.Configure
 
@@ -113,14 +113,20 @@ compiler_c
 
 .. automodule:: waflib.Tools.compiler_c
 
+ccroot
+++++++
+
+.. automodule:: waflib.Tools.ccroot
+
+
 tex: LaTeX family
 -----------------
 
 .. automodule:: waflib.Tools.tex
 
-Java
-----
+Javaw
+-----
 
-.. automodule:: waflib.Tools.java
+.. automodule:: waflib.Tools.javaw
 
 

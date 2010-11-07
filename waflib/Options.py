@@ -3,15 +3,27 @@
 # Scott Newton, 2005 (scottn)
 # Thomas Nagy, 2006-2010 (ita)
 
-"Custom command-line options"
+"""
+Support for waf command-line options
+
+Provides default command-line options,
+as well as custom ones, used by the ``options`` wscript function.
+
+"""
 
 import os, types, tempfile, optparse, sys
 from waflib import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
+"""
+The default waf commands
+
+They cannot be overriden
+"""
 
 options = {}
 """A dictionary of options received from parsing"""
+
 commands = []
 """List of commands to execute"""
 
@@ -23,7 +35,7 @@ platform = Utils.unversioned_sys_platform()
 
 class opt_parser(optparse.OptionParser):
 	"""
-	command-line option parser
+	Command-line option parser
 	"""
 	def __init__(self, ctx):
 		optparse.OptionParser.__init__(self, conflict_handler="resolve", version='waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
@@ -75,7 +87,7 @@ class opt_parser(optparse.OptionParser):
 
 	def get_usage(self):
 		"""
-		return the message to print on "waf --help"
+		Returns the message to print on ``waf --help``
 		"""
 		cmds_str = {}
 		for cls in Context.classes:
@@ -110,22 +122,29 @@ Main commands (example: ./waf build -j4)
 
 
 class OptionsContext(Context.Context):
-	"""Collects custom options from wscript files and parses the command line.
-	Sets the global Options.commands and Options.options attributes."""
+	"""
+	Collects custom options from wscript files and parses the command line.
+
+	Sets the global Options.commands and Options.options attributes.
+	
+	"""
 
 	cmd = ''
 	fun = 'options'
 
 	def __init__(self, **kw):
 		"""
-		holds an instance of opt_parser in self.parser
+		Holds an instance of opt_parser in self.parser
 		"""
 		super(self.__class__, self).__init__(**kw)
 		self.parser = opt_parser(self)
 
 	def jobs(self):
 		"""
-		Amount of threads to use
+		Finds the amount of threads to use
+
+		Unless specified, waf tries to use the number of CPU cores.
+
 		"""
 		count = int(os.environ.get('JOBS', 0))
 		if count < 1:
@@ -150,15 +169,15 @@ class OptionsContext(Context.Context):
 		return count
 
 	def add_option(self, *k, **kw):
-		"wrapper for optparse.add_option"
+		"Proxy for optparse.add_option"
 		self.parser.add_option(*k, **kw)
 
 	def add_option_group(self, *k, **kw):
-		"wrapper for optparse.add_option_group"
+		"Proxy for optparse.add_option_group"
 		return self.parser.add_option_group(*k, **kw)
 
 	def get_option_group(self, opt_str):
-		"wrapper for optparse.get_option_group"
+		"Proxy for optparse.get_option_group"
 		return self.parser.get_option_group(opt_str)
 
 	def parse_args(self, _args=None):
@@ -177,7 +196,7 @@ class OptionsContext(Context.Context):
 			self.load('errcheck')
 
 	def execute(self):
-		"see waflib.Context.Context.execute"
+		"See :py:func:``waflib.Context.Context.execute``"
 		super(OptionsContext, self).execute()
 		self.parse_args()
 
