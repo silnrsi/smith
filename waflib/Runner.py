@@ -2,7 +2,10 @@
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
-"Execute the tasks"
+"""
+Runner.py: Task scheduling and execution
+
+"""
 
 import os, sys, random
 try:
@@ -13,18 +16,19 @@ from waflib import Utils, Logs, Task, Errors
 
 GAP = 10
 """
-wait for free tasks if there are at least GAP * njobs in the queue
+Wait for free tasks if there are at least :py:var:`GAP` * njobs in the queue
 """
 
 MAXJOBS = 999
 """
-maximum amount of jobs - cpython cannot really spawn more than 100 without crashing
+Maximum amount of jobs - cpython cannot really spawn more than 100 without crashing
 """
 
 class TaskConsumer(Utils.threading.Thread):
 	"""
-	task consumers belong to a pool of workers
-	they wait for tasks in the queue and then use task.process(...)
+	Task consumers belong to a pool of workers
+
+	They wait for tasks in the queue and then use ``task.process(...)``
 	"""
 	def __init__(self):
 		Utils.threading.Thread.__init__(self)
@@ -56,12 +60,15 @@ def put_pool(x):
 
 class Parallel(object):
 	"""
-	keep the consumer threads busy, and avoid consuming cpu cycles
-	when no more tasks can be added (end of the build, etc)
+	Basic parallel scheduler.
+
+	Tries to keep the consumer threads busy, and avoid consuming cpu cycles
+	when no more tasks can be added (end of the build, etc.)
 	"""
 	def __init__(self, bld, j=2):
 		"""
-		The initialization requires a build context reference for computing the total
+		The initialization requires a build context reference
+		for computing the total number of jobs.
 		"""
 		# number of consumers in the pool
 		self.numjobs = j
@@ -88,13 +95,13 @@ class Parallel(object):
 		self.dirty = False # tasks have been executed, the build cache must be saved
 
 	def get_next_task(self):
-		"override this method to schedule the tasks in a particular order"
+		"Override this method to schedule the tasks in a particular order"
 		if not self.outstanding:
 			return None
 		return self.outstanding.pop(0)
 
 	def postpone(self, tsk):
-		"override this method to schedule the tasks in a particular order"
+		"Override this method to schedule the tasks in a particular order"
 		# TODO consider using a deque instead
 		if random.randint(0, 1):
 			self.frozen.insert(0, tsk)
@@ -102,7 +109,7 @@ class Parallel(object):
 			self.frozen.append(tsk)
 
 	def refill_task_list(self):
-		"called to set the next group of tasks"
+		"Called to set the next group of tasks"
 
 		while self.count > self.numjobs * GAP or self.count >= self.maxjobs:
 			self.get_out()
@@ -137,13 +144,13 @@ class Parallel(object):
 				break
 
 	def add_more_tasks(self, tsk):
-		"tasks may be added dynamically during the build by binding to the list attribute 'more_tasks'"
+		"Tasks may be added dynamically during the build by binding to the list attribute 'more_tasks'"
 		if getattr(tsk, 'more_tasks', None):
 			self.outstanding += tsk.more_tasks
 			self.total += len(tsk.more_tasks)
 
 	def get_out(self):
-		"the tasks that are put to execute are all collected using get_out"
+		"The tasks that are put to execute are all collected using get_out"
 		tsk = self.out.get()
 		if not self.stop:
 			self.add_more_tasks(tsk)
@@ -151,13 +158,13 @@ class Parallel(object):
 		self.dirty = True
 
 	def error_handler(self, tsk):
-		"by default, errors make the build stop (not thread safe so be careful)"
+		"By default, errors make the build stop (not thread safe so be careful)"
 		if not self.bld.keep:
 			self.stop = True
 		self.error.append(tsk)
 
 	def add_task(self, tsk):
-		"add a task to one of the consumers"
+		"Add a task to one of the consumers"
 		try:
 			pool = self.pool
 		except AttributeError:
@@ -179,7 +186,13 @@ class Parallel(object):
 			a.ready.put(tsk)
 
 	def start(self):
-		"execute the tasks"
+		"""
+		Execute the tasks
+
+		Loops, while the ``stop`` flag has not been set.
+		The loop refills the task list, gets the next task and spawns it
+		(via the pool of workers if multiple jobs are used) if possible.
+		"""
 
 		self.total = self.bld.total()
 
