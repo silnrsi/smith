@@ -50,6 +50,7 @@ def scan(self):
 
 latex_fun, _ = Task.compile_fun('${LATEX} ${LATEXFLAGS} ${SRCFILE}', shell=False)
 pdflatex_fun, _ = Task.compile_fun('${PDFLATEX} ${PDFLATEXFLAGS} ${SRCFILE}', shell=False)
+xelatex_fun, _ = Task.compile_fun('${XELATEX} ${XELATEXFLAGS} ${SRCFILE}', shell=False)
 bibtex_fun, _ = Task.compile_fun('${BIBTEX} ${BIBTEXFLAGS} ${SRCFILE}', shell=False)
 makeindex_fun, _ = Task.compile_fun('${MAKEINDEX} ${MAKEINDEXFLAGS} ${SRCFILE}', shell=False)
 
@@ -61,10 +62,13 @@ def tex_build(task, command='LATEX'):
 	if not env['PROMPT_LATEX']:
 		env.append_value('LATEXFLAGS', '-interaction=batchmode')
 		env.append_value('PDFLATEXFLAGS', '-interaction=batchmode')
+		env.append_value('XELATEXFLAGS', '-interaction=batchmode')
 
 	fun = latex_fun
 	if command == 'PDFLATEX':
 		fun = pdflatex_fun
+	elif command == 'XELATEX':
+		fun = xelatex_fun
 
 	node = task.inputs[0]
 	srcfile = node.abspath()
@@ -73,15 +77,16 @@ def tex_build(task, command='LATEX'):
 	aux_node = node.change_ext('.aux')
 	idx_node = node.change_ext('.idx')
 
-	nm = aux_node.name
-	docuname = nm[ : len(nm) - 4 ] # 4 is the size of ".aux"
+	docuname = aux_node.name[:-4] # 4 is the size of ".aux"
 
 	# important, set the cwd for everybody
 	task.cwd = task.inputs[0].parent.get_bld().abspath()
 
 	warn('first pass on %s' % command)
 
-	task.env.env = {'TEXINPUTS': sr2}
+	task.env.env = {}
+	task.env.env.update(os.environ)
+	task.env.env.update({'TEXINPUTS': sr2})
 	task.env.SRCFILE = srcfile
 	ret = fun(task)
 	if ret:
@@ -147,11 +152,13 @@ def tex_build(task, command='LATEX'):
 		# run the command
 		warn('calling %s' % command)
 
-		task.env.env = {'TEXINPUTS': sr2 + os.pathsep}
+		task.env.env = {}
+		task.env.env.update(os.environ)
+		task.env.env.update({'TEXINPUTS': sr2 + os.pathsep})
 		task.env.SRCFILE = srcfile
 		ret = fun(task)
 		if ret:
-			error('error when calling %s %s' % (command, latex_compile_cmd))
+			error('error when calling %s %s' % (command, task))
 			return ret
 
 	return None # ok
@@ -164,10 +171,14 @@ pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
 def pdflatex_build(task):
 	return tex_build(task, 'PDFLATEX')
 
+xelatex_vardeps  = ['XELATEX', 'XELATEXFLAGS']
+def xelatex_build(task):
+	return tex_build(task, 'XELATEX')
+
 @feature('tex')
 @before('process_source')
 def apply_tex(self):
-	if not getattr(self, 'type', None) in ['latex', 'pdflatex']:
+	if not getattr(self, 'type', None) in ['latex', 'pdflatex', 'xelatex']:
 		self.type = 'pdflatex'
 
 	tree = self.bld
@@ -190,6 +201,8 @@ def apply_tex(self):
 			task = self.create_task('latex', node, node.change_ext('.dvi'))
 		elif self.type == 'pdflatex':
 			task = self.create_task('pdflatex', node, node.change_ext('.pdf'))
+		elif self.type == 'xelatex':
+			task = self.create_task('xelatex', node, node.change_ext('.pdf'))
 
 		task.env = self.env
 
@@ -217,7 +230,7 @@ def apply_tex(self):
 
 def configure(self):
 	v = self.env
-	for p in 'tex latex pdflatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
+	for p in 'tex latex pdflatex xelatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
 		try:
 			self.find_program(p, var=p.upper())
 		except self.errors.ConfigurationError:
@@ -227,7 +240,8 @@ def configure(self):
 b = Task.task_factory
 b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
 b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
-b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "pdflatex"], shell=False)
+b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "xelatex", "pdflatex"], shell=False)
 b('latex', latex_build, vars=latex_vardeps, scan=scan)
 b('pdflatex', pdflatex_build, vars=pdflatex_vardeps, scan=scan)
+b('xelatex', xelatex_build, vars=xelatex_vardeps, scan=scan)
 
