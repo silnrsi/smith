@@ -20,6 +20,7 @@ NEW IN WAF 1.6.1
 * New gcj tool in playground
 * Update the c# tool and examples (playground)
 * Read external c# libraries #774
+* Xelatex support #785
 * Rebuild fortran files when .mod files change #766
 * docs #781
 * improve the ant_glob behaviour on ctx.root + absolute paths
