@@ -244,6 +244,7 @@ class Context(ctx):
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
 		Logs.debug('runner: %r' % cmd)
+		Logs.debug('runner_env: kw=%s' % kw)
 
 		try:
 			if self.logger:
