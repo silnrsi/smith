@@ -8,70 +8,69 @@ if "uname" in dir(os): machine = os.uname()[1]
 elif sys.platform == "win32": machine = os.environ["COMPUTERNAME"]
 else: raise Exception("Unknown platform, cannot get machine name")
 
+PYTHONS = "2.4 2.5 2.6 2.7 3.0 3.1 3.2".split()
+
 def options(opt):
-	pass
-
-def configure(conf):
-	pass
-
-def build(bld):
-	def waf_cmd(task):
-		cmd = [sys.executable, sys.argv[0]]
-		cmd += [ task.generator.cmd ]
-		cwd = task.generator.cwd
-		ret = bld.exec_command(cmd, cwd=cwd)
-		if ret != 0:
-			raise Exception("%s: command failed: %s" % (cwd, task.generator.cmd))
-
-	excluded = []
-	bld_excluded = []
-
-	# Define here what you don't want to cover
-	if machine in ["Potiok"]:
-		excluded += ["d", "fluid", "go", "6g", "glib2"]
-		bld_excluded += ["jni"]
-	
-	bld_excluded.extend(excluded)
-	
-	dirs = [ d for d in os.listdir(".") if os.path.isdir(d) ]
-
-	for d in dirs:
-		if d in excluded: continue
-		bld(
-		 rule=waf_cmd,
-		 cmd="configure",
-		 cwd=d,
-		 always=True,
-		 name=d + "_configure"
-		)
-
-	bld.add_group()
-
-	for d in dirs:
-		if d in bld_excluded: continue
-		
-		if os.path.basename(d) == "variants":
-			bld(
-			 rule=waf_cmd,
-			 cmd="build_debug",
-			 cwd=d,
-			 always=True,
-			 name=d + "_build_debug"
-			)
-			bld(
-			 rule=waf_cmd,
-			 cmd="build_release",
-			 cwd=d,
-			 always=True,
-			 name=d + "_build_release"
-			)
+	for d in opt.path.ant_glob('*', excl=['build', 'variants'], src=False, dir=True):
+		if d.name[0] == '.' or d.name == 'variants' or d.name == 'build':
 			continue
 
+		try:
+			opt.recurse(d.name)
+		except Exception as e:
+			pass
+
+def configure(conf):
+
+	conf.exec_command('./waf-light configure build --tools=compat15,doxygen,fluid,ocaml,swig,compiler_fc,fc_config,fc,fc_scan,g95,ifort,gfortran && /bin/cp waf demos/', cwd=conf.path.parent.abspath())
+	node = conf.path.find_resource('waf')
+	if not node:
+		conf.fatal('could not find Waf')
+	if conf.exec_command([node.abspath(), '--help'], shell=False, env={}, cwd=node.parent.abspath()):
+		conf.fatal('the waf file cannot be executed')
+	conf.env.WAF = node.abspath()
+
+	for x in PYTHONS:
+		try:
+			conf.find_program('python'+x, var=x)
+		except:
+			pass
 		else:
-			bld(
-			 rule=waf_cmd,
-			 cmd="build",
-			 cwd=d,
-			 always=True,
-			 name=d + "_build"
-			)
+			conf.env.append_value('PYTHONS', x)
+
+	conf.in_msg += 1
+	for d in conf.path.ant_glob('*', excl=['build', 'variants'], src=False, dir=True):
+		if d.name[0] == '.':
+			continue
+
+		try:
+			conf.recurse(d.name)
+		except Exception as e:
+			pass
+		else:
+			conf.env.append_value('CFG', [d.name])
+	print("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
+
+def build(bld):
+
+	def waf_cmd(self):
+		cmd = [self.env[self.generator.python], self.env.WAF, 'distclean', 'configure', 'build', 'clean', 'build']
+		cwd = self.generator.cwd
+		env = dict(os.environ)
+		env['WAFDIR'] = ''
+		try:
+			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
+		except Exception as e:
+			print e
+			print('broken %r %r' % (self.generator.python, self.generator.cwd))
+		#else:
+		#	if ret:
+		#		print('exit code %r    %r %r' % (ret, self.generator.python, self.generator.cwd))
+
+	for x in bld.env.PYTHONS:
+		for dirname in bld.env.CFG:
+			bld(rule    = waf_cmd,
+				cwd     = dirname,
+				python  = x,
+				name    = '%s_%s' % (dirname, x))
+
