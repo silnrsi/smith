@@ -148,26 +148,19 @@ if is_win32:
 		you should always use Utils.listdir
 		"""
 
-		# FIXME if someone could add the routine to list all drive letters on win32?
-		# if the following works, remove the win32 Node.listdir substitution (see Node.py)
-
-		"""
-		from ctypes import byref, windll
-		get = windll.kernel32.GetLogicalDriveStringsW
-		buf_len = c_ulong()
-		l = c_ulong(0)
-		str_drives = c_wchar_p(0)
-		buf_len = get(l, str_drives)
-		l = buf_len
-		buf_len = 0
-		str_drives = create_unicode_buffer('\x000', l)
-		buf_len = get(l, byref(str_drives))
-		drives = [x for x in  str_drives[:-1].split('\x00'))) if x]
-
-		"""
-
 		if not s:
-			return []
+			from ctypes import byref, windll, c_ulong, c_wchar_p, create_unicode_buffer
+			get = windll.kernel32.GetLogicalDriveStringsW
+			buf_len = c_ulong()
+			l = c_ulong(0)
+			str_drives = c_wchar_p(0)
+			buf_len = get(l, str_drives)
+			l = buf_len
+			buf_len = 0
+			str_drives = create_unicode_buffer('\x000', l)
+			buf_len = get(l, byref(str_drives))
+			drives = [x for x in  str_drives[:-1].split('\\\x00') if x]
+			return drives
 
 		if re.match('^[A-Za-z]:$', s):
 			# os.path.isdir fails if s contains only the drive name... (x:)
