@@ -3,12 +3,10 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
+
 ConfigSet: a special dict
 
-The values must be lists
-
-There is one gotcha: getitem returns [] if the contents evals to False
-This means env['foo'] = {}; print env['foo'] will print [] not {}
+The values put in :py:class:`ConfigSet` must be lists
 """
 
 import os, copy, re
@@ -16,9 +14,13 @@ from waflib import Logs, Utils
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 
 class ConfigSet(object):
-	"""A dict that honor serialization and parent relationships
+	"""
+	A dict that honor serialization and parent relationships
+
 	Store and retrieve values easily and in a human-readable format
+
 	it is not possible to serialize functions though
+
 	"""
 	__slots__ = ('table', 'parent')
 	def __init__(self, filename=None):
@@ -49,7 +51,14 @@ class ConfigSet(object):
 		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in keys])
 
 	def __getitem__(self, key):
-		"dict interface"
+		"""
+		Dictionary interface: get value from key
+
+		There is one gotcha: getitem returns [] if the contents evals to False
+		This means::
+			env['foo'] = {}; print env['foo']
+		will print ``[]`` not ``{}``
+		"""
 		try:
 			while 1:
 				x = self.table.get(key, None)
@@ -60,17 +69,21 @@ class ConfigSet(object):
 			return []
 
 	def __setitem__(self, key, value):
-		"dict interface"
+		"""
+		Dictionary interface: get value from key
+		"""
 		self.table[key] = value
 
 	def __delitem__(self, key, value):
-		"dict interface"
+		"""
+		Dictionary interface: get value from key
+		"""
 		del self.table[key]
 
 	def __getattr__(self, name):
 		"""
-		attribute access provided for convenience
-		env.value == env['value']
+		Attribute access provided for convenience::
+			env.value == env['value']
 		"""
 		if name in self.__slots__:
 			return object.__getattr__(self, name)
@@ -78,27 +91,50 @@ class ConfigSet(object):
 			return self[name]
 
 	def __setattr__(self, name, value):
-		"attribute access provided for convenience"
+		"""
+		Attribute access provided for convenience::
+			env.value = x
+
+		corresponds to::
+			env['value'] = x
+
+		"""
 		if name in self.__slots__:
 			object.__setattr__(self, name, value)
 		else:
 			self[name] = value
 
 	def __delattr__(self, name):
-		"attribute access provided for convenience"
+		"""
+		Attribute access provided for convenience::
+			del env.value
+
+		corresponds to::
+			del env['value']
+
+		"""
 		if name in self.__slots__:
 			object.__delattr__(self, name)
 		else:
 			del self[name]
 
 	def derive(self):
-		"""shallow copy"""
+		"""
+		Returns a new ConfigSet deriving from self
+
+		Use :py:func:`ConfigSet.detach` to detach the child from the parent.
+		"""
 		newenv = ConfigSet()
 		newenv.parent = self
 		return newenv
 
 	def detach(self):
-		"""modifying the original env will not change the copy"""
+		"""
+		Detach self from its parent (if existing)
+
+		Modifying the parent :py:class:`ConfigSet` will not change this one.
+		Modifying this :py:class:`ConfigSet` will not modify the parent one.
+		"""
 		tbl = self.get_merged_dict()
 		try:
 			delattr(self, 'parent')
@@ -111,17 +147,21 @@ class ConfigSet(object):
 			self.table = tbl
 
 	def get_flat(self, key):
-		"""obtain a value as a string"""
+		"""
+		Obtain a value as a string
+		"""
 		s = self[key]
 		if isinstance(s, str): return s
 		return ' '.join(s)
 
 	def _get_list_value_for_modification(self, key):
-		"""Gets a value that must be a list for further modification.  The
-		list may be modified inplace and there is no need to
-		"self.table[var] = value" afterwards.
+		"""Gets a value that must be a list for further modification.
+		
+		The	list may be modified inplace and there is no need to do::
+			self.table[var] = value
+		afterwards.
 
-		this is private btw
+		This is private btw
 		"""
 		try:
 			value = self.table[key]
@@ -139,20 +179,30 @@ class ConfigSet(object):
 		return value
 
 	def append_value(self, var, val):
-		"""The value must be a list or a tuple"""
+		"""
+		Appends a value to the specified config key
+
+		The value must be a list or a tuple
+		"""
 		current_value = self._get_list_value_for_modification(var)
 		if isinstance(val, str): # if there were string everywhere we could optimize this
 			val = [val]
 		current_value.extend(val)
 
 	def prepend_value(self, var, val):
-		"""The value must be a list or a tuple"""
+		"""
+		Prepends a value to the specified item
+
+		The value must be a list or a tuple
+		"""
 		if isinstance(val, str):
 			val = [val]
 		self.table[var] =  val + self._get_list_value_for_modification(var)
 
 	def append_unique(self, var, val):
 		"""
+		Appends a value to the specified item only if it's not already present
+
 		The value must be a list or a tuple
 
 		Note that there is no prepend_unique
@@ -166,7 +216,9 @@ class ConfigSet(object):
 				current_value.append(x)
 
 	def get_merged_dict(self):
-		"""compute a merged table"""
+		"""
+		Computes the merged dictionary from the fusion of self and all its parent
+		"""
 		table_list = []
 		env = self
 		while 1:
@@ -179,7 +231,7 @@ class ConfigSet(object):
 		return merged_table
 
 	def store(self, filename):
-		"Write the variables into a file"
+		"Writes the :py:class:`ConfigSet` data into a file"
 		f = None
 		try:
 			f = open(filename, 'w')
@@ -194,7 +246,7 @@ class ConfigSet(object):
 				f.close()
 
 	def load(self, filename):
-		"Retrieve the variables from a file"
+		"Retrieve the :py:class:`ConfigSet` data from a file"
 		tbl = self.table
 		code = Utils.readf(filename)
 		for m in re_imp.finditer(code):
@@ -203,16 +255,24 @@ class ConfigSet(object):
 		Logs.debug('env: %s' % str(self.table))
 
 	def update(self, d):
-		"""like dict.update, replace values from another dict"""
+		"""
+		Dictionary interface: replace values from another dict
+		"""
 		for k, v in d.items():
 			self[k] = v
 
 	def stash(self):
-		"""store the object state, to use with 'revert' below"""
+		"""
+		Stores the object state, to use with 'revert' below
+
+		Used to have some kind of transaction support.
+		"""
 		self.undo_stack = self.undo_stack + [self.table]
 		self.table = self.table.copy()
 
 	def revert(self):
-		"""revert the object to a previous state, to use with 'stash' above"""
+		"""
+		Reverts the object to a previous state, to use with 'stash' above
+		"""
 		self.table = self.undo_stack.pop(-1)
 
