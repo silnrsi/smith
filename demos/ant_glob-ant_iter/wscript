@@ -1,0 +1,50 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2006-2010 (ita)
+
+import sys, os, re, time
+import Options
+
+top = "src"
+out = "bld"
+
+DIRS = ["a", "b", "c", "d", "e"]
+FILES = ["x.c", "y.c", "z.tmp"]
+
+def makerec(root, depth):
+	for d in DIRS:
+		fd = os.path.join(root, d)
+		try:
+			os.mkdir(fd)
+		except:
+			pass
+		if depth > 0:
+			makerec(fd, depth-1)
+	for f in FILES:
+		fd = os.path.join(root, f)
+		with open(fd, "a"): pass
+	
+def configure(conf):
+	conf.load("compiler_c")
+	depth = Options.options.depth
+	makerec(conf.path.find_dir(top).abspath(), depth)
+
+def options(opt):
+	opt.load("compiler_c")
+	opt.add_option('--depth', type="int", default=6, help='Depth of file hierarchy to build')
+
+def build(bld):
+	a = time.time()
+	src = [ x for x in bld.path.find_nodes() if x.name.endswith(".c") ]
+	b = time.time()
+	print("Sources: %d" % len(src))
+	print("Delta: %fs" % (b-a))
+	#"\n".join([ x.abspath() for x in src ]))
+	sys.stdin.readline()
+	return
+	bld(
+	 features="c",
+	 source=src,
+	 target="lib",
+	)
+

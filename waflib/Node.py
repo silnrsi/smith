@@ -369,6 +369,29 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
+	def find_nodes(self, find_dirs=True, find_files=True, match_fun=lambda x: True):
+		"""
+		Recursively finds nodes
+
+		:param find_dirs: whether to return directories
+		:param find_files: whether to return files
+		:param match_fun: matching function, taking a node as parameter
+		:rtype generator
+		:return a generator that iterates over all the requested files
+		"""
+		files = self.listdir()
+		for f in files:
+			node = self.make_node([f])
+			if os.path.isdir(node.abspath()):
+				if find_dirs and match_fun(node):
+					yield node
+				gen = node.find_nodes(find_dirs, find_files, match_fun)
+				for g in gen:
+					yield g
+			else:
+				if find_files and match_fun(node):
+					yield node
+
 	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True, remove=True):
 		"semi-private method used by ant_glob"
 		dircont = self.listdir()
