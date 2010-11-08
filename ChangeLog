@@ -24,6 +24,7 @@ NEW IN WAF 1.6.1
 * Rebuild fortran files when .mod files change #766
 * docs #781
 * improve the ant_glob behaviour on ctx.root + absolute paths
+* Fix for glib_mkenums and dbus-binding-tool #795
 
 NEW IN WAF 1.6.0
 ----------------
