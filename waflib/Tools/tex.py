@@ -110,10 +110,10 @@ class tex(Task.Task):
 		if retcode != 0:
 			raise Errors.WafError("%r command exit status %r" % (msg, retcode))
 
-	def bibfile(self, aux_node, sr2):
+	def bibfile(self, sr2):
 		"""look in the .aux file if there is a bibfile to process"""
 		try:
-			ct = aux_node.read()
+			ct = self.aux_node.read()
 		except (OSError, IOError):
 			error('error bibtex scan')
 		else:
@@ -126,7 +126,7 @@ class tex(Task.Task):
 				self.env.env = {}
 				self.env.env.update(os.environ)
 				self.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
-				self.env.SRCFILE = aux_node.name[:-4]
+				self.env.SRCFILE = self.aux_node.name[:-4]
 				self.check_status('error when calling bibtex', self.bibtex_fun())
 
 	def bibunits(self, sr2):
@@ -146,17 +146,17 @@ class tex(Task.Task):
 					self.env.SRCFILE = f
 					self.check_status('error when calling bibtex', self.bibtex_fun())
 
-	def makeindex(self, idx_node):
+	def makeindex(self):
 		"""look on the filesystem if there is a .idx file to process"""
 		try:
-			idx_path = idx_node.abspath()
+			idx_path = self.idx_node.abspath()
 			os.stat(idx_path)
 		except OSError:
 			warn('index file %s absent, not calling makeindex' % idx_path)
 		else:
 			warn('calling makeindex')
 
-			self.env.SRCFILE = idx_node.name
+			self.env.SRCFILE = self.idx_node.name
 			self.env.env = {}
 			self.check_status('error when calling makeindex %s' % idx_path, self.makeindex_fun())
 
@@ -187,8 +187,8 @@ class tex(Task.Task):
 		srcfile = node.abspath()
 		sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
 
-		aux_node = node.change_ext('.aux')
-		idx_node = node.change_ext('.idx')
+		self.aux_node = node.change_ext('.aux')
+		self.idx_node = node.change_ext('.idx')
 
 		# important, set the cwd for everybody
 		self.cwd = self.inputs[0].parent.get_bld().abspath()
@@ -201,9 +201,9 @@ class tex(Task.Task):
 		self.env.SRCFILE = srcfile
 		self.check_status('error when calling latex', fun())
 
-		self.bibfile(aux_node, sr2)
+		self.bibfile(sr2)
 		self.bibunits(sr2)
-		self.makeindex(idx_node)
+		self.makeindex()
 
 		hash = ''
 		for i in range(10):
@@ -212,9 +212,9 @@ class tex(Task.Task):
 			# watch the contents of file.aux and stop if file.aux does not change anymore
 			prev_hash = hash
 			try:
-				hash = Utils.h_file(aux_node.abspath())
+				hash = Utils.h_file(self.aux_node.abspath())
 			except KeyError:
-				error('could not read aux.h -> %s' % aux_node.abspath())
+				error('could not read aux.h -> %s' % self.aux_node.abspath())
 				pass
 			if hash and hash == prev_hash:
 				break
