@@ -174,7 +174,7 @@ class Context(ctx):
 		if self.cur_script:
 			self.path = self.cur_script.parent
 
-	def recurse(self, dirs, name=None):
+	def recurse(self, dirs, name=None, mandatory=True):
 		"""
 		Run user code from the supplied list of directories.
 		The directories can be either absolute, or relative to the directory
@@ -182,6 +182,8 @@ class Context(ctx):
 		@param dirs: List of directories to visit
 		@type  name: string
 		@param name: Name of function to invoke from the wscript
+		@type  mandatory: bool
+		@param mandatory: whether sub wscript files are required to exist
 		"""
 		for d in Utils.to_list(dirs):
 
@@ -204,12 +206,16 @@ class Context(ctx):
 			else:
 				node = self.root.find_node(WSCRIPT)
 				if not node:
+					if not mandatory:
+						continue
 					raise Errors.WafError('No wscript file in directory %s' % d)
 				self.pre_recurse(node)
 				try:
 					wscript_module = load_module(node.abspath())
 					user_function = getattr(wscript_module, (name or self.fun), None)
 					if not user_function:
+						if not mandatory:
+							continue
 						raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
 					user_function(self)
 				finally:
