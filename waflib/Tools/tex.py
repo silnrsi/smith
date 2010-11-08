@@ -106,7 +106,61 @@ class tex(Task.Task):
 		debug("tex: found the following : %s and names %s" % (nodes, names))
 		return (nodes, names)
 
-	def run(task):
+	def check_status(self, msg, retcode):
+		if retcode != 0:
+			raise Errors.WafError("%r command exit status %r" % (msg, retcode))
+
+	def bibfile(self, aux_node, sr2):
+		"""look in the .aux file if there is a bibfile to process"""
+		try:
+			ct = aux_node.read()
+		except (OSError, IOError):
+			error('error bibtex scan')
+		else:
+			fo = g_bibtex_re.findall(ct)
+
+			# there is a .aux file to process
+			if fo:
+				warn('calling bibtex')
+
+				self.env.env = {}
+				self.env.env.update(os.environ)
+				self.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
+				self.env.SRCFILE = aux_node.name[:-4]
+				self.check_status('error when calling bibtex', self.bibtex_fun())
+
+	def bibunits(self, sr2):
+		"""look to see if there are any bibunit-style bib files"""
+		try:
+			bibunits = bibunitscan(self)
+		except FSError:
+			error('error bibunitscan')
+		else:
+			if bibunits:
+				fn  = ['bu' + str(i) for i in xrange(1, len(bibunits) + 1)]
+				if fn:
+					warn('calling bibtex on bibunits')
+
+				for f in fn:
+					self.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
+					self.env.SRCFILE = f
+					self.check_status('error when calling bibtex', self.bibtex_fun())
+
+	def makeindex(self, idx_node):
+		"""look on the filesystem if there is a .idx file to process"""
+		try:
+			idx_path = idx_node.abspath()
+			os.stat(idx_path)
+		except OSError:
+			warn('index file %s absent, not calling makeindex' % idx_path)
+		else:
+			warn('calling makeindex')
+
+			self.env.SRCFILE = idx_node.name
+			self.env.env = {}
+			self.check_status('error when calling makeindex %s' % idx_path, self.makeindex_fun())
+
+	def run(self):
 		"""
 		Runs the LaTeX build process.
 
@@ -119,94 +173,37 @@ class tex(Task.Task):
 		Makeindex and bibtex are called if necessary.
 
 		"""
-		env = task.env
-		bld = task.generator.bld
+		env = self.env
+		bld = self.generator.bld
 
 		if not env['PROMPT_LATEX']:
 			env.append_value('LATEXFLAGS', '-interaction=batchmode')
 			env.append_value('PDFLATEXFLAGS', '-interaction=batchmode')
 			env.append_value('XELATEXFLAGS', '-interaction=batchmode')
 
-		fun = task.texfun
+		fun = self.texfun
 
-		node = task.inputs[0]
+		node = self.inputs[0]
 		srcfile = node.abspath()
 		sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
 
 		aux_node = node.change_ext('.aux')
 		idx_node = node.change_ext('.idx')
 
-		docuname = aux_node.name[:-4] # 4 is the size of ".aux"
-
 		# important, set the cwd for everybody
-		task.cwd = task.inputs[0].parent.get_bld().abspath()
+		self.cwd = self.inputs[0].parent.get_bld().abspath()
 
-		warn('first pass on %s' % task.__class__.__name__)
+		warn('first pass on %s' % self.__class__.__name__)
 
-		task.env.env = {}
-		task.env.env.update(os.environ)
-		task.env.env.update({'TEXINPUTS': sr2})
-		task.env.SRCFILE = srcfile
-		ret = fun()
-		if ret:
-			return ret
+		self.env.env = {}
+		self.env.env.update(os.environ)
+		self.env.env.update({'TEXINPUTS': sr2})
+		self.env.SRCFILE = srcfile
+		self.check_status('error when calling latex', fun())
 
-		# look in the .aux file if there is a bibfile to process
-		try:
-			ct = aux_node.read()
-		except (OSError, IOError):
-			error('error bibtex scan')
-		else:
-			fo = g_bibtex_re.findall(ct)
-
-			# there is a .aux file to process
-			if fo:
-				warn('calling bibtex')
-
-				task.env.env = {}
-				task.env.env.update(os.environ)
-				task.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
-				task.env.SRCFILE = docuname
-				ret = task.bibtex_fun()
-				if ret:
-					error('error when calling bibtex %s' % docuname)
-					return ret
-
-		# look to see if there are any bibunit-style bib files
-		try:
-			bibunits = bibunitscan(task)
-		except FSError:
-			error('error bibunitscan')
-		else:
-			if bibunits:
-				fn  = ['bu' + str(i) for i in xrange(1, len(bibunits) + 1)]
-				if fn:
-					warn('calling bibtex on bibunits')
-
-				for f in fn:
-					task.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
-					task.env.SRCFILE = f
-					ret = task.bibtex_fun()
-					if ret:
-						error('error when calling bibtex %s' % f)
-						return ret
-
-		# look on the filesystem if there is a .idx file to process
-		try:
-			idx_path = idx_node.abspath()
-			os.stat(idx_path)
-		except OSError:
-			warn('index file %s absent, not calling makeindex' % idx_path)
-		else:
-			warn('calling makeindex')
-
-			task.env.SRCFILE = idx_node.name
-			task.env.env = {}
-			ret = task.makeindex_fun()
-			if ret:
-				error('error when calling makeindex %s' % idx_path)
-				return ret
-
+		self.bibfile(aux_node, sr2)
+		self.bibunits(sr2)
+		self.makeindex(idx_node)
 
 		hash = ''
 		for i in range(10):
@@ -222,17 +219,14 @@ class tex(Task.Task):
 			if hash and hash == prev_hash:
 				break
 
-		# run the command
-		warn('calling %s' % task.__class__.__name__)
+			# run the command
+			warn('calling %s' % self.__class__.__name__)
 
-		task.env.env = {}
-		task.env.env.update(os.environ)
-		task.env.env.update({'TEXINPUTS': sr2 + os.pathsep})
-		task.env.SRCFILE = srcfile
-		ret = fun()
-		if ret:
-			error('error when calling %s %s' % (task.__class__.__name__, task))
-			return ret
+			self.env.env = {}
+			self.env.env.update(os.environ)
+			self.env.env.update({'TEXINPUTS': sr2 + os.pathsep})
+			self.env.SRCFILE = srcfile
+			self.check_status('error when calling %s' % self.__class__.__name__, fun())
 
 class latex(tex):
 	texfun, vars = Task.compile_fun('${LATEX} ${LATEXFLAGS} ${SRCFILE}', shell=False)
