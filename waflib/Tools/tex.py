@@ -110,7 +110,7 @@ class tex(Task.Task):
 		if retcode != 0:
 			raise Errors.WafError("%r command exit status %r" % (msg, retcode))
 
-	def bibfile(self, sr2):
+	def bibfile(self):
 		"""look in the .aux file if there is a bibfile to process"""
 		try:
 			ct = self.aux_node.read()
@@ -125,11 +125,11 @@ class tex(Task.Task):
 
 				self.env.env = {}
 				self.env.env.update(os.environ)
-				self.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
+				self.env.env.update({'BIBINPUTS': self.TEXINPUTS, 'BSTINPUTS': self.TEXINPUTS})
 				self.env.SRCFILE = self.aux_node.name[:-4]
 				self.check_status('error when calling bibtex', self.bibtex_fun())
 
-	def bibunits(self, sr2):
+	def bibunits(self):
 		"""look to see if there are any bibunit-style bib files"""
 		try:
 			bibunits = bibunitscan(self)
@@ -142,7 +142,7 @@ class tex(Task.Task):
 					warn('calling bibtex on bibunits')
 
 				for f in fn:
-					self.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
+					self.env.env = {'BIBINPUTS': self.TEXINPUTS, 'BSTINPUTS': self.TEXINPUTS}
 					self.env.SRCFILE = f
 					self.check_status('error when calling bibtex', self.bibtex_fun())
 
@@ -185,7 +185,7 @@ class tex(Task.Task):
 
 		node = self.inputs[0]
 		srcfile = node.abspath()
-		sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+		self.TEXINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
 
 		self.aux_node = node.change_ext('.aux')
 		self.idx_node = node.change_ext('.idx')
@@ -197,12 +197,12 @@ class tex(Task.Task):
 
 		self.env.env = {}
 		self.env.env.update(os.environ)
-		self.env.env.update({'TEXINPUTS': sr2})
+		self.env.env.update({'TEXINPUTS': self.TEXINPUTS})
 		self.env.SRCFILE = srcfile
 		self.check_status('error when calling latex', fun())
 
-		self.bibfile(sr2)
-		self.bibunits(sr2)
+		self.bibfile()
+		self.bibunits()
 		self.makeindex()
 
 		hash = ''
@@ -224,7 +224,7 @@ class tex(Task.Task):
 
 			self.env.env = {}
 			self.env.env.update(os.environ)
-			self.env.env.update({'TEXINPUTS': sr2 + os.pathsep})
+			self.env.env.update({'TEXINPUTS': self.TEXINPUTS})
 			self.env.SRCFILE = srcfile
 			self.check_status('error when calling %s' % self.__class__.__name__, fun())
 
