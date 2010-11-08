@@ -51,10 +51,7 @@ def scan(self):
 	nodes = []
 	names = []
 	if not node: return (nodes, names)
-	if self.name == "xelatex":
-		code = Utils.readf(node.abspath(), "rb").decode("utf-8")
-	else:
-		code = Utils.readf(node.abspath())
+	code = node.read()
 
 	global re_tex
 	for match in re_tex.finditer(code):
@@ -132,7 +129,7 @@ def tex_build(task, command='LATEX'):
 
 	# look in the .aux file if there is a bibfile to process
 	try:
-		ct = Utils.readf(aux_node.abspath())
+		ct = aux_node.read()
 	except (OSError, IOError):
 		error('error bibtex scan')
 	else:
