@@ -137,7 +137,7 @@ class Volt(object) :
             cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
         bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-        modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source])
+        modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_ot")
 
 
 class Gdl(object) :
@@ -167,9 +167,9 @@ class Gdl(object) :
                 cmd += "-i ../${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
             bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source])
+            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_gr")
         elif self.master :
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master])
+            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], name = font.target + "_gr")
 
 class Ofl(object) :
 

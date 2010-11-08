@@ -1,38 +1,41 @@
 #!/usr/bin/python
 
-from waflib import Task, Build, Logs, Context, Utils, Configure
-import os, imp, operator
+from waflib import Task, Build, Logs, Context, Utils, Configure, Options
+import os, imp, operator, optparse, sys
 from waflib.TaskGen import feature, after
 
-def add_depend_after(base) :
-    old_runnable_status = base.runnable_status
-    old_post_run = base.post_run
+def preprocess_args(*opts) :
+    res = {}
+    for o in opts:
+        for a in sys.argv :
+            if a.startswith(o['opt']) :
+                key, val = a.split('=')
+                if val :
+                    res[key] = val
+                else :
+                    res[key] = 1
+                sys.argv.remove(a)
+    return res
 
-    def runnable_status(self) :
-        """ A depend_after relationship between two tasks says that if the 
-            first task runs then that is a sufficient condition to make the
-            second task run. This is because the first task may create the
-            file the second task uses, but give it the same task signature
-            it had before, thus the second task may not fire based on the
-            file signature alone
-        """
-        state = old_runnable_status(self)
-        if state == Task.SKIP_ME and getattr(self, 'depend_after', None) :
-            for t in self.depend_after :
-                if t.hasrun == Task.SUCCESS :
-                    state = Task.RUN_ME
-                    break
-        return state
+def add_intasks(base) :
+    """ task.intasks contains a list of other tasks on which this task is
+        dependent. Thus if the other task changes signature, then this task
+        will run, regardless of other dependencies. In fact that other task's
+        signature is part of this task's signature.
+    """
+    old_sig = base.signature
 
-    def set_depend_after(self, t) :
-        if getattr(self, 'depend_after', None) :
-            self.depend_after.append(t)
-        else :
-            self.depend_after = [t]
-        self.set_run_after(t)       # can't run before t
+    def sig(task) :
+        try: return task.cache_sig
+        except AttributeError: pass
 
-    base.runnable_status = runnable_status
-    base.set_depend_after = set_depend_after
+        res = old_sig(task)
+        for t in getattr(task, 'intasks', []) :
+            task.m.update(t.signature())
+        res = task.cache_sig = task.m.digest()
+        return res
+
+    base.signature = sig
 
 @feature('*')
 @after('process_rule')
@@ -64,10 +67,30 @@ def process_tempcopy(tgen) :
             return ret
         t.__class__.run = f
 
+@feature('*')
+@after('process_rule')
+def process_taskgens(tg) :
+    for o in getattr(tg, 'taskgens', []) :
+        og = tg.bld.get_tgen_by_name(o)
+        if not og : continue
+        if not og.posted : og.post()
+        if og :
+            t = tg.tasks[0]
+            ot = og.tasks[-1]
+            try: t.intasks.append(ot)
+            except AttributeError : t.intasks = [ot]
+            if og in tg.bld.get_group(None) :
+                t.set_run_after(ot)
+
 modifications = {}
 rules = []
 
 def modify(cmd, infile, inputs = [], shell = 0, **kw) :
+    """ modify taskgens are tasks with no formal output, although one is
+        given. This output is modified in place. For input purposes it
+        is referred to ${DEP} in the cmd, and ${TGT}. A modify task may also
+        have other inputs ${SRC}.
+    """
     # can't create taskgens here because we have no bld context
     if not infile in modifications :
         modifications[infile] = []
@@ -110,6 +133,7 @@ def build_rules(bld) :
 
 
 def add_reasons() :
+    """ adds support for --zones=reason """
     oldrunner = Task.Task.runnable_status
 
     def reasonable_runnable(self) :
@@ -181,7 +205,9 @@ def add_sort_tasks(base) :
             tmpnode, outnode = getattr(t, 'tempcopy', (None, None))
             if outnode :
                 if id(outnode) in tmap :
-                    t.set_depend_after(tmap[id(outnode)][-1])
+                    try: t.intasks.append(tmap[id(outnode)][-1])
+                    except AttributeError : t.intasks = [tmap[id(outnode)][-1]]
+                    t.set_run_after(tmap[id(outnode)][-1])
                     tmap[id(outnode)].append(t)
                 else :
                     tmap[id(outnode)] = [t]
@@ -218,6 +244,7 @@ def runs_after(self, task, cache = set()) :
 def add_build_wafplus() :
     old_prerecurse = Build.BuildContext.pre_recurse
     old_postrecurse = Build.BuildContext.post_recurse
+    old_exec = Build.BuildContext.execute
 
     def pre_recurse(bld, node) :
         old_prerecurse(bld, node)
@@ -227,10 +254,20 @@ def add_build_wafplus() :
         old_postrecurse(bld, node)
         build_modifys(bld)
 
+    def execute(bld) :
+        if Options.options.dot :
+            return make_dot(bld)
+        else :
+            return old_exec(bld)
+
     Build.BuildContext.pre_recurse = pre_recurse
     Build.BuildContext.post_recurse = post_recurse
+    Build.BuildContext.execute = execute
 
 def add_unicode_exec() :
+    """ tweak to allow commands to be passed unicode strings and to run
+        commands containing unicode characters
+    """
     old_exec = Context.Context.exec_command
 
     def unicode_exec_command(self, cmd, **kw) :
@@ -242,57 +279,56 @@ def add_unicode_exec() :
 
     Context.Context.exec_command = unicode_exec_command
 
-def add_configure() :
-    old_config = Configure.ConfigurationContext.post_recurse
+def add_options() :
+    """ Add the --dot option to generate wscript.dot of the given command
+        listing all the tasks and their dependency relationships
+    """
+    oldinit = Options.opt_parser.__init__
 
-    def configure(ctx, node) :
-        programs = set(['dot'])
-        for p in programs :
-            ctx.find_program(p, var=p.upper())
-        if old_config :
-            old_config(ctx, node)
+    def init(self, ctx) :
+        oldinit(self, ctx)
+        gr = optparse.OptionGroup(self, 'wafplus options')
+        self.add_option_group(gr)
+        gr.add_option('--dot', action = 'store_true', help = 'create wscript.dot of build tasks for this command')
 
-    Configure.ConfigurationContext.post_recurse = configure
+    Options.opt_parser.__init__ = init
 
-class DotContext(Build.BuildContext):
-    '''generates dot description of the target tasks to execute'''
-    cmd='dot'
-    def execute(self):
-        self.restore()
-        if not self.all_envs:
-            self.load_envs()
-        self.recurse([self.run_dir])
-        self.pre_build()
-        self.timer=Utils.Timer()
-        tasks = []
-        for t in self.get_build_iterator() :
-            if len(t) > 0 :
-                tasks.extend(t)
-            else :
-                break
-        ofh = open("wscript.dot", "w")
-        ofh.write("digraph tasks { rankdir=BT;\n")
-        tmap = {}
-        count = 0
-        for l in tasks :
-            nname = "n" + str(count)
-            tmap[id(l)] = nname
-            count += 1
-            ofh.write("    " + nname + ' [label="' + l.name + '"];\n')
-        for l in tasks :
-            for d in l.run_after :
+def make_dot(self):
+    self.restore()
+    if not self.all_envs:
+        self.load_envs()
+    self.recurse([self.run_dir])
+    self.pre_build()
+    self.timer=Utils.Timer()
+    tasks = []
+    for t in self.get_build_iterator() :
+        if len(t) > 0 :
+            tasks.extend(t)
+        else :
+            break
+    ofh = open("wscript.dot", "w")
+    ofh.write("digraph tasks { rankdir=BT;\n")
+    tmap = {}
+    count = 0
+    for l in tasks :
+        nname = "n" + str(count)
+        tmap[id(l)] = nname
+        count += 1
+        ofh.write("    " + nname + ' [label="' + l.name + '"];\n')
+    for l in tasks :
+        for d in l.run_after :
 #                print "    " + tmap[d.name] + " -> " + tmap[l.name]
-                ofh.write("    " + tmap[id(l)] + " -> " + tmap[id(d)] + ";\n")
-        ofh.write("}\n")
+            ofh.write("    " + tmap[id(l)] + " -> " + tmap[id(d)] + ";\n")
+    ofh.write("}\n")
 
-        g = []
-        self.group_names['dot'] = g
-        self.groups = [g]       # delete all the tasks except ours
-        self.set_group(0)
+    g = []
+    self.group_names['dot'] = g
+    self.groups = [g]       # delete all the tasks except ours
+    self.set_group(0)
 #        self(cmd='echo Create wscript.dot', target='wscript.dot', shell = 1)
-        self(rule='${DOT} -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=1)
+    self(rule='${DOT} -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=1)
 
-        self.compile()
+    self.compile()
 
 
 def load_module(file_path) :
@@ -325,13 +361,15 @@ def load_module(file_path) :
 
 add_sort_tasks(Build.BuildContext)
 add_reasons()
-add_depend_after(Task.Task)
+add_intasks(Task.Task)
 add_build_wafplus()
-add_configure()
+add_options()
 #add_unicode_exec()
 Context.load_module = load_module
 Context.wscript_vars = {}
-varmap = { 'modify' : modify, 'rule' : rule }
+varmap = { 'modify' : modify,
+            'rule' : rule,
+            'preprocess_args' : preprocess_args }
 for k, v in varmap.items() :
     Context.wscript_vars[k] = v
 

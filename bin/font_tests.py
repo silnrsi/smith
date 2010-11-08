@@ -25,6 +25,7 @@ def copy_task(task) :
 
 def build_tests(ctx, fonts, target) :
 
+#    import pdb; pdb.set_trace()
     testsdir = ctx.env['TESTDIR']
     if not testsdir : testsdir = "tests"
     testsdir += os.sep
@@ -36,7 +37,6 @@ def build_tests(ctx, fonts, target) :
     texfiles = ctx.path.ant_glob(testsdir + "*.tex")
     htxtfiles = ctx.path.ant_glob(testsdir + "*.htxt")
     htxttfiles = []
-    textfiles = []
 
     for n in htxtfiles :
         targ = n.get_bld().change_ext('.txt')
@@ -46,6 +46,7 @@ def build_tests(ctx, fonts, target) :
 #    import pdb; pdb.set_trace()
     for f in fontmap :
         modes = {}
+        textfiles = []
         if getattr(fontmap[f], 'graphite', None) :
             modes['gr'] = "/GR"
         if getattr(fontmap[f], 'sfd_master', None) or getattr(fontmap[f], 'opentype', None) :
@@ -86,10 +87,9 @@ def build_tests(ctx, fonts, target) :
                 textfiles.append((targ, n))
             for n in textfiles :
                 targ = n[0].get_bld()
-                print str(n) + " depends on " + str(ctx.bldnode.find_resource(fontmap[f].target).abspath())
                 ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                     source = n[0], target = targ.change_ext('.xdv'),
-                    scan = lambda t: ((ctx.bldnode.find_resource(fontmap[f].target),), ()))
+                    taskgens = [fontmap[f].target + "_" + m])
                 if target == 'pdfs' :
                     ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
