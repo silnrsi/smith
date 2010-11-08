@@ -23,41 +23,20 @@ from waflib import Utils, Task, Runner, Build
 from waflib.TaskGen import feature, before
 from waflib.Logs import error, warn, debug
 
-re_tex = re.compile(r'\\(?P<type>include|bibliography|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
-def scan(self):
-	"""
-	A simple regex-based scanner for latex dependencies, uses re_tex from above
-	
-	Depending on your needs you might want:
-	
-	* to change re_tex
-
-	::
-	
-		from waflib.Tools import tex
-		tex.re_tex = myregex
-	
-	* or to change the method scan from the latex tasks
-
-	::
-	
-		from waflib.Task import classes
-		classes['latex'].scan = myscanfunction
-	
-	"""
+re_bibunit = re.compile(r'\\(?P<type>putbib)\[(?P<file>[^\[\]]*)\]',re.M)
+def bibunitscan(self):
 	node = self.inputs[0]
 	env = self.env
 
 	nodes = []
-	names = []
-	if not node: return (nodes, names)
-	code = node.read()
+	if not node: return nodes
 
-	global re_tex
-	for match in re_tex.finditer(code):
+	code = Utils.readf(node.abspath())
+
+	for match in re_bibunit.finditer(code):
 		path = match.group('file')
 		if path:
-			for k in ['', '.tex', '.ltx', '.bib']:
+			for k in ['', '.bib']:
 				# add another loop for the tex include paths?
 				debug('tex: trying %s%s' % (path, k))
 				fi = node.parent.find_resource(path + k)
@@ -66,151 +45,206 @@ def scan(self):
 					# no break, people are crazy
 			else:
 				debug('tex: could not find %s' % path)
-				names.append(path)
 
-	debug("tex: found the following : %s and names %s" % (nodes, names))
-	return (nodes, names)
+	debug("tex: found the following bibunit files: %s" % nodes)
+	return nodes
 
-latex_fun, _ = Task.compile_fun('${LATEX} ${LATEXFLAGS} ${SRCFILE}', shell=False)
-pdflatex_fun, _ = Task.compile_fun('${PDFLATEX} ${PDFLATEXFLAGS} ${SRCFILE}', shell=False)
-xelatex_fun, _ = Task.compile_fun('${XELATEX} ${XELATEXFLAGS} ${SRCFILE}', shell=False)
-bibtex_fun, _ = Task.compile_fun('${BIBTEX} ${BIBTEXFLAGS} ${SRCFILE}', shell=False)
-makeindex_fun, _ = Task.compile_fun('${MAKEINDEX} ${MAKEINDEXFLAGS} ${SRCFILE}', shell=False)
 
+re_tex = re.compile(r'\\(?P<type>include|bibliography|putbib|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 g_bibtex_re = re.compile('bibdata', re.M)
-def tex_build(task, command='LATEX'):
-	"""
-	Runs the LaTeX build process.
 
-	TeX file processing may need multiple passes, depending on the
-	usage of cross-references, bibliographies, content susceptible of
-	needing such passes.
-	The appropriate TeX compiler is called until the .aux file ceases
-	changing.
+class tex(Task.Task):
 
-	Makeindex and bibtex are called if necessary.
+	bibtex_fun, _ = Task.compile_fun('${BIBTEX} ${BIBTEXFLAGS} ${SRCFILE}', shell=False)
+	makeindex_fun, _ = Task.compile_fun('${MAKEINDEX} ${MAKEINDEXFLAGS} ${SRCFILE}', shell=False)
 
-	"""
-	env = task.env
-	bld = task.generator.bld
+	def scan(self):
+		"""
+		A simple regex-based scanner for latex dependencies, uses re_tex from above
+		
+		Depending on your needs you might want:
+		
+		* to change re_tex
 
-	if not env['PROMPT_LATEX']:
-		env.append_value('LATEXFLAGS', '-interaction=batchmode')
-		env.append_value('PDFLATEXFLAGS', '-interaction=batchmode')
-		env.append_value('XELATEXFLAGS', '-interaction=batchmode')
+		::
+		
+			from waflib.Tools import tex
+			tex.re_tex = myregex
+		
+		* or to change the method scan from the latex tasks
 
-	fun = latex_fun
-	if command == 'PDFLATEX':
-		fun = pdflatex_fun
-	elif command == 'XELATEX':
-		fun = xelatex_fun
+		::
+		
+			from waflib.Task import classes
+			classes['latex'].scan = myscanfunction
+		
+		"""
+		node = self.inputs[0]
+		env = self.env
 
-	node = task.inputs[0]
-	srcfile = node.abspath()
-	sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+		nodes = []
+		names = []
+		if not node: return (nodes, names)
 
-	aux_node = node.change_ext('.aux')
-	idx_node = node.change_ext('.idx')
+		code = node.read()
 
-	docuname = aux_node.name[:-4] # 4 is the size of ".aux"
+		global re_tex
+		for match in re_tex.finditer(code):
+			path = match.group('file')
+			if path:
+				for k in ['', '.tex', '.ltx', '.bib']:
+					# add another loop for the tex include paths?
+					debug('tex: trying %s%s' % (path, k))
+					fi = node.parent.find_resource(path + k)
+					if fi:
+						nodes.append(fi)
+						# no break, people are crazy
+				else:
+					debug('tex: could not find %s' % path)
+					names.append(path)
 
-	# important, set the cwd for everybody
-	task.cwd = task.inputs[0].parent.get_bld().abspath()
+		debug("tex: found the following : %s and names %s" % (nodes, names))
+		return (nodes, names)
 
-	warn('first pass on %s' % command)
+	def run(task):
+		"""
+		Runs the LaTeX build process.
 
-	task.env.env = {}
-	task.env.env.update(os.environ)
-	task.env.env.update({'TEXINPUTS': sr2})
-	task.env.SRCFILE = srcfile
-	ret = fun(task)
-	if ret:
-		return ret
+		TeX file processing may need multiple passes, depending on the
+		usage of cross-references, bibliographies, content susceptible of
+		needing such passes.
+		The appropriate TeX compiler is called until the .aux file ceases
+		changing.
 
-	# look in the .aux file if there is a bibfile to process
-	try:
-		ct = aux_node.read()
-	except (OSError, IOError):
-		error('error bibtex scan')
-	else:
-		fo = g_bibtex_re.findall(ct)
+		Makeindex and bibtex are called if necessary.
 
-		# there is a .aux file to process
-		if fo:
-			warn('calling bibtex')
+		"""
+		env = task.env
+		bld = task.generator.bld
 
-			task.env.env = {}
-			task.env.env.update(os.environ)
-			task.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
-			task.env.SRCFILE = docuname
-			ret = bibtex_fun(task)
-			if ret:
-				error('error when calling bibtex %s' % docuname)
-				return ret
+		if not env['PROMPT_LATEX']:
+			env.append_value('LATEXFLAGS', '-interaction=batchmode')
+			env.append_value('PDFLATEXFLAGS', '-interaction=batchmode')
+			env.append_value('XELATEXFLAGS', '-interaction=batchmode')
 
-	# look on the filesystem if there is a .idx file to process
-	try:
-		idx_path = idx_node.abspath()
-		os.stat(idx_path)
-	except OSError:
-		warn('index file %s absent, not calling makeindex' % idx_path)
-	else:
-		warn('calling makeindex')
+		fun = task.texfun
 
-		task.env.SRCFILE = idx_node.name
+		node = task.inputs[0]
+		srcfile = node.abspath()
+		sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+
+		aux_node = node.change_ext('.aux')
+		idx_node = node.change_ext('.idx')
+
+		docuname = aux_node.name[:-4] # 4 is the size of ".aux"
+
+		# important, set the cwd for everybody
+		task.cwd = task.inputs[0].parent.get_bld().abspath()
+
+		warn('first pass on %s' % task.__class__.__name__)
+
 		task.env.env = {}
-		ret = makeindex_fun(task)
+		task.env.env.update(os.environ)
+		task.env.env.update({'TEXINPUTS': sr2})
+		task.env.SRCFILE = srcfile
+		ret = fun()
 		if ret:
-			error('error when calling makeindex %s' % idx_path)
 			return ret
 
-
-	hash = ''
-	i = 0
-	while i < 10:
-		# prevent against infinite loops - one never knows
-		i += 1
-
-		# watch the contents of file.aux
-		prev_hash = hash
+		# look in the .aux file if there is a bibfile to process
 		try:
-			hash = Utils.h_file(aux_node.abspath())
-		except KeyError:
-			error('could not read aux.h -> %s' % aux_node.abspath())
-			pass
+			ct = aux_node.read()
+		except (OSError, IOError):
+			error('error bibtex scan')
+		else:
+			fo = g_bibtex_re.findall(ct)
 
-		# debug
-		#print "hash is, ", hash, " ", old_hash
+			# there is a .aux file to process
+			if fo:
+				warn('calling bibtex')
 
-		# stop if file.aux does not change anymore
-		if hash and hash == prev_hash:
-			break
+				task.env.env = {}
+				task.env.env.update(os.environ)
+				task.env.env.update({'BIBINPUTS': sr2, 'BSTINPUTS': sr2})
+				task.env.SRCFILE = docuname
+				ret = task.bibtex_fun()
+				if ret:
+					error('error when calling bibtex %s' % docuname)
+					return ret
+
+		# look to see if there are any bibunit-style bib files
+		try:
+			bibunits = bibunitscan(task)
+		except FSError:
+			error('error bibunitscan')
+		else:
+			if bibunits:
+				fn  = ['bu' + str(i) for i in xrange(1, len(bibunits) + 1)]
+				if fn:
+					warn('calling bibtex on bibunits')
+
+				for f in fn:
+					task.env.env = {'BIBINPUTS': sr2, 'BSTINPUTS': sr2}
+					task.env.SRCFILE = f
+					ret = task.bibtex_fun()
+					if ret:
+						error('error when calling bibtex %s' % f)
+						return ret
+
+		# look on the filesystem if there is a .idx file to process
+		try:
+			idx_path = idx_node.abspath()
+			os.stat(idx_path)
+		except OSError:
+			warn('index file %s absent, not calling makeindex' % idx_path)
+		else:
+			warn('calling makeindex')
+
+			task.env.SRCFILE = idx_node.name
+			task.env.env = {}
+			ret = task.makeindex_fun()
+			if ret:
+				error('error when calling makeindex %s' % idx_path)
+				return ret
+
+
+		hash = ''
+		for i in range(10):
+			# prevent against infinite loops - one never knows
+
+			# watch the contents of file.aux and stop if file.aux does not change anymore
+			prev_hash = hash
+			try:
+				hash = Utils.h_file(aux_node.abspath())
+			except KeyError:
+				error('could not read aux.h -> %s' % aux_node.abspath())
+				pass
+			if hash and hash == prev_hash:
+				break
 
 		# run the command
-		warn('calling %s' % command)
+		warn('calling %s' % task.__class__.__name__)
 
 		task.env.env = {}
 		task.env.env.update(os.environ)
 		task.env.env.update({'TEXINPUTS': sr2 + os.pathsep})
 		task.env.SRCFILE = srcfile
-		ret = fun(task)
+		ret = fun()
 		if ret:
-			error('error when calling %s %s' % (command, task))
+			error('error when calling %s %s' % (task.__class__.__name__, task))
 			return ret
 
-	return None # ok
+class latex(tex):
+	texfun, vars = Task.compile_fun('${LATEX} ${LATEXFLAGS} ${SRCFILE}', shell=False)
+class pdflatex(tex):
+	texfun, vars =  Task.compile_fun('${PDFLATEX} ${PDFLATEXFLAGS} ${SRCFILE}', shell=False)
+class xelatex(tex):
+	texfun, vars = Task.compile_fun('${XELATEX} ${XELATEXFLAGS} ${SRCFILE}', shell=False)
 
-latex_vardeps  = ['LATEX', 'LATEXFLAGS']
-def latex_build(task):
-	return tex_build(task, 'LATEX')
-
-pdflatex_vardeps  = ['PDFLATEX', 'PDFLATEXFLAGS']
-def pdflatex_build(task):
-	return tex_build(task, 'PDFLATEX')
-
-xelatex_vardeps  = ['XELATEX', 'XELATEXFLAGS']
-def xelatex_build(task):
-	return tex_build(task, 'XELATEX')
+b = Task.task_factory
+b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
+b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
+b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "xelatex", "pdflatex"], shell=False)
 
 @feature('tex')
 @before('process_source')
@@ -274,11 +308,4 @@ def configure(self):
 			pass
 	v['DVIPSFLAGS'] = '-Ppdf'
 
-b = Task.task_factory
-b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
-b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
-b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "xelatex", "pdflatex"], shell=False)
-b('latex', latex_build, vars=latex_vardeps, scan=scan)
-b('pdflatex', pdflatex_build, vars=pdflatex_vardeps, scan=scan)
-b('xelatex', xelatex_build, vars=xelatex_vardeps, scan=scan)
 
