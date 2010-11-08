@@ -22,7 +22,6 @@ def process_dbus(self):
 			raise Errors.WafError('file not found ' + filename)
 
 		tsk = self.create_task('dbus_binding_tool', node, node.change_ext('.h'))
-
 		tsk.env.DBUS_BINDING_TOOL_PREFIX = prefix
 		tsk.env.DBUS_BINDING_TOOL_MODE   = mode
 
@@ -30,6 +29,7 @@ class dbus_binding_tool(Task.Task):
 	color   = 'BLUE'
 	ext_out = ['.h']
 	run_str = '${DBUS_BINDING_TOOL} --prefix=${DBUS_BINDING_TOOL_PREFIX} --mode=${DBUS_BINDING_TOOL_MODE} --output=${TGT} ${SRC}'
+	shell   = True # temporary workaround for #795
 
 def configure(conf):
 	dbus_binding_tool = conf.find_program('dbus-binding-tool', var='DBUS_BINDING_TOOL')
