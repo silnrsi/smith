@@ -41,15 +41,15 @@ def genmarshal_func(self):
 	get = self.env.get_flat
 	cmd1 = "%s %s --prefix=%s --header > %s" % (
 		get('GLIB_GENMARSHAL'),
-		self.inputs[0].srcpath(self.env),
+		self.inputs[0].srcpath(),
 		get('GLIB_GENMARSHAL_PREFIX'),
-		self.outputs[0].abspath(self.env)
+		self.outputs[0].abspath()
 	)
 
 	ret = bld.exec_command(cmd1)
 	if ret: return ret
 
-	#print self.outputs[1].abspath(self.env)
+	#print self.outputs[1].abspath()
 	c = '''#include "%s"\n''' % self.outputs[0].name
 	self.outputs[1].write(c.encode("utf-8"))
 
@@ -116,7 +116,7 @@ def process_enums(self):
 			raise Errors.WafError('missing source ' + str(enum))
 		source_list = [self.path.find_resource(k) for k in source_list]
 		inputs += source_list
-		env['GLIB_MKENUMS_SOURCE'] = [k.srcpath(env) for k in source_list]
+		env['GLIB_MKENUMS_SOURCE'] = [k.srcpath() for k in source_list]
 
 		# find the target
 		if not enum['target']:
@@ -124,14 +124,14 @@ def process_enums(self):
 		tgt_node = self.path.find_or_declare(enum['target'])
 		if tgt_node.name.endswith('.c'):
 			self.source.append(tgt_node)
-		env['GLIB_MKENUMS_TARGET'] = tgt_node.abspath(env)
+		env['GLIB_MKENUMS_TARGET'] = tgt_node.abspath()
 
 
 		options = []
 
 		if enum['template']: # template, if provided
 			template_node = self.path.find_resource(enum['template'])
-			options.append('--template %s' % (template_node.abspath(env)))
+			options.append('--template %s' % (template_node.abspath()))
 			inputs.append(template_node)
 		params = {'file-head' : '--fhead',
 		           'file-prod' : '--fprod',
