@@ -30,9 +30,15 @@ def apply_cs(self):
 			no_nodes.append(x)
 	self.source = no_nodes
 
+	bintype = getattr(self, 'type', 'exe')
 	self.cs_task = tsk = self.create_task('mcs', cs_nodes, self.path.find_or_declare(self.gen))
-	tsk.env.CSTYPE = '/target:%s' % getattr(self, 'type', 'exe')
+	tsk.env.CSTYPE = '/target:%s' % bintype
 	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()
+
+	inst_to = getattr(self, 'install_path', bintype=='exe' and '${BINDIR}' or '${LIBDIR}')
+	if inst_to:
+		mod = getattr(self, 'chmod', bintype=='exe' and Utils.O755 or Utils.O644)
+		self.install_task = self.bld.install_files(inst_to, self.cs_task.outputs[:], env=self.env, chmod=mod)
 
 @feature('cs')
 @after('apply_cs')
