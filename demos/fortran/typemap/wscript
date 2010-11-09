@@ -28,10 +28,9 @@ from waflib import Logs, Build, Utils
 from waflib import TaskGen, Task
 from waflib.ConfigSet import ConfigSet
 
-@TaskGen.feature('typemap')
-# This ordering seems clearer than @after('apply_link')
-@TaskGen.after('process_source')
-@TaskGen.before('apply_link')
+#@TaskGen.feature('typemap') <- python >= 2.4
+#@TaskGen.after('process_source')
+#@TaskGen.before('apply_link')
 def process_typemaps(self):
 	"""
 	modmap: *.f90 + foo.in -> foo.h + foo.f90
@@ -54,6 +53,11 @@ def process_typemaps(self):
 
 	tsk = self.create_compiled_task('fc', f90out)
 	tsk.nomod = True # the fortran files won't compile unless all the .mod files are set, ick
+
+# for python 2.3
+TaskGen.feature('typemap')(process_typemaps)
+TaskGen.after('process_source')(process_typemaps)
+TaskGen.before('apply_link')(process_typemaps)
 
 class modmap(Task.Task):
 	"""
