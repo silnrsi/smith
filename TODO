@@ -3,11 +3,9 @@ Waf 1.6.x
 
 General
 
-- setup a build farm
-- merge the api docs with a tutorial
-
+- setup a build farm (we already have a working demos/wscript file)
+- python 2.3 fixes for sort(key)
 - MAKEFLAGS?
-- recurse: from top or from current folder?
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 
 Low priority and potential sub-projects (contributions will be welcome)
