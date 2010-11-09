@@ -246,11 +246,12 @@ def process_settings(self):
 		if not self.env['GSETTINGSSCHEMADIR']:
 			raise Errors.WafError ('GSETTINGSSCHEMADIR not defined (should have been set up automatically during configure)')
 
-		self.bld.install_files (self.env['GSETTINGSSCHEMADIR'], install_files)
+		if install_files:
+			self.bld.install_files (self.env['GSETTINGSSCHEMADIR'], install_files)
 
-		if not hasattr(self.bld, '_compile_schemas_registered'):
-			self.bld.add_post_fun (compile_schemas_callback)
-			self.bld._compile_schemas_registered = True
+			if not hasattr(self.bld, '_compile_schemas_registered'):
+				self.bld.add_post_fun (compile_schemas_callback)
+				self.bld._compile_schemas_registered = True
 
 # TODO
 #class glib_genmarshal(Task.Task):
