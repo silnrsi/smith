@@ -240,6 +240,7 @@ def gather_msvc_versions(conf, versions):
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
 	def fun(tup):
 		return tup[0]
+	# FIXME sort does not have a key on python 2.3
 	detected_versions.sort(key = fun)
 	for (v,version,reg) in detected_versions:
 		try:

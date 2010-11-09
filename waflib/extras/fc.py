@@ -122,6 +122,7 @@ class fc(Task.Task):
 				for t in outs[k]:
 					tmp.extend(t.outputs)
 				a.dep_nodes.extend(tmp)
+				# FIXME sort does not have a key on python 2.3
 				a.dep_nodes.sort(key=lambda x: x.abspath())
 
 		# the task objects have changed: clear the signature cache
