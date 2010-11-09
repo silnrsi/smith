@@ -5,7 +5,7 @@
 "intltool support"
 
 import os, re
-from waflib import Configure, TaskGen, Task, Utils, Runner, Options, Build
+from waflib import Configure, TaskGen, Task, Utils, Runner, Options, Build, Logs
 import waflib.Tools.ccroot
 from waflib.TaskGen import feature, before
 from waflib.Logs import error
@@ -80,7 +80,7 @@ def apply_intltool_po(self):
 					self.bld.install_as(inst_file, task.outputs[0], chmod=getattr(self, 'chmod', Utils.O644), env=task.env)
 
 	else:
-		Utils.pprint('RED', "Error no LINGUAS file found in po directory")
+		Logs.pprint('RED', "Error no LINGUAS file found in po directory")
 
 class po(Task.Task):
 	run_str = '${MSGFMT} -o ${TGT} ${SRC}'
