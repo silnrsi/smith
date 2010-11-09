@@ -8,7 +8,7 @@ if "uname" in dir(os): machine = os.uname()[1]
 elif sys.platform == "win32": machine = os.environ["COMPUTERNAME"]
 else: raise Exception("Unknown platform, cannot get machine name")
 
-PYTHONS = "2.4 2.5 2.6 2.7 3.0 3.1 3.2".split()
+PYTHONS = "2.3 2.4 2.5 2.6 2.7 3.0 3.1 3.2".split()
 
 def options(opt):
 	for d in opt.path.ant_glob('*', excl=['build', 'variants'], src=False, dir=True):
@@ -26,7 +26,13 @@ def options(opt):
 
 def configure(conf):
 
-	conf.exec_command('./waf-light configure build --tools=compat15,doxygen,fluid,ocaml,swig,compiler_fc,fc_config,fc,fc_scan,g95,ifort,gfortran && /bin/cp waf demos/', cwd=conf.path.parent.abspath())
+	try:
+		sub = conf.find_file('subprocess.py', ['/usr/lib64/python', '/usr/lib/python', '/usr/local/lib64/python', '/usr/local/lib/python'])
+	except:
+		sub = ''
+
+
+	conf.exec_command('./waf-light configure build --tools=doxygen,fluid,ocaml,swig,compiler_fc,fc_config,fc,fc_scan,g95,ifort,gfortran,%s --prelude='' && /bin/cp waf demos/' % sub, cwd=conf.path.parent.abspath())
 	node = conf.path.find_resource('waf')
 	if not node:
 		conf.fatal('could not find Waf')
