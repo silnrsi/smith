@@ -25,6 +25,10 @@ def configure(conf):
 		conf.env.HAS_GTKSHARP = False
 
 def build(bld):
+
+	# for system libraries, use:
+	#bld.read_csshlib('ManagedLibrary.dll', paths=[bld.env.mylibrarypath])
+
 	bld(features='cs', source='My.cs Dye.cs', type='library', gen='my.dll', name='mylib')
 	bld(features='cs', source='Hi.cs', includes='.', type='exe', gen='hi.exe', use='mylib', name='hi')
 	if bld.env.HAS_GTKSHARP:
