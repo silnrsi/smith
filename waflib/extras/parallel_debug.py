@@ -7,7 +7,9 @@ debugging helpers for parallel compilation, outputs
 a svg file in the build directory
 """
 
-import os, time, Queue, sys
+import os, time, sys
+try: from Queue import Queue
+except: from queue import Queue
 from waflib import Runner, Options, Utils, Task, Logs
 
 #import random
@@ -16,7 +18,7 @@ from waflib import Runner, Options, Utils, Task, Logs
 def options(opt):
 	opt.add_option('--dtitle', action='store', default='Parallel build representation for %r' % ' '.join(sys.argv),
 		help='title for the svg diagram', dest='dtitle')
-	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=5000, dest='dwidth')
+	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=500, dest='dwidth')
 	opt.add_option('--dtime', action='store', type='float', help='recording interval in seconds', default=0.009, dest='dtime')
 	opt.add_option('--dband', action='store', type='int', help='band width', default=22, dest='dband')
 	opt.add_option('--dmaxtime', action='store', type='float', help='maximum time, for drawing fair comparisons', default=0, dest='dmaxtime')
@@ -39,7 +41,10 @@ info = [] # list of (text,color)
 def map_to_color(name):
 	if name in mp:
 		return mp[name]
-	cls = Task.classes[name]
+	try:
+		cls = Task.classes[name]
+	except KeyError:
+		return color2code['RED']
 	if cls.color in mp:
 		return mp[cls.color]
 	if cls.color in color2code:
@@ -93,7 +98,7 @@ def do_start(self):
 	except AttributeError:
 		self.bld.fatal('use def options(opt): opt.load("parallel_debug")!')
 
-	self.taskinfo = Queue.Queue()
+	self.taskinfo = Queue()
 	old_start(self)
 	if self.dirty:
 		process_colors(self)
@@ -128,7 +133,7 @@ def process_colors(producer):
 				continue
 
 			info.append((name, map_to_color(name)))
-		info.sort(cmp= lambda x, y: cmp(x[0], y[0]))
+		info.sort(key=lambda x: x[0])
 
 	thread_count = 0
 	acc = []
