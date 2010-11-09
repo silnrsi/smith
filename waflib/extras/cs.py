@@ -10,7 +10,7 @@ bld(features='cs', source='main.cs', gen='foo')
 """
 
 from waflib import TaskGen, Utils, Task, Options, Logs, Errors
-from TaskGen import before, after, feature
+from waflib.TaskGen import before, after, feature
 from waflib.Tools import ccroot
 from waflib.Configure import conf
 
