@@ -12,6 +12,6 @@ def configure(conf):
 	conf.load('gnu_dirs intltool')
 
 def build(bld):
-	bld.add_subdirs('data')
+	bld.recurse('data')
 	bld(features='intltool_po', appname=APPNAME, podir='po', install_path="${LOCALEDIR}")
 
