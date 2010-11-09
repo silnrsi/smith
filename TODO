@@ -1,10 +1,15 @@
 Waf 1.6.x
 ---------
 
+KNOWN ISSUES
+
+- python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
+- synchronized stdout+stderr for all commands by default
+- copying a folder may result in errors (check the .lockfile)
+
 General
 
 - setup a build farm (we already have a working demos/wscript file)
-- python 2.3 fixes for sort(key)
 - MAKEFLAGS?
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 

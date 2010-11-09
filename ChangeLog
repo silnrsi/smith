@@ -18,7 +18,7 @@ NEW IN WAF 1.6.1
 * boost tool update (in playground) #780
 * Updated the java tool and examples
 * New gcj tool in playground
-* Update the c# tool and examples (playground)
+* Update the c# tool and examples (playground) #796
 * Read external c# libraries #774
 * Xelatex support #785
 * Rebuild fortran files when .mod files change #766
