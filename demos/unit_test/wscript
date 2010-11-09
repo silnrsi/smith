@@ -27,7 +27,7 @@ def configure(conf):
 		l = conf.check(lib='dl', uselib_store='CPPUNIT')
 
 def build(bld):
-	bld.add_subdirs('src tests')
+	bld.recurse('src tests')
 
 	# unittestw.summary is a pretty ugly function for displaying a report (feel free to improve!)
 	# results -> bld.utest_results [(filename, returncode, stdout, stderr), (..., ), ...]
