@@ -26,7 +26,6 @@ def options(opt):
 	opt.add_option('--junitpath', action='store', default='',
 		help='Give a path to the junit jar')
 
-@conf
 def configure(ctx):
 	cp = ctx.options.junitpath
 	val = ctx.env.JUNIT_RUNNER = ctx.env.JUNIT_RUNNER or JUNIT_RUNNER
@@ -34,8 +33,8 @@ def configure(ctx):
 		ctx.fatal('Could not run junit from %r' % val)
 	ctx.env.CLASSPATH_JUNIT = cp
 
-@feature('junit')
-@after('apply_java', 'use_javac_files')
+#@feature('junit')
+#@after('apply_java', 'use_javac_files')
 def make_test(self):
 	"""make the unit test task"""
 	if not getattr(self, 'junitsrc', None):
@@ -45,6 +44,8 @@ def make_test(self):
 		junit_task.set_run_after(self.javac_task)
 	except AttributeError:
 		pass
+feature('junit')(make_test)
+after('apply_java', 'use_javac_files')(make_test)
 
 class junit_test(Task.Task):
 	color = 'YELLOW'
