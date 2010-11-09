@@ -521,3 +521,29 @@ def add_pcfile(self, node):
 	tsk = self.create_task('subst_pc', node, node.change_ext('.pc', '.pc.in'))
 	self.bld.install_files('${PREFIX}/lib/pkgconfig/', tsk.outputs)
 
+class subst(subst_pc):
+	pass
+
+@feature('subst')
+@before('process_source', 'process_rule')
+def process_subst(self):
+	src = self.to_nodes(getattr(self, 'source', []))
+	tgt = getattr(self, 'target', [])
+	if isinstance(tgt, self.path.__class__):
+		tgt = [tgt]
+	tgt = [isinstance(x, self.path.__class__) and x or self.path.find_or_declare(x) for x in Utils.to_list(tgt)]
+
+	if len(src) != len(tgt):
+		raise Errors.WafError('invalid source or target for %r' % self)
+
+	for x, y in zip(src, tgt):
+		if not (x and y):
+			raise Errors.WafError('invalid source or target for %r' % self)
+		self.create_task('subst', x, y)
+
+	inst_to = getattr(self, 'install_path', None)
+	if inst_to:
+		self.bld.install_files(inst_to, tgt, chmod=getattr(self, 'chmod', Utils.O644))
+
+	self.source = []
+
