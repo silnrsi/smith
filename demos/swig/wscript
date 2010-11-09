@@ -90,9 +90,10 @@ def build(bld):
 	d = bld.path.make_node('extend/java')
 	javanodes = [d.find_or_declare(x) for x in 'A.java  test_swig_waf.java  test_swig_wafJNI.java'.split()]
 	dec = bld.tools['swig'].swigf
-	@dec
+	#@dec <- python 2.3 does not support the @decorator notation
 	def swig_java(tsk):
 		tsk.outputs.extend(javanodes)
+	bld.tools['swig'].swigf(swig_java)
 	""" # END BLOCK 1
 	#"""# do not remove
 
