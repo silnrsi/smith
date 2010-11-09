@@ -6,29 +6,28 @@ KNOWN ISSUES
 - python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
 - synchronized stdout+stderr for all commands by default
 - copying a folder may result in errors (check the .lockfile)
+- remove the warnings for the missing features dprogram and cxxstlib
 
-General
+GENERAL IMPROVEMENTS
 
 - setup a build farm (we already have a working demos/wscript file)
 - MAKEFLAGS?
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 
-Low priority and potential sub-projects (contributions will be welcome)
+LOW PRIORITY (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)
 + CMake file interpreter
 + multiprocess for distributed compilation (vs threads?)
 + rewrite the boost detection (boost.py)
 
-Docs
+DOCUMENTATION
 
 - to make a fully static app, replace env.SHLIB_MARKER and env.STLIB_MARKER
-
 - string expansion on other attributes
 - compile targets at the end
 - set CC and LINK to a particular variable (the wine example)
 - show a complete example of c compilation with rules vs task generator code (procedural vs object-oriented)
-
 
 - store this somewhere
 	get the path of a config test executable created

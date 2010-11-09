@@ -8,7 +8,7 @@ NEW IN WAF 1.6.1
 * c_preproc exception when a file has the same name as a directory #777
 * 'intltool_po' does not install the .mo files #782
 * 'intltool_in' was broken #792
-* bind stderr and stdout to the exception in Context.cmd_and_log #779
+* Bind stderr and stdout to the exception in Context.cmd_and_log #779
 * Tasks not rebuilding properly when the 'run' method changes #786
 * Print the progress bar information as late as possible #787
 * Fix for the FRAMEWORK value processing
@@ -23,8 +23,9 @@ NEW IN WAF 1.6.1
 * Xelatex support #785
 * Rebuild fortran files when .mod files change #766
 * docs #781
-* improve the ant_glob behaviour on ctx.root + absolute paths
+* Improve the ant_glob behaviour on ctx.root + absolute paths
 * Fix for glib_mkenums and dbus-binding-tool #795
+* New feature 'subst' (see demos/subst)
 
 NEW IN WAF 1.6.0
 ----------------
