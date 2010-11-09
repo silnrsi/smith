@@ -133,7 +133,7 @@ def vala_file(self, node):
 					continue
 				package_name = package_obj.target
 				package_node = package_obj.path
-				package_dir = package_node.relpath_gen(self.path)
+				package_dir = package_node.path_from(self.path)
 
 				for task in package_obj.tasks:
 					for output in task.outputs:
