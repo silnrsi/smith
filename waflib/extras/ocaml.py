@@ -5,9 +5,9 @@
 "ocaml support"
 
 import os, re
-import TaskGen, Utils, Task, Build
-from Logs import error
-from TaskGen import feature, before, after, extension
+from waflib import TaskGen, Utils, Task, Build
+from waflib.Logs import error
+from waflib.TaskGen import feature, before, after, extension
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
