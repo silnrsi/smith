@@ -101,16 +101,20 @@ indicator = is_win32 and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
 
 def readf(fname, m='r'):
 	"""
-	Read an entire file into a string, in practice yuo should rather
-	use node.read(..)
-	
+	Read an entire file into a string, in practice the wrapper
+	node.read(..) should be used instead of this method::
+
+		def build(ctx):
+			from waflib import Utils
+			txt = Utils.readf(self.path.find_node('wscript').abspath())
+			txt = ctx.path.find_node('wscript').read()
+
 	:type  fname: string
 	:param fname: Path to file
 	:type  m: string
 	:param m: Open mode
 	:rtype: string
 	:return: Content of the file
-	
 	"""
 	f = open(fname, m)
 	try:
@@ -121,7 +125,20 @@ def readf(fname, m='r'):
 
 def h_file(filename):
 	"""
-	compute a hash file, this method may be replaced if necessary
+	Computes a hash value for a file by using md5. This method may be replaced by
+	a faster version if necessary. The following uses the file size and the timestamp value::
+
+		import stat
+		from waflib import Utils
+		def h_file(filename):
+			st = os.stat(filename)
+			if stat.S_ISDIR(st[stat.ST_MODE]): raise IOError('not a file')
+			m = Utils.md5()
+			m.update(str(st.st_mtime))
+			m.update(str(st.st_size))
+			m.update(filename)
+			return m.digest()
+		Utils.h_file = h_file
 	"""
 	f = open(filename, 'rb')
 	m = md5()
