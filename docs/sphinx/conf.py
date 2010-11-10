@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'waf'
+project = u'Waf'
 copyright = u'2010, Thomas Nagy'
 
 # The version info for the project you're documenting, acts as replacement for
