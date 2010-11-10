@@ -1,17 +1,10 @@
-.. waf documentation master file, created by
-   sphinx-quickstart on Sat Nov  6 20:46:09 2010.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to waf's documentation!
-===============================
+Waf v1.6.1 documentation
+========================
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
-   
-   
 
 Indices and tables
 ==================
@@ -20,63 +13,14 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-Waf class hierarchy
-===================
+Waf core modules
+================
 
 Utils
 -----
 
 .. automodule:: waflib.Utils
-
-
-Task
-----
-
-.. automodule:: waflib.Task
-
-
-TaskGen
--------
-
-.. automodule:: waflib.TaskGen
-
-
-Scripting
----------
-
-.. automodule:: waflib.Scripting
-
-
-Node
-----
-
-.. automodule:: waflib.Node
-
-
-Build
------
-
-.. automodule:: waflib.Build
-
-
-Configure
----------
-
-.. automodule:: waflib.Configure
-
-
-ConfigSet
----------
-
-.. automodule:: waflib.ConfigSet
-
-
-Context
----------
-
-.. automodule:: waflib.Context
-
-
+  :members:
 
 Errors
 ------
@@ -89,6 +33,10 @@ Logs
 
 .. automodule:: waflib.Logs
 
+ConfigSet
+---------
+
+.. automodule:: waflib.ConfigSet
 
 Options
 -------
@@ -96,10 +44,48 @@ Options
 .. automodule:: waflib.Options
 
 
+Context
+---------
+
+.. automodule:: waflib.Context
+
+Build
+-----
+
+.. automodule:: waflib.Build
+
+
+Configure
+---------
+
+.. automodule:: waflib.Configure
+
+Node
+----
+
+.. automodule:: waflib.Node
+
+Task
+----
+
+.. automodule:: waflib.Task
+
 Runner
 ------
 
 .. automodule:: waflib.Runner
+
+TaskGen
+-------
+
+.. automodule:: waflib.TaskGen
+
+
+Scripting
+---------
+
+.. automodule:: waflib.Scripting
+
 
 
 Waf Tools
@@ -117,15 +103,15 @@ ccroot
 ++++++
 
 .. automodule:: waflib.Tools.ccroot
-
+  :members:
 
 tex: LaTeX family
 -----------------
 
 .. automodule:: waflib.Tools.tex
 
-Javaw
------
+java
+----
 
 .. automodule:: waflib.Tools.javaw
 
