@@ -1,3 +1,7 @@
+NEW IN WAF 1.6.2
+----------------
+* support for c# debugging files #797
+
 NEW IN WAF 1.6.1
 ----------------
 
