@@ -70,13 +70,13 @@ else:
 	threading.Thread.run = run
 
 SIG_NIL = 'iluvcuteoverload'.encode()
-"""if you change the hash type, do not forget to change SIG_NIL"""
+"""Arbitrary null value for a md5 hash. This value must be changed when the hash value is replaced (size)"""
 
 O644 = 420
-"""permission for regular files"""
+"""constant representing the permissions for regular files (0644 raises a syntax error on python 3)"""
 
 O755 = 493
-"""permission for executable files"""
+"""constant representing the permissions for executable files (0755 raises a syntax error on python 3)"""
 
 try:
 	from collections import defaultdict
@@ -172,11 +172,10 @@ if is_win32:
 		"""
 		Lists the contents of a folder in a portable manner.
 
-		:param s: string, 
+		:param s: string
 
 		If not s, returns a listing of the root folder.
 		On Windows, returns the list of drive letters.
-			
 		"""
 		if not s:
 			dlen = 4 # length of "?:\\x00"
@@ -184,10 +183,10 @@ if is_win32:
 			buf = create_string_buffer(maxdrives * dlen)
 			ndrives = windll.kernel32.GetLogicalDriveStringsA(maxdrives, byref(buf))
 			return [ buf.raw[4*i:4*i+3].decode("ascii") for i in range(int(ndrives/dlen)) ]
-		
+
 		if len(s) == 2 and s[1] == ":":
 			s += os.sep
-		
+
 		if not os.path.isdir(s):
 			e = OSError()
 			e.errno = errno.ENOENT
@@ -197,7 +196,10 @@ if is_win32:
 
 def num2ver(ver):
 	"""
-	convert a string, tuple or version number into an integer
+	Converts a string, tuple or version number into an integer. The number is supposed to have at most 4 digits::
+
+		from waflib.Utils import num2ver
+		num2ver('1.3.2') == num2ver((1,3,2)) == num2ver((1,3,2,0))
 	"""
 	if isinstance(ver, str):
 		ver = tuple(ver.split('.'))
@@ -220,12 +222,15 @@ def ex_stack():
 def to_list(sth):
 	"""
 	Convert a string argument to a list by splitting on spaces, and pass
-	through a list argument unchanged.
+	through a list argument unchanged::
+
+		from waflib.Utils import to_list
+		lst = to_list("a b c d")
 
 	:param sth: List or a string of items separated by spaces
 	:rtype: list
 	:return: Argument converted to list
-	
+
 	"""
 	if isinstance(sth, str):
 		return sth.split()
@@ -235,8 +240,14 @@ def to_list(sth):
 re_nl = re.compile('\r*\n', re.M)
 def str_to_dict(txt):
 	"""
-	Parse a string with key = value pairs into a dictionary.
-	
+	Parse a string with key = value pairs into a dictionary::
+
+		from waflib import Utils
+		x = Utils.str_to_dict('''
+			a = 1
+			b = test
+		''')
+
 	:type  s: string
 	:param s: String to parse
 	:rtype: dict
@@ -254,9 +265,9 @@ def str_to_dict(txt):
 	return tbl
 
 rot_chr = ['\\', '|', '/', '-']
-"List of characters to use when displaying the throbber"
+"List of characters to use when displaying the throbber (progress bar)"
 rot_idx = 0
-"Index of the current throbber character"
+"Index of the current throbber character (progress bar)"
 
 def split_path(path):
 	return path.split('/')
@@ -310,7 +321,7 @@ def check_dir(path):
 def def_attrs(cls, **kw):
 	"""
 	set attributes for class.
-	
+
 	:type cls: class
 	:param cls: the class to update the given attributes in.
 	:type kw: dict
@@ -325,7 +336,7 @@ def def_attrs(cls, **kw):
 def quote_define_name(s):
 	"""
 	Convert a string to an identifier suitable for C defines.
-	
+
 	:type  s: string
 	:param s: String to convert
 	:rtype: string
@@ -343,9 +354,7 @@ def h_list(lst):
 
 def h_fun(fun):
 	"""
-	Get the source of a function for hashing. In cpython, only the functions
-	defined in modules can be hashed, so it will not work for functions defined
-	in wscript files (but it will for the ones defined in Waf tools)
+	Provide a hash to detect when functions change.
 	"""
 	try:
 		return fun.code
@@ -363,10 +372,14 @@ def h_fun(fun):
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"""
-	Replaces ${VAR} with the value of VAR taken from the dictionary
+	Replaces ${VAR} with the value of VAR taken from the dictionary::
+
+		from waflib import Utils
+		s = Utils.subst_vars('${PREFIX}/bin', env)
+
 	:type  expr: string
 	:param expr: String to perform substitution on
-	:param params: Dictionary to look up variable values.
+	:param params: Dictionary or config set to look up variable values.
 	"""
 	def repl_var(m):
 		if m.group(1):
