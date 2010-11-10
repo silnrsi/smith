@@ -48,7 +48,7 @@ except:
 	class threading(object):
 		"""
 			A fake threading class for platforms lacking the threading module.
-			Use ``waf -j1`` on these platforms
+			Use ``waf -j1`` on those platforms
 		"""
 		pass
 	class Lock(object):
@@ -73,10 +73,16 @@ SIG_NIL = 'iluvcuteoverload'.encode()
 """Arbitrary null value for a md5 hash. This value must be changed when the hash value is replaced (size)"""
 
 O644 = 420
-"""constant representing the permissions for regular files (0644 raises a syntax error on python 3)"""
+"""Constant representing the permissions for regular files (0644 raises a syntax error on python 3)"""
 
 O755 = 493
-"""constant representing the permissions for executable files (0755 raises a syntax error on python 3)"""
+"""Constant representing the permissions for executable files (0755 raises a syntax error on python 3)"""
+
+rot_chr = ['\\', '|', '/', '-']
+"List of characters to use when displaying the throbber (progress bar)"
+
+rot_idx = 0
+"Index of the current throbber character (progress bar)"
 
 try:
 	from collections import defaultdict
@@ -125,7 +131,7 @@ def readf(fname, m='r'):
 
 def h_file(filename):
 	"""
-	Computes a hash value for a file by using md5. This method may be replaced by
+	Compute a hash value for a file by using md5. This method may be replaced by
 	a faster version if necessary. The following uses the file size and the timestamp value::
 
 		import stat
@@ -139,6 +145,10 @@ def h_file(filename):
 			m.update(filename)
 			return m.digest()
 		Utils.h_file = h_file
+
+	:type filename: string
+	:param filename: path to the file to hash
+	:return: hash of the file contents
 	"""
 	f = open(filename, 'rb')
 	m = md5()
@@ -162,7 +172,10 @@ else:
 		return s.encode('hex')
 
 to_hex.__doc__ = """
-Returns the hexadecimal representation of a string
+Return the hexadecimal representation of a string
+
+:param s: string to convert
+:type s: string
 """
 
 listdir = os.listdir
@@ -170,18 +183,18 @@ if is_win32:
 	from ctypes import windll, byref, create_string_buffer
 	def listdir_win32(s):
 		"""
-		Lists the contents of a folder in a portable manner.
+		List the contents of a folder in a portable manner.
 
-		:param s: string
-
-		If not s, returns a listing of the root folder.
-		On Windows, returns the list of drive letters.
+		:type s: string
+		:param s: a string, which can be empty on Windows for listing the drive letters
 		"""
 		if not s:
 			dlen = 4 # length of "?:\\x00"
 			maxdrives = 26
 			buf = create_string_buffer(maxdrives * dlen)
 			ndrives = windll.kernel32.GetLogicalDriveStringsA(maxdrives, byref(buf))
+
+			# FIXME decode('ascii') will return unicode strings on python 2.3, but we want strings
 			return [ buf.raw[4*i:4*i+3].decode("ascii") for i in range(int(ndrives/dlen)) ]
 
 		if len(s) == 2 and s[1] == ":":
@@ -196,10 +209,13 @@ if is_win32:
 
 def num2ver(ver):
 	"""
-	Converts a string, tuple or version number into an integer. The number is supposed to have at most 4 digits::
+	Convert a string, tuple or version number into an integer. The number is supposed to have at most 4 digits::
 
 		from waflib.Utils import num2ver
 		num2ver('1.3.2') == num2ver((1,3,2)) == num2ver((1,3,2,0))
+
+	:type ver: string or tuple of numbers
+	:param ver: a version number
 	"""
 	if isinstance(ver, str):
 		ver = tuple(ver.split('.'))
@@ -213,7 +229,9 @@ def num2ver(ver):
 
 def ex_stack():
 	"""
-	extract the stack to display exceptions
+	Extract the stack to display exceptions
+
+	:return: a string represening the last exception
 	"""
 	exc_type, exc_value, tb = sys.exc_info()
 	exc_lines = traceback.format_exception(exc_type, exc_value, tb)
@@ -264,11 +282,6 @@ def str_to_dict(txt):
 		tbl[tmp[0].strip()] = '='.join(tmp[1:]).strip()
 	return tbl
 
-rot_chr = ['\\', '|', '/', '-']
-"List of characters to use when displaying the throbber (progress bar)"
-rot_idx = 0
-"Index of the current throbber character (progress bar)"
-
 def split_path(path):
 	return path.split('/')
 
@@ -293,20 +306,16 @@ elif is_win32:
 	split_path = split_path_win32
 
 split_path.__doc__ = """
-Splits a path on supported platforms.
+Split a path by / or \\. This function is not like os.path.split
 
-On UNIX platforms, os.path.split has a different behaviour
-so we do not use it
-
-On Cygwin, forward slash is used.
-
-On Win32, backward slash is used is used.
-
+:type  path: string
+:param path: path to split
+:return:     list of strings
 """
 
 def check_dir(path):
 	"""
-	Ensure that a directory exists, and try to avoid thread issues (similar to ``mkdir -p``)
+	Ensure that a directory exists (similar to ``mkdir -p``).
 
 	:type  dir: string
 	:param dir: Path to directory
@@ -320,14 +329,12 @@ def check_dir(path):
 
 def def_attrs(cls, **kw):
 	"""
-	set attributes for class.
+	Set default attributes on a class instance
 
 	:type cls: class
 	:param cls: the class to update the given attributes in.
 	:type kw: dict
 	:param kw: dictionary of attributes names and values.
-
-	if the given class hasn't one (or more) of these attributes, add the attribute with its value to the class.
 	"""
 	for k, v in kw.items():
 		if not hasattr(cls, k):
@@ -347,14 +354,24 @@ def quote_define_name(s):
 	return fu
 
 def h_list(lst):
-	"""Hash the contents of a list."""
+	"""
+	Hash lists. For tuples, using hash(tup) is much more efficient
+
+	:param lst: list to hash
+	:type lst: list of strings
+	:return: hash of the list
+	"""
 	m = md5()
 	m.update(str(lst).encode())
 	return m.digest()
 
 def h_fun(fun):
 	"""
-	Provide a hash to detect when functions change.
+	Hash functions
+
+	:param fun: function to hash
+	:type  fun: function
+	:return: hash of the function
 	"""
 	try:
 		return fun.code
@@ -372,7 +389,7 @@ def h_fun(fun):
 reg_subst = re.compile(r"(\\\\)|(\$\$)|\$\{([^}]+)\}")
 def subst_vars(expr, params):
 	"""
-	Replaces ${VAR} with the value of VAR taken from the dictionary::
+	Replace ${VAR} with the value of VAR taken from a dict or a config set::
 
 		from waflib import Utils
 		s = Utils.subst_vars('${PREFIX}/bin', env)
@@ -395,7 +412,11 @@ def subst_vars(expr, params):
 
 def destos_to_binfmt(key):
 	"""
-	Get the binary format based on the unversioned platform name.
+	Return the binary format based on the unversioned platform name.
+
+	:param key: platform name
+	:type  key: string
+	:return: string representing the binary format
 	"""
 	if key == 'darwin':
 		return 'mac-o'
@@ -405,11 +426,9 @@ def destos_to_binfmt(key):
 
 def unversioned_sys_platform():
 	"""
-	Get the unversioned platform name.
-
+	Return the unversioned platform name.
 	Some Python platform names contain versions, that depend on
 	the build environment, e.g. linux2, freebsd6, etc.
-
 	This returns the name without the version number. Exceptions are
 	os2 and win32, which are returned verbatim.
 
@@ -437,7 +456,11 @@ def unversioned_sys_platform():
 	return re.split('\d+$', s)[0]
 
 def nada(*k, **kw):
-	"""A function that does nothing."""
+	"""
+	A function that does nothing
+
+	:return: None
+	"""
 	pass
 
 class Timer(object):
@@ -488,7 +511,12 @@ if os.name == 'java':
 		gc.disable = gc.enable
 
 def read_la_file(path):
-	"""Untested, used by msvc.py"""
+	"""
+	Read property files, used by msvc.py
+
+	:param path: file to read
+	:type path: string
+	"""
 	sp = re.compile(r'^([^=]+)=\'(.*)\'$')
 	dc = {}
 	for line in readf(path).splitlines():
@@ -501,8 +529,12 @@ def read_la_file(path):
 
 def nogc(fun):
 	"""
-	Disable the gc in a particular method execution
-	Used with pickle for storing/loading the build cache file
+	Decorator: let a function disable the garbage collector during its execution.
+	It is used in the build context when storing/loading the build cache file (pickle)
+
+	:param fun: function to execute
+	:type fun: function
+	:return: the return value of the function executed
 	"""
 	def f(*k, **kw):
 		try:
@@ -515,11 +547,15 @@ def nogc(fun):
 
 def run_once(fun):
 	"""
-	decorator, make a function cache its results, use like this::
+	Decorator: let a function cache its results, use like this::
 
 		@run_once
 		def foo(k):
 			return 345*2343
+
+	:param fun: function to execute
+	:type fun: function
+	:return: the return value of the function executed
 	"""
 	cache = {}
 	def wrap(k):
