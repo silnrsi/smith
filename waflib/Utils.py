@@ -443,7 +443,12 @@ def nada(*k, **kw):
 class Timer(object):
 	"""
 	Simple object for timing the execution of commands.
-	Its string representation is the current time.
+	Its string representation is the current time::
+
+		from waflib.Utils import Timer
+		timer = Timer()
+		a_few_operations()
+		s = str(timer)
 	"""
 	def __init__(self):
 		self.start_time = datetime.datetime.utcnow()
