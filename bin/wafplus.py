@@ -70,6 +70,8 @@ def process_tempcopy(tgen) :
 @feature('*')
 @after('process_rule')
 def process_taskgens(tg) :
+    """ process taskgens attribute to create intasks relationships in the task
+    """
     for o in getattr(tg, 'taskgens', []) :
         og = tg.bld.get_tgen_by_name(o)
         if not og : continue
@@ -225,8 +227,9 @@ def add_sort_tasks(base) :
     def wrap_biter(self) :
         for b in old_biter(self) :
             inject_modifiers(b)
-            tlist = top_sort(b)
-            yield tlist
+#            tlist = top_sort(b)
+#            yield tlist
+            yield b
 
     base.get_build_iterator = wrap_biter
     Task.TaskBase.runs_after = runs_after

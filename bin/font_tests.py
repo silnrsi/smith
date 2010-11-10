@@ -2,12 +2,13 @@
 
 from waflib import Context, Utils
 import os, shutil
+from functools import partial
 
 def configure_tests(ctx, fonts) :
     res = set(['xetex', 'grsvg', 'firefox', 'xdvipdfmx', 'xsltproc', 'firefox'])
     return res
 
-def make_tex(task, mf, font) :
+def make_tex(mf, font, task) :
     texdat = r'''
 \font\test="[%s]%s" at 12pt
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
@@ -22,6 +23,11 @@ def make_tex(task, mf, font) :
 def copy_task(task) :
     shutil.copy(task.inputs[0].bldpath(), task.outputs[0].bldpath())
     return 0
+
+def curry_tex(fn, *parms) :
+    def res(*args) :
+        return fn(*(parms + args))
+    return res
 
 def build_tests(ctx, fonts, target) :
 
@@ -65,8 +71,7 @@ def build_tests(ctx, fonts, target) :
                 if target == "pdfs" or target == 'test' :
                     targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + "_" + m + ".tex"
                     targ = ctx.path.find_or_declare(targfile)
-                    ctx(rule = lambda t: make_tex(t, mf, fontmap[f].target),
-                        source = n, target = targ)
+                    ctx(rule = curry_tex(make_tex, mf, fontmap[f].target), source = n, target = targ)
                     textfiles.append((targ, n))
 
                 elif target == 'svg' :
