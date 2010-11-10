@@ -358,13 +358,9 @@ def apply_vnum(self):
 
 	create symlinks::
 
-		libfoo.so → libfoo.so.1.2.3
-
-	and::
-
+		libfoo.so   → libfoo.so.1.2.3
 		libfoo.so.1 → libfoo.so.1.2.3
-	
-	TODO I think libfoo.so.1.2 is also recommended
+
 
 	"""
 	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
