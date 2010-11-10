@@ -29,7 +29,7 @@ def build(bld):
 	# for system libraries, use:
 	#bld.read_csshlib('ManagedLibrary.dll', paths=[bld.env.mylibrarypath])
 
-	bld(features='cs', source='My.cs Dye.cs', type='library', gen='my.dll', name='mylib', debug='full')
+	bld(features='cs', source='My.cs Dye.cs', type='library', gen='my.dll', name='mylib', csdebug='full')
 	bld(features='cs', source='Hi.cs', includes='.', type='exe', gen='hi.exe', use='mylib', name='hi')
 	if bld.env.HAS_GTKSHARP:
 		bld(features='cs', source='Simple.cs', includes='.', type='exe', gen='mono-hello.exe', csflags=['-pkg:gtk-sharp-2.0'])
