@@ -3,11 +3,10 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-Utilities, portability fixes.
+Utilities and platform-specific fixes
 
-The portability fixes try to provide a consistent behavior
- of waf API through Python versions 2.3 to 3.X
- as well as on all supported platforms.
+The portability fixes try to provide a consistent behavior of the Waf API
+through Python versions 2.3 to 3.X and across different platforms (win32, linux, etc)
 """
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc

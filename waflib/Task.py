@@ -6,17 +6,25 @@
 Tasks are small objects encapsulating a state of execution
 
 The task base (TaskBase) only has to provide the following methods:
+
 * unique id
+
 * signature
+
 * runnable_status
+
 * run
+
 * post_run
 
 The task class (Task) deals with the filesystem (Node) uses the following
 in the computation of the signature:
+
 * explicit dependencies (given files)
+
 * implicit dependencies (nodes given by an optional scanner method)
-* hashed data (from the data set associated)
+
+* hashed data (from the config set 'env' associated)
 
 Custom task clases may be created by subclassing or factories
 
