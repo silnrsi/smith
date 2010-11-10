@@ -623,7 +623,7 @@ class inst_task(Task.Task):
 					else:
 						raise Errors.WafError('could not find %r in %r' % (x, self.path))
 			buf.append(y)
-		self.set_inputs(buf)
+		self.inputs = buf
 
 	def runnable_status(self):
 		"""
