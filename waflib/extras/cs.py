@@ -37,6 +37,7 @@ def apply_cs(self):
 
 	inst_to = getattr(self, 'install_path', bintype=='exe' and '${BINDIR}' or '${LIBDIR}')
 	if inst_to:
+		# note: we are making a copy, so the files added to cs_task.outputs won't be installed automatically
 		mod = getattr(self, 'chmod', bintype=='exe' and Utils.O755 or Utils.O644)
 		self.install_task = self.bld.install_files(inst_to, self.cs_task.outputs[:], env=self.env, chmod=mod)
 
@@ -60,6 +61,30 @@ def use_cs(self):
 		self.cs_task.dep_nodes.extend(tsk.outputs) # dependency
 		self.cs_task.env.append_value('CSFLAGS', '/reference:%s' % tsk.outputs[0].abspath())
 
+@feature('cs')
+@after('apply_cs', 'use_cs')
+def debug_cs(self):
+	debug = getattr(self, 'debug', self.env.CSDEBUG)
+	if not debug:
+		return
+
+	node = self.cs_task.outputs[0]
+	if self.env.CS_NAME == 'mono':
+		out = node.parent.find_or_declare(node.name + '.mdb')
+	else:
+		out = node.change_ext('.pdb')
+	self.cs_task.outputs.append(out)
+	self.install_task.source.append(out)
+
+	if debug == 'pdbonly':
+		val = ['/debug+', '/debug:pdbonly']
+	elif debug == 'full':
+		val = ['/debug+', '/debug:full']
+	else:
+		val = ['/debug-']
+	self.cs_task.env.append_value('CSFLAGS', val)
+
+
 class mcs(Task.Task):
 	color   = 'YELLOW'
 	run_str = '${MCS} ${CSTYPE} ${CSFLAGS} ${ASS_ST:ASSEMBLIES} ${RES_ST:RESOURCES} ${OUT} ${SRC}'
@@ -71,6 +96,10 @@ def configure(conf):
 	conf.find_program(['csc', 'mcs', 'gmcs'], var='MCS')
 	conf.env.ASS_ST = '/r:%s'
 	conf.env.RES_ST = '/resource:%s'
+
+	conf.env.CS_NAME = 'csc'
+	if str(conf.env.MCS).lower().find('mcs') > -1:
+		conf.env.CS_NAME = 'mono'
 
 def options(opt):
 	opt.add_option('--with-csc-binary', type='string', dest='cscbinary')
