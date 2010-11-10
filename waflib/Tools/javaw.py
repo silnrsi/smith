@@ -6,20 +6,16 @@
 Java support
 
 Javac is one of the few compilers that behaves very badly:
+
 * it outputs files where it wants to (-d is only for the package root)
+
 * it recompiles files silently behind your back
+
 * it outputs an undefined amount of files (inner classes)
 
-Fortunately, the convention makes it possible to use the build dir without
-too many problems for the moment
+This tool uses the -verbose flag to track the java classes created.
 
-Inner classes must be located and cleaned when a problem arise,
-for the moment waf does not track the production of inner classes.
-
-Adding all the files to a task and executing it if any of the input files
-change is only annoying for the compilation times
-
-Compilation can be run using Jython[1] rather than regular Python. Instead of
+Remember that the compilation can be performed using Jython[1] rather than regular Python. Instead of
 running one of the following commands:
     ./waf configure
     python waf configure
