@@ -64,8 +64,8 @@ def use_cs(self):
 @feature('cs')
 @after('apply_cs', 'use_cs')
 def debug_cs(self):
-	debug = getattr(self, 'debug', self.env.CSDEBUG)
-	if not debug:
+	csdebug = getattr(self, 'csdebug', self.env.CSDEBUG)
+	if not csdebug:
 		return
 
 	node = self.cs_task.outputs[0]
@@ -76,9 +76,9 @@ def debug_cs(self):
 	self.cs_task.outputs.append(out)
 	self.install_task.source.append(out)
 
-	if debug == 'pdbonly':
+	if csdebug == 'pdbonly':
 		val = ['/debug+', '/debug:pdbonly']
-	elif debug == 'full':
+	elif csdebug == 'full':
 		val = ['/debug+', '/debug:full']
 	else:
 		val = ['/debug-']
