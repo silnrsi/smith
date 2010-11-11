@@ -60,7 +60,7 @@ class Font(object) :
                 tarnode = srcnode.get_bld()
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], before = self.target)
                 srcnode = tarnode
-            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target)
+            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target, name = self.target + "_ot" if not getattr(self, 'opentype', None) else self.target + "_font")
 
         if hasattr(self, 'version') :
             modify("${TTFSETVER} " + self.version + " ${DEP} ${TGT}", self.target)
