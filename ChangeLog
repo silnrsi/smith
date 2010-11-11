@@ -1,6 +1,9 @@
 NEW IN WAF 1.6.2
 ----------------
-* support for c# debugging files #797
+* Support for c# debugging files #797
+* Add -relocation-model=pic for shared libraries on ldc
+* Fixed 'waf dist' for tar files on python 3 #799
+* Make the latex scanner recursive #798
 
 NEW IN WAF 1.6.1
 ----------------
