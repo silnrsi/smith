@@ -1,9 +1,9 @@
 .. _license:
 
-Waf license
------------
+Waf copyright
+-------------
 
-The waf file contains the following notice::
+The waf file, and this documentation are subject to the following notice::
 
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions

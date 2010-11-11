@@ -2,11 +2,10 @@ Waf v1.6.1 documentation
 ========================
 
 .. toctree::
-	:maxdepth: 1
 
 	coremodules.rst
 	tools.rst
-	license.rst
+	copyright.rst
 
 	:ref:`genindex`
 	:ref:`modindex`
