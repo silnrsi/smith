@@ -7,35 +7,21 @@ Node: filesystem structure, contains lists of nodes
 
 #. Each file/folder is represented by exactly one node.
 
-#. Some potential class properties are stored in Build: nodes to depend on...
-   unused class members increase the .wafpickle file size sensibly with lots of objects.
+#. Some potential class properties are stored on :py:class:`waflib.Build.BuildContext` : nodes to depend on, etc.
+   Unused class members can increase the `.wafpickle` file size sensibly.
 
-#. The build is launched from the top of the build dir (for example, in build/).
-
-#. Although Node objects should not be created directly,
+#. Node objects should never be created directly, use
    the methods :py:func:`Node.make_node` or :py:func:`Node.find_node`
-   may be used for exceptional circumstances
 
-Each instance of :py:class:`Build.BuildContext` has a unique :py:class:`Node` subclass.
-(aka: 'Nod3', see BuildContext initializer)
-The BuildContext is referenced here as self.ctx
-Its Node class is referenced here as self.__class__
+#. The methods :py:func:`Node.find_resource`, :py:func:`Node.find_dir` :py:func:`Node.find_or_declare` should be
+   used when a build context is present
+
+#. Each instance of :py:class:`Context.Context` has a unique :py:class:`Node` subclass.
+   (aka: 'Nod3', see the :py:class:`Context.Context` initializer). A reference to the context owning a node is held as self.ctx
 """
 
 import os, re, sys, shutil
 from waflib import Utils, Errors
-
-prune_pats = '.git .bzr .hg .svn _MTN _darcs CVS SCCS'.split()
-"""
-These fnmatch expressions are used by default to prune the directory tree
-while doing the recursive traversal in the find_iter method of the Node class.
-"""
-
-exclude_pats = prune_pats + '*~ #*# .#* %*% ._* .gitignore .cvsignore vssver.scc .DS_Store'.split()
-"""
-These fnmatch expressions are used by default to exclude files and dirs
-while doing the recursive traversal in the find_iter method of the Node class.
-"""
 
 exclude_regs = '''
 **/*~
