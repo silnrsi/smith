@@ -85,6 +85,7 @@ def configure(conf):
 	conf.find_program('asciidoc', var='ADOC')
 	conf.find_program('dia', var='DIA')
 	conf.find_program('convert', var='CONVERT')
+	conf.find_program('source-highlight', var='SOURCE_HIGHLIGHT')
 
 def build(bld):
 
