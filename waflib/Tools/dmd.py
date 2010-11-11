@@ -16,7 +16,7 @@ def common_flags_ldc(conf):
 	v = conf.env
 	v['DFLAGS']        = ['-d-version=Posix']
 	v['LINKFLAGS']     = []
-	v['dshlib_DFLAGS'] = ['-relocation-model=pic']
+	v['DFLAGS_dshlib'] = ['-relocation-model=pic']
 
 @conf
 def common_flags_dmd(conf):
