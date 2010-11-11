@@ -46,11 +46,6 @@ if not got_tty or 'NOCOLOR' in os.environ:
 	colors_lst['USE'] = False
 
 def get_term_cols():
-	"""
-	Get console width in characters.
-	@rtype: number
-	@return: Number of characters per line
-	"""
 	return 80
 
 # If console packages are available, replace the dummy function with a real
@@ -62,6 +57,10 @@ except ImportError:
 else:
 	if got_tty:
 		def get_term_cols_real():
+			"""
+			Private use only.
+			"""
+
 			dummy_lines, cols = struct.unpack("HHHH", \
 			fcntl.ioctl(sys.stderr.fileno(),termios.TIOCGWINSZ , \
 			struct.pack("HHHH", 0, 0, 0, 0)))[:2]
@@ -74,6 +73,12 @@ else:
 		else:
 			get_term_cols = get_term_cols_real
 
+get_term_cols.__doc__ = """
+	Get the console width in characters.
+
+	:return: the number of characters per line
+	:rtype: int
+	"""
 
 # test
 #if sys.platform == 'win32':
@@ -95,12 +100,29 @@ colors = color_dict()
 re_log = re.compile(r'(\w+): (.*)', re.M)
 class log_filter(logging.Filter):
 	"""
-	The waf logs are of the form 'name: message', and can be filtered by 'waf --zones=name'
+	The waf logs are of the form 'name: message', and can be filtered by 'waf --zones=name'.
+	For example, the following::
+
+		from waflib import Logs
+		Logs.debug('test: here is a message')
+
+	Will be displayed only when executing::
+
+		$ waf --zones=test
 	"""
 	def __init__(self, name=None):
 		pass
 
 	def filter(self, rec):
+		"""
+		filter a record, adding the colors automatically
+
+		* error: red
+		* warning: yellow
+
+		:param rec: message to record
+		"""
+
 		rec.c1 = colors.PINK
 		rec.c2 = colors.NORMAL
 		rec.zone = rec.module
@@ -126,12 +148,12 @@ class log_filter(logging.Filter):
 		return True
 
 class formatter(logging.Formatter):
-	"simple log formatter"
+	"""Simple log formatter which handles colors"""
 	def __init__(self):
 		logging.Formatter.__init__(self, LOG_FORMAT, HOUR_FORMAT)
 
 	def format(self, rec):
-		"handles colors"
+		"""Messages in warning, error or info mode are displayed in color by default"""
 		if rec.levelno >= logging.WARNING or rec.levelno == logging.INFO:
 			try:
 				return '%s%s%s' % (rec.c1, rec.msg.decode('utf-8'), rec.c2)
@@ -143,7 +165,9 @@ log = None
 """global logger for Logs.debug, Logs.error, etc"""
 
 def debug(*k, **kw):
-	"simple wrapper for logging.debug, suppress the input for performance reasons"
+	"""
+	Wrap logging.debug, the output is filtered for performance reasons
+	"""
 	if verbose:
 		k = list(k)
 		k[0] = k[0].replace('\n', ' ')
@@ -152,7 +176,7 @@ def debug(*k, **kw):
 
 def error(*k, **kw):
 	"""
-	wrap logging.errors, display the origin of the message when '-vv' is set
+	Wrap logging.errors, display the origin of the message when '-vv' is set
 	"""
 	global log
 	log.error(*k, **kw)
@@ -168,15 +192,23 @@ def error(*k, **kw):
 			if buf: log.error("\n".join(buf))
 
 def warn(*k, **kw):
+	"""
+	Wrap logging.warn
+	"""
 	global log
 	log.warn(*k, **kw)
 
 def info(*k, **kw):
+	"""
+	Wrap logging.info
+	"""
 	global log
 	log.info(*k, **kw)
 
 def init_log():
-	"""initialize the loggers"""
+	"""
+	Initialize the loggers globally
+	"""
 	global log
 	log = logging.getLogger('waflib')
 	log.handlers = []
@@ -188,7 +220,19 @@ def init_log():
 	log.setLevel(logging.DEBUG)
 
 def make_logger(path, name):
-	"""create a logger (more likely for context commands)"""
+	"""
+	Create a simple logger, which is often used to redirect the context command output::
+
+		from waflib import Logs
+		bld.logger = Logs.make_logger('test.log', 'build')
+		bld.check(header_name='sadlib.h', features='cxx cprogram', mandatory=False)
+		bld.logger = None
+
+	:param path: file name to write the log output to
+	:type path: string
+	:param name: logger name (loggers are reused)
+	:type name: string
+	"""
 	logger = logging.getLogger(name)
 	hdlr = logging.FileHandler(path, 'w')
 	formatter = logging.Formatter('%(message)s')
@@ -198,6 +242,20 @@ def make_logger(path, name):
 	return logger
 
 def pprint(col, str, label='', sep='\n'):
-	"print messages in color"
+	"""
+	Print messages in color immediately on stderr::
+
+		from waflib import Logs
+		Logs.pprint('RED', 'Something bad just happened')
+
+	:param col: color name to use in :py:const:`Logs.colors_lst`
+	:type col: string
+	:param str: message to display
+	:type str: string or a value that can be printed by %s
+	:param label: a message to add after the colored output
+	:type label: string
+	:param sep: a string to append at the end (line separator)
+	:type sep: string
+	"""
 	sys.stderr.write("%s%s%s %s%s" % (colors(col), str, colors.NORMAL, label, sep))
 
