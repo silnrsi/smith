@@ -23,6 +23,7 @@ def configure(conf):
 	conf.check_cc(fragment="int main() { return 0; }")
 	conf.check_cc(fragment="int main() { return 0; }", execute=True)
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
+	conf.check_cc(lib='m', cflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M', mandatory=False)
 
 	conf.check_large_file()
 	conf.check_inline()

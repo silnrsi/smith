@@ -7,9 +7,10 @@ bld(rule=write_header, target='b.h', ext_out=['.h'])
 bld.program(
 	source   = 'main.c',
 	includes = '. ..',
-	cflags  = ['-O3'],
-	defines = ['foo=bar'],
-	target   = 'myprogram')
+	cflags   = ['-O3'],
+	defines  = ['foo=bar'],
+	target   = 'myprogram',
+	use      = 'M')
 
 # make main.c depend on wscript_build, just for the fun of it
 bld.add_manual_dependency('main.c', bld.path.find_resource('wscript_build'))
