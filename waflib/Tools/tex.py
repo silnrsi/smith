@@ -49,7 +49,7 @@ def bibunitscan(self):
 	debug("tex: found the following bibunit files: %s" % nodes)
 	return nodes
 
-
+exts_deps_tex = ['', '.ltx', '.tex', '.bib', '.pdf', '.png', '.eps', '.ps']
 re_tex = re.compile(r'\\(?P<type>include|bibliography|putbib|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
 g_bibtex_re = re.compile('bibdata', re.M)
 
@@ -84,24 +84,35 @@ class tex(Task.Task):
 
 		nodes = []
 		names = []
+		seen = []
 		if not node: return (nodes, names)
 
-		code = node.read()
-
-		global re_tex
-		for match in re_tex.finditer(code):
-			path = match.group('file')
-			if path:
-				for k in ['', '.tex', '.ltx', '.bib']:
-					# add another loop for the tex include paths?
-					debug('tex: trying %s%s' % (path, k))
-					fi = node.parent.find_resource(path + k)
-					if fi:
-						nodes.append(fi)
+		def parse_node(node):
+			if node in seen:
+				return
+			seen.append(node
+)
+			code = node.read()
+			global re_tex
+			for match in re_tex.finditer(code):
+				path = match.group('file')
+				if path:
+					add_name = True
+					found = None
+					for k in exts_deps_tex:
+						debug('tex: trying %s%s' % (path, k))
+						found = node.parent.find_resource(path + k)
+						if found:
+							print "found", found
+							nodes.append(found)
+							add_name = False
+							if found.name.endswith('.tex') or found.name.endswith('.ltx'):
+								parse_node(found)
 						# no break, people are crazy
-				else:
-					debug('tex: could not find %s' % path)
-					names.append(path)
+					if add_name:
+						print "no skip, eheeheh!", path
+						names.append(path)
+		parse_node(node)
 
 		debug("tex: found the following : %s and names %s" % (nodes, names))
 		return (nodes, names)
