@@ -9,9 +9,14 @@ Exceptions used in the Waf code
 import traceback, os, sys
 
 class WafError(Exception):
-	"""Base for all waf errors"""
+	"""Base class for all Waf errors"""
 	def __init__(self, msg='', ex=None):
-		"""the parameter msg can be an error message or an exception"""
+		"""
+		:param msg: error message
+		:type msg: string
+		:param ex: exception causing this error (optional)
+		:type ex: exception
+		"""
 		self.msg = msg
 		assert not isinstance(msg, Exception)
 
@@ -30,8 +35,14 @@ class WafError(Exception):
 		return str(self.msg)
 
 class BuildError(WafError):
-	"""Error raised during the build and install phases"""
+	"""
+	Errors raised during the build and install phases
+	"""
 	def __init__(self, error_tasks=[]):
+		"""
+		:param error_tasks: tasks that could not complete normally
+		:type error_tasks: list of task objects
+		"""
 		self.tasks = error_tasks
 		WafError.__init__(self, self.format_error())
 
@@ -44,7 +55,9 @@ class BuildError(WafError):
 		return '\n'.join(lst)
 
 class ConfigurationError(WafError):
-	"""configuration exception"""
+	"""
+	Configuration exception raised in particular by :py:meth:`waflib.Context.Context.fatal`
+	"""
 	pass
 
 class TaskRescan(WafError):
