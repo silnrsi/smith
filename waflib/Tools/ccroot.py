@@ -279,7 +279,7 @@ def get_uselib_vars(self):
 def propagate_uselib_vars(self):
 	"""
 	Process uselib variables for adding flags
-	
+
 	Process:
 
 	#. add the attributes defined in a lowercase manner such as obj.cxxflags
@@ -287,7 +287,7 @@ def propagate_uselib_vars(self):
 	#. each compiler defines variables like 'CXXFLAGS_cshlib', 'LINKFLAGS_cshlib', etc
 	   so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
 	   the order was reversed compared to waf 1.5: cshlib_LINKFLAGS -> LINKFLAGS_cshlib
-	
+
 	#. the case of the libs defined outside
 
 	"""
@@ -344,7 +344,7 @@ def apply_implib(self):
 	if not inst_to:
 		return
 
-	self.implib_install_task = self.bld.install_as('${PREFIX}/lib/%s' % implib.name, implib, self.env)
+	self.implib_install_task = self.bld.install_as(os.path.join(inst_to, implib.name), implib, self.env)
 
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
