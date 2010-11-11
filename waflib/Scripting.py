@@ -299,7 +299,7 @@ class Dist(Context.Context):
 
 				fu = None
 				try:
-					fu = open(x.abspath())
+					fu = open(x.abspath(), 'rb')
 					tar.addfile(tinfo, fileobj=fu)
 				finally:
 					fu.close()
