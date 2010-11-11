@@ -218,3 +218,12 @@ man_pages = [
 
 autodoc_default_flags = ['members', 'undoc-members',
 						 'inherited-members' ]
+
+
+def maybe_skip_member(app, what, name, obj, skip, options):
+	if name == 'Nod3':
+		return True
+
+def setup(app):
+	app.connect('autodoc-skip-member', maybe_skip_member)
+
