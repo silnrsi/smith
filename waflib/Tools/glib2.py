@@ -253,34 +253,20 @@ def process_settings(self):
 				self.bld.add_post_fun (compile_schemas_callback)
 				self.bld._compile_schemas_registered = True
 
-# TODO
-#class glib_genmarshal(Task.Task):
-#	run     = genmarshal_func
-#	vars    = ['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL']
-#	color   = 'BLUE'
-#	ext_out = ['.h']
+class glib_genmarshal(Task.Task):
+	run     = genmarshal_func
+	vars    = ['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL']
+	color   = 'BLUE'
+	ext_out = ['.h']
 
-Task.task_factory('glib_genmarshal', func=genmarshal_func, vars=['GLIB_GENMARSHAL_PREFIX', 'GLIB_GENMARSHAL'],
-	color='BLUE', ext_out=['.h'])
+class glib_mkenums(Task.Task):
+	run_str = '${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}'
+	color   = 'PINK'
+	ext_out = ['.h']
 
-# TODO
-#class glib_mkenums(Task.Task):
-#	run_str = '${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}'
-#	color   = 'PINK'
-#	ext_out = ['.h']
-
-Task.task_factory('glib_mkenums',
-	'${GLIB_MKENUMS} ${GLIB_MKENUMS_OPTIONS} ${GLIB_MKENUMS_SOURCE} > ${GLIB_MKENUMS_TARGET}',
-	color='PINK', ext_out=['.h'])
-
-# TODO
-#class glib_validate_schema(Task.Task):
-#	run_str = 'rm -f ${GLIB_VALIDATE_SCHEMA_OUTPUT} && ${GLIB_COMPILE_SCHEMAS} --dry-run ${GLIB_COMPILE_SCHEMAS_OPTIONS} && touch ${GLIB_VALIDATE_SCHEMA_OUTPUT}'
-#	color   = 'PINK'
-
-Task.task_factory ('glib_validate_schema',
-    'rm -f ${GLIB_VALIDATE_SCHEMA_OUTPUT} && ${GLIB_COMPILE_SCHEMAS} --dry-run ${GLIB_COMPILE_SCHEMAS_OPTIONS} && touch ${GLIB_VALIDATE_SCHEMA_OUTPUT}',
-    color='PINK')
+class glib_validate_schema(Task.Task):
+	run_str = 'rm -f ${GLIB_VALIDATE_SCHEMA_OUTPUT} && ${GLIB_COMPILE_SCHEMAS} --dry-run ${GLIB_COMPILE_SCHEMAS_OPTIONS} && touch ${GLIB_VALIDATE_SCHEMA_OUTPUT}'
+	color   = 'PINK'
 
 def configure(conf):
 	conf.find_program('glib-genmarshal', var='GLIB_GENMARSHAL')
