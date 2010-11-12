@@ -124,7 +124,7 @@ class tex(Task.Task):
 	def bibfiles(self):
 		"""look in the .aux file if there is a bibfile to process"""
 
-		for x in self.generator.bld.node_deps[self.uid()]
+		for x in self.generator.bld.node_deps[self.uid()]:
 			if x.name.endswith('.bib'):
 				self.env.env = {}
 				self.env.env.update(os.environ)
