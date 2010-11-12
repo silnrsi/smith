@@ -13,31 +13,31 @@ from waflib import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Conte
 import waflib.Node
 
 CACHE_DIR = 'c4che'
-"""location of the cache files"""
+"""Location of the cache files"""
 
 CACHE_SUFFIX = '_cache.py'
-"""suffix for the cache files"""
+"""Suffix for the cache files"""
 
 INSTALL = 1337
-"""positive value '->' install"""
+"""Positive value '->' install, see :py:attr:`waflib.Build.BuildContext.is_install`"""
 
 UNINSTALL = -1337
-"""negative value '<-' uninstall"""
+"""Negative value '<-' uninstall, see :py:attr:`waflib.Build.BuildContext.is_install`"""
 
 SAVED_ATTRS = 'root node_deps raw_deps task_sigs'.split()
-"""Build class members to save"""
+"""Build class members to save between the runs (root, node_deps, raw_deps, task_sigs)"""
 
 CFG_FILES = 'cfg_files'
-"""files from the build directory to hash before starting the build"""
+"""Files from the build directory to hash before starting the build (``config.h`` written during the configuration)"""
 
 POST_AT_ONCE = 0
-"""post mode: all task generators are posted before the build really starts"""
+"""Post mode: all task generators are posted before the build really starts"""
 
 POST_LAZY = 1
-"""post mode: post the task generators group after group"""
+"""Post mode: post the task generators group after group"""
 
 POST_BOTH = 2
-"""post mode: post the task generators at once, then re-check them for each group"""
+"""Post mode: post the task generators at once, then re-check them for each group"""
 
 class BuildContext(Context.Context):
 	'''executes the build'''
@@ -47,6 +47,9 @@ class BuildContext(Context.Context):
 
 	def __init__(self, **kw):
 		super(BuildContext, self).__init__(**kw)
+
+		self.is_install = 0
+		"""Non-zero value when installing or uninstalling file"""
 
 		self.top_dir = kw.get('top_dir', Context.top_dir)
 
@@ -89,11 +92,29 @@ class BuildContext(Context.Context):
 
 		# Manual dependencies.
 		self.deps_man = Utils.defaultdict(list)
+		"""Manual dependencies set by :py:meth:`waflib.Build.BuildContext.add_manual_dependency`"""
 
 		# just the structure here
 		self.current_group = 0
+		"""
+		Current build group. Consider the following example::
+
+			def build(bld):
+				bld(rule='touch ${TGT}', target='foo.txt')
+				bld.add_group() # now the current group is 1
+				bld(rule='touch ${TGT}', target='bar.txt')
+				bld.current_group = 0 # now the current group is 0
+				bld(rule='touch ${TGT}', target='truc.txt') # build truc.txt before bar.txt
+		"""
+
 		self.groups = []
+		"""
+		Contains lists of task generators
+		"""
 		self.group_names = {}
+		"""
+		Map group names to the group lists. See :py:meth:`waflib.Build.BuildContext.add_group`
+		"""
 
 	def get_variant_dir(self):
 		"""getter for the variant_dir property"""
@@ -761,7 +782,20 @@ class InstallContext(BuildContext):
 			tsk.run()
 
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True, postpone=True):
-		"""the attribute 'relative_trick' is used to preserve the folder hierarchy (install folders)"""
+		"""
+		Install files on the system::
+
+			def build(bld):
+
+		:param dest: absolute path of the destination directory
+		:type dest: string
+		:param files: input files
+		:type files: list of strings or list of nodes
+		:param env: configuration set for performing substitutions in dest
+		:type env: Configuration set
+		:param relative_trick: preserve the folder hierarchy when installing whole folders
+		:type relative_trick: bool
+		"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
@@ -778,7 +812,19 @@ class InstallContext(BuildContext):
 		return tsk
 
 	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True, postpone=True):
-		"""example: bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)"""
+		"""
+		Install a file with a different name::
+
+			def build(bld):
+				bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)
+
+		:param dest: absolute path of the destination file
+		:type dest: string
+		:param srcfile: input file
+		:type srcfile: string or node
+		:param env: configuration set for performing substitutions in dest
+		:type env: Configuration set
+		"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
@@ -791,7 +837,19 @@ class InstallContext(BuildContext):
 		return tsk
 
 	def symlink_as(self, dest, src, env=None, cwd=None, add=True, postpone=True):
-		"""example:  bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3') """
+		"""
+		Create a symlink::
+
+			def build(bld):
+				bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3')
+
+		:param dest: absolute path of the symlink
+		:type dest: string
+		:param src: absolute or relative path of the link
+		:type src: string
+		:param env: configuration set for performing substitutions in dest
+		:type env: Configuration set
+		"""
 
 		if sys.platform == 'win32':
 			# symlinks *cannot* work on that platform
@@ -817,7 +875,7 @@ class UninstallContext(InstallContext):
 		self.is_install = UNINSTALL
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
-		"""see InstallContext.do_install"""
+		"""See :py:meth:`waflib.Build.InstallContext.do_install`"""
 		Logs.info('- remove %s' % tgt)
 
 		self.uninstall.append(tgt)
@@ -840,14 +898,14 @@ class UninstallContext(InstallContext):
 				break
 
 	def do_link(self, src, tgt):
-		"""see InstallContext.do_link"""
+		"""See :py:meth:`waflib.Build.InstallContext.do_link`"""
 		try:
 			Logs.info('- unlink %s' % tgt)
 			os.remove(tgt)
 		except OSError:
 			pass
 
-		# TODO ita refactor this into a post build action to uninstall the folders (optimization)
+		# TODO ita refactor this into a post build action to uninstall the folders (optimization)?
 		while tgt:
 			tgt = os.path.dirname(tgt)
 			try:

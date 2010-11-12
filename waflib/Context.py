@@ -493,33 +493,33 @@ Dictionary holding already loaded modules, keyed by their absolute path.
 The modules are added automatically by :py:func:`waflib.Context.load_module`
 """
 
-def load_module(file_path):
+def load_module(path):
 	"""
 	Load a source file as a python module.
 
-	:param file_path: file path
-	:type file_path: string
+	:param path: file path
+	:type path: string
 	:return: Loaded Python module
 	:rtype: module
 	"""
 	try:
-		return cache_modules[file_path]
+		return cache_modules[path]
 	except KeyError:
 		pass
 
 	module = imp.new_module(WSCRIPT_FILE)
 	try:
-		code = Utils.readf(file_path, m='rU')
+		code = Utils.readf(path, m='rU')
 	except (IOError, OSError):
-		raise Errors.WafError('Could not read the file %r' % file_path)
+		raise Errors.WafError('Could not read the file %r' % path)
 
-	module_dir = os.path.dirname(file_path)
+	module_dir = os.path.dirname(path)
 	sys.path.insert(0, module_dir)
 
-	exec(compile(code, file_path, 'exec'), module.__dict__)
+	exec(compile(code, path, 'exec'), module.__dict__)
 	sys.path.remove(module_dir)
 
-	cache_modules[file_path] = module
+	cache_modules[path] = module
 
 	return module
 
