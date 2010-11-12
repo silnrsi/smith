@@ -7,19 +7,21 @@ Java support
 
 Javac is one of the few compilers that behaves very badly:
 
-* it outputs files where it wants to (-d is only for the package root)
+#. it outputs files where it wants to (-d is only for the package root)
 
-* it recompiles files silently behind your back
+#. it recompiles files silently behind your back
 
-* it outputs an undefined amount of files (inner classes)
+#. it outputs an undefined amount of files (inner classes)
 
 This tool uses the -verbose flag to track the java classes created.
-
 Remember that the compilation can be performed using Jython[1] rather than regular Python. Instead of
-running one of the following commands:
+running one of the following commands::
+
     ./waf configure
     python waf configure
-You would have to run:
+
+You would have to run::
+
     java -jar /path/to/jython.jar waf configure
 
 [1] http://www.jython.org/
@@ -237,8 +239,7 @@ class javac(Task.Task):
 
 	def post_run(self):
 		"""
-		the -verbose flags gives us the files created
-		we have to parse the output
+		The -verbose flags gives us the files created, so we have to parse the outputs
 		"""
 		for x in re_classes.findall(self.out):
 			if os.path.isabs(x):
@@ -273,7 +274,14 @@ def configure(self):
 
 @conf
 def check_java_class(self, classname, with_classpath=None):
-	"""Check if the specified java class is installed"""
+	"""
+	Check if the specified java class exists
+
+	:param classname: class to check, like java.util.HashMap
+	:type classname: string
+	:param with_classpath: additional classpath to give
+	:type with_classpath: string
+	"""
 
 	import shutil
 
@@ -309,9 +317,7 @@ def check_java_class(self, classname, with_classpath=None):
 @conf
 def check_jni_headers(conf):
 	"""
-	Check for jni headers and libraries
-
-	On success the environment variable xxx_JAVA is added for uselib
+	Check for jni headers and libraries. On success the conf.env variables xxx_JAVA are added for use in c/c++ targets.
 	"""
 
 	if not conf.env.CC_NAME and not conf.env.CXX_NAME:
