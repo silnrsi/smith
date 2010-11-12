@@ -136,15 +136,15 @@ class BuildContext(Context.Context):
 		raise Errors.WafError('build contexts are not supposed to be copied')
 
 	def install_files(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
+		"""Actual implementation provided by :py:meth:`waflib.Build.InstallContext.install_files`"""
 		pass
 
 	def install_as(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
+		"""Actual implementation provided by :py:meth:`waflib.Build.InstallContext.install_as`"""
 		pass
 
 	def symlink_as(self, *k, **kw):
-		"""Actual implementation provided by InstallContext and UninstallContext"""
+		"""Actual implementation provided by :py:meth:`waflib.Build.InstallContext.symlink_as`"""
 		pass
 
 	def load_envs(self):
@@ -786,6 +786,7 @@ class InstallContext(BuildContext):
 		Install files on the system::
 
 			def build(bld):
+				bld.install_files('${DATADIR}', self.path.find_resource('wscript'))
 
 		:param dest: absolute path of the destination directory
 		:type dest: string
@@ -795,6 +796,8 @@ class InstallContext(BuildContext):
 		:type env: Configuration set
 		:param relative_trick: preserve the folder hierarchy when installing whole folders
 		:type relative_trick: bool
+		:param cwd: parent node for searching srcfile, when srcfile is not a :py:class:`waflib.Node.Node`
+		:type cwd: :py:class:`waflib.Node.Node`
 		"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -822,6 +825,8 @@ class InstallContext(BuildContext):
 		:type dest: string
 		:param srcfile: input file
 		:type srcfile: string or node
+		:param cwd: parent node for searching srcfile, when srcfile is not a :py:class:`waflib.Node.Node`
+		:type cwd: :py:class:`waflib.Node.Node`
 		:param env: configuration set for performing substitutions in dest
 		:type env: Configuration set
 		"""
