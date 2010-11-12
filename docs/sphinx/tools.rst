@@ -13,7 +13,6 @@ ccroot
 ++++++
 
 .. automodule:: waflib.Tools.ccroot
-  :members:
 
 tex: LaTeX family
 -----------------

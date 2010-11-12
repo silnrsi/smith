@@ -216,9 +216,8 @@ man_pages = [
      [u'Thomas Nagy'], 1)
 ]
 
-autodoc_default_flags = ['members', 'undoc-members',
-						 'inherited-members' ]
-
+autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autodoc_member_order = 'bysource'
 
 def maybe_skip_member(app, what, name, obj, skip, options):
 	if name == 'Nod3':
@@ -226,4 +225,5 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 
 def setup(app):
 	app.connect('autodoc-skip-member', maybe_skip_member)
+
 
