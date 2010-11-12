@@ -121,23 +121,15 @@ class tex(Task.Task):
 		if retcode != 0:
 			raise Errors.WafError("%r command exit status %r" % (msg, retcode))
 
-	def bibfile(self):
+	def bibfiles(self):
 		"""look in the .aux file if there is a bibfile to process"""
-		try:
-			ct = self.aux_node.read()
-		except (OSError, IOError):
-			error('error bibtex scan')
-		else:
-			fo = g_bibtex_re.findall(ct)
 
-			# there is a .aux file to process
-			if fo:
-				warn('calling bibtex')
-
+		for x in self.generator.bld.node_deps[self.uid()]
+			if x.name.endswith('.bib'):
 				self.env.env = {}
 				self.env.env.update(os.environ)
 				self.env.env.update({'BIBINPUTS': self.TEXINPUTS, 'BSTINPUTS': self.TEXINPUTS})
-				self.env.SRCFILE = self.aux_node.name[:-4]
+				self.env.SRCFILE = x.name[:-4]
 				self.check_status('error when calling bibtex', self.bibtex_fun())
 
 	def bibunits(self):
@@ -212,7 +204,7 @@ class tex(Task.Task):
 		self.env.SRCFILE = srcfile
 		self.check_status('error when calling latex', fun())
 
-		self.bibfile()
+		self.bibfiles()
 		self.bibunits()
 		self.makeindex()
 
