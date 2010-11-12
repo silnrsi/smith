@@ -61,23 +61,23 @@ class tex(Task.Task):
 	def scan(self):
 		"""
 		A simple regex-based scanner for latex dependencies, uses re_tex from above
-		
+
 		Depending on your needs you might want:
-		
+
 		* to change re_tex
 
 		::
-		
+
 			from waflib.Tools import tex
 			tex.re_tex = myregex
-		
+
 		* or to change the method scan from the latex tasks
 
 		::
-		
+
 			from waflib.Task import classes
 			classes['latex'].scan = myscanfunction
-		
+
 		"""
 		node = self.inputs[0]
 		env = self.env
