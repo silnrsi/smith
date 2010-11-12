@@ -19,7 +19,7 @@ Variables passed to bld():
 """
 
 import os, re
-from waflib import Utils, Task, Runner, Build
+from waflib import Utils, Task, Runner, Build, Errors
 from waflib.TaskGen import feature, before
 from waflib.Logs import error, warn, debug
 
