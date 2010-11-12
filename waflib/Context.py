@@ -143,9 +143,10 @@ class Context(ctx):
 
 	def load(self, tool_list, *k, **kw):
 		"""
-		load the options that a waf tool provides (or not)
-		@type tool_list: list of string or string representing the space-separated tool list
-		@param tool_list: list of waf tools to use
+		Load the options that a Waf tool provides (or not)
+
+		:type tool_list: list of string or space-separated string
+		:param tool_list: list of Waf tools to use
 		"""
 		tools = Utils.to_list(tool_list)
 		path = Utils.to_list(kw.get('tooldir', ''))
@@ -179,11 +180,11 @@ class Context(ctx):
 		Run user code from the supplied list of directories.
 		The directories can be either absolute, or relative to the directory
 		of the wscript file.
-		@param dirs: List of directories to visit
-		@type  name: string
-		@param name: Name of function to invoke from the wscript
-		@type  mandatory: bool
-		@param mandatory: whether sub wscript files are required to exist
+		:param dirs: List of directories to visit
+		:type  name: string
+		:param name: Name of function to invoke from the wscript
+		:type  mandatory: bool
+		:param mandatory: whether sub wscript files are required to exist
 		"""
 		for d in Utils.to_list(dirs):
 
@@ -247,8 +248,8 @@ class Context(ctx):
 
 		this method should be used whenever possible for proper logging
 
-		@param cmd: args for subprocess.Popen
-		@param kw: keyword arguments for subprocess.Popen
+		:param cmd: args for subprocess.Popen
+		:param kw: keyword arguments for subprocess.Popen
 		"""
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
@@ -284,8 +285,8 @@ class Context(ctx):
 		to obtain just stderr, pass output=STDERR in the arguments (or output=-1)
 		in case of an exception, both stderr and stdout are bound to the WafError object
 
-		@param cmd: args for subprocess.Popen
-		@param kw: keyword arguments for subprocess.Popen
+		:param cmd: args for subprocess.Popen
+		:param kw: keyword arguments for subprocess.Popen
 		"""
 		subprocess = Utils.subprocess
 		kw['shell'] = isinstance(cmd, str)
@@ -394,9 +395,9 @@ private cache
 def load_module(file_path):
 	"""
 	Load a Python source file containing user code.
-	@type file_path: string
-	@param file_path: file path
-	@return: Loaded Python module
+	:type file_path: string
+	:param file_path: file path
+	:return: Loaded Python module
 	"""
 	try:
 		return cache_modules[file_path]
@@ -424,10 +425,10 @@ def load_tool(tool, tooldir=None):
 	Import the Python module that contains the specified tool from
 	the tools directory. Store the tool in the dict Context.tools
 
-	@type  tool: string
-	@param tool: Name of the tool
-	@type  tooldir: list
-	@param tooldir: List of directories to search for the tool module
+	:type  tool: string
+	:param tool: Name of the tool
+	:type  tooldir: list
+	:param tooldir: List of directories to search for the tool module
 	"""
 	tool = tool.replace('++', 'xx')
 	tool = tool.replace('java', 'javaw')

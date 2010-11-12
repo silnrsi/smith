@@ -43,7 +43,7 @@ platform = Utils.unversioned_sys_platform()
 
 class opt_parser(optparse.OptionParser):
 	"""
-	Command-line option parser
+	Command-line options parser.
 	"""
 	def __init__(self, ctx):
 		optparse.OptionParser.__init__(self, conflict_handler="resolve", version='waf %s (%s)' % (Context.WAFVERSION, Context.WAFREVISION))
@@ -131,28 +131,29 @@ Main commands (example: ./waf build -j4)
 
 class OptionsContext(Context.Context):
 	"""
-	Collects custom options from wscript files and parses the command line.
-
-	Sets the global Options.commands and Options.options attributes.
-	
+	Collect custom options from wscript files and parses the command line.
+	Set the global :py:const:`waflib.Options.commands` and :py:const:`waflib.Options.options` values.
 	"""
 
 	cmd = ''
 	fun = 'options'
 
 	def __init__(self, **kw):
-		"""
-		Holds an instance of opt_parser in self.parser
-		"""
 		super(self.__class__, self).__init__(**kw)
+
 		self.parser = opt_parser(self)
+		"""Instance of :py:class:`waflib.Options.opt_parser`"""
 
 	def jobs(self):
 		"""
-		Finds the amount of threads to use
+		Find the amount of cpu cores to set the default amount of tasks executed in parallel. At
+		runtime the options can be obtained from :py:const:`waflib.Options.options` ::
 
-		Unless specified, waf tries to use the number of CPU cores.
+			from waflib.Options import options
+			njobs = options.jobs
 
+		:return: the amount of cpu cores
+		:rtype: int
 		"""
 		count = int(os.environ.get('JOBS', 0))
 		if count < 1:

@@ -165,7 +165,9 @@ class BuildContext(Context.Context):
 		self.bldnode.mkdir()
 
 	def execute(self):
-		"""see Context.execute"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()
@@ -685,7 +687,9 @@ class InstallContext(BuildContext):
 		self.is_install = INSTALL
 
 	def execute(self):
-		"""see Context.execute"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()
@@ -852,7 +856,9 @@ class UninstallContext(InstallContext):
 				break
 
 	def execute(self):
-		"""see Context.execute"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		try:
 			# do not execute any tasks
 			def runnable_status(self):
@@ -868,7 +874,9 @@ class CleanContext(BuildContext):
 	'''cleans the project'''
 	cmd = 'clean'
 	def execute(self):
-		"""see Context.execute"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()
@@ -900,7 +908,9 @@ class ListContext(BuildContext):
 
 	cmd = 'list'
 	def execute(self):
-		"""see Context.execute"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()

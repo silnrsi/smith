@@ -262,7 +262,9 @@ class Dist(Context.Context):
 	ext_algo = {}
 
 	def execute(self):
-		"See waflib.Context.Context.execute"
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.recurse([os.path.dirname(Context.g_module.root_path)])
 		self.archive()
 
@@ -396,7 +398,9 @@ class DistCheck(Dist):
 	cmd = 'distcheck'
 
 	def execute(self):
-		"See waflib.Context.Context.execute"
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.recurse([os.path.dirname(Context.g_module.root_path)])
 		self.archive()
 		self.check()

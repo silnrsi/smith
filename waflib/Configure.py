@@ -163,7 +163,9 @@ class ConfigurationContext(Context.Context):
 			conf.fatal('could not create the build directory %s' % self.bldnode.abspath())
 
 	def execute(self):
-		"""See Context.prepare"""
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		self.init_dirs()
 
 		self.cachedir = self.bldnode.make_node(Build.CACHE_DIR)
@@ -354,10 +356,10 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 	Versions should be supplied as hex. 0x01000000 means 1.0.0,
 	0x010408 means 1.4.8, etc.
 
-	@type  mini: number, tuple or string
-	@param mini: Minimum required version
-	@type  maxi: number, tuple or string
-	@param maxi: Maximum allowed version
+	:type  mini: number, tuple or string
+	:param mini: Minimum required version
+	:type  maxi: number, tuple or string
+	:param maxi: Maximum allowed version
 	"""
 	self.start_msg('Checking for waf version in %s-%s' % (str(mini), str(maxi)))
 	ver = Context.HEXVERSION
@@ -371,9 +373,9 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 @conf
 def find_file(self, filename, path_list=[]):
 	"""finds a file in a list of paths
-	@param filename: name of the file to search for
-	@param path_list: list of directories to search
-	@return: the first occurrence filename or '' if filename could not be found
+	:param filename: name of the file to search for
+	:param path_list: list of directories to search
+	:return: the first occurrence filename or '' if filename could not be found
 	"""
 	for n in Utils.to_list(filename):
 		for d in Utils.to_list(path_list):
