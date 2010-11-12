@@ -16,16 +16,24 @@ from waflib import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
 """
-The default waf commands
+Constant representing the default waf commands displayed in::
 
-They cannot be overriden
+	$ waf --help
+
 """
 
 options = {}
-"""A dictionary of options received from parsing"""
+"""
+A dictionary representing the command-line options::
+
+	$ waf --foo=bar
+
+"""
 
 commands = []
-"""List of commands to execute"""
+"""
+List of commands to execute extracted from the command-line. This list is consumed during the execution, see :py:func:`waflib.Scripting.run_commands`.
+"""
 
 lockfile = os.environ.get('WAFLOCK', '.lock-wafbuild')
 try: cache_global = os.path.abspath(os.environ['WAFCACHE'])
@@ -87,7 +95,7 @@ class opt_parser(optparse.OptionParser):
 
 	def get_usage(self):
 		"""
-		Returns the message to print on ``waf --help``
+		Return the message to print on ``waf --help``
 		"""
 		cmds_str = {}
 		for cls in Context.classes:
@@ -169,21 +177,44 @@ class OptionsContext(Context.Context):
 		return count
 
 	def add_option(self, *k, **kw):
-		"Proxy for optparse.add_option"
+		"""
+		Wrapper for optparse.add_option::
+
+			def options(ctx):
+				ctx.add_option('-u', '--use', dest='use', default=False, action='store_true',
+					help='a boolean option')
+		"""
 		self.parser.add_option(*k, **kw)
 
 	def add_option_group(self, *k, **kw):
-		"Proxy for optparse.add_option_group"
+		"""
+		Wrapper for optparse.add_option_group::
+
+			def options(ctx):
+				gr = optparse.OptionGroup(self, 'special options')
+				ctx.add_option_group(gr)
+				gr.add_option('-u', '--use', dest='use', default=False, action='store_true')
+		"""
 		return self.parser.add_option_group(*k, **kw)
 
 	def get_option_group(self, opt_str):
-		"Proxy for optparse.get_option_group"
+		"""
+		Wrapper for optparse.get_option_group::
+
+			def options(ctx):
+				gr = get_option_group('configure options')
+				gr.add_option('-o', '--out', action='store', default='',
+					help='build dir for the project', dest='out')
+
+		"""
 		return self.parser.get_option_group(opt_str)
 
 	def parse_args(self, _args=None):
 		"""
-		parse_args is defined separately to allow parsing arguments from somewhere else
-		than the Waf command line
+		Parse arguments from a list (not bound to the command-line).
+
+		:param _args: arguments
+		:type _args: list of strings
 		"""
 		global options, commands
 		(options, leftover_args) = self.parser.parse_args(args=_args)
@@ -196,7 +227,9 @@ class OptionsContext(Context.Context):
 			self.load('errcheck')
 
 	def execute(self):
-		"See :py:func:``waflib.Context.Context.execute``"
+		"""
+		See :py:func:`waflib.Context.Context.execute`
+		"""
 		super(OptionsContext, self).execute()
 		self.parse_args()
 
