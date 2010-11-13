@@ -30,16 +30,16 @@ else:
 	urlopen = request.urlopen
 
 BREAK    = 'break'
-"""in case of error, break"""
+"""In case of a configuration error, break"""
 
 CONTINUE = 'continue'
-"""in case of error, continue"""
+"""In case of a configuration error, continue"""
 
 WAF_CONFIG_LOG = 'config.log'
-"""name of the configuration log file"""
+"""Name of the configuration log file"""
 
 autoconfig = False
-"""execute the configuration automatically"""
+"""Execute the configuration automatically"""
 
 conf_template = '''# project %(app)s configured on %(now)s by
 # waf %(wafver)s (abi %(abi)s, python %(pyver)x on %(systype)s)
@@ -48,13 +48,16 @@ conf_template = '''# project %(app)s configured on %(now)s by
 
 def download_check(node):
 	"""
-	hook to check for the tools which are downloaded
-	a white list is a possibility (list of sha1 hashes for example)
+	Hook to check for the tools which are downloaded. Replace with your function if necessary.
 	"""
 	Logs.warn('replace me to check %r' % node)
 
 def download_tool(tool, force=False):
-	"""downloads a tool from the waf repository"""
+	"""
+	Download a Waf tool from the remote repository defined in :py:const:`waflib.Context.remote_repo`::
+
+		$ waf configure --download
+	"""
 	for x in Utils.to_list(Context.remote_repo):
 		for sub in Utils.to_list(Context.remote_locs):
 			url = '/'.join((x, sub, tool + '.py'))
@@ -90,6 +93,10 @@ class ConfigurationContext(Context.Context):
 	cmd = 'configure'
 
 	error_handlers = []
+	"""
+	Additional functions to handle configuration errors
+	"""
+
 	def __init__(self, **kw):
 		super(self.__class__, self).__init__(**kw)
 		self.environ = dict(os.environ)
@@ -109,12 +116,24 @@ class ConfigurationContext(Context.Context):
 
 	def setenv(self, name, env=None):
 		"""
-		set a new config set for conf.env
+		Set a new config set for conf.env
 
-		the name is the filename prefix to save to  c4che/name_cache.py
-		the name is also used as variants by the build commands
-		although related to variants, you may store whatever kind of data you
-		like, and obtain it during the build by calling bld.env_of_name[name]
+		The name is the filename prefix to save to ``c4che/NAME_cache.py``, and it
+		is also used as *variants* by the build commands.
+		Though related to variants, whatever kind of data may be stored in the config set::
+
+			def configure(cfg):
+				cfg.env.ONE = 1
+				cfg.setenv('foo')
+				cfg.env.ONE = 2
+
+			def build(bld):
+				2 == bld.env_of_name('foo').ONE
+
+		:param name: name of the configuration set
+		:type name: string
+		:param env: ConfigSet to copy, or an empty ConfigSet is created
+		:type env: :py:class:`waflib.ConfigSet.ConfigSet`
 		"""
 		if not env:
 			env = ConfigSet.ConfigSet()
@@ -125,16 +144,18 @@ class ConfigurationContext(Context.Context):
 		self.variant = name
 
 	def get_env(self):
-		"""getter for the env property"""
+		"""Getter for the env property"""
 		return self.all_envs[self.variant]
 	def set_env(self, val):
-		"""setter for the env property"""
+		"""Setter for the env property"""
 		self.all_envs[self.variant] = val
 
 	env = property(get_env, set_env)
 
 	def init_dirs(self):
-		"""Initializes the project directory and the build directory"""
+		"""
+		Initialize the project directory and the build directory
+		"""
 
 		top = self.top_dir
 		if not top:
@@ -226,7 +247,7 @@ class ConfigurationContext(Context.Context):
 		env.store(Context.out_dir + os.sep + Options.lockfile)
 
 	def prepare_env(self, env):
-		"""insert various variables in the environment"""
+		"""Insert *PREFIX*, *BINDIR* and *LIBDIR* values in ``conf.env``"""
 		if not env.PREFIX:
 			env.PREFIX = os.path.abspath(os.path.expanduser(Options.options.prefix))
 		if not env.BINDIR:
@@ -235,7 +256,7 @@ class ConfigurationContext(Context.Context):
 			env.LIBDIR = Utils.subst_vars('${PREFIX}/lib', env)
 
 	def store(self):
-		"""Saves the config results into the cache file"""
+		"""Save the config results into the cache file"""
 		n = self.cachedir.make_node('build.config.py')
 		n.write('version = 0x%x\ntools = %r\n' % (Context.HEXVERSION, self.tools))
 
@@ -247,7 +268,9 @@ class ConfigurationContext(Context.Context):
 			tmpenv.store(os.path.join(self.cachedir.abspath(), key + Build.CACHE_SUFFIX))
 
 	def load(self, input, tooldir=None, funs=None, download=True):
-		"loads a waf tool"
+		"""
+		Load Waf tools, which will be imported whenever a build is started.
+		"""
 
 		tools = Utils.to_list(input)
 		if tooldir: tooldir = Utils.to_list(tooldir)
@@ -287,19 +310,39 @@ class ConfigurationContext(Context.Context):
 			self.tools.append({'tool':tool, 'tooldir':tooldir, 'funs':funs})
 
 	def post_recurse(self, node):
-		"""records the path and a hash of the scripts visited, see Context.post_recurse"""
+		"""
+		Records the path and a hash of the scripts visited, see :py:meth:`waflib.Context.Context.post_recurse`
+
+		:param node: script
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 		super(ConfigurationContext, self).post_recurse(node)
 		self.hash = hash((self.hash, node.read('rb')))
 		self.files.append(node.abspath())
 
 	def add_os_flags(self, var, dest=None):
-		"""Imports operating system environment values into an env dict"""
+		"""
+		Import operating system environment values into ``conf.env`` dict::
+
+			def configure(conf):
+				conf.add_os_flags('CFLAGS')
+
+		:param var: variable to use
+		:type var: string
+		:param dest: destination variable, by default the same as var
+		:type dest: string
+		"""
 		# do not use 'get' to make certain the variable is not defined
 		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
 		except KeyError: pass
 
 	def cmd_to_list(self, cmd):
-		"""Detects if a command is written in pseudo shell like 'ccache g++'"""
+		"""
+		Detect if a command is written in pseudo shell like ``ccache g++`` and return a list.
+
+		:param cmd: command
+		:type cmd: a string or a list of string
+		"""
 		if isinstance(cmd, str) and cmd.find(' '):
 			try:
 				os.stat(cmd)
@@ -310,7 +353,13 @@ class ConfigurationContext(Context.Context):
 		return cmd
 
 	def eval_rules(self, rules):
-		"""Executes the configuration tests"""
+		"""
+		Execute the configuration tests. The method :py:meth:`waflib.Configure.ConfigurationContext.err_handler`
+		is used to process the eventual exceptions
+
+		:param rules: list of configuration method names
+		:type rules: list of string
+		"""
 		self.rules = Utils.to_list(rules)
 		for x in self.rules:
 			f = getattr(self, x)
@@ -327,7 +376,14 @@ class ConfigurationContext(Context.Context):
 					raise
 
 	def err_handler(self, fun, error):
-		"""error handler for the configuration tests, the default is to let the exceptions rise"""
+		"""
+		Error handler for the configuration tests, the default is to let the exception raise
+
+		:param fun: configuration test
+		:type fun: method
+		:param error: exception
+		:type error: exception
+		"""
 		pass
 
 def conf(f):

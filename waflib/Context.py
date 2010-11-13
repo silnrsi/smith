@@ -212,6 +212,9 @@ class Context(ctx):
 		"""
 		Method executed immediately before a folder is read by :py:meth:`waflib.Context.Context.recurse`. The node given is set
 		as an attribute ``self.cur_script``, and as the current path ``self.path``
+
+		:param node: script
+		:type node: :py:class:`waflib.Node.Node`
 		"""
 		self.stack_path.append(self.cur_script)
 
@@ -221,6 +224,9 @@ class Context(ctx):
 	def post_recurse(self, node):
 		"""
 		Restore ``self.cur_script`` and ``self.path`` right after :py:meth:`waflib.Context.Context.recurse` terminates.
+
+		:param node: script
+		:type node: :py:class:`waflib.Node.Node`
 		"""
 		self.cur_script = self.stack_path.pop()
 		if self.cur_script:
