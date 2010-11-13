@@ -735,16 +735,6 @@ class InstallContext(BuildContext):
 		self.uninstall = []
 		self.is_install = INSTALL
 
-	def execute(self):
-		"""
-		See :py:func:`waflib.Context.Context.execute`
-		"""
-		self.restore()
-		if not self.all_envs:
-			self.load_envs()
-
-		self.execute_build()
-
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""
 		Copy a file from src to tgt with given file permissions. The actual copy is not performed
