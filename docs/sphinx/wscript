@@ -5,15 +5,20 @@
 import sys, os
 from Utils import subprocess
 
-out = "build"
+"""
+"""
+
+top = '.'
+out = 'build'
 
 def configure(cfg):
 	cfg.find_program("sphinx-build", var="SPHINX_BUILD")
 
 def build(bld):
 	bld(
- 	 rule="${SPHINX_BUILD} -b html -d %s . %s" % (os.path.join(out, "doctrees"), os.path.join(out, "html")),
-	 name="sphinx_html",
-	 cwd = bld.path.abspath(),
-	 always=True,
+		rule   = "${SPHINX_BUILD} -b html -d %s . %s" % (os.path.join(out, "doctrees"), os.path.join(out, "html")),
+		cwd    = bld.path.abspath(),
+		source = bld.path.parent.parent.find_dir('waflib').ant_glob('**/*.py'),
+		target = 'build/html/index.html'
     )
+
