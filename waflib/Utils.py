@@ -543,6 +543,7 @@ def nogc(fun):
 		finally:
 			gc.enable()
 		return ret
+	f.__doc__ = fun.__doc__
 	return f
 
 def run_once(fun):
