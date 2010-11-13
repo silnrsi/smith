@@ -206,7 +206,7 @@ class BuildContext(Context.Context):
 
 	def execute(self):
 		"""
-		See :py:func:`waflib.Context.Context.execute`
+		Restore the data from previous builds and call :py:meth:`waflib.Build.BuildContext.execute_build`. Overrides from :py:func:`waflib.Context.Context.execute`
 		"""
 		self.restore()
 		if not self.all_envs:
@@ -244,7 +244,7 @@ class BuildContext(Context.Context):
 
 	def restore(self):
 		"""
-		Loads the cache from the disk (pickle)
+		Load the data from a previous run, sets the attributes listed in :py:const:`waflib.Build.SAVED_ATTRS`
 		"""
 		try:
 			env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, 'build.config.py'))
@@ -283,7 +283,10 @@ class BuildContext(Context.Context):
 		self.init_dirs()
 
 	def store(self):
-		"Stores the cache on disk (pickle), see self.restore - uses a temporary file to avoid problems with ctrl+c"
+		"""
+		Store the data for next runs, sets the attributes listed in :py:const:`waflib.Build.SAVED_ATTRS`. Uses a temporary
+		file to avoid problems on ctrl+c.
+		"""
 
 		data = {}
 		for x in SAVED_ATTRS:
@@ -316,7 +319,10 @@ class BuildContext(Context.Context):
 		os.rename(db + '.tmp', db)
 
 	def compile(self):
-		"""The cache file is not written if nothing was build at all (build is up to date)"""
+		"""
+		Run the build by creating an instance of :py:class:`waflib.Runner.Parallel`
+		The cache file is not written if the build is up to date (no task executed).
+		"""
 		Logs.debug('build: compile()')
 
 		# use another object to perform the producer-consumer logic (reduce the complexity)
@@ -1126,5 +1132,5 @@ class StepContext(BuildContext):
 							Logs.info('%s -> %r' % (str(tsk), ret))
 
 BuildContext.store = Utils.nogc(BuildContext.store)
-BuildContext.load = Utils.nogc(BuildContext.load)
+BuildContext.restore = Utils.nogc(BuildContext.restore)
 
