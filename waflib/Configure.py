@@ -5,18 +5,11 @@
 """
 Configuration system
 
-A configuration instance is created when "waf configure" is called, it is used to:
+A :py:class:`waflib.Configure.ConfigurationContext` instance is created when ``waf configure`` is called, it is used to:
+
 * create data dictionaries (ConfigSet instances)
 * store the list of modules to import
-
-The old model (copied from Scons) was to store logic (mapping file extensions to functions)
-along with the data. In Waf a way was found to separate that logic by adding an indirection
-layer (storing the names in the ConfigSet instances)
-
-In the new model, the logic is more object-oriented, and the user scripts provide the
-logic. The data files (ConfigSets) must contain configuration data only (flags, ..).
-
-Note: the c/c++ related code is in the module waflib.Tools.c_config
+* hold configuration routines such as ``find_program``, etc
 """
 
 import os, shlex, sys, time
