@@ -97,14 +97,7 @@ class BuildContext(Context.Context):
 		# just the structure here
 		self.current_group = 0
 		"""
-		Current build group. Consider the following example::
-
-			def build(bld):
-				bld(rule='touch ${TGT}', target='foo.txt')
-				bld.add_group() # now the current group is 1
-				bld(rule='touch ${TGT}', target='bar.txt')
-				bld.current_group = 0 # now the current group is 0
-				bld(rule='touch ${TGT}', target='truc.txt') # build truc.txt before bar.txt
+		Current build group
 		"""
 
 		self.groups = []
@@ -495,7 +488,9 @@ class BuildContext(Context.Context):
 		return msg
 
 	def declare_chain(self, *k, **kw):
-		"""Wrapper for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
+		"""
+		Wrapper for :py:func:`waflib.TaskGen.declare_chain` provided for convenience
+		"""
 		return TaskGen.declare_chain(*k, **kw)
 
 	def pre_build(self):
@@ -571,7 +566,16 @@ class BuildContext(Context.Context):
 		return ''
 
 	def get_group_idx(self, tg):
-		"""group the task generator tg belongs to, used by flush() for --target=xyz"""
+		"""
+		Index of the group containing the task generator given as argument::
+
+			def build(bld):
+				tg = bld(name='nada')
+				0 == bld.get_group_idx(tg)
+
+		:param tg: Task generator object
+		:type tg: :py:class:`waflib.TaskGen.task_gen`
+		"""
 		se = id(tg)
 		for i in range(len(self.groups)):
 			for t in self.groups[i]:
@@ -580,7 +584,14 @@ class BuildContext(Context.Context):
 		return None
 
 	def add_group(self, name=None, move=True):
-		"""add a new group of tasks/task generators"""
+		"""
+		Add a new group of tasks/task generators. By default the new group becomes the default group for new task generators.
+
+		:param name: name for this group
+		:type name: string
+		:param move: set the group created as default group (True by default)
+		:type move: bool
+		"""
 		#if self.groups and not self.groups[0].tasks:
 		#	error('add_group: an empty group is already present')
 		if name and name in self.group_names:
@@ -592,7 +603,19 @@ class BuildContext(Context.Context):
 			self.current_group = len(self.groups) - 1
 
 	def set_group(self, idx):
-		"""set the current group to be idx: now new task generators will be added to this group by default"""
+		"""
+		Set the current group to be idx: now new task generators will be added to this group by default::
+
+			def build(bld):
+				bld(rule='touch ${TGT}', target='foo.txt')
+				bld.add_group() # now the current group is 1
+				bld(rule='touch ${TGT}', target='bar.txt')
+				bld.set_group(0) # now the current group is 0
+				bld(rule='touch ${TGT}', target='truc.txt') # build truc.txt before bar.txt
+
+		:param idx: group name or group index
+		:type idx: string or int
+		"""
 		if isinstance(idx, str):
 			g = self.group_names[idx]
 			for i in range(len(self.groups)):
@@ -602,7 +625,10 @@ class BuildContext(Context.Context):
 			self.current_group = idx
 
 	def total(self):
-		"""task count: this value will be inaccurate if the task generators are posted lazily"""
+		"""
+		Approximate task count: this value may be inaccurate if task generators are posted lazily (see :py:attr:`waflib.Build.BuildContext.post_mode`).
+		The value :py:attr:`waflib.Runner.Parallel.total` is updated during the task execution.
+		"""
 		total = 0
 		for group in self.groups:
 			for tg in group:
@@ -613,7 +639,11 @@ class BuildContext(Context.Context):
 		return total
 
 	def get_targets(self):
-		"""return the task generator corresponding to the 'targets' list (used by get_build_iterator)"""
+		"""
+		Return the task generator corresponding to the 'targets' list, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator::
+
+			$ waf --targets=myprogram,myshlib
+		"""
 		to_post = []
 		min_grp = 0
 		for name in self.targets.split(','):
@@ -630,7 +660,9 @@ class BuildContext(Context.Context):
 		return (min_grp, to_post)
 
 	def post_group(self):
-		"""post the task generators from a group indexed by self.cur (used by get_build_iterator)"""
+		"""
+		Post the task generators from the group indexed by self.cur, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator`
+		"""
 		if self.targets == '*':
 			for tg in self.groups[self.cur]:
 				try:
@@ -663,7 +695,9 @@ class BuildContext(Context.Context):
 						f()
 
 	def get_tasks_group(self, idx):
-		"""obtain all the tasks for the group of num idx"""
+		"""
+		Return all the tasks for the group of num idx, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator`
+		"""
 		tasks = []
 		for tg in self.groups[idx]:
 			# TODO a try-except might be more efficient
@@ -674,7 +708,12 @@ class BuildContext(Context.Context):
 		return tasks
 
 	def get_build_iterator(self):
-		"""creates a generator object that returns tasks executable in parallel (yield)"""
+		"""
+		Creates a generator object that returns lists of tasks executable in parallel (yield)
+
+		:return: tasks which can be executed immediatly
+		:rtype: list of :py:class:`waflib.Task.TaskBase`
+		"""
 		self.cur = 0
 
 		if self.targets and self.targets != '*':
@@ -712,19 +751,23 @@ class BuildContext(Context.Context):
 			yield []
 
 
-	def install_dir(self, path, env=None):
-		"""
-		create empty folders for the installation (very rarely used) TODO
-		"""
-		return
+	#def install_dir(self, path, env=None):
+	#	"""
+	#	Create empty folders for the installation (very rarely used) TODO
+	#	"""
+	#	return
 
 class inst_task(Task.Task):
 	"""
-    task used for installing files and symlinks
+    Special task used for installing files and symlinks, it behaves both like a task
+	and like a task generator
 	"""
 	color = 'CYAN'
 
 	def post(self):
+		"""
+		Same interface as in :py:meth:`waflib.TaskGen.task_gen.post`
+		"""
 		buf = []
 		for x in self.source:
 			if isinstance(x, waflib.Node.Node):
@@ -746,25 +789,26 @@ class inst_task(Task.Task):
 
 	def runnable_status(self):
 		"""
-		installation tasks are always executed
-		this method is executed by the main thread (so it is safe to find nodes)
+		Installation tasks are always executed, so this method returns either :py:const:`waflib.Task.ASK_LATER` or :py:const:`waflib.Task.RUN_ME`.
 		"""
-
 		ret = super(inst_task, self).runnable_status()
 		if ret == Task.SKIP_ME:
 			return Task.RUN_ME
 		return ret
 
 	def __str__(self):
-		"""no display"""
+		"""Return an empty string to disable the display"""
 		return ''
 
 	def run(self):
-		"""the attribute 'exec_task' holds the method to execute (see Task.Task.run)"""
+		"""The attribute 'exec_task' holds the method to execute"""
 		return self.generator.exec_task()
 
 	def get_install_path(self):
-		"installation path prefixed by the destdir, the variables like in '${PREFIX}/bin' are substituted"
+		"""
+		Installation path obtained from ``self.dest`` and prefixed by the destdir.
+		The variables such as '${PREFIX}/bin' are substituted.
+		"""
 		dest = self.dest.replace('/', os.sep)
 		dest = Utils.subst_vars(self.dest, self.env)
 		if Options.options.destdir:
@@ -772,7 +816,9 @@ class inst_task(Task.Task):
 		return dest
 
 	def exec_install_files(self):
-		"""predefined method for installing files"""
+		"""
+		Predefined method for installing files
+		"""
 		destpath = self.get_install_path()
 		for x, y in zip(self.source, self.inputs):
 			if self.relative_trick:
@@ -783,12 +829,16 @@ class inst_task(Task.Task):
 			self.generator.bld.do_install(y.abspath(), destfile, self.chmod)
 
 	def exec_install_as(self):
-		"""predefined method for installing one file with a given name"""
+		"""
+		Predefined method for installing one file with a given name
+		"""
 		destfile = self.get_install_path()
 		self.generator.bld.do_install(self.inputs[0].abspath(), destfile, self.chmod)
 
 	def exec_symlink_as(self):
-		"""predefined method for installing a symlink"""
+		"""
+		Predefined method for installing a symlink
+		"""
 		destfile = self.get_install_path()
 		self.generator.bld.do_link(self.link, destfile)
 
