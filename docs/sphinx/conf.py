@@ -216,7 +216,7 @@ man_pages = [
      [u'Thomas Nagy'], 1)
 ]
 
-autodoc_default_flags = ['members', 'undoc-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'no-undoc-members', 'show-inheritance']
 autodoc_member_order = 'bysource'
 
 def maybe_skip_member(app, what, name, obj, skip, options):
