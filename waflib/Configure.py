@@ -240,7 +240,12 @@ class ConfigurationContext(Context.Context):
 		env.store(Context.out_dir + os.sep + Options.lockfile)
 
 	def prepare_env(self, env):
-		"""Insert *PREFIX*, *BINDIR* and *LIBDIR* values in ``conf.env``"""
+		"""
+		Insert *PREFIX*, *BINDIR* and *LIBDIR* values into ``env``
+
+		:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+		:param env: a ConfigSet, usually ``conf.env``
+		"""
 		if not env.PREFIX:
 			env.PREFIX = os.path.abspath(os.path.expanduser(Options.options.prefix))
 		if not env.BINDIR:
@@ -263,6 +268,15 @@ class ConfigurationContext(Context.Context):
 	def load(self, input, tooldir=None, funs=None, download=True):
 		"""
 		Load Waf tools, which will be imported whenever a build is started.
+
+		:param input: waf tools to import
+		:type input: list of string
+		:param tooldir: paths for the imports
+		:type tooldir: list of string
+		:param funs: functions to execute from the waf tools
+		:type funs: list of string
+		:param download: whether to download the tool from the waf repository
+		:type download: bool
 		"""
 
 		tools = Utils.to_list(input)
@@ -380,7 +394,12 @@ class ConfigurationContext(Context.Context):
 		pass
 
 def conf(f):
-	"decorator: attach new configuration functions"
+	"""
+	Decorator: attach new configuration functions to :py:class:`waflib.Build.BuildContext` and :py:class:`waflib.Configure.ConfigurationContext`
+
+	:param f: method to bind
+	:type f: function
+	"""
 	def fun(*k, **kw):
 		mandatory = True
 		if 'mandatory' in kw:
@@ -421,7 +440,9 @@ def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
 
 @conf
 def find_file(self, filename, path_list=[]):
-	"""finds a file in a list of paths
+	"""
+	Find a file in a list of paths
+
 	:param filename: name of the file to search for
 	:param path_list: list of directories to search
 	:return: the first occurrence filename or '' if filename could not be found
@@ -438,12 +459,14 @@ def find_program(self, filename, **kw):
 	"""
 	Search for a program on the operating system
 	Additional arguments in kw:
+
 	* path_list: list of paths to look into
 	* var: store the result to conf.env[var], by default use filename.upper()
-	* ext: list of extensions for the binary (do not forget the empty extension)
+	* ext: list of extensions for the binary (do not add an extension for portability)
 
-	when var is used, you may set os.environ[var] to help finding a specific program version, for example
-	$ VALAC=/usr/bin/valac_test waf configure
+	When var is used, you may set os.environ[var] to help finding a specific program version, for example::
+
+		$ VALAC=/usr/bin/valac_test waf configure
 	"""
 
 	exts = kw.get('exts', Options.platform == 'win32' and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
@@ -498,7 +521,20 @@ def find_program(self, filename, **kw):
 
 @conf
 def find_perl_program(self, filename, path_list=[], var=None, environ=None, exts=''):
-	"""Search for a program on the operating system"""
+	"""
+	Search for a perl program on the operating system
+
+	:param filename: file to search for
+	:type filename: string
+	:param path_list: list of paths to look into
+	:type path_list: list of string
+	:param var: store the results into *conf.env.var*
+	:type var: string
+	:param environ: operating system environment to pass to :py:func:`waflib.Configure.find_program`
+	:type environ: dict
+	:param exts: extensions given to :py:func:`waflib.Configure.find_program`
+	:type exts: list
+	"""
 
 	try:
 		app = self.find_program(filename, path_list=path_list, var=var, environ=environ, exts=exts)
