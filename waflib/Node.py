@@ -16,8 +16,8 @@ Node: filesystem structure, contains lists of nodes
 #. The methods :py:func:`Node.find_resource`, :py:func:`Node.find_dir` :py:func:`Node.find_or_declare` should be
    used when a build context is present
 
-#. Each instance of :py:class:`Context.Context` has a unique :py:class:`Node` subclass.
-   (aka: 'Nod3', see the :py:class:`Context.Context` initializer). A reference to the context owning a node is held as self.ctx
+#. Each instance of :py:class:`waflib.Context.Context` has a unique :py:class:`Node` subclass.
+   (:py:class:`waflib.Node.Nod3`, see the :py:class:`waflib.Context.Context` initializer). A reference to the context owning a node is held as self.ctx
 """
 
 import os, re, sys, shutil
@@ -54,15 +54,20 @@ exclude_regs = '''
 **/_darcs/**
 **/.DS_Store'''
 """
-These Utils.jar_regexp expressions are used by default to exclude files and dirs and also prune the directory tree
-while doing the recursive traversal in the ant_glob method of the Node class.
+Ant patterns for files and folders to exclude while doing the
+recursive traversal in :py:meth:`waflib.Node.Node.ant_glob`
 """
 
 # TODO optimize split_path by performing a replacement when unpacking?
 
 def split_path(path):
 	"""
-	split a path, but faster than os.path.split
+	Split a path by os.sep (This is not os.path.split)
+
+	:param path: path to split
+	:type path: string
+	:rtype: list of string
+	:return: the path, split
 	"""
 	return path.split('/')
 
@@ -88,8 +93,10 @@ elif sys.platform == 'win32':
 
 class Node(object):
 	"""
-	This class is divided into two parts, the basic methods meant for filesystem access, and
-	the ones which are bound to a context (the build context). The imports do not reflect this.
+	This class is organized in two parts
+
+	* The basic methods meant for filesystem access (compute paths, create folders, etc)
+	* The methods bound to a :py:class:`waflib.Build.BuildContext` (require ``bld.srcnode`` and ``bld.bldnode``)
 	"""
 
 	__slots__ = ('name', 'sig', 'children', 'parent', 'cache_abspath', 'cache_isdir')
@@ -136,11 +143,33 @@ class Node(object):
 		raise Errors.WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
-		"get the contents, assuming the node is a file"
+		"""
+		Return the contents of the file represented by this node::
+
+			def build(bld):
+				bld.path.find_node('wscript').read()
+
+		:type  fname: string
+		:param fname: Path to file
+		:type  m: string
+		:param m: Open mode
+		:rtype: string
+		:return: File contents
+		"""
 		return Utils.readf(self.abspath(), flags)
 
 	def write(self, data, flags='w'):
-		"write some text to the physical file, assuming the node is a file"
+		"""
+		Write some text to the physical file represented by this node::
+
+			def build(bld):
+				bld.path.make_node('foo.txt').write('Hello, world!')
+
+		:type  data: string
+		:param data: data to write
+		:type  flags: string
+		:param flags: Write mode
+		"""
 		f = None
 		try:
 			f = open(self.abspath(), flags)
@@ -150,11 +179,16 @@ class Node(object):
 				f.close()
 
 	def chmod(self, val):
-		"change file/dir permissions"
+		"""
+		Change file/dir permissions::
+
+			def build(bld):
+				bld.path.chmod(493) # 0755
+		"""
 		os.chmod(self.abspath(), val)
 
 	def delete(self):
-		"delete the file physically, do not destroy the nodes (meant for FILES)"
+		"""Delete the file/folder physically (but not the node)"""
 		try:
 			if getattr(self, 'children', None):
 				shutil.rmtree(self.abspath())
@@ -169,12 +203,12 @@ class Node(object):
 			pass
 
 	def suffix(self):
-		"scons-like - hot zone so do not touch"
+		"""Return the file extension"""
 		k = max(0, self.name.rfind('.'))
 		return self.name[k:]
 
 	def height(self):
-		"amount of parents"
+		"""Depth in the folder hierarchy from the filesystem root or from all the file drives"""
 		d = self
 		val = -1
 		while d:
@@ -183,11 +217,11 @@ class Node(object):
 		return val
 
 	def listdir(self):
-		"list the directory contents"
+		"""List the folder contents"""
 		return Utils.listdir(self.abspath())
 
 	def mkdir(self):
-		"write a directory for the node"
+		"""Create a folder represented by this node"""
 		if getattr(self, 'cache_isdir', None):
 			return
 
@@ -213,7 +247,12 @@ class Node(object):
 		self.cache_isdir = True
 
 	def find_node(self, lst):
-		"read the file system, make the nodes as needed"
+		"""
+		Find a node on the file system (files or folders), create intermediate nodes as needed
+
+		:param lst: path
+		:type lst: string or list of string
+		"""
 
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
@@ -251,7 +290,12 @@ class Node(object):
 		return ret
 
 	def make_node(self, lst):
-		"make a branch of nodes"
+		"""
+		Find or create a node without looking on the filesystem
+
+		:param lst: path
+		:type lst: string or list of string
+		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
 
@@ -271,7 +315,12 @@ class Node(object):
 		return cur
 
 	def search(self, lst):
-		"dumb search for existing nodes"
+		"""
+		Search for a node without looking on the filesystem
+
+		:param lst: path
+		:type lst: string or list of string
+		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
 
@@ -287,12 +336,17 @@ class Node(object):
 			pass
 
 	def path_from(self, node):
-		"""path of this node seen from the other
-			self = foo/bar/xyz.txt
-			node = foo/stuff/
-			-> ../bar/xyz.txt
 		"""
-		# common root in rev 7673
+		Path of this node seen from the other::
+
+			def build(bld):
+				n1 = bld.path.find_node('foo/bar/xyz.txt')
+				n2 = bld.path.find_node('foo/stuff/')
+				n1.path_from(n2) # './bar/xyz.txt'
+
+		:param node: path to use as a reference
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 
 		c1 = self
 		c2 = node
@@ -327,8 +381,7 @@ class Node(object):
 
 	def abspath(self):
 		"""
-		absolute path
-		cache into the build context, cache_node_abspath
+		Absolute path. A cache is kept in the context as ``cache_node_abspath``
 		"""
 		try:
 			return self.cache_abspath
@@ -347,7 +400,16 @@ class Node(object):
 		return val
 
 	def is_child_of(self, node):
-		"does this node belong to the subtree node"
+		"""
+		Does this node belong to the subtree node?::
+
+			def build(bld):
+				node = bld.path.find_node('wscript')
+				node.is_child_of(bld.path) # True
+
+		:param node: path to use as a reference
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 		p = self
 		diff = self.height() - node.height()
 		while diff > 0:
@@ -355,31 +417,23 @@ class Node(object):
 			p = p.parent
 		return id(p) == id(node)
 
-	def find_nodes(self, find_dirs=True, find_files=True, match_fun=lambda x: True):
-		"""
-		Recursively finds nodes
-
-		:param find_dirs: whether to return directories
-		:param find_files: whether to return files
-		:param match_fun: matching function, taking a node as parameter
-		:rtype generator
-		:return a generator that iterates over all the requested files
-		"""
-		files = self.listdir()
-		for f in files:
-			node = self.make_node([f])
-			if os.path.isdir(node.abspath()):
-				if find_dirs and match_fun(node):
-					yield node
-				gen = node.find_nodes(find_dirs, find_files, match_fun)
-				for g in gen:
-					yield g
-			else:
-				if find_files and match_fun(node):
-					yield node
-
 	def ant_iter(self, accept=None, maxdepth=25, pats=[], dir=False, src=True, remove=True):
-		"semi-private method used by ant_glob"
+		"""
+		Semi-private and recursive method used by ant_glob.
+
+		:param accept: function used for accepting/rejecting a node, returns the patterns that can be still accepted in recursion
+		:type accept: function
+		:param maxdepth: maximum depth in the filesystem (25)
+		:type maxdepth: int
+		:param pats: list of patterns to accept and list of patterns to exclude
+		:type pats: tuple
+		:param dir: return folders too (False by default)
+		:type dir: bool
+		:param src: return files (True by default)
+		:type src: bool
+		:param remove: remove files/folders that do not exist (True by default)
+		:type remove: bool
+		"""
 		dircont = self.listdir()
 		dircont.sort()
 
@@ -392,7 +446,6 @@ class Node(object):
 			self.children = {}
 
 		for name in dircont:
-
 			npats = accept(name, pats)
 			if npats and npats[0]:
 				accepted = [] in npats[0]
@@ -424,19 +477,19 @@ class Node(object):
 		* ``..`` find files having two dot characters
 
 		For more information see http://ant.apache.org/manual/dirtasks.html
-		GOTCHA: the nodes that correspond to files and folders that do not exist will be removed
-		This method calls ant_iter internally
+
+		The nodes that correspond to files and folders that do not exist will be removed
 
 		:param incl: ant patterns or list of patterns to include
 		:type incl: string or list of strings
 		:param excl: ant patterns or list of patterns to exclude
 		:type excl: string or list of strings
 		:param dir: return folders too (False by default)
-		:type dir: boolean
+		:type dir: bool
 		:param src: return files (True by default)
-		:type src: boolean
-		:param remove: remove files (True by default)
-		:type remove: boolean
+		:type src: bool
+		:param remove: remove files/folders that do not exist (True by default)
+		:type remove: bool
 		:param maxdepth: maximum depth of recursion
 		:type maxdepth: int
 		"""
@@ -499,13 +552,46 @@ class Node(object):
 
 		return ret
 
+	def find_nodes(self, find_dirs=True, find_files=True, match_fun=lambda x: True):
+		# FIXME not part of the stable API: find_node vs find_nodes? consistency with argument names on other functions?
+		x = """
+		Recursively finds nodes::
+
+			def configure(cnf):
+				cnf.find_nodes()
+
+		:param find_dirs: whether to return directories
+		:param find_files: whether to return files
+		:param match_fun: matching function, taking a node as parameter
+		:rtype generator
+		:return: a generator that iterates over all the requested files
+		"""
+		files = self.listdir()
+		for f in files:
+			node = self.make_node([f])
+			if os.path.isdir(node.abspath()):
+				if find_dirs and match_fun(node):
+					yield node
+				gen = node.find_nodes(find_dirs, find_files, match_fun)
+				for g in gen:
+					yield g
+			else:
+				if find_files and match_fun(node):
+					yield node
+
+
 	# --------------------------------------------------------------------------------
 	# the following methods require the source/build folders (bld.srcnode/bld.bldnode)
 	# using a subclass is a possibility, but is that really necessary?
 	# --------------------------------------------------------------------------------
 
 	def is_src(self):
-		"""note: !is_src does not imply is_bld()"""
+		"""
+		True if the node is below the source directory
+		note: !is_src does not imply is_bld()
+
+		:rtype: bool
+		"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -518,7 +604,12 @@ class Node(object):
 		return False
 
 	def is_bld(self):
-		"""note: !is_bld does not imply is_src"""
+		"""
+		True if the node is below the build directory
+		note: !is_bld does not imply is_src
+
+		:rtype: bool
+		"""
 		cur = self
 		y = id(self.ctx.bldnode)
 		while cur.parent:
@@ -528,7 +619,11 @@ class Node(object):
 		return False
 
 	def get_src(self):
-		"""for a build node, will return the equivalent src node (or self if not possible)"""
+		"""
+		Return the equivalent src node (or self if not possible)
+
+		:rtype: :py:class:`waflib.Node.Node`
+		"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -544,7 +639,11 @@ class Node(object):
 		return self
 
 	def get_bld(self):
-		"""for a src node, will return the equivalent bld node (or self if not possible)"""
+		"""
+		Return the equivalent bld node (or self if not possible)
+
+		:rtype: :py:class:`waflib.Node.Node`
+		"""
 		cur = self
 		x = id(self.ctx.srcnode)
 		y = id(self.ctx.bldnode)
@@ -561,7 +660,10 @@ class Node(object):
 
 	def find_resource(self, lst):
 		"""
-		try to find a declared build node or a source file
+		Try to find a declared build node or a source file
+
+		:param lst: path
+		:type lst: string or list of string
 		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
@@ -586,6 +688,9 @@ class Node(object):
 		if no node is found, go to the source directory
 		try to find an existing node in the source directory
 		if no node is found, create it in the build directory
+
+		:param lst: path
+		:type lst: string or list of string
 		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
@@ -615,7 +720,10 @@ class Node(object):
 
 	def find_dir(self, lst):
 		"""
-		search for a folder in the filesystem
+		Search for a folder in the filesystem
+
+		:param lst: path
+		:type lst: string or list of string
 		"""
 		if isinstance(lst, str):
 			lst = [x for x in split_path(lst) if x and x != '.']
@@ -631,7 +739,10 @@ class Node(object):
 
 	# helpers for building things
 	def change_ext(self, ext, ext_in=None):
-		"node of the same path, but with a different extension"
+		"""
+		:return: A build node of the same path, but with a different extension
+		:rtype: :py:class:`waflib.Node.Node`
+		"""
 		name = self.name
 		if ext_in is None:
 			k = name.rfind('.')
@@ -645,15 +756,20 @@ class Node(object):
 		return self.parent.find_or_declare([name])
 
 	def nice_path(self, env=None):
-		"printed in the console, open files easily from the launch directory"
+		"""
+		Return the path seen from the launch directory. It is often used for printing nodes in the console to open
+		files easily.
+
+		:param env: unused, left for compatibility with waf 1.5
+		"""
 		return self.path_from(self.ctx.launch_node())
 
 	def bldpath(self):
-		"path seen from the build directory default/src/foo.cpp"
+		"Path seen from the build directory default/src/foo.cpp"
 		return self.path_from(self.ctx.bldnode)
 
 	def srcpath(self):
-		"path seen from the source directory ../src/foo.cpp"
+		"Path seen from the source directory ../src/foo.cpp"
 		return self.path_from(self.ctx.srcnode)
 
 	def relpath(self):
@@ -690,13 +806,11 @@ class Node(object):
 		self.ctx.hash_cache[id(self)] = ret = self.sig
 		return ret
 
-
-
 pickle_lock = Utils.threading.Lock()
-"""lock mandatory for thread-safe node serialization"""
+"""Lock mandatory for thread-safe node serialization"""
 
 class Nod3(Node):
-	"""mandatory subclass for thread-safe node serialization"""
+	"""Mandatory subclass for thread-safe node serialization"""
 	pass # do not remove
 
 
