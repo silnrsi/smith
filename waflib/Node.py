@@ -476,6 +476,13 @@ class Node(object):
 		* ``**/*.class`` find all files ending by .class
 		* ``..`` find files having two dot characters
 
+		For example::
+
+			def configure(cfg):
+				cfg.path.ant_glob('**/*.cpp') # find all .cpp files
+				cfg.root.ant_glob('etc/*.txt') # using the filesystem root can be slow
+				cfg.path.ant_glob('*.cpp', excl=['*.c'], src=True, dir=False)
+
 		For more information see http://ant.apache.org/manual/dirtasks.html
 
 		The nodes that correspond to files and folders that do not exist will be removed

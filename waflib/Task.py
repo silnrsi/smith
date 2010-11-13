@@ -5,29 +5,21 @@
 """
 Tasks are small objects encapsulating a state of execution
 
-The task base (TaskBase) only has to provide the following methods:
+:py:class:`waflib.Task.TaskBase` subclasses should provide the following methods:
 
 * unique id
-
 * signature
-
 * runnable_status
-
 * run
-
 * post_run
 
-The task class (Task) deals with the filesystem (Node) uses the following
-in the computation of the signature:
+The direct subclass :py:class:`waflib.Task.Task` deals with the filesystem (:py:class:`waflib.Node.Node`)
+to compute a hash that is compared between the executions to see if the tasks have changed and must be
+executed. The following enter in the signature computation:
 
 * explicit dependencies (given files)
-
 * implicit dependencies (nodes given by an optional scanner method)
-
 * hashed data (from the config set 'env' associated)
-
-Custom task clases may be created by subclassing or factories
-
 """
 
 import os, shutil, re, tempfile
@@ -35,17 +27,28 @@ from waflib import Utils, Logs, Errors
 
 # task states
 NOT_RUN = 0
+"""The task was not executed yet"""
+
 MISSING = 1
+"""The task has been executed but the files have not been created"""
+
 CRASHED = 2
+"""The task execution returned a non-zero exit status"""
+
 EXCEPTION = 3
+"""An exception occured in the task execution"""
+
 SKIPPED = 8
+"""The task did not have to be executed"""
+
 SUCCESS = 9
+"""The task was successfully executed"""
 
 ASK_LATER = -1
 """The task is not ready to be executed"""
 
 SKIP_ME = -2
-"""The task does not have to be executed"""
+"""The task does not need to be executed"""
 
 RUN_ME = -3
 """The task must be executed"""
