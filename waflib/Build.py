@@ -109,7 +109,7 @@ class BuildContext(Context.Context):
 
 		self.groups = []
 		"""
-		Contains lists of task generators
+		List containing lists of task generators
 		"""
 		self.group_names = {}
 		"""
@@ -117,14 +117,24 @@ class BuildContext(Context.Context):
 		"""
 
 	def get_variant_dir(self):
-		"""getter for the variant_dir property"""
+		"""Getter for the variant_dir attribute"""
 		if not self.variant:
 			return self.out_dir
 		return os.path.join(self.out_dir, self.variant)
 	variant_dir = property(get_variant_dir, None)
 
 	def __call__(self, *k, **kw):
-		"""Creates a task generator"""
+		"""
+		Create a task generator, adding it to the current build group. The following forms are equivalent::
+
+			def build(bld):
+				tg = bld(a=1, b=2)
+
+			def build(bld):
+				tg = bld()
+				tg.a = 1
+				tg.b = 2
+		"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
 		self.task_gen_cache_names = {} # reset the cache, each time
@@ -148,7 +158,11 @@ class BuildContext(Context.Context):
 		pass
 
 	def load_envs(self):
-		"""load the data from the project directory into self.allenvs"""
+		"""
+		The configuration command creates files of the form ``build/c4che/NAMEcache.py``. This method
+		creates a :py:class:`waflib.ConfigSet.ConfigSet` instance for each ``NAME`` by reading those
+		files. The config sets are then stored in the dict :py:attr:`waflib.Build.BuildContext.allenvs`.
+		"""
 		try:
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
@@ -176,7 +190,12 @@ class BuildContext(Context.Context):
 					newnode.sig = h
 
 	def init_dirs(self):
-		"""Initializes the project directory and the build directory"""
+		"""
+		Initialize the project directory and the build directory by creating the nodes
+		:py:attr:`waflib.Build.BuildContext.srcnode` and :py:attr:`waflib.Build.BuildContext.bldnode`
+		corresponding to ``top_dir`` and ``variant_dir`` respectively. The ``bldnode`` directory will be
+		created if it does not exist.
+		"""
 
 		if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
 			raise Errors.WafError('The project was not configured: run "waf configure" first!')
@@ -196,7 +215,14 @@ class BuildContext(Context.Context):
 		self.execute_build()
 
 	def execute_build(self):
-		"""Executes the build, it is shared by install and uninstall"""
+		"""
+		Execute the build by:
+
+		* reading the scripts (see :py:meth:`waflib.Context.Context.recurse`)
+		* calling :py:meth:`waflib.Build.BuildContext.pre_build` to call user build functions
+		* calling :py:meth:`waflib.Build.BuildContext.compile` to process the tasks
+		* calling :py:meth:`waflib.Build.BuildContext.post_build` to call user build functions
+		"""
 
 		Logs.info("Waf: Entering directory `%s'" % self.variant_dir)
 		self.recurse([self.run_dir])
@@ -217,7 +243,9 @@ class BuildContext(Context.Context):
 		self.post_build()
 
 	def restore(self):
-		"Loads the cache from the disk (pickle)"
+		"""
+		Loads the cache from the disk (pickle)
+		"""
 		try:
 			env = ConfigSet.ConfigSet(os.path.join(self.cache_dir, 'build.config.py'))
 		except (IOError, OSError):
