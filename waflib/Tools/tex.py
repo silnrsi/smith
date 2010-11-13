@@ -114,6 +114,9 @@ class tex(Task.Task):
 						names.append(path)
 		parse_node(node)
 
+		for x in nodes:
+			x.parent.get_bld().mkdir()
+
 		debug("tex: found the following : %s and names %s" % (nodes, names))
 		return (nodes, names)
 
