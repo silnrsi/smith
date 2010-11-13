@@ -718,7 +718,20 @@ class InstallContext(BuildContext):
 		self.execute_build()
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
-		"""copy a file from src to tgt with given file permissions (will be overridden in UninstallContext)"""
+		"""
+		Copy a file from src to tgt with given file permissions. The actual copy is not performed
+		if the source and target file have the same size and the same timestamps. When the copy occurs,
+		the file is first removed and then copied (prevent stale inodes).
+
+		This method is overridden in :py:meth:`waflib.Build.UninstallContext.do_install` to remove the file.
+
+		:param src: file name as absolute path
+		:type src: string
+		:param tgt: file destination, as absolute path
+		:type tgt: string
+		:param chmod: installation mode
+		:type chmod: int
+		"""
 		d, _ = os.path.split(tgt)
 		Utils.check_dir(d)
 
@@ -755,7 +768,16 @@ class InstallContext(BuildContext):
 			raise Errors.WafError('Could not install the file %r' % tgt)
 
 	def do_link(self, src, tgt):
-		"""create a symlink from tgt to src (will be overridden in UninstallContext)"""
+		"""
+		Create a symlink from tgt to src.
+
+		This method is overridden in :py:meth:`waflib.Build.UninstallContext.do_link` to remove the symlink.
+
+		:param src: file name as absolute path
+		:type src: string
+		:param tgt: file destination, as absolute path
+		:type tgt: string
+		"""
 		d, _ = os.path.split(tgt)
 		Utils.check_dir(d)
 
@@ -774,7 +796,12 @@ class InstallContext(BuildContext):
 			Logs.info('- symlink %s (to %s)' % (tgt, src))
 
 	def run_task_now(self, tsk, postpone):
-		"""execute an installation task immediately"""
+		"""
+		This method is called by :py:meth:`waflib.Build.InstallContext.install_files`,
+		:py:meth:`waflib.Build.InstallContext.install_as` and :py:meth:`waflib.Build.InstallContext.symlink_as` immediately
+		after the installation task is created. Its role is to force the immediate execution if necessary, that is when
+		``postpone=False`` was given.
+		"""
 		tsk.post()
 		if not postpone:
 			if tsk.runnable_status() == Task.ASK_LATER:
@@ -783,7 +810,7 @@ class InstallContext(BuildContext):
 
 	def install_files(self, dest, files, env=None, chmod=Utils.O644, relative_trick=False, cwd=None, add=True, postpone=True):
 		"""
-		Install files on the system::
+		Create a task to install files on the system::
 
 			def build(bld):
 				bld.install_files('${DATADIR}', self.path.find_resource('wscript'))
@@ -798,6 +825,10 @@ class InstallContext(BuildContext):
 		:type relative_trick: bool
 		:param cwd: parent node for searching srcfile, when srcfile is not a :py:class:`waflib.Node.Node`
 		:type cwd: :py:class:`waflib.Node.Node`
+		:param add: add the task created to a build group - set ``False`` only if the installation task is created after the build has started
+		:type add: bool
+		:param postpone: execute the task immediately to perform the installation
+		:type postpone: bool
 		"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -816,7 +847,7 @@ class InstallContext(BuildContext):
 
 	def install_as(self, dest, srcfile, env=None, chmod=Utils.O644, cwd=None, add=True, postpone=True):
 		"""
-		Install a file with a different name::
+		Create a task to install a file on the system with a different name::
 
 			def build(bld):
 				bld.install_as('${PREFIX}/bin', 'myapp', chmod=Utils.O755)
@@ -829,6 +860,10 @@ class InstallContext(BuildContext):
 		:type cwd: :py:class:`waflib.Node.Node`
 		:param env: configuration set for performing substitutions in dest
 		:type env: Configuration set
+		:param add: add the task created to a build group - set ``False`` only if the installation task is created after the build has started
+		:type add: bool
+		:param postpone: execute the task immediately to perform the installation
+		:type postpone: bool
 		"""
 		tsk = inst_task(env=env or self.env)
 		tsk.bld = self
@@ -843,7 +878,7 @@ class InstallContext(BuildContext):
 
 	def symlink_as(self, dest, src, env=None, cwd=None, add=True, postpone=True):
 		"""
-		Create a symlink::
+		Create a task to install a symlink::
 
 			def build(bld):
 				bld.symlink_as('${PREFIX}/lib/libfoo.so', 'libfoo.so.1.2.3')
@@ -854,6 +889,10 @@ class InstallContext(BuildContext):
 		:type src: string
 		:param env: configuration set for performing substitutions in dest
 		:type env: Configuration set
+		:param add: add the task created to a build group - set ``False`` only if the installation task is created after the build has started
+		:type add: bool
+		:param postpone: execute the task immediately to perform the installation
+		:type postpone: bool
 		"""
 
 		if sys.platform == 'win32':
@@ -972,7 +1011,7 @@ class ListContext(BuildContext):
 	cmd = 'list'
 	def execute(self):
 		"""
-		See :py:func:`waflib.Context.Context.execute`
+		See :py:func:`waflib.Context.Context.execute`.
 		"""
 		self.restore()
 		if not self.all_envs:
@@ -1012,7 +1051,13 @@ class StepContext(BuildContext):
 		self.files = Options.options.files
 
 	def compile(self):
-		"""compile the files given in Option.options.files, use regular expression matching (see BuildContext.compile)"""
+		"""
+		Compile the tasks matching the input/output files given (regular expression matching). Derived from :py:meth:`waflib.Build.BuildContext.compile`::
+
+			$ waf step --files=foo.c,bar.c,in:truc.c,out:bar.o
+			$ waf step --files=in:foo.cpp.1.o # link task only
+
+		"""
 		if not self.files:
 			Logs.warn('Add a pattern for the debug build, for example "waf step --files=main.c,app"')
 			BuildContext.compile(self)
