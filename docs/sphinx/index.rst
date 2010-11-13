@@ -5,6 +5,7 @@ Waf v1.6.1 documentation
 
 	coremodules.rst
 	tools.rst
+	about.rst
 	copyright.rst
 
 	:ref:`genindex`
