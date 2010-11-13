@@ -7,7 +7,7 @@ The core modules
 Waf is based on 13 core modules which provide the main functionality of the framework.
 They may be used alone, although the support for programming languages or compilers is provided by extensions called Waf tools.
 
-.. diagram of the module dependencies
+.. image:: build/core.*
 
 .. toctree::
 	:maxdepth: 1
