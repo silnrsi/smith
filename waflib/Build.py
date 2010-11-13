@@ -343,7 +343,21 @@ class BuildContext(Context.Context):
 			raise Errors.BuildError(self.producer.error)
 
 	def setup(self, tool, tooldir=None, funs=None):
-		"""Loads the waf tools declared in the configuration section"""
+		"""
+		Import waf tools, used to import those accessed during the configuration::
+
+			def configure(conf):
+				conf.load('glib2')
+
+			def build(bld):
+				pass # glib2 is imported implicitly
+
+		:param tool: tool list
+		:type tool: list
+		:param tooldir: optional tool directory (sys.path)
+		:type tooldir: list of string
+		:param funs: unused variable
+		"""
 		if isinstance(tool, list):
 			for i in tool: self.setup(i, tooldir)
 			return
@@ -352,19 +366,31 @@ class BuildContext(Context.Context):
 		if hasattr(module, "setup"): module.setup(self)
 
 	def get_env(self):
-		"""getter for the env property"""
+		"""Getter for the env property"""
 		try:
 			return self.all_envs[self.variant]
 		except KeyError:
 			return self.all_envs['']
 	def set_env(self, val):
-		"""setter for the env property"""
+		"""Setter for the env property"""
 		self.all_envs[self.variant] = val
 
 	env = property(get_env, set_env)
 
 	def add_manual_dependency(self, path, value):
-		"""Adds a dependency from a node object to a path (string or node)"""
+		"""
+		Adds a dependency from a node object to a value::
+
+			def build(bld):
+				bld.add_manual_dependency(
+					bld.path.find_resource('wscript'),
+					bld.root.find_resource('/etc/fstab'))
+
+		:param path: file path
+		:type path: string or :py:class:`waflib.Node.Node`
+		:param value: value to depend on
+		:type value: :py:class:`waflib.Node.Node`, string, or function returning a string
+		"""
 		if isinstance(path, waflib.Node.Node):
 			node = path
 		elif os.path.isabs(path):
@@ -374,7 +400,7 @@ class BuildContext(Context.Context):
 		self.deps_man[id(node)].append(value)
 
 	def launch_node(self):
-		"""returns the launch directory as a node object"""
+		"""Returns the launch directory as a :py:class:`waflib.Node.Node` object"""
 		try:
 			# private cache
 			return self.p_ln
@@ -383,10 +409,16 @@ class BuildContext(Context.Context):
 			return self.p_ln
 
 	def hash_env_vars(self, env, vars_lst):
-		"""hash environment variables
-		['CXX', ..] -> [env['CXX'], ..] -> md5()
+		"""
+		Hash configuration set variables::
 
-		cached by build context
+			def build(bld):
+				bld.hash_env_vars(bld.env, ['CXX', 'CC'])
+
+		:param env: Configuration Set
+		:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+		:param vars_lst: list of variables
+		:type vars_list: list of string
 		"""
 
 		if not env.table:
@@ -414,8 +446,14 @@ class BuildContext(Context.Context):
 		return ret
 
 	def get_tgen_by_name(self, name):
-		"""Retrieves a task generator from its name or its target name
-		the name must be unique"""
+		"""
+		Retrieves a task generator from its name or its target name
+		the name must be unique::
+
+			def build(bld):
+				tg = bld(name='foo')
+				tg == bld.get_tgen_by_name('foo')
+		"""
 		cache = self.task_gen_cache_names
 		if not cache:
 			# create the index lazily
@@ -432,7 +470,9 @@ class BuildContext(Context.Context):
 			raise Errors.WafError('Could not find a task generator for the name %r' % name)
 
 	def progress_line(self, state, total, col1, col2):
-		"""Compute the progress bar"""
+		"""
+		Compute the progress bar used by ``waf -p``
+		"""
 		n = len(str(total))
 
 		Utils.rot_idx += 1
@@ -455,35 +495,57 @@ class BuildContext(Context.Context):
 		return msg
 
 	def declare_chain(self, *k, **kw):
-		"""alias for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
+		"""Wrapper for TaskGen.declare_chain (wrapper provided for convenience - avoid the import)"""
 		return TaskGen.declare_chain(*k, **kw)
 
 	def pre_build(self):
-		"""executes the user-defined methods before the build starts"""
+		"""Execute user-defined methods before the build starts, see :py:meth:`waflib.Build.BuildContext.add_pre_fun`"""
 		for m in getattr(self, 'pre_funs', []):
 			m(self)
 
 	def post_build(self):
-		"""executes the user-defined methods after the build is complete (no execution when the build fails)"""
+		"""Executes the user-defined methods after the build is successful, see :py:meth:`waflib.Build.BuildContext.add_post_fun`"""
 		for m in getattr(self, 'post_funs', []):
 			m(self)
 
 	def add_pre_fun(self, meth):
-		"""binds a method to be executed after the scripts are read and before the build starts"""
+		"""
+		Bind a method to execute after the scripts are read and before the build starts::
+
+			def mycallback(bld):
+				print("Hello, world!")
+
+			def build(bld):
+				bld.add_pre_fun(mycallback)
+		"""
 		try:
 			self.pre_funs.append(meth)
 		except AttributeError:
 			self.pre_funs = [meth]
 
 	def add_post_fun(self, meth):
-		"""binds a method to be executed immediately after the build is complete"""
+		"""
+		Bind a method to execute immediately after the build is successful::
+
+			def call_ldconfig(bld):
+				bld.exec_command('/sbin/ldconfig')
+
+			def build(bld):
+				if bld.cmd == 'install':
+					bld.add_pre_fun(call_ldconfig)
+		"""
 		try:
 			self.post_funs.append(meth)
 		except AttributeError:
 			self.post_funs = [meth]
 
 	def get_group(self, x):
-		"""get the group x (name or number), or the current group"""
+		"""
+		Get the group x, or return the current group if x is None
+
+		:param x: name or number or None
+		:type x: string, int or None
+		"""
 		if not self.groups:
 			self.add_group()
 		if x is None:
