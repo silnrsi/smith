@@ -79,11 +79,11 @@ class Parallel(object):
 		self.outstanding = []
 		self.maxjobs = MAXJOBS
 
-		# tasks that are awaiting for another task to complete
 		self.frozen = []
+		"""Tasks that cannot be executed immediately are put in this waiting list"""
 
-		# tasks returned the consumers pool
 		self.out = Queue(0)
+		"""Tasks that have been executed are returned by the consumers in this queue"""
 
 		self.count = 0 # tasks not in the producer area
 

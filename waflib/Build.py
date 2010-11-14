@@ -71,8 +71,14 @@ class BuildContext(Context.Context):
 		# ======================================= #
 		# cache variables
 
-		for v in 'task_sigs node_deps raw_deps'.split():
-			setattr(self, v, {})
+		self.task_sigs = {}
+		"""Signatures of the tasks, persists between build executions"""
+
+		self.node_deps = {}
+		"""Node dependencies found by task scanners, persists between build executions"""
+
+		self.raw_deps = {}
+		"""Custom data returned by the task scanners, persists between build executions"""
 
 		# list of folders that are already scanned
 		# so that we do not need to stat them one more time

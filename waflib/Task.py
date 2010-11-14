@@ -81,12 +81,12 @@ def f(tsk):
 
 def cache_outputs(cls):
 	"""
-	Task class decorator
+	Task class decorator, applied by default to all task classes unless they define the attribute 'nocache':
 
 	If bld.cache_global is defined and if the task instances produces output nodes,
 	the files will be copied into a folder in the cache directory
 
-	the files may also be retrieved from that folder, if it exists
+	The files may also be retrieved from that folder, if it exists
 	"""
 	m1 = cls.run
 	def run(self):
@@ -116,8 +116,9 @@ classes = {}
 
 class store_task_type(type):
 	"""
-	store the task types that have a name ending in _task into a map (remember the existing task types)
-	the attribute 'run_str' will be processed to compute a method 'run' on the task class
+	Metaclass: store the task types into :py:const:`waflib.Task.classes`.
+	The attribute 'run_str' will be processed to compute a method 'run' on the task class
+	The function :py:func:`waflib.Task.cache_outputs` is also applied to the class
 	"""
 	def __init__(cls, name, bases, dict):
 		super(store_task_type, cls).__init__(name, bases, dict)
@@ -145,7 +146,7 @@ class store_task_type(type):
 			classes[name] = cls
 
 evil = store_task_type('evil', (object,), {})
-"this variable is used to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
+"Variable used to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
 
 class TaskBase(evil):
 	"""Base class for all Waf tasks
@@ -165,19 +166,19 @@ class TaskBase(evil):
 	color = "GREEN"
 
 	ext_in = []
-	"""file extensions that objects of this task class might need"""
+	"""File extensions that objects of this task class might need"""
 
 	ext_out = []
-	"""file extensions that objects of this task class might create"""
+	"""File extensions that objects of this task class might create"""
 
 	before = []
-	"""list of task class names to execute before instances of this class"""
+	"""List of task class names to execute before instances of this class"""
 
 	after = []
-	"""list of task class names to execute after instances of this class"""
+	"""List of task class names to execute after instances of this class"""
 
 	hcode = ''
-	"""string representing an additional hash for the class representation"""
+	"""String representing an additional hash for the class representation"""
 
 	def __init__(self, *k, **kw):
 		"""
@@ -205,8 +206,7 @@ class TaskBase(evil):
 
 	def exec_command(self, cmd, **kw):
 		"""
-		'runner' zone is printed out for waf -v, see waflib/Options.py
-		also, ensure that a command is always run from somewhere
+		Wrapper for :py:meth:`waflib.Context.Context.exec_command` which sets a current working directory to ``build.variant_dir``
 		"""
 		bld = self.generator.bld
 		try:
@@ -217,13 +217,13 @@ class TaskBase(evil):
 		return bld.exec_command(cmd, **kw)
 
 	def runnable_status(self):
-		"RUN_ME SKIP_ME or ASK_LATER"
+		"""Return a task state in :py:const:`waflib.Task.RUN_ME`, :py:const:`waflib.Task.SKIP_ME` or :py:const:`waflib.Task.ASK_LATER`."""
 		return RUN_ME
 
 	def process(self):
 		"""
-		process a task and then put it back in the queue "master.out"
-		TODO find a better name for this method
+		Assume that the task has had a new attribute ``master`` which is an instance of :py:class:`waflib.Runner.Parallel`.
+		Execute the task and then put it back in the queue :py:attr:`waflib.Runner.Parallel.out` (may be replaced by subclassing).
 		"""
 		m = self.master
 		if m.stop:
@@ -270,21 +270,21 @@ class TaskBase(evil):
 		m.out.put(self)
 
 	def run(self):
-		"called to execute the task"
+		"Execute the task - Override in subclasses"
 		if hasattr(self, 'fun'):
 			return self.fun(self)
 		return 0
 
 	def post_run(self):
-		"update the dependency tree (node stats)"
+		" Override in subclasses."
 		pass
 
 	def log_display(self, bld):
-		"write the execution status on the context logger"
+		"Write the execution status on the context logger"
 		bld.to_log(self.display())
 
 	def display(self):
-		"print either the description (using __str__) or the progress bar or the ide output"
+		"Print either the description (using __str__) or the progress bar or the ide output"
 		col1 = Logs.colors(self.color)
 		col2 = Logs.colors.NORMAL
 
@@ -313,20 +313,23 @@ class TaskBase(evil):
 		return fs % (len(self.generator.bld.returned_tasks), self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
-		"retrieve an attribute from the instance or from the class (microoptimization here)"
+		"Retrieve an attribute from the instance or from the class (microoptimization here)"
 		ret = getattr(self, att, self)
 		if ret is self: return getattr(self.__class__, att, default)
 		return ret
 
 	def hash_constraints(self):
-		"identify a task type for all the constraints relevant for the scheduler: precedence, file production"
+		"Identify a task type for all the constraints relevant for the scheduler: precedence, file production"
 		cls = self.__class__
-		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out), cls.__name__)
+		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out), cls.__name__, cls.hcode)
 		h = hash(tup)
 		return h
 
 	def format_error(self):
-		"error message to display to the user (when a build fails)"
+		"""
+		Error message to display to the user when a build fails
+		:rtype: string
+		"""
 		msg = getattr(self, 'last_cmd', '')
 		if getattr(self, "err_msg", None):
 			return self.err_msg
@@ -357,15 +360,21 @@ class Task(TaskBase):
 		a task is (still) associated with a ConfigSet object, so make sure to pass an 'env'
 		"""
 		TaskBase.__init__(self, *k, **kw)
-		self.env = kw['env']
 
-		# inputs and outputs are nodes
-		# use setters when possible
+		self.env = kw['env']
+		"""ConfigSet object"""
+
 		self.inputs  = []
+		"""Input nodes"""
+
 		self.outputs = []
+		"""Output nodes"""
 
 		self.dep_nodes = []
+		"""Additional nodes to depend on"""
+
 		self.run_after = set([])
+		"""Set of tasks that must be executed before this one"""
 
 		# Additionally, you may define the following
 		#self.dep_vars  = 'PREFIX DATADIR'
@@ -446,7 +455,10 @@ class Task(TaskBase):
 		return ret
 
 	def runnable_status(self):
-		"return a status to tell if the task must be executed or not, see the constants SKIP_ME RUN_ME or ASK_LATER"
+		"""
+		Override :py:meth:`waflib.Task.TaskBase.runnable_status` to determine if the task is ready
+		to be run (:py:attr:`waflib.Task.Task.run_after`)
+		"""
 		#return 0 # benchmarking
 
 		for t in self.run_after:
@@ -485,10 +497,11 @@ class Task(TaskBase):
 
 	def post_run(self):
 		"""
-		The method post_run is called after the task is executed successfully
-		It stores the task signature as signature for the output nodes
-		the output nodes may also get the signature of the file contents (a bit slower),
-		a decorator method is provided to provide this behaviour to classes
+		Called after successful execution to update the cache data :py:class:`waflib.Node.Node` sigs
+		and :py:attr:`waflib.Build.BuildContext.task_sigs`.
+
+		The node signature is obtained from the task signature, but the output nodes may also get the signature
+		of their contents. See the class decorator :py:func:`waflib.Task.update_outputs` if you need this behaviour.
 		"""
 		bld = self.generator.bld
 		env = self.env
@@ -563,13 +576,18 @@ class Task(TaskBase):
 		return self.m.digest()
 
 	scan = None
-	"""this method, when provided, returns a tuple containing:
+	"""
+	This method, when provided, returns a tuple containing:
+
 	* a list of nodes corresponding to real files
 	* a list of names for files not found in path_lst
-	example:
 
-	def scan(self, node):
-		return ((), ())
+	For example::
+
+		from waflib.Task import Task
+		class mytask(Task):
+			def scan(self, node):
+				return ((), ())
 	"""
 
 	def sig_implicit_deps(self):

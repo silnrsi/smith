@@ -413,7 +413,8 @@ class Context(ctx):
 
 	def to_log(self, msg):
 		"""
-		Log some information to the logger (if present), or to stderr::
+		Log some information to the logger (if present), or to stderr. If the message is empty,
+		it is not printed::
 
 			def build(bld):
 				bld.to_log('starting the build')
