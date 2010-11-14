@@ -31,7 +31,7 @@ def build(bld):
 	bld(
 		rule   = "${SPHINX_BUILD} -b html -d %s . %s" % (os.path.join(out, "doctrees"), os.path.join(out, "html")),
 		cwd    = bld.path.abspath(),
-		source = bld.path.parent.parent.find_dir('waflib').ant_glob('**/*.py'),
+		source = bld.path.parent.parent.find_dir('waflib').ant_glob('**/*.py') + bld.path.ant_glob('*.rst'),
 		target = bld.path.find_or_declare('html/index.html')
     )
 
