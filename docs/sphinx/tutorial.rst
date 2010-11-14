@@ -96,4 +96,30 @@ The function *options* is another predefined command used for setting command-li
 
 The task generator declared in *bld* does not have a *rule* keyword, but a list of *features* which is used to reference methods that will call the appropriate rules. In this case, a rule is called for compiling the file, and another is used for linking the object files into the binary 'app'. Other tool-dependent features exist such as 'javac', 'cs', or 'tex'.
 
+A C and C++ project
+-------------------
+
+Here is a script for a more complicated project::
+
+	def options(opt):
+		opt.load('compiler_c compiler_cxx')
+	def configure(cnf):
+		cnf.load('compiler_c compiler_cxx')
+		conf.check(features='cxx cxxprogram', lib=['m'], cflags=['-Wall'], defines=['var=foo'], uselib_store='M')
+	def build(bld):
+		bld(features='c cshlib', source='b.c', target='mylib')
+		bld(features='c cxx cxxprogram', source='a.c main.cpp', target='app', use=['M','mylib'], lib=['dl'])
+
+The method :py:func:`waflib.Tools.c_config.check` executes a build internally to check if the library ``libm`` is present on the operating system.
+It will then define variables such as:
+
+* ``conf.env.LIB_M = ['m']``
+* ``conf.env.CFLAGS_M = ['-Wall']``
+* ``conf.env.DEFINES_M = ['var=foo']``
+
+By stating ``use=['M', 'mylib']``, the program app is going to inherit all the *M* variables defined
+during the configuration. The program will also use the library *mylib* and both the build order and the dependencies
+will be modified so that *mylib* is linked before *app*.
+
+The ``use`` attributes is also working for other languages such as java (dependencies between jar files) or c# (dependencies between assemblies).
 
