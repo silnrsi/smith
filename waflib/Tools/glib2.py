@@ -189,11 +189,12 @@ def r_change_ext(self, ext):
 
 @feature ('glib2')
 def process_settings(self):
-	if not self.env['GLIB_COMPILE_SCHEMAS']:
-		raise Errors.WafError ("Unable to process GSettings schemas - glib-compile-schemas was not found during configure")
-
 	enums_tgt_node = []
 	install_files = []
+
+	settings_schema_files = getattr(self, 'settings_schema_files', [])
+	if settings_schema_files and not self.env['GLIB_COMPILE_SCHEMAS']:
+		raise Errors.WafError ("Unable to process GSettings schemas - glib-compile-schemas was not found during configure")
 
 	# 1. process gsettings_enum_files (generate .enums.xml)
 	#
@@ -218,7 +219,7 @@ def process_settings(self):
 
 	# 2. process gsettings_schema_files (validate .gschema.xml files)
 	#
-	for schema in getattr(self, 'settings_schema_files',[]):
+	for schema in settings_schema_files:
 		schema_task = self.create_task ('glib_validate_schema')
 
 		install_files.append(schema)
