@@ -16,10 +16,10 @@ obtained after transforming the *source files*, but they are optional. In Waf, t
 
 In general, a project will consist of several phases:
 
-* configure: configuring the project, finding if the operating system has all the prerequisites for execution
+* configure: configure the project, find the location of the prerequisites
 * build: transform the source files into build files
 * install: install the build files
-* uninstall: uninstall the source files
+* uninstall: uninstall the build files
 * dist: create an archive of the source files
 * clean: remove the build files
 
@@ -63,7 +63,7 @@ by using the *${}* symbol, which reads the values from the attribute bld.env::
 		bld.env.MESSAGE = 'Hello, world!'
 		bld(rule='echo ${MESSAGE}', always=True)
 
-The bld object is an instance of :py:class:`waflib.Build.BuildContext`, its *env* attribute is an instance :py:class:`waflib.Config.ConfigSet`.
+The bld object is an instance of :py:class:`waflib.Build.BuildContext`, its *env* attribute is an instance :py:class:`waflib.ConfigSet.ConfigSet`.
 The values are set in this object to be shared/stored/loaded easily. Here is how to do the same thing by sharing data between the configuration and build::
 
 	def configure(cnf):
