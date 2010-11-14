@@ -523,7 +523,10 @@ class Task(TaskBase):
 
 	def sig_explicit_deps(self):
 		"""
-		Used by Task.signature, hash the input nodes, and perhaps other direct dependencies
+		Used by :py:meth:`waflib.Task.Task.signature`, hash :py:attr:`waflib.Task.Task.inputs`
+		and :py:attr:`waflib.Task.Task.dep_nodes` signatures.
+
+		:rtype: hash value
 		"""
 		bld = self.generator.bld
 		upd = self.m.update
@@ -558,7 +561,9 @@ class Task(TaskBase):
 
 	def sig_vars(self):
 		"""
-		Used by Task.signature, hash self.env variables/values
+		Used by :py:meth:`waflib.Task.Task.signature`, hash :py:attr:`waflib.Task.Task.env` variables/values
+
+		:rtype: hash value
 		"""
 		bld = self.generator.bld
 		env = self.env
@@ -588,13 +593,21 @@ class Task(TaskBase):
 		class mytask(Task):
 			def scan(self, node):
 				return ((), ())
+
+	The first and second lists are stored in :py:attr:`waflib.Build.BuildContext.node_deps` and
+	:py:attr:`waflib.Build.BuildContext.raw_deps` respectively.
 	"""
 
 	def sig_implicit_deps(self):
 		"""
-		Used by Task.signature.
-		A special exception is thrown if a file has changed. When this occurs, Task.signature is called
-		once again, and this method will be executed once again to execute Task.scan for dependencies
+		Used by :py:meth:`waflib.Task.Task.signature` hashes node signatures obtained by scanning for dependencies (:py:meth:`waflib.Task.Task.scan`).
+
+		The exception :py:class:`waflib.Errors.TaskRescan` is thrown
+		when a file has changed. When this occurs, :py:meth:`waflib.Task.Task.signature` is called
+		once again, and this method will be executed once again, this time calling :py:meth:`waflib.Task.Task.scan`
+		for searching the dependencies.
+
+		:rtype: hash value
 		"""
 
 		bld = self.generator.bld
@@ -634,6 +647,8 @@ class Task(TaskBase):
 		it is intended for .cpp and inferred .h files
 		there is a single list (no tree traversal)
 		this is a hot spot so ... do not touch
+
+		:rtype: hash value
 		"""
 
 		upd = self.m.update
@@ -697,7 +712,7 @@ class Task(TaskBase):
 
 	def can_retrieve_cache(self):
 		"""
-		used by cache_outputs, see above
+		Used by cache_outputs, see above
 
 		Retrieve build nodes from the cache
 		update the file timestamps to help cleaning the least used entries from the cache
