@@ -45,7 +45,10 @@ class TaskConsumer(Utils.threading.Thread):
 	def loop(self):
 		while 1:
 			tsk = self.ready.get()
-			tsk.process()
+			if isinstance(tsk, Queue):
+				self.ready = tsk
+			else:
+				tsk.process()
 
 pool = Queue()
 def get_pool():
@@ -171,19 +174,12 @@ class Parallel(object):
 			# lazy creation
 			pool = self.pool = [get_pool() for i in range(self.numjobs)]
 
-		# better load distribution across the consumers (makes more sense on distributed systems)
-		# there are probably ways to have consumers use a unique queue
-		a = pool[random.randint(0, len(pool) - 1)]
-		siz = a.ready.qsize()
-		if not siz:
-			a.ready.put(tsk)
-			return
+			# ugly hack, set a common queue for all the consumers
+			self.ready = Queue(0)
+			for x in pool:
+				x.ready.put(self.ready)
 
-		b = pool[random.randint(0, len(pool) - 1)]
-		if siz > b.ready.qsize():
-			b.ready.put(tsk)
-		else:
-			a.ready.put(tsk)
+		self.ready.put(tsk)
 
 	def start(self):
 		"""
@@ -260,6 +256,7 @@ class Parallel(object):
 		try:
 			while self.pool:
 				x = self.pool.pop()
+				self.ready.put(Queue(0))
 				put_pool(x)
 		except AttributeError:
 			pass
