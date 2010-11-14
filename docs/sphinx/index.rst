@@ -5,6 +5,7 @@ Waf v1.6.1 documentation
 
 	coremodules.rst
 	tools.rst
+	tutorial.rst
 	about.rst
 	copyright.rst
 

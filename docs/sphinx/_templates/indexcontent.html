@@ -1,19 +1,27 @@
 {% extends "defindex.html" %}
 {% block tables %}
-  <p><strong>Parts of the documentation:</strong></p>
+  <!-- p><strong>Parts of the documentation:</strong></p -->
   <table class="contentstable" align="center"><tr>
-    <td width="50%">
-      <p class="biglink"><a class="biglink" href="{{ pathto("coremodules") }}">The core modules</a><br/>
+    <td width="50%" style="vertical-align:top;">
+      <p class="biglink"><a class="biglink" href="{{ pathto("coremodules") }}">Core modules</a><br/>
          <span class="linkdescr">Main components of the Waf framework</span></p>
+
+      <p class="biglink"><a class="biglink" href="{{ pathto("tutorial") }}">Tutorial</a><br/>
+         <span class="linkdescr">A 10-minutes introduction to Waf</span></p>
+
       <p class="biglink"><a class="biglink" href="{{ pathto("about") }}">About the documentation</a>
          <span class="linkdescr"> </span></p>
-    </td><td width="50%">
-      <p class="biglink"><a class="biglink" href="{{ pathto("tools") }}">The Waf tools</a><br/>
+    </td>
+    <td width="50%" style='vertical-align:top;'>
+      <p class="biglink"><a class="biglink" href="{{ pathto("tools") }}">Waf tools</a><br/>
          <span class="linkdescr">Support for programming languages</span></p>
       </p>
-      <p class="biglink"><a class="biglink" href="{{ pathto("copyright") }}">Copyright</a>
-         <span class="linkdescr"> </span></p>
+
+      <p class="biglink"><a class="biglink" href="{{ pathto("copyright") }}">Copyright</a><br>
+         <span class="linkdescr">Copyright notice</span></p>
       </p>
+
+
     </td></tr>
   </table>
 
