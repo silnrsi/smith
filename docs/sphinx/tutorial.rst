@@ -30,7 +30,7 @@ Let's start with a new wscript file in the directory '/tmp/myproject'::
 		print("configure!")
 
 	def build(bld):
-		print("build")
+		print("build!")
 
 We will also use a Waf binary file, for example http://waf.googlecode.com/files/waf-1.6.1, which we will copy in the project directory::
 
