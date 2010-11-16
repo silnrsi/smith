@@ -4,6 +4,7 @@ NEW IN WAF 1.6.2
 * Add -relocation-model=pic for shared libraries on ldc
 * Fixed 'waf dist' for tar files on python 3 #799
 * Make the latex scanner recursive #798
+* Enable the packing of non-python files in the waf file #802
 
 NEW IN WAF 1.6.1
 ----------------
