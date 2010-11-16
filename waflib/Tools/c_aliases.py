@@ -28,7 +28,10 @@ def sniff_features(**kw):
 		if type == 'program':
 			return 'cxx cxxprogram'
 		if type == 'shlib':
-			return 'cxx cxxshlib'
+			if 'c' in exts:
+				return 'c cxx cxxshlib cshlib'
+			else:
+				return 'cxx cxxshlib'
 		if type == 'stlib':
 			return 'cxx cxxstlib'
 		return 'cxx'
