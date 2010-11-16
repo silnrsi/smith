@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from waflib import Task, Build, Logs, Context, Utils, Configure, Options
+from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors
 import os, imp, operator, optparse, sys
 from waflib.TaskGen import feature, after
 
@@ -222,11 +222,14 @@ def add_sort_tasks(base) :
                         if entry[i].runs_after(t) :
                             res = i - 1
                             break
+                    try: t.intasks.append(entry[res])
+                    except AttributeError : t.intasks = [entry[res]]
                     t.set_run_after(entry[res])
 
     def wrap_biter(self) :
         for b in old_biter(self) :
             inject_modifiers(b)
+#            print self.group_names[self.cur - 1]
 #            tlist = top_sort(b)
 #            yield tlist
             yield b
@@ -329,7 +332,7 @@ def make_dot(self):
     self.groups = [g]       # delete all the tasks except ours
     self.set_group(0)
 #        self(cmd='echo Create wscript.dot', target='wscript.dot', shell = 1)
-    self(rule='${DOT} -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=1)
+    self(rule='${DOT} -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=True)
 
     self.compile()
 
@@ -353,10 +356,7 @@ def load_module(file_path) :
     for k, v in Context.wscript_vars.items() : setattr(module, k, v)
 
     Context.g_module = module
-    try:
-        exec(code, module.__dict__)
-    except Exception as e:
-        raise Errors.WafError(ex=a, pyfile=file_path)
+    exec(compile(code, file_path, 'exec'), module.__dict__)
     sys.path.remove(module_dir)
 
     Context.cache_modules[file_path] = module

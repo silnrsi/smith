@@ -22,9 +22,21 @@ class Package(object) :
             setattr(self, k, v)
         self.packages.append(self)
         self.fonts = []
+        self.keyboards = []
+
+    def get_build_tools(self, ctx) :
+        res = set()
+        for f in self.fonts :
+            res.update(f.get_build_tools(ctx))
+        for k in self.keyboards :
+            res.update(k.get_build_tools(ctx))
+        return res
 
     def add_font(self, font) :
         self.fonts.append(font)
+
+    def add_kbd(self, kbd) :
+        self.keyboards.append(kbd)
 
     def add_reservedofls(self, *reserved) :
         if hasattr(self, 'reservedofl') :
@@ -44,6 +56,8 @@ class Package(object) :
 
         for f in self.fonts :
             f.build(bld)
+        for k in self.keyboards :
+            k.build(bld)
         if hasattr(self, 'reservedofl') :
             if not hasattr(self, 'LICENSE') : self.LICENSE = 'OFL.txt'
             bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.LICENSE))
@@ -53,11 +67,12 @@ class Package(object) :
         env =   {
             'project' : self,
             'fonts' : self.fonts,
+            'kbds' : self.keyboards,
             'basedir' : thisdir
                 }
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.APPNAME
-        task = templater.Copier(prj = self, fonts = self.fonts, basedir = thisdir, env = bld.env)
+        task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
         task.set_inputs(bld.root.find_resource(os.path.join(thisdir, 'installer.nsi')))
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
@@ -70,4 +85,33 @@ class exeContext(Build.BuildContext) :
         self.add_group('exe')
         for p in Package.packages :
             p.build_exe(self)
+
+def add_configure() :
+    old_config = getattr(Context.g_module, "configure", None)
+
+    def configure(ctx) :
+        programs = set()
+        for p in Package.packages :
+            programs.update(p.get_build_tools(ctx))
+        programs.update(font.progset)
+        for p in programs :
+            ctx.find_program(p, var=p.upper())
+        ctx.find_program('cp', var='COPY')
+        for key, val in Context.g_module.__dict__.items() :
+            if key == key.upper() : ctx.env[key] = val
+        if old_config :
+            old_config(ctx)
+
+    Context.g_module.configure = configure
+
+def add_build() :
+    old_build = getattr(Context.g_module, "build", None)
+
+    def build(bld) :
+        bld.post_mode = 1
+        for p in Package.packages :
+            p.build(bld)
+        if old_build : old_build(bld)
+
+    Context.g_module.build = build
 

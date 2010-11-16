@@ -2,7 +2,7 @@
 
 from waflib import Context
 from wafplus import *
-import font_tests, font_package
+import font_tests, font_package, keyboard
 import sys, os, re
 from random import randint
 
@@ -27,8 +27,8 @@ class Font(object) :
             self.package = font_package.global_package()
         self.package.add_font(self)
 
-    def get_build_tools(self) :
-        res = set()
+    def get_build_tools(self, ctx) :
+        res = font_tests.configure_tests(ctx, self)
         res.add("makensis")
         if getattr(self, 'source', "").endswith(".sfd") :
             res.add('fontforge')
@@ -164,7 +164,8 @@ class Gdl(object) :
                 ind += 1
             if hasattr(self, 'master') :
                 srcs.append(self.master)
-                cmd += "-i ../${SRC[" + str(ind) + "].bldpath()} "
+                loc = os.path.relpath(self.master, os.path.dirname(bld.path.find_or_declare(self.source).srcpath()))
+                cmd += '-i "' + loc + '" '
                 ind += 1
             bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_gr")
@@ -231,12 +232,15 @@ def process(tgt, *cmds, **kw) :
     return tgt
 
 def create(tgt, *cmds, **kw) :
-    for c in cmds :
+    if len(cmds) > 0 :
+        res = cmds[0](tgt)
+        rule(res[0], res[1], txt, **res[2])
+    for c in cmds[1:] :
         res = c(tgt)
-        rule(res[0], res[1], tgt, **res[2])
+        modify(res[0], tgt, res[1], **res[2])
     return tgt
 
-def cmd(c, inputs, **kw) :
+def cmd(c, inputs = None, **kw) :
     def icmd(tgt) :
         return (c, inputs, kw)
     return icmd
@@ -258,35 +262,6 @@ def name(n, **kw) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname
 
-def add_configure() :
-    old_config = getattr(Context.g_module, "configure", None)
-
-    def configure(ctx) :
-        programs = set()
-        for f in Font.fonts :
-            programs.update(f.get_build_tools())
-        programs.update(font_tests.configure_tests(ctx, Font.fonts))
-        programs.update(progset)
-        for p in programs :
-            ctx.find_program(p, var=p.upper())
-        ctx.find_program('cp', var='COPY')
-        for key, val in Context.g_module.__dict__.items() :
-            if key == key.upper() : ctx.env[key] = val
-        if old_config :
-            old_config(ctx)
-
-    Context.g_module.configure = configure
-
-def add_build() :
-    old_build = getattr(Context.g_module, "build", None)
-
-    def build(bld) :
-        for p in font_package.Package.packages :
-            p.build(bld)
-        if old_build : old_build(bld)
-
-    Context.g_module.build = build
-
 class pdfContext(Build.BuildContext) :
     cmd = 'pdfs'
     func = 'pdfs'
@@ -304,12 +279,13 @@ class svgContext(Build.BuildContext) :
         font_tests.build_tests(self, Font.fonts, 'svg')
 
 def fontinit(ctx) :
-    add_configure()
-    add_build()
+    font_package.add_configure()
+    font_package.add_build()
 
 varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
             'gdl' : Gdl, 'process' : process, 'create' : create,
-            'cmd' : cmd, 'name' : name, 'ofl' : Ofl, 'init' : fontinit
+            'cmd' : cmd, 'name' : name, 'ofl' : Ofl, 'init' : fontinit,
+            'kbd' : keyboard.Keyboard
          }
 for k, v in varmap.items() :
     if hasattr(Context, 'wscript_vars') :

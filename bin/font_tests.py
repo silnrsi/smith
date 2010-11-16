@@ -4,7 +4,7 @@ from waflib import Context, Utils
 import os, shutil
 from functools import partial
 
-def configure_tests(ctx, fonts) :
+def configure_tests(ctx, font) :
     res = set(['xetex', 'grsvg', 'firefox', 'xdvipdfmx', 'xsltproc', 'firefox'])
     return res
 

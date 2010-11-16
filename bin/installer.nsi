@@ -2,16 +2,12 @@
 ;@prj.APPNAME@ Font NSIS Installer script
 ;Written by Martin Hosken
 
-; This line is included to pull in the MS system.dll plugin rather than the
-; stubbed debian one. You should get the MS system.dll and put it in the templates/
-; dir or comment out this line if building on windows
-
 ; Some useful definitions that may need changing for different font versions
 !ifndef VERSION
   !define VERSION @prj.VERSION@
 !endif
 
-!define FONTNAME "@getattr(prj, 'DESC_NAME', prj.APPNAME.title())@"
+!define PACKNAME "@getattr(prj, 'DESC_NAME', prj.APPNAME.title())@"
 !define SRC_ARCHIVE "ttf-sil-@prj.APPNAME@-${VERSION}.zip"
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
@@ -192,10 +188,10 @@ ${Index}:
 ;General
 
   ;Name and file
-  Name "${FONTNAME} Font (${VERSION})"
+  Name "${PACKNAME} Font (${VERSION})"
   Caption "@getattr(prj, 'DESC_SHORT', '')@"
 
-  OutFile "${FONTNAME}-${VERSION}.exe"
+  OutFile "${PACKNAME}-${VERSION}.exe"
   InstallDir $PROGRAMFILES\${INSTALL_SUFFIX}
 
   ;Get installation folder from registry if available
@@ -210,7 +206,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if getattr(prj, 'LICENSE', None) else '"'@
+  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if getattr(prj, 'LICENSE', None) else ''@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -222,7 +218,7 @@ ${Index}:
  
   !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM"
   !define MUI_STARTMENUPAGE_REGISTRY_KEY \
-    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}"
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_STARTMENUPAGE_FONT_VARIABLE $R9
   !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@prj.APPNAME@"
@@ -232,43 +228,42 @@ ${Index}:
  
   !insertmacro MUI_LANGUAGE "English"
 
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${FONTNAME}"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${PACKNAME}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "SIL International"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.DESC_SHORT or ""@"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${FONTNAME} Font installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} Font installer"
   @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.COPYRIGHT + '"' if prj.COPYRIGHT else ""@
   VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.VERSION).split('.') + ["0", "0", "0", "0"])[0:4]))@
 
 ;--------------------------------
 ;Installer Sections
 
-Section "!${FONTNAME} Font" SecFont
+Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 
   SetOutPath "$WINDIR\Fonts"
   StrCpy $FONT_DIR $FONTS
   
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" "Version"
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Version"
   IfErrors BranchTestRem
   ${VersionCompare} $0 ${VERSION} $R0
   IntCmp $R0 1 BranchQuery BranchQuery BranchUninstall
 
   BranchQuery:
-    MessageBox MB_YESNO|MB_ICONQUESTION "A newer or same version of ${FONTNAME} is already installed. Do you want me to force the installation of this font package?" /SD IDNO IDYES BranchUninstall
+    MessageBox MB_YESNO|MB_ICONQUESTION "A newer or same version of ${PACKNAME} is already installed. Do you want me to force the installation of this font package?" /SD IDNO IDYES BranchUninstall
 
-  Abort "Installation of ${FONTNAME} aborting"
+  Abort "Installation of ${PACKNAME} aborting"
 
   BranchUninstall:
     ; execute the uninstaller if it's there else abort
-    ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" "UninstallString"
+    ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "UninstallString"
     ${GetParent} "$0" $1
     ExecWait '"$0" /S _?=$1'
 
   BranchInstall:
     ;ADD YOUR OWN FILES HERE...
     ;File "${FONT_REG_FILE}"  ; done by InstallTTF
-    ;File "${FONT_BOLD_FILE}" ; done by InstallTTF
 
 + for f in fonts :
     !insertmacro InstallTTF "@f.target@"
@@ -286,11 +281,11 @@ Section "!${FONTNAME} Font" SecFont
     WriteUninstaller "$INSTDIR\Uninstall.exe"
 
     ; add keys for Add/Remove Programs entry
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" \
-                 "DisplayName" "${FONTNAME} ${VERSION}"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" \
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
+                 "DisplayName" "${PACKNAME} ${VERSION}"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
                  "UninstallString" "$INSTDIR\Uninstall.exe"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" \
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
                  "Version" "${VERSION}"
     Goto BranchDone
 
@@ -298,9 +293,7 @@ Section "!${FONTNAME} Font" SecFont
 +for f in fonts:
     IfFileExists "$WINDIR/Fonts/@f.target@" 0 BranchNoExist
 -
-;    IfFileExists "$WINDIR\Fonts\${FONT_REG_FILE}" 0 BranchNoExist
-    
-    MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to overwrite existing ${FONTNAME} fonts?" /SD IDYES IDYES BranchOverwrite ; skipped if file doesn't exist
+    MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to overwrite existing ${PACKNAME} fonts?" /SD IDYES IDYES BranchOverwrite ; skipped if file doesn't exist
 
     Abort
 
@@ -317,6 +310,20 @@ Section "!${FONTNAME} Font" SecFont
   BranchDone:
 SectionEnd
 
+Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
+
+    ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
+    IfErrors NoKeyman
++for k in kbds :
+    File "@k.target@"
+    Exec "start.exe ${OUTDIR}/@k.target@"
+-
+
+    NoKeyman:
+    @"\n".join(['File "../' + k.source + '"' for k in kbds])@
+
+SectionEnd
+
 Section -StartMenu
   @'File "' + (prj.LICENSE + '"' if getattr(prj, 'LICENSE', '') else '"')@
 +for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
@@ -327,7 +334,7 @@ Section -StartMenu
   !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
   SetShellVarContext all
   CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
-  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
+IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
     SetShellVarContext current
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
@@ -366,14 +373,11 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${FONTNAME} font (version ${VERSION}). @prj.DESC_SHORT or ""@"
-;  LangString DESC_SecSrc ${LANG_ENGLISH} "Install the source font and Graphite code for ${FONTNAME} (version ${VERSION}). You only need this if you are a font developer."
-
+  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${PACKNAME} font (version ${VERSION}). @prj.DESC_SHORT or ""@"
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecFont} $(DESC_SecFont)
-;    !insertmacro MUI_DESCRIPTION_TEXT ${SecSrc} $(DESC_SecSrc)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecFont} $(DESC_SecFont)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ;--------------------------------
@@ -383,22 +387,13 @@ Section "Uninstall"
 
   ;ADD YOUR OWN FILES HERE...
 
-; uninstaller can only call unFunctions!!
-;    !insertMacro RemoveFON "${FONT_REG_FILE}" "${FONTNAME} (TrueType)"
-;    !insertMacro RemoveFON "${FONT_BOLD_FILE}" "${FONTNAME} Bold (TrueType)"
-;    SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
-
     StrCpy $FONT_DIR $FONTS
-;    DetailPrint "unRemoveTTF ${FONT_REG_FILE}"
 +for f in fonts :
     !insertmacro unRemoveTTF "@f.target@"
 -
-;  Delete  /REBOOTOK "$WINDIR\Fonts\${FONT_REG_FILE}"
-;  Delete  /REBOOTOK "$WINDIR\Fonts\${FONT_BOLD_FILE}"
   SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
   
-;  !insertmacro MUI_STARTMENU_GETFOLDER FONT ${MUI_STARTMENU_FONT_VARIABLE}
-  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}" "Menus"
+  ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Menus"
 +for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
   Delete "$INSTDIR\\@f.replace('/','\\')@"
 -
@@ -424,20 +419,8 @@ Section "Uninstall"
   Delete "$0\Uninstall.lnk"
   RMDir "$0"
 
-
-;  ReadRegStr $0 "${MUI_STARTMENUPAGE_REGISTRY_ROOT}" \
-;    "${MUI_STARTMENUPAGE_REGISTRY_KEY}" "${MUI_STARTMENUPAGE_REGISTRY_VALUENAME}"
- 
-;  StrCmp $0 "" noshortcuts
-;    foreach f,$(DOCS),$(sub /,\,Delete $0/$(f))
-;    Delete $0\Uninstall.lnk
-;    Delete $0\License.lnk
-;    RMDir $0
- 
   noshortcuts:
 
-;  DeleteRegKey /ifempty HKLM "Software\${INSTALL_SUFFIX}"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${FONTNAME}"
-
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}"
 SectionEnd
 
