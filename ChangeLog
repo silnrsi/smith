@@ -5,6 +5,7 @@ NEW IN WAF 1.6.2
 * Fixed 'waf dist' for tar files on python 3 #799
 * Make the latex scanner recursive #798
 * Enable the packing of non-python files in the waf file #802
+* Improve the feature sniffing for hybrid programs/libraries #800
 
 NEW IN WAF 1.6.1
 ----------------
