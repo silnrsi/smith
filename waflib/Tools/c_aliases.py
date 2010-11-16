@@ -23,41 +23,30 @@ def sniff_features(**kw):
 	"""look at the source files and return the features for a task generator (mainly cc and cxx)"""
 	exts = get_extensions(kw['source'])
 	type = kw['_type']
+	feats = []
 
+	# watch the order, cxx will have the precedence
 	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts or 'cc' in exts:
-		if type == 'program':
-			return 'cxx cxxprogram'
-		if type == 'shlib':
-			if 'c' in exts:
-				return 'c cxx cxxshlib cshlib'
-			else:
-				return 'cxx cxxshlib'
-		if type == 'stlib':
-			return 'cxx cxxstlib'
-		return 'cxx'
+		feats.append('cxx')
+
+	if 'c' in exts or 'vala' in exts:
+		feats.append('c')
 
 	if 'd' in exts:
-		if type == 'program':
-			return 'd dprogram'
-		if type == 'shlib':
-			return 'd dshlib'
-		if type == 'stlib':
-			return 'd dstlib'
-		return 'd'
+		feats.append('d')
 
-	if 'vala' in exts or 'c' in exts:
-		if type == 'program':
-			return 'c cprogram'
-		if type == 'shlib':
-			return 'c cshlib'
-		if type == 'stlib':
-			return 'c cstlib'
-		return 'c'
+	if 'java' in exts:
+		feats.append('java')
 
 	if 'java' in exts:
 		return 'java'
 
-	return ''
+	if type in ['program', 'shlib', 'stlib']:
+		for x in feats:
+			if x in ['cxx', 'd', 'c']:
+				feats.append(x + type)
+
+	return feats
 
 def set_features(kw, _type):
 	kw['_type'] = _type
