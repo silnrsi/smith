@@ -791,10 +791,12 @@ def get_config_header(self, defines=True, headers=False):
 
 @conf
 def cc_add_flags(conf):
+	conf.add_os_flags('CPPFLAGS', 'CFLAGS')
 	conf.add_os_flags('CFLAGS')
 
 @conf
 def cxx_add_flags(conf):
+	conf.add_os_flags('CPPFLAGS', 'CXXFLAGS')
 	conf.add_os_flags('CXXFLAGS')
 
 @conf
