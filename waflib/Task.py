@@ -3,23 +3,7 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-Tasks are small objects encapsulating a state of execution
-
-:py:class:`waflib.Task.TaskBase` subclasses should provide the following methods:
-
-* unique id
-* signature
-* runnable_status
-* run
-* post_run
-
-The direct subclass :py:class:`waflib.Task.Task` deals with the filesystem (:py:class:`waflib.Node.Node`)
-to compute a hash that is compared between the executions to see if the tasks have changed and must be
-executed. The following enter in the signature computation:
-
-* explicit dependencies (given files)
-* implicit dependencies (nodes given by an optional scanner method)
-* hashed data (from the config set 'env' associated)
+Tasks represent atomic operations such as processes.
 """
 
 import os, shutil, re, tempfile
@@ -81,7 +65,11 @@ def f(tsk):
 
 def cache_outputs(cls):
 	"""
-	Task class decorator, applied by default to all task classes unless they define the attribute 'nocache':
+	Task class decorator applied to all task classes by default unless they define the attribute 'nocache'::
+
+		from waflib import Task
+		class foo(Task.Task):
+			nocache = True
 
 	If bld.cache_global is defined and if the task instances produces output nodes,
 	the files will be copied into a folder in the cache directory
@@ -118,7 +106,7 @@ class store_task_type(type):
 	"""
 	Metaclass: store the task types into :py:const:`waflib.Task.classes`.
 	The attribute 'run_str' will be processed to compute a method 'run' on the task class
-	The function :py:func:`waflib.Task.cache_outputs` is also applied to the class
+	The decorator :py:func:`waflib.Task.cache_outputs` is also applied to the class
 	"""
 	def __init__(cls, name, bases, dict):
 		super(store_task_type, cls).__init__(name, bases, dict)
@@ -146,27 +134,28 @@ class store_task_type(type):
 			classes[name] = cls
 
 evil = store_task_type('evil', (object,), {})
-"Variable used to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
+"Base class provided to avoid writing a metaclass, so the code can run in python 2.6 and 3.x unmodified"
 
 class TaskBase(evil):
-	"""Base class for all Waf tasks
+	"""
+	Base class for all Waf tasks, which should be seen as an interface.
+	For illustration purposes, instances of this class will execute the attribute
+	'fun' in :py:meth:`waflib.Task.TaskBase.run`. When in doubt, create
+	subclasses of :py:class:`waflib.Task.Task` instead.
 
-	The most important methods are (by usual order of call):
-	1 runnable_status: ask the task if it should be run, skipped, or if we have to ask later
-	2 __str__: string to display to the user
-	3 run: execute the task
-	4 post_run: after the task is run, update the cache about the task
+	Subclasses should override these methods:
 
-	This class should be seen as an interface, it provides the very minimum necessary for the scheduler
-	so it does not do much.
-
-	For illustration purposes, TaskBase instances try to execute self.fun (if provided)
+	#. __str__: string to display to the user
+	#. runnable_status: ask the task if it should be run, skipped, or if we have to ask later
+	#. run: let threads execute the task
+	#. post_run: let threads update the data regarding the task (cache)
 	"""
 
-	color = "GREEN"
+	color = 'GREEN'
+	"""Color for the console display, see :py:const:`waflib.Logs.colors_lst`"""
 
 	ext_in = []
-	"""File extensions that objects of this task class might need"""
+	"""File extensions that objects of this task class might use"""
 
 	ext_out = []
 	"""File extensions that objects of this task class might create"""
@@ -192,7 +181,7 @@ class TaskBase(evil):
 
 	def __repr__(self):
 		"for debugging purposes"
-		return '\n\t{task %r: %s %s}' % (self.__class__.__name__, id(self), str(getattr(self, "fun", "")))
+		return '\n\t{task %r: %s %s}' % (self.__class__.__name__, id(self), str(getattr(self, 'fun', '')))
 
 	def __str__(self):
 		"string to display to the user"
@@ -201,12 +190,15 @@ class TaskBase(evil):
 		return self.__class__.__name__ + '\n'
 
 	def __hash__(self):
-		"very fast hashing scheme but not persistent (replace/implement in subclasses and see Task.uid)"
+		"Very fast hashing scheme but not persistent (replace/implement in subclasses and see :py:meth:`waflib.Task.Task.uid`)"
 		return id(self)
 
 	def exec_command(self, cmd, **kw):
 		"""
 		Wrapper for :py:meth:`waflib.Context.Context.exec_command` which sets a current working directory to ``build.variant_dir``
+
+		:return: the return code
+		:rtype: int
 		"""
 		bld = self.generator.bld
 		try:
@@ -217,7 +209,12 @@ class TaskBase(evil):
 		return bld.exec_command(cmd, **kw)
 
 	def runnable_status(self):
-		"""Return a task state in :py:const:`waflib.Task.RUN_ME`, :py:const:`waflib.Task.SKIP_ME` or :py:const:`waflib.Task.ASK_LATER`."""
+		"""
+		State of the task
+
+		:return: a task state in :py:const:`waflib.Task.RUN_ME`, :py:const:`waflib.Task.SKIP_ME` or :py:const:`waflib.Task.ASK_LATER`.
+		:rtype: int
+		"""
 		return RUN_ME
 
 	def process(self):
@@ -270,13 +267,17 @@ class TaskBase(evil):
 		m.out.put(self)
 
 	def run(self):
-		"Execute the task - Override in subclasses"
+		"""
+		Execute the task (executed by threads). Override in subclasses.
+
+		:rtype: int
+		"""
 		if hasattr(self, 'fun'):
 			return self.fun(self)
 		return 0
 
 	def post_run(self):
-		" Override in subclasses."
+		"Update the cache files (executed by threads). Override in subclasses."
 		pass
 
 	def log_display(self, bld):
@@ -284,7 +285,11 @@ class TaskBase(evil):
 		bld.to_log(self.display())
 
 	def display(self):
-		"Print either the description (using __str__) or the progress bar or the ide output"
+		"""
+		Return an execution status for the console, the progress bar, or the IDE output.
+
+		:rtype: string
+		"""
 		col1 = Logs.colors(self.color)
 		col2 = Logs.colors.NORMAL
 
@@ -313,13 +318,24 @@ class TaskBase(evil):
 		return fs % (len(self.generator.bld.returned_tasks), self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
-		"Retrieve an attribute from the instance or from the class (microoptimization here)"
+		"""
+		Retrieve an attribute from the instance or from the class.
+
+		:param att: variable name
+		:type att: string
+		:param default: default value
+		"""
 		ret = getattr(self, att, self)
 		if ret is self: return getattr(self.__class__, att, default)
 		return ret
 
 	def hash_constraints(self):
-		"Identify a task type for all the constraints relevant for the scheduler: precedence, file production"
+		"""
+		Identify a task type for all the constraints relevant for the scheduler: precedence, file production
+
+		:return: a hash value
+		:rtype: string
+		"""
 		cls = self.__class__
 		tup = (str(cls.before), str(cls.after), str(cls.ext_in), str(cls.ext_out), cls.__name__, cls.hcode)
 		h = hash(tup)
@@ -328,6 +344,7 @@ class TaskBase(evil):
 	def format_error(self):
 		"""
 		Error message to display to the user when a build fails
+
 		:rtype: string
 		"""
 		msg = getattr(self, 'last_cmd', '')
@@ -344,34 +361,32 @@ class TaskBase(evil):
 			return '?'
 
 class Task(TaskBase):
-	"""The parent class is quite limited, in this version:
-	* file system interaction: input and output nodes
-	* persistence: do not re-execute tasks that have already run
-	* caching: same files can be saved and retrieved from a cache directory
-	* dependencies:
-	   implicit, like .c files depending on .h files
-       explicit, like the input nodes or the dep_nodes
-       environment variables, like the CXXFLAGS in self.env
+	"""
+	This class deals with the filesystem (:py:class:`waflib.Node.Node`). The method :py:class:`waflib.Task.Task.runnable_status`
+	uses a hash value (from :py:class:`waflib.Task.Task.signature`) which is persistent from build to build. When the value changes,
+	the task has to be executed. The method :py:class:`waflib.Task.Task.post_run` will assign the task signature to the output
+	nodes (if present).
 	"""
 	vars = []
+	"""Variables to depend on (class attribute used for :py:meth:`waflib.Task.Task.sig_vars`)"""
+
 	shell = False
+	"""Execute the command with the shell (class attribute)"""
+
 	def __init__(self, *k, **kw):
-		"""
-		a task is (still) associated with a ConfigSet object, so make sure to pass an 'env'
-		"""
 		TaskBase.__init__(self, *k, **kw)
 
 		self.env = kw['env']
-		"""ConfigSet object"""
+		"""ConfigSet object (make sure to provide one)"""
 
 		self.inputs  = []
-		"""Input nodes"""
+		"""List of input nodes, which represent the files used by the task instance"""
 
 		self.outputs = []
-		"""Output nodes"""
+		"""List of output nodes, which represent the files created by the task instance"""
 
 		self.dep_nodes = []
-		"""Additional nodes to depend on"""
+		"""List of additional nodes to depend on"""
 
 		self.run_after = set([])
 		"""Set of tasks that must be executed before this one"""
@@ -393,11 +408,17 @@ class Task(TaskBase):
 		return "".join(['\n\t{task %r: ' % id(self), self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
 
 	def uid(self):
-		"get a unique id: hash the node paths, the class, the function"
+		"""
+		Obtain a unique id which will be identical in different build instances.
+		The node paths, the class name, and the function are inputs for the hash.
+
+		:return: hash value
+		:rtype: string
+		"""
 		try:
 			return self.uid_
 		except AttributeError:
-			"this is not a real hot zone, but we want to avoid surprizes here"
+			# this is not a real hot zone, but we want to avoid surprizes here
 			m = Utils.md5()
 			up = m.update
 			up(self.__class__.__name__.encode())
@@ -407,18 +428,33 @@ class Task(TaskBase):
 			return self.uid_
 
 	def set_inputs(self, inp):
-		"access the input attribute"
+		"""
+		Append the nodes to the *inputs*
+
+		:param inp: input nodes
+		:type inp: node or list of nodes
+		"""
 		if isinstance(inp, list): self.inputs += inp
 		else: self.inputs.append(inp)
 
 	def set_outputs(self, out):
-		"access the output attribute"
+		"""
+		Append the nodes to the *outputs*
+
+		:param out: output nodes
+		:type out: node or list of nodes
+		"""
 		if isinstance(out, list): self.outputs += out
 		else: self.outputs.append(out)
 
 	def set_run_after(self, task):
-		"set (scheduler) order on another task"
-		# TODO: handle list or object
+		"""
+		Run this task only after *task*. Affect :py:meth:`waflib.Task.runnable_status`
+
+		:param task: task
+		:type task: :py:class:`waflib.Task.Task`
+		"""
+		# TODO: handle lists too?
 		assert isinstance(task, TaskBase)
 		self.run_after.add(task)
 
@@ -426,11 +462,19 @@ class Task(TaskBase):
 		"""
 		Task signatures are stored between build executions, they are use to track the changes
 		made to the input nodes (not to the outputs!). The signature hashes data from various sources:
-		* files listed in the inputs (list of node objects)
-		* list of nodes returned by scanner methods (when present)
-		* variables/values read from task.__class__.vars/task.env
 
-		if the signature is expected to give a different result, clear the result stored in self.cache_sig
+		* explicit dependencies: files listed in the inputs (list of node objects) :py:meth:`waflib.Task.Task.sig_explicit_deps`
+		* implicit dependencies: list of nodes returned by scanner methods (when present) :py:meth:`waflib.Task.Task.sig_implicit_deps`
+		* hashed data: variables/values read from task.__class__.vars/task.env :py:meth:`waflib.Task.Task.sig_vars`
+
+		If the signature is expected to give a different result, clear the cache kept in ``self.cache_sig``::
+
+			from waflib import Task
+			class cls(Task.Task):
+				def signature(self):
+					sig = super(Task.Task, self).signature()
+					delattr(self, 'cache_sig')
+					return super(Task.Task, self).signature()
 		"""
 		try: return self.cache_sig
 		except AttributeError: pass
@@ -644,11 +688,11 @@ class Task(TaskBase):
 
 	def compute_sig_implicit_deps(self):
 		"""
-		it is intended for .cpp and inferred .h files
-		there is a single list (no tree traversal)
-		this is a hot spot so ... do not touch
+		Used by :py:meth:`waflib.Task.Task.sig_implicit_deps` for computing the actual hash of the
+		:py:class:`waflib.Node.Node` returned by the scanner.
 
-		:rtype: hash value
+		:return: hash value
+		:rtype: string
 		"""
 
 		upd = self.m.update
@@ -678,11 +722,8 @@ class Task(TaskBase):
 		"""
 		For each node returned by the scanner, see if there is a task behind it, and force the build order
 
-		The performance impact on null builds is nearly invisible (1.66s->1.86s)
-		yet, it would not work without caching (1.86s->28s)
-
-		On a full build, the consequence of leaving waf figure out the build order can be visible,
-		for example, the preprocesor time can increase the build from 1m36s -> 2m13s
+		The performance impact on null builds is nearly invisible (1.66s->1.86s), but this is due to
+		agressive caching (1.86s->28s)
 		"""
 		bld = self.generator.bld
 		try:
@@ -712,17 +753,18 @@ class Task(TaskBase):
 
 	def can_retrieve_cache(self):
 		"""
-		Used by cache_outputs, see above
+		Used by :py:meth:`waflib.Task.cache_outputs`
 
 		Retrieve build nodes from the cache
 		update the file timestamps to help cleaning the least used entries from the cache
 		additionally, set an attribute 'cached' to avoid re-creating the same cache files
 
-		suppose there are files in cache/dir1/file1 and cache/dir2/file2
-		first, read the timestamp of dir1
-		then try to copy the files
-		then look at the timestamp again, if it has changed, the data may have been corrupt (cache update by another process)
-		should an exception occur, ignore the data
+		Suppose there are files in `cache/dir1/file1` and `cache/dir2/file2`:
+
+		#. read the timestamp of dir1
+		#. try to copy the files
+		#. look at the timestamp again, if it has changed, the data may have been corrupt (cache update by another process)
+		#. should an exception occur, ignore the data
 		"""
 
 		if not getattr(self, 'outputs', None):
@@ -767,7 +809,9 @@ class Task(TaskBase):
 		return True
 
 	def put_files_cache(self):
-		"""used by cache_outputs, see above"""
+		"""
+		Used by :py:func:`waflib.Task.cache_outputs` to store the build files in the cache
+		"""
 
 		# file caching, if possible
 		# try to avoid data corruption as much as possible
@@ -809,10 +853,18 @@ class Task(TaskBase):
 
 def is_before(t1, t2):
 	"""
-	return non-zero if task class t1 is to be executed before task class t2
-	t1.ext_out = '.h' and t2.ext_in = '.h'
-	t2.after = ['t1']
-	t1.before = ['t2']
+	Return a non-zero value if task t1 is to be executed before task t2::
+
+		t1.ext_out = '.h'
+		t2.ext_in = '.h'
+		t2.after = ['t1']
+		t1.before = ['t2']
+		waflib.Task.is_before(t1, t2) # True
+
+	:param t1: task
+	:type t1: :py:class:`waflib.Task.TaskBase`
+	:param t2: task
+	:type t2: :py:class:`waflib.Task.TaskBase`
 	"""
 	to_list = Utils.to_list
 	for k in to_list(t2.ext_in):
@@ -828,7 +880,12 @@ def is_before(t1, t2):
 	return 0
 
 def set_file_constraints(tasks):
-	"adds tasks to the task 'run_after' attribute based on the task inputs and outputs"
+	"""
+	Adds tasks to the task 'run_after' attribute based on the task inputs and outputs
+
+	:param tasks: tasks
+	:type tasks: list of :py:class:`waflib.Task.TaskBase`
+	"""
 	ins = Utils.defaultdict(set)
 	outs = Utils.defaultdict(set)
 	for x in tasks:
@@ -843,7 +900,12 @@ def set_file_constraints(tasks):
 			a.run_after.update(outs[k])
 
 def set_precedence_constraints(tasks):
-	"adds tasks to the task 'run_after' attribute based on the after/before/ext_out/ext_in attributes"
+	"""
+	Add tasks to the task 'run_after' attribute based on the after/before/ext_out/ext_in attributes
+
+	:param tasks: tasks
+	:type tasks: list of :py:class:`waflib.Task.TaskBase`
+	"""
 	cstr_groups = Utils.defaultdict(list)
 	for x in tasks:
 		h = x.hash_constraints()
@@ -871,7 +933,14 @@ def set_precedence_constraints(tasks):
 				x.run_after.update(cstr_groups[keys[a]])
 
 def funex(c):
-	"""compile a function by 'exec', return the result"""
+	"""
+	Compile a function by 'exec'
+
+	:param c: function to compile
+	:type c: string
+	:return: the function 'f' declared in the input string
+	:rtype: function
+	"""
 	dc = {}
 	exec(c, dc)
 	return dc['f']
@@ -879,7 +948,7 @@ def funex(c):
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun_shell(line):
 	"""
-	create a compiled function to execute a process without the shell
+	Create a compiled function to execute a process without the shell
 	WARNING: this method may disappear anytime, so use compile_fun instead
 	"""
 
@@ -922,7 +991,7 @@ def compile_fun_shell(line):
 
 def compile_fun_noshell(line):
 	"""
-	create a compiled function to execute a process without the shell
+	Create a compiled function to execute a process without the shell
 	WARNING: this method may disappear anytime, so use compile_fun instead
 	"""
 	extr = []
@@ -970,18 +1039,21 @@ def compile_fun_noshell(line):
 
 def compile_fun(line, shell=False):
 	"""
-	parse a string expression such as "${CC} ${SRC} -o ${TGT}" and return a pair containing
-	* the function created as python code
+	Parse a string expression such as "${CC} ${SRC} -o ${TGT}" and return a pair containing:
+
+	* the function created (compiled) for use as :py:meth:`waflib.Task.TaskBase.run`
 	* the list of variables that imply a dependency from self.env
 
-	example:
-	compile_fun('cxx', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
+	for example::
+
+		from waflib import compile_fun
+		compile_fun('cxx', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
+
+		def build(bld):
+			bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
 
 	The env variables (CXX, ..) on the task must not hold dicts (order)
-	The reserved keywords TGT and SRC represent the task input and output nodes
-
-	quick test:
-	bld(source='wscript', rule='echo "foo\\${SRC[0].name}\\bar"')
+	The reserved keywords *TGT* and *SRC* represent the task input and output nodes
 
 	"""
 	if line.find('<') > 0 or line.find('>') > 0 or line.find('&&') > 0:
@@ -994,8 +1066,20 @@ def compile_fun(line, shell=False):
 
 def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, scan=None):
 	"""
-	return a new Task subclass with the function run compiled from the line given
-	provided for compatibility with waf 1.5
+	Return a new task subclass with the function ``run`` compiled from the line given.
+	Provided for compatibility with waf 1.4-1.5, when we did not use metaclasses to register new objects.
+
+	:param func: method run
+	:type func: string or function
+	:param vars: list of variables to hash
+	:type vars: list of string
+	:param color: color to use
+	:type color: string
+	:param shell: when *func* is a string, enable/disable the use of the shell
+	:type shell: bool
+	:param scan: method scan
+	:type scan: function
+	:rtype: :py:class:`waflib.Task.Task`
 	"""
 
 	params = {
@@ -1040,7 +1124,7 @@ def always_run(cls):
 
 def update_outputs(cls):
 	"""
-	decorator for Task classes
+	Task class decorator
 
 	Used to avoid unnecessary recompilations, but consumes more resources
 	(hashing the output files) so it should be enabled only on the classes that need it
