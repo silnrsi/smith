@@ -43,9 +43,9 @@ def download_check(node):
 	"""
 	Hook to check for the tools which are downloaded. Replace with your function if necessary.
 	"""
-	Logs.warn('replace me to check %r' % node)
+	pass
 
-def download_tool(tool, force=False):
+def download_tool(tool, force=False, ctx=None):
 	"""
 	Download a Waf tool from the remote repository defined in :py:const:`waflib.Context.remote_repo`::
 
@@ -62,7 +62,7 @@ def download_tool(tool, force=False):
 				# on python3 urlopen throws an exception
 				continue
 			else:
-				tmp = self.root.make_node(os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py')))
+				tmp = ctx.root.make_node(os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py')))
 				tmp.write(web.read())
 				Logs.warn('downloaded %s from %s' % (tool, url))
 				download_check(tmp)

@@ -501,7 +501,7 @@ def update(ctx):
 		if not x.endswith('.py'):
 			continue
 		tool = x.replace('.py', '')
-		Configure.download_tool(tool, force=True)
+		Configure.download_tool(tool, force=True, ctx=ctx)
 
 def autoconfigure(execute_method):
 	"""
