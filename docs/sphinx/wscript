@@ -3,7 +3,7 @@
 # Jérôme Carretero, 2010 (zougloub)
 
 import sys, os
-from Utils import subprocess
+from waflib.Utils import subprocess
 
 """
 """
