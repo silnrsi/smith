@@ -16,7 +16,12 @@ from waflib import Utils, Logs, Task, Errors
 
 GAP = 10
 """
-Wait for free tasks if there are at least ``GAP * njobs`` in queue
+Wait for free tasks if there are at least :py:var:`GAP` * njobs in the queue
+"""
+
+MAXJOBS = 999
+"""
+Maximum amount of jobs - cpython cannot really spawn more than 100 without crashing
 """
 
 class TaskConsumer(Utils.threading.Thread):
@@ -28,64 +33,37 @@ class TaskConsumer(Utils.threading.Thread):
 	def __init__(self):
 		Utils.threading.Thread.__init__(self)
 		self.ready = Queue()
-		"""
-		Obtain :py:class:`waflib.Task.TaskBase` instances from this queue.
-		"""
 		self.setDaemon(1)
 		self.start()
 
 	def run(self):
-		"""
-		Loop over the tasks to execute
-		"""
 		try:
 			self.loop()
 		except:
 			pass
 
 	def loop(self):
-		"""
-		Obtain tasks from :py:attr:`waflib.Runner.TaskConsumer.ready` and call
-		:py:meth:`waflib.Task.TaskBase.process`. If the object
-		obtained is a Queue object, replace the queue and wait on it for new tasks.
-		"""
 		while 1:
 			tsk = self.ready.get()
-			if isinstance(tsk, Queue):
-				self.ready = tsk
-			else:
-				tsk.process()
+			tsk.process()
 
 pool = Queue()
-"""
-Pool of task consumer objects
-"""
-
 def get_pool():
-	"""
-	Obtain a task consumer from :py:attr:`waflib.Runner.pool`.
-	Do not forget to put it back by using :py:func:`waflib.Runner.put_pool`.
-
-	:rtype: :py:class:`waflib.Runner.TaskConsumer`
-	"""
 	try:
 		return pool.get(False)
 	except:
 		return TaskConsumer()
 
 def put_pool(x):
-	"""
-	Return a task consumer to the thread pool :py:attr:`waflib.Runner.pool`
-
-	:param x: task consumer object
-	:type x: :py:class:`waflib.Runner.TaskConsumer`
-	"""
 	pool.put(x)
 
 
 class Parallel(object):
 	"""
-	Schedule the tasks obtained from the build context for execution.
+	Basic parallel scheduler.
+
+	Tries to keep the consumer threads busy, and avoid consuming cpu cycles
+	when no more tasks can be added (end of the build, etc.)
 	"""
 	def __init__(self, bld, j=2):
 		"""
@@ -99,59 +77,41 @@ class Parallel(object):
 
 		# tasks waiting to be processed - IMPORTANT
 		self.outstanding = []
-		"""List of :py:class:`waflib.Task.TaskBase` that may be ready to be executed"""
+		self.maxjobs = MAXJOBS
 
 		self.frozen = []
-		"""List of :py:class:`waflib.Task.TaskBase` that cannot be executed immediately"""
+		"""Tasks that cannot be executed immediately are put in this waiting list"""
 
 		self.out = Queue(0)
-		"""List of :py:class:`waflib.Task.TaskBase` returned by the task consumers"""
+		"""Tasks that have been executed are returned by the consumers in this queue"""
 
-		self.count = 0
-		"""Amount of tasks that may be processed by :py:class:`waflib.Runner.TaskConsumer`"""
+		self.count = 0 # tasks not in the producer area
 
-		self.processed = 1
-		"""Amount of tasks processed"""
+		self.processed = 1 # progress indicator
 
-		self.stop = False
-		"""Error flag to stop the build"""
-
-		self.error = []
-		"""Tasks that could not be executed"""
-
-		self.biter = None
-		"""Task iterator which must give groups of parallelizable tasks when calling ``next()``"""
-
-		self.dirty = False
-		"""Flag to indicate that tasks have been executed, and that the build cache must be saved (call :py:meth:`waflib.Build.BuildContext.store`)"""
+		self.stop = False # error condition to stop the build
+		self.error = [] # tasks in error
+		self.biter = None # build iterator, must give groups of parallelizable tasks on next()
+		self.dirty = False # tasks have been executed, the build cache must be saved
 
 	def get_next_task(self):
-		"""
-		Obtain the next task to execute.
-
-		:rtype: :py:class:`waflib.Task.TaskBase`
-		"""
+		"Override this method to schedule the tasks in a particular order"
 		if not self.outstanding:
 			return None
 		return self.outstanding.pop(0)
 
 	def postpone(self, tsk):
-		"""
-		A task cannot be executed at this point, put it in the list :py:attr:`waflib.Runner.Parallel.frozen`.
-
-		:param tsk: task
-		:type tsk: :py:class:`waflib.Task.TaskBase`
-		"""
+		"Override this method to schedule the tasks in a particular order"
+		# TODO consider using a deque instead
 		if random.randint(0, 1):
 			self.frozen.insert(0, tsk)
 		else:
 			self.frozen.append(tsk)
 
 	def refill_task_list(self):
-		"""
-		Put the next group of tasks to execute in :py:attr:`waflib.Runner.Parallel.outstanding`.
-		"""
-		while self.count > self.numjobs * GAP:
+		"Called to set the next group of tasks"
+
+		while self.count > self.numjobs * GAP or self.count >= self.maxjobs:
 			self.get_out()
 
 		while not self.outstanding:
@@ -184,23 +144,13 @@ class Parallel(object):
 				break
 
 	def add_more_tasks(self, tsk):
-		"""
-		Tasks may be added dynamically during the build by binding them to the task :py:attr:`waflib.Task.TaskBase.more_tasks`
-
-		:param tsk: task
-		:type tsk: :py:attr:`waflib.Task.TaskBase`
-		"""
+		"Tasks may be added dynamically during the build by binding to the list attribute 'more_tasks'"
 		if getattr(tsk, 'more_tasks', None):
 			self.outstanding += tsk.more_tasks
 			self.total += len(tsk.more_tasks)
 
 	def get_out(self):
-		"""
-		Obtain one task returned from the task consumers, and update the task count. Add more tasks if necessary through
-		:py:attr:`waflib.Runner.Parallel.add_more_tasks`.
-
-		:rtype: :py:attr:`waflib.Task.TaskBase`
-		"""
+		"The tasks that are put to execute are all collected using get_out"
 		tsk = self.out.get()
 		if not self.stop:
 			self.add_more_tasks(tsk)
@@ -208,43 +158,40 @@ class Parallel(object):
 		self.dirty = True
 
 	def error_handler(self, tsk):
-		"""
-		Called when a task cannot be executed. The flag :py:attr:`waflib.Runner.Parallel.stop` is set, unless
-		the build is executed with::
-
-			$ waf build -k
-
-		:param tsk: task
-		:type tsk: :py:attr:`waflib.Task.TaskBase`
-		"""
+		"By default, errors make the build stop (not thread safe so be careful)"
 		if not self.bld.keep:
 			self.stop = True
 		self.error.append(tsk)
 
 	def add_task(self, tsk):
-		"""
-		Pass a task to a consumer.
-
-		:param tsk: task
-		:type tsk: :py:attr:`waflib.Task.TaskBase`
-		"""
+		"Add a task to one of the consumers"
 		try:
 			pool = self.pool
 		except AttributeError:
 			# lazy creation
 			pool = self.pool = [get_pool() for i in range(self.numjobs)]
 
-			# ugly hack, set a common queue for all the consumers
-			self.ready = Queue(0)
-			for x in pool:
-				x.ready.put(self.ready)
+		# better load distribution across the consumers (makes more sense on distributed systems)
+		# there are probably ways to have consumers use a unique queue
+		a = pool[random.randint(0, len(pool) - 1)]
+		siz = a.ready.qsize()
+		if not siz:
+			a.ready.put(tsk)
+			return
 
-		self.ready.put(tsk)
+		b = pool[random.randint(0, len(pool) - 1)]
+		if siz > b.ready.qsize():
+			b.ready.put(tsk)
+		else:
+			a.ready.put(tsk)
 
 	def start(self):
 		"""
-		Give tasks to :py:class:`waflib.Runner.TaskConsumer` instances until the build finishes or the ``stop`` flag is set.
-		If only one job is used, then execute the tasks one by one, without consumers.
+		Execute the tasks
+
+		Loops, while the ``stop`` flag has not been set.
+		The loop refills the task list, gets the next task and spawns it
+		(via the pool of workers if multiple jobs are used) if possible.
 		"""
 
 		self.total = self.bld.total()
@@ -313,7 +260,6 @@ class Parallel(object):
 		try:
 			while self.pool:
 				x = self.pool.pop()
-				self.ready.put(Queue(0))
 				put_pool(x)
 		except AttributeError:
 			pass
