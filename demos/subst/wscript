@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# encoding: utf-8
 
 top = '.'
 out = 'bin'
@@ -21,4 +22,7 @@ def build(bld):
 		chmod        = Utils.O755, # installation mode, optional
 		PREFIX       = bld.env.PREFIX, # variables to use in the substitution
 		BINDIR       = bld.env.BINDIR)
+
+	# this one is just a reminder that simple files can be created (and a test too)
+	bld(rule='echo "การไฟ่" > ${TGT}', target='foo.txt')
 
