@@ -20,20 +20,15 @@ feats = Utils.defaultdict(set)
 
 class task_gen(object):
 	"""
+	Instances of this class create :py:class:`waflib.Task.TaskBase` when
+	calling the method :py:meth:`waflib.TaskGen.task_gen.post` from the main thread. In
+	random order:
 
-	* the methods to call (self.meths) can be specified dynamically (removing, adding, ..)
-	* the order of the methods (self.prec or by default task_gen.prec) is configurable
-	* new methods can be inserted dynamically without pasting old code
-
-	WARNING: subclasses must reimplement the clone method
-
-
-	Generate task objects by calling the method post() from the main thread
-	the tasks created should be added to the attribute tasks
-	the attribute 'path' is a node representing the location of the task generator
-	the attribute 'idx' is a counter of task generators in the same path
-	the 'features' are used to add methods to self.meths and then execute them
-	the methods are sorted before execution
+	* The methods to call (*self.meths*) can be specified dynamically (removing, adding, ..)
+	* The 'features' are used to add methods to self.meths and then execute them
+	* The attribute 'path' is a node representing the location of the task generator
+	* The tasks created are added to the attribute *tasks*
+	* The attribute 'idx' is a counter of task generators in the same path
 	"""
 
 	mappings = {}
@@ -56,20 +51,30 @@ class task_gen(object):
 		self.source = ''
 		self.target = ''
 
-		# list of methods to execute (it is usually a good idea to avoid touching this)
 		self.meths = []
+		"""
+		List of method names to execute (it is usually a good idea to avoid touching this)
+		"""
 
-		# precedence table for sorting the methods
 		self.prec = Utils.defaultdict(list)
+		"""
+		Precedence table for sorting the methods in self.meths
+		"""
 
-		# list of mappings extension -> function
 		self.mappings = {}
+		"""
+		List of mappings {extension -> function} for processing files by extension
+		"""
 
-		# list of methods to execute (by name)
 		self.features = []
+		"""
+		List of feature names for bringing new methods in
+		"""
 
-		# tasks created
 		self.tasks = []
+		"""
+		List of tasks created.
+		"""
 
 		if not 'bld' in kw:
 			# task generators without a build context :-/
@@ -104,7 +109,18 @@ class task_gen(object):
 		return "bld(%s) in %s" % (" ".join(lst), self.path.abspath())
 
 	def get_name(self):
-		"""the name is computed from the target name, if possible"""
+		"""
+		If not set, the name is computed from the target name::
+
+			def build(bld):
+				x = bld(name='foo')
+				x.get_name() # foo
+				y = bld(target='bar')
+				y.get_name() # bar
+
+		:rtype: string
+		:return: name of this task generator
+		"""
 		try:
 			return self._name
 		except AttributeError:
@@ -119,13 +135,26 @@ class task_gen(object):
 
 	name = property(get_name, set_name)
 
-	def to_list(self, value):
-		"""helper: returns a list"""
-		if isinstance(value, str): return value.split()
-		else: return value
+	def to_list(self, val):
+		"""
+		Ensure that a parameter is a list
+
+		:type val: string or list of string
+		:param val: input to return as a list
+		:rtype: list
+		"""
+		if isinstance(val, str): return val.split()
+		else: return val
 
 	def post(self):
-		"""create the task objects; order the methods to execute using self.prec or task_gen.prec"""
+		"""
+		Create task objects. The following operations are performed:
+
+		#. The body of this method is called only once and sets the attribute ``posted``
+		#. The attribute ``features`` is used to add more methods in ``self.meths``
+		#. The methods are sorted by the precedence table ``self.prec`` or `:waflib:attr:waflib.TaskGen.task_gen.prec`
+		#. The methods are then executed in order
+		"""
 
 		# we could add a decorator to let the task run once, but then python 2.3 will be difficult to support
 
@@ -197,7 +226,10 @@ class task_gen(object):
 
 	def get_hook(self, node):
 		"""
-		get a function able to process an extension
+		:param node: Input file to process
+		:type node: :py:class:`waflib.Tools.Node.Node`
+		:return: A method able to process the input node by looking at the extension
+		:rtype: function
 		"""
 		name = node.name
 		for k in self.mappings:
@@ -209,7 +241,18 @@ class task_gen(object):
 		raise Errors.WafError("File %r has no mapping in %r (did you forget to load a waf tool?)" % (node, task_gen.mappings.keys()))
 
 	def create_task(self, name, src=None, tgt=None):
-		"""wrapper for creating task object creation"""
+		"""
+		Wrapper for creating task objects easily
+
+		:param name: task class name
+		:type name: string
+		:param src: input nodes
+		:type src: list of :py:class:`waflib.Tools.Node.Node`
+		:param tgt: output nodes
+		:type tgt: list of :py:class:`waflib.Tools.Node.Node`
+		:return: A task object
+		:rtype: :py:class:`waflib.Task.TaskBase`
+		"""
 		task = Task.classes[name](env=self.env.derive(), generator=self)
 		if src:
 			task.set_inputs(src)
@@ -219,7 +262,16 @@ class task_gen(object):
 		return task
 
 	def clone(self, env):
-		"""make a copy of a task generator, make sure to avoid creating the same tasks twice"""
+		"""
+		Make a copy of a task generator. Once the copy is made, it is necessary to ensure that the
+		task generator does not create the same output files as the original, or the same files may
+		be compiled twice.
+
+		:param env: A configuration set
+		:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+		:return: A copy
+		:rtype: :py:class:`waflib.TaskGen.task_gen`
+		"""
 		newobj = self.bld()
 		for x in self.__dict__:
 			if x in ['env', 'bld']:
@@ -240,8 +292,29 @@ class task_gen(object):
 def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	ext_in=[], ext_out=[], before=[], after=[], decider=None, scan=None):
 	"""
-	see Tools/flex.py for an example
-	while i do not like such wrappers, some people really do
+	Create a new mapping and a task class for processing files by extension.
+	See Tools/flex.py for an example.
+
+	:param name: name for the task class
+	:type name: string
+	:param rule: function to execute or string to be compiled in a function
+	:type rule: string or function
+	:param reentrant: re-inject the output file in the process
+	:type reentrant: bool
+	:param color: color for the task output
+	:type color: string
+	:param ext_in: execute the task only after the files of such extensions are created
+	:type ext_in: list of string
+	:param ext_out: execute the task only before files of such extensions are processed
+	:type ext_out: list of string
+	:param before: execute instances of this task before classes of the given names
+	:type before: list of string
+	:param after: execute instances of this task after classes of the given names
+	:type after: list of string
+	:param decider: if present, use it to create the output nodes for the task
+	:type decider: function
+	:param scan: scanner function for the task
+	:type scan: function
 	"""
 	ext_in = Utils.to_list(ext_in)
 	ext_out = Utils.to_list(ext_out)

@@ -336,10 +336,10 @@ class Context(ctx):
 		will be bound to the WafError object::
 
 			def configure(conf):
-				out = conf.cmd_and_log(['echo', 'hello'], stdout=waflib.Context.STDOUT)
-				(out, err) = conf.cmd_and_log(['echo', 'hello'], stdout=waflib.Context.BOTH)
+				out = conf.cmd_and_log(['echo', 'hello'], output=waflib.Context.STDOUT, quiet=waflib.Context.BOTH)
+				(out, err) = conf.cmd_and_log(['echo', 'hello'], output=waflib.Context.BOTH)
 				try:
-					conf.cmd_and_log(['which', 'someapp'], stdout=waflib.Context.BOTH)
+					conf.cmd_and_log(['which', 'someapp'], output=waflib.Context.BOTH)
 				except Exception as e:
 					print(e.out, e.err)
 
