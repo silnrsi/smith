@@ -103,14 +103,12 @@ class tex(Task.Task):
 						debug('tex: trying %s%s' % (path, k))
 						found = node.parent.find_resource(path + k)
 						if found:
-							print "found", found
 							nodes.append(found)
 							add_name = False
 							if found.name.endswith('.tex') or found.name.endswith('.ltx'):
 								parse_node(found)
 						# no break, people are crazy
 					if add_name:
-						print "no skip, eheeheh!", path
 						names.append(path)
 		parse_node(node)
 
