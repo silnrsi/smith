@@ -20,14 +20,14 @@ FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual differe
 def fc_flags(conf):
 	v = conf.env
 
-	v['FC_SRC_F']    = ''
-	v['FC_TGT_F']    = ['-c', '-o', '']
+	v['FC_SRC_F']    = []
+	v['FC_TGT_F']    = ['-c', '-o']
 	v['FCINCPATH_ST']  = '-I%s'
 	v['FCDEFINES_ST']  = '-D%s'
 
 	if not v['LINK_FC']: v['LINK_FC'] = v['FC']
-	v['FCLNK_SRC_F'] = ''
-	v['FCLNK_TGT_F'] = ['-o', '']
+	v['FCLNK_SRC_F'] = []
+	v['FCLNK_TGT_F'] = ['-o']
 
 	v['FCFLAGS_fcshlib']   = ['-fpic']
 	v['LINKFLAGS_fcshlib'] = ['-shared']
