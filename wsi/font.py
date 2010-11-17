@@ -234,13 +234,13 @@ def process(tgt, *cmds, **kw) :
 def create(tgt, *cmds, **kw) :
     if len(cmds) > 0 :
         res = cmds[0](tgt)
-        rule(res[0], res[1], txt, **res[2])
+        rule(res[0], res[1], tgt, **res[2])
     for c in cmds[1:] :
         res = c(tgt)
         modify(res[0], tgt, res[1], **res[2])
     return tgt
 
-def cmd(c, inputs = None, **kw) :
+def cmd(c, inputs = [], **kw) :
     def icmd(tgt) :
         return (c, inputs, kw)
     return icmd
