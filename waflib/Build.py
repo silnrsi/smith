@@ -4,6 +4,9 @@
 
 """
 Classes related to the build phase (build, clean, install, step, etc)
+
+The inheritance tree is the following:
+
 """
 
 import os, sys, errno, re, datetime, shutil

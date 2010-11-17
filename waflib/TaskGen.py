@@ -3,22 +3,13 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-The class task_gen encapsulates the creation of task objects (low-level code)
+Task generators
+
+The class :py:class:`waflib.TaskGen.task_gen` encapsulates the creation of task objects (low-level code)
 The instances can have various parameters, but the creation of task nodes (Task.py)
 is always postponed. To achieve this, various methods are called from the method "apply"
 
-The class task_gen contains lots of methods, and a configuration table:
-* the methods to call (self.meths) can be specified dynamically (removing, adding, ..)
-* the order of the methods (self.prec or by default task_gen.prec) is configurable
-* new methods can be inserted dynamically without pasting old code
 
-Additionally, task_gen provides the method "process_source"
-* file extensions are mapped to methods: def meth(self, name_or_node)
-* if a mapping is not found in self.mappings, it is searched in task_gen.mappings
-* when called, the functions may modify self.source to append more source to process
-* the mappings can map an extension or a filename (see the code below)
-
-WARNING: subclasses must reimplement the clone method
 """
 
 import copy, re
@@ -29,6 +20,14 @@ feats = Utils.defaultdict(set)
 
 class task_gen(object):
 	"""
+
+	* the methods to call (self.meths) can be specified dynamically (removing, adding, ..)
+	* the order of the methods (self.prec or by default task_gen.prec) is configurable
+	* new methods can be inserted dynamically without pasting old code
+
+	WARNING: subclasses must reimplement the clone method
+
+
 	Generate task objects by calling the method post() from the main thread
 	the tasks created should be added to the attribute tasks
 	the attribute 'path' is a node representing the location of the task generator
@@ -351,11 +350,16 @@ def to_nodes(self, lst, path=None):
 @feature('*')
 def process_source(self):
 	"""
-	Process each element in the attribute 'source', assuming it represents
+	Process each element in the attribute 'source' by extension, assuming it represents
 	a list of source (a node, a string, or a list of nodes or file names)
-	process the files by extension
+	No error is raised if 'self.source' is not defined.
 
-	No error will be raised if 'self.source' is not defined.
+	Longer description:
+
+	* File extensions are mapped to methods: def meth(self, name_or_node)
+	* If a mapping is not found in self.mappings, it is searched in task_gen.mappings
+	* When called, the functions may modify self.source to append more source to process
+	* The mappings can map an extension or a filename (see the code below)
 	"""
 	self.source = self.to_nodes(getattr(self, 'source', []))
 	for node in self.source:
@@ -424,16 +428,18 @@ def sequence_order(self):
 	It works because task generators are posted in order
 	it will not post objects which belong to other folders
 
-	This is more an example than a widely-used solution
+	Example::
 
-	Note that the method is executed in last position
+		bld(features='javac seq')
+		bld(features='jar seq')
 
-	to use:
-	bld(features='javac seq')
-	bld(features='jar seq')
+	To start a new sequence, set the attribute seq_start, for example::
 
-	to start a new sequence, set the attribute seq_start, for example:
-	obj.seq_start = True
+		obj = bld(features='seq')
+		obj.seq_start = True
+
+	Note that the method is executed in last position. This is more an
+	example than a widely-used solution.
 	"""
 	if self.meths and self.meths[-1] != 'sequence_order':
 		self.meths.append('sequence_order')

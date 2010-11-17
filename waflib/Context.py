@@ -3,7 +3,10 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-Base classes (mostly abstract)
+Context classes are used for waf commands
+
+.. inheritance-diagram:: waflib.Context.Context waflib.Build.BuildContext waflib.Build.InstallContext waflib.Build.UninstallContext waflib.Build.StepContext waflib.Build.ListContext waflib.Configure.ConfigurationContext waflib.Scripting.Dist waflib.Scripting.DistCheck waflib.Build.CleanContext
+
 """
 
 import traceback, os, imp, sys
@@ -131,10 +134,14 @@ ctx = store_context('ctx', (object,), {})
 
 class Context(ctx):
 	"""
-	Base class for command contexts. Those objects are passed as the arguments
-	of user functions (commands) defined in Waf scripts.
+	Default context for waf commands, and base class for new command contexts.
 
-	Subclasses must provide the attribute 'cmd':
+	Context objects are passed to top-level functions::
+
+		def foo(ctx):
+			print(ctx.__class__.__name__) # waflib.Context.Context
+
+	Subclasses must define the attribute 'cmd':
 
 	:param cmd: command to execute as in ``waf cmd``
 	:type cmd: string
