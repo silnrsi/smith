@@ -64,21 +64,19 @@ def download_tool(tool, force=False, ctx=None):
 			else:
 				tmp = ctx.root.make_node(os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py')))
 				tmp.write(web.read())
-				Logs.warn('downloaded %s from %s' % (tool, url))
+				Logs.warn('Downloaded %s from %s' % (tool, url))
 				download_check(tmp)
 				try:
 					module = Context.load_tool(tool)
 				except:
-					Logs.warn('module %s from %s is unusable' % (tool, url))
+					Logs.warn('The tool %s from %s is unusable' % (tool, url))
 					try:
 						tmp.delete()
 					except:
 						pass
 					continue
 				return module
-		else:
-				break
-		raise Errors.WafError('Could not load the Waf tool')
+	raise Errors.WafError('Could not load the Waf tool')
 
 class ConfigurationContext(Context.Context):
 	'''configures the project'''
@@ -296,7 +294,7 @@ class ConfigurationContext(Context.Context):
 				module = Context.load_tool(tool, tooldir)
 			except ImportError as e:
 				if Options.options.download:
-					module = download_tool(tool)
+					module = download_tool(tool, ctx=self)
 					if not module:
 						self.fatal('Could not load the Waf tool %r or download a suitable replacement from the repository (sys.path %r)\n%s' % (tool, sys.path, e))
 				else:

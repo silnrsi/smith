@@ -496,12 +496,15 @@ def distcheck(ctx):
 
 def update(ctx):
 	'''updates the plugins from the `waflib/extras' directory'''
-	lst = os.listdir(Context.waf_dir + '/waflib/extras')
+	lst = Options.options.files.split(',')
+	if not lst:
+		lst = [x for x in Utils.listdir(Context.waf_dir + '/waflib/extras') if x.endswith('.py')]
 	for x in lst:
-		if not x.endswith('.py'):
-			continue
 		tool = x.replace('.py', '')
-		Configure.download_tool(tool, force=True, ctx=ctx)
+		try:
+			Configure.download_tool(tool, force=True, ctx=ctx)
+		except Errors.WafError:
+			Logs.warn('Could not find the tool %s in the remote repository' % x)
 
 def autoconfigure(execute_method):
 	"""

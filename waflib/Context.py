@@ -62,7 +62,7 @@ Remote directory containing downloadable waf tools. The missing tools can be dow
 	$ waf configure --download
 """
 
-remote_locs = ['branches/waf-%s/waflib/extras' % WAFVERSION, 'trunk/waflib/extras']
+remote_locs = ['branches/waf-%s/waflib/extras' % WAFVERSION, 'trunk/waflib/extras', 'trunk/waflib/Tools']
 """
 Remote directories for use with :py:const:`waflib.Context.remote_repo`
 """
