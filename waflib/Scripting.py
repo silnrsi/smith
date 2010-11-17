@@ -12,7 +12,16 @@ build_dir_override = None
 no_climb_commands = ['configure']
 
 def waf_entry_point(current_directory, version, wafdir):
-	"""This is the main entry point, all Waf execution starts here."""
+	"""
+	This is the main entry point, all Waf execution starts here.
+
+	:param current_directory: absolute path representing the current directory
+	:type current_directory: string
+	:param version: version number
+	:type version: string
+	:param wafdir: absolute path representing the directory of the waf library
+	:type wafdir: string
+	"""
 
 	Logs.init_log()
 
@@ -121,7 +130,14 @@ def waf_entry_point(current_directory, version, wafdir):
 	#"""
 
 def set_main_module(file_path):
-	"Read the main wscript file into a module and add missing functions if necessary"
+	"""
+	Read the main wscript file into :py:const:`waflib.Context.Context.g_module` and
+	bind default functions such as ``init``, ``dist``, ``distclean`` if not defined.
+	Called by :py:func:`waflib.Scripting.waf_entry_point` during the initialization.
+
+	:param file_path: absolute path representing the top-level wscript file
+	:type file_path: string
+	"""
 	Context.g_module = Context.load_module(file_path)
 	Context.g_module.root_path = file_path
 
@@ -132,7 +148,7 @@ def set_main_module(file_path):
 		name = obj.__name__
 		if not name in Context.g_module.__dict__:
 			setattr(Context.g_module, name, obj)
-	for k in [update, dist, distclean, distcheck]:
+	for k in [update, dist, distclean, distcheck, update]:
 		set_def(k)
 	# add dummy init and shutdown functions if they're not defined
 	if not 'init' in Context.g_module.__dict__:
@@ -143,7 +159,10 @@ def set_main_module(file_path):
 		Context.g_module.options = Utils.nada
 
 def parse_options():
-	"""parse the command-line options and initialize the logging system"""
+	"""
+	Parse the command-line options and initialize the logging system.
+	Called by :py:func:`waflib.Scripting.waf_entry_point` during the initialization.
+	"""
 	opt = Options.OptionsContext().execute()
 
 	if not Options.commands:
@@ -164,7 +183,12 @@ def parse_options():
 		Logs.zones = ['*']
 
 def run_command(cmd_name):
-	"""run a single command (usually given on the command line)"""
+	"""
+	Execute a single command. Called by :py:func:`waflib.Scripting.run_commands`.
+
+	:param cmd_name: command to execute, like ``build``
+	:type cmd_name: string
+	"""
 	ctx = Context.create_context(cmd_name)
 	ctx.options = Options.options # provided for convenience
 	ctx.cmd = cmd_name
@@ -172,7 +196,11 @@ def run_command(cmd_name):
 	return ctx
 
 def run_commands():
-	"""execute the commands that were given on the command-line, depends on parse_options"""
+	"""
+	Execute the commands that were given on the command-line.
+	Called by :py:func:`waflib.Scripting.waf_entry_point` during the initialization, and executed
+	after :py:func:`waflib.Scripting.parse_options`.
+	"""
 	run_command('init')
 	while Options.commands:
 		cmd_name = Options.commands.pop(0)
@@ -187,9 +215,7 @@ def run_commands():
 ###########################################################################################
 
 def _can_distclean(name):
-	"""
-	WARNING: this method may disappear anytime
-	"""
+	# WARNING: this method may disappear anytime
 	for k in '.o .moc .exe'.split():
 		if name.endswith(k):
 			return True
@@ -197,7 +223,12 @@ def _can_distclean(name):
 
 def distclean_dir(dirname):
 	"""
-	called when top==out
+	Distclean function called in the particular case when::
+
+		top == out
+
+	:param dirname: absolute path of the folder to clean
+	:type dirname: string
 	"""
 	for (root, dirs, files) in os.walk(dirname):
 		for f in files:
@@ -254,7 +285,9 @@ def distclean(ctx):
 
 class Dist(Context.Context):
 	"""
-	Create an archive containing the source code on 'waf dist'
+	Create an archive containing the project source code::
+
+		$ waf dist
 	"""
 	cmd = 'dist'
 	fun = 'dist'
@@ -270,7 +303,7 @@ class Dist(Context.Context):
 
 	def archive(self):
 		"""
-		Create the archive (override or subclass)
+		Create the archive.
 		"""
 		import tarfile
 
@@ -337,8 +370,12 @@ class Dist(Context.Context):
 
 	def get_arch_name(self):
 		"""
-		return the name of the archive to create
-		if it does not work, set "self.arch_name"
+		Return the name of the archive to create. Change the default value by setting *arch_name*::
+
+			def dist(ctx):
+				ctx.arch_name = 'ctx.tar.bz2'
+
+		:rtype: string
 		"""
 		try:
 			self.arch_name
@@ -348,7 +385,13 @@ class Dist(Context.Context):
 
 	def get_base_name(self):
 		"""
-		name of the directory in the archive
+		Return the default name of the main directory in the archive, which is set to *appname-version*.
+		Set the attribute *base_name* to change the default value::
+
+			def dist(ctx):
+				ctx.base_name = 'files'
+
+		:rtype: string
 		"""
 		try:
 			self.base_name
@@ -360,8 +403,13 @@ class Dist(Context.Context):
 
 	def get_excl(self):
 		"""
-		return the patterns to exclude, which is important for the build directory
-		if it does not work, set "self.excl"
+		Return the patterns to exclude for finding the files in the top-level directory. Set the attribute *excl*
+		to change the default value::
+
+			def dist(ctx):
+				ctx.excl = 'build **/*.o **/*.class'
+
+		:rtype: string
 		"""
 		try:
 			return self.excl
@@ -374,8 +422,18 @@ class Dist(Context.Context):
 
 	def get_files(self):
 		"""
-		return the list of nodes representing the files to include
-		if it is not satisfactory, set "self.files"
+		The files to package are searched automatically by :py:func:`waflib.Node.Node.ant_glob`. Set
+		*files* to prevent this behaviour::
+
+			def dist(ctx):
+				ctx.files = ctx.path.find_node('wscript')
+
+		The files are searched from the directory 'base_path', to change it, set::
+
+			def dist(ctx):
+				ctx.base_path = path
+
+		:rtype: list of :py:class:`waflib.Node.Node`
 		"""
 		try:
 			files = self.files
@@ -390,8 +448,9 @@ def dist(ctx):
 
 class DistCheck(Dist):
 	"""
-	create an archive with 'waf dist', then try to build it in a temporary directory
-	this is less useful with waf, as all files are included by default (vs excluded for autotools)
+	Create an archive of the project, and try to build the project in a temporary directory::
+
+		$ waf distcheck
 	"""
 
 	fun = 'distcheck'
@@ -406,7 +465,9 @@ class DistCheck(Dist):
 		self.check()
 
 	def check(self):
-		"""create the archive, uncompress it and try to build the project"""
+		"""
+		Create the archive, uncompress it and try to build the project
+		"""
 		import tempfile, tarfile
 
 		t = None
@@ -434,7 +495,7 @@ def distcheck(ctx):
 	pass
 
 def update(ctx):
-	"""download a specific tool into the local waf directory"""
+	'''updates the plugins from the `waflib/extras' directory'''
 	lst = os.listdir(Context.waf_dir + '/waflib/extras')
 	for x in lst:
 		if not x.endswith('.py'):
@@ -443,7 +504,9 @@ def update(ctx):
 		Configure.download_tool(tool, force=True)
 
 def autoconfigure(execute_method):
-	"""decorator used to set the commands that can be configured automatically"""
+	"""
+	Decorator used to set the commands that can be configured automatically
+	"""
 	def execute(self):
 		if not Configure.autoconfig:
 			return execute_method(self)
