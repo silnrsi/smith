@@ -480,7 +480,7 @@ class Task(TaskBase):
 		except AttributeError: pass
 
 		self.m = Utils.md5()
-		self.m.update(str(self.hcode).encode())
+		self.m.update(str(self.hcode))
 
 		# explicit deps
 		self.sig_explicit_deps()
