@@ -222,6 +222,8 @@ autodoc_member_order = 'bysource'
 def maybe_skip_member(app, what, name, obj, skip, options):
 	if name == 'Nod3':
 		return True
+	if what == 'class' and name in 'process_source sequence_order process_rule add_pcfile to_nodes'.split():
+		return True
 
 def setup(app):
 	app.connect('autodoc-skip-member', maybe_skip_member)
