@@ -22,12 +22,6 @@ def configure(cfg):
 
 def build(bld):
 
-	for x in bld.path.ant_glob('*.dot'):
-		tg = bld(rule='${DOT} -Teps -o${TGT} ${SRC}', source=x, target=x.change_ext('.eps'))
-		tg = bld(rule='${CONVERT} -geometry 500x500  ${SRC} ${TGT}', source=tg.target, target=x.change_ext('.png'))
-
-	bld.add_group()
-
 	bld(
 		rule   = "${SPHINX_BUILD} -b html -d %s . %s" % (os.path.join(out, "doctrees"), os.path.join(out, "html")),
 		cwd    = bld.path.abspath(),
