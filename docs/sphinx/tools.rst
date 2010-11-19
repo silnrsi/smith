@@ -1,32 +1,21 @@
 Waf Tools
 =========
 
-C language family tools
------------------------
+C-related tools
+---------------
 
-compiler_c
-++++++++++
+.. toctree::
 
-.. automodule:: waflib.Tools.compiler_c
+	tools/ccroot
+	tools/c_config
+	tools/compiler_c
 
-c_config
-++++++++
+Other tools
+-----------
 
-.. automodule:: waflib.Tools.c_config
+.. toctree::
 
-ccroot
-++++++
-
-.. automodule:: waflib.Tools.ccroot
-
-tex: LaTeX family
------------------
-
-.. automodule:: waflib.Tools.tex
-
-java
-----
-
-.. automodule:: waflib.Tools.javaw
+	tools/tex
+	tools/java
 
 

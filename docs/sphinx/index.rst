@@ -17,4 +17,3 @@ Waf v1.6.1 documentation
 .. ==================
 
 
-.. tutorial, faq, ..
