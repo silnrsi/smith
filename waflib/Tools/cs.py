@@ -108,7 +108,9 @@ def options(opt):
 	opt.add_option('--with-csc-binary', type='string', dest='cscbinary')
 
 class fake_csshlib(Task.Task):
-	"""task used for reading a foreign .net assembly and adding the dependency on it"""
+	"""
+	Task used for reading a foreign .net assembly and adding the dependency on it
+	"""
 	color   = 'YELLOW'
 	inst_to = None
 
@@ -119,6 +121,8 @@ class fake_csshlib(Task.Task):
 
 @conf
 def read_csshlib(self, name, paths=[]):
-	"""read a foreign .net assembly for the use system"""
+	"""
+	Read a foreign .net assembly for the *use* system
+	"""
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='csshlib')
 

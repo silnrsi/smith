@@ -4,22 +4,24 @@
 # Thomas Nagy 2009-2010 (ita)
 
 """
-The program **bison** is a parser generator, it creates C or C++ files which
-are then compiled into object files.
+The **bison** program is a code generator which creates C or C++ files.
+The generated files are compiled into object files.
 """
 
 from waflib import Task
 from waflib.TaskGen import extension
 
 class bison(Task.Task):
-	"""bison task, created by the extension method below"""
+	"""Bison task, created by the extension method below"""
 	color   = 'BLUE'
 	run_str = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
 	ext_out = ['.h'] # just to make sure
 
 @extension('.y', '.yc', '.yy')
 def big_bison(self, node):
-	"""more complicated than flex (need to pass the cwd)"""
+	"""
+	The bison task must be executed from the directory of the output file
+	"""
 	has_h = '-d' in self.env['BISONFLAGS']
 
 	outs = []
@@ -39,6 +41,9 @@ def big_bison(self, node):
 	self.source.append(outs[0])
 
 def configure(conf):
+	"""
+	Detect the *bison* program
+	"""
 	conf.find_program('bison', var='BISON')
 	conf.env.BISONFLAGS = ['-d']
 
