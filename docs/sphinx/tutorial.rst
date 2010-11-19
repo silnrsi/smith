@@ -10,7 +10,7 @@ Waf scripts and commands
 
 A software typically has *source files* which are kept in a version control system (git, subversion, etc),
 and *build scripts* (Makefiles, ..) which describe what to do with those files. A few *build files* are usually
-obtained after transforming the *source files*, but they are optional. In Waf, the build script are files named 'wscript'.
+obtained after transforming the *source files*, but they are optional. The build scripts in Waf are files named 'wscript'.
 
 In general, a project will consist of several phases:
 
@@ -81,7 +81,7 @@ one should write::
 		bld.recurse('src')
 
 The support for specific languages and compilers is provided through specific modules called *Waf tools*. The tools are
-similar to wscript files and provide functions such as *configure* or *build*. Here is a simple project for the c language::
+similar to wscript files and provide functions such as *configure* or *build*. Here is a simple project for the C programming language::
 
 	def options(opt):
 		opt.load('compiler_c')
@@ -90,9 +90,9 @@ similar to wscript files and provide functions such as *configure* or *build*. H
 	def build(bld):
 		bld(features='c cprogram', source='main.c', target='app')
 
-The function *options* is another predefined command used for setting command-line options. Its argument is an instance of :py:meth:`waflib.Options.OptionsContext`. The tool *compiler_c* is provided for detecting if a c compiler is present and set various variables such as cnf.env.CFLAGS.
+The function *options* is another predefined command used for setting command-line options. Its argument is an instance of :py:meth:`waflib.Options.OptionsContext`. The tool *compiler_c* is provided for detecting if a C compiler is present and set various variables such as ``cnf.env.CFLAGS``.
 
-The task generator declared in *bld* does not have a *rule* keyword, but a list of *features* which is used to reference methods that will call the appropriate rules. In this case, a rule is called for compiling the file, and another is used for linking the object files into the binary 'app'. Other tool-dependent features exist such as 'javac', 'cs', or 'tex'.
+The task generator declared in *bld* does not have a *rule* keyword, but a list of *features* which is used to reference methods that will call the appropriate rules. In this case, a rule is called for compiling the file, and another is used for linking the object files into the binary *app*. Other tool-dependent features exist such as *javac*, *cs*, or *tex*.
 
 A C and C++ project
 -------------------
@@ -115,18 +115,18 @@ It will then define variables such as:
 * ``conf.env.CFLAGS_M = ['-Wall']``
 * ``conf.env.DEFINES_M = ['var=foo']``
 
-By stating ``use=['M', 'mylib']``, the program app is going to inherit all the *M* variables defined
+By stating ``use=['M', 'mylib']``, the program *app* is going to inherit all the *M* variables defined
 during the configuration. The program will also use the library *mylib* and both the build order and the dependencies
 will be modified so that *mylib* is linked before *app*.
 
-The ``use`` attributes is also working for other languages such as java (dependencies between jar files) or c# (dependencies between assemblies).
+The ``use`` attributes is also working for other languages such as Java (dependencies between jar files) or C# (dependencies between assemblies).
 
 Project-specific extensions
 ---------------------------
 
 The *feature* keyword is a high level reference to existing Waf methods.
 For example, the **c** feature will add the method :py:func:`waflib.Tools.ccroot.apply_incpaths` for execution.
-To add a new method that will add the task generator path to the include path for all c targets,
+To add a new method that will add the task generator path to the include path for all C targets,
 one may use such a declaration::
 
 	from waflib import Utils
