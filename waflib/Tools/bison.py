@@ -3,7 +3,10 @@
 # John O'Meara, 2006
 # Thomas Nagy 2009-2010 (ita)
 
-"Bison processing"
+"""
+The program **bison** is a parser generator, it creates C or C++ files which
+are then compiled into object files.
+"""
 
 from waflib import Task
 from waflib.TaskGen import extension
