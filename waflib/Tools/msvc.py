@@ -40,7 +40,10 @@ import os, sys, re
 try:
 	import _winreg
 except:
-	import winreg as _winreg
+	try:
+		import winreg as _winreg
+	except:
+		_winreg = None
 
 from waflib import Utils, TaskGen, Runner, Configure, Task, Options
 from waflib.Logs import debug, info, warn, error
@@ -50,8 +53,7 @@ from waflib.Configure import conf
 from waflib.Tools import ccroot, c, cxx, ar, winres
 
 
-# importlibs provided by MSVC/Platform SDK. Do NOT search them....
-g_msvc_systemlibs = """
+g_msvc_systemlibs = '''
 aclui activeds ad1 adptif adsiid advapi32 asycfilt authz bhsupp bits bufferoverflowu cabinet
 cap certadm certidl ciuuid clusapi comctl32 comdlg32 comsupp comsuppd comsuppw comsuppwd comsvcs
 credui crypt32 cryptnet cryptui d3d8thk daouuid dbgeng dbghelp dciman32 ddao35 ddao35d
@@ -70,12 +72,17 @@ shfolder shlwapi sisbkup snmpapi sporder srclient sti strsafe svcguid tapi32 thu
 traffic unicows url urlmon user32 userenv usp10 uuid uxtheme vcomp vcompd vdmdbg
 version vfw32 wbemuuid  webpost wiaguid wininet winmm winscard winspool winstrm
 wintrust wldap32 wmiutils wow32 ws2_32 wsnmp32 wsock32 wst wtsapi32 xaswitch xolehlp
-""".split()
-
+'''.split()
+"""importlibs provided by MSVC/Platform SDK. Do NOT search them"""
 
 all_msvc_platforms = [ ('x64', 'amd64'), ('x86', 'x86'), ('ia64', 'ia64'), ('x86_amd64', 'amd64'), ('x86_ia64', 'ia64') ]
+"""List of msvc platforms"""
+
 all_wince_platforms = [ ('armv4', 'arm'), ('armv4i', 'arm'), ('mipsii', 'mips'), ('mipsii_fp', 'mips'), ('mipsiv', 'mips'), ('mipsiv_fp', 'mips'), ('sh4', 'sh'), ('x86', 'cex86') ]
+"""List of wince platforms"""
+
 all_icl_platforms = [ ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86'), ('Itanium', 'ia64')]
+"""List of icl platforms"""
 
 def setup_msvc(conf, versions):
 	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
@@ -96,6 +103,16 @@ def setup_msvc(conf, versions):
 
 @conf
 def get_msvc_version(conf, compiler, version, target, vcvars):
+	"""
+	Create a bat file to obtain the location of the libraries
+
+	:param compiler: ?
+	:param version: ?
+	:target: ?
+	:vcvars: ?
+	:return: the location of msvc, the location of include dirs, and the library paths
+	:rtype: tuple of strings
+	"""
 	debug('msvc: get_msvc_version: %r %r %r', compiler, version, target)
 	batfile = conf.bldnode.make_node('waf-print-msvc.bat')
 	batfile.write("""@echo off
@@ -154,6 +171,12 @@ echo LIB=%%LIB%%
 
 @conf
 def gather_wsdk_versions(conf, versions):
+	"""
+	Use winreg to add the msvc versions to the input list
+
+	:param versions: list to modify
+	:type versions: list
+	"""
 	version_pattern = re.compile('^v..?.?\...?.?')
 	try:
 		all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Microsoft\\Microsoft SDKs\\Windows')
@@ -187,7 +210,12 @@ def gather_wsdk_versions(conf, versions):
 
 @conf
 def gather_msvc_versions(conf, versions):
-	"""checks SmartPhones SDKs"""
+	"""
+	Checks SmartPhones SDKs
+
+	:param versions: list to modify
+	:type versions: list
+	"""
 	try:
 		ce_sdk = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Microsoft\\Windows CE Tools\\SDKs')
 	except WindowsError:
@@ -289,6 +317,12 @@ def gather_msvc_versions(conf, versions):
 
 @conf
 def gather_icl_versions(conf, versions):
+	"""
+	Checks ICL compilers
+
+	:param versions: list to modify
+	:type versions: list
+	"""
 	version_pattern = re.compile('^...?.?\....?.?')
 	try:
 		all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Wow6432node\\Intel\\Compilers\\C++')
@@ -323,6 +357,10 @@ def gather_icl_versions(conf, versions):
 
 @conf
 def get_msvc_versions(conf):
+	"""
+	:return: list of compilers installed
+	:rtype: list of string
+	"""
 	if not conf.env['MSVC_INSTALLED_VERSIONS']:
 		lst = []
 		conf.gather_icl_versions(lst)
@@ -333,6 +371,9 @@ def get_msvc_versions(conf):
 
 @conf
 def print_all_msvc_detected(conf):
+	"""
+	Print the contents of *conf.env.MSVC_INSTALLED_VERSIONS*
+	"""
 	for version,targets in conf.env['MSVC_INSTALLED_VERSIONS']:
 		info(version)
 		for target,l in targets:
@@ -438,7 +479,7 @@ def libname_msvc(self, libname, is_static=False):
 @conf
 def check_lib_msvc(self, libname, is_static=False, uselib_store=None):
 	"""
-	ideally we should be able to place the lib in the right env var, either STLIB or LIB,
+	Ideally we should be able to place the lib in the right env var, either STLIB or LIB,
 	but we don't distinguish static libs from shared libs.
 	This is ok since msvc doesn't have any special linker flag to select static libs (no env['STLIB_MARKER'])
 	"""
@@ -472,6 +513,9 @@ cc_add_flags
 cxx_add_flags
 link_add_flags
 '''
+"""
+Configuration methods to call for detecting msvc
+"""
 
 @conf
 def autodetect(conf):
@@ -496,9 +540,9 @@ def _get_prog_names(conf, compiler):
 
 @conf
 def find_msvc(conf):
-	"""due to path format limitations, limit operation only to native Win32. Yeah it sucks."""
-	if sys.platform != 'win32':
-		conf.fatal('MSVC module only works under native Win32 Python! cygwin is not supported yet')
+	"""Due to path format limitations, limit operation only to native Win32. Yeah it sucks."""
+	if sys.platform == 'cygwin':
+		conf.fatal('MSVC module does not work under cygwin Python!')
 
 	v = conf.env
 
@@ -561,6 +605,9 @@ def find_msvc(conf):
 
 @conf
 def msvc_common_flags(conf):
+	"""
+	Setup the flags required for executing the msvc compiler
+	"""
 	v = conf.env
 
 	v['DEST_BINFMT'] = 'pe'
@@ -628,6 +675,12 @@ def msvc_common_flags(conf):
 @after('apply_link')
 @feature('c', 'cxx')
 def apply_flags_msvc(self):
+	"""
+	Add additional flags implied by msvc, such as subsystems and pdb files::
+
+		def build(bld):
+			bld.stlib(source='main.c', target='bar', subsystem='gruik')
+	"""
 	if self.env.CC_NAME != 'msvc' or not getattr(self, 'link_task', None):
 		return
 
@@ -654,11 +707,12 @@ def apply_flags_msvc(self):
 @feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')
 @after('apply_link')
 def apply_manifest(self):
-	"""Special linker for MSVC with support for embedding manifests into DLL's
+	"""
+	Special linker for MSVC with support for embedding manifests into DLL's
 	and executables compiled by Visual Studio 2005 or probably later. Without
 	the manifest file, the binaries are unusable.
 	See: http://msdn2.microsoft.com/en-us/library/ms235542(VS.80).aspx
-	Problems with this tool: it is always called whether MSVC creates manifests or not."""
+	"""
 
 	if self.env.CC_NAME == 'msvc' and self.env.MSVC_MANIFEST and getattr(self, 'link_task', None):
 		out_node = self.link_task.outputs[0]
@@ -667,6 +721,9 @@ def apply_manifest(self):
 		self.link_task.do_manifest = True
 
 def exec_mf(self):
+	"""
+	Create the manifest file
+	"""
 	env = self.env
 	mtool = env['MT']
 	if not mtool:
@@ -712,7 +769,10 @@ def exec_mf(self):
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
 def exec_command_msvc(self, *k, **kw):
-	"instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in"
+	"""
+	Change the command-line execution for msvc programs.
+	Instead of quoting all the paths and keep using the shell, we can just join the options msvc is interested in
+	"""
 	if self.env['CC_NAME'] == 'msvc':
 		if isinstance(k[0], list):
 			lst = []
