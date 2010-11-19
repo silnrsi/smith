@@ -10,6 +10,9 @@ from waflib.Configure import conf
 
 @conf
 def find_scc(conf):
+	"""
+	Detect the sun C compiler
+	"""
 	v = conf.env
 	cc = None
 	if v['CC']: cc = v['CC']
@@ -28,6 +31,9 @@ def find_scc(conf):
 
 @conf
 def scc_common_flags(conf):
+	"""
+	Flags required for executing the sun C compiler
+	"""
 	v = conf.env
 
 	v['CC_SRC_F']            = ''

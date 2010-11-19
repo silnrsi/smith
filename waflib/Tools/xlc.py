@@ -11,6 +11,9 @@ from waflib.Configure import conf
 
 @conf
 def find_xlc(conf):
+	"""
+	Detect the Aix C compiler
+	"""
 	cc = conf.find_program(['xlc_r', 'xlc'], var='CC')
 	cc = conf.cmd_to_list(cc)
 	conf.env.CC_NAME = 'xlc'
@@ -18,6 +21,9 @@ def find_xlc(conf):
 
 @conf
 def xlc_common_flags(conf):
+	"""
+	Flags required for executing the Aix C compiler
+	"""
 	v = conf.env
 
 	v['CC_SRC_F']            = ''

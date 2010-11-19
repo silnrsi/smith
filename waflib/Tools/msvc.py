@@ -7,28 +7,33 @@
 """
 Microsoft Visual C++/Intel C++ compiler support
 
-usage:
+Usage::
 
-conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
-conf.env['MSVC_TARGETS'] = ['x64']
-conf.load('msvc')
-OR conf.load('msvc', funs='no_autodetect')
-conf.check_lib_msvc('gdi32')
-conf.check_libs_msvc('kernel32 user32')
-...
-obj.uselib = 'KERNEL32 USER32 GDI32'
+	def configure(conf):
+		conf.env['MSVC_VERSIONS'] = ['msvc 9.0', 'msvc 8.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
+		conf.env['MSVC_TARGETS'] = ['x64']
+		conf.load('msvc')
 
-platforms and targets will be tested in the order they appear;
-the first good configuration will be used
-supported platforms :
-ia64, x64, x86, x86_amd64, x86_ia64
+or::
 
-compilers supported :
- msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
- wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
- icl        => Intel compiler, versions 9,10,11
- Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
- PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
+	def configure(conf):
+		conf.load('msvc', funs='no_autodetect')
+		conf.check_lib_msvc('gdi32')
+		conf.check_libs_msvc('kernel32 user32')
+	def build(bld):
+		tg = bld.program(source='main.c', target='app', use='KERNEL32 USER32 GDI32')
+
+Platforms and targets will be tested in the order they appear;
+the first good configuration will be used.
+Supported platforms: ia64, x64, x86, x86_amd64, x86_ia64
+
+Compilers supported:
+
+* msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
+* wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
+* icl        => Intel compiler, versions 9,10,11
+* Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
+* PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
 """
 
 import os, sys, re
@@ -224,6 +229,7 @@ def gather_msvc_versions(conf, versions):
 				all_versions = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, prefix)
 			except WindowsError:
 				continue
+
 		index = 0
 		while 1:
 			try:

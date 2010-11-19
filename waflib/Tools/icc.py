@@ -3,12 +3,19 @@
 # Stian Selnes, 2008
 # Thomas Nagy 2009-2010 (ita)
 
+"""
+Detect the Intel C compiler
+"""
+
 import os, sys
 from waflib.Tools import ccroot, ar, gcc
 from waflib.Configure import conf
 
 @conf
 def find_icc(conf):
+	"""
+	Find the program icc and execute it to ensure it really is icc
+	"""
 	if sys.platform == 'cygwin':
 		conf.fatal('The Intel compiler does not work on Cygwin')
 

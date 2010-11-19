@@ -4,6 +4,10 @@
 # Ralf Habacker, 2006 (rh)
 # Yinon Ehrlich, 2009
 
+"""
+gcc/llvm detection.
+"""
+
 import os, sys
 from waflib import Configure, Options, Utils
 from waflib.Tools import ccroot, ar
@@ -11,6 +15,9 @@ from waflib.Configure import conf
 
 @conf
 def find_gcc(conf):
+	"""
+	Find the program gcc, and if present, try to detect its version number
+	"""
 	cc = conf.find_program(['gcc', 'cc'], var='CC')
 	cc = conf.cmd_to_list(cc)
 	conf.get_cc_version(cc, gcc=True)
@@ -19,6 +26,9 @@ def find_gcc(conf):
 
 @conf
 def gcc_common_flags(conf):
+	"""
+	Common flags for gcc on nearly all platforms
+	"""
 	v = conf.env
 
 	v['CC_SRC_F']            = ''
@@ -60,6 +70,7 @@ def gcc_common_flags(conf):
 
 @conf
 def gcc_modifier_win32(conf):
+	"""Configuration flags for executing gcc on Windows"""
 	v = conf.env
 	v['cprogram_PATTERN']    = '%s.exe'
 
@@ -78,6 +89,7 @@ def gcc_modifier_win32(conf):
 
 @conf
 def gcc_modifier_cygwin(conf):
+	"""Configuration flags for executing gcc on Cygwin"""
 	gcc_modifier_win32(conf)
 	v = conf.env
 	v['cshlib_PATTERN'] = 'cyg%s.dll'
@@ -86,6 +98,7 @@ def gcc_modifier_cygwin(conf):
 
 @conf
 def gcc_modifier_darwin(conf):
+	"""Configuration flags for executing gcc on MacOS"""
 	v = conf.env
 	v['CFLAGS_cshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_cshlib']    = ['-dynamiclib']
@@ -101,6 +114,7 @@ def gcc_modifier_darwin(conf):
 
 @conf
 def gcc_modifier_aix(conf):
+	"""Configuration flags for executing gcc on AIX"""
 	v = conf.env
 	v['LINKFLAGS_cprogram']  = ['-Wl,-brtl']
 
@@ -110,6 +124,7 @@ def gcc_modifier_aix(conf):
 
 @conf
 def gcc_modifier_platform(conf):
+	"""Execute platform-specific functions based on *gcc_modifier_+NAME*"""
 	# * set configurations specific for a platform.
 	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
 	#   and if it's not recognised, it fallbacks to sys.platform.
@@ -126,3 +141,7 @@ cc_load_tools
 cc_add_flags
 link_add_flags
 '''
+"""
+Configuration for gcc
+"""
+

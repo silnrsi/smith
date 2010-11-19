@@ -4,7 +4,8 @@
 # Ralf Habacker, 2006 (rh)
 
 """
-The **ar** program creates static libraries.
+The **ar** program creates static libraries. This tool is almost always loaded
+from others (C, C++, D, etc) for static library support.
 """
 
 import os
