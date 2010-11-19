@@ -12,7 +12,6 @@ C/C++ support
 	tools/c
 	tools/cxx
 	tools/c_config
-	tools/c_use
 	tools/c_osx
 	tools/c_preproc
 	tools/c_tests
