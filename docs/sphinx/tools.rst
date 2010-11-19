@@ -39,7 +39,7 @@ Assembly
 
 .. toctree::
 
-	tools/c_asm
+	tools/asm
 	tools/gas
 	tools/nasm
 
