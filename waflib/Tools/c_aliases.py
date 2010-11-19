@@ -9,6 +9,12 @@ from waflib import Utils, Build
 from waflib.Configure import conf
 
 def get_extensions(lst):
+	"""
+	:param lst: files to process
+	:list lst: list of string or :py:class:`waflib.Node.Node`
+	:return: list of file extensions
+	:rtype: list of string
+	"""
 	ret = []
 	for x in Utils.to_list(lst):
 		try:
@@ -20,7 +26,19 @@ def get_extensions(lst):
 	return ret
 
 def sniff_features(**kw):
-	"""look at the source files and return the features for a task generator (mainly cc and cxx)"""
+	"""
+	Look at the source files and return the features for a task generator (mainly cc and cxx)::
+
+		snif_features(source=['foo.c', 'foo.cxx'], type='shlib')
+		# returns  ['cxx', 'c', 'cxxshlib', 'cshlib']
+
+	:param source: source files to process
+	:type source: list of string or :py:class:`waflib.Node.Node`
+	:param type: object type in *program*, *shlib* or *stlib*
+	:type type: string
+	:return: the list of features for a task generator processing the source files
+	:rtype: list of string
+	"""
 	exts = get_extensions(kw['source'])
 	type = kw['_type']
 	feats = []
@@ -54,25 +72,57 @@ def set_features(kw, _type):
 
 @conf
 def program(bld, *k, **kw):
-	"""alias for features='c cprogram' bound to the build context"""
+	"""
+	Alias for creating programs by looking at the file extensions::
+
+		def build(bld):
+			bld.program(source='foo.c', target='app')
+			# equivalent to:
+			# bld(features='c cprogram', source='foo.c', target='app')
+
+	"""
 	set_features(kw, 'program')
 	return bld(*k, **kw)
 
 @conf
 def shlib(bld, *k, **kw):
-	"""alias for features='c cshlib' bound to the build context"""
+	"""
+	Alias for creating shared libraries by looking at the file extensions::
+
+		def build(bld):
+			bld.shlib(source='foo.c', target='app')
+			# equivalent to:
+			# bld(features='c cshlib', source='foo.c', target='app')
+
+	"""
 	set_features(kw, 'shlib')
 	return bld(*k, **kw)
 
 @conf
 def stlib(bld, *k, **kw):
-	"""alias for features='c cstlib' bound to the build context"""
+	"""
+	Alias for creating static libraries by looking at the file extensions::
+
+		def build(bld):
+			bld.stlib(source='foo.cpp', target='app')
+			# equivalent to:
+			# bld(features='cxx cxxstlib', source='foo.cpp', target='app')
+
+	"""
 	set_features(kw, 'stlib')
 	return bld(*k, **kw)
 
 @conf
 def objects(bld, *k, **kw):
-	"""alias for features='c' bound to the build context"""
+	"""
+	Alias for creating object files by looking at the file extensions::
+
+		def build(bld):
+			bld.program(source='foo.c', target='app')
+			# equivalent to:
+			# bld(features='c', source='foo.c', target='app')
+
+	"""
 	set_features(kw, 'objects')
 	return bld(*k, **kw)
 

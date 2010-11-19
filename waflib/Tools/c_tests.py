@@ -3,7 +3,7 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-configuration tests...
+Various configuration tests.
 """
 
 from waflib.Configure import conf
@@ -33,8 +33,8 @@ int main(void) {return !(lib_func() == 9);}
 @before('process_source')
 def link_lib_test_fun(self):
 	"""
-	the configuration test declares a unique task generator,
-	so we create other task generators from there
+	The configuration test :py:func:`waflib.Tools.ccroot.run_c_code` declares a unique task generator,
+	so we need to create other task generators from here to check if the linker is able to link libraries.
 	"""
 	def write_test_file(task):
 		task.outputs[0].write(task.generator.code)
@@ -54,7 +54,10 @@ def link_lib_test_fun(self):
 @conf
 def check_library(self, mode=None):
 	"""
-	see if the platform supports building libraries
+	Check if libraries can be linked with the current linker. Uses :py:func:`waflib.Tools.c_tests.link_lib_test_fun`.
+
+	:param mode: c or cxx or d
+	:type mode: string
 	"""
 	if not mode:
 		mode = 'c'
@@ -81,9 +84,14 @@ INLINE_VALUES = ['inline', '__inline__', '__inline']
 @conf
 def check_inline(self, **kw):
 	"""
-	check for the right value for inline
-	define INLINE_MACRO to 1 if the define is found
-	if the inline macro is not 'inline', add a define for the config.h (#define inline __inline__)
+	Check for the right value for inline macro.
+	Define INLINE_MACRO to 1 if the define is found.
+	If the inline macro is not 'inline', add a define to the ``config.h`` (#define inline __inline__)
+
+	:param define_name: define INLINE_MACRO by default to 1 if the macro is defined
+	:type define_name: string
+	:param features: by default *c* or *cxx* depending on the compiler present
+	:type features: list of string
 	"""
 
 	self.start_msg('Checking for inline')
@@ -117,8 +125,13 @@ LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8)
 @conf
 def check_large_file(self, **kw):
 	"""
-	see if large files are supported and define the macro HAVE_LARGEFILE
-	the test is skipped for win32 systems (DEST_BINFMT == pe)
+	Check for large file support and define the macro HAVE_LARGEFILE
+	The test is skipped on win32 systems (DEST_BINFMT == pe).
+
+	:param define_name: define to set, by default *HAVE_LARGEFILE*
+	:type define_name: string
+	:param execute: execute the test (yes by default)
+	:type execute: bool
 	"""
 
 	if not 'define_name' in kw:
