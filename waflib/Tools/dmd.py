@@ -9,10 +9,16 @@ from waflib.Configure import conf
 
 @conf
 def find_dmd(conf):
+	"""
+	Find the program *dmd* or *ldc* and set the variable *D*
+	"""
 	conf.find_program(['dmd', 'ldc'], var='D')
 
 @conf
 def common_flags_ldc(conf):
+	"""
+	Set the D flags required by *ldc*
+	"""
 	v = conf.env
 	v['DFLAGS']        = ['-d-version=Posix']
 	v['LINKFLAGS']     = []
@@ -20,6 +26,10 @@ def common_flags_ldc(conf):
 
 @conf
 def common_flags_dmd(conf):
+	"""
+	Set the flags required by *dmd*
+	"""
+
 	v = conf.env
 
 	# _DFLAGS _DIMPORTFLAGS
@@ -50,6 +60,9 @@ def common_flags_dmd(conf):
 	v['D_HDR_F']           = ['-H', '-Hf']
 
 def configure(conf):
+	"""
+	Configuration for dmd/ldc
+	"""
 	conf.find_dmd()
 	conf.load('ar')
 	conf.load('d')

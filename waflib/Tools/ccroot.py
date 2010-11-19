@@ -123,7 +123,7 @@ class link_task(Task.Task):
 	"""
 	Base class for all link tasks. A task generator is supposed to have at most one link task bound in the attribute *link_task*. See :py:func:`waflib.Tools.ccroot.apply_link`.
 
-	.. inheritance-diagram:: waflib.Tools.ccroot.stlink_task waflib.Tools.c.cprogram waflib.Tools.c.cshlib waflib.Tools.cxx.cxxstlib  waflib.Tools.cxx.cxxprogram waflib.Tools.cxx.cxxshlib waflib.Tools.d.dprogram waflib.Tools.d.dshlib waflib.Tools.d.dstlib waflib.Tools.ccroot.fake_shlib waflib.Tools.ccroot.fake_stlib
+	.. inheritance-diagram:: waflib.Tools.ccroot.stlink_task waflib.Tools.c.cprogram waflib.Tools.c.cshlib waflib.Tools.cxx.cxxstlib  waflib.Tools.cxx.cxxprogram waflib.Tools.cxx.cxxshlib waflib.Tools.d.dprogram waflib.Tools.d.dshlib waflib.Tools.d.dstlib waflib.Tools.ccroot.fake_shlib waflib.Tools.ccroot.fake_stlib waflib.Tools.asm.asmprogram waflib.Tools.asm.asmshlib waflib.Tools.asm.asmstlib
 	"""
 	color   = 'YELLOW'
 

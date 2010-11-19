@@ -21,10 +21,10 @@ To declare targets using assembly::
 			source = 'test.S',
 			target = 'asmtest')
 
-Support for pure asm programs and libraries may also work, although it is not tested::
+Support for pure asm programs and libraries should also work::
 
 	def configure(conf):
-		conf.load('gas')
+		conf.load('nasm')
 		conf.find_program('ld', 'ASLINK')
 
 	def build(bld):
