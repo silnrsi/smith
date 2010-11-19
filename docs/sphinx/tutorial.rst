@@ -1,8 +1,6 @@
 Waf tutorial
 ============
 
-.. como le encanta la gasolina
-
 Waf is a piece of software used to help building software projects.
 The goal of this tutorial is to provide a quick overview of how to set up
 the scripts for a project using Waf.
@@ -122,4 +120,55 @@ during the configuration. The program will also use the library *mylib* and both
 will be modified so that *mylib* is linked before *app*.
 
 The ``use`` attributes is also working for other languages such as java (dependencies between jar files) or c# (dependencies between assemblies).
+
+Project-specific extensions
+---------------------------
+
+The *feature* keyword is a high level reference to existing Waf methods.
+For example, the **c** feature will add the method :py:func:`waflib.Tools.ccroot.apply_incpaths` for execution.
+To add a new method that will add the task generator path to the include path for all c targets,
+one may use such a declaration::
+
+	from waflib import Utils
+	from waflib.TaskGen import feature, before
+	@feature('c')
+	@before('apply_incpaths')
+	def add_current_dir_to_includes(self):
+		self.includes = Utils.to_list(self.includes)
+		self.includes.append(self.path)
+
+	def build(bld):
+		tg = bld(features='c', source='main.c', target='app')
+
+The *feature* methods are bound to the :py:class:`waflib.TaskGen.task_gen` class, which is the class of the
+object *tg* in the example. New features can be declared in the same manner::
+
+	from waflib.TaskGen import feature, after
+	@feature('debug_tasks')
+	@after('apply_link')
+	def print_debug(self):
+		print('tasks created %r' % self.tasks)
+
+	def build(bld):
+		tg = bld(features='c cprogram debug_tasks', source='main.c', target='app')
+
+The declaration can be made more user-friendly by binding new methods to the context classes::
+
+	from waflib.Build import BuildContext
+	def enterprise_program(self, *k, **kw):
+		kw['features'] = 'c cprogram debug_tasks'
+		return self(*k, **kw)
+	BuildContext.enterprise_program = enterprise_program
+
+	def build(bld):
+		# no feature line
+		bld.enterprise_program(source='main.c', target='app')
+
+The support code may be turned into a Waf tool by moving it to a separate file.
+To ease the deployment, the new Waf tool can even be added to the waf file (see http://code.google.com/p/waf/source/browse/trunk/README).
+
+Conclusion
+----------
+
+This concludes the tutorial. For more information consult the apis, the Waf book and the examples.
 
