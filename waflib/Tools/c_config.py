@@ -31,6 +31,7 @@ SNIP_FUNCTION = '''
 	return 0;
 }
 '''
+"""Code template for checking for functions"""
 
 SNIP_TYPE = '''
 int main() {
@@ -38,6 +39,7 @@ int main() {
 	if (sizeof (%(type_name)s)) return 0;
 }
 '''
+"""Code template for checking for types"""
 
 SNIP_CLASS = '''
 int main() {
@@ -92,7 +94,21 @@ MACRO_TO_DEST_CPU = {
 
 @conf
 def parse_flags(self, line, uselib, env=None):
-	"""pkg-config still has bugs on some platforms, and there are many -config programs, parsing flags is necessary :-/"""
+	"""
+	Parse the flags from the input lines, and add them to the relevant use variables::
+
+		def configure(conf):
+			conf.parse_flags('-O3', uselib_store='FOO')
+			# conf.env.CXXFLAGS_FOO = ['-O3']
+			# conf.env.CFLAGS_FOO = ['-O3']
+
+	:param line: flags
+	:type line: string
+	:param uselib: where to add the flags
+	:type uselib: string
+	:param env: config set or conf.env by default
+	:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+	"""
 
 	assert(isinstance(line, str))
 
@@ -144,7 +160,6 @@ def parse_flags(self, line, uselib, env=None):
 
 @conf
 def ret_msg(self, f, kw):
-	"""execute a function, when provided"""
 	if isinstance(f, str):
 		return f
 	return f(kw)
@@ -282,31 +297,30 @@ def validate_c(self, kw):
 	"""
 	pre-check the parameters that will be given to run_c_code
 
-	env: an optional environment (modified -> provide a copy)
-
-	compiler: cc or cxx - it tries to guess what is best
-
-	type: cprogram, cshlib, cstlib, cobjects ...
-
-	feature: it is better to give the features you want directly, for example 'cxx cxxstlib'
-
-	code: a piece of code to execute
-
-	fragment: override any other piece of code
-
-	uselib_store: where to add the variables (IMPORTANT!)
-
-	use: parameters to use for building (just like the normal use keyword)
-
-	define_name: define to set when the check is over
-
-	execute: True or False - will return the result of the execution
-
-	define_ret: if execute is set to True, use the execution output in both the define and the return value
-
-	header_name: check for a header_name
-
-	auto_add_header_name: if header_name was set, add the headers in env.INCKEYS so the next tests will include the headers (obscure autoconf feature)
+	:param env: an optional environment (modified -> provide a copy)
+	:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+	:param compiler: c or cxx (tries to guess what is best)
+	:type: string
+	:param type: cprogram, cshlib, cstlib - not required if *features are given directly*
+	:type type: binary to create
+	:param feature: desired features for the task generator that will execute the test, for example ``cxx cxxstlib``
+	:type feature: list of string
+	:param fragment: provide a piece of code for the test (default is to let the system create one)
+	:type fragment: string
+	:param uselib_store: define variables after the test is executed (IMPORTANT!)
+	:type uselib_store: string
+	:param use: parameters to use for building (just like the normal *use* keyword)
+	:type use: list of string
+	:param define_name: define to set when the check is over
+	:type define_name: string
+	:param execute: execute the resulting binary
+	:type execute: bool
+	:param define_ret: if execute is set to True, use the execution output in both the define and the return value
+	:type define_ret: bool
+	:param header_name: check for a particular header
+	:type header_name: string
+	:param auto_add_header_name: if header_name was set, add the headers in env.INCKEYS so the next tests will include these headers
+	:type auto_add_header_name: bool
 	"""
 
 	if not 'env' in kw:
@@ -457,7 +471,7 @@ def validate_c(self, kw):
 
 @conf
 def post_check(self, *k, **kw):
-	"set the variables after a test was run successfully"
+	"Set the variables after a test executed in :py:func:`waflib.Tools.c_config.check` was run successfully"
 
 	is_success = 0
 	if kw['execute']:
@@ -507,8 +521,9 @@ def post_check(self, *k, **kw):
 @conf
 def check(self, *k, **kw):
 	"""
-	It is safer to use check_cxx or check_cc
-	to force a specific compiler
+	Perform a configuration test by calling :py:func:`waflib.Tools.c_config.run_c_code`.
+	For the complete list of parameters, see :py:func:`waflib.Tools.c_config.validate_c`.
+	To force a specific compiler, prefer the methods :py:func:`waflib.Tools.c_config.check_cxx` or :py:func:`waflib.Tools.c_config.check_cc`
 	"""
 	self.validate_c(kw)
 	self.start_msg(kw['msg'])
