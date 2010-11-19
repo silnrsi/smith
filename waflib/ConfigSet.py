@@ -64,8 +64,9 @@ class ConfigSet(object):
 
 		There is one gotcha: getitem returns [] if the contents evals to False
 		This means::
+
 			env['foo'] = {}; print env['foo']
-		will print ``[]`` not ``{}``
+			will print ``[]`` not ``{}``
 		"""
 		try:
 			while 1:
