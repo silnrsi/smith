@@ -90,7 +90,7 @@ similar to wscript files and provide functions such as *configure* or *build*. H
 	def build(bld):
 		bld(features='c cprogram', source='main.c', target='app')
 
-The function *options* is another predefined command used for setting command-line options. Its argument is an instance of :py:meth:`waflib.Options.OptionsContext`. The tool *compiler_c* is provided for detecting if a C compiler is present and set various variables such as ``cnf.env.CFLAGS``.
+The function *options* is another predefined command used for setting command-line options. Its argument is an instance of :py:meth:`waflib.Options.OptionsContext`. The tool *compiler_c* is provided for detecting if a C compiler is present and to set various variables such as ``cnf.env.CFLAGS``.
 
 The task generator declared in *bld* does not have a *rule* keyword, but a list of *features* which is used to reference methods that will call the appropriate rules. In this case, a rule is called for compiling the file, and another is used for linking the object files into the binary *app*. Other tool-dependent features exist such as *javac*, *cs*, or *tex*.
 
@@ -119,12 +119,12 @@ By stating ``use=['M', 'mylib']``, the program *app* is going to inherit all the
 during the configuration. The program will also use the library *mylib* and both the build order and the dependencies
 will be modified so that *mylib* is linked before *app*.
 
-The ``use`` attributes is also working for other languages such as Java (dependencies between jar files) or C# (dependencies between assemblies).
+The ``use`` attribute is also working for other languages such as Java (dependencies between jar files) or C# (dependencies between assemblies).
 
 Project-specific extensions
 ---------------------------
 
-The *feature* keyword is a high level reference to existing Waf methods.
+The *feature* keyword is a high-level reference to existing Waf methods.
 For example, the **c** feature will add the method :py:func:`waflib.Tools.ccroot.apply_incpaths` for execution.
 To add a new method that will add the task generator path to the include path for all C targets,
 one may use such a declaration::
