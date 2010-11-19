@@ -11,7 +11,7 @@ import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
 from waflib.TaskGen import after, before, feature, taskgen_method
-from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
+from waflib.Tools import c_aliases, c_preproc, c_config, c_osx, c_tests
 from waflib.Configure import conf
 
 USELIB_VARS = Utils.defaultdict(set)
@@ -183,7 +183,7 @@ def rm_tgt(cls):
 	setattr(cls, 'run', wrap)
 rm_tgt(stlink_task)
 
-@feature('c', 'cxx', 'd', 'go', 'fc')
+@feature('c', 'cxx', 'd', 'go', 'fc', 'asm')
 @after('process_source')
 def apply_link(self):
 	"""
