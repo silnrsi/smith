@@ -2,6 +2,33 @@
 # encoding: utf-8
 # Matthias Jahn jahn dôt matthias ât freenet dôt de, 2007 (pmarat)
 
+"""
+Try to detect a C compiler from the list of supported compilers::
+
+	def options(opt):
+		opt.load('compiler_c')
+	def configure(cnf):
+		cnf.load('compiler_c')
+	def build(bld):
+		bld.program(source='main.c', target='app')
+
+The compilers are associated to platforms in :py:attr:`waflib.Tools.compiler_c.c_compiler`. To register
+a new C compiler named *cfoo* (assuming the tool ``waflib/extras/cfoo.py`` exists), use::
+
+	def options(opt):
+		opt.load('compiler_c')
+	def configure(cnf):
+		from waflib.Tools.compiler_c import c_compiler
+		compiler_c['win32'] = ['cfoo', 'msvc', 'gcc']
+		cnf.load('compiler_c')
+	def build(bld):
+		bld.program(source='main.c', target='app')
+
+Not all compilers need to have a specific tool. For example, the clang compilers can be detected by the gcc tools when using::
+
+	$ CC=clang waf configure
+"""
+
 import os, sys, imp, types
 from waflib.Tools import ccroot
 from waflib import Utils, Configure
@@ -20,12 +47,16 @@ c_compiler = {
 'java':   ['gcc', 'msvc', 'icc'],
 'default':['gcc'],
 }
+"""
+Dict mapping the platform names to waf tools finding specific compilers::
+
+	from waflib.Tools.compiler_c import c_compiler
+	c_compiler['linux'] = ['gcc', 'icc', 'suncc']
+"""
 
 def configure(conf):
 	"""
-	for each compiler for the platform, try to configure the compiler
-	in theory the tools should raise a configuration error if the compiler
-	pretends to be something it is not (setting CC=icc and trying to configure gcc)
+	Try to find a suitable C compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
 	"""
 	try: test_for_compiler = conf.options.check_c_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_c')")
@@ -48,6 +79,11 @@ def configure(conf):
 		conf.fatal('could not configure a c compiler!')
 
 def options(opt):
+	"""
+	Restrict the compiler detection from the command-line::
+
+		$ waf configure --check-c-compiler=gcc
+	"""
 	global c_compiler
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = c_compiler[build_platform in c_compiler and build_platform or 'default']

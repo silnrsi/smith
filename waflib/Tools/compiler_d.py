@@ -3,10 +3,29 @@
 # Carlos Rafael Giani, 2007 (dv)
 # Thomas Nagy, 2010 (ita)
 
+"""
+Try to detect a D compiler from the list of supported compilers::
+
+	def options(opt):
+		opt.load('compiler_d')
+	def configure(cnf):
+		cnf.load('compiler_d')
+	def build(bld):
+		bld.program(source='main.d', target='app')
+
+Only two D compilers are really present at the moment:
+
+* gdc, the ldc compiler having a very similar command-line interface
+* dmd
+"""
+
 import os, sys, imp, types
 from waflib import Utils, Configure, Options, Logs
 
 def configure(conf):
+	"""
+	Try to find a suitable D compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
+	"""
 	for compiler in conf.options.dcheck.split(','):
 		conf.env.stash()
 		conf.start_msg('Checking for %r (d compiler)' % compiler)
@@ -27,6 +46,11 @@ def configure(conf):
 		conf.fatal('no suitable d compiler was found')
 
 def options(opt):
+	"""
+	Restrict the compiler detection from the command-line::
+
+		$ waf configure --check-d-compiler=dmd
+	"""
 	d_compiler_opts = opt.add_option_group('D Compiler Options')
 	d_compiler_opts.add_option('--check-d-compiler', default='gdc,dmd', action='store',
 		help='check for the compiler [Default:gdc,dmd]', dest='dcheck')

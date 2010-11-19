@@ -3,10 +3,8 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-Base tool for all C/C++/D/Go programs and libraries
-
-Provides the list of used configuration variables
-
+Classes and methods shared by tools providing support for C-like language such
+as C/C++/D/Assembly/Go (this support module is almost never used alone).
 """
 
 import os, sys, re
@@ -17,6 +15,10 @@ from waflib.Tools import c_aliases, c_preproc, c_config, c_asm, c_osx, c_tests
 from waflib.Configure import conf
 
 USELIB_VARS = Utils.defaultdict(set)
+"""
+Mapping for features to :py:class:`waflib.ConfigSet.ConfigSet` variables. See :py:func:`waflib.Tools.ccroot.propagate_uselib_vars`.
+"""
+
 USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CFLAGS'])
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
@@ -39,9 +41,15 @@ USELIB_VARS['asm'] = set(['ASFLAGS'])
 @taskgen_method
 def create_compiled_task(self, name, node):
 	"""
-	Creates the compilation task: c, cxx, asm, ...
-	the task is appended to the list 'compiled_tasks' which is used by
-	'apply_link'
+	Create the compilation task: c, cxx, asm, etc. The output node is created automatically (object file with a typical **.o** extension).
+	The task is appended to the list *compiled_tasks* which is then used by :py:func:`waflib.Tools.ccroot.apply_link`
+
+	:param name: name of the task class
+	:type name: string
+	:param node: the file to compile
+	:type node: :py:class:`waflib.Node.Node`
+	:return: The task created
+	:rtype: :py:class:`waflib.Task.Task`
 	"""
 	out = '%s.%d.o' % (node.name, self.idx)
 	task = self.create_task(name, node, node.parent.find_or_declare(out))
@@ -54,11 +62,19 @@ def create_compiled_task(self, name, node):
 @taskgen_method
 def to_incnodes(self, inlst):
 	"""
-	Returns a list of node objects from a list of includes, assuming
-	self.includes is a space-delimited string or a list of string/nodes
+	Task generator method provided to convert a list of string/nodes into a list of includes folders.
 
-	Paths are relative to the task generator path, except if they begin by #
-	in which case they are relative to the top directory (bld.srcnode)
+	The paths are assumed to be relative to the task generator path, except if they begin by **#**
+	in which case they are searched from the top-level directory (``bld.srcnode``).
+
+	The node objects in the list are returned in the output list. The strings are converted
+	into node objects if possible. The node is searched from the source directory, and if a match is found,
+	the equivalent build directory is added in the returned list too.  When a folder cannot be found, it is ignored.
+
+	:param inlst: list of folders
+	:type inlst: space-delimited string or a list of string/nodes
+	:rtype: list of :py:class:`waflib.Node.Node`
+	:return: list of include folders as nodes
 	"""
 	lst = []
 	seen = set([])
@@ -87,10 +103,16 @@ def to_incnodes(self, inlst):
 @after('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
 	"""
-	Used by the scanner
+	Task generator method that processes the attribute *includes*::
 
-	after processing the uselib for INCLUDES
-	after process_source because some processing may add include paths
+		tg = bld(features='includes', includes='.')
+
+	The folders only need to be relative to the current directory, the equivalent build directory is
+	added automatically (for headers created in the build directory). This enable using a build directory
+	or not (``top == out``).
+
+	This method will add a list of nodes read by :py:func:`waflib.Tools.ccroot.to_incnodes` in ``tg.env.INCPATHS``,
+	and the list of include paths in ``tg.env.INCLUDES``.
 	"""
 
 	lst = self.to_incnodes(self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES'])
@@ -99,14 +121,23 @@ def apply_incpaths(self):
 
 class link_task(Task.Task):
 	"""
-	Base class for all link tasks (c_link, cxx_link, etc)
+	Base class for all link tasks. A task generator is supposed to have at most one link task bound in the attribute *link_task*. See :py:func:`waflib.Tools.ccroot.apply_link`.
 
+	.. inheritance-diagram:: waflib.Tools.ccroot.stlink_task waflib.Tools.c.cprogram waflib.Tools.c.cshlib waflib.Tools.cxx.cxxstlib  waflib.Tools.cxx.cxxprogram waflib.Tools.cxx.cxxshlib waflib.Tools.d.dprogram waflib.Tools.d.dshlib waflib.Tools.d.dstlib waflib.Tools.ccroot.fake_shlib waflib.Tools.ccroot.fake_stlib
 	"""
 	color   = 'YELLOW'
+
 	inst_to = None
+	"""Default installation path for the link task outputs, or None to disable"""
+
 	chmod   = Utils.O644
+	"""Default installation mode for the link task outputs"""
 
 	def add_target(self, target):
+		"""
+		Process the *target* attribute to add the platform-specific prefix/suffix such as *.so* or *.exe*.
+		The settings are retrieved from ``env.clsname_PATTERN``
+		"""
 		if isinstance(target, str):
 			pattern = self.env[self.__class__.__name__ + '_PATTERN']
 			if not pattern:
@@ -124,6 +155,13 @@ class link_task(Task.Task):
 		self.set_outputs(target)
 
 	def frameworks(self):
+		"""
+		Apple compilers love binary options, so the framework flags must be split. To illustrate the problem::
+
+			def build(bld):
+				bld.env.append_value('LINKFLAGS', '-framework foo') # no
+				bld.env.append_value('LINKFLAGS', ['-framework', 'foo']) # yes
+		"""
 		lst = []
 		for x in self.env.FRAMEWORK:
 			lst.extend((self.env.FRAMEWORK_ST % x).split())
@@ -131,7 +169,8 @@ class link_task(Task.Task):
 
 class stlink_task(link_task):
 	"""
-	Link static libraries (with ar)
+	Base for static link tasks, which use *ar* most of the time.
+	The target is always removed before being written.
 	"""
 	run_str = '${AR} ${ARFLAGS} ${AR_TGT_F}${TGT} ${AR_SRC_F}${SRC}'
 
@@ -148,8 +187,14 @@ rm_tgt(stlink_task)
 @after('process_source')
 def apply_link(self):
 	"""
-	Executes after process_source for collecting ``compiled_tasks``
-	and creating a :py:class:`link_task`
+	Collect the tasks stored in ``compiled_tasks`` (created by :py:func:`waflib.Tools.ccroot.create_compiled_task`), and
+	use the outputs for a new instance of :py:class:`waflib.Tools.ccroot.link_task`. The class to use is the first link task
+	matching a name from the attribute *features*, for example::
+
+			def build(bld):
+				tg = bld(features='cxx cxxprogram cprogram', source='main.c', target='app')
+
+	will create the task ``tg.link_task`` as a new instance of :py:class:`waflib.Tools.cxx.cxxprogram`
 	"""
 
 	for x in self.features:
@@ -182,7 +227,13 @@ def apply_link(self):
 @taskgen_method
 def use_rec(self, name, **kw):
 	"""
-	Processes the ``use`` keyword, recursively
+	Processes the ``use`` keyword recursively. The processing is complicated by the following scenarios:
+
+	* dependent shared libraries must be linked to all targets
+	* static libraries must not be linked twice
+	* static libraries may depend on other static libraries to propagate include paths
+	* empty libraries may be used to propagate include paths
+	* there are object-only targets (no link task)
 	"""
 	if name in self.seen_libs:
 		return
@@ -248,15 +299,14 @@ def use_rec(self, name, **kw):
 @after('apply_link', 'process_source')
 def process_use(self):
 	"""
-	Process the ``use`` attribute which is like uselib+uselib_local+add_objects
-	execute after :py:func:`apply_link` because of the execution order
-	which must be set on :py:class:`link_task`
+	Process the ``use`` attribute which contains a list of task generator names::
 
-	Propagation rules:
-	* a static library is found -> propagation on anything stops
-	* a shared library (non-static) is found -> propagation continues, but objects are not added
+		def build(bld):
+			bld.shlib(source='a.c', target='lib1')
+			bld.program(source='main.c', target='app', use='lib1')
+
+	See :py:func:`waflib.Tools.ccroot.use_rec`.
 	"""
-
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
@@ -267,7 +317,10 @@ def process_use(self):
 
 @taskgen_method
 def get_uselib_vars(self):
-	"helper function"
+	"""
+	:return: the *uselib* variables associated to the *features* attribute (see :py:attr:`waflib.Tools.ccroot.USELIB_VARS`)
+	:rtype: list of string
+	"""
 	_vars = set([])
 	for x in self.features:
 		if x in USELIB_VARS:
@@ -278,18 +331,18 @@ def get_uselib_vars(self):
 @after('process_use')
 def propagate_uselib_vars(self):
 	"""
-	Process uselib variables for adding flags
+	Process uselib variables for adding flags. For example, the following target::
 
-	Process:
+		def build(bld):
+			bld.env.AFLAGS_aaa = ['bar']
+			from waflib.Tools.ccroot import USELIB_VARS
+			USELIB_VARS['aaa'] = set('AFLAGS')
 
-	#. add the attributes defined in a lowercase manner such as obj.cxxflags
+			tg = bld(features='aaa', aflags='test')
 
-	#. each compiler defines variables like 'CXXFLAGS_cshlib', 'LINKFLAGS_cshlib', etc
-	   so when we make a task generator of the type cshlib, CXXFLAGS are modified accordingly
-	   the order was reversed compared to waf 1.5: cshlib_LINKFLAGS -> LINKFLAGS_cshlib
+	The *aflags* attribute will be processed and this method will set::
 
-	#. the case of the libs defined outside
-
+			tg.env.AFLAGS = ['bar', 'test']
 	"""
 	_vars = self.get_uselib_vars()
 	env = self.env
@@ -314,10 +367,10 @@ def propagate_uselib_vars(self):
 @before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
 	"""
-	On Windows, handle dlls and their import libs
+	Handle dlls and their import libs on Windows-like systems.
 
-	A ``.dll.a`` file is also generated, it is the import lib
-	 and it is required for linking so it is installed too
+	A ``.dll.a`` file called *import library* is generated.
+	It must be installed as it is required for linking the library.
 	"""
 	if not self.env.DEST_BINFMT == 'pe':
 		return
@@ -352,16 +405,15 @@ def apply_implib(self):
 @after('apply_link')
 def apply_vnum(self):
 	"""
-	Applies library version numbering
+	Enforce version numbering on shared libraries. The valid version numbers must have at most two dots::
 
-	``libfoo.so`` is installed as ``libfoo.so.1.2.3``
+		def build(bld):
+			bld.shlib(source='a.c', target='foo', vnum='14.15.16')
 
-	create symlinks::
+	In this example, ``libfoo.so`` is installed as ``libfoo.so.1.2.3``, and the following symbolic links are created:
 
-		libfoo.so   → libfoo.so.1.2.3
-		libfoo.so.1 → libfoo.so.1.2.3
-
-
+	* ``libfoo.so   → libfoo.so.1.2.3``
+	* ``libfoo.so.1 → libfoo.so.1.2.3``
 	"""
 	if not getattr(self, 'vnum', '') or os.name != 'posix' or self.env.DEST_BINFMT not in ('elf', 'mac-o'):
 		return
@@ -396,7 +448,9 @@ def apply_vnum(self):
 		self.vnum_install_task = (t1, t2, t3)
 
 class vnum_task(Task.Task):
-	"""create the symbolic links for a versioned shared library"""
+	"""
+	Create the symbolic links for a versioned shared library. Instances are created by :py:func:`waflib.Tools.ccroot.apply_vnum`
+	"""
 	color = 'CYAN'
 	quient = True
 	ext_in = ['.bin']
@@ -414,14 +468,18 @@ class vnum_task(Task.Task):
 				return 1
 
 class fake_shlib(link_task):
-	"""task used for reading a foreign library and adding the dependency on it"""
+	"""
+	Task used for reading a system library and adding the dependency on it::
+	"""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
 
 class fake_stlib(stlink_task):
-	"""task used for reading a foreign library and adding the dependency on it"""
+	"""
+	Task used for reading a system library and adding the dependency on it
+	"""
 	def runnable_status(self):
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
@@ -429,12 +487,20 @@ class fake_stlib(stlink_task):
 
 @conf
 def read_shlib(self, name, paths=[]):
-	"""read a foreign shared library for the use system"""
+	"""
+	Read a system shared library, enabling its use as a local library. Will trigger a rebuild if the file changes::
+
+		def build(bld):
+			bld.read_shlib('m')
+			bld.program(source='main.c', use='m')
+	"""
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='shlib')
 
 @conf
 def read_stlib(self, name, paths=[]):
-	"""read a foreign static library for the use system"""
+	"""
+	Read a system static library, enabling a use as a local library. Will trigger a rebuild if the file changes.
+	"""
 	return self(name=name, features='fake_lib', lib_paths=paths, lib_type='stlib')
 
 lib_patterns = {
@@ -445,7 +511,7 @@ lib_patterns = {
 @feature('fake_lib')
 def process_lib(self):
 	"""
-	Finds the location of a foreign library
+	Find the location of a foreign library. Used by :py:class:`waflib.Tools.ccroot.read_shlib` and :py:class:`waflib.Tools.ccroot.read_stlib`.
 	"""
 	node = None
 
