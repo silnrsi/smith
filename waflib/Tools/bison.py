@@ -12,7 +12,7 @@ from waflib import Task
 from waflib.TaskGen import extension
 
 class bison(Task.Task):
-	"""Bison task, created by the extension method below"""
+	"""Compile bison files"""
 	color   = 'BLUE'
 	run_str = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
 	ext_out = ['.h'] # just to make sure
@@ -20,7 +20,7 @@ class bison(Task.Task):
 @extension('.y', '.yc', '.yy')
 def big_bison(self, node):
 	"""
-	The bison task must be executed from the directory of the output file
+	Create a bison task, which must be executed from the directory of the output file.
 	"""
 	has_h = '-d' in self.env['BISONFLAGS']
 
