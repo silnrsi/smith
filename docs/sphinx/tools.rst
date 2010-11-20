@@ -1,6 +1,27 @@
 Waf Tools
 =========
 
+Special python modules called Waf **tools** provide functions and classes to help
+using compilers, libraries or programs. The typical usage from a user script is::
+
+	def function(ctx):
+		# ...
+		ctx.load('toolname')
+
+Where the function is usually:
+
+* options: add command-line options used by the tool
+* configure: modify ``conf.env``, raise a configuration error if a prerequisite is not met
+
+The tools will usually enhance the application by adding:
+
+* new commands deriving from :py:class:`waflib.Context.Context`
+* new task classes deriving from :py:class:`waflib.Task.Task`
+* new methods to :py:class:`waflib.Configure.ConfigurationContext` and :py:class:`waflib.Build.BuildContext` through :py:func:`waflib.Configure.conf`
+* new task generator methods to :py:class:`waflib.TaskGen.task_gen` through :py:func:`waflib.TaskGen.taskgen_method`, :py:func:`waflib.TaskGen.after`
+
+As a general rule, existing methods or classes are hardly ever replaced.
+
 C/C++ compiler detection
 ------------------------
 
@@ -60,7 +81,7 @@ The following tools provide support for assembly. The module :py:mod:`waflib.Too
 D language and compilers
 ------------------------
 
-The first three tools in the following list may be used for detecting a D compiler. The remaining contain the support functions and classes.
+The first three tools in the following list may be used for detecting D compilers. The remaining contain the support functions and classes.
 
 .. toctree::
 
@@ -81,22 +102,24 @@ The next tools provide support for code generators used in C and C++ projects.
 	tools/bison
 	tools/flex
 	tools/dbus
+	tools/glib2
 	tools/qt4
 	tools/kde4
-	tools/glib2
 	tools/vala
 	tools/perl
 	tools/python
 	tools/ruby
-	tools/waf_unit_test
 
 Other compilers and tools
 -------------------------
 
-The following tools provide support for specific compilers or configurations.
+.. _extras: http://code.google.com/p/waf/source/browse/trunk/waflib/extras/
+
+The following tools provide support for specific compilers or configurations. More tools are present in the extras_ folder, although they are not documented and as stable as the default tools.
 
 .. toctree::
 
+	tools/waf_unit_test
 	tools/tex
 	tools/java
 	tools/cs
