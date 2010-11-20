@@ -2,7 +2,29 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
-"intltool support"
+"""
+Support for translation tools such as msgfmt and intltool
+
+Usage::
+
+	def configure(conf):
+		conf.load('gnu_dirs intltool')
+
+	def build(bld):
+		# process the .po files into .gmo files, and install them in LOCALEDIR
+		bld(features='intltool_po', appname='myapp', podir='po', install_path="${LOCALEDIR}")
+
+		# process an input file, substituting the translations from the po dir
+		bld(
+			features  = "intltool_in",
+			podir     = "../po",
+			flags     = ["-d", "-q", "-u", "-c"],
+			source    = 'kupfer.desktop.in',
+			install_path = "${DATADIR}/applications",
+		)
+
+Usage of the :py:mod:`waflib.Tools.gnu_dirs` is recommended, but not obligatory.
+"""
 
 import os, re
 from waflib import Configure, TaskGen, Task, Utils, Runner, Options, Build, Logs
@@ -10,15 +32,30 @@ import waflib.Tools.ccroot
 from waflib.TaskGen import feature, before
 from waflib.Logs import error
 
-"""
-Usage:
-
-bld(features='intltool_in', source='a.po b.po', podir='po', cache='.intlcache', flags='')
-"""
-
 @before('process_source')
 @feature('intltool_in')
-def iapply_intltool_in_f(self):
+def apply_intltool_in_f(self):
+	"""
+	Create tasks to translate files by intltool-merge::
+
+		def build(bld):
+			bld(
+				features  = "intltool_in",
+				podir     = "../po",
+				flags     = ["-d", "-q", "-u", "-c"],
+				source    = 'kupfer.desktop.in',
+				install_path = "${DATADIR}/applications",
+			)
+
+	:param podir: location of the .po files
+	:type podir: string
+	:param source: source files to process
+	:type source: list of string
+	:param flags: compilation flags ("-quc" by default)
+	:type flags: list of string
+	:param install_path: installation path
+	:type install_path: string
+	"""
 	try: self.meths.remove('process_source')
 	except ValueError: pass
 
@@ -46,6 +83,23 @@ def iapply_intltool_in_f(self):
 
 @feature('intltool_po')
 def apply_intltool_po(self):
+	"""
+	Create tasks to process po files::
+
+		def build(bld):
+			bld(features='intltool_po', appname='myapp', podir='po', install_path="${LOCALEDIR}")
+
+	The relevant task generator arguments are:
+
+	:param podir: directory of the .po files
+	:type podir: string
+	:param appname: name of the application
+	:type appname: string
+	:param install_path: installation directory
+	:type install_path: string
+
+	The file LINGUAS must be present in the directory pointed by *podir* and list the translation files to process.
+	"""
 	try: self.meths.remove('process_source')
 	except ValueError: pass
 
@@ -56,7 +110,7 @@ def apply_intltool_po(self):
 	podir = getattr(self, 'podir', '')
 	inst = getattr(self, 'install_path', '${LOCALEDIR}')
 
-	linguas = self.path.find_resource(os.path.join(podir, 'LINGUAS'))
+	linguas = self.path.find_node(os.path.join(podir, 'LINGUAS'))
 	if linguas:
 		# scan LINGUAS file for locales to process
 		file = open(linguas.abspath())
@@ -83,32 +137,40 @@ def apply_intltool_po(self):
 		Logs.pprint('RED', "Error no LINGUAS file found in po directory")
 
 class po(Task.Task):
+	"""
+	Compile .po files into .gmo files
+	"""
 	run_str = '${MSGFMT} -o ${TGT} ${SRC}'
 	color   = 'BLUE'
 
-Task.task_factory('intltool', '${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}', color='BLUE', ext_in=['.bin'])
+class intltool(Task.Task):
+	"""
+	Let intltool-merge translate an input file
+	"""
+	run_str = '${INTLTOOL} ${INTLFLAGS} ${INTLCACHE} ${INTLPODIR} ${SRC} ${TGT}'
+	color   = 'BLUE'
 
 def configure(conf):
-	conf.find_program('msgfmt', var='MSGFMT')
-	# NOTE: it is possible to set INTLTOOL in the environment, but it must not have spaces in it
+	"""
+	Detect the program *msgfmt* and set *conf.env.MSGFMT*.
+	Detect the program *intltool-merge* and set *conf.env.INTLTOOL*.
+	It is possible to set INTLTOOL in the environment, but it must not have spaces in it::
 
+		$ INTLTOOL="/path/to/the program/intltool" waf configure
+
+	If a C/C++ compiler is present, execute a compilation test to find the header *locale.h*.
+	"""
+	conf.find_program('msgfmt', var='MSGFMT')
 	conf.find_perl_program('intltool-merge', var='INTLTOOL')
 
-	def getstr(varname):
-		return getattr(Options.options, varname, '')
-
-	prefix  = conf.env['PREFIX']
-	datadir = getstr('datadir')
-	if not datadir: datadir = os.path.join(prefix,'share')
+	prefix  = conf.env.PREFIX
+	datadir = conf.env.DATADIR
+	if not datadir:
+		datadir = os.path.join(prefix,'share')
 
 	conf.define('LOCALEDIR', os.path.join(datadir, 'locale'))
 	conf.define('DATADIR', datadir)
 
-	if conf.env['CC'] or conf.env['CXX']:
-		# Define to 1 if <locale.h> is present
+	if conf.env.CC or conf.env.CXX:
 		conf.check(header_name='locale.h')
-
-def options(opt):
-	opt.add_option('--want-rpath', type='int', default=1, dest='want_rpath', help='set rpath to 1 or 0 [Default 1]')
-	opt.add_option('--datadir', type='string', default='', dest='datadir', help='read-only application data')
 
