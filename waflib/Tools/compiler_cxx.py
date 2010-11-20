@@ -3,7 +3,7 @@
 # Matthias Jahn jahn dôt matthias ât freenet dôt de 2007 (pmarat)
 
 """
-Try to detect a C++ compiler from the list of supported compilers::
+Try to detect a C++ compiler from the list of supported compilers (g++, msvc, etc)::
 
 	def options(opt):
 		opt.load('compiler_cxx')
