@@ -10,20 +10,20 @@
 """
 TO BE REWRITTEN AGAIN, AND WITH A TEST DIRECTORY
 
+To add the boost tool to the waf file:
+$ ./waf-light --tools=compat15,boost
+   or, if you have waf >= 1.6.2
+$ waf update --files=boost
 
- to add the boost tool to the waf file:
- ./waf-light --tools=compat15,boost
+The wscript will look like:
 
 def options(opt):
-	opt.tool_options('boost')
-	# ...
+	opt.load('compiler_cxx boost')
 
 def configure(conf):
-	# ... (e.g. conf.load('g++'))
-   conf.load('boost')
+   conf.load('compler_cxx boost')
    conf.check_boost(lib='signals filesystem', static='onlystatic', score_version=(-1000, 1000), tag_minscore=1000)
    conf.check_boost(lib='signals filesystem', score_version=(-1000, 1000), tag_minscore=1000)
-   # i hate this
 
 def build(bld):
    bld(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
