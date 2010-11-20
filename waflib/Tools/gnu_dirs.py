@@ -3,11 +3,11 @@
 # Ali Sabil, 2007
 
 """
-To use this module just call::
+Sets various standard variables such as INCLUDEDIR. SBINDIR and others. To use this module just call::
 
 	opt.load('gnu_dirs')
 
-AND::
+and::
 
 	conf.load('gnu_dirs')
 
