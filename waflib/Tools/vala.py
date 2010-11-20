@@ -5,7 +5,7 @@
 
 """
 At this point, vala is still unstable, so do not expect
-this tool to be stable either (apis, etc)
+this tool to be too stable either (apis, etc)
 """
 
 import os.path, shutil, re
@@ -15,8 +15,7 @@ from waflib.Configure import conf
 
 class valac_task(Task.Task):
 	"""
-	Task to compile vala files
-	There are tons of options, so it is a bit complicated
+	Task to compile vala files.
 	"""
 	vars = ["VALAC", "VALAC_VERSION", "VALAFLAGS"]
 	ext_out = ['.h']
@@ -75,8 +74,28 @@ class valac_task(Task.Task):
 @extension('.vala', '.gs')
 def vala_file(self, node):
 	"""
-	TODO: the vala task should use self.generator.attribute instead of copying attributes from self to the task
+	Compile a vala file and bind the task to *self.valatask*. If an existing vala task is already set, add the node
+	to its inputs. The typical example is::
+
+		def build(bld):
+			bld.program(
+				packages      = 'gtk+-2.0',
+				target        = 'vala-gtk-example',
+				uselib        = 'GTK GLIB',
+				source        = 'vala-gtk-example.vala foo.vala',
+				vala_defines  = ['DEBUG']
+				# the following arguments are for libraries
+				#gir          = 'hello-1.0',
+				#gir_path     = '/tmp',
+				#vapi_path = '/tmp',
+				#pkg_name = 'hello'
+			)
+
+
+	:param node: vala file
+	:type node: :py:class:`waflib.Node.Node`
 	"""
+	# TODO: the vala task should use self.generator.attribute instead of copying attributes from self to the task
 	valatask = getattr(self, "valatask", None)
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
@@ -220,6 +239,15 @@ valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
 @conf
 def find_valac(self, valac_name, min_version):
+	"""
+	Find the valac program, and execute it to store the version
+	number in *conf.env.VALAC_VERSION*
+
+	:param valac_name: program name
+	:type valac_name: string or list of string
+	:param min_version: minimum version acceptable
+	:type min_version: tuple of int
+	"""
 	valac = self.find_program(valac_name, var='VALAC')
 	try:
 		output = self.cmd_and_log(valac + ' --version')
@@ -242,6 +270,11 @@ def check_vala(self, min_version=(0,8,0), branch=None):
 	"""
 	Check if vala compiler from a given branch exists of at least a given
 	version.
+
+	:param min_version: minimum version acceptable (0.8.0)
+	:type min_version: tuple
+	:param branch: first part of the version number, in case a snapshot is used (0, 8)
+	:type branch: tuple of int
 	"""
 	if not branch:
 		branch = min_version[:2]
@@ -253,7 +286,7 @@ def check_vala(self, min_version=(0,8,0), branch=None):
 @conf
 def check_vala_deps(self):
 	"""
-	vala seems to require the gobject and gthread flags
+	Load the gobject and gthread packages if they are missing.
 	"""
 	if not self.env['HAVE_GOBJECT']:
 		pkg_args = {'package':      'gobject-2.0',
@@ -273,16 +306,20 @@ def check_vala_deps(self):
 
 def configure(self):
 	"""
-	You may want to use this to force a particular minimum version:
+	Use the following to enforce minimum vala version::
 
-	conf.load('vala', funs='')
-	conf.check_vala(min_version=(0,10,0))
+		def configure(conf):
+			conf.load('vala', funs='')
+			conf.check_vala(min_version=(0,10,0))
 	"""
 	self.load('gnu_dirs')
 	self.check_vala_deps()
 	self.check_vala()
 
 def options(opt):
+	"""
+	Load the :py:mod:`waflib.Tools.gnu_dirs` tool and add the ``--vala-target-glib`` command-line option
+	"""
 	opt.load('gnu_dirs')
 	valaopts = opt.add_option_group('Vala Compiler Options')
 	valaopts.add_option ('--vala-target-glib', default=None,
