@@ -6,33 +6,37 @@
 # modified by Bjoern Michaelsen, 2008
 # modified by Luca Fossati, 2008
 # rewritten for waf 1.5.1, Thomas Nagy, 2008
-#
-# TO BE REWRITTEN AGAIN, AND WITH A TEST DIRECTORY
-#
-#
-#
-#def options(opt):
-#	opt.tool_options('boost')
-#	# ...
-#
-#def configure(conf):
-#	# ... (e.g. conf.load('g++'))
-#	conf.load('boost')
-#   conf.check_boost(lib='signals filesystem', static='onlystatic', score_version=(-1000, 1000), tag_minscore=1000)
-#   conf.check_boost(lib='signals filesystem', score_version=(-1000, 1000), tag_minscore=1000)
-#   # i hate this
-#
-#def build(bld):
-#   bld(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
-#
-#ISSUES:
-# * find_includes should be called only once!
-# * support mandatory
 
-######## boost update ###########
-## ITA: * the method get_boost_version_number does work
-##      * the rest of the code has not really been tried
-#       * make certain a demo is provided (in demos/adv for example)
+"""
+TO BE REWRITTEN AGAIN, AND WITH A TEST DIRECTORY
+
+
+ to add the boost tool to the waf file:
+ ./waf-light --tools=compat15,boost
+
+def options(opt):
+	opt.tool_options('boost')
+	# ...
+
+def configure(conf):
+	# ... (e.g. conf.load('g++'))
+   conf.load('boost')
+   conf.check_boost(lib='signals filesystem', static='onlystatic', score_version=(-1000, 1000), tag_minscore=1000)
+   conf.check_boost(lib='signals filesystem', score_version=(-1000, 1000), tag_minscore=1000)
+   # i hate this
+
+def build(bld):
+   bld(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
+
+ISSUES:
+ * find_includes should be called only once!
+ * support mandatory
+
+###### last boost update ###########
+ * the method get_boost_version_number does work
+ * the rest of the code has not really been tested
+ * make certain a demo is provided (in demos/adv for example)
+"""
 
 import os.path, glob, types, re, sys
 from waflib import Configure, Options, Utils, Logs, Errors
