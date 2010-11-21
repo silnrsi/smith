@@ -19,7 +19,7 @@ a new C++ compiler named *cfoo* (assuming the tool ``waflib/extras/cfoo.py`` exi
 		opt.load('compiler_cxx')
 	def configure(cnf):
 		from waflib.Tools.compiler_cxx import cxx_compiler
-		compiler_cxx['win32'] = ['cfoo', 'msvc', 'gcc']
+		cxx_compiler['win32'] = ['cfoo', 'msvc', 'gcc']
 		cnf.load('compiler_cxx')
 	def build(bld):
 		bld.program(source='main.c', target='app')

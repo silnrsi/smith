@@ -19,7 +19,7 @@ a new C compiler named *cfoo* (assuming the tool ``waflib/extras/cfoo.py`` exist
 		opt.load('compiler_c')
 	def configure(cnf):
 		from waflib.Tools.compiler_c import c_compiler
-		compiler_c['win32'] = ['cfoo', 'msvc', 'gcc']
+		c_compiler['win32'] = ['cfoo', 'msvc', 'gcc']
 		cnf.load('compiler_c')
 	def build(bld):
 		bld.program(source='main.c', target='app')
