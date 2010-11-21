@@ -502,7 +502,7 @@ def process_source(self):
 @before('process_source')
 def process_rule(self):
 	"""
-	Process the attribute ``rule``. When present, :py:meth:`waflib.TaskGen.task_gen.process_source` is disabled::
+	Process the attribute ``rule``. When present, :py:meth:`waflib.TaskGen.process_source` is disabled::
 
 		def build(bld):
 			bld(rule='cp ${SRC} ${TGT}', source='wscript', target='bar.txt')
