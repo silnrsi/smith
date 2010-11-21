@@ -364,7 +364,6 @@ def propagate_uselib_vars(self):
 
 @feature('cshlib', 'cxxshlib')
 @after('apply_link')
-@before('apply_lib_vars', 'apply_objdeps')
 def apply_implib(self):
 	"""
 	Handle dlls and their import libs on Windows-like systems.
