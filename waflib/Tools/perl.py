@@ -3,6 +3,26 @@
 # andersg at 0x63.nu 2007
 # Thomas Nagy 2010 (ita)
 
+"""
+Support for Perl extensions. A C/C++ compiler is required::
+
+	def options(opt):
+		opt.load('compiler_c perl')
+	def configure(conf):
+		conf.load('compiler_c perl')
+		conf.check_perl_version((5,6,0))
+		conf.check_perl_ext_devel()
+		conf.check_perl_module('Cairo')
+		conf.check_perl_module('Devel::PPPort 4.89')
+	def build(bld):
+		bld(
+			features     = 'c cshlib perlext',
+			source       = 'Mytest.xs',
+			target       = 'Mytest',
+			install_path = '${ARCHDIR_PERL}/auto')
+		bld.install_files('${ARCHDIR_PERL}', 'Mytest.pm')
+"""
+
 import os
 from waflib import Task, Options, Utils
 from waflib.Configure import conf
@@ -11,17 +31,27 @@ from waflib.TaskGen import extension, feature, before
 @before('apply_incpaths', 'apply_link', 'propagate_uselib_vars')
 @feature('perlext')
 def init_perlext(self):
+	"""
+	Change the values of *cshlib_PATTERN* and *cxxshlib_PATTERN* to remove the
+	*lib* prefix from library names.
+	"""
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	if not 'PERLEXT' in self.uselib: self.uselib.append('PERLEXT')
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['perlext_PATTERN']
 
 @extension('.xs')
 def xsubpp_file(self, node):
+	"""
+	Create :py:class:`waflib.Tools.perl.xsubpp` tasks to process *.xs* files
+	"""
 	outnode = node.change_ext('.c')
 	self.create_task('xsubpp', node, outnode)
 	self.source.append(outnode)
 
 class xsubpp(Task.Task):
+	"""
+	Process *.xs* files
+	"""
 	run_str = '${PERL} ${XSUBPP} -noprototypes -typemap ${EXTUTILS_TYPEMAP} ${SRC} > ${TGT}'
 	color   = 'BLUE'
 	ext_out = ['.h']
@@ -29,11 +59,7 @@ class xsubpp(Task.Task):
 @conf
 def check_perl_version(self, minver=None):
 	"""
-	Checks if perl is installed.
-
-	If installed the variable PERL will be set in environment.
-
-	Perl binary can be overridden by --with-perl-binary config variable
+	Check if Perl is installed, and set the variable PERL.
 	"""
 	res = True
 
@@ -65,10 +91,11 @@ def check_perl_module(self, module):
 	"""
 	Check if specified perlmodule is installed.
 
-	Minimum version can be specified by specifying it after modulename
-	like this:
+	The minimum version can be specified by specifying it after modulename
+	like this::
 
-	self.check_perl_module("Some::Module 2.92")
+		def configure(conf):
+			conf.check_perl_module("Some::Module 2.92")
 	"""
 	cmd = [self.env['PERL'], '-e', 'use %s' % module]
 	self.start_msg('perl module %s' % module)
@@ -88,7 +115,7 @@ def check_perl_ext_devel(self):
 	Sets different xxx_PERLEXT variables in the environment.
 
 	Also sets the ARCHDIR_PERL variable useful as installation path,
-	which can be overridden by --with-perl-archdir option.
+	which can be overridden by ``--with-perl-archdir`` option.
 	"""
 
 	env = self.env
@@ -114,6 +141,9 @@ def check_perl_ext_devel(self):
 	env['perlext_PATTERN'] = '%s.' + self.cmd_and_log(perl + " -MConfig -e'print $Config{dlext}'")
 
 def options(opt):
+	"""
+	Add the ``--with-perl-archdir`` and ``--with-perl-binary`` command-line options.
+	"""
 	opt.add_option('--with-perl-binary', type='string', dest='perlbinary', help = 'Specify alternate perl binary', default=None)
 	opt.add_option('--with-perl-archdir', type='string', dest='perlarchdir', help = 'Specify directory where to install arch specific files', default=None)
 
