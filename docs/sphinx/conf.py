@@ -47,7 +47,7 @@ def fixmeth(x):
 
 def fixfeat(x):
 	app = '../'
-	if getattr(TaskGen, x, None):
+	if x in ('*', 'subst'):
 		app = ''
 	return "`%s <%sfeaturemap.html#feature-%s>`_" % (x=='*' and 'all' or x, app,  x)
 
