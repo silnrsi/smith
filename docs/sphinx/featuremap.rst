@@ -1,10 +1,9 @@
 .. _featuremap:
 
-Feature map
-===========
+Feature reference
+=================
 
 .. include:: featuremap_example.txt
-
 Feature \*
 ==========
 

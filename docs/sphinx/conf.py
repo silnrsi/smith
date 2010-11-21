@@ -49,7 +49,7 @@ def fixfeat(x):
 	app = '../'
 	if x in ('*', 'subst'):
 		app = ''
-	return "`%s <%sfeaturemap.html#feature-%s>`_" % (x=='*' and 'all' or x, app,  x)
+	return "`%s <%sfeaturemap.html#feature%s>`_" % (x=='*' and 'all' or x, app, x!='*' and '-'+x or '')
 
 def append_doc(fun, keyword, meths):
 
