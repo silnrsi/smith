@@ -102,10 +102,10 @@ The next tools provide support for code generators used in C and C++ projects.
 	tools/bison
 	tools/flex
 	tools/dbus
+	tools/vala
 	tools/glib2
 	tools/qt4
 	tools/kde4
-	tools/vala
 	tools/perl
 	tools/python
 	tools/ruby
