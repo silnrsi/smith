@@ -33,7 +33,6 @@ plist template
 """
 
 @feature('c', 'cxx')
-@before('apply_lib_vars')
 def set_macosx_deployment_target(self):
 	"""
 	see WAF issue 285 and also and also http://trac.macports.org/ticket/17059
