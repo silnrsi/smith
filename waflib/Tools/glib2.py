@@ -48,6 +48,7 @@ def process_marshal(self):
 
 		task = self.create_task('glib_genmarshal', node, [h_node, c_node])
 		task.env.GLIB_GENMARSHAL_PREFIX = prefix
+	self.source = self.to_nodes(getattr(self, 'source', []))
 	self.source.append(c_node)
 
 class glib_genmarshal(Task.Task):
