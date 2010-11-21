@@ -106,6 +106,15 @@ TaskGen.extension('.pc.in')(TaskGen.add_pcfile)
 TaskGen.feature('subst')(TaskGen.process_subst)
 TaskGen.before('process_source','process_rule')(TaskGen.process_subst)
 
+from waflib.Task import Task
+
+Task.__dict__['run'].__doc__ = """
+		Execute the task (executed by threads). Override in subclasses.
+
+		:rtype: int
+		"""
+Task.__dict__['post_run'].__doc__ = "Update the cache files (executed by threads). Override in subclasses."
+
 
 from waflib import Configure, Build
 def conf(f):
