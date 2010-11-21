@@ -156,12 +156,38 @@ Configure.ConfigurationContext.__doc__ = """
 """
 
 
+
+# Import all tools and build tool->feature map
+tool_to_features = {}
 import os
 lst = [x.replace('.py', '') for x in os.listdir('../../waflib/Tools/') if x.endswith('.py')]
 for x in lst:
 	if x == '__init__':
 		continue
-	__import__('waflib.Tools.%s' % x)
+	tool = __import__('waflib.Tools.%s' % x)
+	thetool = getattr(tool.Tools, x)
+	funcs = dir(thetool)
+	for func_name in funcs:
+		thefunc = getattr(TaskGen.task_gen, func_name, None)
+		if getattr(thefunc, "__name__", None) is None: continue
+		for feat in TaskGen.feats.keys():
+			funcs = list(TaskGen.feats[feat])
+			if func_name in funcs:
+				if x not in tool_to_features:
+					tool_to_features[x] = []
+				tool_to_features[x].append(feat)
+
+	txt = ""
+	txt += "%s\n%s\n\n.. automodule:: waflib.Tools.%s\n\n" % (x, "="*len(x), x)
+	if x in tool_to_features:
+		txt += "Provided Features:"
+		for feat in sorted(list(set(tool_to_features[x]))):
+			link = "../featuremap.html#feature-%s" % feat
+			txt += "\n\n* `%s <%s>`_" % (feat, link)
+	old = open("tools/%s.rst" % x, "r").read()
+	if old != txt:
+		with open("tools/%s.rst" % x, "w") as f:
+			f.write(txt)
 
 lst = list(TaskGen.feats.keys())
 lst.sort()
