@@ -31,8 +31,12 @@ def taskgen_method(func):
 	return func
 
 def fix_fun_doc(fun):
-	if not fun.__doc__.startswith('\tTask generator method'):
-		fun.__doc__ = '\tTask generator method\n\t\n' + (fun.__doc__ or '')
+	try:
+		if not fun.__doc__.startswith('\tTask generator method'):
+			fun.__doc__ = '\tTask generator method\n\t\n' + (fun.__doc__ or '')
+	except:
+		print("Undocumented function", fun.__name__)
+		raise
 
 def append_doc(fun, keyword, meths):
 	fun.__doc__ += '\n\t:%s: %s' % (keyword, ", ".join(meths))
@@ -72,6 +76,8 @@ def after(*k):
 		return func
 	return deco
 TaskGen.after = after
+
+from waflib.Tools import python
 
 from waflib import Configure, Build
 def conf(f):

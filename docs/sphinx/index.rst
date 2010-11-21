@@ -9,11 +9,3 @@ Waf v1.6.1 documentation
 	about.rst
 	copyright.rst
 
-	:ref:`genindex`
-	:ref:`modindex`
-	:ref:`search`
-
-.. Indices and tables
-.. ==================
-
-
