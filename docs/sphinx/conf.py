@@ -34,8 +34,8 @@ def fix_fun_doc(fun):
 	try:
 		if not fun.__doc__.startswith('\tTask generator method'):
 			fun.__doc__ = '\tTask generator method\n\t\n' + (fun.__doc__ or '')
-	except:
-		print("Undocumented function", fun.__name__)
+	except Exception as e:
+		print("Undocumented function %r (%r)" % (fun.__name__, e))
 		raise
 
 def fixmeth(x):
