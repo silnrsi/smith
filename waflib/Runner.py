@@ -20,9 +20,6 @@ Wait for free tasks if there are at least :py:attr:`GAP` * njobs in the queue
 """
 
 MAXJOBS = 999
-"""
-Maximum amount of jobs - cpython cannot really spawn more than 100 without crashing
-"""
 
 class TaskConsumer(Utils.threading.Thread):
 	"""
