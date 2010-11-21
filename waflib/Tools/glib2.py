@@ -69,7 +69,7 @@ class glib_genmarshal(Task.Task):
 
 		#print self.outputs[1].abspath()
 		c = '''#include "%s"\n''' % self.outputs[0].name
-		self.outputs[1].write(c.encode("utf-8"))
+		self.outputs[1].write(c)
 
 		cmd2 = "%s %s --prefix=%s --body >> %s" % (
 			get('GLIB_GENMARSHAL'),
