@@ -53,7 +53,9 @@ C/C++ support
 -------------
 
 The following modules contain the functions and classes required for building C and C++ applications. They
-are almost always loaded by other Waf tools.
+are almost always loaded by other Waf tools. Among these, the most important from a user point of view
+is :py:mod:`waflib.Tools.c_config` which provides the :py:func:`waflib.Tools.c_config.check` and
+:py:func:`waflib.Tools.c_config.check_cfg` functions.
 
 .. toctree::
 
