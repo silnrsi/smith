@@ -168,7 +168,7 @@ for z in lst:
 	meths = TaskGen.feats[z]
 	links = []
 
-	allmeths = set([])
+	allmeths = set(TaskGen.feats[z])
 	for x in meths:
 		for y in TaskGen.task_gen.prec.get(x, []):
 			links.append((x, y))
