@@ -39,7 +39,14 @@ def fix_fun_doc(fun):
 		raise
 
 def append_doc(fun, keyword, meths):
-	fun.__doc__ += '\n\t:%s: %s' % (keyword, ", ".join(meths))
+
+	if keyword == "feature":
+		pass
+	else:
+		meths = [":py:func:`%s`" % x for x in meths]
+
+	dc = ", ".join(meths)
+	fun.__doc__ += '\n\t:%s: %s' % (keyword, dc)
 
 def feature(*k):
 	def deco(func):
