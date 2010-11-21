@@ -107,6 +107,9 @@ def install_pyfile(self, node):
 
 @feature('py')
 def feature_py(self):
+	"""
+	Dummy feature which does nothing
+	"""
 	pass
 
 @feature('pyext')
