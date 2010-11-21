@@ -67,6 +67,7 @@ def feature(*k):
 			feats[name].update([func.__name__])
 		fix_fun_doc(func)
 		append_doc(func, 'feature', k)
+		#print "feature", name, k
 		return func
 	return deco
 TaskGen.feature = feature
@@ -150,6 +151,25 @@ Configure.ConfigurationContext.__doc__ = """
 			ctx.myhelper()
 """
 
+"""
+from sphinx.application import Sphinx
+
+old = Sphinx.build
+def build(*k, **kw):
+	ret = old(*k, **kw)
+
+	buf = []
+
+	lst = list(TaskGen.feats.keys())
+	lst.sort()
+
+	for x in lst:
+		meths = TaskGen.feats[x]
+		print "%r %r" % (x, meths)
+
+	return ret
+Sphinx.build = build
+"""
 
 #print("Path: %s" % sys.path)
 
