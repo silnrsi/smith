@@ -71,6 +71,7 @@ def feature(*k):
 		#print "feature", name, k
 		return func
 	return deco
+feature.__doc__ = TaskGen.feature.__doc__
 TaskGen.feature = feature
 
 
@@ -84,6 +85,7 @@ def before(*k):
 		append_doc(func, 'before', k)
 		return func
 	return deco
+before.__doc__ = TaskGen.before.__doc__
 TaskGen.before = before
 
 def after(*k):
@@ -96,6 +98,7 @@ def after(*k):
 		append_doc(func, 'after', k)
 		return func
 	return deco
+after.__doc__ = TaskGen.after.__doc__
 TaskGen.after = after
 
 # replay existing methods
@@ -201,9 +204,10 @@ for z in lst:
 f = open('tmpmap', 'w')
 f.write(""".. _featuremap:
 
-Feature map
-===========
+Feature reference
+=================
 
+.. include:: featuremap_example.txt
 """)
 f.write("\n".join(accu))
 f.close()

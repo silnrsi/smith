@@ -3,6 +3,8 @@
 Feature map
 ===========
 
+.. include:: featuremap_example.txt
+
 Feature \*
 ==========
 
