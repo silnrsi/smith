@@ -123,7 +123,7 @@ The following tools provide support for specific compilers or configurations. Mo
 
 	tools/waf_unit_test
 	tools/tex
-	tools/java
+	tools/javaw
 	tools/cs
 	tools/gnu_dirs
 	tools/intltool
