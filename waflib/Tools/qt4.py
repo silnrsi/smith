@@ -3,9 +3,20 @@
 # Thomas Nagy, 2006-2010 (ita)
 
 """
-Qt4 support
+Support for the Qt4 libraries and tools::
 
-If QT4_ROOT is given (absolute path), the configuration will look in it first
+	def options(opt):
+		opt.load('compiler_cxx qt4')
+	def configure(conf):
+		conf.load('compiler_cxx qt4')
+		conf.env.append_value('CXXFLAGS', ['-g']) # test
+	def build(bld):
+		bld(
+			features = 'qt4 cxx cxxprogram',
+			uselib   = 'QTCORE QTGUI QTOPENGL QTSVG',
+			source   = 'main.cpp textures.qrc aboutDialog.ui',
+			target   = 'window',
+		)
 
 This module also demonstrates how to add tasks dynamically (when the build has started)
 """
@@ -26,17 +37,32 @@ from waflib.TaskGen import feature, after, extension
 from waflib.Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
+"""
+File extensions associated to the .moc files
+"""
+
 EXT_RCC = ['.qrc']
+"""
+File extension for the resource (.qrc) files
+"""
+
 EXT_UI  = ['.ui']
+"""
+File extension for the user interface (.ui) files
+"""
+
 EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
+"""
+File extensions of C++ files that may require a .moc processing
+"""
 
 class qxx(cxx.cxx):
 	"""
-	Each c++ file may have zero or several .moc files to create.
+	Each C++ file can have zero or several .moc files to create.
 	They are known only when the files are scanned (preprocessor)
-	To avoid scanning the c++ files each time (very slow), the results
+	To avoid scanning the c++ files each time (parsing C/C++), the results
 	are retrieved from the task cache (bld.node_deps/bld.raw_deps).
-	The moc tasks are created dynamically during the build
+	The moc tasks are also created *dynamically* during the build.
 	"""
 
 	def __init__(self, *k, **kw):
@@ -44,7 +70,7 @@ class qxx(cxx.cxx):
 		self.moc_done = 0
 
 	def scan(self):
-		"""re-use the c/c++ scanner, but process moc files in a different way"""
+		"""Re-use the C/C++ scanner, but remove the moc files from the dependencies"""
 		(nodes, names) = c_preproc.scan(self)
 		# for some reasons (variants) the moc node may end in the list of node deps
 		for x in nodes:
@@ -54,6 +80,11 @@ class qxx(cxx.cxx):
 		return (nodes, names)
 
 	def runnable_status(self):
+		"""
+		Compute the task signature to make sure the scanner was executed. Create the
+		moc tasks by using :py:meth:`waflib.Tools.qt4.qxx.add_moc_tasks` (if necessary),
+		then postpone the task execution (there is no need to recompute the task signature).
+		"""
 		if self.moc_done:
 			# if there is a moc task, delay the computation of the file signature
 			for t in self.run_after:
@@ -72,7 +103,9 @@ class qxx(cxx.cxx):
 			return Task.ASK_LATER
 
 	def add_moc_tasks(self):
-
+		"""
+		Create the moc tasks by looking in ``bld.raw_deps[self.uid()]``
+		"""
 		node = self.inputs[0]
 		bld = self.generator.bld
 
@@ -160,6 +193,7 @@ class qxx(cxx.cxx):
 	run = Task.classes['cxx'].__dict__['run']
 
 def translation_update(task):
+	# ujjj, esto está roto
 	outs = [a.abspath() for a in task.outputs]
 	outs = " ".join(outs)
 	lupdate = task.env['QT_LUPDATE']
@@ -171,6 +205,9 @@ def translation_update(task):
 		task.generator.bld.exec_command(cmd)
 
 class XMLHandler(ContentHandler):
+	"""
+	Parser for *.qrc* files
+	"""
 	def __init__(self):
 		self.buf = []
 		self.files = []
@@ -185,7 +222,7 @@ class XMLHandler(ContentHandler):
 
 @extension(*EXT_RCC)
 def create_rcc_task(self, node):
-	"hook for rcc files"
+	"Create rcc and cxx tasks for *.qrc* files"
 	rcnode = node.change_ext('_rc.cpp')
 	rcctask = self.create_task('rcc', node, rcnode)
 	cpptask = self.create_task('cxx', rcnode, rcnode.change_ext('.o'))
@@ -206,6 +243,12 @@ def add_lang(self, node):
 @feature('qt4')
 @after('apply_link')
 def apply_qt4(self):
+	"""
+	Add MOC_FLAGS which may be necessary for moc::
+
+		def build(bld):
+			bld.program(features='qt4', source='main.cpp', target='app', use='QTCORE')
+	"""
 	if getattr(self, 'lang', None):
 		update = getattr(self, 'update', None)
 		lst=[]
@@ -223,7 +266,7 @@ def apply_qt4(self):
 
 		if update and Options.options.trans_qt4:
 			# we need the cpp files given, except the rcc task we create after
-			# FIXME may be broken
+			# FIXME certainlybroken
 			u = Task.TaskCmd(translation_update, self.env, 2)
 			u.inputs = [a.inputs[0] for a in self.compiled_tasks]
 			u.outputs = trans
@@ -239,21 +282,28 @@ def apply_qt4(self):
 	lst = []
 	for flag in self.to_list(self.env['CXXFLAGS']):
 		if len(flag) < 2: continue
-		if flag[0:2] == '-D' or flag[0:2] == '-I':
+		f = flag[0:2]
+		if f in ['-D', '-I', '/D', '/I']:
 			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
 @extension(*EXT_QT4)
 def cxx_hook(self, node):
+	"""
+	Re-map C++ file extensions to the :py:class:`waflib.Tools.qt4.qxx` task.
+	"""
 	return self.create_compiled_task('qxx', node)
 
 class rcc(Task.Task):
+	"""
+	Process *.qrc* files
+	"""
 	color   = 'BLUE'
 	run_str = '${QT_RCC} -name ${SRC[0].name} ${SRC[0].abspath()} ${RCC_ST} -o ${TGT}'
 	ext_out = ['.h']
 
 	def scan(self):
-		"""add the dependency on the files referenced in the qrc"""
+		"""Parse the *.qrc* files"""
 		node = self.inputs[0]
 		parser = make_parser()
 		curHandler = XMLHandler()
@@ -272,19 +322,31 @@ class rcc(Task.Task):
 		return (nodes, names)
 
 class moc(Task.Task):
+	"""
+	Create *.moc* files
+	"""
 	color   = 'BLUE'
 	run_str = '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}'
 
 class ui4(Task.Task):
+	"""
+	Process *.ui* files
+	"""
 	color   = 'BLUE'
 	run_str = '${QT_UIC} ${SRC} -o ${TGT}'
 	ext_out = ['.h']
 
 class ts2qm(Task.Task):
+	"""
+	Create *.qm* files from *.ts* files
+	"""
 	color   = 'BLUE'
 	run_str = '${QT_LRELEASE} ${QT_LRELEASE_FLAGS} ${SRC} -qm ${TGT}'
 
 class qm2rcc(Task.Task):
+	"""
+	Transform *.qm* files into *.rc* files
+	"""
 	color = 'BLUE'
 	after = 'ts2qm'
 	before = 'rcc'
@@ -295,9 +357,13 @@ class qm2rcc(Task.Task):
 		code = '<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n%s\n</qresource>\n</RCC>' % txt
 		task.outputs[0].write(code)
 
-#Task.task_factory('qm2rcc', vars=[], func=process_qm2rcc, color='BLUE', before='rcc', after='ts2qm')
-
 def configure(self):
+	"""
+	Besides the configuration options, the environment variable QT4_ROOT may be used
+	to give the location of the qt4 libraries (absolute path).
+
+	The detection may use the program *pkg-config* through :py:func:`waflib.Tools.config_c.check_cfg`
+	"""
 	env = self.env
 	opt = Options.options
 
@@ -463,6 +529,9 @@ def configure(self):
 		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 def options(opt):
+	"""
+	Command-line options
+	"""
 	opt.add_option('--want-rpath', action='store_true', default=False, dest='want_rpath', help='enable the rpath for qt libraries')
 
 	opt.add_option('--header-ext',

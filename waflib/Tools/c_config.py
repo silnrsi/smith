@@ -3,7 +3,7 @@
 # Thomas Nagy, 2005-2010 (ita)
 
 """
-c/c++ configuration routines
+C/C++/D configuration helpers
 """
 
 import os, imp, sys, shlex, shutil
@@ -128,7 +128,7 @@ def parse_flags(self, line, uselib, env=None):
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
 			appu('INCLUDES_' + uselib, [ot])
-		elif st == '-D':
+		elif st == '-D' or st == '/D':
 			if not ot: ot = lst.pop(0)
 			app('DEFINES_' + uselib, [ot])
 		elif st == '-l':
@@ -166,7 +166,19 @@ def ret_msg(self, f, kw):
 
 @conf
 def validate_cfg(self, kw):
+	"""
+	Search for the program *pkg-config* if missing, and validate the parameters to pass to
+	:py:func:`waflib.Tools.c_config.exec_cfg`.
 
+	:param path: the **-config program to use** (default is *pkg-config*)
+	:type path: list of string
+	:param msg: message to display to describe the test executed
+	:type msg: string
+	:param okmsg: message to display when the test is successful
+	:type okmsg: string
+	:param errmsg: message to display in case of error
+	:type errmsg: string
+	"""
 	if not 'path' in kw:
 		if not self.env.PKGCONFIG:
 			self.find_program('pkg-config', var='PKGCONFIG')
@@ -204,6 +216,28 @@ def validate_cfg(self, kw):
 
 @conf
 def exec_cfg(self, kw):
+	"""
+	Execute the program *pkg-config*:
+
+	* if atleast_pkgconfig_version is given, check that pkg-config has the version n and return
+	* if modversion is given, then return the module version
+	* else, execute the *-config* program with the *args* and *variables* given, and set the flags on the *conf.env.FLAGS_name* variable
+
+	:param atleast_pkgconfig_version: minimum pkg-config version to use (disable other tests)
+	:type atleast_pkgconfig_version: string
+	:param package: package name, for example *gtk+-2.0*
+	:type package: string
+	:param uselib_store: if the test is successful, define HAVE_*name*. It is also used to define *conf.env.FLAGS_name* variables.
+	:type uselib_store: string
+	:param modversion: if provided, return the version of the given module and define *name*_VERSION
+	:type modversion: string
+	:param args: arguments to give to *package* when retrieving flags
+	:type args: list of string
+	:param variables: return the values of particular variables
+	:type variables: list of string
+	:param define_variable: additional variables to define (also in conf.env.PKG_CONFIG_DEFINES)
+	:type define_variable: dict(string: string)
+	"""
 
 	# pkg-config version
 	if 'atleast_pkgconfig_version' in kw:
@@ -266,7 +300,27 @@ def exec_cfg(self, kw):
 
 @conf
 def check_cfg(self, *k, **kw):
+	"""
+	Check for configuration flags using a **-config**-like program (pkg-config, sdl-config, etc).
+	Encapsulate the calls to :py:func:`waflib.Tools.c_config.validate_cfg` and :py:func:`waflib.Tools.c_config.exec_cfg`
 
+	A few examples::
+
+		def configure(conf):
+			conf.load('compiler_c')
+			conf.check_cfg(package='glib-2.0', args='--libs --cflags')
+			conf.check_cfg(package='glib-2.0', uselib_store='GLIB', atleast_version='2.10.0',
+				args='--cflags --libs')
+			conf.check_cfg(package='pango')
+			conf.check_cfg(package='pango', uselib_store='MYPANGO', args=['--cflags', '--libs'])
+			conf.check_cfg(package='pango',
+				args=['pango >= 0.1.0', 'pango < 9.9.9', '--cflags', '--libs'],
+				msg="Checking for 'pango 0.1.0'")
+			conf.check_cfg(path='sdl-config', args='--cflags --libs', package='', uselib_store='SDL')
+			conf.check_cfg(path='mpicc', args='--showme:compile --showme:link',
+				package='', uselib_store='OPEN_MPI', mandatory=False)
+
+	"""
 	if k:
 		lst = k[0].split()
 		kw['package'] = lst[0]
@@ -300,7 +354,7 @@ def validate_c(self, kw):
 	:param env: an optional environment (modified -> provide a copy)
 	:type env: :py:class:`waflib.ConfigSet.ConfigSet`
 	:param compiler: c or cxx (tries to guess what is best)
-	:type: string
+	:type compiler: string
 	:param type: cprogram, cshlib, cstlib - not required if *features are given directly*
 	:type type: binary to create
 	:param feature: desired features for the task generator that will execute the test, for example ``cxx cxxstlib``
