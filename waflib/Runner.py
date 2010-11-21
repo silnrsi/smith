@@ -16,7 +16,7 @@ from waflib import Utils, Logs, Task, Errors
 
 GAP = 10
 """
-Wait for free tasks if there are at least :py:var:`GAP` * njobs in the queue
+Wait for free tasks if there are at least :py:attr:`GAP` * njobs in the queue
 """
 
 MAXJOBS = 999

@@ -649,7 +649,7 @@ class BuildContext(Context.Context):
 
 	def get_targets(self):
 		"""
-		Return the task generator corresponding to the 'targets' list, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator::
+		Return the task generator corresponding to the 'targets' list, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator`::
 
 			$ waf --targets=myprogram,myshlib
 		"""
