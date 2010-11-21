@@ -30,7 +30,6 @@ ccroot.USELIB_VARS['cs'] = set(['CSFLAGS', 'ASSEMBLIES', 'RESOURCES'])
 ccroot.lib_patterns['csshlib'] = ['%s']
 
 @feature('cs')
-@after('apply_uselib_cs')
 @before('process_source')
 def apply_cs(self):
 	"""
