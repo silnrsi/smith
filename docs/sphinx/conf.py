@@ -18,6 +18,96 @@ import sys, os
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath(os.path.join('..', "..")))
 sys.path.append(os.path.abspath('.'))
+
+# monkey patch a few waf classes for documentation purposes!
+#-----------------------------------------------------------
+
+from waflib import TaskGen
+from waflib.TaskGen import task_gen, feats
+
+def taskgen_method(func):
+	setattr(task_gen, func.__name__, func)
+	fix_fun_doc(func)
+	return func
+
+def fix_fun_doc(fun):
+	if not fun.__doc__.startswith('\tTask generator method'):
+		fun.__doc__ = '\tTask generator method\n\t\n' + (fun.__doc__ or '')
+
+def append_doc(fun, keyword, meths):
+	fun.__doc__ += '\n\t:%s: %s' % (keyword, ", ".join(meths))
+
+def feature(*k):
+	def deco(func):
+		setattr(task_gen, func.__name__, func)
+		for name in k:
+			feats[name].update([func.__name__])
+		fix_fun_doc(func)
+		append_doc(func, 'feature', k)
+		return func
+	return deco
+TaskGen.feature = feature
+
+
+def before(*k):
+	def deco(func):
+		setattr(task_gen, func.__name__, func)
+		for fun_name in k:
+			if not func.__name__ in task_gen.prec[fun_name]:
+				task_gen.prec[fun_name].append(func.__name__)
+		fix_fun_doc(func)
+		append_doc(func, 'before', k)
+		return func
+	return deco
+TaskGen.before = before
+
+def after(*k):
+	def deco(func):
+		setattr(task_gen, func.__name__, func)
+		for fun_name in k:
+			if not fun_name in task_gen.prec[func.__name__]:
+				task_gen.prec[func.__name__].append(fun_name)
+		fix_fun_doc(func)
+		append_doc(func, 'after', k)
+		return func
+	return deco
+TaskGen.after = after
+
+from waflib import Configure, Build
+def conf(f):
+	def fun(*k, **kw):
+		mandatory = True
+		if 'mandatory' in kw:
+			mandatory = kw['mandatory']
+			del kw['mandatory']
+
+		try:
+			return f(*k, **kw)
+		except Errors.ConfigurationError as e:
+			if mandatory:
+				raise e
+
+	f.__doc__ = "\tConfiguration Method bound to :py:class:`waflib.Configure.ConfigurationContext`\n" + (f.__doc__ or '')
+	setattr(Configure.ConfigurationContext, f.__name__, fun)
+	setattr(Build.BuildContext, f.__name__, fun)
+	return f
+Configure.conf = conf
+
+Configure.ConfigurationContext.__doc__ = """
+	Configure the project.
+
+	Waf tools may bind new methods to this class::
+
+		from waflib.Configure import conf
+		@conf
+		def myhelper(self):
+			print("myhelper")
+
+		def configure(ctx):
+			ctx.myhelper()
+"""
+
+
 #print("Path: %s" % sys.path)
 
 # -- General configuration -----------------------------------------------------
