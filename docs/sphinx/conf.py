@@ -46,9 +46,7 @@ def fixmeth(x):
 	return ":py:func:`%s`" % x
 
 def fixfeat(x):
-	if x == '*':
-		return "All task generators"
-	return x
+	return "`%s <../featuremap.html#feature-%s>`_" % (x=='*' and 'all' or x, x)
 
 def append_doc(fun, keyword, meths):
 
