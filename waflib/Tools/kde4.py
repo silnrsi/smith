@@ -2,33 +2,55 @@
 # encoding: utf-8
 # Thomas Nagy, 2006-2010 (ita)
 
+"""
+Support for the KDE4 libraries and msgfmt
+"""
+
 import os, sys, re
 from waflib import Options, TaskGen, Task, Utils
 from waflib.TaskGen import feature, after
 
 @feature('msgfmt')
-def init_msgfmt(self):
-	#langs = '' # for example "foo/fr foo/br"
-	try:
-		self.install_path
-	except:
-		self.install_path = '${KDE4_LOCALE_INSTALL_DIR}'
-
-@feature('msgfmt')
 @after('init_msgfmt')
 def apply_msgfmt(self):
+	"""
+	Process all languages to create .mo files and to install them::
+
+		def build(bld):
+			bld(features='msgfmt', langs='es de fr', appname='myapp', install_path='${KDE4_LOCALE_INSTALL_DIR}')
+	"""
 	for lang in self.to_list(self.langs):
 		node = self.path.find_resource(lang+'.po')
 		task = self.create_task('msgfmt', node, node.change_ext('.mo'))
 
-		if not self.bld.is_install: continue
 		langname = lang.split('/')
 		langname = langname[-1]
-		task.install_path = self.install_path + os.sep + langname + os.sep + 'LC_MESSAGES'
-		task.filename = getattr(self, 'appname', 'set_your_appname') + '.mo'
-		task.chmod = self.chmod
+
+		inst = getattr(self, 'install_path', '${KDE4_LOCALE_INSTALL_DIR}')
+
+		bld.install_as(
+			inst + os.sep + langname + os.sep + 'LC_MESSAGES' + os.sep + getattr(self, 'appname', 'set_your_appname') + '.mo',
+			task.outputs[0],
+			chmod = self.chmod)
+
+class msgfmt(Task.Task):
+	"""
+	Transform .po files into .mo files
+	"""
+	color   = 'BLUE'
+	run_str = '${MSGFMT} ${SRC} -o ${TGT}'
 
 def configure(self):
+	"""
+	Detect kde4-config and set various variables for the *use* system::
+
+		def options(opt):
+			opt.load('compiler_cxx kde4')
+		def configure(conf):
+			conf.load('compiler_cxx kde4')
+		def build(bld):
+			bld.program(source='main.c', target='app', use='KDECORE KIO KHTML')
+	"""
 	kdeconfig = self.find_program('kde4-config')
 	prefix = self.cmd_and_log('%s --prefix' % kdeconfig).strip()
 	fname = '%s/share/apps/cmake/modules/KDELibsDependencies.cmake' % prefix
@@ -66,8 +88,4 @@ def configure(self):
 	self.env.append_value('INCLUDES_KDECORE', [self.env['KDE4_INCLUDE_INSTALL_DIR']+ os.sep + 'KDE'])
 
 	self.find_program('msgfmt', var='MSGFMT')
-
-class msgfmt(Task.Task):
-	color   = 'BLUE'
-	run_str = '${MSGFMT} ${SRC} -o ${TGT}'
 
