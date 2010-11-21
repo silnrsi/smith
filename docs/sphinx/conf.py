@@ -193,7 +193,7 @@ for z in lst:
 		ms.append('\t"%s" -> "%s" [arrowsize=0.5,style="setlinewidth(0.5)"];' % (x, y))
 
 	rs = '\tdigraph feature_%s {\n\tsize="8.0, 12.0";\n\t%s\n\t}\n' % (z == '*' and 'all' or z, '\n'.join(ms))
-	title = "Feature %s" % z
+	title = "Feature %s" % (z == '*' and '\\*' or z)
 	title += "\n" + len(title) * '='
 
 	accu.append("%s\n\n.. graphviz::\n\n%s\n\n" % (title, rs))
