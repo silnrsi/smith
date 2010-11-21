@@ -151,25 +151,61 @@ Configure.ConfigurationContext.__doc__ = """
 			ctx.myhelper()
 """
 
-"""
-from sphinx.application import Sphinx
 
-old = Sphinx.build
-def build(*k, **kw):
-	ret = old(*k, **kw)
+import os
+lst = [x.replace('.py', '') for x in os.listdir('../../waflib/Tools/') if x.endswith('.py')]
+for x in lst:
+	if x == '__init__':
+		continue
+	__import__('waflib.Tools.%s' % x)
 
-	buf = []
+lst = list(TaskGen.feats.keys())
+lst.sort()
 
-	lst = list(TaskGen.feats.keys())
-	lst.sort()
+accu = []
+for z in lst:
+	meths = TaskGen.feats[z]
+	links = []
 
-	for x in lst:
-		meths = TaskGen.feats[x]
-		print "%r %r" % (x, meths)
+	allmeths = set([])
+	for x in meths:
+		for y in TaskGen.task_gen.prec.get(x, []):
+			links.append((x, y))
+			allmeths.add(x)
+			allmeths.add(y)
 
-	return ret
-Sphinx.build = build
-"""
+	color = ',fillcolor="#fffea6",style=filled'
+	ms = []
+	for x in allmeths:
+		try:
+			m = TaskGen.task_gen.__dict__[x]
+		except:
+			raise ValueError("undefined method %r" % x)
+
+		k = "%s.html#%s.%s" % (m.__module__.split('.')[-1], m.__module__, m.__name__)
+		if str(m.__module__).find('.Tools') > 0:
+			k = 'tools/' + k
+
+		ms.append('\t"%s" [style="setlinewidth(0.5)",URL="%s",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10%s];' % (x, k, x in TaskGen.feats[z] and color or ''))
+
+	for x, y in links:
+		ms.append('\t"%s" -> "%s" [arrowsize=0.5,style="setlinewidth(0.5)"];' % (x, y))
+
+	rs = '\tdigraph feature_%s {\n\tsize="8.0, 12.0";\n\t%s\n\t}\n' % (z == '*' and 'all' or z, '\n'.join(ms))
+	title = "Feature %s" % z
+	title += "\n" + len(title) * '='
+
+	accu.append("%s\n\n.. graphviz::\n\n%s\n\n" % (title, rs))
+
+f = open('tmpmap', 'w')
+f.write(""".. _featuremap:
+
+Feature map
+===========
+
+""")
+f.write("\n".join(accu))
+f.close()
 
 #print("Path: %s" % sys.path)
 
