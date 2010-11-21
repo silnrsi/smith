@@ -3,7 +3,20 @@
 # Thomas Nagy, 2007-2010 (ita)
 # Gustavo Carneiro (gjc), 2007
 
-"Python support"
+"""
+Support for Python, detect the headers and libraries and provide
+*use* variables to link C/C++ programs against them::
+
+	def options(opt):
+		opt.load('compiler_c python')
+	def configure(conf):
+		conf.load('compiler_c python')
+		conf.check_python_version((2,4,2))
+		conf.check_python_headers()
+	def build(bld):
+		bld.program(features='pyembed', source='a.c', target='myprog')
+		bld.shlib(features='pyext', source='b.c', target='mylib')
+"""
 
 import os, sys
 from waflib import TaskGen, Utils, Utils, Runner, Options, Build, Errors
@@ -27,15 +40,24 @@ int main()
    return 0;
 }
 '''
+"""
+Piece of C/C++ code used in :py:func:`waflib.Tools.python.check_python_headers`
+"""
 
 INST = '''
 import sys, py_compile
 for pyfile in sys.argv[1:]:
 	py_compile.compile(pyfile, pyfile + %r)
 '''
+"""
+Piece of Python code used in :py:func:`waflib.Tools.python.install_pyfile` for installing python files
+"""
 
 @extension('.py')
 def process_py(self, node):
+	"""
+	Add a callback using :py:func:`waflib.Tools.python.install_pyfile` to install a python file
+	"""
 	try:
 		if not self.bld.is_install:
 			return
@@ -50,6 +72,12 @@ def process_py(self, node):
 	self.bld.add_post_fun(inst_py)
 
 def install_pyfile(self, node):
+	"""
+	Execute the installation of a python file
+
+	:param node: python file
+	:type node: :py:class:`waflib.Node.Node`
+	"""
 	tsk = self.bld.install_files(self.install_path, [node], postpone=False)
 	path = os.path.join(tsk.get_install_path(), node.name)
 
@@ -84,6 +112,10 @@ def feature_py(self):
 @feature('pyext')
 @before('propagate_uselib_vars', 'apply_link')
 def init_pyext(self):
+	"""
+	Change the values of *cshlib_PATTERN* and *cxxshlib_PATTERN* to remove the
+	*lib* prefix from library names.
+	"""
 	if not getattr(self, 'install_path', None):
 		self.install_path = '${PYTHONDIR}'
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
@@ -95,13 +127,27 @@ def init_pyext(self):
 @before('propagate_uselib_vars')
 @feature('pyembed')
 def init_pyembed(self):
+	"""
+	Add the PYEMBED variable.
+	"""
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	if not 'PYEMBED' in self.uselib:
 		self.uselib.append('PYEMBED')
 
 @conf
 def get_python_variables(conf, python_exe, variables, imports=['import sys']):
-	"""Run a python interpreter and print some variables"""
+	"""
+	Execute a python interpreter to dump configuration variables
+
+	:param python_exe: python interpreter
+	:type python_exe: list of string
+	:param variables: variables to print
+	:type variables: list of string
+	:param imports: one import by element
+	:type imports: list of string
+	:return: the variable values
+	:rtype: list of string
+	"""
 	program = list(imports)
 	program.append('')
 	for v in variables:
@@ -112,7 +158,7 @@ def get_python_variables(conf, python_exe, variables, imports=['import sys']):
 	except KeyError:
 		pass
 
-	out = conf.cmd_and_log([python_exe, '-c', '\n'.join(program)], env=os_env)
+	out = conf.cmd_and_log(Utils.to_list(python_exe) + ['-c', '\n'.join(program)], env=os_env)
 	return_values = []
 	for s in out.split('\n'):
 		s = s.strip()
@@ -129,12 +175,13 @@ def get_python_variables(conf, python_exe, variables, imports=['import sys']):
 
 @conf
 def check_python_headers(conf):
-	"""Check for headers and libraries necessary to extend or embed python.
+	"""
+	Check for headers and libraries necessary to extend or embed python by using the module *distutils*.
+	On success the environment variables xxx_PYEXT and xxx_PYEMBED are added:
 
-	On success the environment variables xxx_PYEXT and xxx_PYEMBED are added for uselib
-
-	PYEXT: for compiling python extensions
-	PYEMBED: for embedding a python interpreter"""
+	* PYEXT: for compiling python extensions
+	* PYEMBED: for embedding a python interpreter
+	"""
 
 	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
 		conf.fatal('load a compiler first (gcc, g++, ..)')
@@ -262,6 +309,9 @@ def check_python_version(conf, minver=None):
 	defined, pointing to the site-packages directory appropriate for
 	this python version, where modules/packages/extensions should be
 	installed.
+
+	:param minver: minimum version
+	:type minver: tuple of int
 	"""
 	assert minver is None or isinstance(minver, tuple)
 	python = conf.env['PYTHON']
@@ -322,7 +372,13 @@ def check_python_version(conf, minver=None):
 @conf
 def check_python_module(conf, module_name):
 	"""
-	Check if the selected python interpreter can import the given python module.
+	Check if the selected python interpreter can import the given python module::
+
+		def configure(conf):
+			conf.check_python_module('pygccxml')
+
+	:param module_name: module
+	:type module_name: string
 	"""
 	conf.start_msg('Python module %s' % module_name)
 	try:
@@ -333,7 +389,9 @@ def check_python_module(conf, module_name):
 	conf.end_msg(True)
 
 def configure(conf):
-
+	"""
+	Detect the python interpreter
+	"""
 	try:
 		conf.find_program('python', var='PYTHON')
 	except conf.errors.ConfigurationError:
@@ -352,6 +410,9 @@ def configure(conf):
 	v['PYO'] = getattr(Options.options, 'pyo', 1)
 
 def options(opt):
+	"""
+	Add the options ``--nopyc`` and ``--nopyo``
+	"""
 	opt.add_option('--nopyc',
 			action='store_false',
 			default=1,
