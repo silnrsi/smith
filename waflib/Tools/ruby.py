@@ -28,7 +28,6 @@ from waflib.Configure import conf
 
 @feature('rubyext')
 @before('apply_incpaths', 'apply_lib_vars', 'apply_bundle', 'apply_link')
-@after('vars_target_cshlib')
 def init_rubyext(self):
 	"""
 	Add required variables for ruby extensions

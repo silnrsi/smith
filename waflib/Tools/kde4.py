@@ -11,7 +11,6 @@ from waflib import Options, TaskGen, Task, Utils
 from waflib.TaskGen import feature, after
 
 @feature('msgfmt')
-@after('init_msgfmt')
 def apply_msgfmt(self):
 	"""
 	Process all languages to create .mo files and to install them::
