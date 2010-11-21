@@ -38,12 +38,24 @@ def fix_fun_doc(fun):
 		print("Undocumented function", fun.__name__)
 		raise
 
+def fixmeth(x):
+	if x == 'process_source':
+		return ":py:func:`waflib.TaskGen.process_source`"
+	if x == 'process_rule':
+		return ":py:func:`waflib.TaskGen.process_rule`"
+	return ":py:func:`%s`" % x
+
+def fixfeat(x):
+	if x == '*':
+		return "All task generators"
+	return x
+
 def append_doc(fun, keyword, meths):
 
 	if keyword == "feature":
-		pass
+		meths = [fixfeat(x) for x in meths]
 	else:
-		meths = [":py:func:`%s`" % x for x in meths]
+		meths = [fixmeth(x) for x in meths]
 
 	dc = ", ".join(meths)
 	fun.__doc__ += '\n\t:%s: %s' % (keyword, dc)
@@ -84,7 +96,16 @@ def after(*k):
 	return deco
 TaskGen.after = after
 
-from waflib.Tools import python
+# replay existing methods
+TaskGen.taskgen_method(TaskGen.to_nodes)
+TaskGen.feature('*')(TaskGen.process_source)
+TaskGen.feature('*')(TaskGen.process_rule)
+TaskGen.before('process_source')(TaskGen.process_rule)
+TaskGen.feature('seq')(TaskGen.sequence_order)
+TaskGen.extension('.pc.in')(TaskGen.add_pcfile)
+TaskGen.feature('subst')(TaskGen.process_subst)
+TaskGen.before('process_source','process_rule')(TaskGen.process_subst)
+
 
 from waflib import Configure, Build
 def conf(f):
