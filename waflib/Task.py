@@ -83,7 +83,6 @@ def cache_outputs(cls):
 			if self.can_retrieve_cache():
 				return 0
 		return m1(self)
-	run.__doc__ = m1.__doc__
 	cls.run = run
 
 	m2 = cls.post_run
@@ -93,7 +92,6 @@ def cache_outputs(cls):
 		if bld.cache_global and not bld.nocache:
 			self.put_files_cache()
 		return ret
-	post_run.__doc__ = m2.__doc__
 	cls.post_run = post_run
 
 	return cls
