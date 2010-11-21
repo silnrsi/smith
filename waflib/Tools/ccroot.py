@@ -469,7 +469,7 @@ class vnum_task(Task.Task):
 
 class fake_shlib(link_task):
 	"""
-	Task used for reading a system library and adding the dependency on it::
+	Task used for reading a system library and adding the dependency on it
 	"""
 	def runnable_status(self):
 		for x in self.outputs:
