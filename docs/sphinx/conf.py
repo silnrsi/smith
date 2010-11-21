@@ -36,7 +36,7 @@ def fix_fun_doc(fun):
 			fun.__doc__ = '\tTask generator method\n\t\n' + (fun.__doc__ or '')
 	except Exception as e:
 		print("Undocumented function %r (%r)" % (fun.__name__, e))
-		raise
+		fun.__doc__ = ""
 
 def fixmeth(x):
 	if x == 'process_source':
@@ -184,7 +184,9 @@ for x in lst:
 		for feat in sorted(list(set(tool_to_features[x]))):
 			link = "../featuremap.html#feature-%s" % feat
 			txt += "\n\n* `%s <%s>`_" % (feat, link)
-	old = open("tools/%s.rst" % x, "r").read()
+
+	try: old = open("tools/%s.rst" % x, "r").read()
+	except: old = None
 	if old != txt:
 		with open("tools/%s.rst" % x, "w") as f:
 			f.write(txt)
