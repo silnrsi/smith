@@ -127,7 +127,7 @@ class BuildContext(Context.Context):
 
 	def __call__(self, *k, **kw):
 		"""
-		Create a task generator, adding it to the current build group. The following forms are equivalent::
+		Create a task generator and add it to the current build group. The following forms are equivalent::
 
 			def build(bld):
 				tg = bld(a=1, b=2)
@@ -136,6 +136,13 @@ class BuildContext(Context.Context):
 				tg = bld()
 				tg.a = 1
 				tg.b = 2
+
+			def build(bld):
+				tg = TaskGen.task_gen(a=1, b=2)
+				bld.add_to_group(tg, None)
+
+		:param group: group name to add the task generator to
+		:type group: string
 		"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
