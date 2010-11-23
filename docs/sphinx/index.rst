@@ -10,3 +10,17 @@ Waf documentation
 	copyright.rst
 	featuremap.rst
 
+	Build.rst
+	ConfigSet.rst
+	Configure.rst
+	Context.rst
+	Errors.rst
+	Logs.rst
+	Node.rst
+	Options.rst
+	Runner.rst
+	Scripting.rst
+	Task.rst
+	TaskGen.rst
+	Utils.rst
+	tools/errcheck.rst
