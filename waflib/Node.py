@@ -110,7 +110,7 @@ class Node(object):
 			parent.children[name] = self
 
 	def __setstate__(self, data):
-		"serialization stuff"
+		"Deserializes from data"
 		self.name = data[0]
 		self.parent = data[1]
 		if data[2] is not None:
@@ -119,27 +119,27 @@ class Node(object):
 			self.sig = data[3]
 
 	def __getstate__(self):
-		"serialization stuff"
+		"Serializes the node info"
 		return (self.name, self.parent, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
-		"for debugging purposes"
+		"String representation, for debugging purposes"
 		return self.name
 
 	def __repr__(self):
-		"for debugging purposes"
+		"String representation, for debugging purposes"
 		return self.abspath()
 
 	def __hash__(self):
-		"this hash is not persistent"
+		"Node hash, used for storage in dictionaries. This hash is not persistent."
 		return id(self)
 
 	def __eq__(self, node):
-		"there can be only one node for a path so we compare with the ids"
+		"Compares two nodes. There can be only one node for a path so we compare with the ids"
 		return id(self) == id(node)
 
 	def __copy__(self):
-		"nodes are not supposed to be copied"
+		"Implemented to prevent nodes from being copied (raises an exception)"
 		raise Errors.WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):

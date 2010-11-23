@@ -447,6 +447,10 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 		return True
 	if what == 'class' and name in 'process_source sequence_order process_rule add_pcfile to_nodes'.split():
 		return True
+	if name == '__weakref__':
+		return True
+	if obj.__doc__ is not None:
+		return False
 
 def setup(app):
 	app.connect('autodoc-skip-member', maybe_skip_member)

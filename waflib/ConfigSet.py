@@ -48,7 +48,7 @@ class ConfigSet(object):
 		except AttributeError: return False # parent may not exist
 
 	def __str__(self):
-		"""for debugging purposes"""
+		"""Text representation of the ConfigSet (for debugging purposes)"""
 		keys = set()
 		cur = self
 		while cur:

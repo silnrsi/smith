@@ -144,7 +144,7 @@ class BuildContext(Context.Context):
 		return ret
 
 	def __copy__(self):
-		"""Build context copies are not allowed"""
+		"""Implemented to prevents copies of build contexts (raises an exception)"""
 		raise Errors.WafError('build contexts are not supposed to be copied')
 
 	def install_files(self, *k, **kw):
