@@ -254,12 +254,18 @@ class Parallel(object):
 		def setq(consumer):
 			consumer.ready = Queue(0)
 			self.out.put(self)
-		for x in self.pool:
-			x.ready.put(setq)
-		for x in self.pool:
-			self.get_out()
-		for x in self.pool:
-			put_pool(x)
+		try:
+			pool = self.pool
+		except:
+			pass
+		else:
+			for x in pool:
+				x.ready.put(setq)
+			for x in pool:
+				self.get_out()
+			for x in pool:
+				put_pool(x)
+			self.pool = []
 
 	def start(self):
 		"""
