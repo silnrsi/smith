@@ -8,6 +8,7 @@ NEW IN WAF 1.6.2
 * Improve the feature sniffing for hybrid programs/libraries #800
 * New apidocs + tutorial in Sphinx format
 * Add the CPPFLAGS from os.environ #803
+* Create the java output directory anywhere #806
 
 NEW IN WAF 1.6.1
 ----------------
