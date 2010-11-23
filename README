@@ -4,7 +4,7 @@ WHAT YOU WILL FIND HERE
 Waf (1.6)
 
 For the manual: http://waf.googlecode.com/svn/docs/wafbook/single.html
-For the api docs: http://freehackers.org/~tnagy/wafdoc160/
+For the api docs: http://waf.googlecode.com/svn/docs/apidocs/index.html
 For the examples: see the folder demos/
 
 HOW TO CREATE THE WAF SCRIPT
@@ -30,12 +30,6 @@ Try this:
 $ cp waf demos/c/
 $ cd demos/c/
 $ ./waf configure build
-
-API DOCS
---------
-
-Use this command:
-epydoc -v -o wafdoc160 --name wafdoc --css white waflib/
 
 ---------------------------
 Thomas Nagy, 2010 (ita)
