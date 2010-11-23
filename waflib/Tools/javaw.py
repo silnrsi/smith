@@ -76,7 +76,7 @@ def apply_java(self):
 	outdir = getattr(self, 'outdir', None)
 	if outdir:
 		if not isinstance(outdir, Node.Node):
-			outdir = self.path.find_dir(self.outdir).get_bld()
+			outdir = self.path.get_bld().make_node(self.outdir)
 	else:
 		outdir = self.path.get_bld()
 	outdir.mkdir()
