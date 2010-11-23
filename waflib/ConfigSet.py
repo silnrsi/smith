@@ -38,7 +38,8 @@ class ConfigSet(object):
 			self.load(filename)
 
 	def __contains__(self, key):
-		"""Required to use::
+		"""
+		Enables the *in* syntax::
 
 			if 'foo' in env:
 				print env['foo']
@@ -179,9 +180,9 @@ class ConfigSet(object):
 		"""
 		Return a list value for further modification.
 
-		The	list may be modified inplace and there is no need to do::
+		The list may be modified inplace and there is no need to do this afterwards::
+
 			self.table[var] = value
-		afterwards.
 		"""
 		try:
 			value = self.table[key]
