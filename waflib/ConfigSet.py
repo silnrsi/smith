@@ -39,7 +39,7 @@ class ConfigSet(object):
 
 	def __contains__(self, key):
 		"""
-		Enables the *in* syntax::
+		Enable the *in* syntax::
 
 			if 'foo' in env:
 				print env['foo']
@@ -61,13 +61,11 @@ class ConfigSet(object):
 
 	def __getitem__(self, key):
 		"""
-		Dictionary interface: get value from key
+		Dictionary interface: get value from key::
 
-		There is one gotcha: getitem returns [] if the contents evals to False
-		This means::
-
-			env['foo'] = {}; print env['foo']
-			will print ``[]`` not ``{}``
+			def configure(conf):
+				conf.env['foo'] = {}
+				print(env['foo'])
 		"""
 		try:
 			while 1:
@@ -92,8 +90,11 @@ class ConfigSet(object):
 
 	def __getattr__(self, name):
 		"""
-		Attribute access provided for convenience::
-			env.value == env['value']
+		Attribute access provided for convenience. The following forms are equivalent::
+
+			def configure(conf):
+				conf.env.value
+				conf.env['value']
 		"""
 		if name in self.__slots__:
 			return object.__getattr__(self, name)
@@ -102,12 +103,11 @@ class ConfigSet(object):
 
 	def __setattr__(self, name, value):
 		"""
-		Attribute access provided for convenience::
-			env.value = x
+		Attribute access provided for convenience. The following forms are equivalent::
 
-		corresponds to::
-			env['value'] = x
-
+			def configure(conf):
+				conf.env.value = x
+				env['value'] = x
 		"""
 		if name in self.__slots__:
 			object.__setattr__(self, name, value)
@@ -116,12 +116,11 @@ class ConfigSet(object):
 
 	def __delattr__(self, name):
 		"""
-		Attribute access provided for convenience::
-			del env.value
+		Attribute access provided for convenience. The following forms are equivalent::
 
-		corresponds to::
-			del env['value']
-
+			def configure(conf):
+				del env.value
+				del env['value']
 		"""
 		if name in self.__slots__:
 			object.__delattr__(self, name)
