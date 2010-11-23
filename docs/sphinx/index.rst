@@ -1,5 +1,5 @@
-Waf v1.6.1 documentation
-========================
+Waf documentation
+=================
 
 .. toctree::
 
