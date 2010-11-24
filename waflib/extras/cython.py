@@ -24,14 +24,24 @@ def add_cython_file(self, node):
 class cython(Task.Task):
 	run_str = '${CYTHON} ${CYTHONFLAGS} -o ${TGT} ${SRC[0].abspath()}'
 	color   = 'GREEN'
+
 	vars    = ['INCLUDES']
+	"""
+	Rebuild whenever the INCLUDES change. The variables such as CYTHONFLAGS will be appended
+	by the metaclass.
+	"""
+
 	ext_out = ['.h']
+	"""
+	The creation of a .h file is known only after the build has begun, so it is not
+	possible to compute a build order just by looking at the task inputs/outputs.
+	"""
 
 	def runnable_status(self):
 		"""
 		Perform a double-check to add the headers created by cython
 		to the output nodes. The scanner is executed only when the cython task
-		must be executed.
+		must be executed (optimization).
 		"""
 		ret = super(cython, self).runnable_status()
 		if ret == Task.ASK_LATER:
