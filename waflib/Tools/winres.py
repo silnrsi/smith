@@ -2,7 +2,7 @@
 # encoding: utf-8
 # Brant Young, 2007
 
-"Process '.rc' files for c/c++: X{.rc -> [.res|.rc.o]}"
+"Process *.rc* files for C/C++: X{.rc -> [.res|.rc.o]}"
 
 import os, sys, re
 from waflib import TaskGen, Task
@@ -10,6 +10,9 @@ from waflib.TaskGen import extension
 
 @extension('.rc')
 def rc_file(self, node):
+	"""
+	Bind the .rc extension to a winrc task
+	"""
 	obj_ext = '.rc.o'
 	if self.env['WINRC_TGT_F'] == '/fo':
 		obj_ext = '.res'
@@ -17,10 +20,16 @@ def rc_file(self, node):
 	self.compiled_tasks.append(rctask)
 
 class winrc(Task.Task):
+	"""
+	Task for compiling resource files
+	"""
 	run_str = '${WINRC} ${WINRCFLAGS} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${WINRC_TGT_F} ${TGT} ${WINRC_SRC_F} ${SRC}'
 	color   = 'BLUE'
 
 def configure(conf):
+	"""
+	Detect the programs RC or windres, depending on the C/C++ compiler in use
+	"""
 	v = conf.env
 	v['WINRC_TGT_F'] = '-o'
 	v['WINRC_SRC_F'] = '-i'

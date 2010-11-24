@@ -63,6 +63,10 @@ public class Test {
 @feature('javac')
 @before('process_source')
 def apply_java(self):
+	"""
+	Create a javac task for compiling *.java files*. There can be
+	only one javac task by task generator.
+	"""
 	Utils.def_attrs(self, jarname='', classpath='',
 		sourcepath='.', srcdir='.',
 		jar_mf_attributes={}, jar_mf_classpath=[])
@@ -72,7 +76,7 @@ def apply_java(self):
 	outdir = getattr(self, 'outdir', None)
 	if outdir:
 		if not isinstance(outdir, Node.Node):
-			outdir = self.path.find_dir(self.outdir).get_bld()
+			outdir = self.path.get_bld().make_node(self.outdir)
 	else:
 		outdir = self.path.get_bld()
 	outdir.mkdir()
@@ -109,6 +113,9 @@ def apply_java(self):
 @feature('javac')
 @after('apply_java')
 def use_javac_files(self):
+	"""
+	Process the *use* attribute referring to other java compilations
+	"""
 	lst = []
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	names = self.to_list(getattr(self, 'use', []))
@@ -129,6 +136,9 @@ def use_javac_files(self):
 @feature('javac')
 @after('apply_java', 'propagate_uselib_vars', 'use_javac_files')
 def set_classpath(self):
+	"""
+	Set the CLASSPATH value on the *javac* task previously created.
+	"""
 	self.env.append_value('CLASSPATH', getattr(self, 'classpath', []))
 	self.javac_task.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
 
@@ -136,6 +146,9 @@ def set_classpath(self):
 @after('apply_java', 'use_javac_files')
 @before('process_source')
 def jar_files(self):
+	"""
+	Create a jar task. There can be only one jar task by task generator.
+	"""
 	destfile = getattr(self, 'destfile', 'test.jar')
 	jaropts = getattr(self, 'jaropts', [])
 	jarcreate = getattr(self, 'jarcreate', 'cf')
@@ -166,6 +179,10 @@ def jar_files(self):
 @feature('jar')
 @after('jar_files')
 def use_jar_files(self):
+	"""
+	Process the *use* attribute to set the build order on the
+	tasks created by another task generator.
+	"""
 	lst = []
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	names = self.to_list(getattr(self, 'use', []))
@@ -180,10 +197,17 @@ def use_jar_files(self):
 			self.jar_task.run_after.update(y.tasks)
 
 class jar_create(Task.Task):
+	"""
+	Create a jar file
+	"""
 	color   = 'GREEN'
 	run_str = '${JAR} ${JARCREATE} ${TGT} ${JAROPTS}'
 
 	def runnable_status(self):
+		"""
+		Wait for dependent tasks to be executed, then read the
+		files to update the list of inputs.
+		"""
 		for t in self.run_after:
 			if not t.hasrun:
 				return Task.ASK_LATER
@@ -196,13 +220,24 @@ class jar_create(Task.Task):
 		return super(jar_create, self).runnable_status()
 
 class javac(Task.Task):
+	"""
+	Compile java files
+	"""
 	color   = 'BLUE'
+
 	nocache = True
+	"""
+	The .class files cannot be put into a cache at the moment
+	"""
+
 	vars    = ['CLASSPATH', 'JAVACFLAGS', 'JAVAC', 'OUTDIR']
+	"""
+	The javac task will be executed again if the variables CLASSPATH, JAVACFLAGS, JAVAC or OUTDIR change.
+	"""
 
 	def runnable_status(self):
 		"""
-		the javac task will have its complete inputs only after the other tasks are done
+		Wait for dependent tasks to be complete, then read the file system to find the input nodes.
 		"""
 		for t in self.run_after:
 			if not t.hasrun:
@@ -216,6 +251,9 @@ class javac(Task.Task):
 		return super(javac, self).runnable_status()
 
 	def run(self):
+		"""
+		Execute the javac compiler
+		"""
 		env = self.env
 		gen = self.generator
 		bld = gen.bld
@@ -240,6 +278,7 @@ class javac(Task.Task):
 	def post_run(self):
 		"""
 		The -verbose flags gives us the files created, so we have to parse the outputs
+		to update the signatures of the nodes created.
 		"""
 		for x in re_classes.findall(self.out):
 			if os.path.isabs(x):
@@ -252,6 +291,9 @@ class javac(Task.Task):
 		self.generator.bld.task_sigs[self.uid()] = self.cache_sig
 
 def configure(self):
+	"""
+	Detect the javac, java and jar programs
+	"""
 	# If JAVA_PATH is set, we prepend it to the path list
 	java_path = self.environ['PATH'].split(os.pathsep)
 	v = self.env
@@ -317,7 +359,17 @@ def check_java_class(self, classname, with_classpath=None):
 @conf
 def check_jni_headers(conf):
 	"""
-	Check for jni headers and libraries. On success the conf.env variables xxx_JAVA are added for use in c/c++ targets.
+	Check for jni headers and libraries. On success the conf.env variables xxx_JAVA are added for use in C/C++ targets::
+
+		def options(opt):
+			opt.load('compiler_c')
+
+		def configure(conf):
+			conf.load('compiler_c java')
+			conf.check_jni_headers()
+
+		def build(bld):
+			bld.shlib(source='a.c', target='app', use='JAVA')
 	"""
 
 	if not conf.env.CC_NAME and not conf.env.CXX_NAME:

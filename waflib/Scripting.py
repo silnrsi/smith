@@ -495,7 +495,7 @@ def distcheck(ctx):
 	pass
 
 def update(ctx):
-	'''updates the plugins from the `waflib/extras' directory'''
+	'''updates the plugins from the *waflib/extras* directory'''
 	lst = Options.options.files.split(',')
 	if not lst:
 		lst = [x for x in Utils.listdir(Context.waf_dir + '/waflib/extras') if x.endswith('.py')]

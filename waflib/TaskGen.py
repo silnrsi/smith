@@ -502,7 +502,7 @@ def process_source(self):
 @before('process_source')
 def process_rule(self):
 	"""
-	Process the attribute ``rule``. When present, :py:meth:`waflib.TaskGen.task_gen.process_source` is disabled::
+	Process the attribute ``rule``. When present, :py:meth:`waflib.TaskGen.process_source` is disabled::
 
 		def build(bld):
 			bld(rule='cp ${SRC} ${TGT}', source='wscript', target='bar.txt')
@@ -688,7 +688,7 @@ def process_subst(self):
 	The input files are supposed to contain macros of the form *@VAR@*, where *VAR* is an argument
 	of the task generator object.
 
-	This method overrides the processing by :py:meth:`waflib.TaskGen.task_gen.process_source`.
+	This method overrides the processing by :py:meth:`waflib.TaskGen.process_source`.
 	"""
 	src = self.to_nodes(getattr(self, 'source', []))
 	tgt = getattr(self, 'target', [])

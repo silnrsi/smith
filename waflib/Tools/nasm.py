@@ -6,7 +6,7 @@
 Nasm tool (asm processing)
 """
 
-import waflib.Tools.ccroot # <- leave this
+import waflib.Tools.asm # leave this
 from waflib.TaskGen import feature
 
 @feature('asm')
@@ -15,5 +15,8 @@ def apply_nasm_vars(self):
 	self.env.append_value('ASFLAGS', self.to_list(getattr(self, 'nasm_flags', [])))
 
 def configure(conf):
+	"""
+	Detect nasm/yasm and set the variable *AS*
+	"""
 	nasm = conf.find_program(['nasm', 'yasm'], var='AS')
 	conf.env.AS_TGT_F = '-o'

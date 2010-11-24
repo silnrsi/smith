@@ -7,7 +7,7 @@
   !define VERSION @prj.VERSION@
 !endif
 
-!define PACKNAME "@getattr(prj, 'DESC_NAME', prj.APPNAME.title())@"
+!define PACKNAME "@prj.DESC_NAME or prj.APPNAME.title()@"
 !define SRC_ARCHIVE "ttf-sil-@prj.APPNAME@-${VERSION}.zip"
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
@@ -189,9 +189,9 @@ ${Index}:
 
   ;Name and file
   Name "${PACKNAME} Font (${VERSION})"
-  Caption "@getattr(prj, 'DESC_SHORT', '')@"
+  Caption "@prj.DESC_SHORT@"
 
-  OutFile "@getattr(prj, 'OUTDIR', '.')@/${PACKNAME}-${VERSION}.exe"
+  OutFile "@prj.OUTDIR or '.'@/${PACKNAME}-${VERSION}.exe"
   InstallDir $PROGRAMFILES\${INSTALL_SUFFIX}
 
   ;Get installation folder from registry if available
@@ -206,7 +206,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if getattr(prj, 'LICENSE', None) else ''@
+  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if prj.LICENSE else ''@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -316,17 +316,23 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     IfErrors NoKeyman
 +for k in kbds :
     File "@k.target@"
-    Exec "start.exe ${OUTDIR}/@k.target@"
+    Exec "start.exe ${OUTDIR}\@k.target@"
 -
-
     NoKeyman:
+
     @"\n".join(['File "../' + k.source + '"' for k in kbds])@
     @"\n".join(['File "' + k.pdf + '"' for k in kbds])@ 
 
+    ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
+    IfErrors NoEkaya32
++for k in kbds :
+    CopyFiles "${OUTDIR}\@k.source@" "$0\Ekaya\kmfl"
+-
+    NoEkaya32:
 SectionEnd
 
 Section -StartMenu
-  @'File "' + (prj.LICENSE + '"' if getattr(prj, 'LICENSE', '') else '"')@
+  @'File "' + prj.LICENSE + '"'@
 +for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
 + for fn in fs :
   File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join(dp, fn)@"

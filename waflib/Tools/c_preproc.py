@@ -6,21 +6,23 @@
 C/C++ preprocessor for finding dependencies
 
 Reasons for using the Waf preprocessor by default
-1. Some c/c++ extensions (Qt) require a custom preprocessor for obtaining the dependencies (.moc files)
-2. Not all compilers provide .d files for obtaining the dependencies (portability)
-3. A naive file scanner will not catch the constructs such as "#include foo()"
-4. A naive file scanner will catch unnecessary dependencies (change an unused header -> recompile everything)
+
+#. Some c/c++ extensions (Qt) require a custom preprocessor for obtaining the dependencies (.moc files)
+#. Not all compilers provide .d files for obtaining the dependencies (portability)
+#. A naive file scanner will not catch the constructs such as "#include foo()"
+#. A naive file scanner will catch unnecessary dependencies (change an unused header -> recompile everything)
 
 Regarding the speed concerns:
-a. the preprocessing is performed only when files must be compiled
-b. the macros are evaluated only for #if/#elif/#include
-c. system headers are not scanned by default
 
-Now if you do not want the Waf preprocessor, the tool "gccdeps" uses the .d files produced
+* the preprocessing is performed only when files must be compiled
+* the macros are evaluated only for #if/#elif/#include
+* system headers are not scanned by default
+
+Now if you do not want the Waf preprocessor, the tool +gccdeps* uses the .d files produced
 during the compilation to track the dependencies (useful when used with the boost libraries).
-It only works with gcc though.
+It only works with gcc >= 4.4 though.
 
-A dumb preprocessor is also available in the tool "c_dumbpreproc"
+A dumb preprocessor is also available in the tool *c_dumbpreproc*
 """
 # TODO: more varargs, pragma once
 
@@ -33,19 +35,20 @@ class PreprocError(Errors.WafError):
 	pass
 
 POPFILE = '-'
+"Constant representing a special token used in :py:meth:`waflib.Tools.c_preproc.c_parser.start` iteration to switch to a header read previously"
 
 go_absolute = False
-"set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
+"Set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
 standard_includes = ['/usr/include']
 if sys.platform == "win32":
 	standard_includes = []
 
 use_trigraphs = 0
-'apply the trigraph rules first'
+"""Apply trigraph rules (False by default)"""
 
 strict_quotes = 0
-"Keep <> for system includes (do not search for those includes)"
+"""Reserve the "#include <>" quotes for system includes (do not search for those includes). False by default."""
 
 g_optrans = {
 'not':'!',
@@ -59,50 +62,93 @@ g_optrans = {
 'xor_eq':'^=',
 'compl':'~',
 }
-"these ops are for c++, to reset, set an empty dict"
+"""Operators such as and/or/xor for c++. Set an empty dict to disable."""
 
 # ignore #warning and #error
 re_lines = re.compile(
 	'^[ \t]*(#|%:)[ \t]*(ifdef|ifndef|if|else|elif|endif|include|import|define|undef|pragma)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
+"""Match #include lines"""
 
 re_mac = re.compile("^[a-zA-Z_]\w*")
+"""Match macro definitions"""
+
 re_fun = re.compile('^[a-zA-Z_][a-zA-Z0-9_]*[(]')
+"""Match macro functions"""
+
 re_pragma_once = re.compile('^\s*once\s*', re.IGNORECASE)
+"""Match #pragma once statements"""
+
 re_nl = re.compile('\\\\\r*\n', re.MULTILINE)
+"""Match newlines"""
+
 re_cpp = re.compile(
 	r"""(/\*[^*]*\*+([^/*][^*]*\*+)*/)|//[^\n]*|("(\\.|[^"\\])*"|'(\\.|[^'\\])*'|.[^/"'\\]*)""",
 	re.MULTILINE)
+"""Filter C/C++ comments"""
+
 trig_def = [('??'+a, b) for a, b in zip("=-/!'()<>", r'#~\|^[]{}')]
+"""Trigraph definitions"""
+
 chr_esc = {'0':0, 'a':7, 'b':8, 't':9, 'n':10, 'f':11, 'v':12, 'r':13, '\\':92, "'":39}
+"""Escape characters"""
 
 NUM   = 'i'
+"""Number token"""
+
 OP    = 'O'
+"""Operator token"""
+
 IDENT = 'T'
+"""Identifier token"""
+
 STR   = 's'
+"""String token"""
+
 CHAR  = 'c'
+"""Character token"""
 
 tok_types = [NUM, STR, IDENT, OP]
+"""Token types"""
+
 exp_types = [
 	r"""0[xX](?P<hex>[a-fA-F0-9]+)(?P<qual1>[uUlL]*)|L*?'(?P<char>(\\.|[^\\'])+)'|(?P<n1>\d+)[Ee](?P<exp0>[+-]*?\d+)(?P<float0>[fFlL]*)|(?P<n2>\d*\.\d+)([Ee](?P<exp1>[+-]*?\d+))?(?P<float1>[fFlL]*)|(?P<n4>\d+\.\d*)([Ee](?P<exp2>[+-]*?\d+))?(?P<float2>[fFlL]*)|(?P<oct>0*)(?P<n0>\d+)(?P<qual2>[uUlL]*)""",
 	r'L?"([^"\\]|\\.)*"',
 	r'[a-zA-Z_]\w*',
 	r'%:%:|<<=|>>=|\.\.\.|<<|<%|<:|<=|>>|>=|\+\+|\+=|--|->|-=|\*=|/=|%:|%=|%>|==|&&|&=|\|\||\|=|\^=|:>|!=|##|[\(\)\{\}\[\]<>\?\|\^\*\+&=:!#;,%/\-\?\~\.]',
 ]
+"""Expression types"""
+
 re_clexer = re.compile('|'.join(["(?P<%s>%s)" % (name, part) for name, part in zip(tok_types, exp_types)]), re.M)
+"""Match expressions into tokens"""
 
 accepted  = 'a'
+"""Parser state is *accepted*"""
+
 ignored   = 'i'
+"""Parser state is *ignored*, for example preprocessor lines in an #if 0 block"""
+
 undefined = 'u'
+"""Parser state is *undefined* at the moment"""
+
 skipped   = 's'
+"""Parser state is *skipped*, for example preprocessor lines in a #elif 0 block"""
 
 def repl(m):
+	"""Replace function used with :py:attr:`waflib.Tools.c_preproc.re_cpp`"""
 	s = m.group(1)
 	if s:
 		return ' '
 	return m.group(3) or ''
 
 def filter_comments(filename):
+	"""
+	Filter the comments from a c/h file, and return the preprocessor lines.
+	The regexps :py:attr:`waflib.Tools.c_preproc.re_cpp`, :py:attr:`waflib.Tools.c_preproc.re_nl` and :py:attr:`waflib.Tools.c_preproc.re_lines` are used internally.
+
+	:return: the preprocessor directives as a list of (keyword, line)
+	:rtype: a list of string pairs
+	"""
 	# return a list of tuples : keyword, line
 	code = Utils.readf(filename)
 	if use_trigraphs:
@@ -112,7 +158,11 @@ def filter_comments(filename):
 	return [(m.group(2), m.group(3)) for m in re.finditer(re_lines, code)]
 
 prec = {}
-# op -> number, needed for such expressions:   #if 1 && 2 != 0
+"""
+Operator precendence rules required for parsing expressions of the form::
+
+	#if 1 && 2 != 0
+"""
 ops = ['* / %', '+ -', '<< >>', '< <= >= >', '== !=', '& | ^', '&& ||', ',']
 for x in range(len(ops)):
 	syms = ops[x]
@@ -120,13 +170,32 @@ for x in range(len(ops)):
 		prec[u] = x
 
 def trimquotes(s):
+	"""
+	Remove the single quotes around an expression::
+
+		trimquotes("'test'") == "test"
+
+	:param s: expression to transform
+	:type s: string
+	:rtype: string
+	"""
 	if not s: return ''
 	s = s.rstrip()
 	if s[0] == "'" and s[-1] == "'": return s[1:-1]
 	return s
 
 def reduce_nums(val_1, val_2, val_op):
-	"""apply arithmetic rules and try to return an integer result"""
+	"""
+	Apply arithmetic rules to compute a result
+
+	:param val1: input parameter
+	:type val1: int or string
+	:param val2: input parameter
+	:type val2: int or string
+	:param val_op: C operator in *+*, */*, *-*, etc
+	:type val_op: string
+	:rtype: int
+	"""
 	#print val_1, val_2, val_op
 
 	# now perform the operation, make certain a and b are numeric
@@ -159,6 +228,14 @@ def reduce_nums(val_1, val_2, val_op):
 	return c
 
 def get_num(lst):
+	"""
+	Try to obtain a number from a list of tokens. The token types are defined in :py:attr:`waflib.Tools.ccroot.tok_types`.
+
+	:param lst: list of preprocessor tokens
+	:type lst: list of tuple (tokentype, value)
+	:return: a pair containing the number and the rest of the list
+	:rtype: tuple(value, list)
+	"""
 	if not lst: raise PreprocError("empty list for get_num")
 	(p, v) = lst[0]
 	if p == OP:
@@ -203,6 +280,17 @@ def get_num(lst):
 		raise PreprocError("invalid token %r for get_num" % lst)
 
 def get_term(lst):
+	"""
+	Evaluate an expression recursively, for example::
+
+		1+1+1 -> 2+1 -> 3
+
+	:param lst: list of tokens
+	:type lst: list of tuple(token, value)
+	:return: the value and the remaining tokens
+	:rtype: value, list
+	"""
+
 	if not lst: raise PreprocError("empty list for get_term")
 	num, lst = get_num(lst)
 	if not lst:
@@ -264,21 +352,40 @@ def get_term(lst):
 	raise PreprocError("cannot reduce %r" % lst)
 
 def reduce_eval(lst):
-	"""take a list of tokens and output true or false (#if/#elif conditions)"""
+	"""
+	Take a list of tokens and output true or false for #if/#elif conditions.
+
+	:param lst: a list of tokens
+	:type lst: list of tuple(token, value)
+	:return: a token
+	:rtype: tuple(NUM, int)
+	"""
 	num, lst = get_term(lst)
 	return (NUM, num)
 
 def stringize(lst):
-	"""use for converting a list of tokens to a string"""
+	"""
+	Merge a list of tokens into a string
+
+	:param lst: a list of tokens
+	:type lst: list of tuple(token, value)
+	:rtype: string
+	"""
 	lst = [str(v2) for (p2, v2) in lst]
 	return "".join(lst)
 
 def paste_tokens(t1, t2):
 	"""
-	here is what we can paste:
-	 a ## b  ->  ab
-	 > ## =  ->  >=
-	 a ## 2  ->  a2
+	Token pasting works between identifiers, particular operators, and identifiers and numbers::
+
+		a ## b  ->  ab
+		> ## =  ->  >=
+		a ## 2  ->  a2
+
+	:param t1: token
+	:type t1: tuple(type, value)
+	:param t2: token
+	:type t2: tuple(type, value)
 	"""
 	p1 = None
 	if t1[0] == OP and t2[0] == OP:
@@ -292,7 +399,18 @@ def paste_tokens(t1, t2):
 	return (p1, t1[1] + t2[1])
 
 def reduce_tokens(lst, defs, ban=[]):
-	"""replace the tokens in lst, using the macros provided in defs, and a list of macros that cannot be re-applied"""
+	"""
+	Replace the tokens in lst, using the macros provided in defs, and a list of macros that cannot be re-applied
+
+	:param lst: list of tokens
+	:type lst: list of tuple(token, value)
+	:param defs: macro definitions
+	:type defs: dict
+	:param ban: macros that cannot be substituted (recursion is not allowed)
+	:type ban: list of string
+	:return: the new list of tokens
+	:rtype: value, list
+	"""
 	i = 0
 
 	while i < len(lst):
@@ -451,15 +569,33 @@ def reduce_tokens(lst, defs, ban=[]):
 		i += 1
 
 
-def eval_macro(lst, adefs):
-	"""reduce the tokens from the list lst, and try to return a 0/1 result"""
-	reduce_tokens(lst, adefs, [])
+def eval_macro(lst, defs):
+	"""
+	Reduce the tokens by :py:func:`waflib.Tools.c_preproc.reduce_tokens` and try to return a 0/1 result by :py:func:`waflib.Tools.c_preproc.reduce_eval`.
+
+	:param lst: list of tokens
+	:type lst: list of tuple(token, value)
+	:param defs: macro definitions
+	:type defs: dict
+	:rtype: int
+	"""
+	reduce_tokens(lst, defs, [])
 	if not lst: raise PreprocError("missing tokens to evaluate")
 	(p, v) = reduce_eval(lst)
 	return int(v) != 0
 
 def extract_macro(txt):
-	"""process a macro definition from "#define f(x, y) x * y" into a function or a simple macro without arguments"""
+	"""
+	Process a macro definition of the form::
+		 #define f(x, y) x * y
+
+	into a function or a simple macro without arguments
+
+	:param txt: expression to exact a macro definition from
+	:type txt: string
+	:return: a tuple containing the name, the list of arguments and the replacement
+	:rtype: tuple(string, [list, list])
+	"""
 	t = tokenize(txt)
 	if re_fun.search(txt):
 		p, name = t[0]
@@ -514,7 +650,18 @@ def extract_macro(txt):
 
 re_include = re.compile('^\s*(<(?P<a>.*)>|"(?P<b>.*)")')
 def extract_include(txt, defs):
-	"""process a line in the form "#include foo" to return a string representing the file"""
+	"""
+	Process a line in the form::
+
+		#include foo
+
+	:param txt: include line to process
+	:type txt: string
+	:param defs: macro definitions
+	:type defs: dict
+	:return: the file name
+	:rtype: string
+	"""
 	m = re_include.search(txt)
 	if m:
 		if m.group('a'): return '<', m.group('a')
@@ -537,6 +684,15 @@ def extract_include(txt, defs):
 	raise PreprocError("could not parse include %s." % txt)
 
 def parse_char(txt):
+	"""
+	Parse a c character
+
+	:param txt: character to parse
+	:type txt: string
+	:return: a character literal
+	:rtype: string
+	"""
+
 	if not txt: raise PreprocError("attempted to parse a null char")
 	if txt[0] != '\\':
 		return ord(txt)
@@ -555,7 +711,14 @@ def parse_char(txt):
 
 @Utils.run_once
 def tokenize(s):
-	"""convert a string into a list of tokens (shlex.split does not apply to c/c++/d)"""
+	"""
+	Convert a string into a list of tokens (shlex.split does not apply to c/c++/d)
+
+	:param s: input to tokenize
+	:type s: string
+	:return: a list of tokens
+	:rtype: list of tuple(token, value)
+	"""
 	# the same headers are read again and again - 10% improvement on preprocessing the samba headers
 	ret = []
 	for match in re_clexer.finditer(s):
@@ -593,11 +756,22 @@ def tokenize(s):
 
 @Utils.run_once
 def define_name(line):
+	"""
+	:param line: define line
+	:type line: string
+	:rtype: string
+	:return: the define name
+	"""
 	return re_mac.match(line).group(0)
 
 class c_parser(object):
+	"""
+	Used by :py:func:`waflib.Tools.c_preproc.scan` to parse c/h files. Note that by default,
+	only project headers are parsed.
+	"""
 	def __init__(self, nodepaths=None, defines=None):
 		self.lines = []
+		"""list of lines read"""
 
 		if defines is None:
 			self.defs  = {}
@@ -609,17 +783,30 @@ class c_parser(object):
 		self.currentnode_stack = []
 
 		self.nodepaths = nodepaths or []
+		"""Include paths"""
 
 		self.nodes = []
-		self.names = []
+		"""List of :py:class:`waflib.Node.Node` found so far"""
 
-		# file added
+		self.names = []
+		"""List of file names that could not be matched by any file"""
+
 		self.curfile = ''
+		"""Current file"""
+
 		self.ban_includes = set([])
+		"""Includes that must not be read (#pragma once)"""
 
 	def cached_find_resource(self, node, filename):
 		"""
-		this seems to work
+		Find a file from the input directory
+
+		:param node: directory
+		:type node: :py:class:`waflib.Node.Node`
+		:param filename: header to find
+		:type filename: string
+		:return: the node if found, or None
+		:rtype: :py:class:`waflib.Node.Node`
 		"""
 		try:
 			nd = node.ctx.cache_nd
@@ -640,6 +827,17 @@ class c_parser(object):
 			return ret
 
 	def tryfind(self, filename):
+		"""
+		Try to obtain a node from the filename based from the include paths. Will add
+		the node found to :py:attr:`waflib.Tools.c_preproc.c_parser.nodes` or the file name to
+		:py:attr:`waflib.Tools.c_preproc.c_parser.names` if no corresponding file is found. Called by
+		:py:attr:`waflib.Tools.c_preproc.c_parser.start`.
+
+		:param filename: header to find
+		:type filename: string
+		:return: the node if found
+		:rtype: :py:class:`waflib.Node.Node`
+		"""
 		self.curfile = filename
 
 		# for msvc it should be a for loop on the whole stack
@@ -661,6 +859,12 @@ class c_parser(object):
 		return found
 
 	def addlines(self, node):
+		"""
+		Add the lines from a header in the list of preprocessor lines to parse
+
+		:param node: header
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 
 		self.currentnode_stack.append(node.parent)
 		filepath = node.abspath()
@@ -691,6 +895,16 @@ class c_parser(object):
 				traceback.print_exc()
 
 	def start(self, node, env):
+		"""
+		Preprocess a source file to obtain the dependencies, which are accumulated to :py:attr:`waflib.Tools.c_preproc.c_parser.nodes`
+		and :py:attr:`waflib.Tools.c_preproc.c_parser.names`.
+
+		:param node: source file
+		:type node: :py:class:`waflib.Node.Node`
+		:param env: config set containing additional defines to take into account
+		:type env: :py:class:`waflib.ConfigSet.ConfigSet`
+		"""
+
 		debug('preproc: scanning %s (in %s)', node.name, node.parent.name)
 
 		bld = node.ctx
@@ -778,10 +992,11 @@ class c_parser(object):
 
 def scan(task):
 	"""
-	Get the dependencies using a c/c++ preprocessor, this is required for finding dependencies of the kind
-	#include some_macro()
+	Get the dependencies using a c/c++ preprocessor, this is required for finding dependencies of the kind::
 
-	replacing this method may be a better choice than replacing "ccroot.scan" from all the tasks that use it
+		#include some_macro()
+
+	Replacing this method may be a better choice than replacing "ccroot.scan" from all the tasks that use it
 	"""
 
 	global go_absolute

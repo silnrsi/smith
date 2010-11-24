@@ -8,10 +8,16 @@ from waflib.Configure import conf
 
 @conf
 def find_gdc(conf):
+	"""
+	Find the program gdc and set the variable *D*
+	"""
 	conf.find_program('gdc', var='D')
 
 @conf
 def common_flags_gdc(conf):
+	"""
+	Set the flags required by *gdc*
+	"""
 	v = conf.env
 
 	# _DFLAGS _DIMPORTFLAGS
@@ -38,6 +44,9 @@ def common_flags_gdc(conf):
 	v['D_HDR_F']           = '-fintfc -fintfc-file='
 
 def configure(conf):
+	"""
+	Configuration for gdc
+	"""
 	conf.find_gdc()
 	conf.load('ar')
 	conf.load('d')

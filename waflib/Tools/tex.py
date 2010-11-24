@@ -1,21 +1,26 @@
 #!/usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2006 (ita)
+# Thomas Nagy, 2006-2010 (ita)
 
-"""TeX/LaTeX/PDFLaTeX/XeLaTeX support
+"""
+TeX/LaTeX/PDFLaTeX/XeLaTeX support
 
-Variables passed to bld():
+Example::
 
-* type -- tex compiler type to use
+	def configure(conf):
+		conf.load('tex')
+		if not conf.env.LATEX:
+			conf.fatal('The program LaTex is required')
 
-  type: string, in ["latex", "pdflatex", "xelatex"]
-  
-  default: pdflatex
-  
-* prompt -- whether to prompt for errors or use batch mode
-
-  type: boolean
-
+	def build(bld):
+		bld(
+			features = 'tex',
+			type     = 'latex', # pdflatex or xelatex
+			source   = 'document.ltx', # mandatory, the source
+			outs     = 'ps', # 'pdf' or 'ps pdf'
+			deps     = 'crossreferencing.lst', # to give dependencies directly
+			prompt   = 1, # 0 for the batch mode
+			)
 """
 
 import os, re
@@ -25,6 +30,12 @@ from waflib.Logs import error, warn, debug
 
 re_bibunit = re.compile(r'\\(?P<type>putbib)\[(?P<file>[^\[\]]*)\]',re.M)
 def bibunitscan(self):
+	"""
+	Parse the inputs and try to find the *bibunit* dependencies
+
+	:return: list of bibunit files
+	:rtype: list of :py:class:`waflib.Node.Node`
+	"""
 	node = self.inputs[0]
 	env = self.env
 
@@ -50,34 +61,46 @@ def bibunitscan(self):
 	return nodes
 
 exts_deps_tex = ['', '.ltx', '.tex', '.bib', '.pdf', '.png', '.eps', '.ps']
+"""List of typical file extensions included in latex files"""
+
 re_tex = re.compile(r'\\(?P<type>include|bibliography|putbib|includegraphics|input|import|bringin|lstinputlisting)(\[[^\[\]]*\])?{(?P<file>[^{}]*)}',re.M)
+"""Regexp for expressions that may include latex files"""
+
 g_bibtex_re = re.compile('bibdata', re.M)
+"""Regexp for bibtex files"""
 
 class tex(Task.Task):
+	"""
+	Compile a tex/latex file.
+
+	.. inheritance-diagram:: waflib.Tools.tex.latex waflib.Tools.tex.xelatex waflib.Tools.tex.pdflatex
+	"""
 
 	bibtex_fun, _ = Task.compile_fun('${BIBTEX} ${BIBTEXFLAGS} ${SRCFILE}', shell=False)
+	bibtex_fun.__doc__ = """
+	Execute the program **bibtex**
+	"""
+
 	makeindex_fun, _ = Task.compile_fun('${MAKEINDEX} ${MAKEINDEXFLAGS} ${SRCFILE}', shell=False)
+	makeindex_fun.__doc__ = """
+	Execute the program **makeindex**
+	"""
 
 	def scan(self):
 		"""
-		A simple regex-based scanner for latex dependencies, uses re_tex from above
+		A recursive regex-based scanner that finds latex dependencies. It uses :py:attr:`waflib.Tools.tex.re_tex`
 
 		Depending on your needs you might want:
 
-		* to change re_tex
-
-		::
+		* to change re_tex::
 
 			from waflib.Tools import tex
 			tex.re_tex = myregex
 
-		* or to change the method scan from the latex tasks
-
-		::
+		* or to change the method scan from the latex tasks::
 
 			from waflib.Task import classes
 			classes['latex'].scan = myscanfunction
-
 		"""
 		node = self.inputs[0]
 		env = self.env
@@ -119,11 +142,22 @@ class tex(Task.Task):
 		return (nodes, names)
 
 	def check_status(self, msg, retcode):
+		"""
+		Check an exit status and raise an error with a particular message
+
+		:param msg: message to display if the code is non-zero
+		:type msg: string
+		:param retcode: condition
+		:type retcode: boolean
+		"""
 		if retcode != 0:
 			raise Errors.WafError("%r command exit status %r" % (msg, retcode))
 
 	def bibfile(self):
-		"""look in the .aux file if there is a bibfile to process"""
+		"""
+		Parse the *.aux* file to find a bibfile to process.
+		If yes, execute :py:meth:`waflib.Tools.tex.tex.bibtex_fun`
+		"""
 		try:
 			ct = self.aux_node.read()
 		except (OSError, IOError):
@@ -142,7 +176,10 @@ class tex(Task.Task):
 				self.check_status('error when calling bibtex', self.bibtex_fun())
 
 	def bibunits(self):
-		"""look to see if there are any bibunit-style bib files"""
+		"""
+		Parse the *.aux* file to find bibunit files. If there are bibunit files,
+		execute :py:meth:`waflib.Tools.tex.tex.bibtex_fun`.
+		"""
 		try:
 			bibunits = bibunitscan(self)
 		except FSError:
@@ -159,7 +196,10 @@ class tex(Task.Task):
 					self.check_status('error when calling bibtex', self.bibtex_fun())
 
 	def makeindex(self):
-		"""look on the filesystem if there is a .idx file to process"""
+		"""
+		Look on the filesystem if there is a *.idx* file to process. If yes, execute
+		:py:meth:`waflib.Tools.tex.tex.makeindex_fun`
+		"""
 		try:
 			idx_path = self.idx_node.abspath()
 			os.stat(idx_path)
@@ -174,16 +214,15 @@ class tex(Task.Task):
 
 	def run(self):
 		"""
-		Runs the LaTeX build process.
+		Runs the TeX build process.
 
-		TeX file processing may need multiple passes, depending on the
+		It may require multiple passes, depending on the
 		usage of cross-references, bibliographies, content susceptible of
 		needing such passes.
-		The appropriate TeX compiler is called until the .aux file ceases
+		The appropriate TeX compiler is called until the *.aux* file ceases
 		changing.
 
 		Makeindex and bibtex are called if necessary.
-
 		"""
 		env = self.env
 		bld = self.generator.bld
@@ -247,14 +286,27 @@ class pdflatex(tex):
 class xelatex(tex):
 	texfun, vars = Task.compile_fun('${XELATEX} ${XELATEXFLAGS} ${SRCFILE}', shell=False)
 
-b = Task.task_factory
-b('dvips', '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
-b('dvipdf', '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}', color='BLUE', after=["latex", "pdflatex", "tex", "bibtex"], shell=False)
-b('pdf2ps', '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}', color='BLUE', after=["dvipdf", "xelatex", "pdflatex"], shell=False)
+class dvips(Task.Task):
+	run_str = '${DVIPS} ${DVIPSFLAGS} ${SRC} -o ${TGT}'
+	color   = 'BLUE'
+	after   = ['latex', 'pdflatex', 'xelatex']
+
+class dvipdf(Task.Task):
+	run_str = '${DVIPDF} ${DVIPDFFLAGS} ${SRC} ${TGT}'
+	color   = 'BLUE'
+	after   = ['latex', 'pdflatex', 'xelatex']
+
+class pdf2ps(Task.Task):
+	run_str = '${PDF2PS} ${PDF2PSFLAGS} ${SRC} ${TGT}'
+	color   = 'BLUE'
+	after   = ['latex', 'pdflatex', 'xelatex']
 
 @feature('tex')
 @before('process_source')
 def apply_tex(self):
+	"""
+	Create :py:class:`waflib.Tools.tex.tex` objects, and dvips/dvipdf/pdf2ps tasks if necessary (outs='ps', etc).
+	"""
 	if not getattr(self, 'type', None) in ['latex', 'pdflatex', 'xelatex']:
 		self.type = 'pdflatex'
 
@@ -306,6 +358,10 @@ def apply_tex(self):
 	self.source = []
 
 def configure(self):
+	"""
+	Try to find the programs tex, latex and others. Do not raise any error if they
+	are not found.
+	"""
 	v = self.env
 	for p in 'tex latex pdflatex xelatex bibtex dvips dvipdf ps2pdf makeindex pdf2ps'.split():
 		try:
@@ -313,5 +369,4 @@ def configure(self):
 		except self.errors.ConfigurationError:
 			pass
 	v['DVIPSFLAGS'] = '-Ppdf'
-
 

@@ -9,7 +9,7 @@ from waflib.Tools import c_preproc
 from waflib.Tools.ccroot import link_task, stlink_task
 
 def cxx_hook(self, node):
-	"map c++ files to the c++ task"
+	"Bind the c++ file extensions to the creation of a :py:class:`waflib.Tools.cxx.cxx` instance"
 	return self.create_compiled_task('cxx', node)
 TaskGen.extension('.cpp','.cc','.cxx','.C','.c++')(cxx_hook) # leave like this for python 2.3
 
@@ -17,7 +17,7 @@ if not '.c' in TaskGen.task_gen.mappings:
 	TaskGen.task_gen.mappings['.c'] = TaskGen.task_gen.mappings['.cpp']
 
 class cxx(Task.Task):
-	"Compile c++ files into object files"
+	"Compile C++ files into object files"
 	color   = 'GREEN'
 	run_str = '${CXX} ${CXXFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	vars    = ['CXXDEPS'] # unused variable to depend on, just in case

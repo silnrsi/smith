@@ -10,11 +10,11 @@ from waflib.Tools.ccroot import link_task, stlink_task
 
 @TaskGen.extension('.c')
 def c_hook(self, node):
-	"Map c files to the c task"
+	"Bind the c file extension to the creation of a :py:class:`waflib.Tools.c.c` instance"
 	return self.create_compiled_task('c', node)
 
 class c(Task.Task):
-	"Task for compiling c files into object files"
+	"Compile C files into object files"
 	color   = 'GREEN'
 	run_str = '${CC} ${CFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS'] # unused variable to depend on, just in case

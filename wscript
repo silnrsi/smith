@@ -10,7 +10,7 @@ To add a tool that does not exist in the folder compat15, pass an absolute path:
 """
 
 
-VERSION="1.6.1"
+VERSION="1.6.2"
 APPNAME='waf'
 REVISION=''
 
@@ -225,7 +225,6 @@ def sfilter(path):
 			cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
 		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
-#		return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 	return (io.BytesIO(cnt), len(cnt), cnt)
 
 def create_waf(*k, **kw):

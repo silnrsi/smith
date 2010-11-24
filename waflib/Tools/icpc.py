@@ -2,12 +2,19 @@
 # encoding: utf-8
 # Thomas Nagy 2009-2010 (ita)
 
+"""
+Detect the Intel C++ compiler
+"""
+
 import os, sys
 from waflib.Tools import ccroot, ar, gxx
 from waflib.Configure import conf
 
 @conf
 def find_icpc(conf):
+	"""
+	Find the program icpc, and execute it to ensure it really is icpc
+	"""
 	if sys.platform == 'cygwin':
 		conf.fatal('The Intel compiler does not work on Cygwin')
 

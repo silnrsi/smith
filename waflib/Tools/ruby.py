@@ -3,6 +3,24 @@
 # daniel.svensson at purplescout.se 2008
 # Thomas Nagy 2010 (ita)
 
+"""
+Support for Ruby extensions. A C/C++ compiler is required::
+
+	def options(opt):
+		opt.load('compiler_c ruby')
+	def configure(conf):
+		conf.load('compiler_c ruby')
+		conf.check_ruby_version((1,8,0))
+		conf.check_ruby_ext_devel()
+	def build(bld):
+		bld(
+			features = 'c cshlib rubyext',
+			source = 'rb_mytest.c',
+			target = 'mytest_ext',
+			install_path = '${ARCHDIR_RUBY}')
+		bld.install_files('${LIBDIR_RUBY}', 'Mytest.rb')
+"""
+
 import os
 from waflib import Task, Options, Utils
 from waflib.TaskGen import before, feature, after
@@ -10,8 +28,10 @@ from waflib.Configure import conf
 
 @feature('rubyext')
 @before('apply_incpaths', 'apply_lib_vars', 'apply_bundle', 'apply_link')
-@after('vars_target_cshlib')
 def init_rubyext(self):
+	"""
+	Add required variables for ruby extensions
+	"""
 	self.install_path = '${ARCHDIR_RUBY}'
 	self.uselib = self.to_list(getattr(self, 'uselib', ''))
 	if not 'RUBY' in self.uselib:
@@ -22,6 +42,9 @@ def init_rubyext(self):
 @feature('rubyext')
 @before('apply_link', 'propagate_uselib')
 def apply_ruby_so_name(self):
+	"""
+	Strip the *lib* prefix from ruby extensions
+	"""
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['rubyext_PATTERN']
 
 @conf
@@ -29,7 +52,7 @@ def check_ruby_version(self, minver=()):
 	"""
 	Checks if ruby is installed.
 	If installed the variable RUBY will be set in environment.
-	Ruby binary can be overridden by --with-ruby-binary config variable
+	The ruby binary can be overridden by ``--with-ruby-binary`` command-line option.
 	"""
 
 	if Options.options.rubybinary:
@@ -60,6 +83,9 @@ def check_ruby_version(self, minver=()):
 
 @conf
 def check_ruby_ext_devel(self):
+	"""
+	Check if a ruby extension can be created
+	"""
 	if not self.env.RUBY:
 		self.fatal('ruby detection is required first')
 
@@ -116,6 +142,9 @@ def check_ruby_ext_devel(self):
 		self.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
 
 def options(opt):
+	"""
+	Add the ``--with-ruby-archdir``, ``--with-ruby-libdir`` and ``--with-ruby-binary`` options
+	"""
 	opt.add_option('--with-ruby-archdir', type='string', dest='rubyarchdir', help='Specify directory where to install arch specific files')
 	opt.add_option('--with-ruby-libdir', type='string', dest='rubylibdir', help='Specify alternate ruby library path')
 	opt.add_option('--with-ruby-binary', type='string', dest='rubybinary', help='Specify alternate ruby binary')

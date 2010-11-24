@@ -3,36 +3,43 @@
 # Ali Sabil, 2007
 
 """
-To use this module do not forget to call
-opt.load('gnu_dirs')
-AND
-conf.load('gnu_dirs')
+Sets various standard variables such as INCLUDEDIR. SBINDIR and others. To use this module just call::
+
+	opt.load('gnu_dirs')
+
+and::
+
+	conf.load('gnu_dirs')
 
 Add options for the standard GNU directories, this tool will add the options
 found in autotools, and will update the environment with the following
 installation variables:
 
- * PREFIX : architecture-independent files [/usr/local]
- * EXEC_PREFIX : architecture-dependent files [PREFIX]
- * BINDIR : user executables [EXEC_PREFIX/bin]
- * SBINDIR : user executables [EXEC_PREFIX/sbin]
- * LIBEXECDIR : program executables [EXEC_PREFIX/libexec]
- * SYSCONFDIR : read-only single-machine data [PREFIX/etc]
- * SHAREDSTATEDIR : modifiable architecture-independent data [PREFIX/com]
- * LOCALSTATEDIR : modifiable single-machine data [PREFIX/var]
- * LIBDIR : object code libraries [EXEC_PREFIX/lib]
- * INCLUDEDIR : C header files [PREFIX/include]
- * OLDINCLUDEDIR : C header files for non-gcc [/usr/include]
- * DATAROOTDIR : read-only arch.-independent data root [PREFIX/share]
- * DATADIR : read-only architecture-independent data [DATAROOTDIR]
- * INFODIR : info documentation [DATAROOTDIR/info]
- * LOCALEDIR : locale-dependent data [DATAROOTDIR/locale]
- * MANDIR : man documentation [DATAROOTDIR/man]
- * DOCDIR : documentation root [DATAROOTDIR/doc/telepathy-glib]
- * HTMLDIR : html documentation [DOCDIR]
- * DVIDIR : dvi documentation [DOCDIR]
- * PDFDIR : pdf documentation [DOCDIR]
- * PSDIR : ps documentation [DOCDIR]
+============== ========================================= =======================
+Variable       Description                               Value
+============== ========================================= =======================
+PREFIX         architecture-independent files            /usr/local
+EXEC_PREFIX    architecture-dependent files              PREFIX
+BINDIR         user executables                          EXEC_PREFIX/bin
+SBINDIR        user executables                          EXEC_PREFIX/sbin
+LIBEXECDIR     program executables                       EXEC_PREFIX/libexec
+SYSCONFDIR     read-only single-machine data             PREFIX/etc
+SHAREDSTATEDIR modifiable architecture-independent data  PREFIX/com
+LOCALSTATEDIR  modifiable single-machine data            PREFIX/var
+LIBDIR         object code libraries                     EXEC_PREFIX/lib
+INCLUDEDIR     C header files                            PREFIX/include
+OLDINCLUDEDIR  C header files for non-gcc                /usr/include
+DATAROOTDIR    read-only arch.-independent data root     PREFIX/share
+DATADIR        read-only architecture-independent data   DATAROOTDIR
+INFODIR        info documentation                        DATAROOTDIR/info
+LOCALEDIR      locale-dependent data                     DATAROOTDIR/locale
+MANDIR         man documentation                         DATAROOTDIR/man
+DOCDIR         documentation root                        DATAROOTDIR/doc/APPNAME
+HTMLDIR        html documentation                        DOCDIR
+DVIDIR         dvi documentation                         DOCDIR
+PDFDIR         pdf documentation                         DOCDIR
+PSDIR          ps documentation                          DOCDIR
+============== ========================================= =======================
 """
 
 from waflib import Utils, Options, Context
@@ -60,6 +67,9 @@ psdir, ps documentation, ${DOCDIR}
 '''.split('\n') if x]
 
 def configure(conf):
+	"""
+	Read the command-line options to set lots of variables in *conf.env*
+	"""
 	def get_param(varname, default):
 		return getattr(Options.options, varname, '') or default
 
@@ -84,7 +94,11 @@ def configure(conf):
 		raise Errors.WafError('Variable substitution failure %r' % lst)
 
 def options(opt):
+	"""
+	Add lots of command-line options, for example::
 
+		--exec-prefix: EXEC_PREFIX
+	"""
 	inst_dir = opt.add_option_group('Installation directories',
 'By default, "waf install" will put the files in\
  "/usr/local/bin", "/usr/local/lib" etc. An installation prefix other\

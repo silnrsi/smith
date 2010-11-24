@@ -11,6 +11,9 @@ from waflib.Configure import conf
 
 @conf
 def find_xlcxx(conf):
+	"""
+	Detect the Aix C++ compiler
+	"""
 	cxx = conf.find_program(['xlc++_r', 'xlc++'], var='CXX')
 	cxx = conf.cmd_to_list(cxx)
 	conf.env.CXX_NAME = 'xlc++'
@@ -18,6 +21,9 @@ def find_xlcxx(conf):
 
 @conf
 def xlcxx_common_flags(conf):
+	"""
+	Flags required for executing the Aix C++ compiler
+	"""
 	v = conf.env
 
 	v['CXX_SRC_F']           = ''

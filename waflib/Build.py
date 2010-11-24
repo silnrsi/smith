@@ -127,7 +127,7 @@ class BuildContext(Context.Context):
 
 	def __call__(self, *k, **kw):
 		"""
-		Create a task generator, adding it to the current build group. The following forms are equivalent::
+		Create a task generator and add it to the current build group. The following forms are equivalent::
 
 			def build(bld):
 				tg = bld(a=1, b=2)
@@ -136,6 +136,13 @@ class BuildContext(Context.Context):
 				tg = bld()
 				tg.a = 1
 				tg.b = 2
+
+			def build(bld):
+				tg = TaskGen.task_gen(a=1, b=2)
+				bld.add_to_group(tg, None)
+
+		:param group: group name to add the task generator to
+		:type group: string
 		"""
 		kw['bld'] = self
 		ret = TaskGen.task_gen(*k, **kw)
@@ -144,7 +151,7 @@ class BuildContext(Context.Context):
 		return ret
 
 	def __copy__(self):
-		"""Build context copies are not allowed"""
+		"""Implemented to prevents copies of build contexts (raises an exception)"""
 		raise Errors.WafError('build contexts are not supposed to be copied')
 
 	def install_files(self, *k, **kw):
@@ -649,7 +656,7 @@ class BuildContext(Context.Context):
 
 	def get_targets(self):
 		"""
-		Return the task generator corresponding to the 'targets' list, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator::
+		Return the task generator corresponding to the 'targets' list, used by :py:meth:`waflib.Build.BuildContext.get_build_iterator`::
 
 			$ waf --targets=myprogram,myshlib
 		"""

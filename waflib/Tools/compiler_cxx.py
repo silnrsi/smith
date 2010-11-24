@@ -2,6 +2,34 @@
 # encoding: utf-8
 # Matthias Jahn jahn dôt matthias ât freenet dôt de 2007 (pmarat)
 
+"""
+Try to detect a C++ compiler from the list of supported compilers (g++, msvc, etc)::
+
+	def options(opt):
+		opt.load('compiler_cxx')
+	def configure(cnf):
+		cnf.load('compiler_cxx')
+	def build(bld):
+		bld.program(source='main.cpp', target='app')
+
+The compilers are associated to platforms in :py:attr:`waflib.Tools.compiler_cxx.cxx_compiler`. To register
+a new C++ compiler named *cfoo* (assuming the tool ``waflib/extras/cfoo.py`` exists), use::
+
+	def options(opt):
+		opt.load('compiler_cxx')
+	def configure(cnf):
+		from waflib.Tools.compiler_cxx import cxx_compiler
+		cxx_compiler['win32'] = ['cfoo', 'msvc', 'gcc']
+		cnf.load('compiler_cxx')
+	def build(bld):
+		bld.program(source='main.c', target='app')
+
+Not all compilers need to have a specific tool. For example, the clang compilers can be detected by the gcc tools when using::
+
+	$ CXX=clang waf configure
+"""
+
+
 import os, sys, imp, types
 from waflib.Tools import ccroot
 from waflib import Utils, Configure
@@ -20,8 +48,18 @@ cxx_compiler = {
 'java':   ['g++', 'msvc', 'icpc'],
 'default': ['g++']
 }
+"""
+Dict mapping the platform names to waf tools finding specific compilers::
+
+	from waflib.Tools.compiler_cxx import cxx_compiler
+	cxx_compiler['linux'] = ['gxx', 'icpc', 'suncxx']
+"""
+
 
 def configure(conf):
+	"""
+	Try to find a suitable C++ compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
+	"""
 	try: test_for_compiler = conf.options.check_cxx_compiler
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_cxx')")
 
@@ -44,6 +82,11 @@ def configure(conf):
 		conf.fatal('could not configure a c++ compiler!')
 
 def options(opt):
+	"""
+	Restrict the compiler detection from the command-line::
+
+		$ waf configure --check-cxx-compiler=gxx
+	"""
 	global cxx_compiler
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = cxx_compiler[build_platform in cxx_compiler and build_platform or 'default']

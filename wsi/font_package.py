@@ -16,7 +16,7 @@ class Package(object) :
     packages = []
     def __init__(self, **kw) :
         for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR') :
+                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME') :
             setattr(self, k, getattr(Context.g_module, k, None))
         for k, v in kw.items() :
             setattr(self, k, v)
@@ -76,11 +76,11 @@ class Package(object) :
         task.set_inputs(bld.root.find_resource(os.path.join(thisdir, 'installer.nsi')))
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
-        bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % (getattr(self, 'OUTDIR', '.'), getattr(self, 'DESC_NAME', self.APPNAME).title(), self.VERSION))
+        bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.OUTDIR or '.'), (self.DESC_NAME or self.APPNAME.title()), self.VERSION))
 
     def execute_zip(self, bld) :
-        if not getattr(self, 'ZIPFILE', None) :
-            self.ZIPFILE = "%s/%s-%s.zip" % (getattr(self, 'ZIPDIR', '.'), self.APPNAME, self.VERSION)
+        if self.ZIPFILE :
+            self.ZIPFILE = "%s/%s-%s.zip" % ((self.ZIPDIR or '.'), self.APPNAME, self.VERSION)
 
         import zipfile
         znode = bld.path.find_or_declare(self.ZIPFILE)      # create dirs

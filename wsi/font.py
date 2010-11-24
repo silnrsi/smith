@@ -84,6 +84,7 @@ class Font(object) :
                 x.build(bld, self.target, bgen, self)
         return self
 
+
 class Legacy(object) :
 
     def __init__(self, src, *k, **kw) :
@@ -113,13 +114,25 @@ class Legacy(object) :
             bld(rule = "${FONTFORGE} -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
 
 
-class Volt(object) :
+class Internal(object) :
 
-    def __init__(self, source, *k, **kw) :
-        self.source = source
+    def __init__(self, src = None, *k, **kw) :
+        self.source = src
         self.params = ''
         for k, v in kw.items() :
             setattr(self, k, v)
+
+    def get_build_tools(self) :
+        return []
+
+    def build(self, bld, target, tgen, font) :
+        pass
+
+
+class Volt(Internal) :
+
+    def __init__(self, source, *k, **kw) :
+        self.super(Volt, self).__init__(source, *k, **kw)
 
     def get_build_tools(self) :
         return ('make_volt', 'volt2ttf')
@@ -140,14 +153,11 @@ class Volt(object) :
         modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_ot")
 
 
-class Gdl(object) :
+class Gdl(Internal) :
 
     def __init__(self, source, *k, **kw) :
-        self.source = source
-        self.params = ''
+        self.super(Gdl, self).__init__(source, *k, **kw)
         self.master = ''
-        for k, v in kw.items() :
-            setattr(self, k, v)
     
     def get_build_tools(self) :
         return ("make_gdl", "grcompiler", "ttftable")
@@ -285,7 +295,8 @@ def fontinit(ctx) :
 varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
             'gdl' : Gdl, 'process' : process, 'create' : create,
             'cmd' : cmd, 'name' : name, 'ofl' : Ofl, 'init' : fontinit,
-            'kbd' : keyboard.Keyboard, 'package' : font_package.Package
+            'kbd' : keyboard.Keyboard, 'package' : font_package.Package,
+            'internal' : Internal
          }
 for k, v in varmap.items() :
     if hasattr(Context, 'wscript_vars') :

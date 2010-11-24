@@ -3,10 +3,7 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-Context classes are used for waf commands
-
-.. inheritance-diagram:: waflib.Context.Context waflib.Build.BuildContext waflib.Build.InstallContext waflib.Build.UninstallContext waflib.Build.StepContext waflib.Build.ListContext waflib.Configure.ConfigurationContext waflib.Scripting.Dist waflib.Scripting.DistCheck waflib.Build.CleanContext
-
+Classes and functions required for waf commands
 """
 
 import traceback, os, imp, sys
@@ -14,13 +11,13 @@ from waflib import Utils, Errors, Logs
 import waflib.Node
 
 # the following 3 constants are updated on each new release (do not touch)
-HEXVERSION=0x1060100
+HEXVERSION=0x1060200
 """Constant updated on new releases"""
 
-WAFVERSION="1.6.1"
+WAFVERSION="1.6.2"
 """Constant updated on new releases"""
 
-WAFREVISION="10307"
+WAFREVISION="10513"
 """Constant updated on new releases"""
 
 ABI = 98
@@ -147,6 +144,9 @@ class Context(ctx):
 	:type cmd: string
 	:param fun: function name to execute when the command is called
 	:type fun: string
+
+	.. inheritance-diagram:: waflib.Context.Context waflib.Build.BuildContext waflib.Build.InstallContext waflib.Build.UninstallContext waflib.Build.StepContext waflib.Build.ListContext waflib.Configure.ConfigurationContext waflib.Scripting.Dist waflib.Scripting.DistCheck waflib.Build.CleanContext
+
 	"""
 
 	errors = Errors

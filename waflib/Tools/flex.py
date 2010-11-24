@@ -3,7 +3,10 @@
 # John O'Meara, 2006
 # Thomas Nagy, 2006-2010 (ita)
 
-"Flex processing"
+"""
+The **flex** program is a code generator which creates C or C++ files.
+The generated files are compiled into object files.
+"""
 
 import waflib.TaskGen
 
@@ -20,5 +23,8 @@ waflib.TaskGen.declare_chain(
 )
 
 def configure(conf):
+	"""
+	Detect the *flex* program
+	"""
 	conf.find_program('flex', var='FLEX')
 

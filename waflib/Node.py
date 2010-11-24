@@ -110,7 +110,7 @@ class Node(object):
 			parent.children[name] = self
 
 	def __setstate__(self, data):
-		"serialization stuff"
+		"Deserializes from data"
 		self.name = data[0]
 		self.parent = data[1]
 		if data[2] is not None:
@@ -119,27 +119,27 @@ class Node(object):
 			self.sig = data[3]
 
 	def __getstate__(self):
-		"serialization stuff"
+		"Serialize the node info"
 		return (self.name, self.parent, getattr(self, 'children', None), getattr(self, 'sig', None))
 
 	def __str__(self):
-		"for debugging purposes"
+		"String representation (name), for debugging purposes"
 		return self.name
 
 	def __repr__(self):
-		"for debugging purposes"
+		"String representation (abspath), for debugging purposes"
 		return self.abspath()
 
 	def __hash__(self):
-		"this hash is not persistent"
+		"Node hash, used for storage in dicts. This hash is not persistent."
 		return id(self)
 
 	def __eq__(self, node):
-		"there can be only one node for a path so we compare with the ids"
+		"Node comparison, based on the IDs"
 		return id(self) == id(node)
 
 	def __copy__(self):
-		"nodes are not supposed to be copied"
+		"Implemented to prevent nodes from being copied (raises an exception)"
 		raise Errors.WafError('nodes are not supposed to be copied')
 
 	def read(self, flags='r'):
@@ -780,7 +780,7 @@ class Node(object):
 		return self.path_from(self.ctx.srcnode)
 
 	def relpath(self):
-		"if a build node, bldpath, else srcpath"
+		"If a file in the build directory, bldpath, else srcpath"
 		cur = self
 		x = id(self.ctx.bldnode)
 		while cur.parent:
@@ -790,15 +790,18 @@ class Node(object):
 		return self.srcpath()
 
 	def bld_dir(self):
-		"build path without the file name"
+		"Build path without the file name"
 		return self.parent.bldpath()
 
 	def bld_base(self):
-		"build path without the extension: src/dir/foo(.cpp)"
+		"Build path without the extension: src/dir/foo(.cpp)"
 		s = os.path.splitext(self.name)[0]
 		return self.bld_dir() + os.sep + s
 
 	def get_bld_sig(self):
+		"""
+		Node signature, assuming the file is in the build directory
+		"""
 		try:
 			ret = self.ctx.hash_cache[id(self)]
 		except KeyError:

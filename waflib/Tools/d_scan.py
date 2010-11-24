@@ -2,10 +2,20 @@
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
+"""
+Provide a scanner for finding dependencies on d files
+"""
+
 import re
 from waflib import Utils, Logs
 
 def filter_comments(filename):
+	"""
+	:param filename: d file name
+	:type filename: string
+	:rtype: list
+	:return: a list of characters
+	"""
 	txt = Utils.readf(filename)
 	i = 0
 	buf = []
@@ -69,6 +79,9 @@ def filter_comments(filename):
 	return buf
 
 class d_parser(object):
+	"""
+	Parser for d files
+	"""
 	def __init__(self, env, incpaths):
 		#self.code = ''
 		#self.module = ''
@@ -89,6 +102,12 @@ class d_parser(object):
 		self.incpaths = incpaths
 
 	def tryfind(self, filename):
+		"""
+		Search file a file matching an module/import directive
+
+		:param filename: file to read
+		:type filename: string
+		"""
 		found = 0
 		for n in self.incpaths:
 			found = n.find_resource(filename.replace('.', '/') + '.d')
@@ -101,6 +120,12 @@ class d_parser(object):
 				self.names.append(filename)
 
 	def get_strings(self, code):
+		"""
+		:param code: d code to parse
+		:type code: string
+		:return: the modules that the code uses
+		:rtype: a list of match objects
+		"""
 		#self.imports = []
 		self.module = ''
 		lst = []
@@ -139,6 +164,12 @@ class d_parser(object):
 		return lst
 
 	def start(self, node):
+		"""
+		The parsing starts here
+
+		:param node: input file
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 		self.waiting = [node]
 		# while the stack is not empty, add the dependencies
 		while self.waiting:
@@ -146,6 +177,12 @@ class d_parser(object):
 			self.iter(nd)
 
 	def iter(self, node):
+		"""
+		Find all the modules that a file depends on, uses :py:meth:`waflib.Tools.d_scan.d_parser.tryfind` to process dependent files
+
+		:param node: input file
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 		path = node.abspath() # obtain the absolute path
 		code = "".join(filter_comments(path)) # read the file and filter the comments
 		names = self.get_strings(code) # obtain the import strings
@@ -158,7 +195,7 @@ class d_parser(object):
 			self.tryfind(x)
 
 def scan(self):
-	"look for .d/.di the .d source need"
+	"look for .d/.di used by a d file"
 	env = self.env
 	gruik = d_parser(env, self.generator.includes_nodes)
 	node = self.inputs[0]

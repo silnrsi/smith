@@ -1,5 +1,5 @@
-Waf v1.6.1 documentation
-========================
+Waf documentation
+=================
 
 .. toctree::
 
@@ -8,13 +8,19 @@ Waf v1.6.1 documentation
 	tutorial.rst
 	about.rst
 	copyright.rst
+	featuremap.rst
 
-	:ref:`genindex`
-	:ref:`modindex`
-	:ref:`search`
-
-.. Indices and tables
-.. ==================
-
-
-.. tutorial, faq, ..
+	Build.rst
+	ConfigSet.rst
+	Configure.rst
+	Context.rst
+	Errors.rst
+	Logs.rst
+	Node.rst
+	Options.rst
+	Runner.rst
+	Scripting.rst
+	Task.rst
+	TaskGen.rst
+	Utils.rst
+	tools/errcheck.rst

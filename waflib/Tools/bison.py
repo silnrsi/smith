@@ -3,20 +3,25 @@
 # John O'Meara, 2006
 # Thomas Nagy 2009-2010 (ita)
 
-"Bison processing"
+"""
+The **bison** program is a code generator which creates C or C++ files.
+The generated files are compiled into object files.
+"""
 
 from waflib import Task
 from waflib.TaskGen import extension
 
 class bison(Task.Task):
-	"""bison task, created by the extension method below"""
+	"""Compile bison files"""
 	color   = 'BLUE'
 	run_str = '${BISON} ${BISONFLAGS} ${SRC[0].abspath()} -o ${TGT[0].name}'
 	ext_out = ['.h'] # just to make sure
 
 @extension('.y', '.yc', '.yy')
 def big_bison(self, node):
-	"""more complicated than flex (need to pass the cwd)"""
+	"""
+	Create a bison task, which must be executed from the directory of the output file.
+	"""
 	has_h = '-d' in self.env['BISONFLAGS']
 
 	outs = []
@@ -36,6 +41,9 @@ def big_bison(self, node):
 	self.source.append(outs[0])
 
 def configure(conf):
+	"""
+	Detect the *bison* program
+	"""
 	conf.find_program('bison', var='BISON')
 	conf.env.BISONFLAGS = ['-d']
 

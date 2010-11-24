@@ -64,7 +64,13 @@ class dstlib(stlink_task):
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
-	"""set 'generate_headers' to True on the task generator to get .di files as well as .o"""
+	"""
+	Compile *D* files. To get .di files as well as .o files, set the following::
+
+		def build(bld):
+			bld.program(source='foo.d', target='app', generate_headers=True)
+
+	"""
 	if getattr(self, 'generate_headers', None):
 		task = self.create_compiled_task('d_with_header', node)
 		header_node = node.change_ext(self.env['DHEADER_ext'])
@@ -75,7 +81,19 @@ def d_hook(self, node):
 
 @taskgen_method
 def generate_header(self, filename, install_path=None):
-	"""see feature request #104 - TODO the install_path is not used"""
+	"""
+	See feature request #104::
+
+		def build(bld):
+			tg = bld.program(source='foo.d', target='app')
+			tg.generate_header('blah.d')
+			# is equivalent to:
+			#tg = bld.program(source='foo.d', target='app', header_lst='blah.d')
+
+	:param filename: header to create
+	:type filename: string
+	:param install_path: unused (TODO)
+	"""
 	try:
 		self.header_lst.append([filename, install_path])
 	except AttributeError:
@@ -83,7 +101,12 @@ def generate_header(self, filename, install_path=None):
 
 @feature('d')
 def process_header(self):
-	"process the attribute 'header_lst' to create the d header compilation tasks"
+	"""
+	Process the attribute 'header_lst' to create the d header compilation tasks::
+
+		def build(bld):
+			bld.program(source='foo.d', target='app', header_lst='blah.d')
+	"""
 	for i in getattr(self, 'header_lst', []):
 		node = self.path.find_resource(i[0])
 		if not node:

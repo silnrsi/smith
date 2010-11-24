@@ -4,6 +4,10 @@
 # Ralf Habacker, 2006 (rh)
 # Yinon Ehrlich, 2009
 
+"""
+g++/llvm detection.
+"""
+
 import os, sys
 from waflib import Configure, Options, Utils
 from waflib.Tools import ccroot, ar
@@ -11,6 +15,9 @@ from waflib.Configure import conf
 
 @conf
 def find_gxx(conf):
+	"""
+	Find the program g++, and if present, try to detect its version number
+	"""
 	cxx = conf.find_program(['g++', 'c++'], var='CXX')
 	cxx = conf.cmd_to_list(cxx)
 	conf.get_cc_version(cxx, gcc=True)
@@ -19,6 +26,9 @@ def find_gxx(conf):
 
 @conf
 def gxx_common_flags(conf):
+	"""
+	Common flags for g++ on nearly all platforms
+	"""
 	v = conf.env
 
 	v['CXX_SRC_F']           = ''
@@ -60,6 +70,7 @@ def gxx_common_flags(conf):
 
 @conf
 def gxx_modifier_win32(conf):
+	"""Configuration flags for executing gcc on Windows"""
 	v = conf.env
 	v['cxxprogram_PATTERN']  = '%s.exe'
 
@@ -78,6 +89,7 @@ def gxx_modifier_win32(conf):
 
 @conf
 def gxx_modifier_cygwin(conf):
+	"""Configuration flags for executing g++ on Cygwin"""
 	gxx_modifier_win32(conf)
 	v = conf.env
 	v['cxxshlib_PATTERN']    = 'cyg%s.dll'
@@ -86,6 +98,7 @@ def gxx_modifier_cygwin(conf):
 
 @conf
 def gxx_modifier_darwin(conf):
+	"""Configuration flags for executing g++ on MacOS"""
 	v = conf.env
 	v['CXXFLAGS_cxxshlib']   = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_cxxshlib']  = ['-dynamiclib']
@@ -101,6 +114,7 @@ def gxx_modifier_darwin(conf):
 
 @conf
 def gxx_modifier_aix(conf):
+	"""Configuration flags for executing g++ on AIX"""
 	v = conf.env
 	v['LINKFLAGS_cxxprogram']= ['-Wl,-brtl']
 
@@ -110,6 +124,7 @@ def gxx_modifier_aix(conf):
 
 @conf
 def gxx_modifier_platform(conf):
+	"""Execute platform-specific functions based on *gxx_modifier_+NAME*"""
 	# * set configurations specific for a platform.
 	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
 	#   and if it's not recognised, it fallbacks to sys.platform.
@@ -126,3 +141,7 @@ cxx_load_tools
 cxx_add_flags
 link_add_flags
 '''
+"""
+Configuration for g++
+"""
+
