@@ -22,9 +22,10 @@ def add_cython_file(self, node):
 	self.source += tsk.outputs
 
 class cython(Task.Task):
-	run_str = '${CYTHON} ${CYTHONFLAGS} -o ${TGT} ${SRC}'
+	run_str = '${CYTHON} ${CYTHONFLAGS} -o ${TGT} ${SRC[0].abspath()}'
 	color   = 'GREEN'
 	vars    = ['INCLUDES']
+	ext_out = ['.h']
 
 	def runnable_status(self):
 		"""
