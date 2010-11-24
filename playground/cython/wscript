@@ -8,13 +8,13 @@ out = 'build'
 def options(ctx):
 	ctx.load('compiler_c compiler_cxx')
 	ctx.load('python')
-	ctx.load('cython', tooldir='.')
+	ctx.load('cython')
 
 def configure(ctx):
 	ctx.load('compiler_c compiler_cxx')
 	ctx.load('python')
 	ctx.check_python_headers()
-	ctx.load('cython', tooldir='.')
+	ctx.load('cython')
 
 def build(ctx):
 	# first try to build a C-based cython extension
