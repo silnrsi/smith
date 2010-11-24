@@ -91,6 +91,23 @@ def build(ctx):
             color='PINK', name='tasks d')
 ---------------
 
+In the previous examples, all task generators from all build groups are processed before the build
+actually starts. This default is provided to ensure that the task count is as accurate as possible.
+Here is how to tune the build groups:
+
+[source,python]
+---------------
+def build(ctx):
+	from waflib.Build import POST_LAZY, POST_BOTH, POST_AT_ONCE
+	ctx.post_mode = POST_AT_ONCE <1>
+	#ctx.post_mode = POST_LAZY <2>
+	#ctx.post_mode = POST_BOTH <3>
+---------------
+
+<1> All task generators create their tasks before the build starts (default behaviour)
+<2> Groups are processed sequentially: all tasks from previous groups are executed before the task generators from the next group are processed
+<3> Combination of the two previous behaviours: task generators created by tasks in the next groups may create tasks
+
 Build groups can be used for <<build_compiler_first,building a compiler to generate more source files>> to process.
 
 ==== The Producer-consumer system
