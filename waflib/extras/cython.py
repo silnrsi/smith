@@ -14,6 +14,13 @@ re_cyt = re.compile('import\\s(\\w+)\\s*$', re.M)
 
 @extension('.pyx')
 def add_cython_file(self, node):
+	"""
+	Process a *.pyx* file given in the list of source files. No additional
+	feature is required::
+
+		def build(bld):
+			bld(features='c cshlib pyext', source='main.c foo.pyx', target='app')
+	"""
 	ext = '.c'
 	if 'cxx' in self.features:
 		self.env.append_unique('CYTHONFLAGS', '--cplus')
