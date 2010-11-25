@@ -9,20 +9,21 @@ def build(bld):
 	from waflib import Build
 	bld.post_mode = Build.POST_LAZY
 
+	def create_files(tsk):
+		out = tsk.generator.path.make_node('generated')
+		from waflib import Utils
+		for x in out.ant_glob('*.c'):
+			x.delete()
+		import random
+		for x in range(2):
+			num = random.randint(0, 2**31)
+			k = out.make_node('test%d.c' % num)
+			k.write('int k%d = %d;' % (num, num))
 	bld(rule=create_files, source='wscript', name='codegen')
-	bld.add_group()
-	bld.program(features='find_them', source=['main.c'], target='app')
 
-def create_files(tsk):
-	out = tsk.generator.path.make_node('generated')
-	from waflib import Utils
-	for x in out.ant_glob('*.c'):
-		x.delete()
-	import random
-	for x in range(4):
-		num = random.randint(0, 2**31)
-		k = out.make_node('test%d.c' % num)
-		k.write('int k%d = %d;' % (num, num))
+	bld.add_group()
+
+	bld.program(features='find_them', source=['main.c'], target='app')
 
 from waflib.TaskGen import feature, before
 from waflib import Utils
