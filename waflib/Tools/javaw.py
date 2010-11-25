@@ -163,7 +163,11 @@ def jar_files(self):
 		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
-	tsk.set_outputs(self.path.find_or_declare(destfile))
+	if not isinstance(destfile, Node.Node):
+		destfile = self.path.find_or_declare(destfile)
+	if not destfile:
+		self.bld.fatal('invalid destfile %r for %r' % (destfile, self))
+	tsk.set_outputs(destfile)
 	tsk.basedir = basedir
 
 	jaropts.append('-C')
