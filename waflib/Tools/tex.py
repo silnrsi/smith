@@ -264,7 +264,7 @@ class tex(Task.Task):
 			prev_hash = hash
 			try:
 				hash = Utils.h_file(self.aux_node.abspath())
-			except KeyError:
+			except (OSError, IOError):
 				error('could not read aux.h -> %s' % self.aux_node.abspath())
 				pass
 			if hash and hash == prev_hash:
