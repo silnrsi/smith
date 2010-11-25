@@ -9,6 +9,7 @@ NEW IN WAF 1.6.2
 * New apidocs + tutorial in Sphinx format
 * Add the CPPFLAGS from os.environ #803
 * Create the java output directory anywhere #806
+* Enable the .luac file installation
 
 NEW IN WAF 1.6.1
 ----------------
