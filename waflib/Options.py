@@ -144,6 +144,8 @@ class OptionsContext(Context.Context):
 		self.parser = opt_parser(self)
 		"""Instance of :py:class:`waflib.Options.opt_parser`"""
 
+		self.option_groups = {}
+
 	def jobs(self):
 		"""
 		Find the amount of cpu cores to set the default amount of tasks executed in parallel. At
@@ -192,23 +194,30 @@ class OptionsContext(Context.Context):
 		Wrapper for optparse.add_option_group::
 
 			def options(ctx):
-				gr = optparse.OptionGroup(self, 'special options')
-				ctx.add_option_group(gr)
+				ctx.add_option_group('some options')
 				gr.add_option('-u', '--use', dest='use', default=False, action='store_true')
 		"""
-		return self.parser.add_option_group(*k, **kw)
+		try:
+			gr = self.option_groups[k[0]]
+		except:
+			gr = self.parser.add_option_group(*k, **kw)
+		self.option_groups[k[0]] = gr
+		return gr
 
 	def get_option_group(self, opt_str):
 		"""
 		Wrapper for optparse.get_option_group::
 
 			def options(ctx):
-				gr = get_option_group('configure options')
+				gr = ctx.get_option_group('configure options')
 				gr.add_option('-o', '--out', action='store', default='',
 					help='build dir for the project', dest='out')
 
 		"""
-		return self.parser.get_option_group(opt_str)
+		try:
+			return self.option_groups[opt_str]
+		except KeyError:
+			return self.parser.get_option_group(opt_str)
 
 	def parse_args(self, _args=None):
 		"""
