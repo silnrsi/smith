@@ -3,6 +3,8 @@
 
 def configure(conf):
 	conf.load('lua')
+	# to enable luac file installation globally:
+	conf.env.LUADIR = '/opt/share/myapp/scripts/'
 
 def build(bld):
 	bld(source='foo.lua')
