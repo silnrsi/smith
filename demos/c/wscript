@@ -78,14 +78,12 @@ def package(ctx):
 
 
 from waflib import Utils
-from waflib.TaskGen import feature
-@feature('strictlib')
+from waflib import TaskGen
+@TaskGen.feature('strictlib')
 def check_lib_in_libpath(self):
-	"""
-	For use in a configuration check: raise an exception
-	if the library file does not exist in the folders pointed
-	by 'libpath'
-	"""
+	#For use in a configuration check: raise an exception
+	#if the library file does not exist in the folders pointed
+	#by 'libpath'
 	pths = Utils.to_list(getattr(self, 'libpath', []))
 	if pths:
 		for l in Utils.to_list(Utils.to_list(getattr(self, 'lib', []))):
