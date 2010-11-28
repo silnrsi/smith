@@ -192,17 +192,10 @@ class qxx(cxx.cxx):
 
 	run = Task.classes['cxx'].__dict__['run']
 
-def translation_update(task):
-	# ujjj, esto está roto
-	outs = [a.abspath() for a in task.outputs]
-	outs = " ".join(outs)
-	lupdate = task.env['QT_LUPDATE']
-
-	for x in task.inputs:
-		file = x.abspath()
-		cmd = "%s %s -ts %s" % (lupdate, file, outs)
-		Logs.pprint('BLUE', cmd)
-		task.generator.bld.exec_command(cmd)
+class trans_update(Task.Task):
+	"""Update a .ts files from a list of C++ files"""
+	run_str = '${QT_LUPDATE} ${SRC} -ts ${TGT}'
+	color   = 'BLUE'
 
 class XMLHandler(ContentHandler):
 	"""
@@ -265,9 +258,9 @@ def apply_qt4(self):
 			qmtasks.append(self.create_task('ts2qm', x, x.change_ext('.qm')))
 
 		if getattr(self, 'update', None) and Options.options.trans_qt4:
-			tsnodes = [x.inputs[0] for x in qmtasks]
 			cxxnodes = [a.inputs[0] for a in self.compiled_tasks]
-			self.create_task('trans_update', cxxnodes, tsnodes)
+			for x in qmtasks:
+				self.create_task('trans_update', cxxnodes, x.inputs)
 
 		if getattr(self, 'langname', None):
 			qmnodes = [x.outputs[0] for x in qmtasks]
@@ -348,7 +341,6 @@ class qm2rcc(Task.Task):
 	"""
 	color = 'BLUE'
 	after = 'ts2qm'
-	before = 'rcc'
 
 	def run(self):
 		"""Create a qrc file including the inputs"""
