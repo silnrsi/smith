@@ -3,11 +3,10 @@ Waf 1.6.x
 
 KNOWN ISSUES
 
-- Task.TaskCmd in qt4.py
-- python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
-- synchronized stdout+stderr for all commands by default
 - copying a folder may result in errors (check the .lockfile)
 - remove the warnings for the missing features dprogram and cxxstlib
+- python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
+- synchronized stdout+stderr for all commands by default
 
 GENERAL IMPROVEMENTS
 
