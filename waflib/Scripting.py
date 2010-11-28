@@ -44,17 +44,11 @@ def waf_entry_point(current_directory, version, wafdir):
 			except Exception:
 				pass
 			else:
-				Context.run_dir = env.run_dir
-				Context.top_dir = env.top_dir
-				Context.out_dir = env.out_dir
-
-				# the directory of the wscript file was moved
-				try:
-					os.stat(Context.run_dir)
-				except:
-					Context.run_dir = cur
-
-				break
+				if cur in [env.run_dir, env.top_dir, env.out_dir]:
+					Context.run_dir = env.run_dir
+					Context.top_dir = env.top_dir
+					Context.out_dir = env.out_dir
+					break
 
 		if not Context.run_dir:
 			if Context.WSCRIPT_FILE in lst:
@@ -72,7 +66,6 @@ def waf_entry_point(current_directory, version, wafdir):
 		else:
 			continue
 		break
-
 
 	if not Context.run_dir:
 		if '-h' in sys.argv or '--help' in sys.argv:
@@ -522,10 +515,13 @@ def autoconfigure(execute_method):
 			Logs.warn('Configuring the project')
 			do_config = True
 		else:
-			h = 0
-			for f in env['files']:
-				h = hash((h, Utils.readf(f, 'rb')))
-			do_config = h != env.hash
+			if env.run_dir != Context.run_dir:
+				do_config = True
+			else:
+				h = 0
+				for f in env['files']:
+					h = hash((h, Utils.readf(f, 'rb')))
+				do_config = h != env.hash
 
 		if do_config:
 			Options.commands.insert(0, self.cmd)
