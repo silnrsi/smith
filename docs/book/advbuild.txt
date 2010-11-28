@@ -41,9 +41,9 @@ Setting top to    : /tmp/advbuild_subclass
 Setting out to    : /tmp/advbuild_subclass/build
 <class 'waflib.Configure.ConfigurationContext'>
 'configure' finished successfully (0.008s)
-<class 'waflib.Context.Context'>
-'foo' finished successfully (0.001s)
 <class 'wscript.one'>
+'foo' finished successfully (0.001s)
+<class 'waflib.Context.Context'>
 'bar' finished successfully (0.001s)
 <class 'wscript.two'>
 'tak' finished successfully (0.001s)
