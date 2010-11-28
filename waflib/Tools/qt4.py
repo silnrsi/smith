@@ -248,11 +248,19 @@ def apply_qt4(self):
 
 		def build(bld):
 			bld.program(features='qt4', source='main.cpp', target='app', use='QTCORE')
+
+	The additional parameters are:
+	:param lang: list of translation files (*.ts) to process
+	:type lang: list of :py:class:`waflib.Node.Node` or string without the .ts extension
+	:param update: whether to process the C++ files to update the *.ts files (use **waf --translate**)
+	:type update: bool
+	:param langname: if given, transform the *.ts files into a .qrc files to include in the binary file
+	:type langname: :py:class:`waflib.Node.Node` or string without the .qrc extension
 	"""
 	if getattr(self, 'lang', None):
 		qmtasks = []
 		for x in self.to_list(self.lang):
-			if not isinstance(x, Node.Node):
+			if isinstance(x, str):
 				x = self.path.find_resource(x + '.ts')
 			qmtasks.append(self.create_task('ts2qm', x, x.change_ext('.qm')))
 
@@ -263,7 +271,10 @@ def apply_qt4(self):
 
 		if getattr(self, 'langname', None):
 			qmnodes = [x.outputs[0] for x in qmtasks]
-			t = self.create_task('qm2rcc', qmnodes, self.path.find_or_declare(self.langname+'.qrc'))
+			rcnode = self.langname
+			if isinstance(rcnode, str):
+				rcnode = self.path.find_or_declare(rcnode + '.qrc')
+			t = self.create_task('qm2rcc', qmnodes, rcnode)
 			k = create_rcc_task(self, t.outputs[0])
 			self.link_task.inputs.append(k.outputs[0])
 

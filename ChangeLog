@@ -10,6 +10,7 @@ NEW IN WAF 1.6.2
 * Add the CPPFLAGS from os.environ #803
 * Create the java output directory anywhere #806
 * Enable the .luac file installation
+* Process Qt translation files
 
 NEW IN WAF 1.6.1
 ----------------
