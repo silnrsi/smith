@@ -196,6 +196,7 @@ class trans_update(Task.Task):
 	"""Update a .ts files from a list of C++ files"""
 	run_str = '${QT_LUPDATE} ${SRC} -ts ${TGT}'
 	color   = 'BLUE'
+Task.update_outputs(trans_update)
 
 class XMLHandler(ContentHandler):
 	"""
