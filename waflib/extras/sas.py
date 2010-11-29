@@ -15,37 +15,30 @@ class sas(Task.Task):
 	vars = ['SAS', 'SASFLAGS']
 	def run(task):
 		command = 'SAS'
-   	env = task.env
-   	bld = task.generator.bld
+		env = task.env
+		bld = task.generator.bld
 
-	fun = sas_fun
+		fun = sas_fun
 
-	node = task.inputs[0]
-	srcfile = node.abspath()
-	sr2 = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
-	logfilenode = node.change_ext('.log')
-	lstfilenode = node.change_ext('.lst')
-	#task.env.LOGFILE = os.path.join(bld.srcnode.abspath(), task.env.logdir, logfilenode.name)
-	#task.env.LSTFILE = os.path.join(bld.srcnode.abspath(), task.env.lstdir, lstfilenode.name)
-	a = node.make_node(os.path.join(node.parent.get_bld().abspath(), task.env.logdir))
-	b = node.make_node(os.path.join(node.parent.get_bld().abspath(), task.env.lstdir))
-	task.env.LOGFILE = os.path.join(node.parent.get_bld().abspath(), task.env.logdir, logfilenode.name)
-	task.env.LSTFILE = os.path.join(node.parent.get_bld().abspath(), task.env.lstdir, lstfilenode.name)
+		node = task.inputs[0]
+		logfilenode = node.change_ext('.log')
+		lstfilenode = node.change_ext('.lst')
 
-	# set the cwd
-	task.cwd = task.inputs[0].parent.get_src().abspath()
+		# set the cwd
+		task.cwd = task.inputs[0].parent.get_src().abspath()
+		debug('runner: %s on %s' % (command, node.abspath))
 
-	warn('Running %s on %s' % (command, srcfile))
+		SASINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+		task.env.env = {'SASINPUTS': SASINPUTS}
 
-	task.env.env = {'SASINPUTS': sr2}
-	task.env.SRCFILE = srcfile
-	ret = fun(task)
-	if ret:
-		error('Running %s on %s returned a non-zero exit' % (command, task.env.SRCFILE))
-		error('SRCFILE = %s' % task.env.SRCFILE)
-		error('LOGFILE = %s' % task.env.LOGFILE)
-		error('LSTFILE = %s' % task.env.LSTFILE)
-	return ret
+		task.env.SRCFILE = node.abspath()
+		ret = fun(task)
+		if ret:
+			error('Running %s on %r returned a non-zero exit' % (command, node))
+			error('SRCFILE = %r' % node)
+			error('LOGFILE = %r' % logfilenode)
+			error('LSTFILE = %r' % lstfilenode)
+		return ret
 
 @feature('sas')
 @before('process_source')
