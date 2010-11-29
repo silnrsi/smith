@@ -35,7 +35,7 @@ def signature(self):
 		except Errors.TaskRescan:
 			return self.signature()
 
-	ret = self.cache_sig = self.m.digest()
+	ret = self.cache_sig = self.m.digest() + id_sig + exp_sig + var_sig
 	return ret
 
 
@@ -55,11 +55,16 @@ def runnable_status(self):
 				return Utils.to_hex(x)
 
 			Logs.debug("Task %r" % self)
-			msgs = ['Task must run', '* Source file or manual dependency', '* Implicit dependency', '* Configuration data variable']
+			msgs = ['Task must run', '* Task code', '* Source file or manual dependency', '* Configuration data variable']
 			tmp = 'task: -> %s: %s %s'
 			for x in range(len(msgs)):
-				if (new_sigs[x] != old_sigs[x]):
-					Logs.debug(tmp % (msgs[x], v(old_sigs[x]), v(new_sigs[x])))
+				l = len(Utils.SIG_NIL)
+				a = new_sigs[x*l : (x+1)*l]
+				b = old_sigs[x*l : (x+1)*l]
+				if (a != b):
+					Logs.debug(tmp % (msgs[x].ljust(35), v(a), v(b)))
+					if x > 0:
+						break
 	return ret
 Task.Task.runnable_status = runnable_status
 
