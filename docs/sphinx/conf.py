@@ -186,7 +186,7 @@ for x in lst:
 
 	mod = tool.__dict__['Tools'].__dict__[x]
 	dc = mod.__all__ = list(mod.__dict__.keys())
-	for k in ['before', 'after', 'feature', 'taskgen_method']:
+	for k in ['before', 'after', 'feature', 'taskgen_method', 'extension']:
 		try:
 			dc.remove(k)
 		except:
