@@ -233,7 +233,7 @@ class OptionsContext(Context.Context):
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 
-		if options.verbose >= 2:
+		if options.verbose >= 1:
 			self.load('errcheck')
 
 	def execute(self):
