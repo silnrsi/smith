@@ -1124,8 +1124,11 @@ def update_outputs(cls):
 	"""
 	Task class decorator
 
-	Used to avoid unnecessary recompilations, but consumes more resources
-	(hashing the output files) so it should be enabled only on the classes that need it
+	If you want to create files in the source directory. For example, to keep *foo.txt* in the source
+	directory, create it first and declare::
+
+		def build(bld):
+			bld(rule='cp ${SRC} ${TGT}', source='wscript', target='foo.txt', update_outputs=True)
 	"""
 	old_post_run = cls.post_run
 	def post_run(self):

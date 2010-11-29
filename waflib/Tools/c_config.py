@@ -128,6 +128,10 @@ def parse_flags(self, line, uselib, env=None):
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
 			appu('INCLUDES_' + uselib, [ot])
+		elif st == '-include':
+			tmp = [x, lst.pop(0)]
+			app('CFLAGS', tmp)
+			app('CXXFLAGS', tmp)
 		elif st == '-D' or st == '/D':
 			if not ot: ot = lst.pop(0)
 			app('DEFINES_' + uselib, [ot])
