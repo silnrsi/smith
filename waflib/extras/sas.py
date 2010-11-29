@@ -68,8 +68,7 @@ def apply_sas(self):
 
 	for node in self.to_nodes(self.source):
 		if self.type == 'sas':
-			task = self.create_task('sas', src = node, tgt = None)
-		task.env = self.env
+			task = self.create_task('sas', src=node)
 		task.dep_nodes = deps_lst
 	self.source = []
 
