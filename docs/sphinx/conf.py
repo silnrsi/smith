@@ -180,7 +180,7 @@ for x in lst:
 	txt = ""
 	txt += "%s\n%s\n\n.. automodule:: waflib.Tools.%s\n\n" % (x, "="*len(x), x)
 	if x in tool_to_features:
-		txt += "Provided Features:"
+		txt += "Features defined by the module:"
 		for feat in sorted(list(set(tool_to_features[x]))):
 			link = "../featuremap.html#feature-%s" % feat
 			txt += "\n\n* `%s <%s>`_" % (feat, link)
