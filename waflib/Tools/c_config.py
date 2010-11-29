@@ -119,7 +119,13 @@ def parse_flags(self, line, uselib, env=None):
 
 	app = env.append_value
 	appu = env.append_unique
-	lst = shlex.split(line)
+	#lst = shlex.split(line)
+	# issue #811
+	lex = shlex.shlex(line, posix=False)
+	lex.whitespace_split = True
+	lex.commenters = ''
+	lst = list(lex)
+
 	while lst:
 		x = lst.pop(0)
 		st = x[:2]
