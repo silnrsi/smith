@@ -165,6 +165,15 @@ for x in lst:
 	if x == '__init__':
 		continue
 	tool = __import__('waflib.Tools.%s' % x)
+
+	mod = tool.__dict__['Tools'].__dict__[x]
+	dc = mod.__all__ = list(mod.__dict__.keys())
+	for k in ['before', 'after', 'feature', 'taskgen_method']:
+		try:
+			dc.remove(k)
+		except:
+			pass
+
 	thetool = getattr(tool.Tools, x)
 	funcs = dir(thetool)
 	for func_name in funcs:
@@ -439,10 +448,14 @@ man_pages = [
      [u'Thomas Nagy'], 1)
 ]
 
-autodoc_default_flags = ['members', 'no-undoc-members', 'show-inheritance']
+#autodoc_default_flags = ['members', 'no-undoc-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'show-inheritance']
 autodoc_member_order = 'bysource'
 
 def maybe_skip_member(app, what, name, obj, skip, options):
+
+	# from http://sphinx.pocoo.org/ext/autodoc.html#event-autodoc-skip-member
+	# param name: the fully qualified name of the object <- it is not, the name does not contain the module path
 	if name == 'Nod3':
 		return True
 	if what == 'class' and name in 'process_source sequence_order process_rule add_pcfile to_nodes'.split():
@@ -454,10 +467,4 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 
 def setup(app):
 	app.connect('autodoc-skip-member', maybe_skip_member)
-
-
-#from waflib import Task
-#def after(*k, **kw):
-#	print "gnirf!"
-#TaskGen.after = after
 
