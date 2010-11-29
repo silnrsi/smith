@@ -186,7 +186,11 @@ for x in lst:
 
 	mod = tool.__dict__['Tools'].__dict__[x]
 	dc = mod.__all__ = list(mod.__dict__.keys())
-	for k in ['before', 'after', 'feature', 'taskgen_method', 'extension']:
+
+	excl = ['before', 'after', 'feature', 'taskgen_method', 'extension']
+	if x != 'ccroot':
+		excl += ['link_task', 'stlink_task']
+	for k in excl:
 		try:
 			dc.remove(k)
 		except:
