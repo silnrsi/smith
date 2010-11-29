@@ -44,7 +44,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			except Exception:
 				pass
 			else:
-				if cur in [env.run_dir, env.top_dir, env.out_dir]:
+				if True: #FIXME temporary cur in [env.run_dir, env.top_dir, env.out_dir]:
 					Context.run_dir = env.run_dir
 					Context.top_dir = env.top_dir
 					Context.out_dir = env.out_dir
