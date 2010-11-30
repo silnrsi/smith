@@ -32,6 +32,8 @@ class sas(Task.Task):
 		task.env.env = {'SASINPUTS': SASINPUTS}
 
 		task.env.SRCFILE = node.abspath()
+		task.env.LOGFILE = logfilenode.abspath()
+		task.env.LSTFILE = lstfilenode.abspath()
 		ret = fun(task)
 		if ret:
 			error('Running %s on %r returned a non-zero exit' % (command, node))
