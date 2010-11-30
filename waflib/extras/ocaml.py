@@ -250,7 +250,7 @@ class ocamlcmi(Task.Task):
 class ocamlcc(Task.Task):
 	"""ocaml to c interfaces"""
 	color   = 'GREEN'
-	run_str = 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}'
+	run_str = 'cd ${TGT[0].bld_dir()} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}'
 
 class ocamllex(Task.Task):
 	"""lexical generator"""
