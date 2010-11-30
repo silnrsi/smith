@@ -1004,7 +1004,7 @@ def scan(task):
 	try:
 		incn = task.generator.includes_nodes
 	except AttributeError:
-		raise Errors.WafError('%r is missing a feature such as "c" or "cxx"' % task.generator)
+		raise Errors.WafError('%r is missing a feature such as "c", "cxx" or "includes": ' % task.generator)
 
 	if go_absolute:
 		nodepaths = incn
