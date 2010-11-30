@@ -321,6 +321,6 @@ def configure(conf):
 	v['OCAMLFLAGS']   = ''
 	v['OCAMLLIB']     = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIBPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
-	v['CPPPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['INCLUDES_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIB_OCAML'] = 'camlrun'
 
