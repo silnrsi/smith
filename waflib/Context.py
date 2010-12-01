@@ -6,7 +6,7 @@
 Classes and functions required for waf commands
 """
 
-import traceback, os, imp, sys
+import traceback, os, imp, sys, tempfile
 from waflib import Utils, Errors, Logs
 import waflib.Node
 
@@ -309,25 +309,40 @@ class Context(ctx):
 		Logs.debug('runner: %r' % cmd)
 		Logs.debug('runner_env: kw=%s' % kw)
 
+		ret = 0
+		tmp = None
 		try:
-			if self.logger:
-				# warning: may deadlock with a lot of output (subprocess limitation)
+			if sys.platform.startswith('win') and isinstance(cmd, list) and len(' '.join(s)) >= 8192:
+				(fd, tmp) = tempfile.mkstemp()
+				cmd = [x.find(" ") > -1 and '"%s"' % x or x for x in cmd]
+				os.write(fd, ' '.join(cmd[1:]))
+				cmd = [cmd[0], '@' + tmp]
 
-				self.logger.info(cmd)
+			try:
+				if self.logger:
+					# warning: may deadlock with a lot of output (subprocess limitation)
+					self.logger.info(cmd)
 
-				kw['stdout'] = kw['stderr'] = subprocess.PIPE
-				p = subprocess.Popen(cmd, **kw)
-				(out, err) = p.communicate()
-				if out:
-					self.logger.debug('out: %s' % out.decode('utf-8'))
-				if err:
-					self.logger.error('err: %s' % err.decode('utf-8'))
-				return p.returncode
-			else:
-				p = subprocess.Popen(cmd, **kw)
-				return p.wait()
-		except OSError:
-			return -1
+					kw['stdout'] = kw['stderr'] = subprocess.PIPE
+
+					p = subprocess.Popen(cmd, **kw)
+					(out, err) = p.communicate()
+
+					if out:
+						self.logger.debug('out: %s' % out.decode('utf-8'))
+					if err:
+						self.logger.error('err: %s' % err.decode('utf-8'))
+					ret = p.returncode
+				else:
+					p = subprocess.Popen(cmd, **kw)
+					ret = p.wait()
+			except OSError:
+				ret = -1
+		finally:
+			if tmp:
+				os.close(fd)
+				os.remove(tmp)
+		return ret
 
 	def cmd_and_log(self, cmd, **kw):
 		"""
