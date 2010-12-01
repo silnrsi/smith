@@ -4,10 +4,10 @@ top = '.'
 out = 'bin'
 
 def options(opt):
-	opt.tool_options('compiler_cc')
+	opt.tool_options('compiler_c')
 
 def configure(conf):
-	conf.load('compiler_cc')
+	conf.load('compiler_c')
 
 def build(bld):
 
