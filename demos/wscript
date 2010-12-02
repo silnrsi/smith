@@ -82,7 +82,7 @@ def build(bld):
 		for dirname in bld.env.CFG:
 			bld(rule    = waf_cmd,
 				cwd     = dirname,
-				alway   = True,
+				always   = True,
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 
