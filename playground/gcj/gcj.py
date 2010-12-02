@@ -3,7 +3,9 @@
 # Thomas Nagy, 2006-2008 (ita)
 
 """
-Native compilation using gcj for the moment
+Native compilation using gcj
+
+highly experimental, and gcj sucks anyway
 """
 
 import os, re

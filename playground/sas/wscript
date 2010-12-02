@@ -9,7 +9,7 @@ top = '.'
 out = 'build'
 
 def configure(ctx):
-	ctx.check_tool('sas')
+	ctx.load('sas')
 
 def build(ctx):
 	sastester = ctx(
