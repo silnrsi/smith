@@ -170,7 +170,8 @@ class task_gen(object):
 		for x in self.features + ['*']:
 			st = feats[x]
 			if not st:
-				Logs.warn('feature %r does not exist - bind at least one method to it' % x)
+				if not x in classes:
+					Logs.warn('feature %r does not exist - bind at least one method to it' % x)
 			keys.update(st)
 
 		# copy the precedence table
