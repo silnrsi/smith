@@ -6,8 +6,8 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
-	opt.tool_options('errcheck')
+	opt.load('compiler_c')
+	opt.load('errcheck')
 
 def configure(conf):
 	conf.load('compiler_c')

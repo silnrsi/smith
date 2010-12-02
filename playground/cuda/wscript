@@ -6,7 +6,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_cxx')
+	opt.load('compiler_cxx')
 
 def configure(conf):
 	conf.load('compiler_cxx') # cuda does not compile in c mode
