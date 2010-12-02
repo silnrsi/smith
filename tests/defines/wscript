@@ -16,7 +16,7 @@ FRAG1 = '''#include <stdio.h>\nint main() { printf(somestring); return 0; }\n'''
 FRAG2 = '''#ifdef MMM\nint main() { return 0; }\n#endif\n'''
 
 def options(opt):
-	opt.tool_options('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
 	"""the configuration should not raise any assert"""
