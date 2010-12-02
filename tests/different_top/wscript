@@ -4,7 +4,7 @@ top = '../diff_top_src'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('compiler_c')
+	opt.load('compiler_c')
 
 def configure(conf):
 	conf.load('compiler_c')
