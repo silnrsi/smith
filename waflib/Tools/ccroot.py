@@ -471,6 +471,10 @@ class fake_shlib(link_task):
 	Task used for reading a system library and adding the dependency on it
 	"""
 	def runnable_status(self):
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
@@ -480,6 +484,10 @@ class fake_stlib(stlink_task):
 	Task used for reading a system library and adding the dependency on it
 	"""
 	def runnable_status(self):
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
