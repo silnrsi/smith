@@ -22,4 +22,5 @@ def build(bld):
 		t.junitsrc        = 'junit'
 		t.junitclasspath  = '.'
 		t.use            += ' JUNIT'
+		t.env.JUNIT_EXEC_FLAGS = ['-ea']
 

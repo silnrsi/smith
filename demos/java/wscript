@@ -36,7 +36,7 @@ def build(bld):
 	bld(features   = 'javac jar',
 		srcdir     = 'src/', # folder containing the sources to compile
 		outdir     = 'src', # folder where to output the classes (in the build directory)
-		compat     = '1.5', # java compatibility version number
+		compat     = '1.3', # java compatibility version number
 		sourcepath = ['src', 'sup'],
 		classpath  = ['.', '..'],
 		#jaropts = '-C default/src/ .', # can be used to give files
