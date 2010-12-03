@@ -703,7 +703,11 @@ def process_subst(self):
 	for x, y in zip(src, tgt):
 		if not (x and y):
 			raise Errors.WafError('invalid source or target for %r' % self)
-		self.create_task('subst', x, y)
+		tsk = self.create_task('subst', x, y)
+		for a in ('after', 'before', 'ext_in', 'ext_out'):
+			val = getattr(self, a, None)
+			if val:
+				setattr(tsk, a, val)
 
 	inst_to = getattr(self, 'install_path', None)
 	if inst_to:
