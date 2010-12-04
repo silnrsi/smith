@@ -23,6 +23,7 @@ from waflib.Tools.cxx import cxx
 def runnable_status(self):
 	ret = super(cxx, self).runnable_status()
 	self.more_tasks = []
+
 	if ret != ASK_LATER:
 		for x in self.generator.bld.node_deps[self.uid()]:
 			node = x.parent.get_src().find_resource(x.name.replace('.h', '.cpp'))
@@ -34,5 +35,11 @@ def runnable_status(self):
 					self.generator.link_task.set_run_after(tsk)
 				except AttributeError:
 					pass
+
+		if self.more_tasks:
+			self.env.append_value('CXXFLAGS', '-O2')
+			delattr(self, 'cache_sig')
+			return super(cxx, self).runnable_status()
+
 	return ret
 cxx.runnable_status = runnable_status
