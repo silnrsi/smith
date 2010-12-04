@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2010 (ita)
+
+VERSION='0.0.1'
+APPNAME='crazy_test'
+
+# these variables are mandatory ('/' are converted automatically)
+top = '.'
+out = 'build'
+
+def options(opt):
+	opt.load('compiler_cxx')
+
+def configure(conf):
+	conf.load('compiler_cxx')
+
+def build(bld):
+	bld.program(source='main.cpp', target='app')
+
+from waflib.Task import ASK_LATER
+from waflib.Tools.cxx import cxx
+def runnable_status(self):
+	ret = super(cxx, self).runnable_status()
+	self.more_tasks = []
+	if ret != ASK_LATER:
+		for x in self.generator.bld.node_deps[self.uid()]:
+			node = x.parent.get_src().find_resource(x.name.replace('.h', '.cpp'))
+			if node:
+				tsk = self.generator.cxx_hook(node)
+				self.more_tasks.append(tsk)
+				try:
+					self.generator.link_task.inputs.extend(tsk.outputs)
+					self.generator.link_task.set_run_after(tsk)
+				except AttributeError:
+					pass
+	return ret
+cxx.runnable_status = runnable_status
