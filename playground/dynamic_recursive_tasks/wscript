@@ -5,7 +5,6 @@
 VERSION='0.0.1'
 APPNAME='crazy_test'
 
-# these variables are mandatory ('/' are converted automatically)
 top = '.'
 out = 'build'
 
@@ -17,6 +16,17 @@ def configure(conf):
 
 def build(bld):
 	bld.program(source='main.cpp', target='app')
+
+"""
+Only main.cpp is added to the program, then by looking at the include files,
+a <file.h> file is found. If a corresponding <file.cpp> exists,
+then a new c++ task is created to compile that file and to add it to the
+program (modify the link task).
+
+The idea is to change the method runnable_status of the task. A more correct but less obvious
+approach would be the creation of a specific c++ subclass, and using another
+extension mapping function (@extension).
+"""
 
 from waflib.Task import ASK_LATER
 from waflib.Tools.cxx import cxx
@@ -43,3 +53,4 @@ def runnable_status(self):
 
 	return ret
 cxx.runnable_status = runnable_status
+
