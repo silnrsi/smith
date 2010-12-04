@@ -140,7 +140,8 @@ def set_classpath(self):
 	Set the CLASSPATH value on the *javac* task previously created.
 	"""
 	self.env.append_value('CLASSPATH', getattr(self, 'classpath', []))
-	self.javac_task.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
+	for x in self.tasks:
+		x.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
 
 @feature('jar')
 @after('apply_java', 'use_javac_files')
