@@ -49,6 +49,7 @@ after('apply_java', 'use_javac_files')(make_test)
 
 class junit_test(Task.Task):
 	color = 'YELLOW'
+	vars = ['JUNIT_EXEC_FLAGS', 'JUNIT_RUNNER']
 
 	def runnable_status(self):
 		"""
@@ -77,6 +78,7 @@ class junit_test(Task.Task):
 		cmd.extend(self.env.JAVA)
 		cmd.append('-classpath')
 		cmd.append(self.generator.javac_task.env.CLASSPATH + os.pathsep + self.generator.javac_task.env.OUTDIR)
+		cmd.extend(self.env.JUNIT_EXEC_FLAGS)
 		cmd.append(self.env.JUNIT_RUNNER)
 		cmd.extend([x.path_from(self.base).replace('.java', '').replace(os.sep, '.') for x in self.inputs])
 		return self.exec_command(cmd)
