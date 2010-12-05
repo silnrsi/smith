@@ -123,6 +123,10 @@ def gxx_modifier_aix(conf):
 	v['SHLIB_MARKER']        = ''
 
 @conf
+def gxx_modifier_hpux(conf):
+	conf.env.cxxshlib_PATTERN = 'lib%s.sl'
+
+@conf
 def gxx_modifier_platform(conf):
 	"""Execute platform-specific functions based on *gxx_modifier_+NAME*"""
 	# * set configurations specific for a platform.
@@ -130,7 +134,7 @@ def gxx_modifier_platform(conf):
 	#   and if it's not recognised, it fallbacks to sys.platform.
 	gxx_modifier_func = getattr(conf, 'gxx_modifier_' + conf.env.DEST_OS, None)
 	if gxx_modifier_func:
-			gxx_modifier_func(conf)
+			gxx_modifier_func()
 
 configure = '''
 find_gxx
