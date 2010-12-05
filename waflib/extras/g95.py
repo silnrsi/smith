@@ -36,9 +36,9 @@ def g95_modifier_darwin(conf):
 @conf
 def g95_modifier_platform(conf):
 	dest_os = conf.env['DEST_OS'] or Utils.unversioned_sys_platform()
-	g95_modifier_func = globals().get('g95_modifier_' + dest_os)
+	g95_modifier_func = getattr(conf, 'g95_modifier_' + dest_os, None)
 	if g95_modifier_func:
-			g95_modifier_func(conf)
+		g95_modifier_func(conf)
 
 @conf
 def get_g95_version(conf, fc):
