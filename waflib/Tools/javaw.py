@@ -38,6 +38,7 @@ ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
 
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
+re_verbose = re.compile(r'\[.*?\]$', re.M)
 re_classes = re.compile(r'\[wrote\ (.*?\.class)\]')
 
 class_check_source = '''
@@ -294,6 +295,9 @@ class javac(Task.Task):
 				raise ValueError('cannot find %r in %r' % (x, self.generator.bld.bldnode.abspath()))
 			n.sig = Utils.h_file(n.abspath())
 		self.generator.bld.task_sigs[self.uid()] = self.cache_sig
+		out = re_verbose.sub('', self.out).strip()
+		if out:
+			self.generator.bld.to_log(out + '\n')
 
 def configure(self):
 	"""
