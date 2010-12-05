@@ -28,7 +28,7 @@ def configure(conf):
 
 def build(bld):
 	if not bld.variant:
-		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
+		bld.fatal('call "waf build_debug" or "waf build_release", and try "waf --help"')
 	bld.program(source='main.c', target='app', includes='.')
 
 from waflib.Build import BuildContext, CleanContext, \
