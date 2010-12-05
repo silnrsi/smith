@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 import os, sys, imp
-from waflib import Context, Options, Configure, Utils
+from waflib import Context, Options, Configure, Utils, Logs
 
 def start(cwd, version, wafdir):
 	try:
@@ -10,9 +10,10 @@ def start(cwd, version, wafdir):
 		print('call from a folder containing a file named "bbit"')
 		sys.exit(1)
 
+	Logs.init_log()
 	Context.waf_dir = wafdir
-	Context.top = Context.run_dir = cwd
-	Context.out = os.path.join(cwd, 'build')
+	Context.top_dir = Context.run_dir = cwd
+	Context.out_dir = os.path.join(cwd, 'build')
 	Context.g_module = imp.new_module('wscript')
 	Context.g_module.root_path = os.path.join(cwd, 'bbit')
 	Context.Context.recurse = \
