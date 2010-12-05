@@ -38,8 +38,8 @@ ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
 
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
-re_verbose = re.compile(r'\[.*?\]$', re.M)
-re_classes = re.compile(r'\[wrote\ (.*?\.class)\]')
+re_verbose = re.compile(r'^\[.*?\]\n*', re.M)
+re_classes = re.compile(r'\[wrote (.*?\.class)\]')
 
 class_check_source = '''
 public class Test {
