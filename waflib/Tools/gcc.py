@@ -128,7 +128,7 @@ def gcc_modifier_platform(conf):
 	# * set configurations specific for a platform.
 	# * the destination platform is detected automatically by looking at the macros the compiler predefines,
 	#   and if it's not recognised, it fallbacks to sys.platform.
-	gcc_modifier_func = globals().get('gcc_modifier_' + conf.env.DEST_OS)
+	gcc_modifier_func = getattr(conf, 'gcc_modifier_' + conf.env.DEST_OS, None)
 	if gcc_modifier_func:
 			gcc_modifier_func(conf)
 
