@@ -34,23 +34,45 @@ def runnable_status(self):
 	ret = super(cxx, self).runnable_status()
 	self.more_tasks = []
 
+	# use a cache to avoid creating the same tasks
+	# for example, truc.cpp might be compiled twice
+	try:
+		shared = self.generator.bld.shared_tasks
+	except AttributeError:
+		shared = self.generator.bld.shared_tasks = {}
+
 	if ret != ASK_LATER:
 		for x in self.generator.bld.node_deps[self.uid()]:
 			node = x.parent.get_src().find_resource(x.name.replace('.h', '.cpp'))
 			if node:
-				tsk = self.generator.cxx_hook(node)
-				self.more_tasks.append(tsk)
 				try:
-					self.generator.link_task.inputs.extend(tsk.outputs)
-					self.generator.link_task.set_run_after(tsk)
+					tsk = shared[node]
+				except:
+					tsk = shared[node] = self.generator.cxx_hook(node)
+
+					self.more_tasks.append(tsk)
+
+
+				# add the node created to the link task outputs
+				try:
+					link = self.generator.link_task
 				except AttributeError:
 					pass
+				else:
+					if not tsk.outputs[0] in link.inputs:
+						link.inputs.append(tsk.outputs[0])
+						link.set_run_after(tsk)
 
-		if self.more_tasks:
-			self.env.append_value('CXXFLAGS', '-O2')
-			delattr(self, 'cache_sig')
-			return super(cxx, self).runnable_status()
+						# any change in the order of the input nodes may cause a recompilation
+						link.inputs.sort(key=lambda x: x.abspath())
+
+		# if you want to modify some flags
+		# you *must* have the task recompute the signature
+		self.env.append_value('CXXFLAGS', '-O2')
+		delattr(self, 'cache_sig')
+		return super(cxx, self).runnable_status()
 
 	return ret
+
 cxx.runnable_status = runnable_status
 
