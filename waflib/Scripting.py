@@ -62,6 +62,7 @@ def waf_entry_point(current_directory, version, wafdir):
 								load = True
 								break
 				else:
+					Logs.warn('invalid lock file in %s' % cur)
 					load = False
 
 				if load:

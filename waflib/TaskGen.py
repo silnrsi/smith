@@ -170,7 +170,7 @@ class task_gen(object):
 		for x in self.features + ['*']:
 			st = feats[x]
 			if not st:
-				if not x in classes:
+				if not x in Task.classes:
 					Logs.warn('feature %r does not exist - bind at least one method to it' % x)
 			keys.update(st)
 
