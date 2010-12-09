@@ -37,7 +37,7 @@ class PreprocError(Errors.WafError):
 POPFILE = '-'
 "Constant representing a special token used in :py:meth:`waflib.Tools.c_preproc.c_parser.start` iteration to switch to a header read previously"
 
-recursion_limit = 9000
+recursion_limit = 150
 "Limit on the amount of files to read in the dependency scanner"
 
 go_absolute = False
@@ -873,7 +873,9 @@ class c_parser(object):
 		filepath = node.abspath()
 
 		self.count_files += 1
-		if self.count_files > recursion_limit: raise PreprocError("recursion limit exceeded")
+		if self.count_files > recursion_limit:
+			# issue #812
+			raise PreprocError("recursion limit exceeded")
 		pc = self.parse_cache
 		debug('preproc: reading file %r', filepath)
 		try:
@@ -928,6 +930,7 @@ class c_parser(object):
 		while self.lines:
 			(token, line) = self.lines.pop()
 			if token == POPFILE:
+				self.count_files -= 1
 				self.currentnode_stack.pop()
 				continue
 
