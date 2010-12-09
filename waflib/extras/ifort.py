@@ -4,6 +4,7 @@
 # Thomas Nagy 2010 (ita)
 
 import re
+from waflib import Utils
 from waflib.extras import fc, fc_config
 from waflib.Configure import conf
 
