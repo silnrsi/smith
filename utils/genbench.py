@@ -55,13 +55,13 @@ def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_inc
     header= name + ".h"
     handle.write ('#include "' + header + '"\n');
 
-    includes = random.sample(xrange(classes_per_lib), internal_includes)
+    includes = random.sample(range(classes_per_lib), internal_includes)
     for i in includes:
         handle.write ('#include "class_' + str(i) + '.h"\n')
 
     if (lib_number > 0):
-        includes = random.sample(xrange(classes_per_lib), external_includes)
-        lib_list = xrange(lib_number)
+        includes = random.sample(range(classes_per_lib), external_includes)
+        lib_list = range(lib_number)
         for i in includes:
             libname = 'lib_' + str(random.choice(lib_list))
             handle.write ('#include <' + libname + '/' + 'class_' + str(i) + '.h>\n')
@@ -75,7 +75,7 @@ def CreateSConscript(lib_number, classes):
     handle = file("SConscript", "w");
     handle.write("Import('env')\n")
     handle.write('list = Split("""\n');
-    for i in xrange(classes):
+    for i in range(classes):
         handle.write('    class_' + str(i) + '.cpp\n')
     handle.write('    """)\n\n')
     handle.write('env.StaticLibrary("lib_' + str(lib_number) + '", list)\n\n')
@@ -92,7 +92,7 @@ DEPEND = makedepend
 """)
     handle.write ("lib = lib_" + str(lib_number) + ".a\n")
     handle.write ("src = \\\n")
-    for i in xrange(classes):
+    for i in range(classes):
         handle.write('class_' + str(i) + '.cpp \\\n')
     handle.write ("""
 
@@ -120,7 +120,7 @@ def CreateLibJamFile(lib_number, classes):
     handle.write ("SubDir TOP lib_" + str(lib_number) + " ;\n\n")
     handle.write ("SubDirHdrs $(INCLUDES) ;\n\n")
     handle.write ("Library lib_" + str(lib_number) + " :\n")
-    for i in xrange(classes):
+    for i in range(classes):
         handle.write('    class_' + str(i) + '.cpp\n')
     handle.write ('    ;\n')
 
@@ -168,7 +168,7 @@ def CreateVCProjFile(lib_number, classes):
 	<Files>
 """)
 
-    for i in xrange(classes):
+    for i in range(classes):
         handle.write('  <File RelativePath=".\class_' + str(i) + '.cpp"/>\n')
 
     handle.write("""
@@ -181,7 +181,7 @@ def CreateVCProjFile(lib_number, classes):
 def CreateLibrary(lib_number, classes, internal_includes, external_includes):
     name = "lib_" + str(lib_number)
     SetDir(name)
-    for i in xrange(classes):
+    for i in range(classes):
         classname = "class_" + str(i)
         CreateHeader(classname)
         CreateCPP(classname, lib_number, classes, internal_includes, external_includes)
@@ -201,14 +201,14 @@ def CreateSConstruct(libs):
     handle.write("""env.SetOption('implicit_cache', True)\n""")
     handle.write("""env.SourceCode('.', None)\n""")
 
-    for i in xrange(libs):
+    for i in range(libs):
         handle.write("""env.SConscript("lib_%s/SConscript", exports=['env'])\n""" % str(i))
 
 def CreateFullMakefile(libs):
     handle = file("Makefile", "w")
 
     handle.write('subdirs = \\\n')
-    for i in xrange(libs):
+    for i in range(libs):
         handle.write('lib_' + str(i) + '\\\n')
     handle.write("""
 
@@ -229,7 +229,7 @@ def CreateFullJamfile(libs):
     handle = file("Jamfile", "w")
     handle.write ("SubDir TOP ;\n\n")
 
-    for i in xrange(libs):
+    for i in range(libs):
         handle.write('SubInclude TOP ' + lib_name(i) + ' ;\n')
 
     handle = file("Jamrules", "w")
@@ -247,8 +247,8 @@ def configure(conf):
 	conf.load('g++')
 
 def build(bld):
-	for i in xrange(%d):
-		filez = ' '.join(['lib_%%d/class_%%d.cpp' %% (i, j) for j in xrange(%d)])
+	for i in range(%d):
+		filez = ' '.join(['lib_%%d/class_%%d.cpp' %% (i, j) for j in range(%d)])
 		bld.stlib(
 			source = filez,
 			target = 'lib_%%d' %% i,
@@ -265,7 +265,7 @@ def CreateFullSolution(libs):
     handle = file("solution.sln", "w")
     handle.write("Microsoft Visual Studio Solution File, Format Version 8.00\n")
 
-    for i in xrange(libs):
+    for i in range(libs):
         project_name = lib_name(i) + '\\' + lib_name(i) + '.vcproj'
         handle.write('Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "' + lib_name(i) +
                       '", "' + project_name + '", "{CF495178-8865-4D20-939D-AAA' + str(i) + '}"\n')
@@ -288,7 +288,7 @@ AC_OUTPUT
 AM_CPPFLAGS = -I$(srcdir)
 lib_LTLIBRARIES =
 ''')
-    for i in xrange(libs): handle.write('include lib_%s/Makefile.am\n' % str(i))
+    for i in range(libs): handle.write('include lib_%s/Makefile.am\n' % str(i))
 
 def CreateAutotools(lib_number, classes):
 
@@ -296,7 +296,7 @@ def CreateAutotools(lib_number, classes):
     handle.write('''\
 lib_LTLIBRARIES += lib%s.la
 lib%s_la_SOURCES =''' % (str(lib_number), str(lib_number)))
-    for i in xrange(classes): handle.write(' lib_%s/class_%s.cpp' % (str(lib_number), str(i)))
+    for i in range(classes): handle.write(' lib_%s/class_%s.cpp' % (str(lib_number), str(i)))
     handle.write('\n')
 
 def SetDir(dir):
@@ -316,7 +316,7 @@ def main(argv):
     external_includes = int(argv[5])
 
     SetDir(root_dir)
-    for i in xrange(libs):
+    for i in range(libs):
         CreateLibrary(i, classes, internal_includes, external_includes)
 
     CreateSConstruct(libs)
