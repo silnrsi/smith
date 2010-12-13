@@ -836,6 +836,8 @@ class inst_task(Task.Task):
 		Predefined method for installing files
 		"""
 		destpath = self.get_install_path()
+		if not destpath:
+			raise Errors.WafError('unknown installation path %r' % self.generator)
 		for x, y in zip(self.source, self.inputs):
 			if self.relative_trick:
 				destfile = os.path.join(destpath, y.path_from(self.path))
@@ -885,6 +887,8 @@ class InstallContext(BuildContext):
 		:type chmod: int
 		"""
 		d, _ = os.path.split(tgt)
+		if not d:
+			raise Errors.WafError('Invalid installation given %r->%r' % (src, tgt))
 		Utils.check_dir(d)
 
 		srclbl = src.replace(self.srcnode.abspath() + os.sep, '')
