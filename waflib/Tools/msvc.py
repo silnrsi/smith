@@ -611,8 +611,8 @@ def msvc_common_flags(conf):
 	v = conf.env
 
 	v['DEST_BINFMT'] = 'pe'
-	v['LIBDIR'] = v['PREFIX'] + r'\bin'
-	v['CFLAGS'] = v['CXXFLAGS'] = ['/nologo']
+	v.append_value('CFLAGS', ['/nologo'])
+	v.append_value('CXXFLAGS', ['/nologo'])
 	v['DEFINES_ST']     = '/D%s'
 
 	v['CC_SRC_F']     = ''
@@ -649,9 +649,9 @@ def msvc_common_flags(conf):
 	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
 	v['STLIBPATH_ST'] = '/LIBPATH:%s'
 
-	v['LINKFLAGS']            = ['/NOLOGO']
+	v.append_value('LINKFLAGS', ['/NOLOGO'])
 	if v['MSVC_MANIFEST']:
-		v.append_value('LINKFLAGS', '/MANIFEST')
+		v.append_value('LINKFLAGS', ['/MANIFEST'])
 
 	# shared library
 	v['CFLAGS_cshlib']  = ['']
