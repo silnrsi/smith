@@ -23,6 +23,7 @@ def build(bld):
 		PREFIX       = bld.env.PREFIX, # variables to use in the substitution
 		BINDIR       = bld.env.BINDIR)
 
+	# if you are using an external dict, here is to merge the key/values:
 	dct =  {'BINDIR': '/opt'}
 	tg.__dict__.update(dct)
 
