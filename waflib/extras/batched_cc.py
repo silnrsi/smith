@@ -19,7 +19,7 @@ It is only necessary to import this module in the configuration (no other change
 
 import os
 from waflib import TaskGen, Task, Build, Logs
-from waflib.TaskGen import extension, feature, before
+from waflib.TaskGen import extension, feature, before, after
 
 MAX_BATCH = 50
 
@@ -91,8 +91,6 @@ class batch_task(Task.Task):
 
 		for t in slaves:
 			t.old_post_run()
-
-from TaskGen import extension, feature, after
 
 from waflib.Tools import c, cxx
 
