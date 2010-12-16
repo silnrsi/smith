@@ -113,7 +113,9 @@ def process_doxy(self):
 	if not getattr(self, 'doxyfile', None):
 		self.generator.bld.fatal('no doxyfile??')
 
-	node = self.path.find_resource(self.doxyfile)
+	node = self.doxyfile
+	if not isinstance(node, Node.Node):
+		node = self.path.find_resource(node)
 	if not node:
 		raise ValueError('doxygen file not found')
 
