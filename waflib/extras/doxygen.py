@@ -21,6 +21,8 @@ DOXY_STR = '${DOXYGEN} - '
 DOXY_FMTS = 'html latex man rft xml'.split()
 DOXY_EXTS = '**/*.(c|cc|cxx|cpp|c++|C|h|hh|hxx|hpp|h++|H|py|java|cs|ii|ixx|ipp|i++|inl|idl|odl|php|php3|inc|m|mm)'
 
+re_nl = re.compile('\\\\\r*\n', re.MULTILINE)
+
 class doxygen(Task.Task):
 	vars  = ['DOXYGEN', 'DOXYFLAGS']
 	color = 'BLUE'
@@ -38,7 +40,9 @@ class doxygen(Task.Task):
 				return Task.ASK_LATER
 
 		if not getattr(self, 'pars', None):
-			self.pars = Utils.str_to_dict(self.inputs[0].read())
+			txt = self.inputs[0].read()
+			txt = re_nl.sub('', txt)
+			self.pars = Utils.str_to_dict(txt)
 			if not self.pars.get('OUTPUT_DIRECTORY'):
 				self.pars['OUTPUT_DIRECTORY'] = self.inputs[0].parent.get_bld().abspath()
 			if not self.pars.get('INPUT'):
