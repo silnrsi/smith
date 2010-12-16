@@ -32,6 +32,11 @@ class doxygen(Task.Task):
 
 		set output_dir (node) for the output
 		'''
+
+		for x in self.run_after:
+			if not x.hasrun:
+				return Task.ASK_LATER
+
 		if not getattr(self, 'pars', None):
 			self.pars = Utils.str_to_dict(self.inputs[0].read())
 			if not self.pars.get('OUTPUT_DIRECTORY'):
