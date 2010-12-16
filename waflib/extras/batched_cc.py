@@ -133,7 +133,7 @@ def link_after_masters(self):
 # create subclasses and to re-map the c/c++ extensions
 #
 for x in ['c', 'cxx']:
-	t = Task.TaskBase.classes[x]
+	t = Task.classes[x]
 	def run(self):
 		pass
 
