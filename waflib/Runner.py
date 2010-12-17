@@ -7,7 +7,7 @@ Runner.py: Task scheduling and execution
 
 """
 
-import os, sys, random
+import os, sys, random, atexit
 try:
 	from queue import Queue
 except:
@@ -82,6 +82,17 @@ def put_pool(x):
 	"""
 	pool.put(x)
 
+def _free_resources():
+	global pool
+	lst = []
+	while pool.qsize():
+		lst.append(pool.get())
+	for x in lst:
+		x.ready.put(None)
+	for x in lst:
+		x.join()
+	pool = None
+atexit.register(_free_resources)
 
 class Parallel(object):
 	"""
