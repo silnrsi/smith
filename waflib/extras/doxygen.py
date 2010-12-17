@@ -14,7 +14,7 @@ ported from waf 1.5 (incomplete)
 
 from fnmatch import fnmatchcase
 import os, os.path, re, stat
-from waflib import Task, Utils, Node
+from waflib import Task, Utils, Node, Logs
 from waflib.TaskGen import feature
 
 DOXY_STR = '${DOXYGEN} - '
@@ -59,7 +59,7 @@ class doxygen(Task.Task):
 
 	def scan(self):
 		if self.pars.get('RECURSIVE') == 'YES':
-			print "Warning: Doxygen RECURSIVE dependencies are not supported"
+			Logs.warn("Doxygen RECURSIVE dependencies are not supported")
 
 		inputs = self.pars.get('INPUT').split()
 		exclude_patterns = self.pars.get('EXCLUDE_PATTERNS', '').split()
