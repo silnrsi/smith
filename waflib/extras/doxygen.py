@@ -19,7 +19,10 @@ from waflib.TaskGen import feature
 
 DOXY_STR = '${DOXYGEN} - '
 DOXY_FMTS = 'html latex man rft xml'.split()
-DOXY_EXTS = '**/*.(c|cc|cxx|cpp|c++|C|h|hh|hxx|hpp|h++|H|py|java|cs|ii|ixx|ipp|i++|inl|idl|odl|php|php3|inc|m|mm)'
+DOXY_FILE_PATTERNS = '*.' + ' *.'.join('''
+c cc cxx cpp c++ java ii ixx ipp i++ inl h hh hxx hpp h++ idl odl cs php php3
+inc m mm py f90c cc cxx cpp c++ java ii ixx ipp i++ inl h hh hxx
+'''.split())
 
 re_nl = re.compile('\\\\\r*\n', re.MULTILINE)
 
@@ -55,13 +58,29 @@ class doxygen(Task.Task):
 		return Task.Task.runnable_status(self)
 
 	def scan(self):
-		recurse = self.pars.get('RECURSIVE') == 'YES'
-		excludes = self.pars.get('EXCLUDE_PATTERNS', '').split()
-		includes = self.pars.get('FILE_PATTERNS', '').split()
-		if not includes:
-			includes = DOXY_EXTS
-		ret = [x for x in self.inputs[0].parent.ant_glob(includes) if not x.is_child_of(self.generator.bld.bldnode)]
-		return (ret, [])
+		if self.pars.get('RECURSIVE') == 'YES':
+			print "Warning: Doxygen RECURSIVE dependencies are not supported"
+
+		inputs = self.pars.get('INPUT').split()
+		exclude_patterns = self.pars.get('EXCLUDE_PATTERNS', '').split()
+		file_patterns = self.pars.get('FILE_PATTERNS', '').split()
+		if not file_patterns:
+			file_patterns = DOXY_FILE_PATTERNS
+
+		nodes = []
+		names = []
+		for i in inputs:
+			node = self.generator.bld.root.make_node(i)
+			if node:
+				if os.path.isdir(node.abspath()):
+					for m in node.ant_glob(file_patterns):
+						nodes.append(self.generator.bld.root.make_node(m.abspath()))
+				else:
+					nodes.append(node)
+			else:
+				names.append(i)
+
+		return (nodes, names)
 
 	def run(self):
 		code = '\n'.join(['%s = %s' % (x, self.pars[x]) for x in self.pars])
