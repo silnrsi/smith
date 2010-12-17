@@ -138,7 +138,7 @@ def parse_flags(self, line, uselib, env=None):
 			tmp = [x, lst.pop(0)]
 			app('CFLAGS', tmp)
 			app('CXXFLAGS', tmp)
-		elif st == '-D' or st == '/D':
+		elif st == '-D' or (self.env.CXX_NAME == 'msvc' and st == '/D'): # not perfect but..
 			if not ot: ot = lst.pop(0)
 			app('DEFINES_' + uselib, [ot])
 		elif st == '-l':
