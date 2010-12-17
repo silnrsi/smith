@@ -232,12 +232,12 @@ class Node(object):
 
 		if self.name:
 			try:
-				os.mkdir(self.abspath())
+				os.makedirs(self.abspath())
 			except OSError as e:
 				pass
 
 			if not os.path.isdir(self.abspath()):
-				raise Errors.WafError('%s is not a directory' % self)
+				raise Errors.WafError('Could not create the directory %s' % self.abspath())
 
 			try:
 				self.children
