@@ -104,7 +104,7 @@ def check_perl_module(self, module):
 	except:
 		self.end_msg(False)
 		return None
-	self.end_msg(r)
+	self.end_msg(r or True)
 	return r
 
 @conf
