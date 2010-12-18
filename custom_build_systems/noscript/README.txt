@@ -6,10 +6,7 @@ foo.h has a corresponding foo.c file
 foo.c includes bar.h
 bar.h has a corresponding bar.c file
 
-Then calling:
-   ./dbd main.cpp --target=app
-
-will compile and link 'main.c', 'foo.c' and 'bar.c' into the program 'app'
+Calling './dbd build' will then compile and link 'main.c', 'foo.c' and 'bar.c' into the program 'app'
 
 To create the build tool:
    ./create_it.sh
