@@ -17,6 +17,7 @@ NEW IN WAF 1.6.2
 * Fix the reading of CFLAGS and CXXFLAGS with msvc #819
 * Ported the batch executor to waf 1.6 (batched_cc)
 * New tools: erlang, scala
+* Moved conf.multicheck(..) from playground to the library
 
 NEW IN WAF 1.6.1
 ----------------
