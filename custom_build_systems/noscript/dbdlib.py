@@ -11,14 +11,14 @@ from waflib import Context, Options, Configure, Utils, Logs
 
 def options(opt):
 	opt.add_option('--target', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
-	opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='progtype')
+	opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='source')
 	opt.load('compiler_c')
 
 def configure(conf):
+	conf.options = Options.options
 	conf.load('compiler_c')
 
 def build(bld):
-	from waflib import Options
 	tp = Options.options.progtype
 	features = 'c cprogram'
 	if tp == 'shlib':
@@ -48,7 +48,7 @@ def start(cwd, version, wafdir):
 	Context.g_module.build = build
 	Context.g_module.options = options
 
-	opt = Options.OptionsContext().execute()
+	Options.OptionsContext().execute()
 
 	do_config = 'configure' in sys.argv
 	try:
