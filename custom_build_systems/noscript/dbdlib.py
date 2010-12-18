@@ -11,8 +11,9 @@ import waflib.Tools.c
 """
 
 def options(opt):
-	opt.add_option('--target', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
+	opt.add_option('--type', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
 	opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='source')
+	opt.add_option('--app', action='store', default='app', help='name of the binary file to create', dest='app')
 	opt.load('compiler_c')
 
 def configure(conf):
@@ -30,7 +31,8 @@ def build(bld):
 		features = 'c'
 
 	source = Options.options.source
-	bld(features=features, source=source)
+	app = Options.options.app
+	bld(features=features, source=source, target=app)
 
 def recurse_rep(x, y):
 	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
