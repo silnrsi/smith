@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, sys, imp
+import os, sys, imp, re
 from waflib import Context, Options, Configure, Utils, Logs
 
 def options(opt):
@@ -10,8 +10,27 @@ def configure(conf):
 	conf.options = Options.options
 	conf.load('compiler_c')
 
+
+re_com = re.compile("#.*$", re.M)
 def build(bld):
-	bld.objects(source='main.c')
+	txt = bld.path.find_node('cbit').read()
+	txt = re_com.sub('', txt)
+
+	tg = None
+	for x in txt.splitlines():
+		if not x:
+			continue
+		elif x.startswith('\t') or x.startswith(' '):
+			tg.rule = x.lstrip()
+		else:
+			line = x.split(':')
+			tgt = line[0].lstrip()
+			src = line[1].lstrip()
+			tg = bld()
+			if src:
+				tg.source = src
+			if tgt:
+				tg.target = tgt
 
 def recurse_rep(x, y):
 	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
