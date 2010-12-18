@@ -10,8 +10,8 @@ from waflib import Context, Options, Configure, Utils, Logs
 """
 
 def options(opt):
-	gr.add_option('--target', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
-	gr.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='progtype')
+	opt.add_option('--target', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
+	opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='progtype')
 	opt.load('compiler_c')
 
 def configure(conf):
@@ -31,6 +31,10 @@ def build(bld):
 	source = Options.options.source
 	bld(features=features, source=source)
 
+def recurse_rep(x, y):
+	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
+	return f(x)
+
 def start(cwd, version, wafdir):
 	# no script file here
 	Logs.init_log()
@@ -38,10 +42,11 @@ def start(cwd, version, wafdir):
 	Context.out_dir = Context.top_dir = Context.run_dir = cwd
 	Context.g_module = imp.new_module('wscript')
 	Context.g_module.root_path = cwd
-	Context.Context.recurse = lambda x, y: getattr(Context.g_module, x.cmd, Utils.nada)(x)
+	Context.Context.recurse = recurse_rep
 
 	Context.g_module.configure = configure
 	Context.g_module.build = build
+	Context.g_module.options = options
 
 	opt = Options.OptionsContext().execute()
 
@@ -52,7 +57,6 @@ def start(cwd, version, wafdir):
 		do_config = True
 	if do_config:
 		Context.create_context('configure').execute()
-		if 'configure' in sys.argv:
 
 	if 'clean' in sys.argv:
 		Context.create_context('clean').execute()
@@ -109,6 +113,7 @@ class c2(c):
 
 		return ret
 
+from waflib import TaskGen
 @TaskGen.extension('.c')
 def c_hook(self, node):
 	return self.create_compiled_task('c2', node)
