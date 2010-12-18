@@ -1,7 +1,8 @@
 #! /usr/bin/env python
 
 import os, sys, imp
-from waflib import Context, Options, Configure, Utils, Logs
+from waflib import Context, Options, Configure, Utils, Logs, TaskGen, Task
+import waflib.Tools.c
 
 """
 - no build directory and no script files
@@ -36,6 +37,7 @@ def recurse_rep(x, y):
 	return f(x)
 
 def start(cwd, version, wafdir):
+	# this is the entry point of our small build system
 	# no script file here
 	Logs.init_log()
 	Context.waf_dir = wafdir
@@ -47,6 +49,7 @@ def start(cwd, version, wafdir):
 	Context.g_module.configure = configure
 	Context.g_module.build = build
 	Context.g_module.options = options
+	Context.g_module.top = Context.g_module.out = '.'
 
 	Options.OptionsContext().execute()
 
@@ -64,14 +67,12 @@ def start(cwd, version, wafdir):
 	if 'build' in sys.argv:
 		Context.create_context('build').execute()
 
-from waflib.Task import ASK_LATER
-from waflib.Tools.c import c
 
-class c2(c):
+class c2(waflib.Tools.c.c):
 	# Make a subclass of the default c task, and bind the .c extension to it
 
 	def runnable_status(self):
-		ret = super(c, self).runnable_status()
+		ret = super(waflib.Tools.c.c, self).runnable_status()
 		self.more_tasks = []
 
 		# use a cache to avoid creating the same tasks
@@ -81,7 +82,7 @@ class c2(c):
 		except AttributeError:
 			shared = self.generator.bld.shared_tasks = {}
 
-		if ret != ASK_LATER:
+		if ret != Task.ASK_LATER:
 			for x in self.generator.bld.node_deps[self.uid()]:
 				node = x.parent.get_src().find_resource(x.name.replace('.h', '.c'))
 				if node:
@@ -109,12 +110,18 @@ class c2(c):
 			# you *must* have the task recompute the signature
 			self.env.append_value('CXXFLAGS', '-O2')
 			delattr(self, 'cache_sig')
-			return super(c, self).runnable_status()
+			return super(waflib.Tools.c.c, self).runnable_status()
 
 		return ret
 
-from waflib import TaskGen
 @TaskGen.extension('.c')
 def c_hook(self, node):
+	# re-bind the extension to this new class
 	return self.create_compiled_task('c2', node)
+
+# modify the existing class to output the targets in the same directory as the original files
+Task.update_outputs(c2)
+Task.update_outputs(waflib.Tools.c.cprogram)
+Task.update_outputs(waflib.Tools.c.cshlib)
+Task.update_outputs(waflib.Tools.c.cstlib)
 
