@@ -29,10 +29,6 @@ def configure(conf):
 	conf.check_inline()
 	conf.check_library()
 
-	conf.check_cc(header_name='stdio.h', auto_add_header_name=True)
-	#conf.check_cc(header_name='unistd.h')
-	conf.check_cc(fragment='int main() {return 0;}')
-
 	conf.multicheck(
 		{'header_name':'stdio.h'},
 		{'header_name':'unistd.h'},
@@ -41,8 +37,11 @@ def configure(conf):
 		mandatory = False
 	)
 
-	conf.write_config_header('config.h')
+	conf.check_cc(header_name='stdio.h', auto_add_header_name=True)
+	#conf.check_cc(header_name='unistd.h')
+	conf.check_cc(fragment='int main() {return 0;}')
 
+	conf.write_config_header('config.h')
 
 	# exclude system libraries, force a particular folder (see strictlib below)
 	#conf.check(features='c cprogram strictlib', lib = 'gif', libpath = ['/opt/lib'])
