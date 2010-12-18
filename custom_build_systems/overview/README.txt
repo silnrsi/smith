@@ -1,4 +1,5 @@
-See the entry on the waf blog.
+See the corresponding entry on the waf blog:
+http://waf-devel.blogspot.com/2010/12/make-your-own-build-system-with-waf.html
 
 To create the build tool:
    ./create_it.sh
