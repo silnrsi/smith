@@ -1124,17 +1124,18 @@ def multicheck(self, *k, **kw):
 	"""
 	self.start_msg('Executing %d configuration tests' % len(k))
 
-	class fu(object):
+	class par(object):
 		def __init__(self):
 			self.keep = False
 			self.cache_global = Options.cache_global
 			self.nocache = Options.options.nocache
+			self.returned_tasks = []
 		def total(self):
 			return len(tasks)
 		def to_log(self, *k, **kw):
 			return
 
-	bld = fu()
+	bld = par()
 	tasks = []
 	for dct in k:
 		x = cfgtask(bld=bld)
