@@ -7,7 +7,9 @@ C/C++/D configuration helpers
 """
 
 import os, imp, sys, shlex, shutil
-from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet
+import logging
+from logging.handlers import MemoryHandler
+from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
 from waflib.TaskGen import before, after, feature
 from waflib.Configure import conf
 from waflib.Utils import subprocess
@@ -1077,4 +1079,90 @@ def add_as_needed(self):
 	"""
 	if self.env.DEST_BINFMT == 'elf' and 'gcc' in (self.env.CXX_NAME, self.env.CC_NAME):
 		self.env.append_unique('LINKFLAGS', '--as-needed')
+
+# ============ parallel configuration
+
+def make_logger(name, to_log):
+	"""
+	create a memory logger to avoid writing concurrently to the main logger
+	"""
+	logger = logging.getLogger(name)
+	hdlr = MemoryHandler(10000, target=to_log)
+	formatter = logging.Formatter('%(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr)
+	logger.memhandler = hdlr
+	logger.setLevel(logging.DEBUG)
+	return logger
+
+class cfgtask(Task.TaskBase):
+	"""
+	A task that executes configuration tests
+	make sure that the checks write to conf.env in a thread-safe manner
+
+	for the moment it only executes conf.check
+	"""
+	def display(self):
+		return ''
+
+	def runnable_status(self):
+		return Task.RUN_ME
+
+	def run(self):
+		conf = self.conf
+		bld = Build.BuildContext(top_dir=conf.srcnode.abspath(), out_dir=conf.bldnode.abspath())
+		bld.env = conf.env
+		bld.init_dirs()
+		bld.in_msg = 1 # suppress top-level start_msg
+		bld.logger = self.logger
+		bld.check(**self.args)
+
+@conf
+def multicheck(self, *k, **kw):
+	"""
+	use tuples to perform parallel configuration tests
+	"""
+	self.start_msg('Executing %d configuration tests' % len(k))
+
+	class fu(object):
+		def __init__(self):
+			self.keep = False
+			self.cache_global = Options.cache_global
+			self.nocache = Options.options.nocache
+		def total(self):
+			return len(tasks)
+		def to_log(self, *k, **kw):
+			return
+
+	bld = fu()
+	tasks = []
+	for dct in k:
+		x = cfgtask(bld=bld)
+		tasks.append(x)
+		x.args = dct
+		x.bld = bld
+		x.conf = self
+		x.args = dct
+
+		# bind a logger that will keep the info in memory
+		x.logger = make_logger(str(id(x)), self.logger)
+
+	def it():
+		yield tasks
+		while 1:
+			yield []
+	p = Runner.Parallel(bld, Options.options.jobs)
+	p.biter = it()
+	p.start()
+
+	# flush the logs in order into the config.log
+	for x in tasks:
+		x.logger.memhandler.flush()
+
+	for x in tasks:
+		if x.hasrun != Task.SUCCESS:
+			self.end_msg('no')
+			self.fatal(kw.get('errmsg', None) or 'One of the tests has failed, see the config.log for more information')
+
+	self.end_msg('ok')
 
