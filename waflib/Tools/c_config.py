@@ -7,8 +7,6 @@ C/C++/D configuration helpers
 """
 
 import os, imp, sys, shlex, shutil
-import logging
-from logging.handlers import MemoryHandler
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
 from waflib.TaskGen import before, after, feature
 from waflib.Configure import conf
@@ -1082,19 +1080,6 @@ def add_as_needed(self):
 
 # ============ parallel configuration
 
-def make_logger(name, to_log):
-	"""
-	create a memory logger to avoid writing concurrently to the main logger
-	"""
-	logger = logging.getLogger(name)
-	hdlr = MemoryHandler(10000, target=to_log)
-	formatter = logging.Formatter('%(message)s')
-	hdlr.setFormatter(formatter)
-	logger.addHandler(hdlr)
-	logger.memhandler = hdlr
-	logger.setLevel(logging.DEBUG)
-	return logger
-
 class cfgtask(Task.TaskBase):
 	"""
 	A task that executes configuration tests
@@ -1123,7 +1108,7 @@ class cfgtask(Task.TaskBase):
 @conf
 def multicheck(self, *k, **kw):
 	"""
-	use tuples to perform parallel configuration tests
+	Use tuples to perform parallel configuration tests
 	"""
 	self.start_msg(kw.get('msg', 'Executing %d configuration tests' % len(k)))
 
@@ -1149,7 +1134,7 @@ def multicheck(self, *k, **kw):
 		x.args = dct
 
 		# bind a logger that will keep the info in memory
-		x.logger = make_logger(str(id(x)), self.logger)
+		x.logger = Logs.make_mem_logger(str(id(x)), self.logger)
 
 	def it():
 		yield tasks

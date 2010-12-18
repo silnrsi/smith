@@ -241,6 +241,20 @@ def make_logger(path, name):
 	logger.setLevel(logging.DEBUG)
 	return logger
 
+def make_mem_logger(name, to_log, size=10000):
+	"""
+	Create a memory logger to avoid writing concurrently to the main logger
+	"""
+	from logging.handlers import MemoryHandler
+	logger = logging.getLogger(name)
+	hdlr = MemoryHandler(size, target=to_log)
+	formatter = logging.Formatter('%(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr)
+	logger.memhandler = hdlr
+	logger.setLevel(logging.DEBUG)
+	return logger
+
 def pprint(col, str, label='', sep='\n'):
 	"""
 	Print messages in color immediately on stderr::
