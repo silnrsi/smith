@@ -5,9 +5,14 @@ from waflib import Context, Options, Configure, Utils, Logs, TaskGen, Task
 import waflib.Tools.c
 
 """
+Compile main.c and dependent object files into a single target (program/shlib/stlib or just object files)
+
 - no build directory and no script files
 - just a c4che directory for the configuration files
 - configure, clean or build
+
+Uses the task signatures and the dependency calculation results to avoid
+rescanning/rebuilding the files all the time
 """
 
 def options(opt):
