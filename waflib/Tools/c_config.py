@@ -1115,7 +1115,10 @@ class cfgtask(Task.TaskBase):
 		bld.init_dirs()
 		bld.in_msg = 1 # suppress top-level start_msg
 		bld.logger = self.logger
-		bld.check(**self.args)
+		try:
+			bld.check(**self.args)
+		except:
+			return 1
 
 @conf
 def multicheck(self, *k, **kw):
@@ -1162,8 +1165,8 @@ def multicheck(self, *k, **kw):
 
 	for x in tasks:
 		if x.hasrun != Task.SUCCESS:
-			self.end_msg('no')
-			self.fatal(kw.get('errmsg', None) or 'One of the tests has failed, see the config.log for more information')
+			self.end_msg(kw.get('errmsg', 'no'), color='YELLOW')
+			self.fatal(kw.get('fatalmsg', None) or 'One of the tests has failed, see the config.log for more information')
 
 	self.end_msg('ok')
 
