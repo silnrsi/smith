@@ -315,7 +315,7 @@ class Context(ctx):
 			if sys.platform.startswith('win') and isinstance(cmd, list) and len(' '.join(cmd)) >= 8192:
 				(fd, tmp) = tempfile.mkstemp()
 				cmd = [x.find(" ") > -1 and '"%s"' % x or x for x in cmd]
-				os.write(fd, ' '.join(cmd[1:]))
+				os.write(fd, ' '.join(cmd[1:]).encode())
 				cmd = [cmd[0], '@' + tmp]
 
 			try:
