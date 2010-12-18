@@ -1125,7 +1125,7 @@ def multicheck(self, *k, **kw):
 	"""
 	use tuples to perform parallel configuration tests
 	"""
-	self.start_msg('Executing %d configuration tests' % len(k))
+	self.start_msg(kw.get('msg', 'Executing %d configuration tests' % len(k)))
 
 	class par(object):
 		def __init__(self):
