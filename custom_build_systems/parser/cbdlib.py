@@ -3,6 +3,20 @@
 import os, sys, imp
 from waflib import Context, Options, Configure, Utils, Logs
 
+def options(opt):
+	opt.load('compiler_c')
+
+def configure(conf):
+	conf.options = Options.options
+	conf.load('compiler_c')
+
+def build(bld):
+	bld.objects(source='main.c')
+
+def recurse_rep(x, y):
+	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
+	return f(x)
+
 def start(cwd, version, wafdir):
 	# simple example, the file main.c is hard-coded
 	try:
@@ -17,11 +31,12 @@ def start(cwd, version, wafdir):
 	Context.out_dir = os.path.join(cwd, 'build')
 	Context.g_module = imp.new_module('wscript')
 	Context.g_module.root_path = os.path.join(cwd, 'cbit')
-	Context.Context.recurse = \
-		lambda x, y: getattr(Context.g_module, x.cmd or x.fun, Utils.nada)(x)
+	Context.Context.recurse = recurse_rep
 
-	Context.g_module.configure = lambda ctx: ctx.load('g++')
-	Context.g_module.build = lambda bld: bld.objects(source='main.c')
+	# this is a fake module, which looks like a standard wscript file
+	Context.g_module.options = options
+	Context.g_module.configure = configure
+	Context.g_module.build = build
 
 	Options.OptionsContext().execute()
 

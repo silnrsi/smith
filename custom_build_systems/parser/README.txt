@@ -1,7 +1,7 @@
 This example derives from the 'overview' and demonstrates how to provide
 a parser for a make-like language.
 
-The file in question is named 'cbit'
+The script files read are named 'cbit'
 
 To create the build tool:
    ./create_it.sh
