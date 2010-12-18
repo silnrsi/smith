@@ -4,6 +4,7 @@ import os, sys, imp
 from waflib import Context, Options, Configure, Utils, Logs
 
 def start(cwd, version, wafdir):
+	# simple example, the file main.c is hard-coded
 	try:
 		os.stat(cwd + '/bbit')
 	except:
