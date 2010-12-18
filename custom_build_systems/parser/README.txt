@@ -6,6 +6,6 @@ The file in question is named 'cbit'
 To create the build tool:
    ./create_it.sh
 
-To use on the file bbit which creates a program out of main.c:
+To use on the file cbit which creates a program out of main.c:
    ./cbd clean build
 

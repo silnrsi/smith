@@ -6,9 +6,9 @@ from waflib import Context, Options, Configure, Utils, Logs
 def start(cwd, version, wafdir):
 	# simple example, the file main.c is hard-coded
 	try:
-		os.stat(cwd + '/bbit')
+		os.stat(cwd + '/cbit')
 	except:
-		print('call from a folder containing a file named "bbit"')
+		print('call from a folder containing a file named "cbit"')
 		sys.exit(1)
 
 	Logs.init_log()
@@ -16,14 +16,14 @@ def start(cwd, version, wafdir):
 	Context.top_dir = Context.run_dir = cwd
 	Context.out_dir = os.path.join(cwd, 'build')
 	Context.g_module = imp.new_module('wscript')
-	Context.g_module.root_path = os.path.join(cwd, 'bbit')
+	Context.g_module.root_path = os.path.join(cwd, 'cbit')
 	Context.Context.recurse = \
-		lambda x, y: getattr(Context.g_module, x.cmd, Utils.nada)(x)
+		lambda x, y: getattr(Context.g_module, x.cmd or x.fun, Utils.nada)(x)
 
 	Context.g_module.configure = lambda ctx: ctx.load('g++')
 	Context.g_module.build = lambda bld: bld.objects(source='main.c')
 
-	opt = Options.OptionsContext().execute()
+	Options.OptionsContext().execute()
 
 	do_config = 'configure' in sys.argv
 	try:
