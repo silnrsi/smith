@@ -23,7 +23,7 @@ create derivated files (Makefiles, Visual studio, ..)
 
 A few examples are provided to show the range of possibilities:
 * overview: how to create a custom file using the waf framework to perform a simple build
-* parser: how to bind a parser to use a domain-specific language
-* noscript: infer what to build from given files
+* parser: how to add a parser for a domain-specific language
+* noscript: infer what to build from given files, use no script file
 
 Thomas Nagy, 2010
