@@ -316,6 +316,7 @@ class Context(ctx):
 				(fd, tmp) = tempfile.mkstemp()
 				cmd = [x.find(" ") > -1 and '"%s"' % x or x for x in cmd]
 				os.write(fd, ' '.join(cmd[1:]).encode())
+				os.close(fd)
 				cmd = [cmd[0], '@' + tmp]
 
 			try:
@@ -340,7 +341,6 @@ class Context(ctx):
 				ret = -1
 		finally:
 			if tmp:
-				os.close(fd)
 				os.remove(tmp)
 		return ret
 
