@@ -3,8 +3,9 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-The command 'waf build' executes a normal build with Waf
-The command 'waf dump' will create a makefile corresponding to the build
+Calling 'waf build' executes a normal build with Waf
+Calling 'waf clean dump' will create a makefile corresponding to the build
+The dependencies will be extracted too
 """
 
 VERSION='0.0.1'
@@ -22,117 +23,57 @@ def build(bld):
 	bld.program(source='main.c', target='app', use='mylib', cflags=['-O2'])
 	bld.stlib(source='a.c', target='mylib')
 
-from waflib import Build
+# ---------------------------------------------------------------------------
+
+from waflib import Build, Logs
 class Dumper(Build.BuildContext):
 	fun = 'dump'
 	cmd = 'dump'
 
 def dump(bld):
+	# call the build function as if a real build were performed
 	build(bld)
 
 	from waflib import Task
 	bld.commands = []
 	bld.targets = []
 
-	old = Task.TaskBase.exec_command
+	# store the command executed
+	old_exec = Task.TaskBase.exec_command
 	def exec_command(self, *k, **kw):
-		ret = old(self, *k, **kw)
+		ret = old_exec(self, *k, **kw)
 		self.command_executed = k[0]
-		self.path = kw['cwd'] or self.generator.bld.bldnode.abspath()
+		self.path = kw['cwd'] or self.generator.bld.cwd
 		return ret
 	Task.TaskBase.exec_command = exec_command
 
-	old = Task.TaskBase.process
-
-	"""
-	def process(self):
-		m = self.master
-		if m.stop:
-			m.out.put(self)
-			return
-
-		# remove the task signature immediately before it is executed
-		# in case of failure the task will be executed again
-		try:
-			del self.generator.bld.task_sigs[self.uid()]
-		except:
-			pass
-
-		self.generator.bld.returned_tasks.append(self)
-		self.log_display(self.generator.bld)
-
-		try:
-			ret = self.run()
-		except Exception as e:
-			self.err_msg = Utils.ex_stack()
-			self.hasrun = EXCEPTION
-
-			# TODO cleanup
-			m.error_handler(self)
-			m.out.put(self)
-			return
-
-		if ret:
-			self.err_code = ret
-			self.hasrun = CRASHED
-		else:
-			try:
-				self.post_run()
-			except Errors.WafError:
-				pass
-			except Exception:
-				self.err_msg = Utils.ex_stack()
-				self.hasrun = EXCEPTION
-			else:
-				self.hasrun = SUCCESS
-		if self.hasrun != SUCCESS:
-			m.error_handler(self)
-
-		# extract and store the makefile data here
-		lst = []
-		for x in self.outputs:
-			lst.append(x.abspath())
-		bld.targets.extend(lst)
-		lst.append(':')
-		for x in self.inputs + self.node_deps + self.generator.bld.node_deps.get(self.uid(), []):
-			lst.append(x.abspath())
-		try:
-			if isinstance(self.command_executed, list):
-				self.command_executed = ' '.join(self.command_executed)
-		except Exception, e:
-			print(e)
-		else:
-			bld.commands.append(' '.join(lst))
-			bld.commands.append('\tcd %s && %s' % (self.path, self.command_executed))
-
-		m.out.put(self)
-	"""
+	# perform a fake build, and accumulate the makefile bits
+	old_process = Task.TaskBase.process
 	def process(self):
 		old_process(self)
 
-		# extract and store the makefile data here
 		lst = []
 		for x in self.outputs:
-			lst.append(x.abspath())
+			lst.append(x.path_from(self.generator.bld.bldnode))
 		bld.targets.extend(lst)
 		lst.append(':')
-		for x in self.inputs + self.node_deps + self.generator.bld.node_deps.get(self.uid(), []):
-			lst.append(x.abspath())
+		for x in self.inputs + self.dep_nodes + self.generator.bld.node_deps.get(self.uid(), []):
+			lst.append(x.path_from(self.generator.bld.bldnode))
 		try:
 			if isinstance(self.command_executed, list):
 				self.command_executed = ' '.join(self.command_executed)
-		except Exception, e:
+		except Exception as e:
 			print(e)
 		else:
 			bld.commands.append(' '.join(lst))
 			bld.commands.append('\tcd %s && %s' % (self.path, self.command_executed))
-
 	Task.TaskBase.process = process
 
+	# write the makefile after the build is complete
 	def output_makefile(self):
-		# write the makefile here
 		self.commands.insert(0, "all: %s" % " ".join(self.targets))
-		node = self.path.make_node('Makefile')
+		node = self.bldnode.make_node('Makefile')
 		node.write("\n".join(self.commands))
+		Logs.warn('Wrote %s' % node.abspath())
 	bld.add_post_fun(output_makefile)
 
