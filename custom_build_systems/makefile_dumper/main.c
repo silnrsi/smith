@@ -1,5 +1,4 @@
-
-void test();
+#include "a.h"
 
 int main() {
 	test();
