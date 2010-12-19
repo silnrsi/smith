@@ -22,8 +22,9 @@ language (make-like, cmake-like, ...), or extracting commands and dependencies t
 create derivated files (Makefiles, Visual studio, ..)
 
 A few examples are provided to show the range of possibilities:
-* overview: how to create a custom file using the waf framework to perform a simple build
-* parser: how to add a parser for a domain-specific language
-* noscript: infer what to build from given files, use no script file
+* overview:        how to create a custom file using the waf framework to perform a simple build
+* parser:          how to add a parser for a domain-specific language
+* noscript:        infer what to build from given files, use no script file
+* makefile_dumper: create a makefile corresponding to the current build, extracting as many dependencies as possible
 
 Thomas Nagy, 2010
