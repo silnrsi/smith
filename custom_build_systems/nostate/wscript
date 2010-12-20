@@ -9,6 +9,7 @@ and no signatures). There is no build directory either.
 
 To build, use "./ebd"
 
+See README.txt
 Note from the author: using signatures is of course much better
 this example is for research purposes only
 """
@@ -20,7 +21,6 @@ top = '.'
 out = '.'
 
 def build(bld):
-
 
 	# annoying
 	bld.load('gcc')

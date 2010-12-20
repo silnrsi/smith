@@ -32,6 +32,7 @@ def start(cwd, version, wafdir):
 	bld.environ = os.environ
 	bld.execute()
 
+# change the build context so it does not need to write any file
 class B2(Build.BuildContext):
 	def load_envs(self):
 		self.env = ConfigSet.ConfigSet()
@@ -39,4 +40,30 @@ class B2(Build.BuildContext):
 		pass
 	def restore(self):
 		self.init_dirs()
+
+# change the superclass of existing tasks to force timestamps (the build has no state)
+def status(self):
+	for t in self.run_after:
+		if not t.hasrun:
+			return Task.ASK_LATER
+
+	implicit_deps = []
+	try:
+		implicit_deps, _ = self.scan()
+	except:
+		pass
+
+	# we can add one more node, for example:
+	implicit_deps.append(self.generator.path.make_node('wscript'))
+
+	for x in self.inputs + self.dep_nodes + implicit_deps:
+		for y in self.outputs:
+			if os.stat(x.abspath()).st_mtime > os.stat(y.abspath()).st_mtime:
+				return Task.RUN_ME
+
+	return Task.SKIP_ME
+Task.Task.runnable_status = status
+
+# the post build execution does not need to deal with signatures or anything else
+Task.Task.post_run = Utils.nada
 
