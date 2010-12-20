@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, shutil, traceback, datetime, inspect, errno, sys
+import os, shutil, traceback, datetime, inspect, errno, sys, stat
 from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build, Node
 
 build_dir_override = None
@@ -41,20 +41,34 @@ def waf_entry_point(current_directory, version, wafdir):
 			env = ConfigSet.ConfigSet()
 			try:
 				env.load(os.path.join(cur, Options.lockfile))
+				ino = os.stat(cur)[stat.ST_INO]
 			except Exception:
 				pass
 			else:
-				Context.run_dir = env.run_dir
-				Context.top_dir = env.top_dir
-				Context.out_dir = env.out_dir
+				# check if the folder was not moved
+				for x in [env.run_dir, env.top_dir, env.out_dir]:
+					if sys.platform == 'win32':
+						if cur == x:
+							load = True
+							break
+					else:
+						# if the filesystem features symlinks, compare the inode numbers
+						try:
+							ino2 = os.stat(x)[stat.ST_INO]
+						except:
+							pass
+						else:
+							if ino == ino2:
+								load = True
+								break
+				else:
+					load = False
 
-				# the directory of the wscript file was moved
-				try:
-					os.stat(Context.run_dir)
-				except:
-					Context.run_dir = cur
-
-				break
+				if load:
+					Context.run_dir = env.run_dir
+					Context.top_dir = env.top_dir
+					Context.out_dir = env.out_dir
+					break
 
 		if not Context.run_dir:
 			if Context.WSCRIPT_FILE in lst:
@@ -72,7 +86,6 @@ def waf_entry_point(current_directory, version, wafdir):
 		else:
 			continue
 		break
-
 
 	if not Context.run_dir:
 		if '-h' in sys.argv or '--help' in sys.argv:
@@ -522,10 +535,13 @@ def autoconfigure(execute_method):
 			Logs.warn('Configuring the project')
 			do_config = True
 		else:
-			h = 0
-			for f in env['files']:
-				h = hash((h, Utils.readf(f, 'rb')))
-			do_config = h != env.hash
+			if env.run_dir != Context.run_dir:
+				do_config = True
+			else:
+				h = 0
+				for f in env['files']:
+					h = hash((h, Utils.readf(f, 'rb')))
+				do_config = h != env.hash
 
 		if do_config:
 			Options.commands.insert(0, self.cmd)

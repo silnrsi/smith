@@ -37,6 +37,9 @@ class PreprocError(Errors.WafError):
 POPFILE = '-'
 "Constant representing a special token used in :py:meth:`waflib.Tools.c_preproc.c_parser.start` iteration to switch to a header read previously"
 
+recursion_limit = 9000
+"Limit on the amount of files to read in the dependency scanner"
+
 go_absolute = False
 "Set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
@@ -870,7 +873,7 @@ class c_parser(object):
 		filepath = node.abspath()
 
 		self.count_files += 1
-		if self.count_files > 9000: raise PreprocError("recursion limit exceeded")
+		if self.count_files > recursion_limit: raise PreprocError("recursion limit exceeded")
 		pc = self.parse_cache
 		debug('preproc: reading file %r', filepath)
 		try:
@@ -1004,7 +1007,7 @@ def scan(task):
 	try:
 		incn = task.generator.includes_nodes
 	except AttributeError:
-		raise Errors.WafError('%r is missing a feature such as "c" or "cxx"' % task.generator)
+		raise Errors.WafError('%r is missing a feature such as "c", "cxx" or "includes": ' % task.generator)
 
 	if go_absolute:
 		nodepaths = incn

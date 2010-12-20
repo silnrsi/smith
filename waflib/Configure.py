@@ -338,7 +338,7 @@ class ConfigurationContext(Context.Context):
 		:type dest: string
 		"""
 		# do not use 'get' to make certain the variable is not defined
-		try: self.env.append_value(dest or var, Utils.to_list(self.environ[var]))
+		try: self.env.append_value(dest or var, shlex.split(self.environ[var]))
 		except KeyError: pass
 
 	def cmd_to_list(self, cmd):

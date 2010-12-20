@@ -9,7 +9,7 @@ top = '.'
 out = 'out'
 
 def configure(conf):
-	conf.check_tool('gcj', tooldir='.')
+	conf.load('gcj', tooldir='.')
 	conf.env.FIX_DUMMY = True
 
 def build(bld):

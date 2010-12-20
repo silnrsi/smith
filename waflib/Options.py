@@ -54,7 +54,7 @@ class opt_parser(optparse.OptionParser):
 
 		jobs = ctx.jobs()
 		p('-j', '--jobs',     dest='jobs',    default=jobs, type='int', help='amount of parallel jobs (%r)' % jobs)
-		p('-k', '--keep',     dest='keep',    default=False, action='store_true', help='keep running happily on independent task groups')
+		p('-k', '--keep',     dest='keep',    default=False, action='store_true', help='keep running happily even if errors are found')
 		p('-v', '--verbose',  dest='verbose', default=0,     action='count', help='verbosity level -v -vv or -vvv [default: 0]')
 		p('--nocache',        dest='nocache', default=False, action='store_true', help='ignore the WAFCACHE (if set)')
 		p('--zones',          dest='zones',   default='',    action='store', help='debugging zones (task_gen, deps, tasks, etc)')
@@ -144,6 +144,8 @@ class OptionsContext(Context.Context):
 		self.parser = opt_parser(self)
 		"""Instance of :py:class:`waflib.Options.opt_parser`"""
 
+		self.option_groups = {}
+
 	def jobs(self):
 		"""
 		Find the amount of cpu cores to set the default amount of tasks executed in parallel. At
@@ -192,23 +194,30 @@ class OptionsContext(Context.Context):
 		Wrapper for optparse.add_option_group::
 
 			def options(ctx):
-				gr = optparse.OptionGroup(self, 'special options')
-				ctx.add_option_group(gr)
+				ctx.add_option_group('some options')
 				gr.add_option('-u', '--use', dest='use', default=False, action='store_true')
 		"""
-		return self.parser.add_option_group(*k, **kw)
+		try:
+			gr = self.option_groups[k[0]]
+		except:
+			gr = self.parser.add_option_group(*k, **kw)
+		self.option_groups[k[0]] = gr
+		return gr
 
 	def get_option_group(self, opt_str):
 		"""
 		Wrapper for optparse.get_option_group::
 
 			def options(ctx):
-				gr = get_option_group('configure options')
+				gr = ctx.get_option_group('configure options')
 				gr.add_option('-o', '--out', action='store', default='',
 					help='build dir for the project', dest='out')
 
 		"""
-		return self.parser.get_option_group(opt_str)
+		try:
+			return self.option_groups[opt_str]
+		except KeyError:
+			return self.parser.get_option_group(opt_str)
 
 	def parse_args(self, _args=None):
 		"""
@@ -224,7 +233,7 @@ class OptionsContext(Context.Context):
 		if options.destdir:
 			options.destdir = os.path.abspath(os.path.expanduser(options.destdir))
 
-		if options.verbose >= 2:
+		if options.verbose >= 1:
 			self.load('errcheck')
 
 	def execute(self):

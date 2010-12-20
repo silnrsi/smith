@@ -19,8 +19,8 @@ USELIB_VARS = Utils.defaultdict(set)
 Mapping for features to :py:class:`waflib.ConfigSet.ConfigSet` variables. See :py:func:`waflib.Tools.ccroot.propagate_uselib_vars`.
 """
 
-USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CCDEPS', 'CFLAGS'])
-USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CXXDEPS', 'CXXFLAGS'])
+USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CPPFLAGS', 'CCDEPS', 'CFLAGS'])
+USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CPPFLAGS', 'CXXDEPS', 'CXXFLAGS'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
 USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH'])
@@ -471,6 +471,10 @@ class fake_shlib(link_task):
 	Task used for reading a system library and adding the dependency on it
 	"""
 	def runnable_status(self):
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME
@@ -480,6 +484,10 @@ class fake_stlib(stlink_task):
 	Task used for reading a system library and adding the dependency on it
 	"""
 	def runnable_status(self):
+		for t in self.run_after:
+			if not t.hasrun:
+				return ASK_LATER
+
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
 		return Task.SKIP_ME

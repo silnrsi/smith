@@ -25,10 +25,25 @@ sys.path.append(os.path.abspath('.'))
 from waflib import TaskGen
 from waflib.TaskGen import task_gen, feats
 
+exclude_taskgen = []
 def taskgen_method(func):
+	exclude_taskgen.append(func.__name__)
 	setattr(task_gen, func.__name__, func)
 	fix_fun_doc(func)
 	return func
+taskgen_method.__doc__ = TaskGen.taskgen_method.__doc__
+TaskGen.taskgen_method = taskgen_method
+
+def extension(*k):
+	def deco(func):
+		exclude_taskgen.append(func.__name__)
+		setattr(task_gen, func.__name__, func)
+		for x in k:
+			task_gen.mappings[x] = func
+		return func
+	return deco
+extension.__doc__ = TaskGen.extension.__doc__
+TaskGen.extension = extension
 
 def fix_fun_doc(fun):
 	try:
@@ -63,6 +78,7 @@ def append_doc(fun, keyword, meths):
 
 def feature(*k):
 	def deco(func):
+		exclude_taskgen.append(func.__name__)
 		setattr(task_gen, func.__name__, func)
 		for name in k:
 			feats[name].update([func.__name__])
@@ -77,6 +93,7 @@ TaskGen.feature = feature
 
 def before(*k):
 	def deco(func):
+		exclude_taskgen.append(func.__name__)
 		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
 			if not func.__name__ in task_gen.prec[fun_name]:
@@ -90,6 +107,7 @@ TaskGen.before = before
 
 def after(*k):
 	def deco(func):
+		exclude_taskgen.append(func.__name__)
 		setattr(task_gen, func.__name__, func)
 		for fun_name in k:
 			if not fun_name in task_gen.prec[func.__name__]:
@@ -165,6 +183,19 @@ for x in lst:
 	if x == '__init__':
 		continue
 	tool = __import__('waflib.Tools.%s' % x)
+
+	mod = tool.__dict__['Tools'].__dict__[x]
+	dc = mod.__all__ = list(mod.__dict__.keys())
+
+	excl = ['before', 'after', 'feature', 'taskgen_method', 'extension']
+	if x != 'ccroot':
+		excl += ['link_task', 'stlink_task']
+	for k in excl:
+		try:
+			dc.remove(k)
+		except:
+			pass
+
 	thetool = getattr(tool.Tools, x)
 	funcs = dir(thetool)
 	for func_name in funcs:
@@ -180,7 +211,7 @@ for x in lst:
 	txt = ""
 	txt += "%s\n%s\n\n.. automodule:: waflib.Tools.%s\n\n" % (x, "="*len(x), x)
 	if x in tool_to_features:
-		txt += "Provided Features:"
+		txt += "Features defined in this module:"
 		for feat in sorted(list(set(tool_to_features[x]))):
 			link = "../featuremap.html#feature-%s" % feat
 			txt += "\n\n* `%s <%s>`_" % (feat, link)
@@ -249,7 +280,7 @@ f.close()
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.inheritance_diagram', 'sphinx.ext.graphviz']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.todo', 'sphinx.ext.pngmath', 'sphinx.ext.inheritance_diagram', 'sphinx.ext.graphviz', 'sphinx.ext.viewcode']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -439,13 +470,18 @@ man_pages = [
      [u'Thomas Nagy'], 1)
 ]
 
-autodoc_default_flags = ['members', 'no-undoc-members', 'show-inheritance']
+#autodoc_default_flags = ['members', 'no-undoc-members', 'show-inheritance']
+autodoc_default_flags = ['members', 'show-inheritance']
 autodoc_member_order = 'bysource'
 
 def maybe_skip_member(app, what, name, obj, skip, options):
+
+	# from http://sphinx.pocoo.org/ext/autodoc.html#event-autodoc-skip-member
+	# param name: the fully qualified name of the object <- it is not, the name does not contain the module path
 	if name == 'Nod3':
 		return True
-	if what == 'class' and name in 'process_source sequence_order process_rule add_pcfile to_nodes'.split():
+	global exclude_taskgen
+	if what == 'class' and name in exclude_taskgen:
 		return True
 	if name == '__weakref__':
 		return True
@@ -454,10 +490,4 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 
 def setup(app):
 	app.connect('autodoc-skip-member', maybe_skip_member)
-
-
-#from waflib import Task
-#def after(*k, **kw):
-#	print "gnirf!"
-#TaskGen.after = after
 

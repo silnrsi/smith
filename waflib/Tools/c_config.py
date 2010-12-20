@@ -119,7 +119,13 @@ def parse_flags(self, line, uselib, env=None):
 
 	app = env.append_value
 	appu = env.append_unique
-	lst = shlex.split(line)
+	#lst = shlex.split(line)
+	# issue #811
+	lex = shlex.shlex(line, posix=False)
+	lex.whitespace_split = True
+	lex.commenters = ''
+	lst = list(lex)
+
 	while lst:
 		x = lst.pop(0)
 		st = x[:2]
@@ -128,6 +134,10 @@ def parse_flags(self, line, uselib, env=None):
 		if st == '-I' or st == '/I':
 			if not ot: ot = lst.pop(0)
 			appu('INCLUDES_' + uselib, [ot])
+		elif st == '-include':
+			tmp = [x, lst.pop(0)]
+			app('CFLAGS', tmp)
+			app('CXXFLAGS', tmp)
 		elif st == '-D' or st == '/D':
 			if not ot: ot = lst.pop(0)
 			app('DEFINES_' + uselib, [ot])

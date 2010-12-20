@@ -260,7 +260,7 @@ class Parallel(object):
 			pass
 		else:
 			for x in pool:
-				x.ready.put(setq)
+				self.ready.put(setq)
 			for x in pool:
 				self.get_out()
 			for x in pool:

@@ -15,6 +15,7 @@ def build(bld):
 		destfile  = '../animals.jar',
 		use       = 'NNN',
 	)
+	t.env.JAVACFLAGS = ['-Xlint:unchecked', '-verbose']
 
 	if bld.env.DO_JUNIT:
 		t.features       += ' junit'
@@ -22,4 +23,5 @@ def build(bld):
 		t.junitsrc        = 'junit'
 		t.junitclasspath  = '.'
 		t.use            += ' JUNIT'
+		t.env.JUNIT_EXEC_FLAGS = ['-ea']
 

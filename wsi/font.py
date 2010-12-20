@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 from waflib import Context
-from wafplus import *
-import font_tests, font_package, keyboard
+from wafplus import modify
+import font_tests, package, keyboard
 import sys, os, re
 from random import randint
 
@@ -24,8 +24,10 @@ class Font(object) :
             self.source = self.legacy.target
         self.fonts.append(self)
         if not hasattr(self, 'package') :
-            self.package = font_package.global_package()
+            self.package = package.global_package()
         self.package.add_font(self)
+        if not hasattr(self, 'tests') :
+            self.tests = font_tests.global_test()
 
     def get_build_tools(self, ctx) :
         res = font_tests.configure_tests(ctx, self)
@@ -84,6 +86,14 @@ class Font(object) :
                 x.build(bld, self.target, bgen, self)
         return self
 
+    def build_pdf(self, bld) :
+        if self.tests :
+            self.tests.build_tests(bld, self, 'pdfs')
+
+    def build_svg(self, bld) :
+        if self.tests :
+            self.tests.build_tests(bld, self, 'svg')
+
 
 class Legacy(object) :
 
@@ -132,7 +142,7 @@ class Internal(object) :
 class Volt(Internal) :
 
     def __init__(self, source, *k, **kw) :
-        self.super(Volt, self).__init__(source, *k, **kw)
+        super(Volt, self).__init__(source, *k, **kw)
 
     def get_build_tools(self) :
         return ('make_volt', 'volt2ttf')
@@ -156,8 +166,8 @@ class Volt(Internal) :
 class Gdl(Internal) :
 
     def __init__(self, source, *k, **kw) :
-        self.super(Gdl, self).__init__(source, *k, **kw)
         self.master = ''
+        super(Gdl, self).__init__(source, *k, **kw)
     
     def get_build_tools(self) :
         return ("make_gdl", "grcompiler", "ttftable")
@@ -235,26 +245,6 @@ def make_ofl(fname, names, version, copyright = None) :
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
     
-def process(tgt, *cmds, **kw) :
-    for c in cmds :
-        res = c(tgt)
-        modify(res[0], tgt, res[1], **res[2])
-    return tgt
-
-def create(tgt, *cmds, **kw) :
-    if len(cmds) > 0 :
-        res = cmds[0](tgt)
-        rule(res[0], res[1], tgt, **res[2])
-    for c in cmds[1:] :
-        res = c(tgt)
-        modify(res[0], tgt, res[1], **res[2])
-    return tgt
-
-def cmd(c, inputs = [], **kw) :
-    def icmd(tgt) :
-        return (c, inputs, kw)
-    return icmd
-
 def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
@@ -272,35 +262,14 @@ def name(n, **kw) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname
 
-class pdfContext(Build.BuildContext) :
-    cmd = 'pdfs'
-    func = 'pdfs'
-
-    def pre_build(self) :
-        self.add_group('pdfs')
-        font_tests.build_tests(self, Font.fonts, 'pdfs')
-
-class svgContext(Build.BuildContext) :
-    cmd = 'svg'
-    func = 'svg'
-
-    def pre_build(self) :
-        self.add_group('svg')
-        font_tests.build_tests(self, Font.fonts, 'svg')
-
-def fontinit(ctx) :
-    font_package.add_configure()
-    font_package.add_build()
-
-varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
-            'gdl' : Gdl, 'process' : process, 'create' : create,
-            'cmd' : cmd, 'name' : name, 'ofl' : Ofl, 'init' : fontinit,
-            'kbd' : keyboard.Keyboard, 'package' : font_package.Package,
-            'internal' : Internal
-         }
-for k, v in varmap.items() :
-    if hasattr(Context, 'wscript_vars') :
-        Context.wscript_vars[k] = v
-    else :
-        setattr(Context.g_module, k, v)
+def onload(ctx) :
+    varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
+            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl,
+            'internal' : Internal, 'fonttest' : font_tests.font_test
+             }
+    for k, v in varmap.items() :
+        if hasattr(ctx, 'wscript_vars') :
+            ctx.wscript_vars[k] = v
+        else :
+            setattr(ctx.g_module, k, v)
 

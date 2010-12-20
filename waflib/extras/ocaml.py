@@ -230,27 +230,27 @@ def compile_may_start(self):
 class ocamlx(Task.Task):
 	"""native caml compilation"""
 	color   = 'GREEN'
-	run_str = '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
+	run_str = '${OCAMLOPT} ${OCAMLPATH} ${OCAMLFLAGS} ${OCAMLINCLUDES} -c -o ${TGT} ${SRC}'
 	scan    = scan
 	runnable_status = compile_may_start
 
 class ocaml(Task.Task):
 	"""bytecode caml compilation"""
 	color   = 'GREEN'
-	run_str = '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${INCLUDES} -c -o ${TGT} ${SRC}'
+	run_str = '${OCAMLC} ${OCAMLPATH} ${OCAMLFLAGS} ${OCAMLINCLUDES} -c -o ${TGT} ${SRC}'
 	scan    = scan
 	runnable_status = compile_may_start
 
 class ocamlcmi(Task.Task):
 	"""interface generator (the .i files?)"""
 	color   = 'BLUE'
-	run_str = '${OCAMLC} ${OCAMLPATH} ${INCLUDES} -o ${TGT} -c ${SRC}'
+	run_str = '${OCAMLC} ${OCAMLPATH} ${OCAMLINCLUDES} -o ${TGT} -c ${SRC}'
 	before  = ['ocamlcc', 'ocaml', 'ocamlcc']
 
 class ocamlcc(Task.Task):
 	"""ocaml to c interfaces"""
 	color   = 'GREEN'
-	run_str = 'cd ${TGT[0].bld_dir(env)} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${INCLUDES} -c ${SRC[0].abspath(env)}'
+	run_str = 'cd ${TGT[0].bld_dir()} && ${OCAMLOPT} ${OCAMLFLAGS} ${OCAMLPATH} ${OCAMLINCLUDES} -c ${SRC[0].abspath()}'
 
 class ocamllex(Task.Task):
 	"""lexical generator"""
@@ -296,14 +296,14 @@ def link_may_start(self):
 class ocalink(Task.Task):
 	"""bytecode caml link"""
 	color   = 'YELLOW'
-	run_str = '${OCAMLC} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS} ${SRC}'
+	run_str = '${OCAMLC} -o ${TGT} ${OCAMLINCLUDES} ${OCALINKFLAGS} ${SRC}'
 	runnable_status = link_may_start
 	after = ['ocaml', 'ocamlcc']
 
 class ocalinkx(Task.Task):
 	"""native caml link"""
 	color   = 'YELLOW'
-	run_str = '${OCAMLOPT} -o ${TGT} ${INCLUDES} ${OCALINKFLAGS_OPT} ${SRC}'
+	run_str = '${OCAMLOPT} -o ${TGT} ${OCAMLINCLUDES} ${OCALINKFLAGS_OPT} ${SRC}'
 	runnable_status = link_may_start
 	after = ['ocamlx', 'ocamlcc']
 
@@ -321,6 +321,6 @@ def configure(conf):
 	v['OCAMLFLAGS']   = ''
 	v['OCAMLLIB']     = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIBPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
-	v['CPPPATH_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
+	v['INCLUDES_OCAML'] = conf.cmd_and_log(conf.env['OCAMLC']+' -where').strip()+os.sep
 	v['LIB_OCAML'] = 'camlrun'
 

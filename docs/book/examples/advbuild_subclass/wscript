@@ -19,7 +19,7 @@ def bar(ctx):
 from waflib.Context import Context
 
 class one(Context):
-	cmd = 'bar'
+	cmd = 'foo'
 
 class two(Context):
 	cmd = 'tak'

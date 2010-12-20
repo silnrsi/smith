@@ -35,6 +35,11 @@ def configure(conf):
 
 	conf.write_config_header('config.h')
 
+
+	# exclude system libraries, force a particular folder (see strictlib below)
+	#conf.check(features='c cprogram strictlib', lib = 'gif', libpath = ['/opt/lib'])
+
+
 def build(bld):
 	bld.env.DEFINES=['WAF=1']
 
@@ -68,4 +73,25 @@ class package_class(Context):
 
 def package(ctx):
 	print('just a test', ctx.path.ant_glob('wscript'))
+
+
+
+
+from waflib import Utils
+from waflib import TaskGen
+@TaskGen.feature('strictlib')
+def check_lib_in_libpath(self):
+	#For use in a configuration check: raise an exception
+	#if the library file does not exist in the folders pointed
+	#by 'libpath'
+	pths = Utils.to_list(getattr(self, 'libpath', []))
+	if pths:
+		for l in Utils.to_list(Utils.to_list(getattr(self, 'lib', []))):
+			for x in pths:
+				names = Utils.listdir(x)
+				lname = self.env.cshlib_PATTERN % l
+				if lname in names:
+					break
+			else:
+				self.bld.fatal('wrong path for the library %s' % l)
 

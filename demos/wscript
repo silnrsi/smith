@@ -72,7 +72,7 @@ def build(bld):
 		try:
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except Exception as e:
-			#print e.stderr, e.stdout
+			print e.stderr, e.stdout
 			print('broken %r %r' % (self.generator.python, self.generator.cwd))
 		#else:
 		#	if ret:
@@ -82,6 +82,7 @@ def build(bld):
 		for dirname in bld.env.CFG:
 			bld(rule    = waf_cmd,
 				cwd     = dirname,
+				always   = True,
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 

@@ -41,9 +41,9 @@ Setting top to    : /tmp/advbuild_subclass
 Setting out to    : /tmp/advbuild_subclass/build
 <class 'waflib.Configure.ConfigurationContext'>
 'configure' finished successfully (0.008s)
-<class 'waflib.Context.Context'>
-'foo' finished successfully (0.001s)
 <class 'wscript.one'>
+'foo' finished successfully (0.001s)
+<class 'waflib.Context.Context'>
 'bar' finished successfully (0.001s)
 <class 'wscript.two'>
 'tak' finished successfully (0.001s)
@@ -107,10 +107,10 @@ This technique is useful for writing testcases. By executing 'waf test', the fol
 [source,python]
 ---------------
 def options(ctx):
-	ctx.load('compiler_cc')
+	ctx.load('compiler_c')
 
 def configure(ctx):
-	ctx.load('compiler_cc')
+	ctx.load('compiler_c')
 
 def setup(ctx):
 	n = ctx.path.make_node('main.c')
@@ -358,7 +358,7 @@ def configure(conf):
 
 def build(bld):
 	if not bld.variant: <3>
-		bld.fatal('call "waf debug" or "waf release", and try "waf --help"')
+		bld.fatal('call "waf build_debug" or "waf build_release", and try "waf --help"')
 	bld.program(source='main.c', target='app', includes='.') <4>
 
 from waflib.Build import BuildContext, CleanContext, \

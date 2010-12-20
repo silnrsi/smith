@@ -25,9 +25,9 @@ def ifort_modifier_cygwin(conf):
 @conf
 def ifort_modifier_platform(conf):
 	dest_os = conf.env['DEST_OS'] or Utils.unversioned_sys_platform()
-	ifort_modifier_func = globals().get('ifort_modifier_' + dest_os)
+	ifort_modifier_func = getattr(conf, 'ifort_modifier_' + dest_os, None)
 	if ifort_modifier_func:
-			ifort_modifier_func(conf)
+		ifort_modifier_func()
 
 @conf
 def get_ifort_version(conf, fc):

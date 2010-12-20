@@ -45,6 +45,9 @@ def set_macosx_deployment_target(self):
 
 @taskgen_method
 def create_bundle_dirs(self, name, out):
+	"""
+	Create bundle folders, used by :py:func:`create_task_macplist` and :py:func:`create_task_macapp`
+	"""
 	bld = self.bld
 	dir = out.parent.get_dir(name)
 

@@ -9,6 +9,10 @@ NEW IN WAF 1.6.2
 * New apidocs + tutorial in Sphinx format
 * Add the CPPFLAGS from os.environ #803
 * Create the java output directory anywhere #806
+* Enable the .luac file installation
+* Process Qt translation files
+* Detect when the folders were copied and prompt for "waf configure"
+* parse_flags for the *-config outputs on windows (backslashes) #811
 
 NEW IN WAF 1.6.1
 ----------------

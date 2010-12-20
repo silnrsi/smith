@@ -4,6 +4,13 @@ from waflib import Context, Utils
 import os, shutil
 from functools import partial
 
+globaltest = None
+def global_test() :
+    global globaltest
+    if not globaltest :
+        globaltest = font_test()
+    return globaltest
+
 def configure_tests(ctx, font) :
     res = set(['xetex', 'grsvg', 'firefox', 'xdvipdfmx', 'xsltproc', 'firefox'])
     return res
@@ -29,38 +36,59 @@ def curry_tex(fn, *parms) :
         return fn(*(parms + args))
     return res
 
-def build_tests(ctx, fonts, target) :
+def antlist(ctx, testdir, globs) :
+    if isinstance(globs, basestring) :
+        globs = [globs]
+    res = []
+    for f in globs :
+        res.extend(ctx.path.ant_glob(testdir + f))
+    return res
 
-#    import pdb; pdb.set_trace()
-    testsdir = ctx.env['TESTDIR']
-    if not testsdir : testsdir = "tests"
-    testsdir += os.sep
+class font_test(object) :
+    tests = []
 
-    fontmap = dict([[getattr(f, 'test_suffix', f.id), f] for f in fonts])
-    
-    # make list of source tests to run against fonts, build if necessary
-    txtfiles = ctx.path.ant_glob(testsdir + "*.txt")
-    texfiles = ctx.path.ant_glob(testsdir + "*.tex")
-    htxtfiles = ctx.path.ant_glob(testsdir + "*.htxt")
-    htxttfiles = []
+    def __init__(self, *kv, **kw) :
+        if 'htexts' not in kw : kw['htexts'] = '*.htxt'
+        if 'texts' not in kw : kw['texts'] = '*.txt'
+        if 'texs' not in kw : kw['texs'] = '*.tex'
+        
+        for k, item in kw.items() :
+            setattr(self, k, item)
 
-    for n in htxtfiles :
-        targ = n.get_bld().change_ext('.txt')
-        ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
-        htxttfiles.append(targ)
+        self.tests.append(self)
+        self._hasinit = False
 
-#    import pdb; pdb.set_trace()
-    for f in fontmap :
+    def build_testfiles(self, ctx, testsdir) :
+        self._hasinit = True
+
+        # make list of source tests to run against fonts, build if necessary
+        self._txtfiles = antlist(ctx, testsdir, self.texts)
+        self._texfiles = antlist(ctx, testsdir, self.texs)
+        self._htxtfiles = antlist(ctx, testsdir, self.htexts)
+        self._htxttfiles = []
+
+        for n in self._htxtfiles :
+            targ = n.get_bld().change_ext('.txt')
+            ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
+            self._htxttfiles.append(targ)
+
+    def build_tests(self, ctx, font, target) :
+        if not hasattr(self, 'testdir') :
+            self.testdir = ctx.env['TESTDIR'] or 'tests'
+        testsdir = self.testdir + os.sep
+        if not self._hasinit : self.build_testfiles(ctx, testsdir)
+        fid = getattr(font, 'test_suffix', font.id)
+
         modes = {}
         textfiles = []
-        if getattr(fontmap[f], 'graphite', None) :
+        if getattr(font, 'graphite', None) :
             modes['gr'] = "/GR"
-        if getattr(fontmap[f], 'sfd_master', None) or getattr(fontmap[f], 'opentype', None) :
+        if getattr(font, 'sfd_master', None) or getattr(font, 'opentype', None) :
             t = "/ICU"
-            if getattr(fontmap[f], 'script', None) :
-                t += ":script=" + fontmap[f].script
+            if getattr(font, 'script', None) :
+                t += ":script=" + font.script
             modes['ot'] = t
-        for n in txtfiles + htxttfiles :
+        for n in self._txtfiles + self._htxttfiles :
             for m, mf in modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
                 lang = nfile.partition('_')[0]
@@ -69,9 +97,9 @@ def build_tests(ctx, fonts, target) :
                     mf += ":language=" + lang
 
                 if target == "pdfs" or target == 'test' :
-                    targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + "_" + m + ".tex"
+                    targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + ".tex"
                     targ = ctx.path.find_or_declare(targfile)
-                    ctx(rule = curry_tex(make_tex, mf, fontmap[f].target), source = n, target = targ)
+                    ctx(rule = curry_tex(make_tex, mf, font.target), source = n, target = targ)
                     textfiles.append((targ, n))
 
                 elif target == 'svg' :
@@ -81,12 +109,12 @@ def build_tests(ctx, fonts, target) :
                         rend = 'icu'
                     if lang :
                         rend += " --feat lang=" + lang
-                    targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + "_" + m + '.svg'
-                    ctx(rule='${GRSVG} ' + fontmap[f].target + ' -i ${SRC} -o ${TGT} --renderer ' + rend, source = n, target = targfile)
+                    targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + '.svg'
+                    ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ${TGT} --renderer ' + rend, source = n, target = targfile)
 
         if target == 'pdfs' or target == 'test' :
-            for n in texfiles :
-                targfile = n.get_bld().bld_base() + os.path.splitext(f)[0] + ".tex"
+            for n in self._texfiles :
+                targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
                 ctx(rule = copy_task, source = n, target = targ)
                 textfiles.append((targ, n))
@@ -94,7 +122,7 @@ def build_tests(ctx, fonts, target) :
                 targ = n[0].get_bld()
                 ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                     source = n[0], target = targ.change_ext('.xdv'),
-                    taskgens = [fontmap[f].target + "_" + m])
+                    taskgens = [font.target + "_" + m])
                 if target == 'pdfs' :
                     ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 

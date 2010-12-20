@@ -12,7 +12,7 @@ top = '.'
 out = 'build'
 
 def options(opt):
-	opt.tool_options('daemon', tooldir='.')
+	opt.load('daemon', tooldir='.')
 
 def configure(conf):
 	conf.load('gcc')

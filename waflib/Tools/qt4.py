@@ -192,17 +192,11 @@ class qxx(cxx.cxx):
 
 	run = Task.classes['cxx'].__dict__['run']
 
-def translation_update(task):
-	# ujjj, esto está roto
-	outs = [a.abspath() for a in task.outputs]
-	outs = " ".join(outs)
-	lupdate = task.env['QT_LUPDATE']
-
-	for x in task.inputs:
-		file = x.abspath()
-		cmd = "%s %s -ts %s" % (lupdate, file, outs)
-		Logs.pprint('BLUE', cmd)
-		task.generator.bld.exec_command(cmd)
+class trans_update(Task.Task):
+	"""Update a .ts files from a list of C++ files"""
+	run_str = '${QT_LUPDATE} ${SRC} -ts ${TGT}'
+	color   = 'BLUE'
+Task.update_outputs(trans_update)
 
 class XMLHandler(ContentHandler):
 	"""
@@ -248,34 +242,34 @@ def apply_qt4(self):
 
 		def build(bld):
 			bld.program(features='qt4', source='main.cpp', target='app', use='QTCORE')
+
+	The additional parameters are:
+
+	:param lang: list of translation files (\*.ts) to process
+	:type lang: list of :py:class:`waflib.Node.Node` or string without the .ts extension
+	:param update: whether to process the C++ files to update the \*.ts files (use **waf --translate**)
+	:type update: bool
+	:param langname: if given, transform the \*.ts files into a .qrc files to include in the binary file
+	:type langname: :py:class:`waflib.Node.Node` or string without the .qrc extension
 	"""
 	if getattr(self, 'lang', None):
-		update = getattr(self, 'update', None)
-		lst=[]
-		trans=[]
-		for l in self.to_list(self.lang):
+		qmtasks = []
+		for x in self.to_list(self.lang):
+			if isinstance(x, str):
+				x = self.path.find_resource(x + '.ts')
+			qmtasks.append(self.create_task('ts2qm', x, x.change_ext('.qm')))
 
-			if not isinstance(l, Node.Node):
-				l = self.path.find_resource(l+'.ts')
-
-			t = self.create_task('ts2qm', l, l.change_ext('.qm'))
-			lst.append(t.outputs[0])
-
-			if update:
-				trans.append(t.inputs[0])
-
-		if update and Options.options.trans_qt4:
-			# we need the cpp files given, except the rcc task we create after
-			# FIXME certainlybroken
-			u = Task.TaskCmd(translation_update, self.env, 2)
-			u.inputs = [a.inputs[0] for a in self.compiled_tasks]
-			u.outputs = trans
+		if getattr(self, 'update', None) and Options.options.trans_qt4:
+			cxxnodes = [a.inputs[0] for a in self.compiled_tasks]
+			for x in qmtasks:
+				self.create_task('trans_update', cxxnodes, x.inputs)
 
 		if getattr(self, 'langname', None):
-			t = Task.classes['qm2rcc'](self.env)
-			t.set_inputs(lst)
-			t.set_outputs(self.path.find_or_declare(self.langname+'.qrc'))
-			t.path = self.path
+			qmnodes = [x.outputs[0] for x in qmtasks]
+			rcnode = self.langname
+			if isinstance(rcnode, str):
+				rcnode = self.path.find_or_declare(rcnode + '.qrc')
+			t = self.create_task('qm2rcc', qmnodes, rcnode)
 			k = create_rcc_task(self, t.outputs[0])
 			self.link_task.inputs.append(k.outputs[0])
 
@@ -349,13 +343,12 @@ class qm2rcc(Task.Task):
 	"""
 	color = 'BLUE'
 	after = 'ts2qm'
-	before = 'rcc'
 
-	def process_qm2rcc(self):
-		"""TODO try to see if it works"""
-		txt = '\n'.join(['<file>%s</file>' % k.path_from(self.path) for k in self.inputs])
+	def run(self):
+		"""Create a qrc file including the inputs"""
+		txt = '\n'.join(['<file>%s</file>' % k.path_from(self.outputs[0].parent) for k in self.inputs])
 		code = '<!DOCTYPE RCC><RCC version="1.0">\n<qresource>\n%s\n</qresource>\n</RCC>' % txt
-		task.outputs[0].write(code)
+		self.outputs[0].write(code)
 
 def configure(self):
 	"""

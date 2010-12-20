@@ -12,8 +12,8 @@ import waflib.Configure
 waflib.Configure.autoconfig = True
 
 def options(opt):
-	opt.tool_options('compiler_cc')
-	opt.tool_options('gnu_dirs')
+	opt.load('compiler_c')
+	opt.load('gnu_dirs')
 
 def build(bld):
 	bld.recurse('program stlib shlib stlib2')
@@ -22,7 +22,7 @@ def build(bld):
 lst = 'debug release foo bar one two'.split()
 
 def configure(conf):
-	conf.load('compiler_cc')
+	conf.load('compiler_c')
 	conf.check_features()
 	conf.check_cc(fragment="""#include<stdio.h>\nint main(){fprintf(stderr, "mu"); printf("%d", 22);return 0;}\n""", execute=True, define_name='HAVE_MU')
 	conf.write_config_header('config.h')

@@ -2,7 +2,7 @@
 
 from subprocess import Popen, PIPE
 import os
-import font_package
+import package
 
 class Keyboard(object) :
    
@@ -17,7 +17,7 @@ class Keyboard(object) :
         if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(kw['font'])[1])
         for k, v in kw.items() : setattr(self, k, v)
         if not hasattr(self, 'package') :
-            self.package = font_package.global_package()
+            self.package = package.global_package()
         self.package.add_kbd(self)
  
     def get_build_tools(self, ctx) :
@@ -45,8 +45,21 @@ class Keyboard(object) :
     def build(self, bld) :
         if bld.env['KMCOMP'] :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.target)
-        bld(rule = '${KMN2XML} ${SRC} > ${TGT}', shell = 1, source = self.source, target = self.xml)
-        bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = self.xml, target = self.svg)
-        bld(rule = '${CP} ${SRC} ${TGT}', source = self.font, target = self.kbdfont)
+
+    def build_pdf(self, bld) :
+        self.build_svg(bld)
         bld(rule = 'FONTCONFIG=' + self.fontdir + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [self.svg, self.kbdfont], target = self.pdf)
+
+    def build_svg(self, bld) :
+        bld(rule = '${KMN2XML} ${SRC} > ${TGT}', shell = 1, source = self.source, target = self.xml)
+        bld(rule = '${CP} ${SRC} ${TGT}', source = self.font, target = self.kbdfont)
+        bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = self.xml, target = self.svg)
+    
+def onload(ctx) :
+    varmap = { 'kbd' : Keyboard }
+    for k, v in varmap.items() :
+        if hasattr(ctx, 'wscript_vars') :
+            ctx.wscript_vars[k] = v
+        else :
+            setattr(ctx.g_module, k, v)
 

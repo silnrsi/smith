@@ -38,7 +38,8 @@ ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
 
 SOURCE_RE = '**/*.java'
 JAR_RE = '**/*'
-re_classes = re.compile(r'\[wrote\ (.*?\.class)\]')
+re_verbose = re.compile(r'^\[.*?\]\n*', re.M)
+re_classes = re.compile(r'\[wrote (.*?\.class)\]')
 
 class_check_source = '''
 public class Test {
@@ -102,7 +103,7 @@ def apply_java(self):
 		tsk.env.append_value('JAVACFLAGS', ['-source', self.compat])
 
 	if hasattr(self, 'sourcepath'):
-		fold = [isinstance(x, self.path.__class__) and x or self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
+		fold = [isinstance(x, Node.Node) and x or self.path.find_dir(x) for x in self.to_list(self.sourcepath)]
 		names = os.pathsep.join([x.srcpath() for x in fold])
 	else:
 		names = [x.srcpath() for x in tsk.srcdir]
@@ -140,7 +141,8 @@ def set_classpath(self):
 	Set the CLASSPATH value on the *javac* task previously created.
 	"""
 	self.env.append_value('CLASSPATH', getattr(self, 'classpath', []))
-	self.javac_task.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
+	for x in self.tasks:
+		x.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
 
 @feature('jar')
 @after('apply_java', 'use_javac_files')
@@ -163,7 +165,11 @@ def jar_files(self):
 		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
-	tsk.set_outputs(self.path.find_or_declare(destfile))
+	if not isinstance(destfile, Node.Node):
+		destfile = self.path.find_or_declare(destfile)
+	if not destfile:
+		self.bld.fatal('invalid destfile %r for %r' % (destfile, self))
+	tsk.set_outputs(destfile)
 	tsk.basedir = basedir
 
 	jaropts.append('-C')
@@ -289,6 +295,9 @@ class javac(Task.Task):
 				raise ValueError('cannot find %r in %r' % (x, self.generator.bld.bldnode.abspath()))
 			n.sig = Utils.h_file(n.abspath())
 		self.generator.bld.task_sigs[self.uid()] = self.cache_sig
+		out = re_verbose.sub('', self.out).strip()
+		if out:
+			self.generator.bld.to_log(out + '\n')
 
 def configure(self):
 	"""

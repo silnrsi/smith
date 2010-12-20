@@ -1,0 +1,76 @@
+== Introduction ==
+
+Wsiwaf is an extension to waf that is designed to create a build environment
+for the creation of Writing System Implementations. Such implementations
+are made up of a number of key elements: fonts, keyboards, sort orders.
+
+=== Installation ===
+
+Installing wsiwaf is simple. It consists of copying the wsiwaf file to a
+suitable directory, usually the project directory where it can be shared within
+any version control system. In addition a file `wscript` needs to be created
+to control the build process. This wscript file is in fact a python program
+but the way it is run is designed to hide that as much from the unsuspecting
+user as possible. Thus only those who want to get into the programming aspects
+need do.
+
+In terms of necessary tools that wsiwaf makes use of, the details are listed
+in the parts of documentation specific to the tools that get used.
+
+=== Execution ===
+
+The heart of the build system is the `wscript` file that controls the build
+process. This is done by the python program creating a set of wsi component
+objects. The system then takes these objects and allows the user to run various
+build commands.
+
+waf, on which wsiwaf is built, works by creating a build directory
+into which all the results are stored. This leaves the source directories
+pristine and makes for easy clearing up. The build directory is created using
+the command:
+
+----
+wsiwaf configure
+----
+
+This process creates the build directory, checks that all the tools that wsiwaf
+needs to achieve the build as described in `wscript` are available, and sets
+up various internal environment variables. Thus if any changes are made to the
+`wscript` that change what tools are needed, then the `configure` command needs
+to be rerun.
+
+After configuration it is possible to build the system. This is done using:
+
+----
+wsiwaf build
+----
+
+This creates the final release forms of the various components that are to be
+built. For example, it will create any fonts or keyboards. But it does not
+create any installers, these need another command:
+
+----
+wsiwaf exe
+----
+
+This creates the installers described by the various package objects. In turn
+it also builds everything as specified by `wsiwaf build`.
+
+----
+wsiwaf pdfs
+----
+
+This creates font tests output as pdf.
+
+----
+wsiwaf svg
+----
+
+This creates svg test results for fonts.
+
+----
+wsiwaf zip
+----
+
+Creates a zip appropriate for a source package.
+
