@@ -6,7 +6,7 @@ from waflib import Context, Options, Configure, Utils, Logs
 def start(cwd, version, wafdir):
 	# simple example, the file main.c is hard-coded
 	try:
-		os.stat(cwd + '/bbit')
+		os.stat(cwd + os.sep + 'bbit')
 	except:
 		print('call from a folder containing a file named "bbit"')
 		sys.exit(1)
@@ -27,7 +27,7 @@ def start(cwd, version, wafdir):
 
 	do_config = 'configure' in sys.argv
 	try:
-		os.stat(cwd + '/build')
+		os.stat(cwd + os.sep + 'build')
 	except:
 		do_config = True
 	if do_config:

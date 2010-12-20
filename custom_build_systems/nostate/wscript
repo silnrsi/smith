@@ -3,37 +3,10 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-No state: no configuration will be written or read,
-and the build will only use timestamps (not use cache files
-and no signatures). There is no build directory either.
-
-To build, use "./ebd"
-
 See README.txt
-Note from the author: using signatures is of course much better
-this example is for research purposes only
 """
 
-VERSION='0.0.1'
-APPNAME='cc_test'
-
-top = '.'
-out = '.'
-
 def build(bld):
-
-	# annoying
-	bld.load('gcc')
-	bld.find_gcc()
-	bld.find_program('ar', var='AR')
-	bld.env.ARFLAGS = 'rcs'
-	bld.gcc_common_flags()
-	bld.gcc_modifier_platform()
-	bld.cc_load_tools()
-	bld.cc_add_flags()
-	bld.link_add_flags()
-
-
 	bld.program(source='main.c', target='app', use='mylib', cflags=['-O2'])
 	bld.stlib(source='a.c', target='mylib')
 

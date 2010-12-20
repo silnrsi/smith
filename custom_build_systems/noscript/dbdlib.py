@@ -62,7 +62,7 @@ def start(cwd, version, wafdir):
 
 	do_config = 'configure' in sys.argv
 	try:
-		os.stat(cwd + '/c4che')
+		os.stat(cwd + os.sep + 'c4che')
 	except:
 		do_config = True
 	if do_config:

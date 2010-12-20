@@ -6,7 +6,12 @@ import waflib.Tools.c
 
 """
 Create a modified waf file in which tasks use timestamps only
+see README.txt
 """
+
+# we hard-code a configuration for c but it could be left in the script file too
+def configure(conf):
+	conf.load('gcc')
 
 def recurse_rep(x, y):
 	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
@@ -14,12 +19,12 @@ def recurse_rep(x, y):
 
 def start(cwd, version, wafdir):
 	# this is the entry point of our small build system
-	# no script file here
+
 	Logs.init_log()
 	Context.waf_dir = wafdir
 	Context.out_dir = Context.top_dir = Context.run_dir = cwd
-	Context.g_module = Context.load_module(cwd + '/wscript')
-	#Context.g_module = imp.new_module('wscript')
+	Context.g_module = Context.load_module(cwd + os.sep + 'wscript')
+	Context.g_module.configure = configure
 	Context.g_module.root_path = cwd
 	Context.Context.recurse = recurse_rep
 
@@ -27,7 +32,13 @@ def start(cwd, version, wafdir):
 
 	# just parse the options and execute a build
 	Options.OptionsContext().execute()
+
+	conf = Context.create_context('configure')
+	conf.options = Options.options
+	conf.execute()
+
 	bld = Context.create_context('build')
+	bld.env = conf.env
 	bld.options = Options.options
 	bld.environ = os.environ
 	bld.execute()
