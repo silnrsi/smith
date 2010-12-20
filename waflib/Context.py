@@ -204,7 +204,7 @@ class Context(ctx):
 
 		for t in tools:
 			module = load_tool(t, path)
-			fun = getattr(module, self.fun, None)
+			fun = getattr(module, kw.get('name', self.fun), None)
 			if fun:
 				fun(self)
 

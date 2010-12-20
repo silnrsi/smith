@@ -325,38 +325,6 @@ class ConfigurationContext(Context.Context):
 		self.hash = hash((self.hash, node.read('rb')))
 		self.files.append(node.abspath())
 
-	def add_os_flags(self, var, dest=None):
-		"""
-		Import operating system environment values into ``conf.env`` dict::
-
-			def configure(conf):
-				conf.add_os_flags('CFLAGS')
-
-		:param var: variable to use
-		:type var: string
-		:param dest: destination variable, by default the same as var
-		:type dest: string
-		"""
-		# do not use 'get' to make certain the variable is not defined
-		try: self.env.append_value(dest or var, shlex.split(self.environ[var]))
-		except KeyError: pass
-
-	def cmd_to_list(self, cmd):
-		"""
-		Detect if a command is written in pseudo shell like ``ccache g++`` and return a list.
-
-		:param cmd: command
-		:type cmd: a string or a list of string
-		"""
-		if isinstance(cmd, str) and cmd.find(' '):
-			try:
-				os.stat(cmd)
-			except OSError:
-				return shlex.split(cmd)
-			else:
-				return [cmd]
-		return cmd
-
 	def eval_rules(self, rules):
 		"""
 		Execute the configuration tests. The method :py:meth:`waflib.Configure.ConfigurationContext.err_handler`
@@ -413,6 +381,40 @@ def conf(f):
 	setattr(ConfigurationContext, f.__name__, fun)
 	setattr(Build.BuildContext, f.__name__, fun)
 	return f
+
+@conf
+def add_os_flags(self, var, dest=None):
+	"""
+	Import operating system environment values into ``conf.env`` dict::
+
+		def configure(conf):
+			conf.add_os_flags('CFLAGS')
+
+	:param var: variable to use
+	:type var: string
+	:param dest: destination variable, by default the same as var
+	:type dest: string
+	"""
+	# do not use 'get' to make certain the variable is not defined
+	try: self.env.append_value(dest or var, shlex.split(self.environ[var]))
+	except KeyError: pass
+
+@conf
+def cmd_to_list(self, cmd):
+	"""
+	Detect if a command is written in pseudo shell like ``ccache g++`` and return a list.
+
+	:param cmd: command
+	:type cmd: a string or a list of string
+	"""
+	if isinstance(cmd, str) and cmd.find(' '):
+		try:
+			os.stat(cmd)
+		except OSError:
+			return shlex.split(cmd)
+		else:
+			return [cmd]
+	return cmd
 
 @conf
 def check_waf_version(self, mini='1.6.0', maxi='1.7.0'):
