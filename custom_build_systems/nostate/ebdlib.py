@@ -44,7 +44,7 @@ def start(cwd, version, wafdir):
 	bld.execute()
 
 # change the build context so it does not need to write any file
-class B2(Build.BuildContext):
+class StatelessBuild(Build.BuildContext):
 	def load_envs(self):
 		self.env = ConfigSet.ConfigSet()
 	def store(self):
@@ -68,12 +68,12 @@ class B2(Build.BuildContext):
 				print('')
 		self.post_build()
 
-class B3(Configure.ConfigurationContext):
+class SilentConf(Configure.ConfigurationContext):
 	# silent configuration
 	def __init__(self, **kw):
 		# disable the configuration messages from Context.start_msg/end_msg
 		self.in_msg = 1
-		super(B3, self).__init__(**kw)
+		super(SilentConf, self).__init__(**kw)
 
 	def execute(self):
 
