@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, sys, imp
+import os, sys, imp, time
 from waflib import Context, Options, Configure, Utils, Logs, TaskGen, Task, Build, ConfigSet
 import waflib.Tools.c
 
@@ -51,11 +51,57 @@ class B2(Build.BuildContext):
 		pass
 	def restore(self):
 		self.init_dirs()
+	def execute_build(self):
+		# we override this method to hide the messages "leaving directory" (just because)
+		self.recurse([self.run_dir])
+		self.pre_build()
+
+		self.timer = Utils.Timer()
+
+		if Options.options.progress_bar:
+			sys.stderr.write(Logs.colors.cursor_off)
+		try:
+			self.compile()
+		finally:
+			if Options.options.progress_bar:
+				sys.stderr.write(Logs.colors.cursor_on)
+				print('')
+		self.post_build()
 
 class B3(Configure.ConfigurationContext):
+	# silent configuration
 	def __init__(self, **kw):
+		# disable the configuration messages from Context.start_msg/end_msg
 		self.in_msg = 1
 		super(B3, self).__init__(**kw)
+
+	def execute(self):
+
+		# copy-paste from the original method, but without the cache file creation
+		self.init_dirs()
+
+		self.cachedir = self.bldnode.make_node(Build.CACHE_DIR)
+		self.cachedir.mkdir()
+
+		path = os.path.join(self.bldnode.abspath(), 'config.log')
+		self.logger = Logs.make_logger(path, 'cfg')
+
+		app = getattr(Context.g_module, 'APPNAME', '')
+		if app:
+			ver = getattr(Context.g_module, 'VERSION', '')
+			if ver:
+				app = "%s (%s)" % (app, ver)
+
+		now = time.ctime()
+		pyver = sys.hexversion
+		systype = sys.platform
+		args = " ".join(sys.argv)
+		wafver = Context.WAFVERSION
+		abi = Context.ABI
+		self.to_log(Configure.conf_template % vars())
+
+		super(Configure.ConfigurationContext, self).execute()
+
 
 # change the superclass of existing tasks to force timestamps (the build has no state)
 def status(self):
