@@ -28,7 +28,7 @@ def start(cwd, version, wafdir):
 	Context.g_module.root_path = cwd
 	Context.Context.recurse = recurse_rep
 
-	Context.g_module.top = Context.g_module.out = '.'
+	Context.g_module.top = Context.g_module.out = '.' # no build directory
 
 	# just parse the options and execute a build
 	Options.OptionsContext().execute()
@@ -51,6 +51,11 @@ class B2(Build.BuildContext):
 		pass
 	def restore(self):
 		self.init_dirs()
+
+class B3(Configure.ConfigurationContext):
+	def __init__(self, **kw):
+		self.in_msg = 1
+		super(B3, self).__init__(**kw)
 
 # change the superclass of existing tasks to force timestamps (the build has no state)
 def status(self):
