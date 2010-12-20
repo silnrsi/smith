@@ -80,9 +80,6 @@ class B3(Configure.ConfigurationContext):
 		# copy-paste from the original method, but without the cache file creation
 		self.init_dirs()
 
-		self.cachedir = self.bldnode.make_node(Build.CACHE_DIR)
-		self.cachedir.mkdir()
-
 		path = os.path.join(self.bldnode.abspath(), 'config.log')
 		self.logger = Logs.make_logger(path, 'cfg')
 
@@ -120,7 +117,10 @@ def status(self):
 
 	for x in self.inputs + self.dep_nodes + implicit_deps:
 		for y in self.outputs:
-			if os.stat(x.abspath()).st_mtime > os.stat(y.abspath()).st_mtime:
+			try:
+				if os.stat(x.abspath()).st_mtime > os.stat(y.abspath()).st_mtime:
+					return Task.RUN_ME
+			except:
 				return Task.RUN_ME
 
 	return Task.SKIP_ME
