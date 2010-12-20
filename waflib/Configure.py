@@ -89,7 +89,7 @@ class ConfigurationContext(Context.Context):
 	"""
 
 	def __init__(self, **kw):
-		super(self.__class__, self).__init__(**kw)
+		super(ConfigurationContext, self).__init__(**kw)
 		self.environ = dict(os.environ)
 		self.all_envs = {}
 
