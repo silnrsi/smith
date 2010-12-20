@@ -239,7 +239,7 @@ class Context(ctx):
 		if self.cur_script:
 			self.path = self.cur_script.parent
 
-	def recurse(self, dirs, name=None, mandatory=True):
+	def recurse(self, dirs, name=None, mandatory=True, once=True):
 		"""
 		Run user code from the supplied list of directories.
 		The directories can be either absolute, or relative to the directory
@@ -252,7 +252,14 @@ class Context(ctx):
 		:type  name: string
 		:param mandatory: whether sub wscript files are required to exist
 		:type  mandatory: bool
+		:param once: read the script file once for a particular context
+		:type once: bool
 		"""
+		try:
+			cache = self.recurse_cache
+		except:
+			cache = self.recurse_cache = {}
+
 		for d in Utils.to_list(dirs):
 
 			if not os.path.isabs(d):
@@ -263,31 +270,33 @@ class Context(ctx):
 			WSCRIPT_FUN = WSCRIPT + '_' + (name or self.fun)
 
 			node = self.root.find_node(WSCRIPT_FUN)
-			if node:
+			if node and (not once or node not in cache):
+				cache[node] = True
 				self.pre_recurse(node)
 				try:
 					function_code = node.read('rU')
 					exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
 				finally:
 					self.post_recurse(node)
-
-			else:
+			elif not node:
 				node = self.root.find_node(WSCRIPT)
-				if not node:
+				if node and (not once or node not in cache):
+					cache[node] = True
+					self.pre_recurse(node)
+					try:
+						wscript_module = load_module(node.abspath())
+						user_function = getattr(wscript_module, (name or self.fun), None)
+						if not user_function:
+							if not mandatory:
+								continue
+							raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
+						user_function(self)
+					finally:
+						self.post_recurse(node)
+				elif not node:
 					if not mandatory:
 						continue
 					raise Errors.WafError('No wscript file in directory %s' % d)
-				self.pre_recurse(node)
-				try:
-					wscript_module = load_module(node.abspath())
-					user_function = getattr(wscript_module, (name or self.fun), None)
-					if not user_function:
-						if not mandatory:
-							continue
-						raise Errors.WafError('No function %s defined in %s' % (name or self.fun, node.abspath()))
-					user_function(self)
-				finally:
-					self.post_recurse(node)
 
 	def exec_command(self, cmd, **kw):
 		"""
