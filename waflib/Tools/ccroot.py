@@ -386,8 +386,10 @@ def apply_implib(self):
 			raise Errors.WafError('invalid def file %r' % self.defs)
 		if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
 			self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
-		#gcc for windows takes *.def file a an input without any special flag
-		self.link_task.inputs.append(node)
+			self.link_task.dep_nodes.append(node)
+		else:
+			#gcc for windows takes *.def file a an input without any special flag
+			self.link_task.inputs.append(node)
 
 	try:
 		inst_to = self.install_path
