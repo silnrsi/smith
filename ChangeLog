@@ -18,6 +18,8 @@ NEW IN WAF 1.6.2
 * Ported the batch executor to waf 1.6 (batched_cc)
 * New tools: erlang, scala
 * Moved conf.multicheck(..) from playground to the library
+* New parameter to avoid reading the same scripts: bld.recurse(dir, once=True)
+* Detect invalid method calls in 'waf -v' such as env.append/env.add/env.prepend
 
 NEW IN WAF 1.6.1
 ----------------

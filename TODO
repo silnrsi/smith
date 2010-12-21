@@ -11,7 +11,6 @@ LOW PRIORITY (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)
 + CMake file interpreter
-+ multiprocess for distributed compilation (vs threads?)
 + rewrite the boost detection (boost.py)
 
 DOCUMENTATION
