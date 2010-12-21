@@ -21,7 +21,7 @@ typos = {
 
 meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 
-from waflib import Logs, Build, Node, Task, TaskGen
+from waflib import Logs, Build, Node, Task, TaskGen, ConfigSet, Errors
 import waflib.Tools.ccroot
 
 def replace(m):
@@ -93,6 +93,19 @@ def enhance_lib():
 
 		return old_compile(self)
 	Build.BuildContext.compile = check_compile
+
+	# check for env.append
+	def getattr(self, name):
+		if name == 'append' or name == 'add':
+			raise Errors.WafError('env.append and env.add do not exist: use env.append_value/env.append_unique')
+		elif name == 'prepend':
+			raise Errors.WafError('env.prepend does not exist: use env.prepend_value')
+		if name in self.__slots__:
+			return object.__getattr__(self, name)
+		else:
+			return self[name]
+	ConfigSet.ConfigSet.__getattr__ = getattr
+
 
 def options(opt):
 	"""
