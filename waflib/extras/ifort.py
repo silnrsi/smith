@@ -16,10 +16,6 @@ def find_ifort(conf):
 	conf.env.FC_NAME = 'IFORT'
 
 @conf
-def ifort_modifier_win32(conf):
-	raise NotImplementedError("Ifort on win32 not yet implemented")
-
-@conf
 def ifort_modifier_cygwin(conf):
 	raise NotImplementedError("Ifort on cygwin not yet implemented")
 
