@@ -26,7 +26,7 @@ def build(bld):
 	# if you are using an external dict, here is to merge the key/values:
 	dct =  {'BINDIR': '/opt'}
 	tg.__dict__.update(dct)
-
+	return
 	# this one is just a reminder that simple files can be created (and a test too)
 	bld(rule='echo "การไฟ่" > ${TGT}', target='foo.txt')
 
