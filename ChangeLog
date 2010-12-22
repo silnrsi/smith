@@ -14,7 +14,7 @@ NEW IN WAF 1.6.2
 * Detect when the folders were copied and prompt for "waf configure"
 * Parse_flags for the *-config outputs on windows (backslashes) #811
 * Fix the doxygen task build order + improve the dependency scanner #821
-* Fix the reading of CFLAGS and CXXFLAGS with msvc #819
+* Various msvc fixes #819, #826, #825
 * Ported the batch executor to waf 1.6 (batched_cc)
 * New tools: erlang, scala
 * Moved conf.multicheck(..) from playground to the library
