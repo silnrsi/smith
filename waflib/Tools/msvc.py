@@ -126,7 +126,7 @@ echo LIB=%%LIB%%
 	sout = conf.cmd_and_log(['cmd', '/E:on', '/V:on', '/C', batfile.abspath()])
 	lines = sout.splitlines()
 
-	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler'):
+	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler', 'Intel Parallel Studio'):
 		if lines[0].find(x) != -1:
 			break
 	else:
@@ -341,6 +341,20 @@ def gather_icl_versions(conf, versions):
 		if not version_pattern.match(version):
 			continue
 		targets = []
+		for target,arch in all_icl_platforms:
+			try:
+				if target=='intel64': targetDir='EM64T_NATIVE'
+				else: targetDir=target
+				_winreg.OpenKey(all_versions,version+'\\'+targetDir)
+				icl_version=_winreg.OpenKey(all_versions,version)
+				path,type=_winreg.QueryValueEx(icl_version,'ProductDir')
+				if os.path.isfile(os.path.join(path,'bin','iclvars.bat')):
+					try:
+						targets.append((target,(arch,conf.get_msvc_version('intel',version,target,os.path.join(path,'bin','iclvars.bat')))))
+					except conf.errors.ConfigurationError:
+						pass
+			except WindowsError:
+				pass
 		for target,arch in all_icl_platforms:
 			try:
 				icl_version = _winreg.OpenKey(all_versions, version+'\\'+target)
