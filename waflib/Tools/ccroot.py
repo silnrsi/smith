@@ -375,7 +375,11 @@ def apply_implib(self):
 		return
 
 	dll = self.link_task.outputs[0]
-	implib = self.env['implib_PATTERN'] % os.path.split(self.target)[1]
+	if isinstance(self.target, Node.Node):
+		name = self.target.name
+	else:
+		name = os.path.split(self.target)[1]
+	implib = self.env['implib_PATTERN'] % name
 	implib = dll.parent.find_or_declare(implib)
 	self.env.append_value('LINKFLAGS', self.env['IMPLIB_ST'] % implib.bldpath())
 	self.link_task.outputs.append(implib)
