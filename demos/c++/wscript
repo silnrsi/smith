@@ -15,7 +15,6 @@ def options(opt):
 
 def configure(conf):
 	conf.load('compiler_cxx')
-	conf.load('compiler_cxx')
 	conf.check(header_name='stdio.h', features='cxx cxxprogram', mandatory=False)
 
 def build(bld):
