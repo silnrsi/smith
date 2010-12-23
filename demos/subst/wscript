@@ -28,5 +28,5 @@ def build(bld):
 	tg.__dict__.update(dct)
 
 	# this one is just a reminder that simple files can be created (and a test too)
-	bld(rule='echo "การไฟ่" > ${TGT}', target='foo.txt')
+	#bld(rule='echo "การไฟ่" > ${TGT}', target='foo.txt')
 
