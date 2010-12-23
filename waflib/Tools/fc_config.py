@@ -4,7 +4,7 @@
 # Thomas Nagy 2010 (ita)
 
 """
-fortran configuration helpers
+Fortran configuration helpers
 """
 
 import re, shutil, os, sys, string, shlex
@@ -18,6 +18,9 @@ FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual differe
 
 @conf
 def fc_flags(conf):
+	"""
+	Define common fortran configuration flags and file extensions
+	"""
 	v = conf.env
 
 	v['FC_SRC_F']    = []
@@ -47,7 +50,7 @@ def fc_flags(conf):
 
 @conf
 def check_fortran(self, *k, **kw):
-	"""see if the compiler works by compiling a fragment"""
+	"""See if the fortran compiler works by compiling a simple fortran program"""
 	self.check_cc(
 		fragment         = FC_FRAGMENT,
 		compile_filename = 'test.f',
@@ -61,6 +64,9 @@ def check_fortran(self, *k, **kw):
 
 @conf
 def fortran_modifier_darwin(conf):
+	"""
+	Define fortran flags and extensions for the OSX systems
+	"""
 	v = conf.env
 	v['FCFLAGS_fcshlib']   = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_fcshlib'] = ['-dynamiclib']
@@ -77,6 +83,7 @@ def fortran_modifier_darwin(conf):
 
 @conf
 def fortran_modifier_win32(conf):
+	"""Define fortran flags for the windows platforms"""
 	v = conf.env
 	v['fcprogram_PATTERN']    = '%s.exe'
 
@@ -95,6 +102,7 @@ def fortran_modifier_win32(conf):
 
 @conf
 def fortran_modifier_cygwin(conf):
+	"""Define fortran flags for use on cygwin"""
 	fortran_modifier_win32(conf)
 	v = conf.env
 	v['fcshlib_PATTERN'] = 'cyg%s.dll'
@@ -166,7 +174,7 @@ def is_link_verbose(self, txt):
 @conf
 def check_fortran_verbose_flag(self, *k, **kw):
 	"""
-	check what kind of -v flag works, then set it to env.FC_VERBOSE_FLAG
+	Check what kind of verbose (-v) flag works, then set it to env.FC_VERBOSE_FLAG
 	"""
 	self.start_msg('fortran link verbose flag')
 	for x in ['-v', '--verbose', '-verbose', '-V']:
@@ -203,7 +211,7 @@ else:
 RLINKFLAGS_IGNORED = [re.compile(f) for f in LINKFLAGS_IGNORED]
 
 def _match_ignore(line):
-	"""True if the line should be ignored."""
+	"""Returns True if the line should be ignored (fortran test for verbosity)."""
 	for i in RLINKFLAGS_IGNORED:
 		if i.match(line):
 			return True
@@ -276,7 +284,7 @@ def _parse_flink_line(line, final_flags):
 @conf
 def check_fortran_clib(self, autoadd=True, *k, **kw):
 	"""
-	Obtain flags for linking with the c library
+	Obtain the flags for linking with the C library
 	if this check works, add uselib='CLIB' to your task generators
 	"""
 	if not self.env.FC_VERBOSE_FLAG:
@@ -304,7 +312,7 @@ def check_fortran_clib(self, autoadd=True, *k, **kw):
 
 def getoutput(conf, cmd, stdin=False):
 	"""
-	TODO a bit redundant
+	TODO a bit redundant, can be removed anytime
 	"""
 	try:
 		if stdin:
@@ -349,8 +357,8 @@ int %(main_func_name)s() {
 @before('process_source')
 def link_main_routines_tg_method(self):
 	"""
-	the configuration test declares a unique task generator,
-	so we create other task generators from there
+	The configuration test declares a unique task generator,
+	so we create other task generators from there for fortran link tests
 	"""
 	def write_test_file(task):
 		task.outputs[0].write(task.generator.code)
@@ -362,7 +370,7 @@ def link_main_routines_tg_method(self):
 
 def mangling_schemes():
 	"""
-	generate triplets for use with mangle_name
+	Generate triplets for use with mangle_name
 	(used in check_fortran_mangling)
 	the order is tuned for gfortan
 	"""
@@ -372,15 +380,15 @@ def mangling_schemes():
 				yield (u, du, c)
 
 def mangle_name(u, du, c, name):
-	"""mangle a name from a triplet (used in check_fortran_mangling)"""
+	"""Mangle a name from a triplet (used in check_fortran_mangling)"""
 	return getattr(name, c)() + u + (name.find('_') != -1 and du or '')
 
 @conf
 def check_fortran_mangling(self, *k, **kw):
 	"""
-	detect the mangling scheme, sets FORTRAN_MANGLING to the triplet found
+	Detect the mangling scheme, sets FORTRAN_MANGLING to the triplet found
 
-	compile a fortran static library, then link a c app against it
+	This test will compile a fortran static library, then link a c app against it
 	"""
 	if not self.env.CC:
 		self.fatal('A c compiler is required for link_main_routines')
@@ -417,4 +425,6 @@ def check_fortran_mangling(self, *k, **kw):
 @feature('pyext')
 @before('propagate_uselib_vars', 'apply_link')
 def set_lib_pat(self):
+	"""Set the fortran flags for linking with the python library"""
 	self.env['fcshlib_PATTERN'] = self.env['pyext_PATTERN']
+

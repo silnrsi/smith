@@ -13,14 +13,10 @@ INC_REGEX = """(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""
 USE_REGEX = """(?:^|;)\s*USE(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
 MOD_REGEX = """(?:^|;)\s*MODULE(?!\s*PROCEDURE)(?:\s+|(?:(?:\s*,\s*(?:NON_)?INTRINSIC)?\s*::))\s*(\w+)"""
 
-EXT_MOD = ".mod"
-
 # TODO (DC)
 #   - handle pre-processed files (FORTRANPPCOM in scons)
-#   - handle modules
 #   - handle multiple dialects
-#   - windows...
-# TODO (ita) understand what does all that mean ^^
+# TODO (ita) understand what the above is supposed to mean ^^
 
 re_inc = re.compile(INC_REGEX, re.I)
 re_use = re.compile(USE_REGEX, re.I)
@@ -28,25 +24,35 @@ re_mod = re.compile(MOD_REGEX, re.I)
 
 class fortran_parser(object):
 	"""
-	we cannot do it at once from a scanner function, so the idea is to let the method
-	runnable_status from the fortran task do a global resolution on the names found
+	This parser will return:
 
-	the scanning will then return:
-	* the nodes of the module names that will be produced
-	* the nodes of the include files that will be used
-	* the names of the modules to use
+	* the nodes corresponding to the module names that will be produced
+	* the nodes corresponding to the include files used
+	* the module names used by the fortran file
 	"""
 
 	def __init__(self, incpaths):
 		self.seen = []
+		"""Files already parsed"""
 
 		self.nodes = []
+		"""List of :py:class:`waflib.Node.Node` representing the dependencies to return"""
+
 		self.names = []
+		"""List of module names to return"""
 
 		self.incpaths = incpaths
+		"""List of :py:class:`waflib.Node.Node` representing the include paths"""
 
 	def find_deps(self, node):
-		"""read a file and output what the regexps say about it"""
+		"""
+		Parse a fortran file to read the dependencies used and provided
+
+		:param node: fortran file to read
+		:type node: :py:class:`waflib.Node.Node`
+		:return: lists representing the includes, the modules used, and the modules created by a fortran file
+		:rtype: tuple of list of strings
+		"""
 		txt = node.read()
 		incs = []
 		uses = []
@@ -65,13 +71,22 @@ class fortran_parser(object):
 		return (incs, uses, mods)
 
 	def start(self, node):
-		"""use the stack self.waiting to hold the nodes to iterate on"""
+		"""
+		Start the parsing. Use the stack self.waiting to hold the nodes to iterate on
+
+		:param node: fortran file
+		:type node: :py:class:`waflib.Node.Node`
+		"""
 		self.waiting = [node]
 		while self.waiting:
 			nd = self.waiting.pop(0)
 			self.iter(nd)
 
 	def iter(self, node):
+		"""
+		Process a single file in the search for dependencies, extract the files used
+		the modules used, and the modules provided.
+		"""
 		path = node.abspath()
 		incs, uses, mods = self.find_deps(node)
 		for x in incs:
@@ -90,14 +105,13 @@ class fortran_parser(object):
 			if not name in self.names:
 				self.names.append(name)
 
-		#for x in mods:
-		#	node = self.task.generator.bld.bldnode.find_or_declare(x + EXT_MOD)
-		#	assert(node)
-		#	if node.abspath() in self.seen:
-		#		continue
-		#	self.task.set_inputs(node)
-
 	def tryfind_header(self, filename):
+		"""
+		Try to find an include and add it the nodes to process
+
+		:param filename: file name
+		:type filename: string
+		"""
 		found = None
 		for n in self.incpaths:
 			found = n.find_resource(filename)
@@ -109,11 +123,4 @@ class fortran_parser(object):
 			if not filename in self.names:
 				self.names.append(filename)
 
-def scan(self):
-	tmp = fortran_parser(self.generator.includes_nodes)
-	tmp.task = self
-	tmp.start(self.inputs[0])
-	if Logs.verbose:
-		Logs.debug('deps: deps for %r: %r; unresolved %r' % (self.inputs, tmp.nodes, tmp.names))
-	return (tmp.nodes, tmp.names)
 

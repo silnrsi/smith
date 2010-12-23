@@ -10,6 +10,7 @@ from waflib.Configure import conf
 
 @conf
 def find_gfortran(conf):
+	"""Find the gfortran program (will look in the environment variable 'FC')"""
 	fc = conf.find_program('gfortran', var='FC')
 	fc = conf.cmd_to_list(fc)
 	conf.get_gfortran_version(fc)
@@ -43,7 +44,7 @@ def gfortran_modifier_platform(conf):
 
 @conf
 def get_gfortran_version(conf, fc):
-	"""get the compiler version"""
+	"""Get the compiler version"""
 
 	# ensure this is actually gfortran, not an imposter.
 	version_re = re.compile(r"GNU\s*Fortran", re.I).search

@@ -1002,7 +1002,7 @@ def scan(task):
 
 		#include some_macro()
 
-	Replacing this method may be a better choice than replacing "ccroot.scan" from all the tasks that use it
+	This function is bound as a task method on :py:class:`waflib.Tools.c.c` and :py:class:`waflib.Tools.cxx.cxx` for example
 	"""
 
 	global go_absolute

@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import os, sys, imp, types
-from waflib import Utils, Configure, Options, Logs
+from waflib import Utils, Configure, Options, Logs, Errors
 from waflib.extras import fc
 
 fc_compiler = {
@@ -20,10 +20,11 @@ def __list_possible_compiler(platform):
 		return fc_compiler["default"]
 
 def configure(conf):
-	try:
-		test_for_compiler = Options.options.check_fc
-	except AttributeError:
-		raise Configure.ConfigurationError("Add set_options(opt): opt.load('compiler_fortran')")
+	"""
+	Try to find a suitable C compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
+	"""
+	try: test_for_compiler = conf.options.check_fc
+	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_fc')")
 	orig = conf.env
 	for compiler in test_for_compiler.split():
 		try:
@@ -45,6 +46,11 @@ def configure(conf):
 		conf.fatal('could not configure a fortran compiler!')
 
 def options(opt):
+	"""
+	Restrict the compiler detection from the command-line::
+
+		$ waf configure --check-fortran-compiler=ifort
+	"""
 	build_platform = Utils.unversioned_sys_platform()
 	detected_platform = Options.platform
 	possible_compiler_list = __list_possible_compiler(detected_platform)
