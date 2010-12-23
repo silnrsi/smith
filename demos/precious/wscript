@@ -14,9 +14,16 @@ def build(bld):
 
 	node = bld.path.find_resource('precious.c')
 
+	def fun(task):
+		import random
+		val = random.randint(0, 222111000)
+		task.outputs[0].write('#include <stdio.h>\nint main(){ printf("%%d", %d); return 0;}' % val)
+
 	bld(
-		rule = '''echo -e "#include <stdio.h>\\nint main(){ printf(\\"%%d\\", $$RANDOM); return 0;}" > ${TGT}''',
+		#rule = '''echo -e "#include <stdio.h>\\nint main(){ printf(\\"%%d\\", $$RANDOM); return 0;}" > ${TGT}''',
+		rule = fun,
 		target = node,
+		always = True,
 		update_outputs = True)
 
 	bld.program(
