@@ -50,7 +50,7 @@ def configure(conf):
 			conf.env.append_value('PYTHONS', x)
 
 	conf.in_msg += 1
-	for d in conf.path.ant_glob('*', excl=['build', 'variants'], src=False, dir=True):
+	for d in conf.path.ant_glob('*', excl=['build', 'variants', 'precious'], src=False, dir=True):
 		if d.name[0] == '.':
 			continue
 
