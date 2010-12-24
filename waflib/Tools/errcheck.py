@@ -49,9 +49,10 @@ def enhance_lib():
 	# catch '..' in ant_glob patterns
 	old_ant_glob = Node.Node.ant_glob
 	def ant_glob(self, *k, **kw):
-		for x in k[0].split('/'):
-			if x == '..':
-				Logs.error("In ant_glob pattern %r: '..' means 'two dots', not 'parent directory'" % k[0])
+		if k:
+			for x in k[0].split('/'):
+				if x == '..':
+					Logs.error("In ant_glob pattern %r: '..' means 'two dots', not 'parent directory'" % k[0])
 		return old_ant_glob(self, *k, **kw)
 	Node.Node.ant_glob = ant_glob
 
