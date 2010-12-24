@@ -18,7 +18,7 @@ def options(opt):
 
 		try:
 			opt.recurse(d.name)
-		except Exception as e:
+		except:
 			pass
 
 	# one sub-project uses autoconfig, but i do not want it here
@@ -58,7 +58,7 @@ def configure(conf):
 
 		try:
 			conf.recurse(d.name)
-		except Exception as e:
+		except:
 			pass
 		else:
 			conf.env.append_value('CFG', [d.name])
@@ -74,7 +74,8 @@ def build(bld):
 		env['WAFLOCK'] = '.lock-wscript' + self.generator.python # use a different build directory for each build
 		try:
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
-		except Exception as e:
+		except:
+			e = sys.exc_info()[1]
 			print e.stderr, e.stdout
 			print('broken %r %r' % (self.generator.python, self.generator.cwd))
 		#else:
