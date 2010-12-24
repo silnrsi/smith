@@ -780,10 +780,34 @@ def exec_mf(self):
 	lst.extend(Utils.to_list(manifest))
 	lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
 
-	#cmd='%s %s -manifest "%s" -outputresource:"%s";#%s' % (mtool, flags,
-	#	manifest, outfile, mode)
 	lst = [lst]
 	return self.exec_command(*lst)
+
+def quote_response_command(flag):
+	if flag.find(' ') > -1:
+		for x in ('/LIBPATH:', '/IMPLIB:', '/OUT:', '/I'):
+			if flag.startswith(x):
+				flag = '%s"%s"' % (x + flag[len(x):])
+				break
+		else:
+			flag = '"%s"' % flag
+	return flag
+
+def exec_response_command(self, cmd, fun, **kw)
+	# not public yet
+	try:
+		if sys.platform.startswith('win') and isinstance(cmd, list) and len(' '.join(cmd)) >= 8192:
+			(fd, tmp) = tempfile.mkstemp()
+			cmd = [self.quote_response_command(x) for x in cmd]
+			os.write(fd, ' '.join(cmd[1:]).encode())
+			os.close(fd)
+			cmd = [cmd[0], '@' + tmp]
+		# no return here, that's on purpose
+		ret = self.generator.bld.exec_command(cmd, **kw)
+	finally:
+		if tmp:
+			os.remove(tmp)
+	return ret
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
 
@@ -815,14 +839,16 @@ def exec_command_msvc(self, *k, **kw):
 	except AttributeError:
 		bld.cwd = kw['cwd'] = bld.variant_dir
 
-	ret = self.generator.bld.exec_command(*k, **kw)
-	if ret: return ret
-	if getattr(self, 'do_manifest', None):
-		ret = exec_mf(self)
+	ret = self.exec_response_command(k[0], **kw)
+	if not ret and getattr(self, 'do_manifest', None):
+		ret = self.exec_mf(self)
 	return ret
 
 for k in 'c cxx winrc cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib qxx'.split():
 	cls = Task.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
+		cls.exec_response_command = exec_response_command
+		cls.quote_response_command = quote_response_command
+		cls.exec_mf = exec_mf
 
