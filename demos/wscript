@@ -87,3 +87,6 @@ def build(bld):
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 
+def installcheck(ctx):
+	pass
+
