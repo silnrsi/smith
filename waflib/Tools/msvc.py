@@ -793,7 +793,7 @@ def quote_response_command(flag):
 			flag = '"%s"' % flag
 	return flag
 
-def exec_response_command(self, cmd, fun, **kw)
+def exec_response_command(self, cmd, fun, **kw):
 	# not public yet
 	try:
 		if sys.platform.startswith('win') and isinstance(cmd, list) and len(' '.join(cmd)) >= 8192:
