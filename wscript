@@ -89,7 +89,7 @@ def options(opt):
 	opt.add_option('--make-waf', action='store_true', default=False,
 		help='creates the waf script', dest='waf')
 
-	opt.add_option('--zip-type', action='store', default='bz2',
+	opt.add_option('--zip-type', action='store', default='gz',
 		help='specify the zip type [Allowed values: %s]' % ' '.join(zip_types), dest='zip')
 
 	opt.add_option('--make-batch', action='store_true', default=False,
