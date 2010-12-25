@@ -777,7 +777,7 @@ def exec_mf(self):
 	lst.append(env['MT'])
 	lst.extend(Utils.to_list(env['MTFLAGS']))
 	lst.extend(['-manifest', manifest])
-	lst.append('-outputresource:%s;%s' % (outfile, mode)))
+	lst.append('-outputresource:%s;%s' % (outfile, mode))
 
 	lst = [lst]
 	return self.exec_command(*lst)
