@@ -774,11 +774,10 @@ def exec_mf(self):
 	debug('msvc: embedding manifest in mode %r' % mode)
 
 	lst = []
-	lst.extend([env['MT']])
+	lst.append(env['MT'])
 	lst.extend(Utils.to_list(env['MTFLAGS']))
-	lst.extend(Utils.to_list("-manifest"))
-	lst.extend(Utils.to_list(manifest))
-	lst.extend(Utils.to_list("-outputresource:%s;%s" % (outfile, mode)))
+	lst.extend(['-manifest', manifest])
+	lst.append('-outputresource:%s;%s' % (outfile, mode)))
 
 	lst = [lst]
 	return self.exec_command(*lst)
