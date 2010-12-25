@@ -26,13 +26,13 @@ def xlc_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CC_SRC_F']            = ''
-	v['CC_TGT_F']            = ['-c', '-o', ''] # shell hack for -MD
+	v['CC_SRC_F']            = []
+	v['CC_TGT_F']            = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
-	v['CCLNK_SRC_F']         = ''
-	v['CCLNK_TGT_F']         = ['-o', ''] # shell hack for -MD
+	v['CCLNK_SRC_F']         = []
+	v['CCLNK_TGT_F']         = ['-o']
 	v['CPPPATH_ST'] = '-I%s'
 	v['DEFINES_ST'] = '-D%s'
 
@@ -59,11 +59,11 @@ def xlc_common_flags(conf):
 	v['LINKFLAGS_cstlib'] = ''
 	v['cstlib_PATTERN']   = 'lib%s.a'
 
-configure = '''
-find_xlc
-find_ar
-xlc_common_flags
-cc_load_tools
-cc_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_xlc()
+	conf.find_ar()
+	conf.xlc_common_flags()
+	conf.cc_load_tools()
+	conf.cc_add_flags()
+	conf.link_add_flags()
+

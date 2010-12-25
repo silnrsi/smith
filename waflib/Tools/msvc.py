@@ -517,19 +517,18 @@ def no_autodetect(conf):
 	conf.eval_rules(detect.replace('autodetect', ''))
 
 
-configure = '''
-autodetect
-find_msvc
-msvc_common_flags
-cc_load_tools
-cxx_load_tools
-cc_add_flags
-cxx_add_flags
-link_add_flags
-'''
-"""
-Configuration methods to call for detecting msvc
-"""
+def configure(conf):
+	"""
+	Configuration methods to call for detecting msvc
+	"""
+	conf.autodetect()
+	conf.find_msvc()
+	conf.msvc_common_flags()
+	conf.cc_load_tools()
+	conf.cxx_load_tools()
+	conf.cc_add_flags()
+	conf.cxx_add_flags()
+	conf.link_add_flags()
 
 @conf
 def autodetect(conf):

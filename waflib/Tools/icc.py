@@ -32,12 +32,11 @@ def find_icc(conf):
 	v['CC'] = cc
 	v['CC_NAME'] = 'icc'
 
-configure = '''
-find_icc
-find_ar
-gcc_common_flags
-gcc_modifier_platform
-cc_load_tools
-cc_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_icc()
+	conf.find_ar()
+	conf.gcc_common_flags()
+	conf.gcc_modifier_platform()
+	conf.cc_load_tools()
+	conf.cc_add_flags()
+	conf.link_add_flags()

@@ -31,13 +31,13 @@ def gcc_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CC_SRC_F']            = ''
-	v['CC_TGT_F']            = ['-c', '-o', ''] # shell hack for -MD
+	v['CC_SRC_F']            = []
+	v['CC_TGT_F']            = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
-	v['CCLNK_SRC_F']         = ''
-	v['CCLNK_TGT_F']         = ['-o', ''] # shell hack for -MD
+	v['CCLNK_SRC_F']         = []
+	v['CCLNK_TGT_F']         = ['-o']
 	v['CPPPATH_ST']          = '-I%s'
 	v['DEFINES_ST']          = '-D%s'
 
@@ -55,7 +55,7 @@ def gcc_common_flags(conf):
 	v['cprogram_PATTERN']    = '%s'
 
 	# shared librar
-	v['CFLAGS_cshlib']      = ['-fPIC']
+	v['CFLAGS_cshlib']       = ['-fPIC']
 	v['LINKFLAGS_cshlib']    = ['-shared']
 	v['cshlib_PATTERN']      = 'lib%s.so'
 
@@ -65,7 +65,7 @@ def gcc_common_flags(conf):
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
-	v['CFLAGS_MACBUNDLE']   = ['-fPIC']
+	v['CFLAGS_MACBUNDLE']    = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
 @conf
@@ -78,7 +78,7 @@ def gcc_modifier_win32(conf):
 	v['implib_PATTERN']      = 'lib%s.dll.a'
 	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
 
-	v['CFLAGS_cshlib']      = []
+	v['CFLAGS_cshlib']       = []
 
 	v.append_value('CFLAGS_cshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
@@ -100,7 +100,7 @@ def gcc_modifier_cygwin(conf):
 def gcc_modifier_darwin(conf):
 	"""Configuration flags for executing gcc on MacOS"""
 	v = conf.env
-	v['CFLAGS_cshlib']      = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
+	v['CFLAGS_cshlib']       = ['-fPIC', '-compatibility_version', '1', '-current_version', '1']
 	v['LINKFLAGS_cshlib']    = ['-dynamiclib']
 	v['cshlib_PATTERN']      = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST']    = '-F%s'
@@ -136,16 +136,16 @@ def gcc_modifier_platform(conf):
 	if gcc_modifier_func:
 			gcc_modifier_func()
 
-configure = '''
-find_gcc
-find_ar
-gcc_common_flags
-gcc_modifier_platform
-cc_load_tools
-cc_add_flags
-link_add_flags
-'''
-"""
-Configuration for gcc
-"""
+def configure(conf):
+	"""
+	Configuration for gcc
+	"""
+	conf.find_gcc()
+	conf.find_ar()
+	conf.gcc_common_flags()
+	conf.gcc_modifier_platform()
+	conf.cc_load_tools()
+	conf.cc_add_flags()
+	conf.link_add_flags()
+
 

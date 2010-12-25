@@ -30,12 +30,12 @@ def find_icpc(conf):
 	v['CXX'] = cxx
 	v['CXX_NAME'] = 'icc'
 
-configure = '''
-find_icpc
-find_ar
-gxx_common_flags
-gxx_modifier_platform
-cxx_load_tools
-cxx_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_icpc()
+	conf.find_ar()
+	conf.gxx_common_flags()
+	conf.gxx_modifier_platform()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+	conf.link_add_flags()
+

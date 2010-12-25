@@ -26,13 +26,13 @@ def xlcxx_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = ['-c', '-o', ''] # shell hack for -MD
+	v['CXX_SRC_F']           = []
+	v['CXX_TGT_F']           = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
-	v['CXXLNK_SRC_F']        = ''
-	v['CXXLNK_TGT_F']        = ['-o', ''] # shell hack for -MD
+	v['CXXLNK_SRC_F']        = []
+	v['CXXLNK_TGT_F']        = ['-o']
 	v['CPPPATH_ST'] = '-I%s'
 	v['DEFINES_ST'] = '-D%s'
 
@@ -59,11 +59,11 @@ def xlcxx_common_flags(conf):
 	v['LINKFLAGS_cxxstlib'] = ''
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
-configure = '''
-find_xlcxx
-find_ar
-xlcxx_common_flags
-cxx_load_tools
-cxx_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_xlcxx()
+	conf.find_ar()
+	conf.xlcxx_common_flags()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+	conf.link_add_flags()
+

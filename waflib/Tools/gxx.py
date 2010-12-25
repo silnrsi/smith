@@ -31,13 +31,13 @@ def gxx_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = ['-c', '-o', ''] # shell hack for -MD
+	v['CXX_SRC_F']           = []
+	v['CXX_TGT_F']           = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
-	v['CXXLNK_SRC_F']        = ''
-	v['CXXLNK_TGT_F']        = ['-o', ''] # shell hack for -MD
+	v['CXXLNK_SRC_F']        = []
+	v['CXXLNK_TGT_F']        = ['-o']
 	v['CPPPATH_ST']          = '-I%s'
 	v['DEFINES_ST']          = '-D%s'
 
@@ -136,16 +136,15 @@ def gxx_modifier_platform(conf):
 	if gxx_modifier_func:
 			gxx_modifier_func()
 
-configure = '''
-find_gxx
-find_ar
-gxx_common_flags
-gxx_modifier_platform
-cxx_load_tools
-cxx_add_flags
-link_add_flags
-'''
-"""
-Configuration for g++
-"""
+def configure(conf):
+	"""
+	Configuration for g++
+	"""
+	conf.find_gxx()
+	conf.find_ar()
+	conf.gxx_common_flags()
+	conf.gxx_modifier_platform()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+	conf.link_add_flags()
 

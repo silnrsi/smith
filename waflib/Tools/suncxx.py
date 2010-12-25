@@ -65,11 +65,11 @@ def sxx_common_flags(conf):
 	v['LINKFLAGS_cxxstlib'] = ['-Bstatic']
 	v['cxxstlib_PATTERN']   = 'lib%s.a'
 
-configure = '''
-find_sxx
-find_ar
-sxx_common_flags
-cxx_load_tools
-cxx_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_sxx()
+	conf.find_ar()
+	conf.sxx_common_flags()
+	conf.cxx_load_tools()
+	conf.cxx_add_flags()
+	conf.link_add_flags()
+

@@ -67,11 +67,11 @@ def scc_common_flags(conf):
 	v['LINKFLAGS_cstlib'] = ['-Bstatic']
 	v['cstlib_PATTERN']   = 'lib%s.a'
 
-configure = '''
-find_scc
-find_ar
-scc_common_flags
-cc_load_tools
-cc_add_flags
-link_add_flags
-'''
+def configure(conf):
+	conf.find_scc()
+	conf.find_ar()
+	conf.scc_common_flags()
+	conf.cc_load_tools()
+	conf.cc_add_flags()
+	conf.link_add_flags()
+
