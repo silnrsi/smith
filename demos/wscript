@@ -37,8 +37,8 @@ def configure(conf):
 	node = conf.path.find_resource('waf')
 	if not node:
 		conf.fatal('could not find Waf')
-	if conf.exec_command([node.abspath(), '--help'], shell=False, env={}, cwd=node.parent.abspath()):
-		conf.fatal('the waf file cannot be executed')
+	#if conf.exec_command([node.abspath(), '--help'], shell=False, env={}, cwd=node.parent.abspath()):
+	#	conf.fatal('the waf file cannot be executed')
 	conf.env.WAF = node.abspath()
 
 	for x in PYTHONS:
