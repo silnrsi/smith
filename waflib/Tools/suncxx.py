@@ -17,12 +17,14 @@ def find_sxx(conf):
 	cc = None
 	if v['CXX']: cc = v['CXX']
 	elif 'CXX' in conf.environ: cc = conf.environ['CXX']
-	#if not cc: cc = conf.find_program('g++', var='CXX')
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: cc = conf.find_program('CC', var='CXX') #studio
-	if not cc: conf.fatal('sunc++ was not found')
+	if not cc: conf.fatal('Could not find a Sun C++ compiler')
 
-	# TODO FIXME the detection in suncc seems to do more than this
+	try:
+		conf.cmd_and_log('%s -flags' % cc)
+	except:
+		conf.fatal('%r is not a Sun compiler' % cc)
 
 	v['CXX']  = cc
 	v['CXX_NAME'] = 'sun'
@@ -41,29 +43,29 @@ def sxx_common_flags(conf):
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
 	v['CXXLNK_SRC_F']        = ''
 	v['CXXLNK_TGT_F']        = ['-o', ''] # solaris hack, separate the -o from the target
-	v['CPPPATH_ST'] = '-I%s'
-	v['DEFINES_ST'] = '-D%s'
+	v['CPPPATH_ST']          = '-I%s'
+	v['DEFINES_ST']          = '-D%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STLIB_ST']        = '-l%s'
-	v['STLIBPATH_ST']    = '-L%s'
+	v['STLIB_ST']            = '-l%s'
+	v['STLIBPATH_ST']        = '-L%s'
 
 	v['SONAME_ST']           = '-Wl,-h,%s'
 	v['SHLIB_MARKER']        = '-Bdynamic'
-	v['STLIB_MARKER']    = '-Bstatic'
+	v['STLIB_MARKER']        = '-Bstatic'
 
 	# program
-	v['cxxprogram_PATTERN']     = '%s'
+	v['cxxprogram_PATTERN']  = '%s'
 
 	# shared library
-	v['CXXFLAGS_cxxshlib']      = ['-Kpic', '-DPIC']
-	v['LINKFLAGS_cxxshlib']     = ['-G']
-	v['cxxshlib_PATTERN']       = 'lib%s.so'
+	v['CXXFLAGS_cxxshlib']   = ['-Kpic', '-DPIC']
+	v['LINKFLAGS_cxxshlib']  = ['-G']
+	v['cxxshlib_PATTERN']    = 'lib%s.so'
 
 	# static lib
-	v['LINKFLAGS_cxxstlib'] = ['-Bstatic']
-	v['cxxstlib_PATTERN']   = 'lib%s.a'
+	v['LINKFLAGS_cxxstlib']  = ['-Bstatic']
+	v['cxxstlib_PATTERN']    = 'lib%s.a'
 
 def configure(conf):
 	conf.find_sxx()
