@@ -66,7 +66,7 @@ def configure(conf):
 
 def build(bld):
 
-	print('testsuite: waflib')
+	#print('testsuite: waflib')
 	def waf_cmd(self):
 		cmd = [self.env[self.generator.python], self.env.WAF, 'distclean', 'configure', 'build', 'clean', 'build', '-o', 'build' + self.generator.python]
 		cwd = self.generator.cwd
@@ -91,9 +91,9 @@ def build(bld):
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 
-	def end(bld):
-		print('testsuite-success: waflib')
-	bld.add_post_fun(end)
+	#def end(bld):
+	#	print('testsuite-success: waflib')
+	#bld.add_post_fun(end)
 
 def installcheck(ctx):
 	pass
