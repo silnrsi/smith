@@ -511,7 +511,7 @@ def find_program(self, filename, **kw):
 						ret = x
 
 	if not ret and Utils.winreg:
-		ret = Utilsget_registry_app_path(Utils.winreg.HKEY_CURRENT_USER, filename)
+		ret = Utils.get_registry_app_path(Utils.winreg.HKEY_CURRENT_USER, filename)
 	if not ret and Utils.winreg:
 		ret = Utils.get_registry_app_path(Utils.winreg.HKEY_LOCAL_MACHINE, filename)
 
