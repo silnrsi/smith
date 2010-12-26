@@ -510,6 +510,11 @@ def find_program(self, filename, **kw):
 					if os.path.isfile(x):
 						ret = x
 
+	if not ret and Utils.winreg:
+		ret = get_registry_app_path(Utils.winreg.HKEY_CURRENT_USER, filename)
+	if not ret and Utils.winreg:
+		ret = get_registry_app_path(Utils.winreg.HKEY_LOCAL_MACHINE, filename)
+
 	self.msg('Checking for program ' + ','.join(filename), ret or False)
 	self.to_log('find program=%r paths=%r var=%r -> %r' % (filename, path_list, var, ret))
 

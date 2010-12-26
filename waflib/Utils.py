@@ -25,6 +25,13 @@ except ImportError:
 		"""A deque for Python 2.3 which does not have one"""
 		def popleft(self):
 			return self.pop(0)
+try:
+	import _winreg as winreg
+except:
+	try:
+		import winreg
+	except:
+		winreg = None
 
 from waflib import Errors
 
@@ -568,4 +575,15 @@ def run_once(fun):
 			return ret
 	wrap.__cache__ = cache
 	return wrap
+
+def get_registry_app_path(key, filename):
+	if not winreg:
+		return None
+	try:
+		result = winreg.QueryValue(key, "Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s.exe" % filename[0])
+	except WindowsError:
+		pass
+	else:
+		if os.path.isfile(result):
+			return result
 
