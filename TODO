@@ -9,9 +9,9 @@ GENERAL IMPROVEMENTS
 
 LOW PRIORITY (contributions will be welcome)
 
-+ IDE file generator (msvc, codeblocks)
-+ CMake file interpreter
 + rewrite the boost detection (boost.py)
++ IDE file generator (msvc, codeblocks)?
++ CMake file interpreter?
 
 DOCUMENTATION
 
