@@ -105,8 +105,8 @@ class task_gen(object):
 		lst = []
 		for x in self.__dict__.keys():
 			if x not in ['env', 'bld', 'compiled_tasks', 'tasks']:
-				lst.append("%s=%r" % (x, repr(getattr(self, x))))
-		return "bld(%s) in %s" % (" ".join(lst), self.path.abspath())
+				lst.append("%s=%s" % (x, repr(getattr(self, x))))
+		return "bld(%s) in %s" % (", ".join(lst), self.path.abspath())
 
 	def get_name(self):
 		"""
@@ -478,7 +478,7 @@ def to_nodes(self, lst, path=None):
 		if isinstance(x, str):
 			node = find(x)
 			if not node:
-				raise Errors.WafError("source not found: %r in %r" % (x, path))
+				raise Errors.WafError("source not found: %r in %r" % (x, self))
 		else:
 			node = x
 		tmp.append(node)
