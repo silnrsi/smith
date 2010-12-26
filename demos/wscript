@@ -77,7 +77,7 @@ def build(bld):
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except:
 			e = sys.exc_info()[1]
-			s = "test: %s\n%s\n%s\nfailure: %s\n" % (self.generator.name, e.stderr, e.stdout, self.generator.name)
+			s = "test: %s\nfailure: %s [ %s \n %s ]\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
 			print(s)
 		else:
 			s = "test: %s\nsuccess: %s\n" % (self.generator.name, self.generator.name)
