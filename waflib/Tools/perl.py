@@ -83,7 +83,7 @@ def check_perl_version(self, minver=None):
 		cver = ""
 	else:
 		cver = ".".join(map(str,minver))
-	self.msg('perl', cver)
+	self.msg('Checking for perl version', cver)
 	return res
 
 @conf
