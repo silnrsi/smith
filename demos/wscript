@@ -66,6 +66,7 @@ def configure(conf):
 
 def build(bld):
 
+	print('testsuite: waflib')
 	def waf_cmd(self):
 		cmd = [self.env[self.generator.python], self.env.WAF, 'distclean', 'configure', 'build', 'clean', 'build', '-o', 'build' + self.generator.python]
 		cwd = self.generator.cwd
@@ -76,10 +77,10 @@ def build(bld):
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except:
 			e = sys.exc_info()[1]
-			s = "test: %s\n%s\n%s\n%s\n%s\nfailure: %s" % (self.generator.name, self.generator.python, self.generator.cwd, e.stderr, e.stdout, self.generator.name)
+			s = "test: %s\n%s\n%s\nfailure: %s\n" % (self.generator.name, e.stderr, e.stdout, self.generator.name)
 			print(s)
 		else:
-			s = "test: %s\n%s\n%s\nsuccessful: %s" % (self.generator.name, self.generator.python, self.generator.cwd, self.generator.name)
+			s = "test: %s\nsuccessful: %s\n" % (self.generator.name, self.generator.name)
 			print(s)
 
 	for x in bld.env.PYTHONS:
@@ -89,6 +90,10 @@ def build(bld):
 				always   = True,
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
+
+	def end(bld):
+		print('testsuite-success: waflib')
+	bld.add_post_fun(end)
 
 def installcheck(ctx):
 	pass
