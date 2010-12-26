@@ -80,7 +80,7 @@ def build(bld):
 			s = "test: %s\n%s\n%s\nfailure: %s\n" % (self.generator.name, e.stderr, e.stdout, self.generator.name)
 			print(s)
 		else:
-			s = "test: %s\nsuccessful: %s\n" % (self.generator.name, self.generator.name)
+			s = "test: %s\nsuccess: %s\n" % (self.generator.name, self.generator.name)
 			print(s)
 
 	for x in bld.env.PYTHONS:
