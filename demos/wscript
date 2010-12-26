@@ -76,11 +76,11 @@ def build(bld):
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except:
 			e = sys.exc_info()[1]
-			print e.stderr, e.stdout
-			print('broken %r %r' % (self.generator.python, self.generator.cwd))
-		#else:
-		#	if ret:
-		#		print('exit code %r    %r %r' % (ret, self.generator.python, self.generator.cwd))
+			s = "test: %s\n%s\n%s\n%s\n%s\nfailure: %s" % (self.generator.name, self.generator.python, self.generator.cwd, e.stderr, e.stdout, self.generator.name)
+			print(s)
+		else:
+			s = "test: %s\n%s\n%s\nsuccessful: %s" % (self.generator.name, self.generator.python, self.generator.cwd, self.generator.name)
+			print(s)
 
 	for x in bld.env.PYTHONS:
 		for dirname in bld.env.CFG:
