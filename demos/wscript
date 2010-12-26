@@ -1,6 +1,11 @@
 #! /usr/bin/env python
 # encoding: utf-8
 # Jérôme Carretero, 2010 (zougloub)
+# Thomas Nagy, 2010 (ita)
+
+"""
+https://launchpad.net/subunit/
+"""
 
 import sys, os
 
