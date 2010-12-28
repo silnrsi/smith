@@ -143,10 +143,14 @@ class qxx(cxx.cxx):
 
 			if not ext:
 				base2 = d[:-4]
-				for exth in MOC_H:
-					k = node.parent.find_node(base2+exth)
-					if k:
-						break
+				for node in [node.parent] + self.generator.includes_nodes:
+					for exth in MOC_H:
+						k = node.parent.find_node(base2+exth)
+						if k:
+							break
+					else:
+						continue
+					break
 				else:
 					raise Errors.WafError('no header found for %r which is a moc file' % d)
 
