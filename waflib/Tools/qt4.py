@@ -140,13 +140,14 @@ class qxx(cxx.cxx):
 
 			h_node = None
 			try: ext = Options.options.qt_header_ext.split()
-			except AttributeError: ext = MOC_H
+			except AttributeError: pass
+			if not ext: ext = MOC_H
 
 			base2 = d[:-4]
 			for x in [node.parent] + self.generator.includes_nodes:
 				for e in ext:
 					h_node = x.find_node(base2 + e)
-					if k:
+					if h_node:
 						break
 				else:
 					continue
