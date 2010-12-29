@@ -20,6 +20,7 @@ NEW IN WAF 1.6.2
 * Moved conf.multicheck(..) from playground to the library
 * New parameter to avoid reading the same scripts: bld.recurse(dir, once=True)
 * Detect invalid method calls in 'waf -v' such as env.append/env.add/env.prepend
+* New manifest option for jar targets #832
 
 NEW IN WAF 1.6.1
 ----------------
