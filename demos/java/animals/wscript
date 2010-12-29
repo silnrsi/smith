@@ -13,6 +13,7 @@ def build(bld):
 		# jar
 		basedir   = '.',
 		destfile  = '../animals.jar',
+		manifest  = 'manifest',
 		use       = 'NNN',
 	)
 	t.env.JAVACFLAGS = ['-Xlint:unchecked', '-verbose']
