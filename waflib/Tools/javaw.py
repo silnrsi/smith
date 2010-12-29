@@ -153,7 +153,7 @@ def jar_files(self):
 	"""
 	destfile = getattr(self, 'destfile', 'test.jar')
 	jaropts = getattr(self, 'jaropts', [])
-	jarcreate = getattr(self, 'jarcreate', 'cf')
+        manifest = getattr(self, 'manifest', None)
 
 	basedir = getattr(self, 'basedir', None)
 	if basedir:
@@ -165,6 +165,13 @@ def jar_files(self):
 		self.bld.fatal('Could not find the basedir %r for %r' % (self.basedir, self))
 
 	self.jar_task = tsk = self.create_task('jar_create')
+        if manifest:
+            jarcreate = getattr(self, 'jarcreate', 'cfm')
+            node = self.path.find_node(manifest)
+            tsk.dep_nodes.append(node)
+            jaropts.insert(0, node.abspath())
+        else:
+            jarcreate = getattr(self, 'jarcreate', 'cf')
 	if not isinstance(destfile, Node.Node):
 		destfile = self.path.find_or_declare(destfile)
 	if not destfile:
