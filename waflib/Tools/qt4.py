@@ -143,9 +143,9 @@ class qxx(cxx.cxx):
 
 			if not ext:
 				base2 = d[:-4]
-				for node in [node.parent] + self.generator.includes_nodes:
+				for x in [node.parent] + self.generator.includes_nodes:
 					for exth in MOC_H:
-						k = node.parent.find_node(base2+exth)
+						k = x.find_node(base2+exth)
 						if k:
 							break
 					else:
