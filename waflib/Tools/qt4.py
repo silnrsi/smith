@@ -137,26 +137,24 @@ class qxx(cxx.cxx):
 			mocfiles.append(d)
 
 			# find the extension - this search is done only once
-			ext = ''
-			try: ext = Options.options.qt_header_ext
-			except AttributeError: pass
 
-			if not ext:
-				base2 = d[:-4]
-				for x in [node.parent] + self.generator.includes_nodes:
-					for exth in MOC_H:
-						k = x.find_node(base2+exth)
-						if k:
-							break
-					else:
-						continue
-					break
+			h_node = None
+			try: ext = Options.options.qt_header_ext.split()
+			except AttributeError: ext = MOC_H
+
+			base2 = d[:-4]
+			for x in [node.parent] + self.generator.includes_nodes:
+				for e in ext:
+					h_node = x.find_node(base2 + e)
+					if k:
+						break
 				else:
-					raise Errors.WafError('no header found for %r which is a moc file' % d)
+					continue
+				break
+			else:
+				raise Errors.WafError('no header found for %r which is a moc file' % d)
 
 			# next time we will not search for the extension (look at the 'for' loop below)
-
-			h_node = node.parent.find_resource(base2 + exth)
 			m_node = h_node.change_ext('.moc')
 			bld.node_deps[(self.inputs[0].parent.abspath(), m_node.name)] = h_node
 
