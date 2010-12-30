@@ -3,7 +3,7 @@
 
 import os, sys, imp, types
 from waflib import Utils, Configure, Options, Logs, Errors
-from waflib.extras import fc
+from waflib.Tools import fc
 
 fc_compiler = {
 	'win32'  : ['gfortran','ifort'],

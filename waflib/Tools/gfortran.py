@@ -5,7 +5,7 @@
 
 import re
 from waflib import Utils
-from waflib.extras import fc, fc_config
+from waflib.Tools import fc, fc_config, fc_scan
 from waflib.Configure import conf
 
 @conf

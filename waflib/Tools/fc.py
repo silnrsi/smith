@@ -10,8 +10,7 @@ fortran support
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-from waflib.Tools import ccroot
-from waflib.extras import fc_config, fc_scan
+from waflib.Tools import ccroot, fc_config, fc_scan
 from waflib.TaskGen import feature, before, after, extension
 from waflib.Configure import conf
 
@@ -51,7 +50,7 @@ class fc(Task.Task):
 
 	def scan(self):
 		"""scanner for fortran dependencies"""
-		tmp = fortran_parser(self.generator.includes_nodes)
+		tmp = fc_scan.fortran_parser(self.generator.includes_nodes)
 		tmp.task = self
 		tmp.start(self.inputs[0])
 		if Logs.verbose:
