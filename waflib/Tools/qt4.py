@@ -86,21 +86,13 @@ class qxx(cxx.cxx):
 		then postpone the task execution (there is no need to recompute the task signature).
 		"""
 		if self.moc_done:
-			# if there is a moc task, delay the computation of the file signature
-			for t in self.run_after:
-				if not t.hasrun:
-					return Task.ASK_LATER
-			# the moc file enters in the dependency calculation
-			# so we need to recompute the signature when the moc file is present
-			self.signature()
 			return Task.Task.runnable_status(self)
 		else:
-			# yes, really, there are people who generate cxx files
 			for t in self.run_after:
 				if not t.hasrun:
 					return Task.ASK_LATER
 			self.add_moc_tasks()
-			return Task.ASK_LATER
+			return Task.Task.runnable_status(self)
 
 	def add_moc_tasks(self):
 		"""
