@@ -320,7 +320,8 @@ def make_dot(self):
         nname = "n" + str(count)
         tmap[id(l)] = nname
         count += 1
-        ofh.write("    " + nname + ' [label="' + l.name + '"];\n')
+        name = getattr(l, 'name', str(type(l)))
+        ofh.write("    " + nname + ' [label="' + name + '"];\n')
     for l in tasks :
         for d in l.run_after :
 #                print "    " + tmap[d.name] + " -> " + tmap[l.name]

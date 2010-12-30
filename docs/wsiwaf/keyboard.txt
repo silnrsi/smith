@@ -1,2 +1,49 @@
 == Keyboards ==
 
+Keyboard objects (`kbd()`) are much simpler than fonts. There are a number of attributes associated with a keyboard and they are listed here along with their default values:
+
+source::
+    The source file is a keyman keyboard source file with extension `.kmn`. (Required)
+
+target::
+    The target file is the compiled keyman keyboard and defaults to the source `.kmn` file with kmn replaced as `.kmx`
+
+The following are attributes specific to generating a sample layout of the keyboard:
+
+font::
+    Font filename to use for rendering the layout (required).
+
+fontname::
+    Public font name that is used by the OS to reference the font.
+
+fontdir::
+    Directory containing the font specified in `font`. This defaults to `kbdfonts`.
+
+kbdfont::
+    Full pathname to font file to use for rendering the layout. By default this is built from the `font` and `fontdir` attributes.
+
+fontsize::
+    Font size to render glyphs at in the layout, given in pt (18).
+
+pdf::
+    Filename to put keyboard layout pdf in ('source'.pdf)
+
+svg::
+    Intermediate svg format of keyboard layout ('source'.svg)
+
+xml::
+    Intermediate xml that represents the basic keystrokes of the keyboard ('source'.xml)
+
+An example specification of a keyboard object might be:
+
+----
+kbd(source = 'mykbd.kmn',
+    fontname = 'My Font',
+    font = 'results/myfont.ttf')
+----
+
+
+=== Tests ===
+
+There are currently no automated tests for keyboards, although the generation of the layout can be considered a test.
+

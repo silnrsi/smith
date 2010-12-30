@@ -1,2 +1,5 @@
 == Packages ==
 
+Once a set of writing system components have been created, there is the need to package them for distribution. wsiwaf works to make that as simple but as powerful as appropriate. Each writing system component (`font`, `kbd`) has an optional `package` attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition a global package object is created into which go all the components for which no `package` attribute has been set.
+
+

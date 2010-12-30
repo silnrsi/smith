@@ -31,7 +31,6 @@ class Font(object) :
 
     def get_build_tools(self, ctx) :
         res = font_tests.configure_tests(ctx, self)
-        res.add("makensis")
         if getattr(self, 'source', "").endswith(".sfd") :
             res.add('fontforge')
             res.add('sfdmeld')
@@ -167,6 +166,7 @@ class Gdl(Internal) :
 
     def __init__(self, source, *k, **kw) :
         self.master = ''
+        self.params = ''
         super(Gdl, self).__init__(source, *k, **kw)
     
     def get_build_tools(self) :
