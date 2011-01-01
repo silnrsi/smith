@@ -22,8 +22,8 @@ def configure(ctx):
 	ctx.find_program('touch', var='TOUCH') <2>
 
 def build(bld):
-	print(bld.env.FOO) <3>
 	print(bld.env.TOUCH)
+	print(bld.env.FOO) <3>
 	bld(rule='${TOUCH} ${TGT}', target='foo.txt') <4>
 ---------------
 
