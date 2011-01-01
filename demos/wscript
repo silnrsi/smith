@@ -75,7 +75,8 @@ def configure(conf):
 
 def build(bld):
 
-	print('Running action build') # build farm
+	if bld.cmd == 'build':
+		print('Running action build') # build farm
 
 	#print('testsuite: waflib')
 	def waf_cmd(self):
@@ -102,11 +103,15 @@ def build(bld):
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 
-	print('ACTION PASSED: build') # build farm
-	print('Running action test') # build farm
-	def end(bld):
-		print('ACTION FAILED: test')
-	bld.add_post_fun(end)
+	if bld.cmd == 'build':
+		print('ACTION PASSED: build') # build farm
+		print('Running action test') # build farm
+		def end(bld):
+			print('ACTION FAILED: test')
+		bld.add_post_fun(end)
+	elif bld.cmd == 'install':
+		print('Running action install') # build farm
+		print('ACTION PASSED: install') # build farm
 
 def installcheck(ctx):
 	pass
