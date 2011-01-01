@@ -74,7 +74,7 @@ NOTE: Reading and writing values to _ctx.env_ is possible in both configuration 
 
 ==== Configuration set usage
 
-We will now provide more examples of the configuration set usage. The object *conf.env* provides convenience methods to access its contents:
+We will now provide more examples of the configuration set usage. The object *ctx.env* provides convenience methods to access its contents:
 
 // configuration_sets
 [source,python]
