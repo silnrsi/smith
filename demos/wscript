@@ -106,7 +106,9 @@ def build(bld):
 	if bld.cmd == 'build':
 		print('BUILD STATUS: 0\nACTION PASSED: build') # build farm
 		print('Running action test') # build farm
+		print('testsuite: abc')
 		def end(bld):
+			print('testsuite-success: abc')
 			print('TEST STATUS: 0\nACTION FAILED: test')
 		bld.add_post_fun(end)
 	elif bld.cmd == 'install':
