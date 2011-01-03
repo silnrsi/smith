@@ -44,6 +44,17 @@ def antlist(ctx, testdir, globs) :
         res.extend(ctx.path.ant_glob(testdir + f))
     return res
 
+def antdict(ctx, testdir, globs) :
+    if isinstance(globs, basestring) :
+        globs = {globs : None}
+    elif isinstance(globs, list) or isinstance(globs, tuple) :
+        globs = dict.fromkeys(globs)
+    res = {}
+    for f, v in globs.items() :
+        for n in ctx.path.ant_glob(testdir + f) :
+            res[n] = v
+    return res
+
 class font_test(object) :
     tests = []
 
@@ -108,12 +119,15 @@ class TeX(object) :
         self._texfiles = antlist(ctx, testsdir, self.texs)
         fid = getattr(font, 'test_suffix', font.id)
 
+        txtfiles = antdict(ctx, testsdir, getattr(self, 'files', test._txtfiles + test._htxttfiles))
         textfiles = []
-        for n in test._txtfiles + test._htxttfiles :
+        for n in txtfiles.keys() :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
-                if parts[1] and len(parts[0]) < 5 :
+                if txtfiles[n] :
+                    mf += ":" + txtfiles[n].replace('lang=', 'language=').replace('&', ':')
+                elif parts[1] and len(parts[0]) < 5 :
                     lang = parts[0]
                     mf += ":language=" + lang
                 else :
@@ -155,13 +169,15 @@ class SVG(object) :
         testsdir = test.testdir + os.sep
         fid = getattr(font, 'test_suffix', font.id)
 
-        for n in test._txtfiles + test._htxttfiles :
+        txtfiles = antdict(ctx, testsdir, getattr(self, 'files', test._txtfiles + test._htxttfiles))
+        for n in txtfiles.keys() :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
-                if parts[1] and len(parts[0]) < 5 :
-                    lang = parts[0]
-                    mf += ":language=" + lang
+                if txtfiles[n] :
+                    lang = txtfiles[n]
+                elif parts[1] and len(parts[0]) < 5 :
+                    lang = 'lang=' + parts[0]
                 else :
                     lang = None
 
@@ -170,7 +186,7 @@ class SVG(object) :
                 else :
                     rend = 'icu'
                 if lang :
-                    rend += " --feat lang=" + lang
+                    rend += " --feat " + lang
                 targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + '.svg'
                 ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ${TGT} --renderer ' + rend + ' ' + getattr(self, 'params', ''), source = n, target = targfile)
 
