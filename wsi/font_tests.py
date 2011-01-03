@@ -91,10 +91,12 @@ class font_test(object) :
         for n in self._txtfiles + self._htxttfiles :
             for m, mf in modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
-                lang = nfile.partition('_')[0]
-                if lang == nfile : lang == None
-                else :
+                parts = nfile.partition('_')[0]
+                if parts[1] and len(parts[0]) < 5 :
+                    lang = parts[0]
                     mf += ":language=" + lang
+                else :
+                    lang = None
 
                 if target == "pdfs" or target == 'test' :
                     targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + ".tex"
@@ -110,7 +112,7 @@ class font_test(object) :
                     if lang :
                         rend += " --feat lang=" + lang
                     targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + '.svg'
-                    ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ${TGT} --renderer ' + rend, source = n, target = targfile)
+                    ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ${TGT} --renderer ' + rend + ' ' + getattr(self, 'grsvg_params', ''), source = n, target = targfile)
 
         if target == 'pdfs' or target == 'test' :
             for n in self._texfiles :
