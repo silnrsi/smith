@@ -13,12 +13,14 @@ def configure(ctx):
 
 def build(ctx):
 	ctx(
-		rule   = '${R} CMD BATCH ${tsk.generator.ropts} --ffff=${SRC[1].abspath()} -- ${SRC[0].abspath()} foo.log',
+		rule   = '${R} CMD BATCH ${tsk.generator.ropts} ${tsk.generator.fopt % tsk.inputs[1].abspath()} -- ${SRC[0].abspath()} foo.log',
 		source = 'src/test.R src/testSweave.Rnw',
 		target = 'src/testSweave.pdf',
 		cwd    = ctx.path.find_node('src').get_bld().abspath(),
 		install_path = '${PREFIX}/share',
-		ropts = '--no-restore --no-save --no-readline --numTrees=1000'
+		shell = False,
+		ropts = '--no-restore --no-save --no-readline --numTrees=1000',
+		fopt = '--ffff=%s'
 	)
 
 def dist(ctx):
