@@ -30,7 +30,7 @@ class Font(object) :
             self.tests = font_tests.global_test()
 
     def get_build_tools(self, ctx) :
-        res = font_tests.configure_tests(ctx, self)
+        res = self.tests.config(ctx)
         if getattr(self, 'source', "").endswith(".sfd") :
             res.add('fontforge')
             res.add('sfdmeld')

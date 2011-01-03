@@ -11,10 +11,6 @@ def global_test() :
         globaltest = font_test()
     return globaltest
 
-def configure_tests(ctx, font) :
-    res = set(['xetex', 'grsvg', 'firefox', 'xdvipdfmx', 'xsltproc', 'firefox'])
-    return res
-
 def make_tex(mf, font, task) :
     texdat = r'''
 \font\test="[%s]%s" at 12pt
@@ -68,6 +64,12 @@ class font_test(object) :
         self.tests.append(self)
         self._hasinit = False
 
+    def config(self, ctx) :
+        res = set(['perl'])
+        for t in self.targets.values() :
+            res.update(t.config(ctx))
+        return res
+
     def build_testfiles(self, ctx, testsdir) :
         self._hasinit = True
 
@@ -106,12 +108,16 @@ class TeX(object) :
         if 'texs' not in kw : kw['texs'] = '*.tex'
         for k, item in kw.items() :
             setattr(self, k, item)
+        self._configured = False
 
-    def cfg(self, ctx) :
+    def config(self, ctx) :
+        if self._configured : return []
+        self._configured = True
         try :
             ctx.find_program('xetex')
         except ctx.errors.ConfigurationError :
             pass
+        return []
 
     def build(self, ctx, test, font) :
         if 'XETEX' not in ctx.env : return
@@ -157,12 +163,16 @@ class SVG(object) :
     def __init__(self, *kv, **kw) :
         for k, item in kw.items() :
             setattr(self, k, item)
+        self._configured = False
 
-    def cfg(self, ctx) :
+    def config(self, ctx) :
+        if self._configured : return []
+        self._configured = True
         try :
             ctx.find_program('grsvg')
         except ctx.errors.ConfigurationError :
             pass
+        return []
 
     def build(self, ctx, test, font) :
         if 'GRSVG' not in ctx.env : return
