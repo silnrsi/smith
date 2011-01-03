@@ -225,7 +225,7 @@ def sfilter(path):
 			cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
 		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
 
-	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
+	return (io.BytesIO(cnt), len(cnt), cnt)
 
 def create_waf(*k, **kw):
 	#print("-> preparing waf")

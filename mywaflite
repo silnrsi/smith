@@ -1,0 +1,6 @@
+#!/bin/bash
+
+addondir=`pwd`/wsi
+addons=`find $addondir ! -name \*.pyc -type f -print0 | perl -F'\000' -ane 'print join(",",@F)'`
+./waf-light --make-waf --tools=$addons --prelude=$'\tfrom waflib.extras import wsiwaf\n' --nostrip
+mv waf wsiwaf
