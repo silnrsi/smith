@@ -1,3 +1,4 @@
+// Thomas Nagy, 2011
 
 #include <QApplication>
 

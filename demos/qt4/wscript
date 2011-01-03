@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2005, 2010 (ita)
+# Thomas Nagy, 2005, 2011 (ita)
 
 """
 Including the moc files *is* the best practice (KDE), not doing it is easy,
@@ -28,9 +28,8 @@ def build(bld):
 		target   = 'window',
 		includes = '.',
 		defines  = 'WAF=1', # test
-		#lang     = bld.path.ant_glob('linguist/*.ts'),
-		#update   = True, # whether to update the .ts files
-		#langname = 'somefile',
+		lang     = bld.path.ant_glob('linguist/*.ts'),
+		langname = 'somefile', # include the .qm files from somefile.qrc
 	)
 
 # use the following if you want to add the include paths automatically

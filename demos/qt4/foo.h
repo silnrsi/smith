@@ -1,3 +1,5 @@
+// Thomas Nagy, 2011
+
 #ifndef _FOO
 #define _FOO
 
