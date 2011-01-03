@@ -5,6 +5,9 @@
 """
 Including the moc files *is* the best practice (KDE), not doing it is easy,
 but makes the compilations about 30-40% slower on average.
+
+If you still want the slow version (we warned you!), see the example located
+in the folder playground/slow_qt/
 """
 
 VERSION='0.0.1'
