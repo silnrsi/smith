@@ -2,6 +2,11 @@
 # encoding: utf-8
 # Thomas Nagy, 2005, 2010 (ita)
 
+"""
+Including the moc files *is* the best practice (KDE), not doing it is easy,
+but makes the compilations about 30-40% slower on average.
+"""
+
 VERSION='0.0.1'
 APPNAME='qt4_test'
 
@@ -19,7 +24,7 @@ def build(bld):
 	bld(
 		features = 'qt4 cxx cxxprogram',
 		uselib   = 'QTCORE QTGUI QTOPENGL QTSVG',
-		source   = 'main.cpp textures.qrc but.ui',
+		source   = 'main.cpp textures.qrc but.ui foo.cpp',
 		target   = 'window',
 		includes = '.',
 		defines  = 'WAF=1', # test
