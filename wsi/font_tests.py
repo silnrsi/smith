@@ -125,7 +125,10 @@ class TeX(object) :
         self._texfiles = antlist(ctx, testsdir, self.texs)
         fid = getattr(font, 'test_suffix', font.id)
 
-        txtfiles = antdict(ctx, testsdir, getattr(self, 'files', test._txtfiles + test._htxttfiles))
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
         textfiles = []
         for n in txtfiles.keys() :
             for m, mf in test.modes.items() :
@@ -179,7 +182,10 @@ class SVG(object) :
         testsdir = test.testdir + os.sep
         fid = getattr(font, 'test_suffix', font.id)
 
-        txtfiles = antdict(ctx, testsdir, getattr(self, 'files', test._txtfiles + test._htxttfiles))
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
         for n in txtfiles.keys() :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]

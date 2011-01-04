@@ -45,10 +45,11 @@ class Keyboard(object) :
     def build(self, bld) :
         if bld.env['KMCOMP'] :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.target)
+        self.build_pdf(bld)
 
     def build_pdf(self, bld) :
         self.build_svg(bld)
-        bld(rule = 'FONTCONFIG=' + self.fontdir + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [self.svg, self.kbdfont], target = self.pdf)
+        bld(rule = 'FONTCONFIG=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [self.svg, self.kbdfont], target = bld.bldnode.find_or_declare(self.pdf))
 
     def build_svg(self, bld) :
         bld(rule = '${KMN2XML} ${SRC} > ${TGT}', shell = 1, source = self.source, target = self.xml)
