@@ -18,7 +18,23 @@ Support for the Qt4 libraries and tools::
 			target   = 'window',
 		)
 
-This module also demonstrates how to add tasks dynamically (when the build has started)
+The C++ files must include the .moc files, which is regarded as the
+best practice (much faster compilations). This also implies that the
+include paths have to be set properly. To have the include paths added
+automatically, use the following::
+
+	from waflib.TaskGen import feature, before, after
+	@feature('cxx')
+	@after('process_source')
+	@before('apply_incpaths')
+	def add_includes_paths(self):
+		incs = set(self.to_list(getattr(self, 'includes', '')))
+		for x in self.compiled_tasks:
+			incs.add(x.inputs[0].parent.path_from(self.path))
+		self.includes = list(incs)
+
+Another tool provides a Qt processing that does not require the moc
+includes. See http://code.google.com/p/waf/source/browse/trunk/playground/slow_qt/
 """
 
 try:
