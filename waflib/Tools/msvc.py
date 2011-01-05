@@ -621,8 +621,12 @@ def msvc_common_flags(conf):
 	"""
 	Setup the flags required for executing the msvc compiler
 
-    To be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static
-    lib 'lib%s.lib' and the dll import lib '%s.lib'
+	The default is to allow a static and a shared library having the same name in the same directory, the static one being prefixed by 'lib'. If you feel that this
+	is incorrect, just change the extension (issue #824)::
+
+		bld.env.STLIB_ST = bld.env.SHLIB_ST = '%s.lib'
+		bld.stlib(..., name='libfoo')
+		bld.shlib(..., name='foo')
 	"""
 	v = conf.env
 
