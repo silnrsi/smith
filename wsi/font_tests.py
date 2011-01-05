@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from waflib import Context, Utils
-import os, shutil
+import os, shutil, codecs
 from functools import partial
 
 globaltest = None
@@ -173,12 +173,20 @@ class SVG(object) :
         self._configured = True
         try :
             ctx.find_program('grsvg')
+            ctx.find_program('xsltproc')
+            ctx.find_program('firefox')
         except ctx.errors.ConfigurationError :
             pass
         return []
 
     def build(self, ctx, test, font) :
         if 'GRSVG' not in ctx.env : return
+        svgLinesPerPage = 50
+        # TODO find a better way to do find this
+        svgDiffXsl = os.path.join(os.sep + 'usr','local', 'share', 'graphitesvg', 'diffSvg.xsl')
+        if not os.path.exists(svgDiffXsl) :
+            svgDiffXsl = os.path.join(os.sep + 'usr', 'share', 'graphitesvg', 'diffSvg.xsl')
+
         testsdir = test.testdir + os.sep
         fid = getattr(font, 'test_suffix', font.id)
 
@@ -201,8 +209,36 @@ class SVG(object) :
                     rend = 'graphite'
                 else :
                     rend = 'icu'
-                if lang :
-                    rend += " --feat " + lang
+                if (lang and len(lang) > 0 and len(lang) < 4):
+                    rend += " --feat " + lang + " "
                 targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + '.svg'
-                ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ${TGT} --renderer ' + rend + ' ' + getattr(self, 'params', ''), source = n, target = targfile)
+                ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ' + targfile +
+                        ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
+                        source = n, target = targfile + ".html")
+            if 'XSLTPROC' in ctx.env :
+                svgPage = 1
+                textFilePath = test.testdir + os.sep + str(n)
+                textFile = codecs.open(textFilePath, 'r', encoding='utf8')
+                lineCount = len(textFile.readlines())
+                textFile.close()
+                pageCount = (lineCount / svgLinesPerPage) + 1
+                svgStem = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_"
+                diffSvgs = []
+                svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
+                    "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 50px; }</style></head><body>\n")
+                for svgPage in range(1, pageCount + 1):
+                    ctx(rule='${XSLTPROC} -o ${TGT} --stringparam origSvg file:' +
+                            ctx.out_dir + os.sep + svgStem + 'gr' + "{0:02d}".format(svgPage) + '.svg ' +
+                            svgDiffXsl + ' ' + svgStem + 'ot' + "{0:02d}".format(svgPage) + '.svg',
+                            source = svgStem + 'gr.html',
+                            target = svgStem + "{0:02d}".format(svgPage) + 'diff.svg')
+                    diffSvgs += [svgStem + "{0:02d}".format(svgPage) + 'diff.svg']
+                    svgDiffHtml += "<object data='" + os.path.basename(svgStem) + "{0:02d}".format(svgPage) + "diff.svg' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
+                svgDiffHtml += "</body></html>"
+                svgDiffHtmlPath = ctx.out_dir + os.sep + n.get_bld().bld_base() + '_' + fid + "diff.html"
+                textFile = codecs.open(svgDiffHtmlPath, 'w', encoding='utf8')
+                textFile.write(svgDiffHtml)
+                textFile.close()
+                if 'FIREFOX' in ctx.env :
+                    ctx(rule='${FIREFOX} ' + svgDiffHtmlPath, source = diffSvgs)
 
