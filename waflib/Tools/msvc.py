@@ -620,6 +620,9 @@ def find_msvc(conf):
 def msvc_common_flags(conf):
 	"""
 	Setup the flags required for executing the msvc compiler
+
+    To be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static
+    lib 'lib%s.lib' and the dll import lib '%s.lib'
 	"""
 	v = conf.env
 
@@ -651,35 +654,30 @@ def msvc_common_flags(conf):
 	v['CFLAGS_CRT_MULTITHREADED_DBG']     = v['CXXFLAGS_CRT_MULTITHREADED_DBG']     = ['/MTd']
 	v['CFLAGS_CRT_MULTITHREADED_DLL_DBG'] = v['CXXFLAGS_CRT_MULTITHREADED_DLL_DBG'] = ['/MDd']
 
-	#v['DEFINES_CRT_MULTITHREADED'] = ['_MT'] # this is defined by the compiler itself!
-	#v['DEFINES_CRT_MULTITHREADED_DLL'] = ['_MT', '_DLL'] # these are defined by the compiler itself!
-	#v['DEFINES_CRT_MULTITHREADED_DBG'] = ['_DEBUG', '_MT'] # these are defined by the compiler itself!
-	#v['DEFINES_CRT_MULTITHREADED_DLL_DBG'] = ['_DEBUG', '_MT', '_DLL'] # these are defined by the compiler itself!
-
 	# linker
-	v['LIB_ST']           = '%s.lib' # template for adding libs
-	v['LIBPATH_ST']       = '/LIBPATH:%s' # template for adding libpaths
-	v['STLIB_ST']     = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
-	v['STLIBPATH_ST'] = '/LIBPATH:%s'
+	v['LIB_ST']            = '%s.lib' # template for adding shared libs
+	v['LIBPATH_ST']        = '/LIBPATH:%s' # template for adding libpaths
+	v['STLIB_ST']          = 'lib%s.lib'
+	v['STLIBPATH_ST']      = '/LIBPATH:%s'
 
 	v.append_value('LINKFLAGS', ['/NOLOGO'])
 	if v['MSVC_MANIFEST']:
 		v.append_value('LINKFLAGS', ['/MANIFEST'])
 
 	# shared library
-	v['CFLAGS_cshlib']  = ['']
+	v['CFLAGS_cshlib']     = ['']
 	v['CXXFLAGS_cxxshlib'] = ['']
-	v['LINKFLAGS_cshlib'] = v['LINKFLAGS_cxxshlib'] = ['/DLL']
-	v['cshlib_PATTERN'] = v['cxxshlib_PATTERN'] = '%s.dll'
-	v['implib_PATTERN'] = '%s.lib'
-	v['IMPLIB_ST']      = '/IMPLIB:%s'
+	v['LINKFLAGS_cshlib']  = v['LINKFLAGS_cxxshlib'] = ['/DLL']
+	v['cshlib_PATTERN']    = v['cxxshlib_PATTERN'] = '%s.dll'
+	v['implib_PATTERN']    = '%s.lib'
+	v['IMPLIB_ST']         = '/IMPLIB:%s'
 
 	# static library
-	v['LINKFLAGS_cstlib'] = ['']
-	v['cstlib_PATTERN']  = v['cxxstlib_PATTERN'] = 'lib%s.lib' # Note: to be able to distinguish between a static lib and a dll import lib, it's a good pratice to name the static lib 'lib%s.lib' and the dll import lib '%s.lib'
+	v['LINKFLAGS_cstlib']  = ['']
+	v['cstlib_PATTERN']    = v['cxxstlib_PATTERN'] = 'lib%s.lib'
 
 	# program
-	v['cprogram_PATTERN'] = v['cxxprogram_PATTERN']    = '%s.exe'
+	v['cprogram_PATTERN']  = v['cxxprogram_PATTERN']    = '%s.exe'
 
 
 #######################################################################################################
