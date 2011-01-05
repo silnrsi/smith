@@ -36,7 +36,7 @@ Compilers supported:
 * PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
 """
 
-import os, sys, re
+import os, sys, re, tempfile
 try:
 	import _winreg
 except:
@@ -781,25 +781,27 @@ def exec_mf(self):
 	lst = [lst]
 	return self.exec_command(*lst)
 
-def quote_response_command(flag):
+def quote_response_command(self, flag):
 	if flag.find(' ') > -1:
 		for x in ('/LIBPATH:', '/IMPLIB:', '/OUT:', '/I'):
 			if flag.startswith(x):
-				flag = '%s"%s"' % (x + flag[len(x):])
+				flag = '%s"%s"' % (x, flag[len(x):])
 				break
 		else:
 			flag = '"%s"' % flag
 	return flag
 
-def exec_response_command(self, cmd, fun, **kw):
+def exec_response_command(self, cmd, **kw):
 	# not public yet
 	try:
+		tmp = None
 		if sys.platform.startswith('win') and isinstance(cmd, list) and len(' '.join(cmd)) >= 8192:
-			(fd, tmp) = tempfile.mkstemp()
+			program = cmd[0] #unquoted program name, otherwise exec_command will fail
 			cmd = [self.quote_response_command(x) for x in cmd]
+			(fd, tmp) = tempfile.mkstemp()
 			os.write(fd, ' '.join(cmd[1:]).encode())
 			os.close(fd)
-			cmd = [cmd[0], '@' + tmp]
+			cmd = [program, '@' + tmp]
 		# no return here, that's on purpose
 		ret = self.generator.bld.exec_command(cmd, **kw)
 	finally:
@@ -839,7 +841,7 @@ def exec_command_msvc(self, *k, **kw):
 
 	ret = self.exec_response_command(k[0], **kw)
 	if not ret and getattr(self, 'do_manifest', None):
-		ret = self.exec_mf(self)
+		ret = self.exec_mf()
 	return ret
 
 for k in 'c cxx winrc cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib qxx'.split():
