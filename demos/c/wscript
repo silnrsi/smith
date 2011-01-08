@@ -66,6 +66,7 @@ def build(bld):
 			print('myprogram exit status is',
 				bld.exec_command(bld.get_tgen_by_name('myprogram').link_task.outputs[0].abspath()))
 		bld.add_post_fun(bar)
+		#bld(rule='echo ${SRC} ${tsk.generator.newsize}', newsize='256x256', source='wscript')
 
 from waflib.Build import BuildContext
 class foo_class(BuildContext):
