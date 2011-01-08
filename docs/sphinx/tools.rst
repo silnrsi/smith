@@ -68,7 +68,6 @@ is :py:mod:`waflib.Tools.c_config` which provides the :py:func:`waflib.Tools.c_c
 	tools/c_tests
 	tools/c_aliases
 
-
 Assembly
 --------
 
@@ -93,6 +92,21 @@ The first three tools in the following list may be used for detecting D compiler
 	tools/d_config
 	tools/d
 	tools/d_scan
+
+Fortran support
+---------------
+
+The first four tools in the following list are used for detecting fortran compilers. The three remaining contain the routines for compiling fortran applications.
+
+.. toctree::
+
+	tools/compiler_fc
+	tools/g95
+	tools/gfortran
+	tools/ifort
+	tools/fc
+	tools/fc_config
+	tools/fc_scan
 
 C/C++-related applications
 --------------------------

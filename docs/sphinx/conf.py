@@ -140,6 +140,7 @@ Task.__dict__['post_run'].__doc__ = "Update the cache files (executed by threads
 
 
 from waflib import Configure, Build
+confmeths = []
 def conf(f):
 	def fun(*k, **kw):
 		mandatory = True
@@ -152,7 +153,7 @@ def conf(f):
 		except Errors.ConfigurationError as e:
 			if mandatory:
 				raise e
-
+	confmeths.append(f.__name__)
 	f.__doc__ = "\tConfiguration Method bound to :py:class:`waflib.Configure.ConfigurationContext`\n" + (f.__doc__ or '')
 	setattr(Configure.ConfigurationContext, f.__name__, fun)
 	setattr(Build.BuildContext, f.__name__, fun)
@@ -172,6 +173,7 @@ Configure.ConfigurationContext.__doc__ = """
 		def configure(ctx):
 			ctx.myhelper()
 """
+
 
 
 
@@ -270,6 +272,53 @@ Feature reference
 """)
 f.write("\n".join(accu))
 f.close()
+
+# now for the configuration methods
+confmeths.extend('find_program find_file find_perl_program cmd_to_list add_os_flags check_waf_version'.split())
+confmeths.sort()
+confmeths_dict = {}
+accu = []
+lst = [x.replace('.py', '') for x in os.listdir('../../waflib/Tools/') if x.endswith('.py')]
+for x in lst:
+	if x == '__init__':
+		continue
+	tool = __import__('waflib.Tools.%s' % x)
+
+	mod = tool.__dict__['Tools'].__dict__[x]
+	dc = mod.__all__ = list(mod.__dict__.keys())
+
+	thetool = getattr(tool.Tools, x)
+	funcs = dir(thetool)
+	for func_name in funcs:
+		thefunc = getattr(Configure.ConfigurationContext, func_name, None)
+		if getattr(thefunc, "__name__", None) is None: continue
+		if thefunc:
+			confmeths_dict[func_name] = x
+
+for x in confmeths:
+	modname = confmeths_dict.get(x, '')
+	if modname:
+		d = 'tools/%s.html' % modname
+		modname = 'Tools.' + modname
+	else:
+		modname = 'Configure'
+		d = '%s.html' % modname
+
+	accu.append('.. _%s: %s#waflib.%s.%s\n' % (x, d, modname, x))
+	accu.append('* %s_\n' % x)
+
+f = open('tmpconf', 'w')
+f.write(""".. _confmap:
+
+Configuration methods
+=====================
+
+.. include:: confmap_example.txt
+
+""")
+f.write("\n".join(accu))
+f.close()
+
 
 #print("Path: %s" % sys.path)
 
@@ -485,7 +534,7 @@ def maybe_skip_member(app, what, name, obj, skip, options):
 		return True
 	if name == '__weakref__':
 		return True
-	if obj.__doc__ is not None:
+	if obj.__doc__:
 		return False
 
 def setup(app):
