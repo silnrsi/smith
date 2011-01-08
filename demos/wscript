@@ -13,6 +13,8 @@ if "uname" in dir(os): machine = os.uname()[1]
 elif sys.platform == "win32": machine = os.environ["COMPUTERNAME"]
 else: raise Exception("Unknown platform, cannot get machine name")
 
+from waflib import Logs
+
 # python 2.3 tends to hang for whatever reason :-/
 PYTHONS = "2.4 2.5 2.6 2.7 3.0 3.1 3.2".split()
 
@@ -32,7 +34,7 @@ def options(opt):
 
 def configure(conf):
 
-	print('Running action configure') # build farm
+	Logs.info('Running action configure') # build farm
 	try:
 		sub = conf.find_file('subprocess.py', ['/usr/lib64/python', '/usr/lib/python', '/usr/local/lib64/python', '/usr/local/lib/python'])
 	except:
@@ -53,7 +55,7 @@ def configure(conf):
 		try:
 			conf.find_program('python'+x, var=x)
 			# unpacking the waf directory concurrently can lead to a race condition, we'll need to take care of this (thanks, build farm!)
-			conf.cmd_and_log(conf.env[x] + " ./waf --version")
+			conf.cmd_and_log(conf.env[x] + " ./waf --version", env={})
 		except:
 			pass
 		else:
@@ -70,13 +72,13 @@ def configure(conf):
 			pass
 		else:
 			conf.env.append_value('CFG', [d.name])
-	print("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
-	print('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
+	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
+	Logs.info('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
 
 def build(bld):
 
 	if bld.cmd == 'build':
-		print('Running action build') # build farm
+		Logs.info('Running action build') # build farm
 
 	#print('testsuite: waflib')
 	def waf_cmd(self):
@@ -90,10 +92,10 @@ def build(bld):
 		except:
 			e = sys.exc_info()[1]
 			s = "test: %s\nfailure: %s [ %s \n %s ]\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
-			print(s)
+			Logs.info(s)
 		else:
 			s = "test: %s\nsuccess: %s\n" % (self.generator.name, self.generator.name)
-			print(s)
+			Logs.info(s)
 
 	for x in bld.env.PYTHONS:
 		for dirname in bld.env.CFG:
@@ -104,16 +106,16 @@ def build(bld):
 				name    = '%s_%s' % (dirname, x))
 
 	if bld.cmd == 'build':
-		print('BUILD STATUS: 0\nACTION PASSED: build') # build farm
-		print('Running action test') # build farm
-		print('testsuite: abc')
+		Logs.info('BUILD STATUS: 0\nACTION PASSED: build') # build farm
+		Logs.info('Running action test') # build farm
+		Logs.info('testsuite: abc')
 		def end(bld):
-			print('testsuite-success: abc')
-			print('TEST STATUS: 0\nACTION FAILED: test')
+			Logs.info('testsuite-success: abc')
+			Logs.info('TEST STATUS: 0\nACTION FAILED: test')
 		bld.add_post_fun(end)
 	elif bld.cmd == 'install':
-		print('Running action install') # build farm
-		print('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
+		Logs.info('Running action install') # build farm
+		Logs.info('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
 
 def installcheck(ctx):
 	pass
