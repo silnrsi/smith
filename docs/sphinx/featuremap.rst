@@ -11,14 +11,15 @@ Feature \*
 
 	digraph feature_all {
 	size="8.0, 12.0";
-		"process_rule" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_rule",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
-	"apply_intltool_in_f" [style="setlinewidth(0.5)",URL="tools/intltool.html#waflib.Tools.intltool.apply_intltool_in_f",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+		"apply_intltool_in_f" [style="setlinewidth(0.5)",URL="tools/intltool.html#waflib.Tools.intltool.apply_intltool_in_f",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"process_source" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_source",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
-	"apply_java" [style="setlinewidth(0.5)",URL="tools/javaw.html#waflib.Tools.javaw.apply_java",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"process_rule" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_rule",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"jar_files" [style="setlinewidth(0.5)",URL="tools/javaw.html#waflib.Tools.javaw.jar_files",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"process_marshal" [style="setlinewidth(0.5)",URL="tools/glib2.html#waflib.Tools.glib2.process_marshal",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"link_lib_test_fun" [style="setlinewidth(0.5)",URL="tools/c_tests.html#waflib.Tools.c_tests.link_lib_test_fun",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"process_enums" [style="setlinewidth(0.5)",URL="tools/glib2.html#waflib.Tools.glib2.process_enums",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"apply_java" [style="setlinewidth(0.5)",URL="tools/javaw.html#waflib.Tools.javaw.apply_java",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"link_main_routines_tg_method" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.link_main_routines_tg_method",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"process_subst" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_subst",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_cs" [style="setlinewidth(0.5)",URL="tools/cs.html#waflib.Tools.cs.apply_cs",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_tex" [style="setlinewidth(0.5)",URL="tools/tex.html#waflib.Tools.tex.apply_tex",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
@@ -26,6 +27,7 @@ Feature \*
 	"process_source" -> "process_rule" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"process_source" -> "process_subst" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"process_source" -> "link_lib_test_fun" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"process_source" -> "link_main_routines_tg_method" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"process_source" -> "apply_tex" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"process_source" -> "apply_java" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"process_source" -> "jar_files" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -53,6 +55,7 @@ Feature asm
 	"apply_link" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_link",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_rubyext" [style="setlinewidth(0.5)",URL="tools/ruby.html#waflib.Tools.ruby.init_rubyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_incpaths" -> "propagate_uselib_vars" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -62,6 +65,7 @@ Feature asm
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -80,6 +84,7 @@ Feature c
 		"process_use" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.process_use",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"process_source" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_source",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_incpaths" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_incpaths",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"set_macosx_deployment_target" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.set_macosx_deployment_target",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_perlext" [style="setlinewidth(0.5)",URL="tools/perl.html#waflib.Tools.perl.init_perlext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
@@ -99,6 +104,7 @@ Feature c
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -106,6 +112,7 @@ Feature c
 	"apply_flags_msvc" -> "apply_link" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -144,6 +151,7 @@ Feature cs
 	"debug_cs" [style="setlinewidth(0.5)",URL="tools/cs.html#waflib.Tools.cs.debug_cs",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"use_cs" [style="setlinewidth(0.5)",URL="tools/cs.html#waflib.Tools.cs.use_cs",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyembed" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyembed",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_cs" [style="setlinewidth(0.5)",URL="tools/cs.html#waflib.Tools.cs.apply_cs",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
@@ -151,6 +159,7 @@ Feature cs
 	"use_cs" -> "apply_cs" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -190,6 +199,7 @@ Feature cxx
 		"process_use" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.process_use",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"process_source" [style="setlinewidth(0.5)",URL="TaskGen.html#waflib.TaskGen.process_source",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_incpaths" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_incpaths",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"set_macosx_deployment_target" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.set_macosx_deployment_target",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_perlext" [style="setlinewidth(0.5)",URL="tools/perl.html#waflib.Tools.perl.init_perlext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
@@ -209,6 +219,7 @@ Feature cxx
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -216,6 +227,7 @@ Feature cxx
 	"apply_flags_msvc" -> "apply_link" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -278,6 +290,7 @@ Feature d
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_rubyext" [style="setlinewidth(0.5)",URL="tools/ruby.html#waflib.Tools.ruby.init_rubyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_perlext" [style="setlinewidth(0.5)",URL="tools/perl.html#waflib.Tools.perl.init_perlext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyembed" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyembed",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
@@ -290,11 +303,13 @@ Feature d
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -344,6 +359,7 @@ Feature fc
 	"apply_link" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_link",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_rubyext" [style="setlinewidth(0.5)",URL="tools/ruby.html#waflib.Tools.ruby.init_rubyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyembed" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyembed",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
@@ -356,15 +372,41 @@ Feature fc
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	}
+
+
+
+Feature fcprogram
+=================
+
+.. graphviz::
+
+	digraph feature_fcprogram {
+	size="8.0, 12.0";
+		"dummy" [style="setlinewidth(0.5)",URL="tools/fc.html#waflib.Tools.fc.dummy",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	}
+
+
+
+Feature fcprogram_test
+======================
+
+.. graphviz::
+
+	digraph feature_fcprogram_test {
+	size="8.0, 12.0";
+		"dummy" [style="setlinewidth(0.5)",URL="tools/fc.html#waflib.Tools.fc.dummy",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	}
 
 
@@ -376,9 +418,22 @@ Feature fcshlib
 
 	digraph feature_fcshlib {
 	size="8.0, 12.0";
-		"apply_vnum" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_vnum",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+		"dummy" [style="setlinewidth(0.5)",URL="tools/fc.html#waflib.Tools.fc.dummy",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	"apply_vnum" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_vnum",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"apply_link" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_link",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_vnum" -> "apply_link" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	}
+
+
+
+Feature fcstlib
+===============
+
+.. graphviz::
+
+	digraph feature_fcstlib {
+	size="8.0, 12.0";
+		"dummy" [style="setlinewidth(0.5)",URL="tools/fc.html#waflib.Tools.fc.dummy",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	}
 
 
@@ -410,6 +465,7 @@ Feature go
 	"apply_link" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.apply_link",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_rubyext" [style="setlinewidth(0.5)",URL="tools/ruby.html#waflib.Tools.ruby.init_rubyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_incpaths" -> "propagate_uselib_vars" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -419,6 +475,7 @@ Feature go
 	"apply_incpaths" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "process_source" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"apply_link" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_rubyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "apply_ruby_so_name" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"apply_link" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -502,6 +559,7 @@ Feature javac
 	"init_perlext" [style="setlinewidth(0.5)",URL="tools/perl.html#waflib.Tools.perl.init_perlext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"apply_java" [style="setlinewidth(0.5)",URL="tools/javaw.html#waflib.Tools.javaw.apply_java",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"init_pyembed" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyembed",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"use_javac_files" [style="setlinewidth(0.5)",URL="tools/javaw.html#waflib.Tools.javaw.use_javac_files",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
@@ -509,6 +567,7 @@ Feature javac
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
@@ -528,6 +587,18 @@ Feature link_lib_test
 	digraph feature_link_lib_test {
 	size="8.0, 12.0";
 		"link_lib_test_fun" [style="setlinewidth(0.5)",URL="tools/c_tests.html#waflib.Tools.c_tests.link_lib_test_fun",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	}
+
+
+
+Feature link_main_routines_func
+===============================
+
+.. graphviz::
+
+	digraph feature_link_main_routines_func {
+	size="8.0, 12.0";
+		"link_main_routines_tg_method" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.link_main_routines_tg_method",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	}
 
 
@@ -587,7 +658,8 @@ Feature pyext
 
 	digraph feature_pyext {
 	size="8.0, 12.0";
-		"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+		"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
+	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	}
 
 
@@ -709,11 +781,13 @@ Feature uselib
 		"process_use" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.process_use",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_perlext" [style="setlinewidth(0.5)",URL="tools/perl.html#waflib.Tools.perl.init_perlext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_pyext" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyext",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
+	"set_lib_pat" [style="setlinewidth(0.5)",URL="tools/fc_config.html#waflib.Tools.fc_config.set_lib_pat",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" [style="setlinewidth(0.5)",URL="tools/ccroot.html#waflib.Tools.ccroot.propagate_uselib_vars",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10,fillcolor="#fffea6",style=filled];
 	"apply_bundle" [style="setlinewidth(0.5)",URL="tools/c_osx.html#waflib.Tools.c_osx.apply_bundle",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"init_pyembed" [style="setlinewidth(0.5)",URL="tools/python.html#waflib.Tools.python.init_pyembed",fontname=Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans,height=0.25,shape=box,fontsize=10];
 	"propagate_uselib_vars" -> "apply_bundle" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "process_use" [arrowsize=0.5,style="setlinewidth(0.5)"];
+	"propagate_uselib_vars" -> "set_lib_pat" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyext" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_pyembed" [arrowsize=0.5,style="setlinewidth(0.5)"];
 	"propagate_uselib_vars" -> "init_perlext" [arrowsize=0.5,style="setlinewidth(0.5)"];
