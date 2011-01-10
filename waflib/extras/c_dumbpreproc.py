@@ -5,7 +5,22 @@
 """
 Dumb C/C++ preprocessor for finding dependencies
 
-It will look at all include files it can find after removing the comments
+It will look at all include files it can find after removing the comments, so the following
+will always add the dependency on both "a.h" and "b.h"::
+
+	#include "a.h"
+	#ifdef B
+		#include "b.h"
+	#endif
+	int main() {
+		return 0;
+	}
+
+To use::
+
+	def configure(conf):
+		conf.load('compiler_c')
+		conf.load('c_dumbpreproc')
 """
 
 import re, sys, os, string, traceback
