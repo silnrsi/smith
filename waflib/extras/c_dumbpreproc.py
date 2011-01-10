@@ -11,52 +11,36 @@ It will look at all include files it can find after removing the comments
 import re, sys, os, string, traceback
 from waflib import Logs, Build, Utils, Errors
 from waflib.Logs import debug, error
+from waflib.Tools import c_preproc
 
 re_inc = re.compile(
 	'^[ \t]*(#|%:)[ \t]*(include)[ \t]*(.*)\r*$',
 	re.IGNORECASE | re.MULTILINE)
 
-def lines_includes(filename):
-	code = Utils.readf(filename)
-	if use_trigraphs:
+def lines_includes(node):
+	code = node.read()
+	if c_preproc.use_trigraphs:
 		for (a, b) in trig_def: code = code.split(a).join(b)
-	code = re_nl.sub('', code)
-	code = re_cpp.sub(repl, code)
+	code = c_preproc.re_nl.sub('', code)
+	code = c_preproc.re_cpp.sub(c_preproc.repl, code)
 	return [(m.group(2), m.group(3)) for m in re.finditer(re_inc, code)]
 
-def get_deps_simple(node, env, nodepaths=[], defines={}):
-	"""
-	Get the dependencies by just looking recursively at the #include statements
-	"""
+parser = c_preproc.c_parser
+class dumb_parser(parser):
+	def addlines(self, node):
+		if node in self.nodes:
+			return
+		self.currentnode_stack.append(node.parent)
+		self.lines = lines_includes(node) + [(c_preproc.POPFILE, '')] +  self.lines
 
-	nodes = []
-	names = []
-
-	def find_deps(node):
-		lst = lines_includes(node.abspath())
-
-		for (_, line) in lst:
-			(t, filename) = extract_include(line, defines)
-			if filename in names:
+	def start(self, node, env):
+		self.addlines(node)
+		while self.lines:
+			(x, y) = self.lines.pop(0)
+			if x == c_preproc.POPFILE:
+				self.currentnode_stack.pop()
 				continue
+			self.tryfind(y)
 
-			if filename.endswith('.moc'):
-				names.append(filename)
-
-			found = None
-			for n in nodepaths:
-				if found:
-					break
-				found = n.find_resource(filename)
-
-			if not found:
-				if not filename in names:
-					names.append(filename)
-			elif not found in nodes:
-				nodes.append(found)
-				find_deps(node)
-
-	find_deps(node)
-	return (nodes, names)
-
+c_preproc.c_parser = dumb_parser
 
