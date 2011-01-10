@@ -76,9 +76,20 @@ def configure(conf):
 	Logs.info('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
 
 def build(bld):
+	pass
 
-	if bld.cmd == 'build':
-		Logs.info('Running action build') # build farm
+def installcheck(ctx):
+	pass
+
+
+from waflib.Build import BuildContext
+class abc(BuildContext):
+	cmd = "test"
+	fun = "test"
+
+def test(bld):
+	#if bld.cmd == 'build':
+	#	Logs.info('Running action build') # build farm
 
 	#print('testsuite: waflib')
 	def waf_cmd(self):
@@ -105,18 +116,16 @@ def build(bld):
 				python  = x,
 				name    = '%s_%s' % (dirname, x))
 
-	if bld.cmd == 'build':
-		Logs.info('BUILD STATUS: 0\nACTION PASSED: build') # build farm
-		Logs.info('Running action test') # build farm
-		Logs.info('testsuite: abc')
-		def end(bld):
-			Logs.info('testsuite-success: abc')
-			Logs.info('TEST STATUS: 0\nACTION FAILED: test')
-		bld.add_post_fun(end)
-	elif bld.cmd == 'install':
-		Logs.info('Running action install') # build farm
-		Logs.info('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
+	#if bld.cmd == 'build':
+	#	Logs.info('BUILD STATUS: 0\nACTION PASSED: build') # build farm
+	#	Logs.info('Running action test') # build farm
+	#	Logs.info('testsuite: abc')
+	#	def end(bld):
+	#		Logs.info('testsuite-success: abc')
+	#		Logs.info('TEST STATUS: 0\nACTION FAILED: test')
+	#	bld.add_post_fun(end)
+	#elif bld.cmd == 'install':
+	#	Logs.info('Running action install') # build farm
+	#	Logs.info('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
 
-def installcheck(ctx):
-	pass
 
