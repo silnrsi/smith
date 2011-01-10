@@ -40,7 +40,7 @@ class dumb_parser(parser):
 			if x == c_preproc.POPFILE:
 				self.currentnode_stack.pop()
 				continue
-			self.tryfind(y)
+			self.tryfind(y[1:-1])
 
 c_preproc.c_parser = dumb_parser
 
