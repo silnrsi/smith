@@ -34,7 +34,7 @@ def options(opt):
 
 def configure(conf):
 
-	Logs.info('Running action configure') # build farm
+	#Logs.info('Running action configure') # build farm
 	try:
 		sub = conf.find_file('subprocess.py', ['/usr/lib64/python', '/usr/lib/python', '/usr/local/lib64/python', '/usr/local/lib/python'])
 	except:
@@ -73,7 +73,7 @@ def configure(conf):
 		else:
 			conf.env.append_value('CFG', [d.name])
 	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
-	Logs.info('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
+	#Logs.info('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
 
 def build(bld):
 	pass
