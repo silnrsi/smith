@@ -206,12 +206,13 @@ class SVG(object) :
                     lang = None
 
                 if m == 'gr' :
-                    rend = 'graphite'
+                    rend = 'graphite2'
                 else :
-                    rend = 'icu'
+                    rend = 'harfbuzzng'
+#                    rend = 'icu'
                 if (lang and len(lang) > 0 and len(lang) < 4):
                     rend += " --feat " + lang + " "
-                targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + '.svg'
+                targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m
                 ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ' + targfile +
                         ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
                         source = n, target = targfile + ".html")
