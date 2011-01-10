@@ -78,16 +78,12 @@ def configure(conf):
 def build(bld):
 	pass
 
-def installcheck(ctx):
-	pass
-
-
 from waflib.Build import BuildContext
 class abc(BuildContext):
-	cmd = "test"
-	fun = "test"
+	cmd = "installcheck"
+	fun = "installcheck"
 
-def test(bld):
+def installcheck(bld):
 	#if bld.cmd == 'build':
 	#	Logs.info('Running action build') # build farm
 
