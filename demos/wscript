@@ -115,11 +115,11 @@ def installcheck(bld):
 	#if bld.cmd == 'build':
 	#	Logs.info('BUILD STATUS: 0\nACTION PASSED: build') # build farm
 	#	Logs.info('Running action test') # build farm
-	#	Logs.info('testsuite: abc')
-	#	def end(bld):
-	#		Logs.info('testsuite-success: abc')
+	Logs.info('testsuite: abc')
+	def end(bld):
+		Logs.info('testsuite-success: abc')
 	#		Logs.info('TEST STATUS: 0\nACTION FAILED: test')
-	#	bld.add_post_fun(end)
+	bld.add_post_fun(end)
 	#elif bld.cmd == 'install':
 	#	Logs.info('Running action install') # build farm
 	#	Logs.info('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
