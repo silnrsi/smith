@@ -100,7 +100,6 @@ class font_test(object) :
                 t += ":script=" + font.script
             self.modes['ot'] = t
         self.targets[target].build(ctx, self, font)
-            
 
 class TeX(object) :
 
@@ -190,10 +189,13 @@ class SVG(object) :
         testsdir = test.testdir + os.sep
         fid = getattr(font, 'test_suffix', font.id)
 
-        if hasattr(self, 'files') :
-            txtfiles = antdict(ctx, testsdir, self.files)
-        else :
-            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+        # if hasattr(self, 'files') :
+        #    txtfiles = antdict(ctx, testsdir, self.files)
+        #else :
+        txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+        diffSvgs = []
+        svgIndexHtml = ("<html><head><title>" + str(font.id) + "</title>\n" +
+                        "</head><body><h1>" + str(font.id) + "</h1>\n")
         for n in txtfiles.keys() :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
@@ -213,7 +215,7 @@ class SVG(object) :
                 if (lang and len(lang) > 0 and len(lang) < 4):
                     rend += " --feat " + lang + " "
                 targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m
-                ctx(rule='${GRSVG} ' + font.target + ' -i ${SRC} -o ' + targfile +
+                ctx(rule='${GRSVG} ' + font.target + ' -p 24 -i ${SRC} -o ' + targfile +
                         ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
                         source = n, target = targfile + ".html")
             if 'XSLTPROC' in ctx.env :
@@ -224,9 +226,8 @@ class SVG(object) :
                 textFile.close()
                 pageCount = (lineCount / svgLinesPerPage) + 1
                 svgStem = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_"
-                diffSvgs = []
                 svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
-                    "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 50px; }</style></head><body>\n")
+                    "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 120px; }</style></head><body>\n")
                 for svgPage in range(1, pageCount + 1):
                     ctx(rule='${XSLTPROC} -o ${TGT} --stringparam origSvg file:' +
                             ctx.out_dir + os.sep + svgStem + 'gr' + "{0:02d}".format(svgPage) + '.svg ' +
@@ -237,9 +238,18 @@ class SVG(object) :
                     svgDiffHtml += "<object data='" + os.path.basename(svgStem) + "{0:02d}".format(svgPage) + "diff.svg' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
                 svgDiffHtml += "</body></html>"
                 svgDiffHtmlPath = ctx.out_dir + os.sep + n.get_bld().bld_base() + '_' + fid + "diff.html"
+                svgIndexHtml += "<a href='../" + n.get_bld().bld_base() + '_' + fid + "diff.html'>" + str(n) + "</a><br />\n";
+                htmlOutDir = ctx.out_dir + os.sep + n.get_bld().bld_dir()
+                if not os.path.exists(htmlOutDir):
+                    os.mkdir(htmlOutDir)
                 textFile = codecs.open(svgDiffHtmlPath, 'w', encoding='utf8')
                 textFile.write(svgDiffHtml)
                 textFile.close()
-                if 'FIREFOX' in ctx.env :
-                    ctx(rule='${FIREFOX} ' + svgDiffHtmlPath, source = diffSvgs)
+        if 'FIREFOX' in ctx.env :
+            svgIndexHtml += "</body></html>"
+            indexHtmlPath = ctx.out_dir + os.sep + test.testdir + os.sep + fid + ".html"
+            textFile = codecs.open(indexHtmlPath, 'w', encoding='utf8')
+            textFile.write(svgIndexHtml)
+            textFile.close()
+            ctx(rule='${FIREFOX} ' + indexHtmlPath, source = diffSvgs)
 
