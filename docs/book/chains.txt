@@ -10,7 +10,7 @@ The explicit rules described in the previous chapter become limited for processi
 [source, python]
 ----------------
 def build(bld):
-	for x in 'a.lua b.lua c.lua':
+	for x in 'a.lua b.lua c.lua'.split():
 		y = x.replace('.lua', '.luac')
 		bld(source=x, target=y, rule='${LUAC} -s -o ${TGT} ${SRC}')
 		bld.install_files('${LUADIR}', x)
