@@ -98,7 +98,7 @@ def installcheck(bld):
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except:
 			e = sys.exc_info()[1]
-			s = "testsuite: %s\ntestsuite-failure: %s [ %s \n %s ]\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
+			s = "testsuite: %s\ntestsuite-xfail: %s [ %s \n %s ]\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
 			Logs.info(s)
 		else:
 			s = "testsuite: %s\ntestsuite-success: %s\n" % (self.generator.name, self.generator.name)
