@@ -27,7 +27,6 @@ def options(opt):
 			opt.recurse(d.name)
 		except:
 			pass
-
 	# one sub-project uses autoconfig, but i do not want it here
 	from waflib import Configure
 	Configure.autoconfig = False
