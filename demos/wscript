@@ -98,10 +98,10 @@ def installcheck(bld):
 			bld.cmd_and_log(cmd, cwd=cwd, env=env, quiet=0, )
 		except:
 			e = sys.exc_info()[1]
-			s = "progress: push\ntest: %s\nfailure: %s [ %s \n %s ]\nprogress: pop\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
+			s = "testsuite: %s\ntestsuite-failure: %s [ %s \n %s ]\n" % (self.generator.name, self.generator.name, e.stderr, e.stdout)
 			Logs.info(s)
 		else:
-			s = "progress: push\ntest: %s\nsuccess: %s\nprogress:pop\n" % (self.generator.name, self.generator.name)
+			s = "testsuite: %s\ntestsuite-success: %s\n" % (self.generator.name, self.generator.name)
 			Logs.info(s)
 
 	for x in bld.env.PYTHONS:
@@ -115,11 +115,11 @@ def installcheck(bld):
 	#if bld.cmd == 'build':
 	#	Logs.info('BUILD STATUS: 0\nACTION PASSED: build') # build farm
 	#	Logs.info('Running action test') # build farm
-	Logs.info('testsuite: abc')
-	def end(bld):
-		Logs.info('testsuite-success: abc')
+	#Logs.info('testsuite: abc')
+	#def end(bld):
+	#	Logs.info('testsuite-success: abc')
 	#		Logs.info('TEST STATUS: 0\nACTION FAILED: test')
-	bld.add_post_fun(end)
+	#bld.add_post_fun(end)
 	#elif bld.cmd == 'install':
 	#	Logs.info('Running action install') # build farm
 	#	Logs.info('INSTALL STATUS: 0\nACTION PASSED: install') # build farm
