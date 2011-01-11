@@ -29,7 +29,7 @@ from waflib.Logs import debug, error
 from waflib.Tools import c_preproc
 
 re_inc = re.compile(
-	'^[ \t]*(#|%:)[ \t]*(include)[ \t]*(.*)\r*$',
+	'^[ \t]*(#|%:)[ \t]*(include)[ \t]*[<"](.*)[>"]\r*$',
 	re.IGNORECASE | re.MULTILINE)
 
 def lines_includes(node):
@@ -43,7 +43,7 @@ def lines_includes(node):
 parser = c_preproc.c_parser
 class dumb_parser(parser):
 	def addlines(self, node):
-		if node in self.nodes:
+		if node in self.nodes[:-1]:
 			return
 		self.currentnode_stack.append(node.parent)
 		self.lines = lines_includes(node) + [(c_preproc.POPFILE, '')] +  self.lines
@@ -55,7 +55,7 @@ class dumb_parser(parser):
 			if x == c_preproc.POPFILE:
 				self.currentnode_stack.pop()
 				continue
-			self.tryfind(y[1:-1])
+			self.tryfind(y)
 
 c_preproc.c_parser = dumb_parser
 
