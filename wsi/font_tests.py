@@ -92,7 +92,7 @@ class font_test(object) :
             self.resultsdir = ctx.env['TESTRESULTSDIR']
             self.resultsnode = ctx.bldnode.find_or_declare(self.resultsdir)
         else :
-            self.resultsnode = self.testnode
+            self.resultsnode = self.testnode.get_bld()
         
         testsdir = self.testdir + os.sep
         if not self._hasinit : self.build_testfiles(ctx, testsdir)
@@ -110,7 +110,7 @@ class font_test(object) :
 
     def results_node(self, node) :
         path = node.path_from(self.testnode)
-        return self.resultsnode.find_or_declare(path)
+        return self.resultsnode.make_node(path)
 
 class TeX(object) :
 
@@ -177,15 +177,16 @@ def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :
     textFile.close()
     pageCount = (lineCount / svgLinesPerPage) + 1
     n = tsk.outputs[0].change_ext('')
+    bld = tsk.generator.bld
 
     svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
         "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 120px; }</style></head><body>\n")
     for svgPage in range(1, pageCount + 1) :
-        target = targfile + '{0:02d}diff.svg'.format(svgPage)
-        tsk.exec_command([tsk.env['XSLTPROC'], '-o', target, '--stringparam', 'origSvg',
-                'file:' + targfile + '_gr{0:02d}.svg'.format(svgPage),
-                svgDiffXsl, targfile + '_ot{0:02d}.svg'.format(svgPage)], cwd = getattr(tsk, 'cwd', None))
-        svgDiffHtml += "<object data='../" + target +"' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
+        target = bld.bldnode.make_node(targfile + '{0:02d}diff.svg'.format(svgPage))
+        tsk.exec_command([tsk.env['XSLTPROC'], '-o', target.bldpath(), '--stringparam', 'origSvg',
+                'file:' + bld.bldnode.find_node(targfile + '_gr{0:02d}.svg'.format(svgPage)).abspath(),
+                svgDiffXsl, bld.bldnode.find_node(targfile + '_ot{0:02d}.svg'.format(svgPage)).bldpath()], cwd = getattr(tsk, 'cwd', None))
+        svgDiffHtml += "<object data='../" + target.bldpath() +"' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
     svgDiffHtml += "</body></html>"
     tsk.outputs[0].write(svgDiffHtml)
 
@@ -194,7 +195,6 @@ class SVG(object) :
 
     def __init__(self, *kv, **kw) :
         if 'html' not in kw : kw['html'] = 'tests/svgdiff.html'
-        if 'diffs' not in kw : kw['diffs'] = None
         for k, item in kw.items() :
             setattr(self, k, item)
         self._configured = False
@@ -226,6 +226,8 @@ class SVG(object) :
         else :
             txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
 
+        if not hasattr(self, 'diffs') :
+            self.diffs = len(test.modes) > 1
         diffSvgs = []
         svgIndexHtml = ("<html><head><title>" + str(font.id) + "</title>\n" +
                         "</head><body><h1>" + str(font.id) + "</h1>\n")

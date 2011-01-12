@@ -7,11 +7,8 @@ srcdir=os.path.join("..", "..", "script-test", "fonts", "thai")
 TESTDIR = os.path.join(srcdir, 'tests')
 TESTRESULTSDIR = 'tests'
 
-t = fonttest(targets = { 'pdfs' : tex(), 'svg' : svg(diffs = 1)})
-
 for f in ('Norasi', 'Norasi-Bold') :
     font(target = f + '.ttf',
         source = os.path.join(srcdir, 'font-source', f + '.sfd'),
         opentype = internal(),
-        tests = t,
         script = 'thai')
