@@ -361,7 +361,12 @@ class ConfigurationContext(Context.Context):
 
 def conf(f):
 	"""
-	Decorator: attach new configuration functions to :py:class:`waflib.Build.BuildContext` and :py:class:`waflib.Configure.ConfigurationContext`
+	Decorator: attach new configuration functions to :py:class:`waflib.Build.BuildContext` and
+	:py:class:`waflib.Configure.ConfigurationContext`. The methods bound will accept a parameter
+	named 'mandatory' to disable the configuration errors::
+
+		def configure(conf):
+			conf.find_program('abc', mandatory=False)
 
 	:param f: method to bind
 	:type f: function
