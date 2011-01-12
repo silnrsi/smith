@@ -203,7 +203,7 @@ class ConfigSet(object):
 		Appends a value to the specified config key::
 
 			def build(bld):
-				bld.env.append_unique('CFLAGS', ['-O2'])
+				bld.env.append_value('CFLAGS', ['-O2'])
 
 		The value must be a list or a tuple
 		"""
@@ -230,9 +230,9 @@ class ConfigSet(object):
 		Append a value to the specified item only if it's not already present::
 
 			def build(bld):
-				bld.env.append_value('CFLAGS', ['-O2', '-g'])
+				bld.env.append_unique('CFLAGS', ['-O2', '-g'])
 
-		Note that there is no prepend_unique
+		The value must be a list or a tuple
 		"""
 		if isinstance(val, str):
 			val = [val]
