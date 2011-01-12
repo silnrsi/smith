@@ -1,0 +1,7 @@
+#!/usr/bin/python
+
+import os
+
+srcdir=os.path.join("..", "..", "script-test")
+font(target = 'Norasi.ttf',
+     source = os.path.join(srcdir, 'fonts', 'thai', 'font-source', 'Norasi.ttf'))

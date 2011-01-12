@@ -22,10 +22,32 @@ font(target = 'results/myfont.ttf',
 
 and the system will automatically convert the fontforge source font to truetype as it is copied into the `build` results directory tree. Here we wouldn't actually need the `results/` prefix to the target because the filename isn't the same as the `source` attribute.
 
-There are other attributes that modify a truetype font as it is processed:
+The complete list of core attributes to a font are:
+
+target::
+    Output file for the generated font within `build`.
+
+source::
+    Basic design file used to generate the initial form of the output font.
 
 version::
     This takes a version number in the form 'x'.'y' (a floating point number) and sets the output font to have that version.
+
+ap::
+    Attachment point database associated with the source font.
+
+classes::
+    Classes .xml file that adds class information to the attachment point database before conversion into smart font source code.
+
+copyright::
+    Copyright string to insert into the font.
+
+tests::
+    Test object to use for test generation. If not specified, the global font test object is used.
+
+package::
+    Package object to insert this font into. If not specified the global package is used.
+
 
 === OpenType ===
 
@@ -37,7 +59,7 @@ font(target = 'results/myfont.ttf',
      opentype = internal())
 ----
 
-This will generate tests pertinant to opnetype testing. See the section on font tests.
+This will generate tests pertinant to opentype testing. See the section on font tests.
 
 One approach sometimes used for fontforge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a `sfd_master` attribute and the font builder will use `sfdmeld` to integrate the lookups in the master into each font as it is built. There is no need to specify that the font is opentype in this case, because that is obvious from context:
 
@@ -64,7 +86,10 @@ font(target = 'results/myfont.ttf',
 
 We define the `.vtp` file to create for this font which will then be compiled into the font using `volt2ttf` as `myfont.vtp`. We also declare a shared master volt project that is shared between all the fonts (well at least this one!). In building a largely automated volt project, a program `make_volt` is used that can take attachment point information from an xml database `myfont.xml`. This may be augmented with class information using `project_classes.xml`. These two file references are within the font rather than the volt details because they are shared with other smart font technologies particularly graphite.
 
-Other attributes used in the `volt()` object are:
+The complete list of attributes to Volt() are:
+
+master::
+    The volt source that is processed against the font to generate the font specific volt to be compiled into the font.
 
 make_params::
     These parameters are passed to the make_volt process. The value is a string of parameters.
@@ -87,7 +112,13 @@ font(target = 'results/myfont.ttf',
 
 Notice that the `ap` and `classes` attributes have the same values and meaning as for OpenType tables. This is because the information is used in the creation of both sets of tables. The `myfont.gdl` is created by the `make_gdl` process and it pulls in `mymaster.gdl` during compilation.
 
-Other attributes of the `gdl()` object are:
+The complete list of attributes to a gdl() object are:
+
+master::
+    Non font specific GDL that is #included into the font specific GDL.
+
+make_params::
+    Parameters passed to `make_gdl`.
 
 params::
     Parameters to pass to `grcompiler` to control the compilation of graphite source to graphite tables in the font.
@@ -106,7 +137,16 @@ font(target = 'results/myfont.ttf',
 
 The legacy object creates the source font that is then copied to the output and perhaps smarts are added too.
 
+The complete set of attributes to a `legacy()` object is:
 
+source::
+    The legacy source font (`.ttf`) to use to convert to the Unicode source font.
+
+xml::
+    ttfbuilder configuration xml file to use for the conversion
+
+ap::
+    Attachment point database of the legacy font that will be converted to the font.ap attribute file.
 
 === Licensing and Copyright ===
 
