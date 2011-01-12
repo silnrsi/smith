@@ -184,8 +184,8 @@ def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :
     for svgPage in range(1, pageCount + 1) :
         target = bld.bldnode.make_node(targfile + '{0:02d}diff.svg'.format(svgPage))
         tsk.exec_command([tsk.env['XSLTPROC'], '-o', target.bldpath(), '--stringparam', 'origSvg',
-                'file:' + bld.bldnode.find_node(targfile + '_gr{0:02d}.svg'.format(svgPage)).abspath(),
-                svgDiffXsl, bld.bldnode.find_node(targfile + '_ot{0:02d}.svg'.format(svgPage)).bldpath()], cwd = getattr(tsk, 'cwd', None))
+                'file:' + bld.bldnode.make_node(targfile + '_gr{0:02d}.svg'.format(svgPage)).abspath(),
+                svgDiffXsl, bld.bldnode.make_node(targfile + '_ot{0:02d}.svg'.format(svgPage)).bldpath()], cwd = getattr(tsk, 'cwd', None))
         svgDiffHtml += "<object data='../" + target.bldpath() +"' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
     svgDiffHtml += "</body></html>"
     tsk.outputs[0].write(svgDiffHtml)
@@ -258,8 +258,8 @@ class SVG(object) :
             if self.diffs and 'XSLTPROC' in ctx.env :
                 targ = test.results_node(n).bld_base() + '_' + fid
                 ntarg = os.path.split(targ)
-                targfile = os.path.join(ntarg[0], nfile, ntarg[1])
-                ctx(rule = curry_fn(make_diffHtml, targfile, svgDiffXsl, svgLinesPerPage, fid), source = n, target = targ + 'diff.html')
+                targtfile = os.path.join(ntarg[0], nfile, ntarg[1])
+                ctx(rule = curry_fn(make_diffHtml, targtfile, svgDiffXsl, svgLinesPerPage, fid), source = [n, targfile + '.html'], target = targ + 'diff.html')
                 diffSvgs.append(targ + "diff.html")
                 svgIndexHtml += "<a href='../" + targ + "diff.html'>" + str(n) + "</a><br />\n";
         if self.diffs and 'FIREFOX' in ctx.env :
