@@ -531,6 +531,9 @@ def validate_c(self, kw):
 
 	if not kw.get('success'): kw['success'] = None
 
+	if 'define_name' in kw:
+		self.undefine(kw['define_name'])
+
 	assert 'msg' in kw, 'invalid parameters, read http://freehackers.org/~tnagy/wafbook/single.html#config_helpers_c'
 
 @conf
@@ -547,16 +550,13 @@ def post_check(self, *k, **kw):
 	else:
 		is_success = (kw['success'] == 0)
 
-	def define_or_stuff():
-		nm = kw['define_name']
-		if kw['execute'] and kw.get('define_ret', None) and isinstance(is_success, str):
-			self.define(kw['define_name'], is_success, quote=kw.get('quote', 1))
-		else:
-			self.define_cond(kw['define_name'], is_success)
-
 	if 'define_name' in kw:
 		if 'header_name' in kw or 'function_name' in kw or 'type_name' in kw or 'fragment' in kw:
-			define_or_stuff()
+			nm = kw['define_name']
+			if kw['execute'] and kw.get('define_ret', None) and isinstance(is_success, str):
+				self.define(kw['define_name'], is_success, quote=kw.get('quote', 1))
+			else:
+				self.define_cond(kw['define_name'], is_success)
 
 	if 'header_name' in kw:
 		if kw.get('auto_add_header_name', False):
