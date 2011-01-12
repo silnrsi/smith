@@ -73,7 +73,10 @@ def process_taskgens(tg) :
     """ process taskgens attribute to create intasks relationships in the task
     """
     for o in getattr(tg, 'taskgens', []) :
-        og = tg.bld.get_tgen_by_name(o)
+        try :
+            og = tg.bld.get_tgen_by_name(o)
+        except Errors.WafError :
+            continue
         if not og : continue
         if not og.posted : og.post()
         if og :

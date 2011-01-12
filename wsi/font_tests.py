@@ -35,10 +35,7 @@ def curry_tex(fn, *parms) :
 def antlist(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
         globs = [globs]
-    res = []
-    for f in globs :
-        res.extend(ctx.path.ant_glob(testdir + f))
-    return res
+    return ctx.path.find_node(testdir).ant_glob(globs)
 
 def antdict(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
@@ -50,6 +47,7 @@ def antdict(ctx, testdir, globs) :
         for n in ctx.path.ant_glob(testdir + f) :
             res[n] = v
     return res
+
 
 class font_test(object) :
     tests = []
@@ -79,7 +77,7 @@ class font_test(object) :
         self._htxttfiles = []
 
         for n in self._htxtfiles :
-            targ = n.get_bld().change_ext('.txt')
+            targ = self.results_node(n.change_ext('.txt'))
             ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
             self._htxttfiles.append(targ)
 
@@ -87,6 +85,15 @@ class font_test(object) :
         if not target in self.targets : return
         if not hasattr(self, 'testdir') :
             self.testdir = ctx.env['TESTDIR'] or 'tests'
+        self.testnode = ctx.path.find_node(self.testdir)
+        if hasattr(self, 'resultsdir') :
+            self.resultsnode = ctx.bldnode.find_node(self.resultsdir)
+        elif ctx.env['TESTRESULTSDIR'] :
+            self.resultsdir = ctx.env['TESTRESULTSDIR']
+            self.resultsnode = ctx.bldnode.find_or_declare(self.resultsdir)
+        else :
+            self.resultsnode = self.testnode
+        
         testsdir = self.testdir + os.sep
         if not self._hasinit : self.build_testfiles(ctx, testsdir)
         fid = getattr(font, 'test_suffix', font.id)
@@ -100,6 +107,10 @@ class font_test(object) :
                 t += ":script=" + font.script
             self.modes['ot'] = t
         self.targets[target].build(ctx, self, font)
+
+    def results_node(self, node) :
+        path = node.path_from(self.testnode)
+        return self.resultsnode.find_or_declare(path)
 
 class TeX(object) :
 
@@ -141,13 +152,13 @@ class TeX(object) :
                 else :
                     lang = None
 
-                targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m + ".tex"
+                targfile = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_" + m + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
                 ctx(rule = curry_tex(make_tex, mf, font.target), source = n, target = targ)
                 textfiles.append((targ, n))
 
         for n in self._texfiles :
-            targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + ".tex"
+            targfile = test.results_node(n).bld_base() + os.path.splitext(fid)[0] + ".tex"
             targ = ctx.path.find_or_declare(targfile)
             ctx(rule = copy_task, source = n, target = targ)
             textfiles.append((targ, n))
@@ -189,10 +200,11 @@ class SVG(object) :
         testsdir = test.testdir + os.sep
         fid = getattr(font, 'test_suffix', font.id)
 
-        # if hasattr(self, 'files') :
-        #    txtfiles = antdict(ctx, testsdir, self.files)
-        #else :
-        txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+
         diffSvgs = []
         svgIndexHtml = ("<html><head><title>" + str(font.id) + "</title>\n" +
                         "</head><body><h1>" + str(font.id) + "</h1>\n")
@@ -214,7 +226,7 @@ class SVG(object) :
 #                    rend = 'icu'
                 if (lang and len(lang) > 0 and len(lang) < 4):
                     rend += " --feat " + lang + " "
-                targfile = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_" + m
+                targfile = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_" + m
                 ctx(rule='${GRSVG} ' + font.target + ' -p 24 -i ${SRC} -o ' + targfile +
                         ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
                         source = n, target = targfile + ".html")
@@ -226,6 +238,7 @@ class SVG(object) :
                 textFile.close()
                 pageCount = (lineCount / svgLinesPerPage) + 1
                 svgStem = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_"
+                targStem = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_"
                 svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
                     "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 120px; }</style></head><body>\n")
                 for svgPage in range(1, pageCount + 1):
@@ -233,13 +246,13 @@ class SVG(object) :
                             ctx.out_dir + os.sep + svgStem + 'gr' + "{0:02d}".format(svgPage) + '.svg ' +
                             svgDiffXsl + ' ' + svgStem + 'ot' + "{0:02d}".format(svgPage) + '.svg',
                             source = svgStem + 'gr.html',
-                            target = svgStem + "{0:02d}".format(svgPage) + 'diff.svg')
+                            target = targStem + "{0:02d}".format(svgPage) + 'diff.svg')
                     diffSvgs += [svgStem + "{0:02d}".format(svgPage) + 'diff.svg']
                     svgDiffHtml += "<object data='" + os.path.basename(svgStem) + "{0:02d}".format(svgPage) + "diff.svg' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
                 svgDiffHtml += "</body></html>"
                 svgDiffHtmlPath = ctx.out_dir + os.sep + n.get_bld().bld_base() + '_' + fid + "diff.html"
-                svgIndexHtml += "<a href='../" + n.get_bld().bld_base() + '_' + fid + "diff.html'>" + str(n) + "</a><br />\n";
-                htmlOutDir = ctx.out_dir + os.sep + n.get_bld().bld_dir()
+                svgIndexHtml += "<a href='../" + test.results_node(n).bld_base() + '_' + fid + "diff.html'>" + str(n) + "</a><br />\n";
+                htmlOutDir = ctx.out_dir + os.sep + test.results_node(n).bld_dir()
                 if not os.path.exists(htmlOutDir):
                     os.mkdir(htmlOutDir)
                 textFile = codecs.open(svgDiffHtmlPath, 'w', encoding='utf8')

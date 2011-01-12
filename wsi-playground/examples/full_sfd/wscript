@@ -1,0 +1,14 @@
+#!/usr/bin/python
+
+import os
+
+# import pdb; pdb.set_trace()
+srcdir=os.path.join("..", "..", "script-test", "fonts", "thai")
+TESTDIR = os.path.join(srcdir, 'tests')
+TESTRESULTSDIR = 'tests'
+
+for f in ('Norasi', 'Norasi-Bold') :
+    font(target = f + '.ttf',
+        source = os.path.join(srcdir, 'font-source', f + '.sfd'),
+        opentype = internal(),
+        script = 'thai')
