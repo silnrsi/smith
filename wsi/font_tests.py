@@ -27,9 +27,9 @@ def copy_task(task) :
     shutil.copy(task.inputs[0].bldpath(), task.outputs[0].bldpath())
     return 0
 
-def curry_tex(fn, *parms) :
+def curry_fn(fn, *parms, **kw) :
     def res(*args) :
-        return fn(*(parms + args))
+        return fn(*(parms + args), **kw)
     return res
 
 def antlist(ctx, testdir, globs) :
@@ -152,13 +152,13 @@ class TeX(object) :
                 else :
                     lang = None
 
-                targfile = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_" + m + ".tex"
+                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
-                ctx(rule = curry_tex(make_tex, mf, font.target), source = n, target = targ)
+                ctx(rule = curry_fn(make_tex, mf, font.target), source = n, target = targ)
                 textfiles.append((targ, n))
 
         for n in self._texfiles :
-            targfile = test.results_node(n).bld_base() + os.path.splitext(fid)[0] + ".tex"
+            targfile = test.results_node(n).bld_base() + '_' + fid + ".tex"
             targ = ctx.path.find_or_declare(targfile)
             ctx(rule = copy_task, source = n, target = targ)
             textfiles.append((targ, n))
@@ -171,9 +171,30 @@ class TeX(object) :
 #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
 
+def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :
+    textFile = codecs.open(tsk.inputs[0].abspath(), 'r', encoding="utf8")
+    lineCount = len(textFile.readlines())
+    textFile.close()
+    pageCount = (lineCount / svgLinesPerPage) + 1
+    n = tsk.outputs[0].change_ext('')
+
+    svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
+        "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 120px; }</style></head><body>\n")
+    for svgPage in range(1, pageCount + 1) :
+        target = targfile + '{0:02d}diff.svg'.format(svgPage)
+        tsk.exec_command([tsk.env['XSLTPROC'], '-o', target, '--stringparam', 'origSvg',
+                'file:' + targfile + '_gr{0:02d}.svg'.format(svgPage),
+                svgDiffXsl, targfile + '_ot{0:02d}.svg'.format(svgPage)], cwd = getattr(tsk, 'cwd', None))
+        svgDiffHtml += "<object data='../" + target +"' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
+    svgDiffHtml += "</body></html>"
+    tsk.outputs[0].write(svgDiffHtml)
+
+
 class SVG(object) :
 
     def __init__(self, *kv, **kw) :
+        if 'html' not in kw : kw['html'] = 'tests/svgdiff.html'
+        if 'diffs' not in kw : kw['diffs'] = None
         for k, item in kw.items() :
             setattr(self, k, item)
         self._configured = False
@@ -191,9 +212,9 @@ class SVG(object) :
 
     def build(self, ctx, test, font) :
         if 'GRSVG' not in ctx.env : return
-        svgLinesPerPage = 50
+        svgLinesPerPage = getattr(self, 'lines_per_page', 50)
         # TODO find a better way to do find this
-        svgDiffXsl = os.path.join(os.sep + 'usr','local', 'share', 'graphitesvg', 'diffSvg.xsl')
+        svgDiffXsl = getattr(self, 'diff_xsl', os.path.join(os.sep + 'usr','local', 'share', 'graphitesvg', 'diffSvg.xsl'))
         if not os.path.exists(svgDiffXsl) :
             svgDiffXsl = os.path.join(os.sep + 'usr', 'share', 'graphitesvg', 'diffSvg.xsl')
 
@@ -220,49 +241,29 @@ class SVG(object) :
                     lang = None
 
                 if m == 'gr' :
-                    rend = 'graphite2'
+                    rend = getattr(self, 'grsvg_gr', 'graphite2')
                 else :
-                    rend = 'harfbuzzng'
+                    rend = getattr(self, 'grsvg_ot', 'harfbuzzng')
 #                    rend = 'icu'
                 if (lang and len(lang) > 0 and len(lang) < 4):
                     rend += " --feat " + lang + " "
-                targfile = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_" + m
+                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m
+                ntarg = os.path.split(targfile)
+                targfile = os.path.join(ntarg[0], nfile, ntarg[1])
                 ctx(rule='${GRSVG} ' + font.target + ' -p 24 -i ${SRC} -o ' + targfile +
                         ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
                         source = n, target = targfile + ".html")
-            if 'XSLTPROC' in ctx.env :
-                svgPage = 1
-                textFilePath = test.testdir + os.sep + str(n)
-                textFile = codecs.open(textFilePath, 'r', encoding='utf8')
-                lineCount = len(textFile.readlines())
-                textFile.close()
-                pageCount = (lineCount / svgLinesPerPage) + 1
-                svgStem = n.get_bld().bld_base() + os.path.splitext(fid)[0] + "_"
-                targStem = test.results_node(n).bld_base() + '_' + os.path.splitext(fid)[0] + "_"
-                svgDiffHtml = ("<html><head><title>" + str(n) + ' ' + fid + "</title>\n" +
-                    "<style type='text/css'> object { vertical-align: top; margin: 2px; min-width: 120px; }</style></head><body>\n")
-                for svgPage in range(1, pageCount + 1):
-                    ctx(rule='${XSLTPROC} -o ${TGT} --stringparam origSvg file:' +
-                            ctx.out_dir + os.sep + svgStem + 'gr' + "{0:02d}".format(svgPage) + '.svg ' +
-                            svgDiffXsl + ' ' + svgStem + 'ot' + "{0:02d}".format(svgPage) + '.svg',
-                            source = svgStem + 'gr.html',
-                            target = targStem + "{0:02d}".format(svgPage) + 'diff.svg')
-                    diffSvgs += [svgStem + "{0:02d}".format(svgPage) + 'diff.svg']
-                    svgDiffHtml += "<object data='" + os.path.basename(svgStem) + "{0:02d}".format(svgPage) + "diff.svg' title='" + str(svgLinesPerPage * svgPage) +"'></object>\n"
-                svgDiffHtml += "</body></html>"
-                svgDiffHtmlPath = ctx.out_dir + os.sep + n.get_bld().bld_base() + '_' + fid + "diff.html"
-                svgIndexHtml += "<a href='../" + test.results_node(n).bld_base() + '_' + fid + "diff.html'>" + str(n) + "</a><br />\n";
-                htmlOutDir = ctx.out_dir + os.sep + test.results_node(n).bld_dir()
-                if not os.path.exists(htmlOutDir):
-                    os.mkdir(htmlOutDir)
-                textFile = codecs.open(svgDiffHtmlPath, 'w', encoding='utf8')
-                textFile.write(svgDiffHtml)
-                textFile.close()
-        if 'FIREFOX' in ctx.env :
+            if self.diffs and 'XSLTPROC' in ctx.env :
+                targ = test.results_node(n).bld_base() + '_' + fid
+                ntarg = os.path.split(targ)
+                targfile = os.path.join(ntarg[0], nfile, ntarg[1])
+                ctx(rule = curry_fn(make_diffHtml, targfile, svgDiffXsl, svgLinesPerPage, fid), source = n, target = targ + 'diff.html')
+                diffSvgs.append(targ + "diff.html")
+                svgIndexHtml += "<a href='../" + targ + "diff.html'>" + str(n) + "</a><br />\n";
+        if self.diffs and 'FIREFOX' in ctx.env :
             svgIndexHtml += "</body></html>"
-            indexHtmlPath = ctx.out_dir + os.sep + test.testdir + os.sep + fid + ".html"
-            textFile = codecs.open(indexHtmlPath, 'w', encoding='utf8')
-            textFile.write(svgIndexHtml)
-            textFile.close()
-            ctx(rule='${FIREFOX} ' + indexHtmlPath, source = diffSvgs)
+            namebits = os.path.splitext(self.html)
+            indexhtmltarg = "".join([namebits[0], '_', fid, namebits[1]])
+            ctx.bldnode.find_or_declare(indexhtmltarg).write(svgIndexHtml)
+            ctx(rule='${FIREFOX} ' + indexhtmltarg, source = diffSvgs)
 
