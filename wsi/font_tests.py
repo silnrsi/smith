@@ -77,7 +77,7 @@ class font_test(object) :
         self._htxttfiles = []
 
         for n in self._htxtfiles :
-            targ = self.results_node(n.change_ext('.txt'))
+            targ = ctx.bldnode.make_node(os.path.splitext(self.results_node(n).bldpath())[0] + '.txt')
             ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = n, target = targ)
             self._htxttfiles.append(targ)
 
@@ -152,7 +152,7 @@ class TeX(object) :
                 else :
                     lang = None
 
-                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m + ".tex"
+                targfile = test.results_node(n.get_src()).bld_base() + '_' + fid + "_" + m + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
                 ctx(rule = curry_fn(make_tex, mf, font.target), source = n, target = targ)
                 textfiles.append((targ, n))
@@ -194,7 +194,6 @@ def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :
 class SVG(object) :
 
     def __init__(self, *kv, **kw) :
-        if 'html' not in kw : kw['html'] = 'tests/svgdiff.html'
         for k, item in kw.items() :
             setattr(self, k, item)
         self._configured = False
@@ -225,6 +224,9 @@ class SVG(object) :
             txtfiles = antdict(ctx, testsdir, self.files)
         else :
             txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+
+        if not hasattr(self, 'html') :
+            self.html = os.path.join(test.testdir, 'svgdiff.html')
 
         if not hasattr(self, 'diffs') :
             self.diffs = len(test.modes) > 1
