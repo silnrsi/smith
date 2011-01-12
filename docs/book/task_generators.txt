@@ -34,7 +34,7 @@ def build(bld):
 
 from waflib import TaskGen
 
-@TaskGen.taskgen <3>
+@TaskGen.taskgen_method <3>
 def myMethod(tgen): <4>
 	print(getattr(self, 'myattr', None)) <5>
 ---------------
@@ -77,13 +77,13 @@ def build(bld):
 
 from waflib import TaskGen
 
-@TaskGen.taskgen <1>
+@TaskGen.taskgen_method <1>
 @TaskGen.feature('*') <2>
 def methodName(self):
 	print(getattr(self, 'myattr', None))
 ---------------
 
-<1> Bind a method to the task generator class (optional when other methods such as 'TaskGen.feature' are used)
+<1> Bind a method to the task generator class (redundant when other methods such as 'TaskGen.feature' are used)
 <2> Bind the method to the symbol 'myfeature'
 
 The execution results will be the following:
