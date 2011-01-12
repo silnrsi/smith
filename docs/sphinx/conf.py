@@ -158,6 +158,7 @@ def conf(f):
 	setattr(Configure.ConfigurationContext, f.__name__, fun)
 	setattr(Build.BuildContext, f.__name__, fun)
 	return f
+conf.__doc__ = Configure.conf.__doc__
 Configure.conf = conf
 
 Configure.ConfigurationContext.__doc__ = """
