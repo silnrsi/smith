@@ -30,3 +30,15 @@ def build(bld):
 		target = 'app',
 		use    = 'lib3')
 
+	from waflib.TaskGen import feature, after
+	@feature('c', 'cxx')
+	@after('propagate_uselib_vars', 'process_use')
+	def skip_cshlib_or_cxxshlib(self):
+		self.uselib = self.to_list(getattr(self, 'uselib', []))
+		self.use = self.to_list(getattr(self, 'use', []))
+		for x in ('cshlib', 'cxxshlib', 'dshlib'):
+			while x in self.uselib:
+				self.uselib.remove(x)
+			while x in self.use:
+				self.use.remove(x)
+
