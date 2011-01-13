@@ -2,6 +2,8 @@ NEW IN WAF 1.6.3
 ----------------
 
 * Fixed the interaction of Fortran configuration tests and WAFCACHE #842
+* Various documentation fixes
+* Set the PYTHONARCHDIR variable for installing python extensions
 
 NEW IN WAF 1.6.2
 ----------------
