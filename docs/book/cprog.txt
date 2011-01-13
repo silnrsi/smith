@@ -286,24 +286,24 @@ def build(bld):
 
 	bld.stlib(
 		source = 'b.c',
-		cflags = bld.env.CFLAGS_cshlib,
-		#use    = 'cshlib',
+		use    = 'cshlib', <2>
 		target = 'lib2')
 
 	bld.shlib(
 		source = 'c.c',
 		target = 'lib3',
-		use    = 'lib1 lib2') <2>
+		use    = 'lib1 lib2') <3>
 
-	bld.program( <3>
+	bld.program( <4>
 		source = 'main.c',
 		target = 'app',
 		use    = 'lib3')
 ---------------
 
 <1> A simple shared library
-<2> 'lib3' uses both a shared library and a static library
-<3> A program using 'lib3'
+<2> The 'cshlib' flags will be propagated to both the library and the program. footnote:[To prevent the propagation, see http://code.google.com/p/waf/source/browse/trunk/docs/book/examples/cprog_propagation/wscript]
+<3> 'lib3' uses both a shared library and a static library
+<4> A program using 'lib3'
 
 Because of the shared library dependency 'lib1' → 'lib2', the program 'app' should link against both 'lib1' and 'lib3', but not against 'lib2':
 
