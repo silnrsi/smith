@@ -30,6 +30,12 @@ def build(bld):
 		target = 'app',
 		use    = 'lib3')
 
+	"""
+	The static library from this example is completely useless, and will add the -fPIC
+	flags to the program which might be annoying. It will be much better
+	to get rid of those static libraries but if you cannot live without them, use the following:
+	"""
+
 	from waflib.TaskGen import feature, after
 	@feature('c', 'cxx')
 	@after('propagate_uselib_vars', 'process_use')
