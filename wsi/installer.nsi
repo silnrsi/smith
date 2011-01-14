@@ -1,18 +1,18 @@
 ;NSIS Modern User Interface
-;@prj.APPNAME@ Font NSIS Installer script
+;@prj.appname@ Font NSIS Installer script
 ;Written by Martin Hosken
 
 ; Some useful definitions that may need changing for different font versions
 !ifndef VERSION
-  !define VERSION @prj.VERSION@
+  !define VERSION @prj.version@
 !endif
 
-!define PACKNAME "@prj.DESC_NAME or prj.APPNAME.title()@"
-!define SRC_ARCHIVE "ttf-sil-@prj.APPNAME@-${VERSION}.zip"
+!define PACKNAME "@prj.desc_name or prj.appname.title()@"
+!define SRC_ARCHIVE "ttf-sil-@prj.appname@-${VERSION}.zip"
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
 -
-!define INSTALL_SUFFIX "SIL\Fonts\@prj.APPNAME.title()@"
+!define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 
 SetCompressor lzma
@@ -189,9 +189,9 @@ ${Index}:
 
   ;Name and file
   Name "${PACKNAME} Font (${VERSION})"
-  Caption "@prj.DESC_SHORT@"
+  Caption "@prj.desc_short@"
 
-  OutFile "@prj.OUTDIR or '.'@/${PACKNAME}-${VERSION}.exe"
+  OutFile "@prj.outdir or '.'@/${PACKNAME}-${VERSION}.exe"
   InstallDir $PROGRAMFILES\${INSTALL_SUFFIX}
 
   ;Get installation folder from registry if available
@@ -206,7 +206,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + prj.LICENSE + '"' if prj.LICENSE else ''@
+  @'!insertmacro MUI_PAGE_LICENSE "' + prj.license + '"' if prj.license else ''@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -221,7 +221,7 @@ ${Index}:
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_STARTMENUPAGE_FONT_VARIABLE $R9
-  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@prj.APPNAME@"
+  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@prj.appname@"
 
 ;--------------------------------
 ;Languages
@@ -232,10 +232,10 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "SIL International"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.DESC_SHORT or ""@"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.desc_short or ""@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} Font installer"
-  @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.COPYRIGHT + '"' if prj.COPYRIGHT else ""@
-  VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.VERSION).split('.') + ["0", "0", "0", "0"])[0:4]))@
+  @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.copyright + '"' if prj.copyright else ""@
+  VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.version).split('.') + ["0", "0", "0", "0"])[0:4]))@
 
 ;--------------------------------
 ;Installer Sections
@@ -332,10 +332,10 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 SectionEnd
 
 Section -StartMenu
-  @'File "' + prj.LICENSE + '"'@
-+for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
+  @'File "' + prj.license + '"' if prj.license else ''@
++for dp, dn, fs in os.walk(prj.docdir) :
 + for fn in fs :
-  File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join(dp, fn)@"
+  File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
 -
 -
   !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
@@ -346,9 +346,9 @@ IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
   createIcons:
-+for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) : 
++for dp, dn, fs in os.walk(prj.docdir) : 
 +for fn in fs :
-  CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp, fn)@
+  CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
 -
 -
     CreateShortCut $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\Uninstall.lnk $INSTDIR\Uninstall.exe
@@ -363,13 +363,13 @@ Section "Documentation" SecSrc
   SetOverwrite ifnewer
   ;ADD YOUR OWN FILES HERE...
 +d = {}; 
-+ for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
++ for f in getattr(prj, 'extra_dist', '').split(' ') :
 +  if f and not os.path.dirname(f) in d :
   CreateDirectory @os.path.dirname(f).replace('/','\\')@
 -d[f] = 1
 -
 -
-+for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
++for f in getattr(prj, 'extra_dist', '').split(' ') :
   @'File "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
 -
   
@@ -380,7 +380,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${PACKNAME} font (version ${VERSION}). @prj.DESC_SHORT or ""@"
+  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${PACKNAME} font (version ${VERSION}). @prj.desc_short or ""@"
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -404,21 +404,21 @@ Section "Uninstall"
 +for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
   Delete "$INSTDIR\\@f.replace('/','\\')@"
 -
-+for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
++for dp, dn, fs in os.walk(prj.docdir) :
 + for fn in fs :
-  Delete "$INSTDIR\@os.path.join(dp, fn).replace('/','\\')@"
+  Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
 -
 -
   Delete "$INSTDIR\Uninstall.exe"
 +d = {}; 
-+for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
++for f in getattr(prj, 'extra_dist', '').split(' ') :
 + if not os.path.dirname(f) in d :
   RmDir "$INSTDIR\@os.path.dirname(f).replace('/','\\')@"
 -d[f] = 1
 -
 -
   RMDir "$INSTDIR"
-+for dp, dn, fs in os.walk(getattr(prj, 'DOCDIR', 'docs')) :
++for dp, dn, fs in os.walk(prj.docdir) :
 + for fn in fs :
   Delete "$0\@fn@.lnk"
 -

@@ -16,10 +16,11 @@ class Package(object) :
     packages = []
     def __init__(self, **kw) :
         for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME') :
-            setattr(self, k, getattr(Context.g_module, k, None))
+                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME', 'DOCDIR') :
+            setattr(self, k.lower(), getattr(Context.g_module, k, None))
         for k, v in kw.items() :
             setattr(self, k, v)
+        if not hasattr(self, 'docdir') : self.docdir = 'docs'
         self.packages.append(self)
         self.fonts = []
         self.keyboards = []
@@ -46,7 +47,7 @@ class Package(object) :
 
     def make_ofl_license(self, task) :
         bld = task.generator.bld
-        font.make_ofl(task.outputs[0].srcpath(), self.reservedofl, getattr(self, 'ofl_version', '1.1'), copyright = getattr(self, 'COPYRIGHT', ''))
+        font.make_ofl(task.outputs[0].srcpath(), self.reservedofl, getattr(self, 'ofl_version', '1.1'), copyright = getattr(self, 'copyright', ''))
         return 0
         
     def build(self, bld) :
@@ -59,8 +60,8 @@ class Package(object) :
         for k in self.keyboards :
             k.build(bld)
         if hasattr(self, 'reservedofl') :
-            if not hasattr(self, 'LICENSE') : self.LICENSE = 'OFL.txt'
-            bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.LICENSE))
+            if not getattr(self, 'license', None) : self.license = 'OFL.txt'
+            bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
     def build_pdf(self, bld) :
         for f in self.fonts :
@@ -83,36 +84,37 @@ class Package(object) :
             'basedir' : thisdir
                 }
         # create a taskgen to expand the installer.nsi
-        bname = 'installer_' + self.APPNAME
+        bname = 'installer_' + self.appname
         task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
         task.set_inputs(bld.root.find_resource(os.path.join(thisdir, 'installer.nsi')))
         for f in self.fonts :
             task.set_inputs(bld.bldnode.find_resource(f.target))
         for k in self.keyboards :
             for t in ('target', 'source', 'pdf') :
-                task.set_inputs(bld.bldnode.find_resource(getattr(k, t, None)))
+                n = bld.bldnode.find_resource(getattr(k, t, None))
+                if n : task.set_inputs(n)
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
-        bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.OUTDIR or '.'), (self.DESC_NAME or self.APPNAME.title()), self.VERSION))
+        bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def execute_zip(self, bld) :
-        if self.ZIPFILE :
-            self.ZIPFILE = "%s/%s-%s.zip" % ((self.ZIPDIR or '.'), self.APPNAME, self.VERSION)
+        if self.zipfile :
+            self.zipfile = "%s/%s-%s.zip" % ((self.zipdir or '.'), self.appname, self.version)
 
         import zipfile
-        znode = bld.path.find_or_declare(self.ZIPFILE)      # create dirs
+        znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
 
         for x in self.get_files() :
             if not x : continue
             y = bld.path.find_or_declare(x)
-            archive_name = self.APPNAME + '-' + str(self.VERSION) + '/' + x
+            archive_name = self.appname + '-' + str(self.version) + '/' + x
             zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
         zip.close()
         
     def get_files(self) :
         res = []
-        try: res.append(self.LICENSE)
+        try: res.append(self.license)
         except: pass
         for f in self.fonts :
             res.append(f.target)

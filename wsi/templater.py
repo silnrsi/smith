@@ -20,9 +20,11 @@ class Copier(Task.Task):
             "return the eval of a found expression, for replacement"
             # uncomment for debug: print '!!! replacing',match.group(1)
             # expr = self.preproc(match.group(1), 'eval')
-            #try: return str(eval(expr, self.globals, self.locals))
-            return str(eval(match.group(1), self.globals, self.locals))
-            #except: return str(self.handle(expr))
+            try: return str(eval(match.group(1), self.globals, self.locals))
+            except e :
+                e.lineno = i
+                e.filename = match.group(1)
+                raise e
         block = self.locals['_bl']
         if last is None: last = len(block)
         while i<last:
