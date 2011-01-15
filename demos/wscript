@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Jérôme Carretero, 2010 (zougloub)
+# J. Carretero, 2010 (zougloub)
 # Thomas Nagy, 2010 (ita)
 
 """
@@ -58,7 +58,7 @@ def configure(conf):
 			e = sys.exc_info()[1]
 			print(e)
 			try:
-				print("-- BEGIN %s config.log --\n%s-- END %s config.log --" % (d.name, conf.path.find_node('%s/build/config.log' % d.name).read(), d.name))
+				#print("-- BEGIN %s config.log --\n%s-- END %s config.log --" % (d.name, conf.path.find_node('%s/build/config.log' % d.name).read(), d.name))
 				print(e.stdout, e.stderr)
 			except:
 				pass
@@ -78,6 +78,8 @@ def configure(conf):
 			conf.env.append_value('PYTHONS', x)
 
 	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
+
+	Logs.info(conf.path.find_node('build/config.log').read())
 
 def build(bld):
 	print('Note: call "waf installcheck" (the default build does not do anything)')
