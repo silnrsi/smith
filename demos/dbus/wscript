@@ -9,6 +9,7 @@ def options(opt):
 
 def configure(conf):
 	conf.load('compiler_c dbus')
+	conf.find_program('glib-genmarshal') # required on a few systems
 
 def build(bld):
 	tg = bld.program(
