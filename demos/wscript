@@ -67,8 +67,14 @@ def configure(conf):
 
 		try:
 			conf.recurse(d.name)
-		except:
-			pass
+		except Exception:
+			if d.name[0] == 'c':
+				e = sys.exc_info()[1]
+				print(e)
+				try:
+					print(e.stdout, e.stderr)
+				except:
+					pass
 		else:
 			conf.env.append_value('CFG', [d.name])
 	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
