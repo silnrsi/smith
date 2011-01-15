@@ -39,9 +39,6 @@ def configure(conf):
 	except:
 		sub = ''
 
-	# remove the cache files, we will recreate them later
-	conf.cmd_and_log('rm -rf .waf*')
-
 	conf.exec_command('./waf-light configure build --zip-type=gz --tools=doxygen,fluid,ocaml,swig,compiler_fc,fc_config,fc,fc_scan,g95,ifort,gfortran,batched_cc,%s --prelude='' && /bin/cp waf demos/' % sub, cwd=conf.path.parent.abspath())
 	node = conf.path.find_resource('waf')
 	if not node:
@@ -49,16 +46,6 @@ def configure(conf):
 	#if conf.exec_command([node.abspath(), '--help'], shell=False, env={}, cwd=node.parent.abspath()):
 	#	conf.fatal('the waf file cannot be executed')
 	conf.env.WAF = node.abspath()
-
-	for x in PYTHONS:
-		try:
-			conf.find_program('python'+x, var=x)
-			# unpacking the waf directory concurrently can lead to a race condition, we'll need to take care of this (thanks, build farm!)
-			conf.cmd_and_log(conf.env[x] + " ./waf --version", env={})
-		except:
-			pass
-		else:
-			conf.env.append_value('PYTHONS', x)
 
 	conf.in_msg += 1
 	for d in conf.path.ant_glob('*', excl=['build', 'variants', 'precious'], src=False, dir=True):
@@ -77,11 +64,23 @@ def configure(conf):
 				pass
 		else:
 			conf.env.append_value('CFG', [d.name])
+
+	# now remove the cache folders and re-create them
+	conf.cmd_and_log('rm -rf .waf*')
+	for x in PYTHONS:
+		try:
+			conf.find_program('python'+x, var=x)
+			# unpacking the waf directory concurrently can lead to a race condition, we'll need to take care of this (thanks, build farm!)
+			conf.cmd_and_log(conf.env[x] + " ./waf --version", env={})
+		except:
+			pass
+		else:
+			conf.env.append_value('PYTHONS', x)
+
 	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
-	#Logs.info('CONFIGURE STATUS: 0\nACTION PASSED: configure') # build farm
 
 def build(bld):
-	pass
+	print('Note: call "waf installcheck" (the default build does not do anything)')
 
 from waflib.Build import BuildContext
 class abc(BuildContext):
