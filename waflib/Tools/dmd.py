@@ -48,13 +48,13 @@ def common_flags_dmd(conf):
 	v['DINC_ST'] = '-I%s'
 
 	v['DSHLIB_MARKER'] = v['DSTLIB_MARKER'] = ''
-	v['DSTLIB_ST'] = v['DSHLIB_ST']           = '-L-l%s'
+	v['DSTLIB_ST'] = v['DSHLIB_ST']         = '-L-l%s'
 	v['DSTLIBPATH_ST'] = v['DLIBPATH_ST']   = '-L-L%s'
 
-	v['LINKFLAGS']        = ['-quiet']
+	v['LINKFLAGS']         = ['-quiet']
 
-	v['DFLAGS_dshlib']    = ['-fPIC']
-	v['LINKFLAGS_dshlib'] = ['-L-shared']
+	v['DFLAGS_dshlib']     = ['-fPIC']
+	v['LINKFLAGS_dshlib']  = ['-L-shared']
 
 	v['DHEADER_ext']       = '.di'
 	v['D_HDR_F']           = ['-H', '-Hf']
