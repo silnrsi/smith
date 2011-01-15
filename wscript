@@ -291,6 +291,8 @@ def create_waf(*k, **kw):
 	#change the tarfile extension in the waf script
 	reg = re.compile('bz2', re.M)
 	code1 = reg.sub(zipType, code1)
+	if zipType == 'gz':
+		code1 = code1.replace('bunzip2', 'gzip -d')
 
 	f = open('%s.tar.%s' % (mw, zipType), 'rb')
 	cnt = f.read()
