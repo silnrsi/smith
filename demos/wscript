@@ -78,7 +78,7 @@ def configure(conf):
 			conf.env.append_value('PYTHONS', x)
 
 	Logs.info("executing the build for folders %r and with pythons %r" % (conf.env.CFG, conf.env.PYTHONS))
-
+	Logs.info("contents of config.log:")
 	Logs.info(conf.path.find_node('build/config.log').read())
 
 def build(bld):
