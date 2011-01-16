@@ -316,6 +316,8 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	:type decider: function
 	:param scan: scanner function for the task
 	:type scan: function
+	:param install_path: installation path for the output nodes
+	:type install_path: string
 	"""
 	ext_in = Utils.to_list(ext_in)
 	ext_out = Utils.to_list(ext_out)
