@@ -1062,7 +1062,7 @@ def compile_fun(line, shell=False):
 	else:
 		return compile_fun_noshell(line)
 
-def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, scan=None):
+def task_factory(name, func=None, vars=None, color='GREEN', ext_in=[], ext_out=[], before=[], after=[], shell=False, scan=None):
 	"""
 	Return a new task subclass with the function ``run`` compiled from the line given.
 	Provided for compatibility with waf 1.4-1.5, when we did not use metaclasses to register new objects.
@@ -1081,7 +1081,7 @@ def task_factory(name, func=None, vars=[], color='GREEN', ext_in=[], ext_out=[],
 	"""
 
 	params = {
-		'vars': vars,
+		'vars': vars or [], # function arguments are static, and this one may be modified by the class
 		'color': color,
 		'name': name,
 		'ext_in': Utils.to_list(ext_in),
