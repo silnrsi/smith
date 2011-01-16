@@ -815,10 +815,6 @@ class inst_task(Task.Task):
 
 	def __str__(self):
 		"""Return an empty string to disable the display"""
-		print self.generator.bld.progress_bar
-		if self.generator.bld.progress_bar:
-			print "okay"
-			return Task.Task.__str__(self)
 		return ''
 
 	def run(self):
