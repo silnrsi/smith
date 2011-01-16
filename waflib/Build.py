@@ -240,12 +240,13 @@ class BuildContext(Context.Context):
 		# display the time elapsed in the progress bar
 		self.timer = Utils.Timer()
 
-		if Options.options.progress_bar:
+		if self.progress_bar:
 			sys.stderr.write(Logs.colors.cursor_off)
 		try:
 			self.compile()
 		finally:
-			if Options.options.progress_bar:
+			if self.progress_bar == 1:
+				self.to_log(self.progress_line(len(self.returned_tasks), len(self.returned_tasks), Logs.colors.BLUE, Logs.colors.NORMAL))
 				sys.stderr.write(Logs.colors.cursor_on)
 				print('')
 			Logs.info("Waf: Leaving directory `%s'" % self.variant_dir)
@@ -814,6 +815,10 @@ class inst_task(Task.Task):
 
 	def __str__(self):
 		"""Return an empty string to disable the display"""
+		print self.generator.bld.progress_bar
+		if self.generator.bld.progress_bar:
+			print "okay"
+			return Task.Task.__str__(self)
 		return ''
 
 	def run(self):
@@ -902,10 +907,12 @@ class InstallContext(BuildContext):
 			else:
 				# same size and identical timestamps -> make no copy
 				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
-					Logs.info('- install %s (from %s)' % (tgt, srclbl))
+					if not self.progress_bar:
+						Logs.info('- install %s (from %s)' % (tgt, srclbl))
 					return False
 
-		Logs.info('+ install %s (from %s)' % (tgt, srclbl))
+		if not self.progress_bar:
+			Logs.info('+ install %s (from %s)' % (tgt, srclbl))
 
 		# following is for shared libs and stale inodes (-_-)
 		try:
@@ -946,10 +953,12 @@ class InstallContext(BuildContext):
 		if link:
 			try: os.remove(tgt)
 			except OSError: pass
-			Logs.info('+ symlink %s (to %s)' % (tgt, src))
+			if not self.progress_bar:
+				Logs.info('+ symlink %s (to %s)' % (tgt, src))
 			os.symlink(src, tgt)
 		else:
-			Logs.info('- symlink %s (to %s)' % (tgt, src))
+			if not self.progress_bar:
+				Logs.info('- symlink %s (to %s)' % (tgt, src))
 
 	def run_task_now(self, tsk, postpone):
 		"""
@@ -1076,7 +1085,8 @@ class UninstallContext(InstallContext):
 
 	def do_install(self, src, tgt, chmod=Utils.O644):
 		"""See :py:meth:`waflib.Build.InstallContext.do_install`"""
-		Logs.info('- remove %s' % tgt)
+		if not self.progress_bar:
+			Logs.info('- remove %s' % tgt)
 
 		self.uninstall.append(tgt)
 		try:
@@ -1100,7 +1110,8 @@ class UninstallContext(InstallContext):
 	def do_link(self, src, tgt):
 		"""See :py:meth:`waflib.Build.InstallContext.do_link`"""
 		try:
-			Logs.info('- unlink %s' % tgt)
+			if not self.progress_bar:
+				Logs.info('- unlink %s' % tgt)
 			os.remove(tgt)
 		except OSError:
 			pass
