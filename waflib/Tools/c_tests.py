@@ -141,9 +141,9 @@ def check_large_file(self, **kw):
 
 	if not 'features' in kw:
 		if self.env.CXX:
-			kw['features'] = ['cxx']
+			kw['features'] = ['cxx', 'cxxshlib', 'cshlib']
 		else:
-			kw['features'] = ['c']
+			kw['features'] = ['c', 'cshlib']
 
 	kw['fragment'] = LARGE_FRAGMENT
 
