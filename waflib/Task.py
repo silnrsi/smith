@@ -121,6 +121,7 @@ class store_task_type(type):
 				cls.hcode = cls.run_str
 				cls.run_str = None
 				cls.run = f
+				cls.vars = []
 				cls.vars.extend(dvars)
 			elif getattr(cls, 'run', None) and not 'hcode' in cls.__dict__:
 				# getattr(cls, 'hcode') would look in the upper classes
