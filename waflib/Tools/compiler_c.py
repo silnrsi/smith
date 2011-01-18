@@ -41,7 +41,7 @@ c_compiler = {
 'aix':    ['xlc', 'gcc'],
 'linux':  ['gcc', 'icc'],
 'sunos':  ['suncc', 'gcc'],
-'irix':   ['gcc'],
+'irix':   ['gcc', 'irixcc'],
 'hpux':   ['gcc'],
 'gnu':    ['gcc'],
 'java':   ['gcc', 'msvc', 'icc'],

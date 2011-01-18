@@ -20,9 +20,10 @@ def find_sxx(conf):
 	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: cc = conf.find_program('CC', var='CXX') #studio
 	if not cc: conf.fatal('Could not find a Sun C++ compiler')
+	cc = conf.cmd_to_list(cc)
 
 	try:
-		conf.cmd_and_log('%s -flags' % cc)
+		conf.cmd_and_log(cc + ['-flags'])
 	except:
 		conf.fatal('%r is not a Sun compiler' % cc)
 
@@ -37,12 +38,12 @@ def sxx_common_flags(conf):
 	v = conf.env
 
 	v['CXX_SRC_F']           = ''
-	v['CXX_TGT_F']           = ['-c', '-o', '']
+	v['CXX_TGT_F']           = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
 	v['CXXLNK_SRC_F']        = ''
-	v['CXXLNK_TGT_F']        = ['-o', ''] # solaris hack, separate the -o from the target
+	v['CXXLNK_TGT_F']        = ['-o']
 	v['CPPPATH_ST']          = '-I%s'
 	v['DEFINES_ST']          = '-D%s'
 
