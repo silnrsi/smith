@@ -291,7 +291,7 @@ class task_gen(object):
 		return newobj
 
 def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
-	ext_in=[], ext_out=[], before=[], after=[], decider=None, scan=None, install_path=None):
+	ext_in=[], ext_out=[], before=[], after=[], decider=None, scan=None, install_path=None, shell=False):
 	"""
 	Create a new mapping and a task class for processing files by extension.
 	See Tools/flex.py for an example.
@@ -323,7 +323,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 	ext_out = Utils.to_list(ext_out)
 	if not name:
 		name = rule
-	cls = Task.task_factory(name, rule, color=color, ext_in=ext_in, ext_out=ext_out, before=before, after=after, scan=scan)
+	cls = Task.task_factory(name, rule, color=color, ext_in=ext_in, ext_out=ext_out, before=before, after=after, scan=scan, shell=shell)
 
 	def x_file(self, node):
 		ext = decider and decider(self, node) or cls.ext_out
