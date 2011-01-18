@@ -583,6 +583,7 @@ def post_check(self, *k, **kw):
 				if isinstance(val, str):
 					val = val.rstrip(os.path.sep)
 				self.env.append_unique(k + '_' + kw['uselib_store'], val)
+	return is_success
 
 @conf
 def check(self, *k, **kw):
@@ -606,9 +607,8 @@ def check(self, *k, **kw):
 		kw['success'] = ret
 		self.end_msg(self.ret_msg(kw['okmsg'], kw))
 
-	self.post_check(*k, **kw)
-	if isinstance(ret, int):
-		return ret == 0
+	if not self.post_check(*k, **kw):
+		self.fatal('The configuration failed %r' % ret)
 	return ret
 
 class test_exec_task(Task.Task):
