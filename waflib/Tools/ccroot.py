@@ -548,25 +548,3 @@ def process_lib(self):
 	self.link_task = self.create_task('fake_%s' % self.lib_type, [], [node])
 	self.target = self.name
 
-"""
-# if the -L path are not absolute, we might need this:
-
-def hpux_addfullpath(self):
-	try:
-		self.link_task
-	except AttributeError:
-		pass
-	else:
-		for x in ('LIBPATH', 'STLIBPATH'):
-			lst = self.link_task.env[x]
-			buf = []
-			for y in lst:
-				if not os.path.isabs(y):
-					buf.append(self.bld.bldnode.abspath() + os.sep + y)
-			self.link_task.env[x] = buf
-
-if sys.platform.startswith('hp-ux'):
-	hpux_addfullpath = after('propagate_uselib_vars', 'process_use')(hpux_addfullpath)
-	hpux_addfullpath = feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')(hpux_addfullpath)
-"""
-
