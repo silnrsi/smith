@@ -90,6 +90,7 @@ class abc(BuildContext):
 	fun = "installcheck"
 
 def installcheck(bld):
+	bld.jobs = 2
 	#if bld.cmd == 'build':
 	#	Logs.info('Running action build') # build farm
 
