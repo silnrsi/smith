@@ -141,7 +141,7 @@ def check_large_file(self, **kw):
 
 	if not 'features' in kw:
 		if self.env.CXX:
-			kw['features'] = ['cxx', 'cshlib']
+			kw['features'] = ['cxx', 'cxxshlib']
 		else:
 			kw['features'] = ['c', 'cshlib']
 
