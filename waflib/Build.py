@@ -91,6 +91,7 @@ class BuildContext(Context.Context):
 
 		self.launch_dir = Context.launch_dir
 
+		self.jobs = Options.options.jobs
 		self.targets = Options.options.targets
 		self.keep = Options.options.keep
 		self.cache_global = Options.cache_global
@@ -337,7 +338,7 @@ class BuildContext(Context.Context):
 		Logs.debug('build: compile()')
 
 		# use another object to perform the producer-consumer logic (reduce the complexity)
-		self.producer = Runner.Parallel(self, Options.options.jobs)
+		self.producer = Runner.Parallel(self, self.jobs)
 		self.producer.biter = self.get_build_iterator()
 		self.returned_tasks = [] # not part of the API yet
 		try:

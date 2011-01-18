@@ -402,7 +402,9 @@ def validate_c(self, kw):
 				self.fatal('a c compiler is required')
 
 	if not 'compile_mode' in kw:
-		kw['compile_mode'] = (kw.get('compiler', '') == 'cxx') and 'cxx' or 'c'
+		kw['compile_mode'] = 'c'
+		if 'cxx' in Utils.to_list(kw.get('features',[])) or kw.get('compiler', '') == 'cxx':
+			kw['compile_mode'] = 'cxx'
 
 	if not 'type' in kw:
 		kw['type'] = 'cprogram'
