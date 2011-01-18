@@ -268,7 +268,7 @@ def use_rec(self, name, **kw):
 				self.link_task.dep_nodes.extend(y.link_task.outputs)
 
 				# add the link path too
-				tmp_path = y.link_task.outputs[0].parent.bldpath()
+				tmp_path = y.link_task.outputs[0].parent.abspath()
 				if not tmp_path in self.env[var + 'PATH']:
 					self.env.prepend_value(var + 'PATH', [tmp_path])
 
@@ -547,4 +547,26 @@ def process_lib(self):
 		raise Errors.WafError('could not find library %r' % self.name)
 	self.link_task = self.create_task('fake_%s' % self.lib_type, [], [node])
 	self.target = self.name
+
+"""
+# if the -L path are not absolute, we might need this:
+
+def hpux_addfullpath(self):
+	try:
+		self.link_task
+	except AttributeError:
+		pass
+	else:
+		for x in ('LIBPATH', 'STLIBPATH'):
+			lst = self.link_task.env[x]
+			buf = []
+			for y in lst:
+				if not os.path.isabs(y):
+					buf.append(self.bld.bldnode.abspath() + os.sep + y)
+			self.link_task.env[x] = buf
+
+if sys.platform.startswith('hp-ux'):
+	hpux_addfullpath = after('propagate_uselib_vars', 'process_use')(hpux_addfullpath)
+	hpux_addfullpath = feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')(hpux_addfullpath)
+"""
 

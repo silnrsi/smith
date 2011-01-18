@@ -151,22 +151,4 @@ def configure(conf):
 	conf.cc_add_flags()
 	conf.link_add_flags()
 
-# TODO merge this
-"""
-@feature('cprogram', 'cshlib')
-@after('apply_link', 'apply_lib_vars', 'apply_obj_vars')
-def hpux_addfullpath(self):
-  if sys.platform == 'hp-ux11':
-    link = getattr(self, 'link_task', None)
-    if link:
-        lst = link.env.LINKFLAGS
-        buf = []
-        for x in lst:
-           if x.startswith('-L'):
-               p2 = x[2:]
-               if not os.path.isabs(p2):
-                   x = x[:2] + self.bld.srcnode.abspath(link.env) + "/../" + x[2:].lstrip('.')
-           buf.append(x)
-        link.env.LINKFLAGS = buf
-"""
 
