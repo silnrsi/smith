@@ -124,7 +124,7 @@ def gcc_modifier_aix(conf):
 
 @conf
 def gcc_modifier_hpux(conf):
-	v=conf.env
+	v = conf.env
 	v['SHLIB_MARKER']        = []
 	v['CFLAGS_cshlib']       = ['-fPIC','-DPIC']
 	v['cshlib_PATTERN']      = 'lib%s.sl'
