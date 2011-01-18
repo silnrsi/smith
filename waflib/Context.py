@@ -350,7 +350,7 @@ class Context(ctx):
 				try:
 					conf.cmd_and_log(['which', 'someapp'], output=waflib.Context.BOTH)
 				except Exception as e:
-					print(e.out, e.err)
+					print(e.stdout, e.stderr)
 
 		:param cmd: args for subprocess.Popen
 		:param kw: keyword arguments for subprocess.Popen
