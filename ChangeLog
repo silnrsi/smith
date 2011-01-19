@@ -7,6 +7,7 @@ NEW IN WAF 1.6.3
 * Fixed the Waf file creation with --zip-type=gz (bunzip2 was not replaced by gzip -d)
 * Fixed multiple problems in the call to TaskGen.declare_chain(...) #850
 * Fixed the task attribute 'vars' which might cause unnecessary rebuilds #852
+* Return the value of post_check(...) in conf.check(...) #857
 
 NEW IN WAF 1.6.2
 ----------------
