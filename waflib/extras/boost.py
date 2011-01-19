@@ -319,7 +319,7 @@ def check_boost(self, *k, **kw):
 			self.start_msg(kw.get('msg_includes', 'Checking for boost include path'))
 			ret = self.find_boost_includes(kw)
 
-	except Errors.ConfigurationError, e:
+	except Errors.ConfigurationError as e:
 		if 'errmsg' in kw:
 			self.end_msg(kw['errmsg'], 'YELLOW')
 		raise e
@@ -331,7 +331,7 @@ def check_boost(self, *k, **kw):
 		self.start_msg('Checking for library boost_'+lib)
 		try:
 			self.find_boost_library(lib, kw)
-		except Errors.ConfigurationError, e:
+		except Errors.ConfigurationError as e:
 			ret = False
 			if 'errmsg' in kw:
 				self.end_msg(kw['errmsg'], 'YELLOW')
