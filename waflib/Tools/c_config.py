@@ -607,7 +607,8 @@ def check(self, *k, **kw):
 		kw['success'] = ret
 		self.end_msg(self.ret_msg(kw['okmsg'], kw))
 
-	if not self.post_check(*k, **kw):
+	ret = self.post_check(*k, **kw)
+	if not ret:
 		self.fatal('The configuration failed %r' % ret)
 	return ret
 
