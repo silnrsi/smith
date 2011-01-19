@@ -169,7 +169,7 @@ The first parameter for the `ofl()` object is a reserved word. Multiple words ma
 
 === Tests ===
 
-wsiwaf includes a powerful system for testing with the potential to add different types of font tests. Currently there is only one font test type and also by default a single font test object is created that is used by all fonts for which no tests attribute is given.
+smith includes a powerful system for testing with the potential to add different types of font tests. Currently there is only one font test type and also by default a single font test object is created that is used by all fonts for which no tests attribute is given.
 
 The `fonttest` object takes these attributes:
 

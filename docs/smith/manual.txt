@@ -1,4 +1,4 @@
-= wsiwaf Manual =
+= Smith Manual =
 :author: Martin Hosken
 :numbered:
 
