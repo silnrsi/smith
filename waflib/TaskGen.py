@@ -336,6 +336,7 @@ def declare_chain(name='', rule=None, reentrant=True, color='BLUE',
 		tsk = self.create_task(name, node, out_source)
 		if install_path:
 			self.bld.install_files(install_path, out_source)
+		return tsk
 
 	for x in cls.ext_in:
 		task_gen.mappings[x] = x_file
