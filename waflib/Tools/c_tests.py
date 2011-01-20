@@ -120,7 +120,7 @@ def check_inline(self, **kw):
 
 ########################################################################################
 
-LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); };'
+LARGE_FRAGMENT = '#include <unistd.h>\nint main() { return !(sizeof(off_t) >= 8); }\n'
 
 @conf
 def check_large_file(self, **kw):
