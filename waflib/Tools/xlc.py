@@ -33,31 +33,31 @@ def xlc_common_flags(conf):
 	if not v['LINK_CC']: v['LINK_CC'] = v['CC']
 	v['CCLNK_SRC_F']         = []
 	v['CCLNK_TGT_F']         = ['-o']
-	v['CPPPATH_ST'] = '-I%s'
-	v['DEFINES_ST'] = '-D%s'
+	v['CPPPATH_ST']          = '-I%s'
+	v['DEFINES_ST']          = '-D%s'
 
 	v['LIB_ST']              = '-l%s' # template for adding libs
 	v['LIBPATH_ST']          = '-L%s' # template for adding libpaths
-	v['STLIB_ST']        = '-l%s'
-	v['STLIBPATH_ST']    = '-L%s'
+	v['STLIB_ST']            = '-l%s'
+	v['STLIBPATH_ST']        = '-L%s'
 	v['RPATH_ST']            = '-Wl,-rpath,%s'
 
-	v['SONAME_ST']           = ''
-	v['SHLIB_MARKER']        = ''
-	v['STLIB_MARKER']    = ''
+	v['SONAME_ST']           = []
+	v['SHLIB_MARKER']        = []
+	v['STLIB_MARKER']        = []
 
 	# program
-	v['LINKFLAGS_cprogram']   = ['-Wl,-brtl']
-	v['cprogram_PATTERN']     = '%s'
+	v['LINKFLAGS_cprogram']  = ['-Wl,-brtl']
+	v['cprogram_PATTERN']    = '%s'
 
 	# shared library
 	v['CFLAGS_cshlib']       = ['-fPIC']
-	v['LINKFLAGS_cshlib']     = ['-G', '-Wl,-brtl,-bexpfull']
-	v['cshlib_PATTERN']       = 'lib%s.so'
+	v['LINKFLAGS_cshlib']    = ['-G', '-Wl,-brtl,-bexpfull']
+	v['cshlib_PATTERN']      = 'lib%s.so'
 
 	# static lib
-	v['LINKFLAGS_cstlib'] = ''
-	v['cstlib_PATTERN']   = 'lib%s.a'
+	v['LINKFLAGS_cstlib']    = []
+	v['cstlib_PATTERN']      = 'lib%s.a'
 
 def configure(conf):
 	conf.find_xlc()

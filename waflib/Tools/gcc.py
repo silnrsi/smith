@@ -108,19 +108,17 @@ def gcc_modifier_darwin(conf):
 
 	v['LINKFLAGS_cstlib']    = []
 
-	v['SHLIB_MARKER']        = ''
-	v['STLIB_MARKER']        = ''
-	v['SONAME_ST']           = ''
+	v['SHLIB_MARKER']        = []
+	v['STLIB_MARKER']        = []
+	v['SONAME_ST']           = []
 
 @conf
 def gcc_modifier_aix(conf):
 	"""Configuration flags for executing gcc on AIX"""
 	v = conf.env
 	v['LINKFLAGS_cprogram']  = ['-Wl,-brtl']
-
 	v['LINKFLAGS_cshlib']    = ['-shared','-Wl,-brtl,-bexpfull']
-
-	v['SHLIB_MARKER']        = ''
+	v['SHLIB_MARKER']        = []
 
 @conf
 def gcc_modifier_hpux(conf):

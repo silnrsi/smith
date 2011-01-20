@@ -65,7 +65,7 @@ def gxx_common_flags(conf):
 
 	# osx stuff
 	v['LINKFLAGS_MACBUNDLE'] = ['-bundle', '-undefined', 'dynamic_lookup']
-	v['CXXFLAGS_MACBUNDLE']   = ['-fPIC']
+	v['CXXFLAGS_MACBUNDLE']  = ['-fPIC']
 	v['macbundle_PATTERN']   = '%s.bundle'
 
 @conf
@@ -108,9 +108,9 @@ def gxx_modifier_darwin(conf):
 
 	v['LINKFLAGS_cxxstlib']  = []
 
-	v['SHLIB_MARKER']        = ''
-	v['STLIB_MARKER']        = ''
-	v['SONAME_ST']           = ''
+	v['SHLIB_MARKER']        = []
+	v['STLIB_MARKER']        = []
+	v['SONAME_ST']           = []
 
 @conf
 def gxx_modifier_aix(conf):
@@ -119,8 +119,7 @@ def gxx_modifier_aix(conf):
 	v['LINKFLAGS_cxxprogram']= ['-Wl,-brtl']
 
 	v['LINKFLAGS_cxxshlib']  = ['-shared', '-Wl,-brtl,-bexpfull']
-
-	v['SHLIB_MARKER']        = ''
+	v['SHLIB_MARKER']        = []
 
 @conf
 def gxx_modifier_hpux(conf):

@@ -36,7 +36,7 @@ def scc_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CC_SRC_F']            = ''
+	v['CC_SRC_F']            = []
 	v['CC_TGT_F']            = ['-c', '-o']
 
 	# linker

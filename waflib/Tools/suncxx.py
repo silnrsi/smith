@@ -37,12 +37,12 @@ def sxx_common_flags(conf):
 	"""
 	v = conf.env
 
-	v['CXX_SRC_F']           = ''
+	v['CXX_SRC_F']           = []
 	v['CXX_TGT_F']           = ['-c', '-o']
 
 	# linker
 	if not v['LINK_CXX']: v['LINK_CXX'] = v['CXX']
-	v['CXXLNK_SRC_F']        = ''
+	v['CXXLNK_SRC_F']        = []
 	v['CXXLNK_TGT_F']        = ['-o']
 	v['CPPPATH_ST']          = '-I%s'
 	v['DEFINES_ST']          = '-D%s'
