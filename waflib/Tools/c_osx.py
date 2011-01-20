@@ -125,7 +125,7 @@ def create_task_macplist(self):
 		plisttask.install_path = os.path.join(self.install_path, name, 'Contents')
 		self.plisttask = plisttask
 
-@feature('c', 'cxx')
+@feature('cshlib', 'cxxshlib')
 @before('apply_link', 'propagate_uselib_vars')
 def apply_bundle(self):
 	"""
@@ -140,26 +140,12 @@ def apply_bundle(self):
 			bld.env.MACBUNDLE = True
 			bld.shlib(source='a.c', target='foo')
 	"""
-	if not ('cshlib' in self.features or 'cxxshlib' in self.features):
-		return
 	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
+		self.env['LINKFLAGS_cshlib'] = self.env['LINKFLAGS_cxxshlib'] = [] # disable the '-dynamiclib' flag
 		self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['macbundle_PATTERN']
-		uselib = self.uselib = self.to_list(getattr(self, 'use', []))
-		if not 'MACBUNDLE' in uselib:
-			uselib.append('MACBUNDLE')
-
-@feature('cshlib', 'cxxshlib')
-@after('apply_link')
-def apply_bundle_remove_dynamiclib(self):
-	"""
-	Remove the flag ``-dynamiclib`` on bundle targets
-	"""
-	if self.env['MACBUNDLE'] or getattr(self, 'mac_bundle', False):
-		if not getattr(self, 'vnum', None):
-			try:
-				self.env['LINKFLAGS'].remove('-dynamiclib')
-			except ValueError:
-				pass
+		use = self.use = self.to_list(getattr(self, 'use', []))
+		if not 'MACBUNDLE' in use:
+			use.append('MACBUNDLE')
 
 app_dirs = ['Contents', 'Contents/MacOS', 'Contents/Resources']
 
