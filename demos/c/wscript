@@ -27,7 +27,7 @@ def configure(conf):
 	conf.check_cc(lib='m', cflags='-Wall', defines=['var=foo', 'x=y'], uselib_store='M', mandatory=False)
 	conf.to_log("@2")
 
-	conf.check_large_file()
+	conf.check_large_file(mandatory=False)
 	conf.to_log("@3")
 	conf.check_inline()
 	conf.to_log("@4")
