@@ -33,6 +33,7 @@ color2code = {
 	'PINK'   : '#a751ff',
 	'RED'    : '#cc1d1d',
 	'BLUE'   : '#6687bb',
+	'CYAN'   : '#34e2e2',
 }
 
 mp = {}
