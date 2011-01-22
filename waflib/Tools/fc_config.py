@@ -189,8 +189,8 @@ def check_fortran_verbose_flag(self, *k, **kw):
 		except self.errors.ConfigurationError:
 			pass
 		else:
-			# output is on stderr
-			if self.is_link_verbose(self.test_bld.err):
+			# output is on stderr or stdout (for xlf)
+			if self.is_link_verbose(self.test_bld.err) or self.is_link_verbose(self.test.bld.out):
 				self.end_msg(x)
 				break
 	else:
