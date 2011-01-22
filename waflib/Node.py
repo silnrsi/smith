@@ -218,7 +218,9 @@ class Node(object):
 
 	def listdir(self):
 		"""List the folder contents"""
-		return Utils.listdir(self.abspath())
+		lst = Utils.listdir(self.abspath())
+		lst.sort()
+		return lst
 
 	def mkdir(self):
 		"""Create a folder represented by this node"""
