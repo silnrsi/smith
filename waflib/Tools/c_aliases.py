@@ -118,7 +118,7 @@ def objects(bld, *k, **kw):
 	Alias for creating object files by looking at the file extensions::
 
 		def build(bld):
-			bld.program(source='foo.c', target='app')
+			bld.objects(source='foo.c', target='app')
 			# equivalent to:
 			# bld(features='c', source='foo.c', target='app')
 
