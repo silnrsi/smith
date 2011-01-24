@@ -94,7 +94,12 @@ def libfiles(lib, pattern, lib_paths):
 @conf
 def get_boost_version_number(self, dir):
 	"""silently retrieve the boost version number"""
-	return self.check_cxx(fragment=boost_code, includes=[dir], execute=True, define_ret=True)
+	re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
+	try:
+		val = re_but.search(self.root.find_dir(dir).find_node('boost/version.hpp').read()).group(1)
+	except:
+		val = self.check_cxx(fragment=boost_code, includes=[dir], execute=True, define_ret=True)
+	return val
 
 def set_default(kw, var, val):
 	if not var in kw:
