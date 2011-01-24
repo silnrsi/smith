@@ -14,17 +14,17 @@ def find_xlc(conf):
 	"""
 	Detect the Aix C compiler
 	"""
-	cc = conf.find_program(['xlc_r', 'xlc'], var='CC')
+	cc = conf.find_program(['xlc_r', 'xlc', 'bgxlc_r','bgxlc'], var='CC')
 	cc = conf.cmd_to_list(cc)
-	conf.env.CC_NAME = 'xlc'
 	conf.env.CC      = cc
+	conf.env.CC_NAME = 'xlc'
 
 @conf
-def xlc_common_flags(conf):
+def xlc_common_flags(self):
 	"""
 	Flags required for executing the Aix C compiler
 	"""
-	v = conf.env
+	v = self.env
 
 	v['CC_SRC_F']            = []
 	v['CC_TGT_F']            = ['-c', '-o']
@@ -59,11 +59,16 @@ def xlc_common_flags(conf):
 	v['LINKFLAGS_cstlib']    = []
 	v['cstlib_PATTERN']      = 'lib%s.a'
 
-def configure(conf):
-	conf.find_xlc()
-	conf.find_ar()
-	conf.xlc_common_flags()
-	conf.cc_load_tools()
-	conf.cc_add_flags()
-	conf.link_add_flags()
+@conf
+def xlc_on_bg(self):
+	if 'bgxlc' in self.env.CC:
+		v['LINKFLAGS_cshlib']= ['-G', '-Wl,-bexpfull']
+
+def configure(self):
+	self.find_xlc()
+	self.find_ar()
+	self.xlc_common_flags()
+	self.cc_load_tools()
+	self.cc_add_flags()
+	self.link_add_flags()
 
