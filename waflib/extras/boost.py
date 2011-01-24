@@ -84,10 +84,10 @@ def version_string(version):
 def libfiles(lib, pattern, lib_paths):
 	result = []
 	for lib_path in lib_paths:
-		libname = pattern % ('boost_%s[!_]*' % lib)
+		libname = pattern % ('*boost_%s[!_]*' % lib)
 		result += glob.glob(os.path.join(lib_path, libname))
 		if len(result)==0:
-			libname=pattern%('boost_%s'%lib)
+			libname=pattern%('*boost_%s'%lib)
 			result+=glob.glob(os.path.join(lib_path,libname))
 	return result
 
@@ -273,13 +273,13 @@ def find_boost_library(self, lib, kw):
 	if libname is None and kw['static'] in [STATIC_ONLYSTATIC, STATIC_BOTH]:
 		st_env_prefix = 'STLIB'
 		staticLibPattern = v['cxxstlib_PATTERN']
-		if self.env['CC_NAME'] == 'msvc':
+		if self.env['CXX_NAME'] == 'msvc':
 			staticLibPattern = 'lib' + staticLibPattern
 		files = libfiles(lib, staticLibPattern, lib_paths)
 		(libname, file) = find_library_from_list(lib, files)
 	if libname is not None:
 		v['LIBPATH_BOOST_' + lib.upper()] = [os.path.split(file)[0]]
-		if self.env['CC_NAME'] == 'msvc' and os.path.splitext(file)[1] == '.lib':
+		if self.env['CXX_NAME'] == 'msvc' and os.path.splitext(file)[1] == '.lib':
 			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['libboost_'+libname]
 		else:
 			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['boost_'+libname]

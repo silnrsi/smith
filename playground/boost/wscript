@@ -1,9 +1,3 @@
-#! /usr/bin/env python
-
-"""
-The boost tool needs to be rewritten
-"""
-
 top = '.'
 out = 'build'
 
@@ -12,8 +6,7 @@ def options(opt):
 
 def configure(conf):
     conf.load('compiler_cxx boost')
-    conf.check_boost()
+    conf.check_boost(lib='filesystem')
 
 def build(bld):
-    pass
-
+    bld.program(source='main.cpp', target='app', uselib='BOOST BOOST_SYSTEM')
