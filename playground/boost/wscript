@@ -1,0 +1,19 @@
+#! /usr/bin/env python
+
+"""
+The boost tool needs to be rewritten
+"""
+
+top = '.'
+out = 'build'
+
+def options(opt):
+    opt.load('compiler_cxx boost')
+
+def configure(conf):
+    conf.load('compiler_cxx boost')
+    conf.check_boost()
+
+def build(bld):
+    pass
+
