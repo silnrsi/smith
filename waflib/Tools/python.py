@@ -386,6 +386,11 @@ def check_python_version(conf, minver=None):
 	if not result:
 		conf.fatal('The python version is too old, expecting %r' % (minver,))
 
+PYTHON_MODULE_TEMPLATE = '''
+import %s
+print(1)
+'''
+
 @conf
 def check_python_module(conf, module_name):
 	"""
@@ -399,7 +404,7 @@ def check_python_module(conf, module_name):
 	"""
 	conf.start_msg('Python module %s' % module_name)
 	try:
-		conf.cmd_and_log([conf.env['PYTHON'], '-c', 'import %s\nprint(1)\n' % module_name])
+		conf.cmd_and_log(conf.env['PYTHON'] + ['-c', PYTHON_MODULE_TEMPLATE % module_name])
 	except:
 		conf.end_msg(False)
 		conf.fatal('Could not find the python module %r' % module_name)
