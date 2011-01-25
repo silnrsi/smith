@@ -162,7 +162,7 @@ def get_python_variables(conf, python_exe, variables, imports=['import sys']):
 		pass
 
 	try:
-		out = conf.cmd_and_log(Utils.to_list(python_exe) + ['-c', '\n'.join(program)], env=os_env)
+		out = conf.cmd_and_log(conf.cmd_to_list(python_exe) + ['-c', '\n'.join(program)], env=os_env)
 	except Errors.WafError:
 		conf.fatal('The distutils module is unusable: install "python-devel"?')
 	return_values = []
