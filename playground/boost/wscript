@@ -6,7 +6,7 @@ def options(opt):
 
 def configure(conf):
     conf.load('compiler_cxx boost')
-    conf.check_boost(lib='filesystem')
+    conf.check_boost(lib='system filesystem')
 
 def build(bld):
     bld.program(source='main.cpp', target='app', uselib='BOOST BOOST_SYSTEM')
