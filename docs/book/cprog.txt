@@ -461,7 +461,7 @@ The variables used for C/C++ are the following:
 |=================
 |Uselib variable | Attribute | Usage
 |LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
-|STATICLIB|staticlib| list of static library names to use, without prefix or extension
+|STLIB    |stlib    | list of static library names to use, without prefix or extension
 |LIBPATH  |libpath  | list of search path for shared and static libraries
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
 |CXXFLAGS |cxxflags | flags to use for c++ files

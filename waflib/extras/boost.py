@@ -6,344 +6,223 @@
 # modified by Bjoern Michaelsen, 2008
 # modified by Luca Fossati, 2008
 # rewritten for waf 1.5.1, Thomas Nagy, 2008
+# rewritten for waf 1.6.2, Sylvain Rouquette, 2011
 
-"""
-TO BE REWRITTEN AGAIN, AND WITH A TEST DIRECTORY
-
+'''
 To add the boost tool to the waf file:
 $ ./waf-light --tools=compat15,boost
-   or, if you have waf >= 1.6.2
-$ waf update --files=boost
+    or, if you have waf >= 1.6.2
+$ ./waf update --files=boost
 
 The wscript will look like:
 
 def options(opt):
-	opt.load('compiler_cxx boost')
+    opt.load('compiler_cxx boost')
 
 def configure(conf):
-   conf.load('compler_cxx boost')
-   conf.check_boost(lib='signals filesystem', static='onlystatic', score_version=(-1000, 1000), tag_minscore=1000)
-   conf.check_boost(lib='signals filesystem', score_version=(-1000, 1000), tag_minscore=1000)
+    conf.load('compler_cxx boost')
+    conf.check_boost(lib='system filesystem', static=True)
 
 def build(bld):
-   bld(source='main.c', target='bar', uselib="BOOST BOOST_SYSTEM")
+    bld(source='main.cpp', target='bar', uselib="BOOST BOOST_SYSTEM")
+'''
 
-ISSUES:
- * find_includes should be called only once!
- * support mandatory
-
-###### last boost update ###########
- * the method get_boost_version_number does work
- * the rest of the code has not really been tested
- * make certain a demo is provided (in demos/adv for example)
-"""
-
-import os.path, glob, types, re, sys
-from waflib import Configure, Options, Utils, Logs, Errors
-from waflib.Tools import c_config
-from waflib.Logs import warn, debug
+import os, sys, re
+from waflib import Options, Utils, Logs, Errors
 from waflib.Configure import conf
+from waflib.Tools import compiler_cxx
 
-boost_code = '''
+BOOST_LIBS = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
+BOOST_INCLUDES = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+BOOST_VERSION_FILE = 'boost/version.hpp'
+BOOST_VERSION_CODE = '''
 #include <iostream>
 #include <boost/version.hpp>
 int main() { std::cout << BOOST_VERSION << std::endl; }
 '''
 
-boost_libpath = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
-boost_includes = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+# based on {boost_dir}/tools/build/v2/tools/common.jam
+detect_clang = lambda env: (Utils.unversioned_sys_platform() == 'darwin') and 'clang-darwin' or 'clang'
+detect_mingw = lambda env: (re.search('MinGW', env.CXX[0])) and 'mgw' or 'gcc'
+detect_intel = lambda env: (Utils.unversioned_sys_platform() == 'win32') and 'iw' or 'il'
+BOOST_TOOLSET = {
+    'borland':  'bcb',
+    'clang':    detect_clang,
+    'como':     'como',
+    'cw':       'cw',
+    'darwin':   'xgcc',
+    'edg':      'edg',
+    'g++':      detect_mingw,
+    'gcc':      detect_mingw,
+    'icpc':     detect_intel,
+    'intel':    detect_intel,
+    'kcc':      'kcc',
+    'kylix':    'bck',
+    'mipspro':  'mp',
+    'mingw':    'mgw',
+    'msvc':     'vc',
+    'qcc':      'qcc',
+    'sun':      'sw',
+    'sunc++':   'sw',
+    'tru64cxx': 'tru',
+    'vacpp':    'xlc'
+}
 
-STATIC_NOSTATIC = 'nostatic'
-STATIC_BOTH = 'both'
-STATIC_ONLYSTATIC = 'onlystatic'
-
-is_versiontag = re.compile('^\d+_\d+_?\d*$')
-is_threadingtag = re.compile('^mt$')
-is_abitag = re.compile('^[sgydpn]+$')
-is_toolsettag = re.compile('^(acc|borland|como|cw|dmc|darwin|gcc|hp_cxx|intel|kylix|vc|mgw|qcc|sun|vacpp)\d*$')
-is_pythontag=re.compile('^py[0-9]{2}$')
+# used in check_boost
+BOOST_OPTIONS = ['libs', 'includes', 'static', 'mt', 'abi', 'toolset', 'python']
 
 def options(opt):
-	opt.add_option('--boost-includes', type='string', default='', dest='boostincludes', help='path to the boost directory where the includes are e.g. /usr/local/include/boost-1_35')
-	opt.add_option('--boost-libs', type='string', default='', dest='boostlibs', help='path to the directory where the boost libs are e.g. /usr/local/lib')
+    opt.add_option('--boost-includes', type='string', default='', dest='boost_includes',
+                   help='''path to the boost directory where the includes are
+                   e.g. /boost_1_45_0/include''')
+    opt.add_option('--boost-libs', type='string', default='', dest='boost_libs',
+                   help='''path to the directory where the boost libs are
+                   e.g. /boost_1_45_0/stage/lib''')
+    opt.add_option('--boost-static', action='store_true', default=False, dest='boost_static',
+                   help='link static libraries')
+    opt.add_option('--boost-mt', action='store_true', default=False, dest='boost_mt',
+                   help='select multi-threaded libraries')
+    opt.add_option('--boost-abi', type='string', default='', dest='boost_abi',
+                   help='''select libraries with tags (like d for debug),
+                   see Boost Getting Started chapter 6.1''')
+    opt.add_option('--boost-toolset', type='string', default='', dest='boost_toolset',
+                   help='force toolset (default: auto)')
+    py_version = '%d%d' % (sys.version_info[0], sys.version_info[1])
+    opt.add_option('--boost-python', type='string', default=py_version, dest='boost_python',
+                   help='use this version of the lib python (default: %s)' % py_version)
 
-def string_to_version(s):
-	version = s.split('.')
-	if len(version) < 3: return 0
-	return int(version[0])*100000 + int(version[1])*100 + int(version[2])
 
-def version_string(version):
-	major = version / 100000
-	minor = version / 100 % 1000
-	minor_minor = version % 100
-	if minor_minor == 0:
-		return "%d_%d" % (major, minor)
-	else:
-		return "%d_%d_%d" % (major, minor, minor_minor)
-
-def libfiles(lib, pattern, lib_paths):
-	result = []
-	for lib_path in lib_paths:
-		libname = pattern % ('*boost_%s[!_]*' % lib)
-		result += glob.glob(os.path.join(lib_path, libname))
-		if len(result)==0:
-			libname=pattern%('*boost_%s'%lib)
-			result+=glob.glob(os.path.join(lib_path,libname))
-	return result
 
 @conf
-def get_boost_version_number(self, dir):
-	"""silently retrieve the boost version number"""
-	re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
-	try:
-		val = re_but.search(self.root.find_dir(dir).find_node('boost/version.hpp').read()).group(1)
-	except:
-		val = self.check_cxx(fragment=boost_code, includes=[dir], execute=True, define_ret=True)
-	return val
-
-def set_default(kw, var, val):
-	if not var in kw:
-		kw[var] = val
-
-def tags_score(tags, kw):
-	"""
-	checks library tags
-
-	see http://www.boost.org/doc/libs/1_35_0/more/getting_started/unix-variants.html 6.1
-	"""
-	score = 0
-	needed_tags = {
-		'threading': kw['tag_threading'],
-		'abi':       kw['tag_abi'],
-		'toolset':   kw['tag_toolset'],
-		'version':   kw['tag_version'],
-		'python':    kw['tag_python']
-	}
-
-	if kw['tag_toolset'] is None:
-		v = kw['env']
-		toolset = v['CXX_NAME']
-		if v['CXX_VERSION']:
-			version_no = v['CXX_VERSION'].split('.')
-			toolset += version_no[0]
-			if len(version_no) > 1:
-				toolset += version_no[1]
-		needed_tags['toolset'] = toolset
-
-	found_tags = {}
-	for tag in tags:
-		if is_versiontag.match(tag): found_tags['version'] = tag
-		if is_threadingtag.match(tag): found_tags['threading'] = tag
-		if is_abitag.match(tag): found_tags['abi'] = tag
-		if is_toolsettag.match(tag): found_tags['toolset'] = tag
-		if is_pythontag.match(tag): found_tags['python'] = tag
-
-	for tagname in needed_tags.iterkeys():
-		if needed_tags[tagname] is not None and tagname in found_tags:
-			if re.compile(needed_tags[tagname]).match(found_tags[tagname]):
-				score += kw['score_' + tagname][0]
-			else:
-				score += kw['score_' + tagname][1]
-	return score
+def boost_version_file(self, dir):
+    try:
+        return self.root.find_dir(dir).find_node(BOOST_VERSION_FILE)
+    except:
+        return None
 
 @conf
-def validate_boost(self, kw):
-	ver = kw.get('version', '')
+def boost_version(self, dir):
+    """silently retrieve the boost version number"""
+    re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
+    try:
+        val = re_but.search(boost_version_file(self, dir).read()).group(1)
+    except:
+        val = self.check_cxx(fragment=boost_code, includes=[dir],
+                             execute=True, define_ret=True)
+    val = int(val)
+    major = val / 100000
+    minor = val / 100 % 1000
+    minor_minor = val % 100
+    if minor_minor == 0:
+        return "%d_%d" % (major, minor)
+    else:
+        return "%d_%d_%d" % (major, minor, minor_minor)
 
-	for x in 'min_version max_version version'.split():
-		set_default(kw, x, ver)
 
-	set_default(kw, 'lib', '')
-	kw['lib'] = Utils.to_list(kw['lib'])
-
-	set_default(kw, 'env', self.env)
-
-	set_default(kw, 'libpath', boost_libpath)
-	set_default(kw, 'includes', boost_includes)
-
-	for x in 'tag_threading tag_version tag_toolset'.split():
-		set_default(kw, x, None)
-	set_default(kw, 'tag_abi', '^[^d]*$')
-
-	set_default(kw, 'python', str(sys.version_info[0]) + str(sys.version_info[1]) )
-	set_default(kw, 'tag_python', '^py' + kw['python'] + '$')
-
-	set_default(kw, 'score_threading', (10, -10))
-	set_default(kw, 'score_abi', (10, -10))
-	set_default(kw, 'score_python', (10,-10))
-	set_default(kw, 'score_toolset', (1, -1))
-	set_default(kw, 'score_version', (100, -100))
-
-	set_default(kw, 'score_min', 0)
-	set_default(kw, 'static', STATIC_NOSTATIC)
-	set_default(kw, 'found_includes', False)
-	set_default(kw, 'min_score', 0)
-
-	set_default(kw, 'errmsg', 'not found')
-	set_default(kw, 'okmsg', 'ok')
 
 @conf
-def find_boost_includes(self, kw):
-	"""
-	check every path in kw['includes'] for subdir
-	that either starts with boost- or is named boost.
+def boost_find_includes(self, params):
+    dir = params['includes']
+    if dir and boost_version_file(self, dir):
+        return dir
+    for dir in BOOST_INCLUDES:
+        if boost_version_file(self, dir):
+            return dir
+    self.fatal('headers not found in %s' % dir)
 
-	Then the version is checked and selected accordingly to
-	min_version/max_version. The highest possible version number is
-	selected!
 
-	If no versiontag is set the versiontag is set accordingly to the
-	selected library and INCLUDES_BOOST is set.
-	"""
-	boostPath = getattr(Options.options, 'boostincludes', '')
-	if boostPath:
-		boostPath = [os.path.normpath(os.path.expandvars(os.path.expanduser(boostPath)))]
-	else:
-		boostPath = Utils.to_list(kw['includes'])
-
-	min_version = string_to_version(kw.get('min_version', ''))
-	max_version = string_to_version(kw.get('max_version', '')) or (sys.maxint - 1)
-
-	version = 0
-	for include_path in boostPath:
-		boost_paths = [p for p in glob.glob(os.path.join(include_path, 'boost*')) if os.path.isdir(p)]
-		debug('BOOST Paths: %r' % boost_paths)
-		for path in boost_paths:
-			pathname = os.path.split(path)[-1]
-			ret = -1
-			if pathname == 'boost':
-				path = include_path
-				ret = self.get_boost_version_number(path)
-			elif pathname.startswith('boost-'):
-				ret = self.get_boost_version_number(path)
-			ret = int(ret)
-
-			if ret != -1 and ret >= min_version and ret <= max_version and ret > version:
-				boost_path = path
-				version = ret
-	if not version:
-		self.fatal('boost headers not found! (required version min: %s max: %s)'
-			  % (kw['min_version'], kw['max_version']))
-		return False
-
-	found_version = version_string(version)
-	versiontag = '^' + found_version + '$'
-	if kw['tag_version'] is None:
-		kw['tag_version'] = versiontag
-	elif kw['tag_version'] != versiontag:
-		warn('boost header version %r and tag_version %r do not match!' % (versiontag, kw['tag_version']))
-	env = self.env
-	env['INCLUDES_BOOST'] = boost_path
-	env['BOOST_VERSION'] = found_version
-	self.found_includes = 1
-	ret = '%s (ver %s)' % (boost_path, found_version)
-	return ret
 
 @conf
-def find_boost_library(self, lib, kw):
+def boost_toolset(self, params):
+    toolset = params['toolset']
+    toolset_tag = toolset
+    if not toolset:
+        build_platform = Utils.unversioned_sys_platform()
+        if build_platform in BOOST_TOOLSET:
+            toolset = build_platform
+        else:
+            toolset = self.env.CXX_NAME
+    if toolset in BOOST_TOOLSET:
+        toolset_tag = BOOST_TOOLSET[toolset]
+    return (isinstance(toolset_tag, str)) and toolset_tag or toolset_tag(self.env)
 
-	def find_library_from_list(lib, files):
-		lib_pattern = re.compile('.*boost_(.*?)\..*')
-		result = (None, None)
-		resultscore = kw['min_score'] - 1
-		for file in files:
-			m = lib_pattern.search(file, 1)
-			if m:
-				libname = m.group(1)
-				libtags = libname.split('-')[1:]
-				currentscore = tags_score(libtags, kw)
-				if currentscore > resultscore:
-					result = (libname, file)
-					resultscore = currentscore
-		return result
+@conf
+def boost_find_libs(self, params):
+    libs = []
+    if params['libs']:
+        path = self.root.find_dir(params['libs'])
+    else:
+        for dir in BOOST_LIBS:
+            try:
+                path = self.root.find_dir(dir)
+                if len(path.ant_glob('*boost_*')):
+                    break
+            except:
+                path = ''
+                pass
+    if not path:
+        self.fatal('libs not found in %s' % params['libs'])
+    t = []
+    if params['mt']:
+        t.append('mt')
+    if params['abi']:
+        t.append(params['abi'])
+    tags = len(t) and '(-%s)+' % '-'.join(t) or ''
+    toolset = '(-%s[0-9]{0,3})+' % boost_toolset(self, params)
+    version = '(-%s)+' % self.env.BOOST_VERSION
+    def find_lib(re_lib, files):
+        for file in files:
+            if re_lib.search(file.name):
+                return file
+        return None
+    for lib in params['lib'].split():
+        py = (lib == 'python') and '(-py%s)+' % params['python'] or ''
+        files = path.ant_glob('*%s*' % lib)
+        pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
+        file = find_lib(re.compile(pattern), files)
+        if file:
+            libs.append(file.name.split('.')[0])
+            continue
+        # second pass with less condition
+        pattern = 'boost_%s%s%s' % (lib, tags, py)
+        file = find_lib(re.compile(pattern), files)
+        if file:
+            libs.append(file.name.split('.')[0])
+            continue
+        self.fatal('lib %s not found in %s' % (lib, params['libs']))
+    return { 'path': [path.abspath()], 'libs': libs }
 
-	lib_paths = getattr(Options.options, 'boostlibs', '')
-	if lib_paths:
-		lib_paths = [os.path.normpath(os.path.expandvars(os.path.expanduser(lib_paths)))]
-	else:
-		lib_paths = Utils.to_list(kw['libpath'])
 
-	v = kw.get('env', self.env)
-
-	(libname, file) = (None, None)
-	if kw['static'] in [STATIC_NOSTATIC, STATIC_BOTH]:
-		st_env_prefix = 'LIB'
-		files = libfiles(lib, v['cxxshlib_PATTERN'], lib_paths)
-		(libname, file) = find_library_from_list(lib, files)
-	if libname is None and kw['static'] in [STATIC_ONLYSTATIC, STATIC_BOTH]:
-		st_env_prefix = 'STLIB'
-		staticLibPattern = v['cxxstlib_PATTERN']
-		if self.env['CXX_NAME'] == 'msvc':
-			staticLibPattern = 'lib' + staticLibPattern
-		files = libfiles(lib, staticLibPattern, lib_paths)
-		(libname, file) = find_library_from_list(lib, files)
-	if libname is not None:
-		v['LIBPATH_BOOST_' + lib.upper()] = [os.path.split(file)[0]]
-		if self.env['CXX_NAME'] == 'msvc' and os.path.splitext(file)[1] == '.lib':
-			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['libboost_'+libname]
-		else:
-			v[st_env_prefix + '_BOOST_' + lib.upper()] = ['boost_'+libname]
-		return
-	self.fatal('lib boost_' + lib + ' not found!')
 
 @conf
 def check_boost(self, *k, **kw):
-	"""
-	This should be the main entry point
+    """
+    initialize boost
 
-- min_version
-- max_version
-- version
-- include_path
-- lib_path
-- lib
-- toolsettag   - None or a regexp
-- threadingtag - None or a regexp
-- abitag       - None or a regexp
-- versiontag   - WARNING: you should rather use version or min_version/max_version
-- static       - look for static libs (values:
-	  'nostatic'   or STATIC_NOSTATIC   - ignore static libs (default)
-	  'both'       or STATIC_BOTH       - find static libs, too
-	  'onlystatic' or STATIC_ONLYSTATIC - find only static libs
-- score_version
-- score_abi
-- scores_threading
-- score_toolset
- * the scores are tuples (match_score, nomatch_score)
-   match_score is the added to the score if the tag is matched
-   nomatch_score is added when a tag is found and does not match
-- min_score
-	"""
+    You can pass the same parameters as the command line,
+    but the command line has the priority.
+    """
+    if not self.env['CXX']:
+        self.fatal('load a c++ compiler tool first, for example conf.load("compiler_cxx")')
 
-	if not self.env['CXX']:
-		self.fatal('load a c++ compiler tool first, for example conf.load("g++")')
-	self.validate_boost(kw)
-	ret = None
-	try:
-		if not kw.get('found_includes', None):
-			self.start_msg(kw.get('msg_includes', 'Checking for boost include path'))
-			ret = self.find_boost_includes(kw)
+    params = { 'lib': k and k[0] or kw.get('lib', None) }
+    for i in BOOST_OPTIONS:
+        key = 'boost_%s' % i
+        if key in self.options.__dict__ and self.options.__dict__[key]:
+            params[i] = self.options.__dict__[key]
+        else:
+            params[i] = kw.get(i, '')
 
-	except Errors.ConfigurationError as e:
-		if 'errmsg' in kw:
-			self.end_msg(kw['errmsg'], 'YELLOW')
-		raise e
-	else:
-		if 'okmsg' in kw:
-			self.end_msg(kw.get('okmsg_includes', ret))
+    self.start_msg('Checking boost includes')
+    self.env.INCLUDES_BOOST = boost_find_includes(self, params)
+    self.env.BOOST_VERSION = boost_version(self, self.env.INCLUDES_BOOST)
+    self.end_msg('%s' % self.env.BOOST_VERSION)
 
-	for lib in kw['lib']:
-		self.start_msg('Checking for library boost_'+lib)
-		try:
-			self.find_boost_library(lib, kw)
-		except Errors.ConfigurationError as e:
-			ret = False
-			if 'errmsg' in kw:
-				self.end_msg(kw['errmsg'], 'YELLOW')
-			raise e
-		else:
-			if 'okmsg' in kw:
-				self.end_msg(kw['okmsg'])
-
-	return ret
-
+    if not params['lib']:
+        return
+    self.start_msg('Checking boost libs')
+    result = boost_find_libs(self, params)
+    suffix = params['static'] and 'ST' or ''
+    self.env['%sLIBPATH_BOOST' % suffix] = result['path']
+    self.env['%sLIB_BOOST' % suffix] = result['libs']
+    self.end_msg('ok')
