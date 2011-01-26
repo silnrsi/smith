@@ -206,7 +206,7 @@ def boost_get_libs(self, params):
             libs.append(format_lib_name(file.name))
             continue
         self.fatal('lib %s not found in %s' % (lib, path))
-    return { 'path': [path.abspath()], 'libs': libs }
+    return path.abspath(), libs
 
 
 
@@ -237,8 +237,8 @@ def check_boost(self, *k, **kw):
     if not params['lib']:
         return
     self.start_msg('Checking boost libs')
-    result = boost_get_libs(self, params)
     suffix = params['static'] and 'ST' or ''
-    self.env['%sLIBPATH_BOOST' % suffix] = result['path']
-    self.env['%sLIB_BOOST' % suffix] = result['libs']
+    path, libs = boost_get_libs(self, params)
+    self.env['%sLIBPATH_BOOST' % suffix] = [path]
+    self.env['%sLIB_BOOST' % suffix] = libs
     self.end_msg('ok')
