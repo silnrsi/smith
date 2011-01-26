@@ -157,10 +157,10 @@ def boost_find_libs(self, params):
         for dir in BOOST_LIBS:
             try:
                 path = self.root.find_dir(dir)
-                if len(path.ant_glob('*boost_*')):
+                if path.ant_glob('*boost_*'):
                     break
                 path = self.root.find_dir(dir + '64')
-                if len(path.ant_glob('*boost_*')):
+                if path.ant_glob('*boost_*'):
                     break
             except:
                 path = ''
@@ -182,19 +182,23 @@ def boost_find_libs(self, params):
             if re_lib.search(file.name):
                 return file
         return None
+    def format_lib_name(name):
+        if name.startswith('lib'):
+            name = name[3:]
+        return name.split('.')[0]
     libs = []
     for lib in params['lib'].split():
         py = (lib == 'python') and '(-py%s)+' % params['python'] or ''
         pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs.append(file.name.split('.')[0])
+            libs.append(format_lib_name(file.name))
             continue
         # second pass with less condition
         pattern = 'boost_%s%s%s' % (lib, tags, py)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs.append(file.name.split('.')[0])
+            libs.append(format_lib_name(file.name))
             continue
         self.fatal('lib %s not found in %s' % (lib, params['libs']))
     return { 'path': [path.abspath()], 'libs': libs }
