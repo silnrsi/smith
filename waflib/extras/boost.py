@@ -94,18 +94,18 @@ def options(opt):
 
 
 @conf
-def boost_version_file(self, dir):
+def boost_get_version_file(self, dir):
     try:
         return self.root.find_dir(dir).find_node(BOOST_VERSION_FILE)
     except:
         return None
 
 @conf
-def boost_version(self, dir):
+def boost_get_version(self, dir):
     """silently retrieve the boost version number"""
     re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
     try:
-        val = re_but.search(boost_version_file(self, dir).read()).group(1)
+        val = re_but.search(boost_get_version_file(self, dir).read()).group(1)
     except:
         val = self.check_cxx(fragment=boost_code, includes=[dir],
                              execute=True, define_ret=True)
@@ -121,19 +121,19 @@ def boost_version(self, dir):
 
 
 @conf
-def boost_find_includes(self, params):
+def boost_get_includes(self, params):
     dir = params['includes']
-    if dir and boost_version_file(self, dir):
+    if dir and boost_get_version_file(self, dir):
         return dir
     for dir in BOOST_INCLUDES:
-        if boost_version_file(self, dir):
+        if boost_get_version_file(self, dir):
             return dir
     self.fatal('headers not found in %s' % dir)
 
 
 
 @conf
-def boost_toolset(self, params):
+def boost_get_toolset(self, params):
     toolset = params['toolset']
     toolset_tag = toolset
     if not toolset:
@@ -147,7 +147,7 @@ def boost_toolset(self, params):
     return (isinstance(toolset_tag, str)) and toolset_tag or toolset_tag(self.env)
 
 @conf
-def boost_find_libs(self, params):
+def boost_get_libs_path(self, params):
     files = None
     if 'files' in params:
         files = params['files']
@@ -169,13 +169,18 @@ def boost_find_libs(self, params):
         self.fatal('libs not found in %s' % params['libs'])
     elif not files:
         files = path.ant_glob('*')
+    return path, files
+
+@conf
+def boost_get_libs(self, params):
+    path, files = boost_get_libs_path(self, params)
     t = []
     if params['mt']:
         t.append('mt')
     if params['abi']:
         t.append(params['abi'])
     tags = len(t) and '(-%s)+' % '-'.join(t) or ''
-    toolset = '(-%s[0-9]{0,3})+' % boost_toolset(self, params)
+    toolset = '(-%s[0-9]{0,3})+' % boost_get_toolset(self, params)
     version = '(-%s)+' % self.env.BOOST_VERSION
     def find_lib(re_lib, files):
         for file in files:
@@ -200,7 +205,7 @@ def boost_find_libs(self, params):
         if file:
             libs.append(format_lib_name(file.name))
             continue
-        self.fatal('lib %s not found in %s' % (lib, params['libs']))
+        self.fatal('lib %s not found in %s' % (lib, path))
     return { 'path': [path.abspath()], 'libs': libs }
 
 
@@ -225,14 +230,14 @@ def check_boost(self, *k, **kw):
             params[i] = kw.get(i, '')
 
     self.start_msg('Checking boost includes')
-    self.env.INCLUDES_BOOST = boost_find_includes(self, params)
-    self.env.BOOST_VERSION = boost_version(self, self.env.INCLUDES_BOOST)
+    self.env.INCLUDES_BOOST = boost_get_includes(self, params)
+    self.env.BOOST_VERSION = boost_get_version(self, self.env.INCLUDES_BOOST)
     self.end_msg('%s' % self.env.BOOST_VERSION)
 
     if not params['lib']:
         return
     self.start_msg('Checking boost libs')
-    result = boost_find_libs(self, params)
+    result = boost_get_libs(self, params)
     suffix = params['static'] and 'ST' or ''
     self.env['%sLIBPATH_BOOST' % suffix] = result['path']
     self.env['%sLIB_BOOST' % suffix] = result['libs']
