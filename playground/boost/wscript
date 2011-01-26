@@ -9,4 +9,4 @@ def configure(conf):
     conf.check_boost('system filesystem', mt=True)
 
 def build(bld):
-    bld.program(source='main.cpp', target='app', uselib='BOOST')
+    bld.program(source='main.cpp', target='app', use='BOOST')
