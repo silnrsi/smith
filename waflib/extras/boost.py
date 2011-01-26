@@ -148,7 +148,10 @@ def boost_toolset(self, params):
 
 @conf
 def boost_find_libs(self, params):
-    if params['libs']:
+    files = None
+    if 'files' in params:
+        files = params['files']
+    elif params['libs']:
         path = self.root.find_dir(params['libs'])
     else:
         for dir in BOOST_LIBS:
@@ -156,11 +159,16 @@ def boost_find_libs(self, params):
                 path = self.root.find_dir(dir)
                 if len(path.ant_glob('*boost_*')):
                     break
+                path = self.root.find_dir(dir + '64')
+                if len(path.ant_glob('*boost_*')):
+                    break
             except:
                 path = ''
                 pass
     if not path:
         self.fatal('libs not found in %s' % params['libs'])
+    elif not files:
+        files = path.ant_glob('*')
     t = []
     if params['mt']:
         t.append('mt')
@@ -174,20 +182,19 @@ def boost_find_libs(self, params):
             if re_lib.search(file.name):
                 return file
         return None
-    libs = {}
-    files = ('files' in params) and params['files'] or path.ant_glob('*')
+    libs = []
     for lib in params['lib'].split():
         py = (lib == 'python') and '(-py%s)+' % params['python'] or ''
         pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs[lib.upper()] = file.name.split('.')[0]
+            libs.append(file.name.split('.')[0])
             continue
         # second pass with less condition
         pattern = 'boost_%s%s%s' % (lib, tags, py)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs[lib.upper()] = file.name.split('.')[0]
+            libs.append(file.name.split('.')[0])
             continue
         self.fatal('lib %s not found in %s' % (lib, params['libs']))
     return { 'path': [path.abspath()], 'libs': libs }
@@ -224,6 +231,5 @@ def check_boost(self, *k, **kw):
     result = boost_find_libs(self, params)
     suffix = params['static'] and 'ST' or ''
     self.env['%sLIBPATH_BOOST' % suffix] = result['path']
-    for lib, file in result['libs'].iteritems():
-        self.env['%sLIB_BOOST_%s' % (suffix, lib)] = file
+    self.env['%sLIB_BOOST' % suffix] = result['libs']
     self.end_msg('ok')
