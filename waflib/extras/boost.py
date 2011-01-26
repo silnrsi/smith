@@ -41,7 +41,7 @@ BOOST_VERSION_CODE = '''
 int main() { std::cout << BOOST_VERSION << std::endl; }
 '''
 
-# based on {boost_dir}/tools/build/v2/tools/common.jam
+# toolsets from {boost_dir}/tools/build/v2/tools/common.jam
 detect_clang = lambda env: (Utils.unversioned_sys_platform() == 'darwin') and 'clang-darwin' or 'clang'
 detect_mingw = lambda env: (re.search('MinGW', env.CXX[0])) and 'mgw' or 'gcc'
 detect_intel = lambda env: (Utils.unversioned_sys_platform() == 'win32') and 'iw' or 'il'
@@ -83,13 +83,13 @@ def options(opt):
     opt.add_option('--boost-mt', action='store_true', default=False, dest='boost_mt',
                    help='select multi-threaded libraries')
     opt.add_option('--boost-abi', type='string', default='', dest='boost_abi',
-                   help='''select libraries with tags (like d for debug),
-                   see Boost Getting Started chapter 6.1''')
+                   help='''select libraries with tags (dgsyp, d for debug),
+                   see doc Boost, Getting Started, chapter 6.1''')
     opt.add_option('--boost-toolset', type='string', default='', dest='boost_toolset',
-                   help='force toolset (default: auto)')
+                   help='force a toolset e.g. msvc, vc90, gcc, mingw, mgw45 (default: auto)')
     py_version = '%d%d' % (sys.version_info[0], sys.version_info[1])
     opt.add_option('--boost-python', type='string', default=py_version, dest='boost_python',
-                   help='use this version of the lib python (default: %s)' % py_version)
+                   help='select the lib python with this version (default: %s)' % py_version)
 
 
 
