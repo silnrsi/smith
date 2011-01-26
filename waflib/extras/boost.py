@@ -148,7 +148,6 @@ def boost_toolset(self, params):
 
 @conf
 def boost_find_libs(self, params):
-    libs = []
     if params['libs']:
         path = self.root.find_dir(params['libs'])
     else:
@@ -175,19 +174,20 @@ def boost_find_libs(self, params):
             if re_lib.search(file.name):
                 return file
         return None
+    libs = {}
+    files = ('files' in params) and params['files'] or path.ant_glob('*')
     for lib in params['lib'].split():
         py = (lib == 'python') and '(-py%s)+' % params['python'] or ''
-        files = path.ant_glob('*%s*' % lib)
         pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs.append(file.name.split('.')[0])
+            libs[lib.upper()] = file.name.split('.')[0]
             continue
         # second pass with less condition
         pattern = 'boost_%s%s%s' % (lib, tags, py)
         file = find_lib(re.compile(pattern), files)
         if file:
-            libs.append(file.name.split('.')[0])
+            libs[lib.upper()] = file.name.split('.')[0]
             continue
         self.fatal('lib %s not found in %s' % (lib, params['libs']))
     return { 'path': [path.abspath()], 'libs': libs }
@@ -224,5 +224,6 @@ def check_boost(self, *k, **kw):
     result = boost_find_libs(self, params)
     suffix = params['static'] and 'ST' or ''
     self.env['%sLIBPATH_BOOST' % suffix] = result['path']
-    self.env['%sLIB_BOOST' % suffix] = result['libs']
+    for lib, file in result['libs'].iteritems():
+        self.env['%sLIB_BOOST_%s' % (suffix, lib)] = file
     self.end_msg('ok')

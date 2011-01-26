@@ -30,13 +30,13 @@ The equivalent logic may then be provided by using the following code. It may be
 ---------------
 from waflib import TaskGen
 TaskGen.declare_chain(
-	name      = 'luac', <1>
-	rule      = '${LUAC} -s -o ${TGT} ${SRC}', <2>
-	shell     = False,
-	ext_in    = '.lua', <3>
-	ext_out   = '.luac', <4>
-	reentrant = False, <5>
-	install   = '${LUADIR}', <6>
+	name         = 'luac', <1>
+	rule         = '${LUAC} -s -o ${TGT} ${SRC}', <2>
+	shell        = False,
+	ext_in       = '.lua', <3>
+	ext_out      = '.luac', <4>
+	reentrant    = False, <5>
+	install_path = '${LUADIR}', <6>
 )
 ---------------
 
