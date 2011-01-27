@@ -37,7 +37,7 @@ BOOST_VERSION_FILE = 'boost/version.hpp'
 BOOST_VERSION_CODE = '''
 #include <iostream>
 #include <boost/version.hpp>
-int main() { std::cout << BOOST_VERSION << std::endl; }
+int main() { std::cout << BOOST_LIB_VERSION << std::endl; }
 '''
 
 # toolsets from {boost_dir}/tools/build/v2/tools/common.jam
