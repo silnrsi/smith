@@ -486,8 +486,8 @@ class Timer(object):
 	def __str__(self):
 		delta = datetime.datetime.utcnow() - self.start_time
 		days = int(delta.days)
-		hours = int(delta.seconds / 3600)
-		minutes = int((delta.seconds - hours * 3600) / 60)
+		hours = delta.seconds // 3600
+		minutes = (delta.seconds - hours * 3600) // 60
 		seconds = delta.seconds - hours * 3600 - minutes * 60 + float(delta.microseconds) / 1000 / 1000
 		result = ''
 		if days:

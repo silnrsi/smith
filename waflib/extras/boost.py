@@ -108,8 +108,8 @@ def boost_get_version(self, dir):
         val = self.check_cxx(fragment=BOOST_VERSION_CODE, includes=[dir],
                              execute=True, define_ret=True)
     val = int(val)
-    major = val / 100000
-    minor = val / 100 % 1000
+    major = val // 100000
+    minor = val // 100 % 1000
     minor_minor = val % 100
     if minor_minor == 0:
         return "%d_%d" % (major, minor)
