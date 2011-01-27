@@ -21,16 +21,15 @@ def options(opt):
 
 def configure(conf):
     conf.load('compler_cxx boost')
-    conf.check_boost(lib='system filesystem', static=True)
+    conf.check_boost(lib='system filesystem', mt=True, static=True)
 
 def build(bld):
-    bld(source='main.cpp', target='bar', uselib="BOOST BOOST_SYSTEM")
+    bld(source='main.cpp', target='bar', use='BOOST')
 '''
 
 import os, sys, re
-from waflib import Options, Utils, Logs, Errors
+from waflib import Options, Utils
 from waflib.Configure import conf
-from waflib.Tools import compiler_cxx
 
 BOOST_LIBS = ('/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib')
 BOOST_INCLUDES = ('/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include')
@@ -68,9 +67,6 @@ BOOST_TOOLSET = {
     'vacpp':    'xlc'
 }
 
-# used in check_boost
-BOOST_OPTIONS = ['libs', 'includes', 'static', 'mt', 'abi', 'toolset', 'python']
-
 def options(opt):
     opt.add_option('--boost-includes', type='string', default='', dest='boost_includes',
                    help='''path to the boost directory where the includes are
@@ -87,6 +83,8 @@ def options(opt):
                    see doc Boost, Getting Started, chapter 6.1''')
     opt.add_option('--boost-toolset', type='string', default='', dest='boost_toolset',
                    help='force a toolset e.g. msvc, vc90, gcc, mingw, mgw45 (default: auto)')
+    opt.add_option('--boost-verbose', action='store_true', default=False, dest='boost_verbose',
+                   help='display more informations')
     py_version = '%d%d' % (sys.version_info[0], sys.version_info[1])
     opt.add_option('--boost-python', type='string', default=py_version, dest='boost_python',
                    help='select the lib python with this version (default: %s)' % py_version)
@@ -136,42 +134,45 @@ def boost_get_includes(self, *k, **kw):
 
 
 @conf
-def boost_get_toolset(self, **kw):
-    toolset = kw['toolset']
-    toolset_tag = toolset
-    if not toolset:
+def boost_get_toolset(self, cc):
+    toolset = cc
+    if not cc:
         build_platform = Utils.unversioned_sys_platform()
         if build_platform in BOOST_TOOLSET:
-            toolset = build_platform
+            cc = build_platform
         else:
-            toolset = self.env.CXX_NAME
-    if toolset in BOOST_TOOLSET:
-        toolset_tag = BOOST_TOOLSET[toolset]
-    return (isinstance(toolset_tag, str)) and toolset_tag or toolset_tag(self.env)
+            cc = self.env.CXX_NAME
+    if cc in BOOST_TOOLSET:
+        toolset = BOOST_TOOLSET[cc]
+    return (isinstance(toolset, str)) and toolset or toolset(self.env)
 
 @conf
-def __boost_get_libs_path(self, **kw):
-    files = None
+def __boost_get_libs_path(self, *k, **kw):
     if 'files' in kw:
-        files = kw['files']
-    elif kw['libs']:
-        path = self.root.find_dir(kw['libs'])
-    else:
+        return self.root.find_dir('.'), kw['files']
+    libs = k and k[0] or kw.get('libs', None)
+    if libs:
+        path = self.root.find_dir(libs)
+        files = path.ant_glob('*boost_*')
+    if not libs or not files:
         for dir in BOOST_LIBS:
             try:
                 path = self.root.find_dir(dir)
-                if path.ant_glob('*boost_*'):
+                files = path.ant_glob('*boost_*')
+                if files:
                     break
                 path = self.root.find_dir(dir + '64')
-                if path.ant_glob('*boost_*'):
+                files = path.ant_glob('*boost_*')
+                if files:
                     break
             except:
                 path = None
                 pass
     if not path:
-        self.fatal('libs not found in %s' % kw['libs'])
-    elif not files:
-        files = path.ant_glob('*')
+        if libs:
+            self.fatal('libs not found in %s' % libs)
+        else:
+            self.fatal('libs not found, use --boost-includes=/path/to/boost/lib')
     return path, files
 
 @conf
@@ -182,8 +183,8 @@ def boost_get_libs(self, *k, **kw):
         t.append('mt')
     if kw['abi']:
         t.append(kw['abi'])
-    tags = len(t) and '(-%s)+' % '-'.join(t) or ''
-    toolset = '(-%s[0-9]{0,3})+' % self.boost_get_toolset(**kw)
+    tags = t and '(-%s)+' % '-'.join(t) or ''
+    toolset = '(-%s[0-9]{0,3})+' % self.boost_get_toolset(kw['toolset'])
     version = '(-%s)+' % self.env.BOOST_VERSION
     def find_lib(re_lib, files):
         for file in files:
@@ -225,17 +226,19 @@ def check_boost(self, *k, **kw):
         self.fatal('load a c++ compiler tool first, for example conf.load("compiler_cxx")')
 
     params = { 'lib': k and k[0] or kw.get('lib', None) }
-    for i in BOOST_OPTIONS:
-        key = 'boost_%s' % i
-        if key in self.options.__dict__ and self.options.__dict__[key]:
-            params[i] = self.options.__dict__[key]
-        else:
-            params[i] = kw.get(i, '')
+    for key, value in self.options.__dict__.items():
+        if not key.startswith('boost_'):
+            pass
+        key = key[len('boost_'):]
+        params[key] = value and value or kw.get(key, '')
 
     self.start_msg('Checking boost includes')
     self.env.INCLUDES_BOOST = self.boost_get_includes(**params)
     self.env.BOOST_VERSION = self.boost_get_version(self.env.INCLUDES_BOOST)
-    self.end_msg('%s' % self.env.BOOST_VERSION)
+    self.end_msg(self.env.BOOST_VERSION)
+    if params['verbose']:
+        self.start_msg('boost includes path')
+        self.end_msg(self.env.INCLUDES_BOOST)
 
     if not params['lib']:
         return
@@ -245,3 +248,8 @@ def check_boost(self, *k, **kw):
     self.env['%sLIBPATH_BOOST' % suffix] = [path]
     self.env['%sLIB_BOOST' % suffix] = libs
     self.end_msg('ok')
+    if params['verbose']:
+        self.start_msg('boost libs path')
+        self.end_msg(path)
+        self.start_msg('boost libs found')
+        self.end_msg(libs)
