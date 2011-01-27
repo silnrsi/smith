@@ -235,7 +235,7 @@ def check_boost(self, *k, **kw):
     self.env.BOOST_VERSION = self.boost_get_version(self.env.INCLUDES_BOOST)
     self.end_msg(self.env.BOOST_VERSION)
     if Logs.verbose:
-        Logs.pprint('PINK', '    path : %s' % self.env.INCLUDES_BOOST)
+        Logs.pprint('CYAN', '    path : %s' % self.env.INCLUDES_BOOST)
 
     if not params['lib']:
         return
@@ -246,5 +246,5 @@ def check_boost(self, *k, **kw):
     self.env['%sLIB_BOOST' % suffix] = libs
     self.end_msg('ok')
     if Logs.verbose:
-        Logs.pprint('PINK', '    path : %s' % path)
-        Logs.pprint('PINK', '    libs : %s' % libs)
+        Logs.pprint('CYAN', '    path : %s' % path)
+        Logs.pprint('CYAN', '    libs : %s' % libs)
