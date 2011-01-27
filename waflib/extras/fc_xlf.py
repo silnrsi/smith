@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
+# harald at klimachs.de
 
 import re
 from waflib import Utils
