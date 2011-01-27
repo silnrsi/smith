@@ -99,20 +99,13 @@ def boost_get_version_file(self, dir):
 @conf
 def boost_get_version(self, dir):
     """silently retrieve the boost version number"""
-    re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
+    re_but = re.compile('^#define\\s+BOOST_LIB_VERSION\\s+"(.*)"$', re.M)
     try:
         val = re_but.search(self.boost_get_version_file(dir).read()).group(1)
     except:
         val = self.check_cxx(fragment=BOOST_VERSION_CODE, includes=[dir],
                              execute=True, define_ret=True)
-    val = int(val)
-    major = val // 100000
-    minor = val // 100 % 1000
-    minor_minor = val % 100
-    if minor_minor == 0:
-        return "%d_%d" % (major, minor)
-    else:
-        return "%d_%d_%d" % (major, minor, minor_minor)
+    return val
 
 
 
