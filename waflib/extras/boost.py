@@ -32,8 +32,8 @@ from waflib import Options, Utils, Logs, Errors
 from waflib.Configure import conf
 from waflib.Tools import compiler_cxx
 
-BOOST_LIBS = ['/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib']
-BOOST_INCLUDES = ['/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include']
+BOOST_LIBS = ('/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib')
+BOOST_INCLUDES = ('/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include')
 BOOST_VERSION_FILE = 'boost/version.hpp'
 BOOST_VERSION_CODE = '''
 #include <iostream>
@@ -105,9 +105,9 @@ def boost_get_version(self, dir):
     """silently retrieve the boost version number"""
     re_but = re.compile('^#define\\s+BOOST_VERSION\\s+(.*)$', re.M)
     try:
-        val = re_but.search(boost_get_version_file(self, dir).read()).group(1)
+        val = re_but.search(self.boost_get_version_file(dir).read()).group(1)
     except:
-        val = self.check_cxx(fragment=boost_code, includes=[dir],
+        val = self.check_cxx(fragment=BOOST_VERSION_CODE, includes=[dir],
                              execute=True, define_ret=True)
     val = int(val)
     major = val / 100000
@@ -121,20 +121,23 @@ def boost_get_version(self, dir):
 
 
 @conf
-def boost_get_includes(self, params):
-    dir = params['includes']
-    if dir and boost_get_version_file(self, dir):
-        return dir
+def boost_get_includes(self, *k, **kw):
+    includes = k and k[0] or kw.get('includes', None)
+    if includes and self.boost_get_version_file(includes):
+        return includes
     for dir in BOOST_INCLUDES:
-        if boost_get_version_file(self, dir):
+        if self.boost_get_version_file(dir):
             return dir
-    self.fatal('headers not found in %s' % dir)
+    if includes:
+        self.fatal('headers not found in %s' % includes)
+    else:
+        self.fatal('headers not found, use --boost-includes=/path/to/boost')
 
 
 
 @conf
-def boost_get_toolset(self, params):
-    toolset = params['toolset']
+def boost_get_toolset(self, **kw):
+    toolset = kw['toolset']
     toolset_tag = toolset
     if not toolset:
         build_platform = Utils.unversioned_sys_platform()
@@ -147,12 +150,12 @@ def boost_get_toolset(self, params):
     return (isinstance(toolset_tag, str)) and toolset_tag or toolset_tag(self.env)
 
 @conf
-def boost_get_libs_path(self, params):
+def __boost_get_libs_path(self, **kw):
     files = None
-    if 'files' in params:
-        files = params['files']
-    elif params['libs']:
-        path = self.root.find_dir(params['libs'])
+    if 'files' in kw:
+        files = kw['files']
+    elif kw['libs']:
+        path = self.root.find_dir(kw['libs'])
     else:
         for dir in BOOST_LIBS:
             try:
@@ -163,24 +166,24 @@ def boost_get_libs_path(self, params):
                 if path.ant_glob('*boost_*'):
                     break
             except:
-                path = ''
+                path = None
                 pass
     if not path:
-        self.fatal('libs not found in %s' % params['libs'])
+        self.fatal('libs not found in %s' % kw['libs'])
     elif not files:
         files = path.ant_glob('*')
     return path, files
 
 @conf
-def boost_get_libs(self, params):
-    path, files = boost_get_libs_path(self, params)
+def boost_get_libs(self, *k, **kw):
+    path, files = self.__boost_get_libs_path(**kw)
     t = []
-    if params['mt']:
+    if kw['mt']:
         t.append('mt')
-    if params['abi']:
-        t.append(params['abi'])
+    if kw['abi']:
+        t.append(kw['abi'])
     tags = len(t) and '(-%s)+' % '-'.join(t) or ''
-    toolset = '(-%s[0-9]{0,3})+' % boost_get_toolset(self, params)
+    toolset = '(-%s[0-9]{0,3})+' % self.boost_get_toolset(**kw)
     version = '(-%s)+' % self.env.BOOST_VERSION
     def find_lib(re_lib, files):
         for file in files:
@@ -192,8 +195,8 @@ def boost_get_libs(self, params):
             name = name[3:]
         return name.split('.')[0]
     libs = []
-    for lib in params['lib'].split():
-        py = (lib == 'python') and '(-py%s)+' % params['python'] or ''
+    for lib in (k and k[0] or kw.get('lib', None)).split():
+        py = (lib == 'python') and '(-py%s)+' % kw['python'] or ''
         pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
         file = find_lib(re.compile(pattern), files)
         if file:
@@ -230,15 +233,15 @@ def check_boost(self, *k, **kw):
             params[i] = kw.get(i, '')
 
     self.start_msg('Checking boost includes')
-    self.env.INCLUDES_BOOST = boost_get_includes(self, params)
-    self.env.BOOST_VERSION = boost_get_version(self, self.env.INCLUDES_BOOST)
+    self.env.INCLUDES_BOOST = self.boost_get_includes(**params)
+    self.env.BOOST_VERSION = self.boost_get_version(self.env.INCLUDES_BOOST)
     self.end_msg('%s' % self.env.BOOST_VERSION)
 
     if not params['lib']:
         return
     self.start_msg('Checking boost libs')
     suffix = params['static'] and 'ST' or ''
-    path, libs = boost_get_libs(self, params)
+    path, libs = self.boost_get_libs(**params)
     self.env['%sLIBPATH_BOOST' % suffix] = [path]
     self.env['%sLIB_BOOST' % suffix] = libs
     self.end_msg('ok')
