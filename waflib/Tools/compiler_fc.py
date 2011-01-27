@@ -51,6 +51,7 @@ def options(opt):
 
 		$ waf configure --check-fortran-compiler=ifort
 	"""
+	opt.load_special_tools('fc_*.py')
 	build_platform = Utils.unversioned_sys_platform()
 	detected_platform = Options.platform
 	possible_compiler_list = __list_possible_compiler(detected_platform)

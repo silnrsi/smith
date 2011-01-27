@@ -510,6 +510,13 @@ class Context(ctx):
 		Logs.pprint(color or defcolor, msg)
 
 
+	def load_special_tools(self, var, ban=[]):
+		global waf_dir
+		lst = self.root.find_node(waf_dir).find_node('waflib/extras').ant_glob(var)
+		for x in lst:
+			if not x.name in ban:
+				load_tool(x.name.replace('.py', ''))
+
 cache_modules = {}
 """
 Dictionary holding already loaded modules, keyed by their absolute path.

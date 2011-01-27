@@ -84,6 +84,7 @@ def options(opt):
 
 		$ waf configure --check-c-compiler=gcc
 	"""
+	opt.load_special_tools('c_*.py', ban=['c_dumbpreproc.py'])
 	global c_compiler
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = c_compiler[build_platform in c_compiler and build_platform or 'default']

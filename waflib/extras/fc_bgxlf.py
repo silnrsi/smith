@@ -6,6 +6,10 @@ import re
 from waflib.Tools import fc, fc_config, fc_scan
 from waflib.Configure import conf
 
+from waflib.Tools.compiler_fc import fc_compiler
+fc_compiler['linux'].insert(0, 'fc_bgxlf')
+
+@conf
 def find_bgxlf(conf):
 	fc = conf.find_program(['bgxlf2003_r','bgxlf2003'], var='FC')
 	fc = conf.cmd_to_list(fc)
@@ -23,4 +27,5 @@ def configure(conf):
 	conf.find_bgxlf()
 	conf.find_ar()
 	conf.fc_flags()
+	conf.bg_flags()
 

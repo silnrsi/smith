@@ -87,6 +87,7 @@ def options(opt):
 
 		$ waf configure --check-cxx-compiler=gxx
 	"""
+	opt.load_special_tools('cxx_*.py')
 	global cxx_compiler
 	build_platform = Utils.unversioned_sys_platform()
 	possible_compiler_list = cxx_compiler[build_platform in cxx_compiler and build_platform or 'default']
