@@ -10,7 +10,7 @@ fc_compiler = {
 	'darwin' : ['gfortran', 'g95', 'ifort'],
 	'linux'  : ['gfortran', 'g95', 'ifort'],
 	'java'   : ['gfortran', 'g95', 'ifort'],
-	'default': ['gfortran']
+	'default': ['gfortran'],
 	'aix'    : ['gfortran']
 }
 
