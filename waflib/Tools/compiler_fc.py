@@ -11,6 +11,7 @@ fc_compiler = {
 	'linux'  : ['gfortran', 'g95', 'ifort'],
 	'java'   : ['gfortran', 'g95', 'ifort'],
 	'default': ['gfortran']
+	'aix'    : ['gfortran']
 }
 
 def __list_possible_compiler(platform):

@@ -7,6 +7,9 @@ from waflib import Utils
 from waflib.Tools import fc,fc_config,fc_scan
 from waflib.Configure import conf
 
+from waflib.Tools.compiler_fc import fc_compiler
+fc_compiler['aix'].insert(0, 'fc_bgxlf')
+
 @conf
 def find_xlf(conf):
 	"""Find the xlf program (will look in the environment variable 'FC')"""
