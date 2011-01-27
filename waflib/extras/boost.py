@@ -28,7 +28,7 @@ def build(bld):
 '''
 
 import os, sys, re
-from waflib import Options, Utils
+from waflib import Options, Utils, Logs
 from waflib.Configure import conf
 
 BOOST_LIBS = ('/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib')
@@ -83,8 +83,6 @@ def options(opt):
                    see doc Boost, Getting Started, chapter 6.1''')
     opt.add_option('--boost-toolset', type='string', default='', dest='boost_toolset',
                    help='force a toolset e.g. msvc, vc90, gcc, mingw, mgw45 (default: auto)')
-    opt.add_option('--boost-verbose', action='store_true', default=False, dest='boost_verbose',
-                   help='display more informations')
     py_version = '%d%d' % (sys.version_info[0], sys.version_info[1])
     opt.add_option('--boost-python', type='string', default=py_version, dest='boost_python',
                    help='select the lib python with this version (default: %s)' % py_version)
@@ -236,9 +234,8 @@ def check_boost(self, *k, **kw):
     self.env.INCLUDES_BOOST = self.boost_get_includes(**params)
     self.env.BOOST_VERSION = self.boost_get_version(self.env.INCLUDES_BOOST)
     self.end_msg(self.env.BOOST_VERSION)
-    if params['verbose']:
-        self.start_msg('boost includes path')
-        self.end_msg(self.env.INCLUDES_BOOST)
+    if Logs.verbose:
+        Logs.pprint('PINK', '    path : %s' % self.env.INCLUDES_BOOST)
 
     if not params['lib']:
         return
@@ -248,8 +245,6 @@ def check_boost(self, *k, **kw):
     self.env['%sLIBPATH_BOOST' % suffix] = [path]
     self.env['%sLIB_BOOST' % suffix] = libs
     self.end_msg('ok')
-    if params['verbose']:
-        self.start_msg('boost libs path')
-        self.end_msg(path)
-        self.start_msg('boost libs found')
-        self.end_msg(libs)
+    if Logs.verbose:
+        Logs.pprint('PINK', '    path : %s' % path)
+        Logs.pprint('PINK', '    libs : %s' % libs)
