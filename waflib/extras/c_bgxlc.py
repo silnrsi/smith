@@ -21,7 +21,7 @@ def configure(conf):
 	conf.find_ar()
 	conf.xlc_common_flags()
 	conf.env.LINKFLAGS_cshlib = ['-G','-Wl,-bexpfull']
-	conf.env.LINKFLAGS_cprogram = ['']
+	conf.env.LINKFLAGS_cprogram = []
 	conf.cc_load_tools()
 	conf.cc_add_flags()
 	conf.link_add_flags()
