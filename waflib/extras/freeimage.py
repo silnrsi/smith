@@ -53,15 +53,10 @@ def check_freeimage(self, path=None, fip=False):
         else:
             self.env['INCLUDES_FREEIMAGE'] = path
             self.env['%sLIBPATH_FREEIMAGE' % prefix] = path
-        if Options.options.fip:
-            self.env['%sLIB_FREEIMAGE' % prefix] = ['FreeImage', 'FreeImagePlus']
-        else:
-            self.env['%sLIB_FREEIMAGE' % prefix] = ['FreeImage']
-    else:
-        if Options.options.fip:
-            self.env['%sLIB_FREEIMAGE' % prefix] = ['freeimage', 'freeimageplus']
-        else:
-            self.env['%sLIB_FREEIMAGE' % prefix] = ['freeimage']
+    libs = ['FreeImage']
+    if Options.options.fip:
+        libs.append('FreeImagePlus')
+    self.env['%sLIB_FREEIMAGE' % prefix] = (platform == 'win32') and libs or [i.lower() for i in libs]
     self.end_msg('ok')
 
 def configure(conf):
