@@ -20,11 +20,11 @@ def options(opt):
     opt.load('compiler_cxx boost')
 
 def configure(conf):
-    conf.load('compler_cxx boost')
+    conf.load('compiler_cxx boost')
     conf.check_boost(lib='system filesystem', mt=True, static=True)
 
 def build(bld):
-    bld(source='main.cpp', target='bar', use='BOOST')
+    bld(source='main.cpp', target='app', use='BOOST')
 '''
 
 import os, sys, re
@@ -44,7 +44,7 @@ int main() { std::cout << BOOST_LIB_VERSION << std::endl; }
 detect_clang = lambda env: (Utils.unversioned_sys_platform() == 'darwin') and 'clang-darwin' or 'clang'
 detect_mingw = lambda env: (re.search('MinGW', env.CXX[0])) and 'mgw' or 'gcc'
 detect_intel = lambda env: (Utils.unversioned_sys_platform() == 'win32') and 'iw' or 'il'
-BOOST_TOOLSET = {
+BOOST_TOOLSETS = {
     'borland':  'bcb',
     'clang':    detect_clang,
     'como':     'como',
@@ -90,7 +90,7 @@ def options(opt):
 
 
 @conf
-def boost_get_version_file(self, dir):
+def __boost_get_version_file(self, dir):
     try:
         return self.root.find_dir(dir).find_node(BOOST_VERSION_FILE)
     except:
@@ -101,7 +101,7 @@ def boost_get_version(self, dir):
     """silently retrieve the boost version number"""
     re_but = re.compile('^#define\\s+BOOST_LIB_VERSION\\s+"(.*)"$', re.M)
     try:
-        val = re_but.search(self.boost_get_version_file(dir).read()).group(1)
+        val = re_but.search(self.__boost_get_version_file(dir).read()).group(1)
     except:
         val = self.check_cxx(fragment=BOOST_VERSION_CODE, includes=[dir],
                              execute=True, define_ret=True)
@@ -112,10 +112,10 @@ def boost_get_version(self, dir):
 @conf
 def boost_get_includes(self, *k, **kw):
     includes = k and k[0] or kw.get('includes', None)
-    if includes and self.boost_get_version_file(includes):
+    if includes and self.__boost_get_version_file(includes):
         return includes
     for dir in BOOST_INCLUDES:
-        if self.boost_get_version_file(dir):
+        if self.__boost_get_version_file(dir):
             return dir
     if includes:
         self.fatal('headers not found in %s' % includes)
@@ -129,18 +129,18 @@ def boost_get_toolset(self, cc):
     toolset = cc
     if not cc:
         build_platform = Utils.unversioned_sys_platform()
-        if build_platform in BOOST_TOOLSET:
+        if build_platform in BOOST_TOOLSETS:
             cc = build_platform
         else:
             cc = self.env.CXX_NAME
-    if cc in BOOST_TOOLSET:
-        toolset = BOOST_TOOLSET[cc]
-    return (isinstance(toolset, str)) and toolset or toolset(self.env)
+    if cc in BOOST_TOOLSETS:
+        toolset = BOOST_TOOLSETS[cc]
+    return isinstance(toolset, str) and toolset or toolset(self.env)
 
 @conf
 def __boost_get_libs_path(self, *k, **kw):
     if 'files' in kw:
-        return self.root.find_dir('.'), kw['files']
+        return self.root.find_dir('.'), Utils.to_list(kw['files'])
     libs = k and k[0] or kw.get('libs', None)
     if libs:
         path = self.root.find_dir(libs)
@@ -187,7 +187,7 @@ def boost_get_libs(self, *k, **kw):
             name = name[3:]
         return name.split('.')[0]
     libs = []
-    for lib in (k and k[0] or kw.get('lib', None)).split():
+    for lib in Utils.to_list(k and k[0] or kw.get('lib', None)):
         py = (lib == 'python') and '(-py%s)+' % kw['python'] or ''
         pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
         file = find_lib(re.compile(pattern), files)
@@ -210,7 +210,7 @@ def check_boost(self, *k, **kw):
     """
     initialize boost
 
-    You can pass the same parameters as the command line,
+    You can pass the same parameters as the command line (without "--boost-"),
     but the command line has the priority.
     """
     if not self.env['CXX']:
