@@ -37,7 +37,7 @@ def options(opt):
                    e.g. /FreeImage/Dist''')
     opt.add_option('--fip', action='store_true', default=False, dest='fip',
                    help='link with FreeImagePlus')
-    opt.add_option('--fi-shared', action='store_true', default=False, dest='fi_shared',
+    opt.add_option('--fi-static', action='store_true', default=False, dest='fi_static',
                    help="link as shared libraries")
 
 @conf
@@ -45,7 +45,7 @@ def check_freeimage(self, path=None, fip=False):
     self.start_msg('Checking FreeImage')
     if not self.env['CXX']:
         self.fatal('you must load compiler_cxx before loading freeimage')
-    prefix = Options.options.fi_shared and '' or 'ST'
+    prefix =  self.options.fi_static and 'ST' or ''
     platform = Utils.unversioned_sys_platform()
     if platform == 'win32':
         if not path:
@@ -54,13 +54,13 @@ def check_freeimage(self, path=None, fip=False):
             self.env['INCLUDES_FREEIMAGE'] = path
             self.env['%sLIBPATH_FREEIMAGE' % prefix] = path
     libs = ['FreeImage']
-    if Options.options.fip:
+    if self.options.fip:
         libs.append('FreeImagePlus')
     self.env['%sLIB_FREEIMAGE' % prefix] = (platform == 'win32') and libs or [i.lower() for i in libs]
     self.end_msg('ok')
 
 def configure(conf):
     platform = Utils.unversioned_sys_platform()
-    if platform == 'win32' and not Options.options.fi_path:
+    if platform == 'win32' and not conf.options.fi_path:
         return
-    conf.check_freeimage(Options.options.fi_path, Options.options.fip)
+    conf.check_freeimage(conf.options.fi_path, conf.options.fip)
