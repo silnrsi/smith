@@ -8,6 +8,7 @@ NEW IN WAF 1.6.3
 * Fixed multiple problems in the call to TaskGen.declare_chain(...) #850
 * Fixed the task attribute 'vars' which might cause unnecessary rebuilds #852
 * Return the value of post_check(...) in conf.check(...) #857
+* Rewrite the boost tool (waflib/extras/boost.py) #814, #454, #424
 
 NEW IN WAF 1.6.2
 ----------------
