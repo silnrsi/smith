@@ -499,7 +499,7 @@ class BuildContext(Context.Context):
 		cols = Logs.get_term_cols() - len(left) - len(right) + 2*len(col1) + 2*len(col2)
 		if cols < 7: cols = 7
 
-		ratio = int((cols*state)/total) - 1
+		ratio = ((cols*state)//total) - 1
 
 		bar = ('='*ratio+'>').ljust(cols)
 		msg = Utils.indicator % (left, bar, right)

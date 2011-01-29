@@ -12,10 +12,10 @@ $ ./waf update --files=freeimage
 The wscript will look like:
 
 def options(opt):
-    opt.load('compiler_c freeimage')
+    opt.load('compiler_cxx freeimage')
 
 def configure(conf):
-    conf.load('compiler_c freeimage')
+    conf.load('compiler_cxx freeimage')
     
     # you can call check_freeimage with some parameters.
     # It's optional on Linux, it's 'mandatory' on Windows if
