@@ -139,6 +139,7 @@ def boost_get_toolset(self, cc):
 
 @conf
 def __boost_get_libs_path(self, *k, **kw):
+    ''' return the lib path and all the files in it '''
     if 'files' in kw:
         return self.root.find_dir('.'), Utils.to_list(kw['files'])
     libs = k and k[0] or kw.get('libs', None)
@@ -158,7 +159,6 @@ def __boost_get_libs_path(self, *k, **kw):
                     break
             except:
                 path = None
-                pass
     if not path:
         if libs:
             self.fatal('libs not found in %s' % libs)
@@ -168,6 +168,7 @@ def __boost_get_libs_path(self, *k, **kw):
 
 @conf
 def boost_get_libs(self, *k, **kw):
+    ''' return the lib path and the required libs according to the parameters '''
     path, files = self.__boost_get_libs_path(**kw)
     t = []
     if kw['mt']:
@@ -214,12 +215,12 @@ def check_boost(self, *k, **kw):
     but the command line has the priority.
     """
     if not self.env['CXX']:
-        self.fatal('load a c++ compiler tool first, for example conf.load("compiler_cxx")')
+        self.fatal('load a c++ compiler first, conf.load("compiler_cxx")')
 
     params = { 'lib': k and k[0] or kw.get('lib', None) }
     for key, value in self.options.__dict__.items():
         if not key.startswith('boost_'):
-            pass
+            continue
         key = key[len('boost_'):]
         params[key] = value and value or kw.get(key, '')
 
