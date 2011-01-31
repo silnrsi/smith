@@ -113,18 +113,19 @@ def configure(conf):
     txt = orig.read() <1>
 
     dest = conf.bldnode.make_node(cfg_file)
-    dest.parent.mkdir()
-    dest.write(txt) <2>
+    dest.parent.mkdir() <2>
+    dest.write(txt) <3>
 
-    conf.env.append_value('cfg_files', dest.abspath()) <3>
+    conf.env.append_value('cfg_files', dest.abspath()) <4>
 
 def build(ctx):
     ctx(rule='cp ${SRC} ${TGT}', source=cfg_file, target='bar.txt')
 ---------------
 
 <1> Read the file '/etc/fstab'
-<2> Create a new file in the build directory
-<3> Mark the output as a configuration file so it can be used during the build
+<2> Create the destination directory in case it does not already exist
+<3> Create a new file in the build directory
+<4> Mark the output as a configuration file so it can be used during the build
 
 The execution output will be the following:
 
@@ -280,7 +281,7 @@ def process_idl(self, node):
 	self.more_source = [cpp_node] <2>
 
 @feature('*')
-@before('process_source') <3>
+@before_method('process_source') <3>
 def process_add_source(self):
 	for x in self.to_list(getattr(self, 'add_idl', [])): <4>
 		y = self.bld.get_tgen_by_name(x)
@@ -418,7 +419,7 @@ def build(bld):
 from waflib.TaskGen import after, feature
 
 @feature('cxx')
-@after('apply_incpaths')
+@after_method('apply_incpaths')
 def insert_blddir(self):
     self.env.prepend_value('INCPATHS', '.')
 ---------------
@@ -428,7 +429,7 @@ A related case is how to add the top-level directory containing a configuration 
 [source,python]
 ---------------
 @feature('cxx')
-@after('apply_incpaths', 'insert_blddir')
+@after_method('apply_incpaths', 'insert_blddir')
 def insert_srcdir(self):
     path = self.bld.srcnode.abspath()
     self.env.prepend_value('INCPATHS', path)
@@ -594,7 +595,7 @@ def build(bld):
 <1> Compiler path
 <2> An example, having a _.src_ file
 
-The contents of _mytool_ will be the following
+The contents of _mytool_ will be the following:
 
 [source,python]
 ---------------
@@ -614,7 +615,9 @@ class src2c(Task.Task):
 
     def run(self):
         cmd = '%s %s' % (self.env.COMP, self.inputs[0].abspath())
-        cwd = self.inputs[0].parent.get_bld().abspath()
+        n = self.inputs[0].parent.get_bld()
+        n.mkdir()
+        cwd = n.abspath()
         out = self.generator.bld.cmd_and_log(cmd, cwd=cwd, quiet=Context.STDOUT) <4>
 
         out = Utils.to_list(out)

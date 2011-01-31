@@ -195,7 +195,7 @@ from waflib.Task import Task
 from waflib.TaskGen import feature, extension, after
 from waflib.Tools import ccroot <1>
 
-@after('process_source')
+@after_method('process_source')
 @feature('mylink')
 def call_apply_link(self): <2>
 	self.apply_link()

@@ -241,7 +241,7 @@ Likewise, methods may be removed from the list of methods to execute:
 from waflib.TaskGen import feature
 
 @feature('*')
-@before('process_source')
+@before_method('process_source')
 def remove_process_source(self):
 	self.meths.remove('process_source')
 ---------------
@@ -297,7 +297,7 @@ def build(bld):
 
 from waflib.TaskGen import feature, before
 @feature('*') <1>
-@before('process_rule')
+@before_method('process_rule')
 def post_the_other(self):
     deps = getattr(self, 'depends_on', []) <2>
     for name in self.to_list(deps):
