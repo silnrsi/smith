@@ -16,7 +16,7 @@ def find_xlf(conf):
 
 	fc = conf.find_program(['xlf2003_r', 'xlf2003', 'xlf95_r', 'xlf95', 'xlf90_r', 'xlf90', 'xlf_r', 'xlf'], var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_xlf_version(fc,mandatory=False)
+	conf.get_xlf_version(fc)
 	conf.env.FC_NAME='XLF'
 
 @conf

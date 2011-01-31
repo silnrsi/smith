@@ -15,7 +15,7 @@ def find_crayftn(conf):
 	"""Find the Cray fortran compiler (will look in the environment variable 'FC')"""
 	fc = conf.find_program(['crayftn'], var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_crayftn_version(fc, mandatory=False)
+	conf.get_crayftn_version(fc)
 	conf.env.FC_NAME = 'CRAY'
 
 @conf
