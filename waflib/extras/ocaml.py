@@ -7,7 +7,7 @@
 import os, re
 from waflib import TaskGen, Utils, Task, Build
 from waflib.Logs import error
-from waflib.TaskGen import feature, before, after, extension
+from waflib.TaskGen import feature, before_method, after_method, extension
 
 EXT_MLL = ['.mll']
 EXT_MLY = ['.mly']
@@ -74,7 +74,7 @@ def init_ml(self):
 		are_deps_set = 0)
 
 @feature('ocaml')
-@after('init_ml')
+@after_method('init_ml')
 def init_envs_ml(self):
 
 	self.islibrary = getattr(self, 'islibrary', False)
@@ -94,8 +94,8 @@ def init_envs_ml(self):
 		self.native_env.append_unique('OCALINKFLAGS_OPT', '-output-obj')
 
 @feature('ocaml')
-@before('apply_vars_ml')
-@after('init_envs_ml')
+@before_method('apply_vars_ml')
+@after_method('init_envs_ml')
 def apply_incpaths_ml(self):
 	inc_lst = self.includes.split()
 	lst = self.incpaths_lst
@@ -110,7 +110,7 @@ def apply_incpaths_ml(self):
 	# now the nodes are added to self.incpaths_lst
 
 @feature('ocaml')
-@before('process_source')
+@before_method('process_source')
 def apply_vars_ml(self):
 	for i in self.incpaths_lst:
 		if self.bytecode_env:
@@ -130,7 +130,7 @@ def apply_vars_ml(self):
 				if self.native_env: self.native_env.append_value(vname, cnt)
 
 @feature('ocaml')
-@after('process_source')
+@after_method('process_source')
 def apply_link_ml(self):
 
 	if self.bytecode_env:

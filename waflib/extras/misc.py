@@ -13,7 +13,7 @@ Try using:
 
 import shutil, re, os, subprocess
 from waflib import TaskGen, Node, Task, Utils, Build
-from waflib.TaskGen import feature, after, before
+from waflib.TaskGen import feature, after_method, before_method
 from waflib.Logs import debug
 
 def copy_attrs(orig, dest, names, only_if_set=False):
@@ -54,7 +54,7 @@ def apply_cmd(self):
 	tsk.install_path = self.install_path
 
 @feature('copy')
-@before('process_source')
+@before_method('process_source')
 def apply_copy(self):
 	Utils.def_attrs(self, fun=copy_func)
 	self.default_install_path = 0
@@ -102,7 +102,7 @@ def subst_func(tsk):
 	tsk.outputs[0].write(s % di)
 
 @feature('subst')
-@before('process_source')
+@before_method('process_source')
 def apply_subst(self):
 	Utils.def_attrs(self, fun=subst_func)
 	lst = self.to_list(self.source)
@@ -306,7 +306,7 @@ def init_cmd_output(self):
 		os_env = None)
 
 @feature('command-output')
-@after('init_cmd_output')
+@after_method('init_cmd_output')
 def apply_cmd_output(self):
 	if self.command is None:
 		raise Errors.WafError("command-output missing command")

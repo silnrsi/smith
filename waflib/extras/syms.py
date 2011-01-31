@@ -16,7 +16,7 @@ import re
 from waflib.Context import STDOUT
 from waflib.Task import Task
 from waflib.Errors import WafError
-from waflib.TaskGen import feature, after
+from waflib.TaskGen import feature, after_method
 
 class gen_sym(Task):
 	def run(self):
@@ -50,7 +50,7 @@ class compile_sym(Task):
 			raise WafError('NotImplemented')
 
 @feature('syms')
-@after('process_source', 'process_use', 'apply_link', 'process_uselib_local')
+@after_method('process_source', 'process_use', 'apply_link', 'process_uselib_local')
 def do_the_symbol_stuff(self):
 	ins = [x.outputs[0] for x in self.compiled_tasks]
 	self.gen_sym_tasks = [self.create_task('gen_sym', x, x.change_ext('.%d.sym' % self.idx)) for x in ins]

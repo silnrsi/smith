@@ -16,14 +16,14 @@ objcopy_flags          Additional flags passed to objcopy.
 
 from waflib.Utils import def_attrs
 from waflib import Task
-from waflib.TaskGen import feature, after
+from waflib.TaskGen import feature, after_method
 
 class objcopy(Task.Task):
 	run_str = '${OBJCOPY} -O ${TARGET_BFDNAME} ${OBJCOPYFLAGS} ${SRC} ${TGT}'
 	color   = 'CYAN'
 
 @feature('objcopy')
-@after('apply_link')
+@after_method('apply_link')
 def objcopy(self):
     def_attrs(self,
        objcopy_bfdname = 'ihex',

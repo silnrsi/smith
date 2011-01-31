@@ -19,7 +19,7 @@ It is only necessary to import this module in the configuration (no other change
 
 import os
 from waflib import TaskGen, Task, Build, Logs
-from waflib.TaskGen import extension, feature, before, after
+from waflib.TaskGen import extension, feature, before_method, after_method
 
 MAX_BATCH = 50
 
@@ -123,7 +123,7 @@ extension('.c')(hook('c'))
 extension('.cpp','.cc','.cxx','.C','.c++')(hook('cxx'))
 
 @feature('cprogram', 'cshlib', 'cstaticlib', 'cxxprogram', 'cxxshlib', 'cxxstlib')
-@after('apply_link')
+@after_method('apply_link')
 def link_after_masters(self):
 	if getattr(self, 'allmasters', None):
 		for m in self.allmasters:

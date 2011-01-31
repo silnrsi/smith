@@ -12,7 +12,7 @@ The methods apply_link and apply_incpaths from ccroot.py are re-used
 import os, platform
 
 from waflib import Utils, Task
-from waflib.TaskGen import feature, extension, after, before
+from waflib.TaskGen import feature, extension, after_method, before_method
 from waflib.Tools.ccroot import link_task, stlink_task
 
 class go(Task.Task):
@@ -30,7 +30,7 @@ def compile_go(self, node):
 	return self.create_compiled_task('go', node)
 
 @feature('gopackage', 'goprogram')
-@before('process_source')
+@before_method('process_source')
 def go_compiler_is_foobar(self):
 	if self.env.GONAME == 'gcc':
 		return
@@ -47,7 +47,7 @@ def go_compiler_is_foobar(self):
 	tsk.inputs.extend(go[1:])
 
 @feature('gopackage', 'goprogram')
-@after('process_source', 'apply_incpaths')
+@after_method('process_source', 'apply_incpaths')
 def go_local_libs(self):
 	names = self.to_list(getattr(self, 'use', []))
 	for name in names:

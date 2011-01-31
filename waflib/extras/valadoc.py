@@ -8,7 +8,7 @@ TODO: tabs vs spaces
 """
 
 from waflib import Task, Utils, Node, Errors
-from waflib.TaskGen import feature, extension, after
+from waflib.TaskGen import feature, extension, after_method
 from Logs import debug, warn, error
 
 VALADOC_STR = '${VALADOC}'

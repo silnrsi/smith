@@ -7,7 +7,7 @@ import re
 import waflib
 import waflib.Logs as _msg
 from waflib import Task
-from waflib.TaskGen import extension, feature, before, after
+from waflib.TaskGen import extension, feature, before_method, after_method
 
 cy_api_pat = re.compile(r'\s*?cdef\s*?(public|api)\w*')
 re_cyt = re.compile('import\\s(\\w+)\\s*$', re.M)

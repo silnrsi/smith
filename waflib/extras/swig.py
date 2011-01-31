@@ -5,7 +5,7 @@
 
 import re
 from waflib import Task, Utils, Logs
-from waflib.TaskGen import extension, feature, after
+from waflib.TaskGen import extension, feature, after_method
 from waflib.Configure import conf
 from waflib.Tools import c_preproc
 

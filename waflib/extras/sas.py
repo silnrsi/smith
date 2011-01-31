@@ -6,7 +6,7 @@
 
 import os, re
 from waflib import Utils, Task, TaskGen, Runner, Build, Errors, Node
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 from waflib.Logs import error, warn, debug
 
 sas_fun, _ = Task.compile_fun('sas -sysin ${SRCFILE} -log ${LOGFILE} -print ${LSTFILE}', shell=False)
@@ -43,7 +43,7 @@ class sas(Task.Task):
 		return ret
 
 @feature('sas')
-@before('process_source')
+@before_method('process_source')
 def apply_sas(self):
 	if not getattr(self, 'type', None) in ['sas']:
 		self.type = 'sas'

@@ -10,20 +10,20 @@ and prepare the dependency calculation for the next run
 import os, re, threading
 from waflib import Task, Logs, Utils, Errors
 from waflib.Tools import c_preproc
-from waflib.TaskGen import before, after, feature
+from waflib.TaskGen import before_method, after_method, feature
 
 lock = threading.Lock()
 
 preprocessor_flag = '-MD'
 
 @feature('cc')
-@before('apply_core')
+@before_method('apply_core')
 def add_mmd_cc(self):
 	if self.env.get_flat('CFLAGS').find(preprocessor_flag) < 0:
 		self.env.append_value('CFLAGS', [preprocessor_flag])
 
 @feature('cxx')
-@before('apply_core')
+@before_method('apply_core')
 def add_mmd_cxx(self):
 	if self.env.get_flat('CXXFLAGS').find(preprocessor_flag) < 0:
 		self.env.append_value('CXXFLAGS', [preprocessor_flag])

@@ -11,7 +11,7 @@ scalac outputs files a bit where it wants to
 import os, re
 from waflib.Configure import conf
 from waflib import TaskGen, Task, Utils, Options, Build, Errors, Node
-from waflib.TaskGen import feature, before, after
+from waflib.TaskGen import feature, before_method, after_method
 
 from waflib.Tools import ccroot
 ccroot.USELIB_VARS['scalac'] = set(['CLASSPATH', 'SCALACFLAGS'])
@@ -19,7 +19,7 @@ ccroot.USELIB_VARS['scalac'] = set(['CLASSPATH', 'SCALACFLAGS'])
 from waflib.Tools import javaw
 
 @feature('scalac')
-@before('process_source')
+@before_method('process_source')
 def apply_scalac(self):
 
 	Utils.def_attrs(self, jarname='', classpath='',
