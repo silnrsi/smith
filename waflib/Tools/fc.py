@@ -11,7 +11,7 @@ import re
 
 from waflib import Utils, Task, TaskGen, Logs
 from waflib.Tools import ccroot, fc_config, fc_scan
-from waflib.TaskGen import feature, before, after, extension
+from waflib.TaskGen import feature, before_method, after_method, extension
 from waflib.Configure import conf
 
 ccroot.USELIB_VARS['fc'] = set(['FCFLAGS', 'DEFINES', 'INCLUDES'])

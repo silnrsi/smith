@@ -34,12 +34,12 @@ the predefined callback::
 """
 
 import os, sys
-from waflib.TaskGen import feature, after
+from waflib.TaskGen import feature, after_method
 from waflib import Utils, Task, Logs, Options
 testlock = Utils.threading.Lock()
 
 @feature('test')
-@after('apply_link')
+@after_method('apply_link')
 def make_test(self):
 	"""Create the unit test task. There can be only one unit test task by task generator."""
 	if getattr(self, 'link_task', None):

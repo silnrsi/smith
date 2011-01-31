@@ -9,7 +9,7 @@ Fortran configuration helpers
 
 import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
-from waflib.TaskGen import feature, after, before
+from waflib.TaskGen import feature, after_method, before_method
 from waflib import Build, Utils
 from waflib.Utils import subprocess
 
@@ -354,7 +354,7 @@ int %(main_func_name)s() {
 """
 
 @feature('link_main_routines_func')
-@before('process_source')
+@before_method('process_source')
 def link_main_routines_tg_method(self):
 	"""
 	The configuration test declares a unique task generator,
@@ -423,7 +423,7 @@ def check_fortran_mangling(self, *k, **kw):
 	return (u, du, c)
 
 @feature('pyext')
-@before('propagate_uselib_vars', 'apply_link')
+@before_method('propagate_uselib_vars', 'apply_link')
 def set_lib_pat(self):
 	"""Set the fortran flags for linking with the python library"""
 	self.env['fcshlib_PATTERN'] = self.env['pyext_PATTERN']

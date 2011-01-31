@@ -47,7 +47,7 @@ except:
 
 from waflib import Utils, TaskGen, Runner, Configure, Task, Options
 from waflib.Logs import debug, info, warn, error
-from waflib.TaskGen import after, before, feature
+from waflib.TaskGen import after_method, before_method, feature
 
 from waflib.Configure import conf
 from waflib.Tools import ccroot, c, cxx, ar, winres
@@ -687,7 +687,7 @@ def msvc_common_flags(conf):
 #######################################################################################################
 ##### conf above, build below
 
-@after('apply_link')
+@after_method('apply_link')
 @feature('c', 'cxx')
 def apply_flags_msvc(self):
 	"""
@@ -725,7 +725,7 @@ def apply_flags_msvc(self):
 # split the manifest file processing from the link task, like for the rc processing
 
 @feature('cprogram', 'cshlib', 'cxxprogram', 'cxxshlib')
-@after('apply_link')
+@after_method('apply_link')
 def apply_manifest(self):
 	"""
 	Special linker for MSVC with support for embedding manifests into DLL's

@@ -6,7 +6,7 @@
 import re
 
 from waflib import Utils, Task, TaskGen, Logs
-from waflib.TaskGen import feature, before, after, extension
+from waflib.TaskGen import feature, before_method, after_method, extension
 from waflib.Configure import conf
 
 INC_REGEX = """(?:^|['">]\s*;)\s*INCLUDE\s+(?:\w+_)?[<"'](.+?)(?=["'>])"""

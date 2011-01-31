@@ -8,7 +8,7 @@ C/C++/D configuration helpers
 
 import os, imp, sys, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
-from waflib.TaskGen import before, after, feature
+from waflib.TaskGen import before_method, after_method, feature
 from waflib.Configure import conf
 from waflib.Utils import subprocess
 
@@ -636,7 +636,7 @@ class test_exec_task(Task.Task):
 				self.generator.bld.retval = self.generator.bld.exec_command([self.inputs[0].abspath()], env=env)
 
 @feature('test_exec')
-@after('apply_link')
+@after_method('apply_link')
 def test_exec_fun(self):
 	"""
 	The feature **test_exec** is used to create a task that will to execute the binary

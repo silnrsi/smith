@@ -8,7 +8,7 @@ MacOSX related tools
 
 import os, shutil, sys, platform
 from waflib import TaskGen, Task, Build, Options, Utils
-from waflib.TaskGen import taskgen_method, feature, after, before
+from waflib.TaskGen import taskgen_method, feature, after_method, before_method
 
 app_info = '''
 <?xml version="1.0" encoding="UTF-8"?>
@@ -70,7 +70,7 @@ def bundle_name_for_output(out):
 	return name
 
 @feature('cprogram', 'cxxprogram')
-@after('apply_link')
+@after_method('apply_link')
 def create_task_macapp(self):
 	"""
 	To compile an executable into a Mac application (a .app), set its *mac_app* attribute::
@@ -100,7 +100,7 @@ def create_task_macapp(self):
 		self.apptask = apptask
 
 @feature('cprogram', 'cxxprogram')
-@after('apply_link')
+@after_method('apply_link')
 def create_task_macplist(self):
 	"""
 	Create a :py:class:`waflib.Tools.c_osx.macplist` instance.
@@ -126,7 +126,7 @@ def create_task_macplist(self):
 		self.plisttask = plisttask
 
 @feature('cshlib', 'cxxshlib')
-@before('apply_link', 'propagate_uselib_vars')
+@before_method('apply_link', 'propagate_uselib_vars')
 def apply_bundle(self):
 	"""
 	To make a bundled shared library (a ``.bundle``), set the *mac_bundle* attribute::

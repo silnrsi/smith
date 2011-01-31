@@ -5,7 +5,7 @@
 
 import os, sys
 from waflib import Utils, Task, Errors
-from waflib.TaskGen import taskgen_method, feature, after, before, extension
+from waflib.TaskGen import taskgen_method, feature, after_method, before_method, extension
 from waflib.Configure import conf
 from waflib.Tools.ccroot import link_task
 from waflib.Tools import d_scan, d_config

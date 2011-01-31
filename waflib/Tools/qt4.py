@@ -23,10 +23,10 @@ best practice (much faster compilations). This also implies that the
 include paths have to be set properly. To have the include paths added
 automatically, use the following::
 
-	from waflib.TaskGen import feature, before, after
+	from waflib.TaskGen import feature, before_method, after_method
 	@feature('cxx')
-	@after('process_source')
-	@before('apply_incpaths')
+	@after_method('process_source')
+	@before_method('apply_incpaths')
 	def add_includes_paths(self):
 		incs = set(self.to_list(getattr(self, 'includes', '')))
 		for x in self.compiled_tasks:
@@ -49,7 +49,7 @@ else:
 import os, sys
 from waflib.Tools import c_preproc, cxx
 from waflib import TaskGen, Task, Utils, Runner, Options, Node, Errors
-from waflib.TaskGen import feature, after, extension
+from waflib.TaskGen import feature, after_method, extension
 from waflib.Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -246,7 +246,7 @@ def add_lang(self, node):
 	self.lang = self.to_list(getattr(self, 'lang', [])) + [node]
 
 @feature('qt4')
-@after('apply_link')
+@after_method('apply_link')
 def apply_qt4(self):
 	"""
 	Add MOC_FLAGS which may be necessary for moc::

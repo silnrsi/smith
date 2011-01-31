@@ -22,7 +22,7 @@ Note that the configuration may compile C# snippets::
 """
 
 from waflib import Utils, Task, Options, Logs, Errors
-from waflib.TaskGen import before, after, feature
+from waflib.TaskGen import before_method, after_method, feature
 from waflib.Tools import ccroot
 from waflib.Configure import conf
 
@@ -30,7 +30,7 @@ ccroot.USELIB_VARS['cs'] = set(['CSFLAGS', 'ASSEMBLIES', 'RESOURCES'])
 ccroot.lib_patterns['csshlib'] = ['%s']
 
 @feature('cs')
-@before('process_source')
+@before_method('process_source')
 def apply_cs(self):
 	"""
 	Create a C# task bound to the attribute *cs_task*. There can be only one C# task by task generator.
@@ -56,7 +56,7 @@ def apply_cs(self):
 		self.install_task = self.bld.install_files(inst_to, self.cs_task.outputs[:], env=self.env, chmod=mod)
 
 @feature('cs')
-@after('apply_cs')
+@after_method('apply_cs')
 def use_cs(self):
 	"""
 	C# applications honor the **use** keyword::
@@ -83,7 +83,7 @@ def use_cs(self):
 		self.cs_task.env.append_value('CSFLAGS', '/reference:%s' % tsk.outputs[0].abspath())
 
 @feature('cs')
-@after('apply_cs', 'use_cs')
+@after_method('apply_cs', 'use_cs')
 def debug_cs(self):
 	"""
 	The C# targets may create .mdb or .pdb files::

@@ -25,7 +25,7 @@ Example::
 
 import os, re
 from waflib import Utils, Task, Runner, Build, Errors
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 from waflib.Logs import error, warn, debug
 
 re_bibunit = re.compile(r'\\(?P<type>putbib)\[(?P<file>[^\[\]]*)\]',re.M)
@@ -302,7 +302,7 @@ class pdf2ps(Task.Task):
 	after   = ['latex', 'pdflatex', 'xelatex']
 
 @feature('tex')
-@before('process_source')
+@before_method('process_source')
 def apply_tex(self):
 	"""
 	Create :py:class:`waflib.Tools.tex.tex` objects, and dvips/dvipdf/pdf2ps tasks if necessary (outs='ps', etc).

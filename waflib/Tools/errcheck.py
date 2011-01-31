@@ -76,7 +76,7 @@ def enhance_lib():
 				Logs.error('%r features is probably missing %r' % (self, x))
 	TaskGen.feature('*')(check_err_features)
 
-	# check for @extension used with @feature/@before/@after
+	# check for @extension used with @feature/@before_method/@after_method
 	old_compile = Build.BuildContext.compile
 	def check_compile(self):
 		feat = set([])
@@ -90,7 +90,7 @@ def enhance_lib():
 			ext.add(x.__name__)
 		invalid = ext & feat
 		if invalid:
-			Logs.error('The methods %r have invalid annotations:  @extension <-> @feature/@before/@after' % list(invalid))
+			Logs.error('The methods %r have invalid annotations:  @extension <-> @feature/@before_method/@after_method' % list(invalid))
 
 		return old_compile(self)
 	Build.BuildContext.compile = check_compile

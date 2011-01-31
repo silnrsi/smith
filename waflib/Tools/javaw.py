@@ -30,7 +30,7 @@ You would have to run::
 import os, re
 from waflib.Configure import conf
 from waflib import TaskGen, Task, Utils, Options, Build, Errors, Node
-from waflib.TaskGen import feature, before, after
+from waflib.TaskGen import feature, before_method, after_method
 
 from waflib.Tools import ccroot
 ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
@@ -62,7 +62,7 @@ public class Test {
 '''
 
 @feature('javac')
-@before('process_source')
+@before_method('process_source')
 def apply_java(self):
 	"""
 	Create a javac task for compiling *.java files*. There can be
@@ -112,7 +112,7 @@ def apply_java(self):
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
 @feature('javac')
-@after('apply_java')
+@after_method('apply_java')
 def use_javac_files(self):
 	"""
 	Process the *use* attribute referring to other java compilations
@@ -135,7 +135,7 @@ def use_javac_files(self):
 		self.env.append_value('CLASSPATH', lst)
 
 @feature('javac')
-@after('apply_java', 'propagate_uselib_vars', 'use_javac_files')
+@after_method('apply_java', 'propagate_uselib_vars', 'use_javac_files')
 def set_classpath(self):
 	"""
 	Set the CLASSPATH value on the *javac* task previously created.
@@ -145,8 +145,8 @@ def set_classpath(self):
 		x.env.CLASSPATH = os.pathsep.join(self.env.CLASSPATH) + os.pathsep
 
 @feature('jar')
-@after('apply_java', 'use_javac_files')
-@before('process_source')
+@after_method('apply_java', 'use_javac_files')
+@before_method('process_source')
 def jar_files(self):
 	"""
 	Create a jar task. There can be only one jar task by task generator.
@@ -190,7 +190,7 @@ def jar_files(self):
 		tsk.set_run_after(self.javac_task)
 
 @feature('jar')
-@after('jar_files')
+@after_method('jar_files')
 def use_jar_files(self):
 	"""
 	Process the *use* attribute to set the build order on the

@@ -21,7 +21,7 @@ Support for Python, detect the headers and libraries and provide
 import os, sys
 from waflib import TaskGen, Utils, Utils, Runner, Options, Build, Errors
 from waflib.Logs import debug, warn, info
-from waflib.TaskGen import extension, taskgen_method, before, after, feature
+from waflib.TaskGen import extension, taskgen_method, before_method, after_method, feature
 from waflib.Configure import conf
 
 FRAG = '''
@@ -113,7 +113,7 @@ def feature_py(self):
 	pass
 
 @feature('pyext')
-@before('propagate_uselib_vars', 'apply_link')
+@before_method('propagate_uselib_vars', 'apply_link')
 def init_pyext(self):
 	"""
 	Change the values of *cshlib_PATTERN* and *cxxshlib_PATTERN* to remove the
@@ -127,7 +127,7 @@ def init_pyext(self):
 	# override shlib_PATTERN set by the osx module
 	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
 
-@before('propagate_uselib_vars')
+@before_method('propagate_uselib_vars')
 @feature('pyembed')
 def init_pyembed(self):
 	"""

@@ -26,9 +26,9 @@ Support for Perl extensions. A C/C++ compiler is required::
 import os
 from waflib import Task, Options, Utils
 from waflib.Configure import conf
-from waflib.TaskGen import extension, feature, before
+from waflib.TaskGen import extension, feature, before_method
 
-@before('apply_incpaths', 'apply_link', 'propagate_uselib_vars')
+@before_method('apply_incpaths', 'apply_link', 'propagate_uselib_vars')
 @feature('perlext')
 def init_perlext(self):
 	"""

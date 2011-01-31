@@ -29,10 +29,10 @@ Usage of the :py:mod:`waflib.Tools.gnu_dirs` is recommended, but not obligatory.
 import os, re
 from waflib import Configure, TaskGen, Task, Utils, Runner, Options, Build, Logs
 import waflib.Tools.ccroot
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 from waflib.Logs import error
 
-@before('process_source')
+@before_method('process_source')
 @feature('intltool_in')
 def apply_intltool_in_f(self):
 	"""

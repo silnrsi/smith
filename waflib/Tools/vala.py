@@ -10,7 +10,7 @@ this tool to be too stable either (apis, etc)
 
 import os.path, shutil, re
 from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
-from waflib.TaskGen import extension, after, before
+from waflib.TaskGen import extension, after_method, before_method
 from waflib.Configure import conf
 
 class valac_task(Task.Task):

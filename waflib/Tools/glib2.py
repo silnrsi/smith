@@ -12,7 +12,7 @@ Support for GLib2 tools:
 
 import os
 from waflib import Task, Utils, Options, Errors, Logs
-from waflib.TaskGen import taskgen_method, before, after, feature
+from waflib.TaskGen import taskgen_method, before_method, after_method, feature
 
 ################## marshal files
 
@@ -31,7 +31,7 @@ def add_marshal_file(self, filename, prefix):
 	self.meths.append('process_marshal')
 	self.marshal_list.append((filename, prefix))
 
-@before('process_source')
+@before_method('process_source')
 def process_marshal(self):
 	"""
 	Process the marshal files stored in the attribute *marshal_list* to create :py:class:`waflib.Tools.glib2.glib_genmarshal` instances.
@@ -151,7 +151,7 @@ def add_enums(self, source='', target='',
 	                        'value-tail': value_tail,
 	                        'comments': comments})
 
-@before('process_source')
+@before_method('process_source')
 def process_enums(self):
 	"""
 	Process the enum files stored in the attribute *enum_list* to create :py:class:`waflib.Tools.glib2.glib_mkenums` instances.

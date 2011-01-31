@@ -7,7 +7,7 @@ Various configuration tests.
 """
 
 from waflib.Configure import conf
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 import sys
 
 LIB_CODE = '''
@@ -30,7 +30,7 @@ int main(void) {return !(lib_func() == 9);}
 '''
 
 @feature('link_lib_test')
-@before('process_source')
+@before_method('process_source')
 def link_lib_test_fun(self):
 	"""
 	The configuration test :py:func:`waflib.Tools.ccroot.run_c_code` declares a unique task generator,

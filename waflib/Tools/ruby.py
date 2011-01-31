@@ -23,11 +23,11 @@ Support for Ruby extensions. A C/C++ compiler is required::
 
 import os
 from waflib import Task, Options, Utils
-from waflib.TaskGen import before, feature, after
+from waflib.TaskGen import before_method, feature, after_method
 from waflib.Configure import conf
 
 @feature('rubyext')
-@before('apply_incpaths', 'apply_lib_vars', 'apply_bundle', 'apply_link')
+@before_method('apply_incpaths', 'apply_lib_vars', 'apply_bundle', 'apply_link')
 def init_rubyext(self):
 	"""
 	Add required variables for ruby extensions
@@ -40,7 +40,7 @@ def init_rubyext(self):
 		self.uselib.append('RUBYEXT')
 
 @feature('rubyext')
-@before('apply_link', 'propagate_uselib')
+@before_method('apply_link', 'propagate_uselib')
 def apply_ruby_so_name(self):
 	"""
 	Strip the *lib* prefix from ruby extensions

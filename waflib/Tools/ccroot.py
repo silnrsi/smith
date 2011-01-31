@@ -10,7 +10,7 @@ as C/C++/D/Assembly/Go (this support module is almost never used alone).
 import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
-from waflib.TaskGen import after, before, feature, taskgen_method
+from waflib.TaskGen import after_method, before_method, feature, taskgen_method
 from waflib.Tools import c_aliases, c_preproc, c_config, c_osx, c_tests
 from waflib.Configure import conf
 
@@ -100,7 +100,7 @@ def to_incnodes(self, inlst):
 	return lst
 
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
-@after('propagate_uselib_vars', 'process_source')
+@after_method('propagate_uselib_vars', 'process_source')
 def apply_incpaths(self):
 	"""
 	Task generator method that processes the attribute *includes*::
@@ -184,7 +184,7 @@ def rm_tgt(cls):
 rm_tgt(stlink_task)
 
 @feature('c', 'cxx', 'd', 'go', 'fc', 'asm')
-@after('process_source')
+@after_method('process_source')
 def apply_link(self):
 	"""
 	Collect the tasks stored in ``compiled_tasks`` (created by :py:func:`waflib.Tools.ccroot.create_compiled_task`), and
@@ -295,8 +295,8 @@ def use_rec(self, name, **kw):
 		self.includes.extend(y.to_incnodes(y.export_includes))
 
 @feature('c', 'cxx', 'd', 'use', 'fc')
-@before('apply_incpaths', 'propagate_uselib_vars')
-@after('apply_link', 'process_source')
+@before_method('apply_incpaths', 'propagate_uselib_vars')
+@after_method('apply_link', 'process_source')
 def process_use(self):
 	"""
 	Process the ``use`` attribute which contains a list of task generator names::
@@ -328,7 +328,7 @@ def get_uselib_vars(self):
 	return _vars
 
 @feature('c', 'cxx', 'd', 'fc', 'javac', 'cs', 'uselib')
-@after('process_use')
+@after_method('process_use')
 def propagate_uselib_vars(self):
 	"""
 	Process uselib variables for adding flags. For example, the following target::
@@ -363,7 +363,7 @@ def propagate_uselib_vars(self):
 # ============ the code above must not know anything about import libs ==========
 
 @feature('cshlib', 'cxxshlib')
-@after('apply_link')
+@after_method('apply_link')
 def apply_implib(self):
 	"""
 	Handle dlls and their import libs on Windows-like systems.
@@ -407,7 +407,7 @@ def apply_implib(self):
 # ============ the code above must not know anything about vnum processing on unix platforms =========
 
 @feature('cshlib', 'cxxshlib', 'dshlib', 'fcshlib', 'vnum')
-@after('apply_link')
+@after_method('apply_link')
 def apply_vnum(self):
 	"""
 	Enforce version numbering on shared libraries. The valid version numbers must have at most two dots::

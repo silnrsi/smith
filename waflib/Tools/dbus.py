@@ -20,7 +20,7 @@ Typical usage::
 """
 
 from waflib import Task, Errors
-from waflib.TaskGen import taskgen_method, before
+from waflib.TaskGen import taskgen_method, before_method
 
 @taskgen_method
 def add_dbus_file(self, filename, prefix, mode):
@@ -40,7 +40,7 @@ def add_dbus_file(self, filename, prefix, mode):
 		self.meths.append('process_dbus')
 	self.dbus_lst.append([filename, prefix, mode])
 
-@before('apply_core')
+@before_method('apply_core')
 def process_dbus(self):
 	"""
 	Process the dbus files stored in the attribute *dbus_lst* to create :py:class:`waflib.Tools.dbus.dbus_binding_tool` instances.
