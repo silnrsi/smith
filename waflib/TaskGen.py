@@ -381,14 +381,14 @@ def feature(*k):
 		return func
 	return deco
 
-def before(*k):
+def before_method(*k):
 	"""
 	Decorator: register a task generator method which will be executed
 	before the functions of given name(s)::
 
 		from waflib.TaskGen import feature, before
 		@feature('myfeature')
-		@before('fun2')
+		@before_method('fun2')
 		def fun1(self):
 			print('feature 1!')
 		@feature('myfeature')
@@ -407,15 +407,16 @@ def before(*k):
 				task_gen.prec[fun_name].append(func.__name__)
 		return func
 	return deco
+before = before_method
 
-def after(*k):
+def after_method(*k):
 	"""
 	Decorator: register a task generator method which will be executed
 	after the functions of given name(s)::
 
 		from waflib.TaskGen import feature, after
 		@feature('myfeature')
-		@after('fun2')
+		@after_method('fun2')
 		def fun1(self):
 			print('feature 1!')
 		@feature('myfeature')
@@ -434,6 +435,7 @@ def after(*k):
 				task_gen.prec[func.__name__].append(fun_name)
 		return func
 	return deco
+after = after_method
 
 def extension(*k):
 	"""
@@ -507,7 +509,7 @@ def process_source(self):
 		self.get_hook(node)(self, node)
 
 @feature('*')
-@before('process_source')
+@before_method('process_source')
 def process_rule(self):
 	"""
 	Process the attribute ``rule``. When present, :py:meth:`waflib.TaskGen.process_source` is disabled::
@@ -679,7 +681,7 @@ class subst(subst_pc):
 	pass
 
 @feature('subst')
-@before('process_source', 'process_rule')
+@before_method('process_source', 'process_rule')
 def process_subst(self):
 	"""
 	Define a transformation that substitutes the contents of *source* files to *target* files::
