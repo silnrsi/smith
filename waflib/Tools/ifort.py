@@ -12,7 +12,7 @@ from waflib.Configure import conf
 def find_ifort(conf):
 	fc = conf.find_program('ifort', var='FC')
 	fc = conf.cmd_to_list(fc)
-	conf.get_ifort_version(fc, mandatory=False)
+	conf.get_ifort_version(fc)
 	conf.env.FC_NAME = 'IFORT'
 
 @conf
