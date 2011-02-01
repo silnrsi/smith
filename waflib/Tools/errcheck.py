@@ -21,7 +21,7 @@ typos = {
 
 meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 
-from waflib import Logs, Build, Node, Task, TaskGen, ConfigSet, Errors
+from waflib import Logs, Build, Node, Task, TaskGen, ConfigSet, Errors, Utils
 import waflib.Tools.ccroot
 
 def replace(m):
@@ -84,10 +84,9 @@ def enhance_lib():
 					Logs.warn('Erroneous order constraint %r on non-rule based task generator %r' % (x, self))
 		else:
 			for x in ('before', 'after'):
-				if hasattr(self, x):
-					for y in self.to_list(getattr(self, x)):
-						if not Task.classes.get(y, None):
-							Logs.error('Invalid constraint %s=%r on %r' % (x, y, self))
+				for y in self.to_list(getattr(self, x, [])):
+					if not Task.classes.get(y, None):
+						Logs.error('Erroneous order constraint %s=%r on %r' % (x, y, self))
 	TaskGen.feature('*')(check_err_order)
 
 	# check for @extension used with @feature/@before_method/@after_method
@@ -105,6 +104,13 @@ def enhance_lib():
 		invalid = ext & feat
 		if invalid:
 			Logs.error('The methods %r have invalid annotations:  @extension <-> @feature/@before_method/@after_method' % list(invalid))
+
+		# the build scripts have been read, so we can check for invalid after/before attributes on task classes
+		for cls in list(Task.classes.values()):
+			for x in ('before', 'after'):
+				for y in Utils.to_list(getattr(cls, x, [])):
+					if not Task.classes.get(y, None):
+						Logs.error('Erroneous order constraint %r=%r on task class %r' % (x, y, cls.__name__))
 
 		return old_compile(self)
 	Build.BuildContext.compile = check_compile
