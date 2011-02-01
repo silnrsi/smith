@@ -76,6 +76,20 @@ def enhance_lib():
 				Logs.error('%r features is probably missing %r' % (self, x))
 	TaskGen.feature('*')(check_err_features)
 
+	# check for erroneous order constraints
+	def check_err_order(self):
+		if not hasattr(self, 'rule'):
+			for x in ('before', 'after', 'ext_in', 'ext_out'):
+				if hasattr(self, x):
+					Logs.warn('Erroneous order constraint %r on non-rule based task generator %r' % (x, self))
+		else:
+			for x in ('before', 'after'):
+				if hasattr(self, x):
+					for y in self.to_list(getattr(self, x)):
+						if not Task.classes.get(y, None):
+							Logs.error('Invalid constraint %s=%r on %r' % (x, y, self))
+	TaskGen.feature('*')(check_err_order)
+
 	# check for @extension used with @feature/@before_method/@after_method
 	old_compile = Build.BuildContext.compile
 	def check_compile(self):
@@ -96,16 +110,16 @@ def enhance_lib():
 	Build.BuildContext.compile = check_compile
 
 	# check for env.append
-	def getattr(self, name):
+	def getattri(self, name, default=None):
 		if name == 'append' or name == 'add':
 			raise Errors.WafError('env.append and env.add do not exist: use env.append_value/env.append_unique')
 		elif name == 'prepend':
 			raise Errors.WafError('env.prepend does not exist: use env.prepend_value')
 		if name in self.__slots__:
-			return object.__getattr__(self, name)
+			return object.__getattr__(self, name, default)
 		else:
 			return self[name]
-	ConfigSet.ConfigSet.__getattr__ = getattr
+	ConfigSet.ConfigSet.__getattr__ = getattri
 
 
 def options(opt):
