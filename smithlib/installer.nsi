@@ -315,12 +315,12 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
     IfErrors NoKeyman
 +for k in kbds :
-    File "@k.target@"
-    Exec "start.exe ${OUTDIR}\@k.target@"
+    File "@k.kmx@"
+    Exec "start.exe ${OUTDIR}\@k.kmx@"
 -
     NoKeyman:
 
-    @"\n".join(['File "../' + k.source + '"' for k in kbds])@
+    @"\n".join(['File "' + k.target + '"' for k in kbds])@
     @"\n".join(['File "' + k.pdf + '"' for k in kbds])@ 
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""

@@ -17,10 +17,12 @@ class Package(object) :
     def __init__(self, **kw) :
         for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
                     'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME', 'DOCDIR') :
-            setattr(self, k.lower(), getattr(Context.g_module, k, None))
+            setattr(self, k.lower(), getattr(Context.g_module, k, ''))
         for k, v in kw.items() :
             setattr(self, k, v)
         if not hasattr(self, 'docdir') : self.docdir = 'docs'
+        if not self.appname : self.appname = 'noname'
+        if not self.version : self.version = 0.1
         self.packages.append(self)
         self.fonts = []
         self.keyboards = []
@@ -31,6 +33,15 @@ class Package(object) :
             res.update(f.get_build_tools(ctx))
         for k in self.keyboards :
             res.update(k.get_build_tools(ctx))
+        return res
+
+    def get_sources(self, ctx) :
+        res = []
+        for f in self.fonts :
+            res.extend(f.get_sources(ctx))
+        for p, n, fs in os.walk(self.docdir) :
+            for f in fs :
+                res.append(os.path.join(p, f))
         return res
 
     def add_font(self, font) :
@@ -90,7 +101,7 @@ class Package(object) :
         for f in self.fonts :
             task.set_inputs(bld.bldnode.find_resource(f.target))
         for k in self.keyboards :
-            for t in ('target', 'source', 'pdf') :
+            for t in ('target', 'kmx', 'pdf') :
                 n = bld.bldnode.find_resource(getattr(k, t, None))
                 if n : task.set_inputs(n)
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
@@ -98,7 +109,7 @@ class Package(object) :
         bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def execute_zip(self, bld) :
-        if self.zipfile :
+        if not self.zipfile :
             self.zipfile = "%s/%s-%s.zip" % ((self.zipdir or '.'), self.appname, self.version)
 
         import zipfile
@@ -119,7 +130,7 @@ class Package(object) :
         for f in self.fonts :
             res.append(f.target)
         for k in self.keyboards :
-            res.extend([k.target, k.source, k.pdf])
+            res.extend([k.target, k.kmx, k.pdf])
         return res
 
 class exeContext(Build.BuildContext) :
@@ -154,6 +165,27 @@ class svgContext(Build.BuildContext) :
         self.add_group('svg')
         for p in Package.packages :
             p.build_svg(self)
+
+class srcdistContext(Build.BuildContext) :
+    cmd = 'srcdist'
+
+    def execute_build(self) :
+        res = set(['wscript'])
+        files = {}
+        for p in Package.packages :
+            res.update(set(p.get_sources(self)))
+        for f in res :
+            if not f : continue
+            n = self.bldnode.find_resource(f)
+            files[f] = n
+        import tarfile
+
+        tarname = getattr(Context.g_module, 'SRCDIST', 'srcdist')
+        tar = tarfile.open(tarname + '.tar.gz', 'w:gz')
+        for f in sorted(files.keys()) :
+            if f.startswith('../') : continue
+            tar.add(files[f].abspath(), arcname = os.path.join(tarname, f))
+        tar.close()
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)

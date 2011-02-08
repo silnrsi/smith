@@ -45,6 +45,21 @@ class Font(object) :
                 res.update(x.get_build_tools())
         return res
 
+    def get_sources(self, ctx) :
+        res = []
+        if hasattr(self, 'legacy') :
+            res.extend(self.legacy.get_sources(ctx))
+        else :
+            res.append(self.source)
+        res.append(getattr(self, 'sfd_master', None))
+        res.append(getattr(self, 'classes', None))
+        res.append(getattr(self, 'ap', None))
+        for x in (getattr(self, y, None) for y in ('license', 'opentype', 'graphite', 'tests')) :
+            if x :
+                res.extend(x.get_sources(ctx))
+        res.extend(getattr(self, 'extra_srcs', []))
+        return res
+        
     def build(self, bld) :
         res = {}
 
@@ -108,6 +123,11 @@ class Legacy(object) :
             res.append("fontforge")
         return res
 
+    def get_sources(self, ctx) :
+        res = [self.source, self.xml]
+        res.append(getattr(self, 'ap', None))
+        return res
+
     def build(self, bld, targetap) :
         cmd = ""
         srcs = [self.source, self.xml]
@@ -134,6 +154,9 @@ class Internal(object) :
     def get_build_tools(self) :
         return []
 
+    def get_sources(self, ctx) :
+        return []
+
     def build(self, bld, target, tgen, font) :
         pass
 
@@ -146,12 +169,15 @@ class Volt(Internal) :
     def get_build_tools(self) :
         return ('make_volt', 'volt2ttf')
 
+    def get_sources(self, ctx) :
+        return [getattr(self, 'master', None)]
+
     def build(self, bld, target, tgen, font) :
         cmd = getattr(self, 'make_params', '') + " "
         ind = 0
         srcs = []
         if hasattr(font, 'ap') :
-            srcs.append(font.ap)
+            srcs.append(bld.bldnode.find_resource(font.ap))
             cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
         if hasattr(self, 'master') :
@@ -172,6 +198,9 @@ class Gdl(Internal) :
     def get_build_tools(self) :
         return ("make_gdl", "grcompiler", "ttftable")
 
+    def get_sources(self, ctx) :
+        return [getattr(self, 'master', None)]
+
     def build(self, bld, target, tgen, font) :
         modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, [getattr(self, 'source', None), getattr(self, 'master', None)])
         if self.source :
@@ -179,7 +208,7 @@ class Gdl(Internal) :
             cmd = getattr(self, 'make_params', '') + " "
             ind = 0
             if hasattr(font, 'ap') :
-                srcs.append(font.ap)
+                srcs.append(bld.bldnode.find_resource(font.ap))
                 cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
             if hasattr(self, 'master') :
@@ -203,6 +232,9 @@ class Ofl(object) :
 
     def get_build_tools(self) :
         return ["ttfname"]
+
+    def get_sources(self, ctx) :
+        return []
 
     def build(self, bld, font) :
         modify(self.insert_ofl, font.target)

@@ -7,10 +7,12 @@ import package
 class Keyboard(object) :
    
     def __init__(self, *k, **kw) :
-        if not 'target' in kw : kw['target'] = kw['source'].replace('.kmn', '.kmx')
-        if not 'svg' in kw : kw['svg'] = kw['source'].replace('.kmn', '.svg')
-        if not 'xml' in kw : kw['xml'] = kw['source'].replace('.kmn', '.xml')
-        if not 'pdf' in kw : kw['pdf'] = kw['source'].replace('.kmn', '.pdf')
+        base = os.path.basename(kw['source'])
+        if not 'target' in kw : kw['target'] = base
+        if not 'kmx' in kw : kw['kmx'] = base.replace('.kmn', '.kmx')
+        if not 'svg' in kw : kw['svg'] = base.replace('.kmn', '.svg')
+        if not 'xml' in kw : kw['xml'] = base.replace('.kmn', '.xml')
+        if not 'pdf' in kw : kw['pdf'] = base.replace('.kmn', '.pdf')
 #        if not 'fontname' in kw : kw['fontname'] = Popen(r"ttfeval -e 'print scalar $f->{q/name/}->read->find_name(2)' " + kw['font'], shell = True, stdout=PIPE).communicate()[0]
         if not 'fontsize' in kw : kw['fontsize'] = 18
         if not 'fontdir' in kw : kw['fontdir'] = 'kbdfonts'
@@ -44,7 +46,8 @@ class Keyboard(object) :
 
     def build(self, bld) :
         if bld.env['KMCOMP'] :
-            bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.target)
+            bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
+        bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
         self.build_pdf(bld)
 
     def build_pdf(self, bld) :

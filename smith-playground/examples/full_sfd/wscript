@@ -1,14 +1,19 @@
 #!/usr/bin/python
 
 import os
+from os.path import join
 
 # import pdb; pdb.set_trace()
-srcdir=os.path.join("..", "..", "script-test", "fonts", "thai")
-TESTDIR = os.path.join(srcdir, 'tests')
+srcdir=join("..", "..", "script-test", "fonts", "thai")
+TESTDIR = join(srcdir, 'tests')
 TESTRESULTSDIR = 'tests'
+APPNAME = 'norasi'
+VERSION = 0.8
 
 for f in ('Norasi', 'Norasi-Bold') :
     font(target = f + '.ttf',
-        source = os.path.join(srcdir, 'font-source', f + '.sfd'),
+        source = join(srcdir, 'font-source', f + '.sfd'),
         opentype = internal(),
+#        graphite = gdl(join('font-source', f + '.gdl'), master = join(srcdir, 'font-source' , 'master.gdl')),
+        license = ofl('norasi'),
         script = 'thai')

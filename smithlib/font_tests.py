@@ -68,6 +68,16 @@ class font_test(object) :
             res.update(t.config(ctx))
         return res
 
+    def get_sources(self, ctx) :
+        if not hasattr(self, 'testdir') :
+            self.testdir = ctx.env['TESTDIR'] or 'tests'
+        testsdir = self.testdir + os.sep
+        res = []
+        for s in (getattr(self, y, None) for y in ('texts', 'htexts', 'texs')) :
+            if s :
+                res.extend([x.srcpath() for x in antlist(ctx, testsdir, s)])
+        return res
+        
     def build_testfiles(self, ctx, testsdir) :
         self._hasinit = True
 
