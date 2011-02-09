@@ -10,6 +10,7 @@ NEW IN WAF 1.6.3
 * Return the value of post_check(...) in conf.check(...) #857
 * Rewrite the boost tool (waflib/extras/boost.py) #814, #454, #424
 * More fortran file extensions: .for, .FOR #867
+* Searching above the root nodes no longer raise exceptions #868
 
 NEW IN WAF 1.6.2
 ----------------
