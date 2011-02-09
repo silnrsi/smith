@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 
 def configure(conf):
-	pass
+	conf.env.thecmd = 'all'
 
 def build(bld):
 	bld(rule='touch ${TGT}', target='bar.txt')
@@ -10,26 +10,26 @@ def build(bld):
 from waflib.Build import BuildContext, InstallContext, UninstallContext, CleanContext
 
 class _build(BuildContext):
-	def execute(self):
-		ret = self.exec_command('make all')
+	def compile(self):
+		ret = self.exec_command('make %s' % self.env.thecmd)
 		if ret:
 			self.fatal('make returned %r' % ret)
-		super(_build, self).execute()
+		super(_build, self).compile()
 
 class _clean(CleanContext):
-	def execute(self):
+	def clean(self):
 		self.exec_command('make clean')
-		super(_clean, self).execute()
+		super(_clean, self).clean()
 
 class _install(InstallContext):
-	def execute(self):
+	def compile(self):
 		ret = self.exec_command('make install')
 		if ret:
 			self.fatal('make install returned %r' % ret)
-		super(_install, self).execute()
+		super(_install, self).compile()
 
 class _uninstall(UninstallContext):
-	def execute(self):
+	def compile(self):
 		self.exec_command('make uninstall')
-		super(_uninstall, self).execute()
+		super(_uninstall, self).compile()
 
