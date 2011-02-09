@@ -262,7 +262,7 @@ class Node(object):
 		cur = self
 		for x in lst:
 			if x == '..':
-				cur = cur.parent
+				cur = cur.parent or cur
 				continue
 
 			try:
@@ -304,7 +304,7 @@ class Node(object):
 		cur = self
 		for x in lst:
 			if x == '..':
-				cur = cur.parent
+				cur = cur.parent or cur
 				continue
 
 			if getattr(cur, 'children', {}):
@@ -330,7 +330,7 @@ class Node(object):
 		try:
 			for x in lst:
 				if x == '..':
-					cur = cur.parent
+					cur = cur.parent or cur
 				else:
 					cur = cur.children[x]
 			return cur
