@@ -177,7 +177,7 @@ class Volt(Internal) :
         ind = 0
         srcs = []
         if hasattr(font, 'ap') :
-            srcs.append(bld.bldnode.find_resource(font.ap))
+            srcs.append(font.ap)
             cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
         if hasattr(self, 'master') :
@@ -208,7 +208,7 @@ class Gdl(Internal) :
             cmd = getattr(self, 'make_params', '') + " "
             ind = 0
             if hasattr(font, 'ap') :
-                srcs.append(bld.bldnode.find_resource(font.ap))
+                srcs.append(font.ap)
                 cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
             if hasattr(self, 'master') :

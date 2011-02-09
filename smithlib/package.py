@@ -2,7 +2,7 @@
 
 from waflib import Context, Build
 import font, templater 
-import os
+import os, sys, shutil
 
 globalpackage = None
 def global_package() :
@@ -16,7 +16,8 @@ class Package(object) :
     packages = []
     def __init__(self, **kw) :
         for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME', 'DOCDIR') :
+                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
+                    'DOCDIR', 'DEBPKG') :
             setattr(self, k.lower(), getattr(Context.g_module, k, ''))
         for k, v in kw.items() :
             setattr(self, k, v)
@@ -28,7 +29,11 @@ class Package(object) :
         self.keyboards = []
 
     def get_build_tools(self, ctx) :
-        res = set(['makensis'])
+        try :
+            ctx.find_program('makensis')
+        except ctx.errors.ConfigurationError :
+            pass
+        res = set()
         for f in self.fonts :
             res.update(f.get_build_tools(ctx))
         for k in self.keyboards :
@@ -87,6 +92,7 @@ class Package(object) :
             k.build_pdf(bld)
 
     def build_exe(self, bld) :
+        if 'MAKENSIS' not in bld.env : return
         thisdir = os.path.dirname(__file__)
         env =   {
             'project' : self,
@@ -106,7 +112,7 @@ class Package(object) :
                 if n : task.set_inputs(n)
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
-        bld(rule='makensis -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
+        bld(rule='${MAKENSIS} -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def execute_zip(self, bld) :
         if not self.zipfile :
@@ -172,6 +178,8 @@ class srcdistContext(Build.BuildContext) :
     def execute_build(self) :
         res = set(['wscript'])
         files = {}
+        if os.path.exists('debian') :
+            files['debian'] = self.srcnode.find_node('debian')
         for p in Package.packages :
             res.update(set(p.get_sources(self)))
         for f in res :
@@ -186,6 +194,15 @@ class srcdistContext(Build.BuildContext) :
             if f.startswith('../') : continue
             tar.add(files[f].abspath(), arcname = os.path.join(tarname, f))
         tar.close()
+
+class makedebianContext(Build.BuildContext) :
+    cmd = 'makedebian'
+
+    def execute_build(self) :
+        if os.path.exists('debian') : return
+        os.makedirs('debian/bin')
+        shutil.copy(sys.argv[0], 'debian/bin')
+        
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)

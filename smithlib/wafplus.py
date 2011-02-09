@@ -56,12 +56,12 @@ def process_tempcopy(tgen) :
             if os.path.exists(tmpnode.abspath()) :
                 os.remove(tmpnode.abspath())
             Logs.debug("runner: " + outnode.abspath() + "-->" + tmpnode.abspath())
-            if os.path.exists(outnode.abspath()) :
+            if outnode.is_bld() and os.path.exists(outnode.abspath()) :
                 shutil.move(outnode.abspath(), tmpnode.abspath())
             else :
                 sourcenode = outnode.get_src()
                 shutil.copy2(sourcenode.abspath(), tmpnode.abspath())
-                t.outputs.append(outnode)
+                t.outputs.append(outnode.get_bld())
             ret = fn(self)
             if not ret : os.remove(tmpnode.abspath())
             return ret
@@ -122,7 +122,7 @@ def build_modifys(bld) :
             kw = {'tempcopy' : [tmpnode, outnode]}
             temp = dict(kw)
             if isinstance(i[0], basestring) :
-                cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.bldpath())
+                cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
                 if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             else :
                 temp['dep'] = tmpnode
