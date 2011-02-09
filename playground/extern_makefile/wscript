@@ -4,7 +4,7 @@ def configure(conf):
 	pass
 
 def build(bld):
-	pass
+	bld(rule='touch ${TGT}', target='bar.txt')
 
 
 from waflib.Build import BuildContext, InstallContext, UninstallContext, CleanContext
@@ -14,22 +14,22 @@ class _build(BuildContext):
 		ret = self.exec_command('make all')
 		if ret:
 			self.fatal('make returned %r' % ret)
-		super(BuildContext, self).execute()
+		super(_build, self).execute()
 
 class _clean(CleanContext):
 	def execute(self):
 		self.exec_command('make clean')
-		super(CleanContext, self).execute()
+		super(_clean, self).execute()
 
 class _install(InstallContext):
 	def execute(self):
 		ret = self.exec_command('make install')
 		if ret:
 			self.fatal('make install returned %r' % ret)
-		super(CleanContext, self).execute()
+		super(_install, self).execute()
 
 class _uninstall(UninstallContext):
 	def execute(self):
 		self.exec_command('make uninstall')
-		super(CleanContext, self).execute()
+		super(_uninstall, self).execute()
 
