@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from waflib import Context, Build, Errors
+from waflib import Context, Build, Errors, Node
 import font, templater 
 import os, sys, shutil, time
 
@@ -59,9 +59,10 @@ class Package(object) :
         res = []
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
-        for p, n, fs in os.walk(self.docdir) :
-            for f in fs :
-                res.append(os.path.join(p, f))
+        if hasattr(self, 'docdir') :
+            for p, n, fs in os.walk(self.docdir) :
+                for f in fs :
+                    res.append(os.path.join(p, f))
         return res
 
     def add_font(self, font) :
@@ -196,6 +197,7 @@ class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
 
     def execute_build(self) :
+        import pdb; pdb.set_trace()
         res = set(['wscript'])
         files = {}
         if os.path.exists('debian') :
@@ -204,8 +206,11 @@ class srcdistContext(Build.BuildContext) :
             res.update(set(p.get_sources(self)))
         for f in res :
             if not f : continue
-            n = self.bldnode.find_resource(f)
-            files[f] = n
+            if isinstance(f, Node.Node) :
+                files[f.srcpath()] = f
+            else :
+                n = self.bldnode.find_resource(f)
+                files[f] = n
         import tarfile
 
         tarname = getattr(Context.g_module, 'SRCDIST', 'srcdist')
@@ -291,6 +296,7 @@ Standards-Version: 3.9.1
             fcontrol.write('''Package: {0}
 Section: fonts
 Architecture: all
+Depends: ${{misc:Depends}}
 Description: {1}
 {2}
 
