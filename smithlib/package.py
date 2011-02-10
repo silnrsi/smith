@@ -1,29 +1,37 @@
 #!/usr/bin/python
 
-from waflib import Context, Build
+from waflib import Context, Build, Errors
 import font, templater 
-import os, sys, shutil
+import os, sys, shutil, time
 
 globalpackage = None
-def global_package() :
+def global_package(**kw) :
     global globalpackage
     if not globalpackage :
         globalpackage = Package()
+        for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
+                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
+                    'DOCDIR', 'DEBPKG') :
+            setattr(globalpackage, k.lower(), getattr(Context.g_module, k, ''))
+    for k, v in kw.items() :
+        setattr(globalpackage, k, v)
     return globalpackage
+
+def formatdesc(s) :
+    res = []
+    for l in s.strip().splitlines(True) :
+        if len(l) > 1 :
+            res.append(" " + l)
+        else :
+            res.append("." + l)
+    return "".join(res)
 
 class Package(object) :
 
     packages = []
     def __init__(self, **kw) :
-        for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
-                    'DOCDIR', 'DEBPKG') :
-            setattr(self, k.lower(), getattr(Context.g_module, k, ''))
         for k, v in kw.items() :
             setattr(self, k, v)
-        if not hasattr(self, 'docdir') : self.docdir = 'docs'
-        if not self.appname : self.appname = 'noname'
-        if not self.version : self.version = 0.1
         self.packages.append(self)
         self.fonts = []
         self.keyboards = []
@@ -63,7 +71,9 @@ class Package(object) :
 
     def make_ofl_license(self, task) :
         bld = task.generator.bld
-        font.make_ofl(task.outputs[0].srcpath(), self.reservedofl, getattr(self, 'ofl_version', '1.1'), copyright = getattr(self, 'copyright', ''))
+        font.make_ofl(task.outputs[0].srcpath(), self.reservedofl,
+                getattr(self, 'ofl_version', '1.1'),
+                copyright = getattr(self, 'copyright', ''))
         return 0
         
     def build(self, bld) :
@@ -93,6 +103,9 @@ class Package(object) :
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env : return
+        for t in ('appname', 'version') :
+            if not hasattr(self, t) :
+                raise Errors.WafError("Package '%r' needs '%s' attribute" % (self, t))
         thisdir = os.path.dirname(__file__)
         env =   {
             'project' : self,
@@ -199,10 +212,110 @@ class makedebianContext(Build.BuildContext) :
     cmd = 'makedebian'
 
     def execute_build(self) :
+        # check we have all the info we need
         if os.path.exists('debian') : return
+        srcname = getattr(globalpackage, 'debpkg', None)
+        if not srcname :
+            raise Errors.WafError('No debpkg information given to default_package. E.g. set DEBPKG')
+        srcversion = getattr(globalpackage, 'version', None)
+        if not srcversion :
+            raise Errors.WafError('No version information given to default_package. E.g. set VERSION')
+        maint = os.getenv('DEBEMAIL')
+        if not maint :
+            raise Errors.WafError("I don't know who you are, please set the DEBEMAIL environment variable")
+        license = getattr(globalpackage, 'license', None)
+        if not license :
+            raise Errors.WafError("default_package needs a license. E.g. set LICENSE")
+        license = self.bldnode.find_resource(license)
+        if not license :
+            raise Errors.WafError("The license file doesn't exist, perhaps you need to smith build first")
+
+        # .install and .dirs files
         os.makedirs('debian/bin')
         shutil.copy(sys.argv[0], 'debian/bin')
-        
+        hasfonts = 0
+        haskbds = False
+        for p in Package.packages :
+            pname = getattr(p, 'debpkg', None)
+            if not pname : continue
+            fdir = "/usr/share/fonts/truetype/" + pname + "\n"
+            fdirs = file(os.path.join('debian', pname + '.dirs'), 'w')
+            if len(p.fonts) :
+                fdirs.write(fdir)
+                hasfonts = hasfonts | 1
+            fdirs.close()
+            finstall = file(os.path.join('debian', pname + '.install'), 'w')
+            for f in p.fonts :
+                finstall.write("build/" + f.target + "\t" + fdir)
+                if hasattr(f, 'graphite') : hasfonts = hasfonts | 2
+            finstall.close()
+
+        # changelog
+        fchange = file(os.path.join('debian', 'changelog'), 'w')
+        fchange.write('''{0} ({1}) UNRELEASED; urgency=low
+
+  * Release
+
+ -- {2}  {3}
+'''.format(srcname, srcversion, maint, time.asctime()))
+        fchange.close()
+
+        # copyright
+        shutil.copy(license.abspath(), os.path.join('debian', 'copyright'))
+
+        # control
+        bdeps = []
+        if hasfonts & 1 :
+            bdeps.append('libfont-ttf-scripts-perl')
+        if hasfonts & 2 :
+            bdeps.append('grcompiler')
+        if maint : maint = "\nMaintainer: " + maint
+        fcontrol = file(os.path.join('debian', 'control'), 'w')
+        fcontrol.write('''Source: {0}
+Priority: optional
+Section: fonts{1}
+Build-Depends: debhelper (>= 8.0), {2}
+Standards-Version: 3.9.1
+
+'''.format(srcname, maint, ", ".join(bdeps)))
+        for p in Package.packages :
+            pname = getattr(p, 'debpkg', None)
+            if not pname : continue
+            fcontrol.write('''Package: {0}
+Section: Fonts
+Architecture: All
+Description: {1}
+{2}
+
+'''.format(pname, p.desc_short, formatdesc(p.desc_long)))
+        fcontrol.close()
+
+        # other files
+        fileinfo = {
+            'rules' : '''#!/usr/bin/make -f
+
+SMITH=debian/bin/smith
+%:
+	dh $@
+
+override_dh_auto_configure :
+	${SMITH} configure
+
+override_dh_auto_build :
+	${SMITH} build
+
+override_dh_auto_clean :
+	${SMITH} clean
+
+override_dh_auto_test :
+
+override_dh_auto_install :
+''',
+            'compat' : '8'}
+        for k, v in fileinfo.items() :
+            f = file(os.path.join('debian', k), 'w')
+            f.write(v + "\n")
+            f.close()
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
@@ -238,7 +351,7 @@ def init(ctx) :
     add_build()
 
 def onload(ctx) :
-    varmap = { 'package' : Package }
+    varmap = { 'package' : Package, 'default_package' : global_package }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v

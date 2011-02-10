@@ -333,9 +333,11 @@ SectionEnd
 
 Section -StartMenu
   @'File "' + prj.license + '"' if prj.license else ''@
-+for dp, dn, fs in os.walk(prj.docdir) :
-+ for fn in fs :
-  File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
++if hasattr(prj, 'docdir') :
++ for dp, dn, fs in os.walk(prj.docdir) :
++  for fn in fs :
+   File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+-
 -
 -
   !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
@@ -346,9 +348,11 @@ IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
   createIcons:
-+for dp, dn, fs in os.walk(prj.docdir) : 
-+for fn in fs :
-  CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
++if hasattr(prj, 'docdir') :
++ for dp, dn, fs in os.walk(prj.docdir) : 
++  for fn in fs :
+   CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
+-
 -
 -
     CreateShortCut $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\Uninstall.lnk $INSTDIR\Uninstall.exe
@@ -404,9 +408,11 @@ Section "Uninstall"
 +for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
   Delete "$INSTDIR\\@f.replace('/','\\')@"
 -
-+for dp, dn, fs in os.walk(prj.docdir) :
-+ for fn in fs :
-  Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
++if hasattr(prj, 'docdir') :
++ for dp, dn, fs in os.walk(prj.docdir) :
++  for fn in fs :
+   Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
+-
 -
 -
   Delete "$INSTDIR\Uninstall.exe"
@@ -418,9 +424,11 @@ Section "Uninstall"
 -
 -
   RMDir "$INSTDIR"
-+for dp, dn, fs in os.walk(prj.docdir) :
-+ for fn in fs :
-  Delete "$0\@fn@.lnk"
++if hasattr(prj, 'docdir') :
++ for dp, dn, fs in os.walk(prj.docdir) :
++  for fn in fs :
+   Delete "$0\@fn@.lnk"
+-
 -
 -
   Delete "$0\Uninstall.lnk"
