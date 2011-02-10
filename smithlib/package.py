@@ -197,7 +197,6 @@ class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
 
     def execute_build(self) :
-        import pdb; pdb.set_trace()
         res = set(['wscript'])
         files = {}
         if os.path.exists('debian') :
