@@ -385,9 +385,9 @@ class Context(ctx):
 			raise Errors.WafError('Execution failure', ex=e)
 
 		if not isinstance(out, str):
-			out = out.decode('utf-8')
+			out = out.decode(sys.stdout.encoding)
 		if not isinstance(err, str):
-			err = err.decode('utf-8')
+			err = err.decode(sys.stdout.encoding)
 
 		if out and quiet != STDOUT and quiet != BOTH:
 			self.to_log('out: %s' % out)
