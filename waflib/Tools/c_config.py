@@ -560,7 +560,7 @@ def post_check(self, *k, **kw):
 				self.define(kw['define_name'], is_success, quote=kw.get('quote', 1))
 			else:
 				self.define_cond(kw['define_name'], is_success)
- 		else:
+		else:
 			self.define_cond(kw['define_name'], is_success)
 
 	if 'header_name' in kw:
