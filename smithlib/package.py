@@ -23,8 +23,15 @@ def formatdesc(s) :
         if len(l) > 1 :
             res.append(" " + l)
         else :
-            res.append("." + l)
+            res.append(" ." + l)
     return "".join(res)
+
+def formattz(tzsec) :
+    tzmin = tzsec / 60
+    tzhr = -tzmin / 60
+    tzmin = tzmin % 60
+    if tzmin < 0 : tzmin = -tzmin
+    return "{0:+03d}{1:02d}".format(tzhr, tzmin)
 
 class Package(object) :
 
@@ -256,8 +263,8 @@ class makedebianContext(Build.BuildContext) :
 
   * Release
 
- -- {2}  {3}
-'''.format(srcname, srcversion, maint, time.asctime()))
+ -- {2}  {3} {4}
+'''.format(srcname, srcversion, maint, time.strftime("%a, %d %b %Y %H:%M:%S"), formattz(time.altzone)))
         fchange.close()
 
         # copyright
@@ -282,8 +289,8 @@ Standards-Version: 3.9.1
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
             fcontrol.write('''Package: {0}
-Section: Fonts
-Architecture: All
+Section: fonts
+Architecture: all
 Description: {1}
 {2}
 
@@ -305,7 +312,7 @@ override_dh_auto_build :
 	${SMITH} build
 
 override_dh_auto_clean :
-	${SMITH} clean
+	${SMITH} distclean
 
 override_dh_auto_test :
 
