@@ -327,6 +327,7 @@ override_dh_auto_install :
         for k, v in fileinfo.items() :
             f = file(os.path.join('debian', k), 'w')
             f.write(v + "\n")
+            if k == 'rules' : os.fchmod(f.fileno(), 0775)
             f.close()
 
 def add_configure() :
