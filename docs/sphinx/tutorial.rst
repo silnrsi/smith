@@ -130,9 +130,9 @@ To add a new method that will add the task generator path to the include path fo
 one may use such a declaration::
 
 	from waflib import Utils
-	from waflib.TaskGen import feature, before
+	from waflib.TaskGen import feature, before_method
 	@feature('c')
-	@before('apply_incpaths')
+	@before_method('apply_incpaths')
 	def add_current_dir_to_includes(self):
 		self.includes = Utils.to_list(self.includes)
 		self.includes.append(self.path)
@@ -143,9 +143,9 @@ one may use such a declaration::
 The *feature* methods are bound to the :py:class:`waflib.TaskGen.task_gen` class, which is the class of the
 object *tg* in the example. New features can be declared in the same manner::
 
-	from waflib.TaskGen import feature, after
+	from waflib.TaskGen import feature, after_method
 	@feature('debug_tasks')
-	@after('apply_link')
+	@after_method('apply_link')
 	def print_debug(self):
 		print('tasks created %r' % self.tasks)
 

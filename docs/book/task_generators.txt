@@ -295,7 +295,7 @@ def build(bld):
     bld(rule='echo A', always=True, name='A')
     bld(rule='echo B', always=True, name='B', depends_on='A')
 
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 @feature('*') <1>
 @before_method('process_rule')
 def post_the_other(self):

@@ -15,10 +15,10 @@ def build(ctx):
 	ctx(features='mylink', source='foo.ext faa.ext', target='bingo')
 
 from waflib.Task import Task
-from waflib.TaskGen import feature, extension, after
+from waflib.TaskGen import feature, extension, after_method
 from waflib.Tools import ccroot
 
-@after('process_source')
+@after_method('process_source')
 @feature('mylink')
 def call_apply_link(self):
 	self.apply_link()

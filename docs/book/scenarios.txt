@@ -266,7 +266,7 @@ The code to support this scenario will be the following:
 [source,python]
 ---------------
 from waflib.Task import Task
-from waflib.TaskGen import feature, before, extension
+from waflib.TaskGen import feature, before_method, extension
 
 class idl(Task):
 	run_str = 'cp ${SRC} ${TGT[0].abspath()} && touch ${TGT[1].abspath()}'

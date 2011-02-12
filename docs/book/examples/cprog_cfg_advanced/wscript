@@ -8,10 +8,10 @@ almost any kind of build into a configuration test
 Try 'waf configure' and look at the config.log file
 """
 
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 
 @feature('special_test')
-@before('process_source')
+@before_method('process_source')
 def my_special_test(self):
 	self.bld(rule='touch ${TGT}', target='foo')
 	self.bld(rule='cp ${SRC} ${TGT}', source='foo', target='bar')

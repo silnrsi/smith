@@ -567,7 +567,7 @@ The methods 'conf.check' create a build context and a task generator internally.
 // cprog_cfg_advanced
 [source,python]
 ---------------
-from waflib.TaskGen import feature, before
+from waflib.TaskGen import feature, before_method
 
 @feature('special_test')
 @before_method('process_source')

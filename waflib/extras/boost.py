@@ -27,12 +27,15 @@ def build(bld):
     bld(source='main.cpp', target='app', use='BOOST')
 '''
 
-import os, sys, re
-from waflib import Options, Utils, Logs
+import sys
+import re
+from waflib import Utils, Logs
 from waflib.Configure import conf
 
-BOOST_LIBS = ('/usr/lib', '/usr/local/lib', '/opt/local/lib', '/sw/lib', '/lib')
-BOOST_INCLUDES = ('/usr/include', '/usr/local/include', '/opt/local/include', '/sw/include')
+BOOST_LIBS = ('/usr/lib', '/usr/local/lib',
+              '/opt/local/lib', '/sw/lib', '/lib')
+BOOST_INCLUDES = ('/usr/include', '/usr/local/include',
+                  '/opt/local/include', '/sw/include')
 BOOST_VERSION_FILE = 'boost/version.hpp'
 BOOST_VERSION_CODE = '''
 #include <iostream>
@@ -41,9 +44,10 @@ int main() { std::cout << BOOST_LIB_VERSION << std::endl; }
 '''
 
 # toolsets from {boost_dir}/tools/build/v2/tools/common.jam
-detect_clang = lambda env: (Utils.unversioned_sys_platform() == 'darwin') and 'clang-darwin' or 'clang'
+PLATFORM = Utils.unversioned_sys_platform()
+detect_intel = lambda env: (PLATFORM == 'win32') and 'iw' or 'il'
+detect_clang = lambda env: (PLATFORM == 'darwin') and 'clang-darwin' or 'clang'
 detect_mingw = lambda env: (re.search('MinGW', env.CXX[0])) and 'mgw' or 'gcc'
-detect_intel = lambda env: (Utils.unversioned_sys_platform() == 'win32') and 'iw' or 'il'
 BOOST_TOOLSETS = {
     'borland':  'bcb',
     'clang':    detect_clang,
@@ -67,26 +71,34 @@ BOOST_TOOLSETS = {
     'vacpp':    'xlc'
 }
 
+
 def options(opt):
-    opt.add_option('--boost-includes', type='string', default='', dest='boost_includes',
+    opt.add_option('--boost-includes', type='string',
+                   default='', dest='boost_includes',
                    help='''path to the boost directory where the includes are
                    e.g. /boost_1_45_0/include''')
-    opt.add_option('--boost-libs', type='string', default='', dest='boost_libs',
+    opt.add_option('--boost-libs', type='string',
+                   default='', dest='boost_libs',
                    help='''path to the directory where the boost libs are
                    e.g. /boost_1_45_0/stage/lib''')
-    opt.add_option('--boost-static', action='store_true', default=False, dest='boost_static',
+    opt.add_option('--boost-static', action='store_true',
+                   default=False, dest='boost_static',
                    help='link static libraries')
-    opt.add_option('--boost-mt', action='store_true', default=False, dest='boost_mt',
+    opt.add_option('--boost-mt', action='store_true',
+                   default=False, dest='boost_mt',
                    help='select multi-threaded libraries')
     opt.add_option('--boost-abi', type='string', default='', dest='boost_abi',
                    help='''select libraries with tags (dgsyp, d for debug),
                    see doc Boost, Getting Started, chapter 6.1''')
-    opt.add_option('--boost-toolset', type='string', default='', dest='boost_toolset',
-                   help='force a toolset e.g. msvc, vc90, gcc, mingw, mgw45 (default: auto)')
+    opt.add_option('--boost-toolset', type='string',
+                   default='', dest='boost_toolset',
+                   help='force a toolset e.g. msvc, vc90, \
+                        gcc, mingw, mgw45 (default: auto)')
     py_version = '%d%d' % (sys.version_info[0], sys.version_info[1])
-    opt.add_option('--boost-python', type='string', default=py_version, dest='boost_python',
-                   help='select the lib python with this version (default: %s)' % py_version)
-
+    opt.add_option('--boost-python', type='string',
+                   default=py_version, dest='boost_python',
+                   help='select the lib python with this version \
+                        (default: %s)' % py_version)
 
 
 @conf
@@ -95,6 +107,7 @@ def __boost_get_version_file(self, dir):
         return self.root.find_dir(dir).find_node(BOOST_VERSION_FILE)
     except:
         return None
+
 
 @conf
 def boost_get_version(self, dir):
@@ -106,7 +119,6 @@ def boost_get_version(self, dir):
         val = self.check_cxx(fragment=BOOST_VERSION_CODE, includes=[dir],
                              execute=True, define_ret=True)
     return val
-
 
 
 @conf
@@ -123,7 +135,6 @@ def boost_get_includes(self, *k, **kw):
         self.fatal('headers not found, use --boost-includes=/path/to/boost')
 
 
-
 @conf
 def boost_get_toolset(self, cc):
     toolset = cc
@@ -136,6 +147,7 @@ def boost_get_toolset(self, cc):
     if cc in BOOST_TOOLSETS:
         toolset = BOOST_TOOLSETS[cc]
     return isinstance(toolset, str) and toolset or toolset(self.env)
+
 
 @conf
 def __boost_get_libs_path(self, *k, **kw):
@@ -163,12 +175,17 @@ def __boost_get_libs_path(self, *k, **kw):
         if libs:
             self.fatal('libs not found in %s' % libs)
         else:
-            self.fatal('libs not found, use --boost-includes=/path/to/boost/lib')
+            self.fatal('libs not found, \
+                       use --boost-includes=/path/to/boost/lib')
     return path, files
+
 
 @conf
 def boost_get_libs(self, *k, **kw):
-    ''' return the lib path and the required libs according to the parameters '''
+    '''
+    return the lib path and the required libs
+    according to the parameters
+    '''
     path, files = self.__boost_get_libs_path(**kw)
     t = []
     if kw['mt']:
@@ -178,11 +195,13 @@ def boost_get_libs(self, *k, **kw):
     tags = t and '(-%s)+' % '-'.join(t) or ''
     toolset = '(-%s[0-9]{0,3})+' % self.boost_get_toolset(kw['toolset'])
     version = '(-%s)+' % self.env.BOOST_VERSION
+
     def find_lib(re_lib, files):
         for file in files:
             if re_lib.search(file.name):
                 return file
         return None
+
     def format_lib_name(name):
         if name.startswith('lib'):
             name = name[3:]
@@ -205,7 +224,6 @@ def boost_get_libs(self, *k, **kw):
     return path.abspath(), libs
 
 
-
 @conf
 def check_boost(self, *k, **kw):
     """
@@ -217,7 +235,7 @@ def check_boost(self, *k, **kw):
     if not self.env['CXX']:
         self.fatal('load a c++ compiler first, conf.load("compiler_cxx")')
 
-    params = { 'lib': k and k[0] or kw.get('lib', None) }
+    params = {'lib': k and k[0] or kw.get('lib', None)}
     for key, value in self.options.__dict__.items():
         if not key.startswith('boost_'):
             continue

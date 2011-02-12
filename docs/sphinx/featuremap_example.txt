@@ -30,10 +30,10 @@ methods called *exactly once* before the build starts::
 
 Here is a more complete example with two methods::
 
-	from waflib.TaskGen import feature, after
+	from waflib.TaskGen import feature, after_method
 
 	@feature('foo')
-	@after('print_bar')
+	@after_method('print_bar')
 	def print_hello(self):
 		print("Hello, Foo!")
 

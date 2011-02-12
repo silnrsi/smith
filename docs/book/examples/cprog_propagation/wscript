@@ -36,9 +36,9 @@ def build(bld):
 	to get rid of those static libraries but if you cannot live without them, use the following:
 	"""
 
-	from waflib.TaskGen import feature, after
+	from waflib.TaskGen import feature, after_method
 	@feature('c', 'cxx')
-	@after('propagate_uselib_vars', 'process_use')
+	@after_method('propagate_uselib_vars', 'process_use')
 	def skip_cshlib_or_cxxshlib(self):
 		self.uselib = self.to_list(getattr(self, 'uselib', []))
 		self.use = self.to_list(getattr(self, 'use', []))

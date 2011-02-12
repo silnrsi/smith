@@ -23,7 +23,7 @@ def build(ctx):
 		add_idl  = 'idl_gen')
 
 from waflib.Task import Task
-from waflib.TaskGen import feature, before, extension
+from waflib.TaskGen import feature, before_method, extension
 
 class idl(Task):
 	run_str = 'cp ${SRC} ${TGT[0].abspath()} && touch ${TGT[1].abspath()}'
@@ -38,7 +38,7 @@ def process_idl(self, node):
 	self.more_source = [cpp_node]
 
 @feature('*')
-@before('process_source')
+@before_method('process_source')
 def process_add_source(self):
 	for x in self.to_list(getattr(self, 'add_idl', [])):
 		y = self.bld.get_tgen_by_name(x)
