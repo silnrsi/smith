@@ -1,21 +1,32 @@
 #! /usr/bin/env python
 # encoding: utf-8
 #
-# easy_install pyflakes
-# or
-# pip install pyflakes
-#
 # written by Sylvain Rouquette, 2011
+
+'''
+Install pyflakes module:
+$ easy_install pyflakes
+    or
+$ pip install pyflakes
+
+To add the boost tool to the waf file:
+$ ./waf-light --tools=compat15,pyflakes
+    or, if you have waf >= 1.6.2
+$ ./waf update --files=pyflakes
+
+
+Then add this to your wscript:
+
+[at]extension('.py', 'wscript')
+def run_pyflakes(self, node):
+    self.create_task('PyFlakes', node)
+
+'''
 
 import compiler
 from waflib import TaskGen, Task, Options, Logs
 
 pyflakes = __import__('pyflakes.checker')
-
-
-@TaskGen.extension('.py', 'wscript')
-def run_pyflakes(self, node):
-    self.create_task('PyFlakes', node)
 
 
 class PyFlakes(Task.Task):

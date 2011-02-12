@@ -1,21 +1,32 @@
 #! /usr/bin/env python
 # encoding: utf-8
 #
-# easy_install pep8
-# or
-# pip install pep8
-#
 # written by Sylvain Rouquette, 2011
+
+'''
+Install pep8 module:
+$ easy_install pep8
+    or
+$ pip install pep8
+
+To add the boost tool to the waf file:
+$ ./waf-light --tools=compat15,pep8
+    or, if you have waf >= 1.6.2
+$ ./waf update --files=pep8
+
+
+Then add this to your wscript:
+
+[at]extension('.py', 'wscript')
+def run_pep8(self, node):
+    self.create_task('Pep8', node)
+
+'''
 
 import threading
 from waflib import TaskGen, Task, Options
 
 pep8 = __import__('pep8')
-
-
-@TaskGen.extension('.py', 'wscript')
-def run_pep8(self, node):
-    self.create_task('Pep8', node)
 
 
 class Pep8(Task.Task):

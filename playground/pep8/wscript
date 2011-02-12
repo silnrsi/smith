@@ -1,19 +1,29 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import os   # unused module
+from waflib.TaskGen import extension
 
 top = '.'
 out = 'build'
 
 
+@extension('.py', 'wscript')
+def check_syntax(self, node):
+    self.create_task('Pep8', node)
+    self.create_task('PyFlakes', node)
+
+
 def options(opt):
     opt.load('pep8')
+    opt.load('pyflakes')
 
 
 def configure(conf):
     # warning after this comment
     
     conf.load('pep8')
+    conf.load('pyflakes')
 
 
 def build(bld):
