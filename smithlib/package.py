@@ -263,7 +263,7 @@ class makedebianContext(Build.BuildContext) :
 
         # changelog
         fchange = file(os.path.join('debian', 'changelog'), 'w')
-        fchange.write('''{0} ({1}) UNRELEASED; urgency=low
+        fchange.write('''{0} ({1}) unstable; urgency=low
 
   * Release
 

@@ -174,9 +174,9 @@ class TeX(object) :
             textfiles.append((targ, n))
         for n in textfiles :
             targ = n[0].get_bld()
-            ctx(rule = '${XETEX} --output-directory=' + targ.bld_dir() + ' ${SRC}',
+            ctx(rule = '${XETEX} --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
-                source = n[0], target = targ.change_ext('.pdf'),
+                source = [n[0], font.target], target = targ.change_ext('.pdf'),
                 taskgens = [font.target + "_" + m])
 #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
