@@ -831,7 +831,7 @@ class inst_task(Task.Task):
 		dest = self.dest.replace('/', os.sep)
 		dest = Utils.subst_vars(self.dest, self.env)
 		if Options.options.destdir:
-			dest = os.path.join(Options.options.destdir, dest.lstrip(os.sep))
+			dest = os.path.join(Options.options.destdir, os.path.splitdrive(dest)[1].lstrip(os.sep))
 		return dest
 
 	def exec_install_files(self):
