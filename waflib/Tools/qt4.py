@@ -231,7 +231,10 @@ def create_rcc_task(self, node):
 	rcnode = node.change_ext('_rc.cpp')
 	rcctask = self.create_task('rcc', node, rcnode)
 	cpptask = self.create_task('cxx', rcnode, rcnode.change_ext('.o'))
-	self.compiled_tasks.append(cpptask)
+	try:
+		self.compiled_tasks.append(cpptask)
+	except AttributeError:
+		self.compiled_tasks = [cpptask]
 	return cpptask
 
 @extension(*EXT_UI)
