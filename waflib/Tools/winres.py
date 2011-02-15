@@ -17,7 +17,10 @@ def rc_file(self, node):
 	if self.env['WINRC_TGT_F'] == '/fo':
 		obj_ext = '.res'
 	rctask = self.create_task('winrc', node, node.change_ext(obj_ext))
-	self.compiled_tasks.append(rctask)
+	try:
+		self.compiled_tasks.append(rctask)
+	except AttributeError:
+		self.compiled_tasks = [rctask]
 
 class winrc(Task.Task):
 	"""
