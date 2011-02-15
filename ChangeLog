@@ -14,6 +14,7 @@ NEW IN WAF 1.6.3
 * msvc detection fixes with non-utf8 encodings #873
 * Fixed the destdir processing on Windows #874
 * Stop changing the flags on waf -v (make the errors more visible) #875
+* Fixed the resource file compilation on Windows #876
 
 NEW IN WAF 1.6.2
 ----------------
