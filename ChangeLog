@@ -12,6 +12,8 @@ NEW IN WAF 1.6.3
 * More fortran file extensions: .for, .FOR #867
 * Searching above the root nodes no longer raise exceptions #868
 * msvc detection fixes with non-utf8 encodings #873
+* Fixed the destdir processing on Windows #874
+* Stop changing the flags on waf -v (make the errors more visible) #875
 
 NEW IN WAF 1.6.2
 ----------------
