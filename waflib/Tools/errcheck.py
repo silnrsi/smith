@@ -31,12 +31,12 @@ def replace(m):
 	"""
 	oldcall = getattr(Build.BuildContext, m)
 	def call(self, *k, **kw):
+		ret = oldcall(self, *k, **kw)
 		for x in typos:
 			if x in kw:
-				kw[typos[x]] = kw[x]
-				del kw[x]
-				Logs.error('typo %r -> %r' % (x, typos[x]))
-		return oldcall(self, *k, **kw)
+				err = True
+				Logs.error('Fix the typo %r -> %r on %r' % (x, typos[x], ret))
+		return ret
 	setattr(Build.BuildContext, m, call)
 
 def enhance_lib():
