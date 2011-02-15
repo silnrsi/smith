@@ -521,7 +521,7 @@ def configure(conf):
 ---------------
 
 <1> Try to compile a program using the configuration header time.h, if present on the system, if the test is successful, the define HAVE_TIME_H will be added
-<2> Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). All tests are required by default and will raise a ConfigurationError. The parameter 'mandatory' can be used to declare optional tests.
+<2> Try to compile a program with the function printf, adding the header stdio.h (the header_name may be a list of additional headers). All configuration tests are required by default (@conf methods) and will raise configuration exceptions. To conceal them, set the attribute 'mandatory' to False.
 <3> Try to compile a piece of code, and if the test is successful, define the name boobah
 <4> Modifications made to the task generator environment are not stored. When the test is successful and when the attribute uselib_store is provided, the names lib, cflags and defines will be converted into _use variables_ LIB_M, CFLAGS_M and DEFINES_M and the flag values are added to the configuration environment.
 <5> Try to compile a simple c program against a library called 'linux', and reuse the previous parameters for libm by _use_
