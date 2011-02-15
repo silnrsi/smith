@@ -202,7 +202,7 @@ def configure(ctx):
 ---------------
 
 <1> Import the decorator *conf*
-<2> Use the decorator to bind the method _hi_ to the configuration context class
+<2> Use the decorator to bind the method _hi_ to the configuration context and build context classes. In practice, the configuration methods are only used during the configuration phase.
 <3> Decorators are simple python function. Python 2.3 does not support the *@* syntax so the function has to be called after the function declaration
 <4> Use the method previously bound to the configuration context class
 
@@ -381,6 +381,19 @@ some_app was not found (ignoring) <3>
 <1> The configuration completes without errors
 <2> The log file contains useful information about the configuration execution
 <3> Our log entry
+
+Catching the errors by hand can be inconvenient. For this reason, all *@conf* methods will accept a parameter named 'mandatory' to suppress the exception. The code snippet is therefore equivalent to:
+
+[source,python]
+---------------
+top = '.'
+out = 'build'
+
+def configure(ctx):
+	ctx.find_program('some_app', mandatory=False)
+---------------
+
+As a general rule, configuration methods should not rely on exit codes and raise exceptions instead.
 
 ==== Handling configuration exceptions
 
