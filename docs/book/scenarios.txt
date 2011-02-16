@@ -347,6 +347,8 @@ Nevertheless, it is we will demonstrate how to provide Waf with a method to proc
 
 [source,shishell]
 ---------------
+$ waf --zones=task_gen
+...
 19:20:51 task_gen posting task_gen 'app' declared in 'scenarios_expansion' <1>
 19:20:51 task_gen -> process_rule (9232720) <2>
 19:20:51 task_gen -> process_source (9232720)
