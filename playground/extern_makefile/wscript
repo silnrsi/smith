@@ -5,7 +5,7 @@ def configure(conf):
 
 def build(bld):
 	bld(rule='touch ${TGT}', target='bar.txt')
-
+	bld.recurse('just_make')
 
 from waflib.Build import BuildContext, InstallContext, UninstallContext, CleanContext
 
