@@ -68,12 +68,14 @@ psdir, ps documentation, ${DOCDIR}
 
 def configure(conf):
 	"""
-	Read the command-line options to set lots of variables in *conf.env*
+	Read the command-line options to set lots of variables in *conf.env*. The variables
+	BINDIR and LIBDIR will be overwritten.
 	"""
 	def get_param(varname, default):
 		return getattr(Options.options, varname, '') or default
 
 	env = conf.env
+	conf.env.LIBDIR = conf.env.BINDIR = []
 	env['EXEC_PREFIX'] = get_param('EXEC_PREFIX', env['PREFIX'])
 	env['PACKAGE'] = getattr(Context.g_module, 'APPNAME', None) or env['PACKAGE']
 
