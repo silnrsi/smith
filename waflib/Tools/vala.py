@@ -227,13 +227,22 @@ def vala_file(self, node):
 
 	if valatask.is_lib:
 		headers_list = [o for o in valatask.outputs if o.suffix() == ".h"]
-		self.install_vheader = self.bld.install_files(valatask.header_path, headers_list, self.env)
+		try:
+			self.install_vheader.source = headers_list
+		except AttributeError:
+			self.install_vheader = self.bld.install_files(valatask.header_path, headers_list, self.env)
 
 		vapi_list = [o for o in valatask.outputs if (o.suffix() in (".vapi", ".deps"))]
-		self.install_vapi = self.bld.install_files(valatask.vapi_path, vapi_list, self.env)
+		try:
+			self.install_vapi.source = vapi_list
+		except AttributeError:
+			self.install_vapi = self.bld.install_files(valatask.vapi_path, vapi_list, self.env)
 
 		gir_list = [o for o in valatask.outputs if o.suffix() == ".gir"]
-		self.install_gir = self.bld.install_files(valatask.gir_path, gir_list, self.env)
+		try:
+			self.install_gir.source = gir_list
+		except AttributeError:
+			self.install_gir = self.bld.install_files(valatask.gir_path, gir_list, self.env)
 
 valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
 
