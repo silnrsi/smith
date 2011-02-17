@@ -390,7 +390,7 @@ def transform_strings(self):
 
 ==== Inserting special include flags
 
-A scenario that appears from ltimes to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all C++ compilations with the flag `-I.' in first position (before any other include).
+A scenario that appears from times to times in C/C++ projects is the need to insert specific flags before others, regardless of how flags are usually processed. We will now consider the following case: execute all C++ compilations with the flag `-I.' in first position (before any other include).
 
 First, a look at the definition of the C++ compilation rule shows that the variable 'INCPATHS' contains the include flags:
 
