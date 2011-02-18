@@ -73,3 +73,9 @@ for x in 'debug release'.split():
 			cmd = name + '_' + x
 			variant = x
 
+def buildall(ctx):
+	import waflib.Options
+	waflib.Options.commands.extend(['build_debug', 'build_release'])
+
+
+
