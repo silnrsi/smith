@@ -14,7 +14,7 @@ The Waf binary is a python script which does not require any installation whatso
 $ wget http://waf.googlecode.com/files/waf-1.6.3
 $ mv waf-1.6.3 waf
 $ python waf --version
-waf 1.6.3 (11003)
+waf 1.6.3 (11004)
 ---------------
 
 The +waf+ file has its own library compressed in a binary stream in the same file. Upon execution, the library is uncompressed in a hidden folder in the current directory. The folder will be re-created if removed. This scheme enables different Waf versions to be executed from the same folders:
@@ -112,7 +112,7 @@ On unix-like systems, it is usually much more convenient to set the executable p
 ---------------
 $ chmod 755 waf
 $ ./waf --version
-waf 1.6.3 (11003)
+waf 1.6.3 (11004)
 ---------------
 
 If the command-line interpreter supports aliases, it is recommended to set the alias once:
@@ -121,7 +121,7 @@ If the command-line interpreter supports aliases, it is recommended to set the a
 ---------------
 $ alias waf=$PWD/waf
 $ waf --version
-waf 1.6.3 (11003)
+waf 1.6.3 (11004)
 ---------------
 
 Or, the execution path may be modified to point at the location of the waf binary:
@@ -130,7 +130,7 @@ Or, the execution path may be modified to point at the location of the waf binar
 ---------------
 $ export PATH=$PWD:$PATH
 $ waf --version
-waf 1.6.3 (11003)
+waf 1.6.3 (11004)
 ---------------
 
 In the next sections of the book, we assume that either an alias or the execution path have been set in a way that +waf+ may be called directly.
