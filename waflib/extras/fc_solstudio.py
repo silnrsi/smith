@@ -17,12 +17,11 @@ def find_solstudio(conf):
 	fc = conf.find_program(['sunf95', 'f95', 'sunf90', 'f90'], var='FC')
 	fc = conf.cmd_to_list(fc)
 	conf.get_solstudio_version(fc)
-	conf.env.FC_NAME='SOL'
+	conf.env.FC_NAME = 'SOL'
 
 @conf
 def solstudio_flags(conf):
 	v = conf.env
-	v['FORTRANMODFLAG'] = ['-M', ''] # template for module path
 	v['FCFLAGS_fcshlib'] = ['-Kpic']
 	v['FCFLAGS_DEBUG'] = ['-w3']
 	v['LINKFLAGS_fcshlib'] = ['-G']

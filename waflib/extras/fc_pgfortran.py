@@ -22,11 +22,10 @@ def find_pgfortran(conf):
 def pgfortran_flags(conf):
 	v = conf.env
 	v['FCFLAGS_fcshlib']   = ['-shared']
-	v['FORTRANMODFLAG']  = ['-module', ''] # template for module path
-	v['FCFLAGS_DEBUG'] = ['-Minform=inform -Mstandard'] # why not
+	v['FCFLAGS_DEBUG'] = ['-Minform=inform', '-Mstandard'] # why not
 	v['FCSTLIB_MARKER'] = '-Bstatic'
 	v['FCSHLIB_MARKER'] = '-Bdynamic'
-	v['SONAME_ST']      = '-soname%s'
+	v['SONAME_ST']      = '-soname %s'
 
 @conf
 def get_pgfortran_version(conf,fc):
@@ -37,7 +36,7 @@ def get_pgfortran_version(conf,fc):
         else: match = version_re(err)
         if not match:
                 conf.fatal('Could not verify PGI signature')
-        cmd = fc + ['-show']
+        cmd = fc + ['-help=variable']
         out,err = fc_config.getoutput(conf, cmd, stdin=False)
         if out.find('COMPVER')<0:
                 conf.fatal('Could not determine the compiler type')

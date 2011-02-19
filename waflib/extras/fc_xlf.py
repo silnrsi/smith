@@ -22,7 +22,6 @@ def find_xlf(conf):
 @conf
 def xlf_flags(conf):
 	v = conf.env
-	v['FORTRANMODFLAG'] = ['-I', ''] # template for module path
 	v['FCDEFINES_ST'] = '-WF,-D%s'
 	v['FCFLAGS_fcshlib'] = ['-qpic=small']
 	v['FCFLAGS_DEBUG'] = ['-qhalt=w']
