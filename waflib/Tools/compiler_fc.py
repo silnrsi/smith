@@ -22,7 +22,7 @@ def __list_possible_compiler(platform):
 
 def configure(conf):
 	"""
-	Try to find a suitable C compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
+	Try to find a suitable Fortran compiler or raise a :py:class:`waflib.Errors.ConfigurationError`.
 	"""
 	try: test_for_compiler = conf.options.check_fc
 	except AttributeError: conf.fatal("Add options(opt): opt.load('compiler_fc')")
