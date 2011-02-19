@@ -17,12 +17,12 @@ def find_openf95(conf):
 	fc = conf.find_program(['openf95', 'openf90'], var='FC')
 	fc = conf.cmd_to_list(fc)
 	conf.get_open64_version(fc)
-	conf.env.FC_NAME='OPEN64'
+	conf.env.FC_NAME = 'OPEN64'
+	conf.env.FC_MOD_CAPITALIZATION = 'UPPER.mod'
 
 @conf
 def openf95_flags(conf):
 	v = conf.env
-	v['FORTRANMODFLAG']  = ['-I', ''] # template for module path
 	v['FCFLAGS_DEBUG'] = ['-fullwarn']
 
 @conf
