@@ -25,7 +25,7 @@ def dummy(self):
 
 @extension('.f', '.f90', '.F', '.F90', '.for', '.FOR')
 def fc_hook(self, node):
-	"Bind the c file extension to the creation of a :py:class:`waflib.Tools.fc.fc` instance"
+	"Bind the typical Fortran file extensions to the creation of a :py:class:`waflib.Tools.fc.fc` instance"
 	return self.create_compiled_task('fc', node)
 
 @conf
