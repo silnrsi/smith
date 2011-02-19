@@ -17,12 +17,13 @@ def find_crayftn(conf):
 	fc = conf.cmd_to_list(fc)
 	conf.get_crayftn_version(fc)
 	conf.env.FC_NAME = 'CRAY'
+	conf.env.FC_MOD_CAPITALIZATION = 'UPPER.mod'
 
 @conf
 def crayftn_flags(conf):
 	v = conf.env
-	v['FORTRANMODFLAG']  = ['-p', ''] # template for module path
-	v['FCFLAGS_DEBUG'] = ['-m 1'] # why not
+	v['_FCMODOUTFLAGS']  = ['-em', '-J.'] # enable module files and put them in the current directoy
+	v['FCFLAGS_DEBUG'] = ['-m1'] # more verbose compiler warnings
 	v['FCFLAGS_fcshlib']   = ['-h pic']
 	v['LINKFLAGS_fcshlib'] = ['-h shared']
 
