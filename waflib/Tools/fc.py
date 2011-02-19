@@ -28,6 +28,17 @@ def fc_hook(self, node):
 	"Bind the c file extension to the creation of a :py:class:`waflib.Tools.fc.fc` instance"
 	return self.create_compiled_task('fc', node)
 
+@conf
+def modfile(conf, name):
+	"""
+	Turn a module name into the right module file name.
+	Defaults to all lower case.
+	"""
+	return {'lower'     :name.lower() + '.mod',
+		'lower.MOD' :name.upper() + '.MOD',
+		'UPPER.mod' :name.upper() + '.mod',
+		'UPPER'     :name.upper() + '.MOD'}[conf.env.FC_MOD_CAPITALIZATION or 'lower']
+
 def get_fortran_tasks(tsk):
 	"""
 	Obtain all other fortran tasks from the same build group. Those tasks must not have
@@ -97,8 +108,8 @@ class fc(Task.Task):
 			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('MOD@'):
-					# .mod filenames are lowercase.
-					name = x.replace('MOD@', '').lower() + '.mod'
+					# name = modfile(x.replace('MOD@', ''), bld.env.FC_MOD_CAPITALIZATION)
+					name = bld.modfile(x.replace('MOD@', ''))
 					node = bld.srcnode.find_or_declare(name)
 					tsk.set_outputs(node)
 					outs[id(node)].add(tsk)
@@ -108,8 +119,8 @@ class fc(Task.Task):
 			key = tsk.uid()
 			for x in bld.raw_deps[key]:
 				if x.startswith('USE@'):
-					# .mod filenames are lowercase.
-					name = x.replace('USE@', '').lower() + '.mod'
+					# name = modfile(x.replace('USE@', ''), bld.env.FC_MOD_CAPITALIZATION)
+					name = bld.modfile(x.replace('USE@', ''))
 					node = bld.srcnode.find_resource(name)
 					if node and node not in tsk.outputs:
 						if not node in bld.node_deps[key]:
