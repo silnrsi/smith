@@ -18,7 +18,7 @@ t = bld.program(
 # 2. another way of setting flags
 #t.env.linkflags = ['-L/disk/comp/waf/demos/c/build/shlib', '-lmy_shared_lib']
 
-# 3. advanced flag settings (more control)
+# 3. advanced flag control through 'feature' methods (standard practice when 1. or 2. is not enough)
 #import sys
 #from waflib import TaskGen
 #@TaskGen.feature('my_precious')
@@ -30,7 +30,7 @@ t = bld.program(
 #		self.link_task.env.STLIB = []
 #		self.link_task.env.STLIB_MARKER = []
 
-# 4. changing the class if necessary - setting flags such as LINKFLAGS_cshlib is usually much easier
+# 4. changing the class - setting flags such as LINKFLAGS_cshlib is usually a much better idea
 #from waflib.Utils import run_once
 #from waflib.Tools.c import cprogram
 #class cprogram(cprogram):
