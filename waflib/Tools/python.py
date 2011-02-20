@@ -200,7 +200,7 @@ def check_python_headers(conf):
 
 	v = 'prefix SO LDFLAGS LIBDIR LIBPL INCLUDEPY Py_ENABLE_SHARED MACOSX_DEPLOYMENT_TARGET LDSHARED CFLAGS'.split()
 	try:
-		lst = conf.get_python_variables(["get_config_var('%s')" % x for x in v],
+		lst = conf.get_python_variables(["get_config_var('%s') or ''" % x for x in v],
 			['from distutils.sysconfig import get_config_var'])
 	except RuntimeError:
 		conf.fatal("Python development headers not found (-v for details).")
@@ -343,15 +343,15 @@ def check_python_version(conf, minver=None):
 			if sys.platform == 'win32':
 				(python_LIBDEST, pydir) = \
 						conf.get_python_variables(
-											  ["get_config_var('LIBDEST')",
-											   "get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
+											  ["get_config_var('LIBDEST') or ''",
+											   "get_python_lib(standard_lib=0, prefix=%r) or ''" % conf.env['PREFIX']],
 											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
 			else:
 				python_LIBDEST = None
 				(pydir,) = \
 						conf.get_python_variables(
-											  ["get_python_lib(standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
-											  ['from distutils.sysconfig import get_config_var, get_python_lib'])
+											  ["get_python_lib(standard_lib=0, prefix=%r) or ''" % conf.env['PREFIX']],
+											  ['from distutils.sysconfig import get_python_lib'])
 			if python_LIBDEST is None:
 				if conf.env['LIBDIR']:
 					python_LIBDEST = os.path.join(conf.env['LIBDIR'], "python" + pyver)
@@ -363,8 +363,8 @@ def check_python_version(conf, minver=None):
 			pyarchdir = conf.environ['PYTHONARCHDIR']
 		else:
 			pyarchdir = conf.get_python_variables(
-											["get_python_lib(plat_specific=1, standard_lib=0, prefix=%r)" % conf.env['PREFIX']],
-											['from distutils.sysconfig import get_config_var, get_python_lib'])
+											["get_python_lib(plat_specific=1, standard_lib=0, prefix=%r) or ''" % conf.env['PREFIX']],
+											['from distutils.sysconfig import get_python_lib'])
 			if not pyarchdir:
 				pyarchdir = pydir
 
