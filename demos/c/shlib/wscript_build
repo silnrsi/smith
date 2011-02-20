@@ -30,7 +30,7 @@ t = bld.program(
 #		self.link_task.env.STLIB = []
 #		self.link_task.env.STLIB_MARKER = []
 
-# 4. changing the class if necessary (because we can)
+# 4. changing the class if necessary - setting flags such as LINKFLAGS_cshlib is usually much easier
 #from waflib.Utils import run_once
 #from waflib.Tools.c import cprogram
 #class cprogram(cprogram):
