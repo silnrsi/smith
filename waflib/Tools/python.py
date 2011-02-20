@@ -222,28 +222,32 @@ def check_python_headers(conf):
 	conf.parse_flags(all_flags, 'PYEXT')
 
 	result = None
-	name = 'python' + env['PYTHON_VERSION']
+	#name = 'python' + env['PYTHON_VERSION']
 
-	# LIBPATH_PYEMBED is already set; see if it works.
-	path = env['LIBPATH_PYEMBED']
-	conf.to_log("\n\n# Trying default LIBPATH_PYEMBED: %r\n" % path)
-	result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+	for name in ('python' + env['PYTHON_VERSION'], 'python' + env['PYTHON_VERSION'].replace('.', '')):
 
-	if not result:
-		conf.to_log("\n\n# try again with -L$python_LIBDIR: %r\n" % path)
-		path = [dct['LIBDIR'] or '']
+		# LIBPATH_PYEMBED is already set; see if it works.
+		path = env['LIBPATH_PYEMBED']
+		conf.to_log("\n\n# Trying default LIBPATH_PYEMBED: %r\n" % path)
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
-	if not result:
-		conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
-		path = [dct['LIBPL'] or '']
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+		if not result:
+			conf.to_log("\n\n# try again with -L$python_LIBDIR: %r\n" % path)
+			path = [dct['LIBDIR'] or '']
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
-	if not result:
-		conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
-		path = [os.path.join(dct['prefix'], "libs")]
-		name = 'python' + env['PYTHON_VERSION'].replace('.', '')
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+		if not result:
+			conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
+			path = [dct['LIBPL'] or '']
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+
+		if not result:
+			conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
+			path = [os.path.join(dct['prefix'], "libs")]
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+
+		if result:
+			break
 
 	if result:
 		env['LIBPATH_PYEMBED'] = path
