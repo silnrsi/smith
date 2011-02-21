@@ -301,7 +301,7 @@ from waflib.TaskGen import feature, before_method
 def post_the_other(self):
     deps = getattr(self, 'depends_on', []) <2>
     for name in self.to_list(deps):
-        other = self.bld.name_to_obj(name, self.env) <3>
+        other = self.bld.get_tgen_by_name(name) <3>
         print('other task generator tasks (before) %s' % other.tasks)
         other.post() <4>
         print('other task generator tasks (after) %s' % other.tasks)
