@@ -51,8 +51,8 @@ def refill_task_list(self):
 	# obtain the nodes to use during the build
 	nodes = []
 	for i in range(len(bld.groups)):
-		tasks = bld.get_tasks_group(i)
-		for x in tasks:
+		tgs = bld.get_tasks_group(i)
+		for x in tgs:
 			try:
 				nodes.extend(x.outputs)
 			except:
