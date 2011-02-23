@@ -228,27 +228,28 @@ def check_python_headers(conf):
 	for name in ('python' + env['PYTHON_VERSION'], 'python' + env['PYTHON_VERSION'].replace('.', '')):
 
 		# LIBPATH_PYEMBED is already set; see if it works.
-		path = env['LIBPATH_PYEMBED']
-		conf.to_log("\n\n# Trying default LIBPATH_PYEMBED: %r\n" % path)
-		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+		if not result and env['LIBPATH_PYEMBED']:
+			path = env['LIBPATH_PYEMBED']
+			conf.to_log("\n\n# Trying default LIBPATH_PYEMBED: %r\n" % path)
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False, msg='Checking for library %s in LIBPATH_PYEMBED' % name)
 
 		if not result and dct['LIBDIR']:
-			conf.to_log("\n\n# try again with -L$python_LIBDIR: %r\n" % path)
 			path = [dct['LIBDIR']]
-			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+			conf.to_log("\n\n# try again with -L$python_LIBDIR: %r\n" % path)
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False, msg='Checking for library %s in LIBDIR' % name)
 
 		if not result and dct['LIBPL']:
-			conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
 			path = [dct['LIBPL']]
-			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+			conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False, msg='Checking for library %s in python_LIBPL' % name)
 
 		if not result:
-			conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
 			path = [os.path.join(dct['prefix'], "libs")]
-			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
+			conf.to_log("\n\n# try again with -L$prefix/libs, and pythonXY name rather than pythonX.Y (win32)\n")
+			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False, msg='Checking for library %s in $prefix/libs' % name)
 
 		if result:
-			break
+			break # do not forget to set LIBPATH_PYEMBED
 
 	if result:
 		env['LIBPATH_PYEMBED'] = path
