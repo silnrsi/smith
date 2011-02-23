@@ -224,6 +224,7 @@ def check_python_headers(conf):
 	result = None
 	#name = 'python' + env['PYTHON_VERSION']
 
+	# TODO simplify this
 	for name in ('python' + env['PYTHON_VERSION'], 'python' + env['PYTHON_VERSION'].replace('.', '')):
 
 		# LIBPATH_PYEMBED is already set; see if it works.
@@ -231,14 +232,14 @@ def check_python_headers(conf):
 		conf.to_log("\n\n# Trying default LIBPATH_PYEMBED: %r\n" % path)
 		result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
-		if not result:
+		if not result and dct['LIBDIR']:
 			conf.to_log("\n\n# try again with -L$python_LIBDIR: %r\n" % path)
-			path = [dct['LIBDIR'] or '']
+			path = [dct['LIBDIR']]
 			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
-		if not result:
+		if not result and dct['LIBPL']:
 			conf.to_log("\n\n# try again with -L$python_LIBPL (some systems don't install the python library in $prefix/lib)\n")
-			path = [dct['LIBPL'] or '']
+			path = [dct['LIBPL']]
 			result = conf.check(lib=name, uselib='PYEMBED', libpath=path, mandatory=False)
 
 		if not result:
