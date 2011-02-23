@@ -1,3 +1,7 @@
+NEW IN WAF 1.6.4
+----------------
+* Fixed the Python detection on win32 #883
+
 NEW IN WAF 1.6.3
 ----------------
 
