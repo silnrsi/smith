@@ -66,6 +66,7 @@ def to_incnodes(self, inlst):
 
 	The paths are assumed to be relative to the task generator path, except if they begin by **#**
 	in which case they are searched from the top-level directory (``bld.srcnode``).
+	The folders are simply assumed to be existing.
 
 	The node objects in the list are returned in the output list. The strings are converted
 	into node objects if possible. The node is searched from the source directory, and if a match is found,
@@ -87,16 +88,14 @@ def to_incnodes(self, inlst):
 			lst.append(x)
 		else:
 			if os.path.isabs(x):
-				lst.append(self.bld.root.find_dir(x))
+				lst.append(self.bld.root.make_node(x) or x)
 			else:
 				if x[0] == '#':
 					lst.append(self.bld.bldnode.make_node(x[1:]))
-					lst.append(self.bld.srcnode.find_dir(x[1:]))
+					lst.append(self.bld.srcnode.make_node(x[1:]))
 				else:
 					lst.append(self.path.get_bld().make_node(x))
-					lst.append(self.path.find_dir(x))
-	# FIXME issue #870
-	lst = [x for x in lst if x]
+					lst.append(self.path.make_node(x))
 	return lst
 
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
