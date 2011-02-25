@@ -38,7 +38,10 @@ class cxx_qt(waflib.Tools.cxx.cxx):
 						cxxtsk.set_outputs(cxx_node.change_ext('.o'))
 						cxxtsk.set_run_after(tsk)
 
-						self.more_tasks = [tsk, cxxtsk]
+						try:
+							self.more_tasks.extend([tsk, cxxtsk])
+						except AttributeError:
+							self.more_tasks = [tsk, cxxtsk]
 
 						try:
 							link = self.generator.link_task
