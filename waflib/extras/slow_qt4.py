@@ -15,11 +15,20 @@ class cxx_qt(waflib.Tools.cxx.cxx):
 		ret = waflib.Tools.cxx.cxx.runnable_status(self)
 		if ret != Task.ASK_LATER and not getattr(self, 'moc_done', None):
 
+			try:
+				cache = self.generator.moc_cache
+			except:
+				cache = self.generator.moc_cache = {}
+
+
 			deps = self.generator.bld.node_deps[self.uid()]
 			for x in [self.inputs[0]] + deps:
 				if x.read().find('Q_OBJECT') > 0:
 
 					cxx_node = x.parent.get_bld().make_node(x.name.replace('.', '_') + '_moc.cpp')
+					if cxx_node in cache:
+						continue
+					cache[cxx_node] = self
 
 					tsk = Task.classes['moc'](env=self.env, generator=self.generator)
 					tsk.set_inputs(x)
