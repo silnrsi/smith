@@ -233,10 +233,9 @@ class TaskBase(evil):
 		except:
 			pass
 
-		self.generator.bld.returned_tasks.append(self)
-		self.log_display(self.generator.bld)
-
 		try:
+			self.generator.bld.returned_tasks.append(self)
+			self.log_display(self.generator.bld)
 			ret = self.run()
 		except Exception as e:
 			self.err_msg = Utils.ex_stack()
