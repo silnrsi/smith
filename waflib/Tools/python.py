@@ -90,20 +90,28 @@ def install_pyfile(self, node):
 				pass
 
 	if self.bld.is_install > 0:
-		if self.env['PYC'] or self.env['PYO']:
-			info("+ byte compiling %r" % path)
+		try:
+			st1 = os.stat(path)
+		except:
+			error('The python file is missing, this should not happen')
 
-		if self.env['PYC']:
-			argv = self.env['PYTHON'] + ['-c', INST % 'c', path]
-			ret = Utils.subprocess.Popen(argv).wait()
-			if ret:
-				raise Errors.WafError('pyc compilation failed %r' % path)
+		for x in ['c', 'o']:
+			do_inst = self.env['PY' + x.upper()]
+			try:
+				st2 = os.stat(path + x)
+			except OSError:
+				pass
+			else:
+				if st1.st_mtime <= st2.st_mtime:
+					do_inst = False
 
-		if self.env['PYO']:
-			argv = self.env['PYTHON'] + [self.env['PYFLAGS_OPT'], '-c', INST % 'o', path]
-			ret = Utils.subprocess.Popen(argv).wait()
-			if ret:
-				raise Errors.WafError('pyo compilation failed %r' % path)
+			if do_inst:
+				lst = (x == 'o') and [self.env['PYFLAGS_OPT']] or []
+				argv = self.env['PYTHON'] + lst + ['-c', INST % x, path]
+				info('+ byte compiling %r' % (path + x))
+				ret = Utils.subprocess.Popen(argv).wait()
+				if ret:
+					raise Errors.WafError('py%s compilation failed %r' % (x, path))
 
 @feature('py')
 def feature_py(self):
