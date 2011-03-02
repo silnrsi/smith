@@ -15,6 +15,6 @@ def configure(conf):
 	conf.load('excl', tooldir='.')
 
 def build(bld):
-	for i in range(10):
+	for i in range(20):
 		bld.program(source='main.c', target='app_%d' % i)
 
