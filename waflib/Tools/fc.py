@@ -153,6 +153,7 @@ class fcprogram(ccroot.link_task):
 	color = 'YELLOW'
 	run_str = '${FC} ${FCLNK_SRC_F}${SRC} ${FCLNK_TGT_F}${TGT} ${FCSTLIB_MARKER} ${FCSTLIBPATH_ST:STLIBPATH} ${FCSTLIB_ST:STLIB} ${FCSHLIB_MARKER} ${FCLIBPATH_ST:LIBPATH} ${FCLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
+	chmod   = Utils.O755
 
 class fcshlib(fcprogram):
 	"""Link fortran libraries"""
