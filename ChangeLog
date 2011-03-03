@@ -2,6 +2,7 @@ NEW IN WAF 1.6.4
 ----------------
 * Fixed the Python detection on win32 #883
 * Optimized the Python file installation #892
+* Force +x permissions on installed fortran programs #893
 
 NEW IN WAF 1.6.3
 ----------------
