@@ -104,7 +104,8 @@ def gxx_modifier_darwin(conf):
 	v['LINKFLAGS_cxxshlib']  = ['-dynamiclib']
 	v['cxxshlib_PATTERN']    = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST']    = '-F%s'
-	v['FRAMEWORK_ST'] = '-framework %s'
+	v['FRAMEWORK_ST']        = ['-framework']
+	v['ARCH_ST']             = ['-arch']
 
 	v['LINKFLAGS_cxxstlib']  = []
 

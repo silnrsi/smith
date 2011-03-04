@@ -6,7 +6,7 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import c_preproc
-from waflib.Tools.ccroot import compile_task, link_task, stlink_task
+from waflib.Tools.ccroot import link_task, stlink_task
 
 def cxx_hook(self, node):
 	"Bind the c++ file extensions to the creation of a :py:class:`waflib.Tools.cxx.cxx` instance"
@@ -16,16 +16,16 @@ TaskGen.extension('.cpp','.cc','.cxx','.C','.c++')(cxx_hook) # leave like this f
 if not '.c' in TaskGen.task_gen.mappings:
 	TaskGen.task_gen.mappings['.c'] = TaskGen.task_gen.mappings['.cpp']
 
-class cxx(compile_task):
+class cxx(Task.Task):
 	"Compile C++ files into object files"
-	run_str = '${CXX} ${tsk.arches()} ${CXXFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
+	run_str = '${CXX} ${ARCH_ST:ARCH} ${CXXFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CXX_SRC_F}${SRC} ${CXX_TGT_F}${TGT}'
 	vars    = ['CXXDEPS'] # unused variable to depend on, just in case
 	ext_in  = ['.h'] # set the build order easily by using ext_out=['.h']
 	scan    = c_preproc.scan
 
 class cxxprogram(link_task):
 	"Link object files into a c++ program"
-	run_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${tsk.frameworks()} ${tsk.arches()} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
+	run_str = '${LINK_CXX} ${CXXLNK_SRC_F}${SRC} ${CXXLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${FRAMEWORK_ST:FRAMEWORK} ${ARCH_ST:ARCH} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	ext_out = ['.bin']
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755

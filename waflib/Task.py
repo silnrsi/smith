@@ -313,6 +313,7 @@ class TaskBase(evil):
 		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
+		# we could use self.position[0], but the threading can make the reading unreliable
 		return fs % (len(self.generator.bld.returned_tasks), self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
@@ -357,6 +358,25 @@ class TaskBase(evil):
 			return ' -> missing files: %r\n%r' % (self, msg)
 		else:
 			return '?'
+
+	def colon(self, var1, var2):
+		"""
+		private function for the moment
+
+		used for scriptlet expressions such as ${FOO_ST:FOO}, for example, if
+		env.FOO_ST = ['-a', '-b']
+		env.FOO    = ['1', '2']
+		then the result will be ['-a', '-b', '1', '-a', '-b', '2']
+		"""
+		tmp = self.env[var1]
+		if isinstance(tmp, str):
+			return [tmp % x for x in self.env[var2]]
+		else:
+			lst = []
+			for y in self.env[var2]:
+				lst.extend(tmp)
+				lst.append(y)
+			return lst
 
 class Task(TaskBase):
 	"""
@@ -972,7 +992,7 @@ def compile_fun_shell(line):
 			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.outputs])')
 		elif meth:
 			if meth.startswith(':'):
-				app('" ".join([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+				app('" ".join(tsk.colon(%r, %r))' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
 				app('%s%s' % (var, meth))
@@ -1019,7 +1039,7 @@ def compile_fun_noshell(line):
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
 		elif meth:
 			if meth.startswith(':'):
-				app('lst.extend([env[%r] %% x for x in env[%r]])' % (var, meth[1:]))
+				app('lst.extend(tsk.colon(%r, %r))' % (var, meth[1:]))
 				dvars.extend([var, meth[1:]])
 			else:
 				app('lst.extend(gen.to_list(%s%s))' % (var, meth))
@@ -1030,7 +1050,6 @@ def compile_fun_noshell(line):
 	if extr:
 		if params[-1]:
 			app("lst.extend(%r)" % params[-1].split())
-
 	fun = COMPILE_TEMPLATE_NOSHELL % "\n\t".join(buf)
 	Logs.debug('action: %s' % fun)
 	return (funex(fun), dvars)

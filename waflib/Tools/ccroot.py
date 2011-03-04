@@ -23,8 +23,8 @@ USELIB_VARS['c']   = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CPPFLAGS', 'C
 USELIB_VARS['cxx'] = set(['INCLUDES', 'FRAMEWORKPATH', 'DEFINES', 'CPPFLAGS', 'CXXDEPS', 'CXXFLAGS', 'ARCH'])
 USELIB_VARS['d']   = set(['INCLUDES', 'DFLAGS'])
 
-USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH'])
-USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH'])
+USELIB_VARS['cprogram'] = USELIB_VARS['cxxprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'ARCH'])
+USELIB_VARS['cshlib']   = USELIB_VARS['cxxshlib']   = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS', 'FRAMEWORK', 'FRAMEWORKPATH', 'ARCH'])
 USELIB_VARS['cstlib']   = USELIB_VARS['cxxstlib']   = set(['ARFLAGS', 'LINKDEPS'])
 
 USELIB_VARS['dprogram'] = set(['LIB', 'STLIB', 'LIBPATH', 'STLIBPATH', 'LINKFLAGS', 'RPATH', 'LINKDEPS'])
@@ -118,20 +118,6 @@ def apply_incpaths(self):
 	self.includes_nodes = lst
 	self.env['INCPATHS'] = [x.abspath() for x in lst]
 
-class compile_task(Task.Task):
-    """
-    Base class for all compile tasks.
-    """
-
-	color   = 'GREEN'
-
-	def arches(self):
-		"""As with frameworks(), but for the -arch flag."""
-		lst = []
-		for x in self.env.ARCH:
-			lst.extend((self.env.ARCH_ST % x).split())
-		return lst
-
 class link_task(Task.Task):
 	"""
 	Base class for all link tasks. A task generator is supposed to have at most one link task bound in the attribute *link_task*. See :py:func:`waflib.Tools.ccroot.apply_link`.
@@ -166,26 +152,6 @@ class link_task(Task.Task):
 			tmp = folder + os.sep + pattern % name
 			target = self.generator.path.find_or_declare(tmp)
 		self.set_outputs(target)
-
-	def frameworks(self):
-		"""
-		Apple compilers love binary options, so the framework flags must be split. To illustrate the problem::
-
-			def build(bld):
-				bld.env.append_value('LINKFLAGS', '-framework foo') # no
-				bld.env.append_value('LINKFLAGS', ['-framework', 'foo']) # yes
-		"""
-		lst = []
-		for x in self.env.FRAMEWORK:
-			lst.extend((self.env.FRAMEWORK_ST % x).split())
-		return lst
-
-	def arches(self):
-		"""As with frameworks(), but for the -arch flag."""
-		lst = []
-		for x in self.env.ARCH:
-			lst.extend((self.env.ARCH_ST % x).split())
-		return lst
 
 class stlink_task(link_task):
 	"""
