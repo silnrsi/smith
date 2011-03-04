@@ -6,17 +6,16 @@
 
 from waflib import TaskGen, Task, Utils
 from waflib.Tools import c_preproc
-from waflib.Tools.ccroot import link_task, stlink_task
+from waflib.Tools.ccroot import compile_task, link_task, stlink_task
 
 @TaskGen.extension('.c')
 def c_hook(self, node):
 	"Bind the c file extension to the creation of a :py:class:`waflib.Tools.c.c` instance"
 	return self.create_compiled_task('c', node)
 
-class c(Task.Task):
+class c(compile_task):
 	"Compile C files into object files"
-	color   = 'GREEN'
-	run_str = '${CC} ${CFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+	run_str = '${CC} ${tsk.arches()} ${CFLAGS} ${CPPFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
 	vars    = ['CCDEPS'] # unused variable to depend on, just in case
 	ext_in  = ['.h'] # set the build order easily by using ext_out=['.h']
 	scan    = c_preproc.scan
@@ -25,7 +24,7 @@ Task.classes['cc'] = cc = c # compat, remove in waf 1.7
 
 class cprogram(link_task):
 	"Link object files into a c program"
-	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${tsk.frameworks()} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
+	run_str = '${LINK_CC} ${CCLNK_SRC_F}${SRC} ${CCLNK_TGT_F}${TGT[0].abspath()} ${RPATH_ST:RPATH} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${tsk.frameworks()} ${tsk.arches()} ${STLIB_MARKER} ${STLIBPATH_ST:STLIBPATH} ${STLIB_ST:STLIB} ${SHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${LIB_ST:LIB} ${LINKFLAGS}'
 	ext_out = ['.bin']
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755

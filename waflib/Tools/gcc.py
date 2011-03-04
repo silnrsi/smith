@@ -105,6 +105,7 @@ def gcc_modifier_darwin(conf):
 	v['cshlib_PATTERN']      = 'lib%s.dylib'
 	v['FRAMEWORKPATH_ST']    = '-F%s'
 	v['FRAMEWORK_ST']        = '-framework %s'
+	v['ARCH_ST']             = '-arch %s'
 
 	v['LINKFLAGS_cstlib']    = []
 
