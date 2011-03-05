@@ -461,19 +461,22 @@ The variables used for C/C++ are the following:
 |=================
 |Uselib variable | Attribute | Usage
 |LIB      |lib      | list of sharedlibrary names to use, without prefix or extension
+|LIBPATH  |libpath  | list of search path for shared libraries
 |STLIB    |stlib    | list of static library names to use, without prefix or extension
-|LIBPATH  |libpath  | list of search path for shared and static libraries
+|STLIBPATH|stlibpath| list of search path for static libraries
+|LINKFLAGS|linkflags| list of link flags (use other variables whenever possible)
 |RPATH    |rpath    | list of paths to hard-code into the binary during linking time
-|CXXFLAGS |cxxflags | flags to use for c++ files
-|CFLAGS   |cflags   | flags to use for c files
-|DFLAGS   |dflags   | flags to use for d files
+|CFLAGS   |cflags   | list of compilation flags for c files
+|CXXFLAGS |cxxflags | list of compilation flags for c++ files
+|DFLAGS   |dflags   | list of compilation flags for d files
 |INCLUDES |includes | include paths
-|CXXDEPS  |         | a variable to trigger c++ file recompilations when it changes
+|CXXDEPS  |         | a variable/list to trigger c++ file recompilations when it changes
 |CCDEPS   |         | same as above, for c
 |LINKDEPS |         | same as above, for the link tasks
 |DEFINES  |defines  | list of defines in the form [`key=value', ...]
 |FRAMEWORK|framework| list of frameworks to use
 |FRAMEWORKPATH|frameworkpath| list of framework paths to use
+|ARCH     |arch     | list of architectures in the form ['ppc', 'x86']
 |=================
 
 The variables may be left empty for later use, and will not cause errors. During the development, the configuration cache files (for example, _cache.py) may be modified from a text editor to try different configurations without forcing a whole project reconfiguration. The files affected will be rebuilt however.
