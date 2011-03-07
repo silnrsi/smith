@@ -57,6 +57,23 @@ def check_fortran(self, *k, **kw):
 		features         = 'fc fcprogram',
 		msg              = 'Compiling a simple fortran app')
 
+@conf
+def check_fc(self, *k, **kw):
+	"""
+	Same as :py:func:`waflib.Tools.c_config.check` but default to the *Fortran* programming language
+	(Overriding the C defaults in :py:func:`waflib.Tools.c_config.validate_c` here)
+	"""
+	kw['compiler'] = 'fc'
+	if not 'compile_mode' in kw:
+		kw['compile_mode'] = 'fc'
+	if not 'type' in kw:
+		kw['type'] = 'fcprogram'
+	if not 'compile_filename' in kw:
+		kw['compile_filename'] = 'test.f90'
+	if not 'code' in kw:
+		kw['code'] = FC_FRAGMENT
+	return self.check(*k, **kw)
+
 # ------------------------------------------------------------------------
 # --- These are the default platform modifiers, refactored here for
 #     convenience.  gfortran and g95 have much overlap.
