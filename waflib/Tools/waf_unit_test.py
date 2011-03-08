@@ -50,7 +50,7 @@ class utest(Task.Task):
 	Execute a unit test
 	"""
 	color = 'PINK'
-	after = ['vnum']
+	after = ['vnum', 'inst']
 	vars = []
 	def runnable_status(self):
 		"""
