@@ -21,4 +21,6 @@ def build(bld):
 	#    import waflib.Tools.cxx as cxx
 	#    tg.mappings['.c'] = cxx.cxx_hook
 
+	# re-use the files for other targets:
+	# bld(features='c cshlib', source='calc.tab.c calc.lex.c', use='CALC', target='hmm')
 
