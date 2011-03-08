@@ -4,6 +4,7 @@ NEW IN WAF 1.6.4
 * Optimized the Python file installation #892
 * Force +x permissions on installed fortran programs #893
 * Ensure that unit tests are executed only after the symlinks are created
+* Check for tasks creating the same nodes on waf -v
 
 NEW IN WAF 1.6.3
 ----------------
