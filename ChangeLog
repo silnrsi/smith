@@ -5,6 +5,7 @@ NEW IN WAF 1.6.4
 * Force +x permissions on installed fortran programs #893
 * Ensure that unit tests are executed only after the symlinks are created
 * Check for tasks creating the same nodes on waf -v
+* Fix the precedence constraints for classes ending in _task #896
 
 NEW IN WAF 1.6.3
 ----------------
