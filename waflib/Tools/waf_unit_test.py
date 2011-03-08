@@ -51,7 +51,7 @@ class utest(Task.Task):
 	"""
 	color = 'PINK'
 	ext_in = ['.bin']
-	after = ['vnum_task']
+	after = ['vnum']
 	vars = []
 	def runnable_status(self):
 		"""
