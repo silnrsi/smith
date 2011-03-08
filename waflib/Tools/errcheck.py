@@ -24,6 +24,44 @@ meths_typos = ['__call__', 'program', 'shlib', 'stlib', 'objects']
 from waflib import Logs, Build, Node, Task, TaskGen, ConfigSet, Errors, Utils
 import waflib.Tools.ccroot
 
+def check_same_targets(self):
+	mp = Utils.defaultdict(list)
+	for g in self.groups:
+		for tg in g:
+			try:
+				for tsk in tg.tasks:
+					for node in tsk.outputs:
+						mp[node].append(tsk)
+			except AttributeError:
+				# raised if not a task generator, which should be uncommon
+				pass
+	for (k, v) in mp.items():
+		if len(v) > 1:
+			Logs.error('* Node %r is created by more than one task. The task generators are:' % k)
+			for x in v:
+				Logs.error('  %d. %r' % (1 + v.index(x), x.generator))
+
+def check_invalid_constraints(self):
+	feat = set([])
+	for x in list(TaskGen.feats.values()):
+		feat.union(set(x))
+	for (x, y) in TaskGen.task_gen.prec.items():
+		feat.add(x)
+		feat.union(set(y))
+	ext = set([])
+	for x in TaskGen.task_gen.mappings.values():
+		ext.add(x.__name__)
+	invalid = ext & feat
+	if invalid:
+		Logs.error('The methods %r have invalid annotations:  @extension <-> @feature/@before_method/@after_method' % list(invalid))
+
+	# the build scripts have been read, so we can check for invalid after/before attributes on task classes
+	for cls in list(Task.classes.values()):
+		for x in ('before', 'after'):
+			for y in Utils.to_list(getattr(cls, x, [])):
+				if not Task.classes.get(y, None):
+					Logs.error('Erroneous order constraint %r=%r on task class %r' % (x, y, cls.__name__))
+
 def replace(m):
 	"""
 	We could add properties, but they would not work in some cases:
@@ -92,27 +130,10 @@ def enhance_lib():
 	# check for @extension used with @feature/@before_method/@after_method
 	old_compile = Build.BuildContext.compile
 	def check_compile(self):
-		feat = set([])
-		for x in list(TaskGen.feats.values()):
-			feat.union(set(x))
-		for (x, y) in TaskGen.task_gen.prec.items():
-			feat.add(x)
-			feat.union(set(y))
-		ext = set([])
-		for x in TaskGen.task_gen.mappings.values():
-			ext.add(x.__name__)
-		invalid = ext & feat
-		if invalid:
-			Logs.error('The methods %r have invalid annotations:  @extension <-> @feature/@before_method/@after_method' % list(invalid))
-
-		# the build scripts have been read, so we can check for invalid after/before attributes on task classes
-		for cls in list(Task.classes.values()):
-			for x in ('before', 'after'):
-				for y in Utils.to_list(getattr(cls, x, [])):
-					if not Task.classes.get(y, None):
-						Logs.error('Erroneous order constraint %r=%r on task class %r' % (x, y, cls.__name__))
-
-		return old_compile(self)
+		check_invalid_constraints(self)
+		ret = old_compile(self)
+		check_same_targets(self)
+		return ret
 	Build.BuildContext.compile = check_compile
 
 	# check for env.append
