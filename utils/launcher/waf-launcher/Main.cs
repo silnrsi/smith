@@ -66,13 +66,18 @@ namespace waflauncher
 		}
 
 		public static bool runWaf(string[] args){
-			Process p = exec("python",getwafDir() + "waf",String.Join(" ",args));
+			Process p = exec("python", getwafDir() + "waf", String.Join(" ",args));
 			//If command could be execeuted return true
-			if(p!=null) return true;
+			if (p != null) return true;
 			//If not try with the direct path to the default installation which is where installPython() will install it to
 			//This is done since the %PATH% variable might not be setup to include python
-			p = exec(@"C:\Python27\python.exe","waf",String.Join(" ",args));
-			return p != null;
+
+			List<String> versions = new List<String>() { "27", "32", "26", "31", "25", "30" };
+			foreach (String v in versions) {
+				p = exec("C:\\Python"+v+"\\python.exe", "waf", String.Join(" ",args));
+				if (p != null) return true;
+			}
+			return false;
 		}
 
 		public static void installPython(){
