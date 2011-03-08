@@ -796,7 +796,7 @@ class inst(Task.Task):
 				if not y:
 					idx = self.generator.bld.get_group_idx(self)
 					for tg in self.generator.bld.groups[idx]:
-						if not isinstance(tg, inst_task) and id(tg) != id(self):
+						if not isinstance(tg, inst) and id(tg) != id(self):
 							tg.post()
 						y = self.path.find_resource(x)
 						if y:
@@ -810,7 +810,7 @@ class inst(Task.Task):
 		"""
 		Installation tasks are always executed, so this method returns either :py:const:`waflib.Task.ASK_LATER` or :py:const:`waflib.Task.RUN_ME`.
 		"""
-		ret = super(inst_task, self).runnable_status()
+		ret = super(inst, self).runnable_status()
 		if ret == Task.SKIP_ME:
 			return Task.RUN_ME
 		return ret
@@ -993,7 +993,7 @@ class InstallContext(BuildContext):
 		:param postpone: execute the task immediately to perform the installation
 		:type postpone: bool
 		"""
-		tsk = inst_task(env=env or self.env)
+		tsk = inst(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
@@ -1028,7 +1028,7 @@ class InstallContext(BuildContext):
 		:param postpone: execute the task immediately to perform the installation
 		:type postpone: bool
 		"""
-		tsk = inst_task(env=env or self.env)
+		tsk = inst(env=env or self.env)
 		tsk.bld = self
 		tsk.path = cwd or self.path
 		tsk.chmod = chmod
@@ -1062,7 +1062,7 @@ class InstallContext(BuildContext):
 			# symlinks *cannot* work on that platform
 			return
 
-		tsk = inst_task(env=env or self.env)
+		tsk = inst(env=env or self.env)
 		tsk.bld = self
 		tsk.dest = dest
 		tsk.path = cwd or self.path
