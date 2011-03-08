@@ -43,7 +43,6 @@ testlock = Utils.threading.Lock()
 def make_test(self):
 	"""Create the unit test task. There can be only one unit test task by task generator."""
 	if getattr(self, 'link_task', None):
-		self.default_install_path = None
 		self.create_task('utest', self.link_task.outputs)
 
 class utest(Task.Task):
@@ -52,6 +51,7 @@ class utest(Task.Task):
 	"""
 	color = 'PINK'
 	ext_in = ['.bin']
+	after = ['vnum']
 	vars = []
 	def runnable_status(self):
 		"""
