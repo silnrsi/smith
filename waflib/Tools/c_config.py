@@ -615,7 +615,7 @@ def check(self, *k, **kw):
 		self.fatal('The configuration failed %r' % ret)
 	return ret
 
-class test_exec_task(Task.Task):
+class test_exec(Task.Task):
 	"""
 	A task for executing a programs after they are built. See :py:func:`waflib.Tools.c_config.test_exec_fun`.
 	"""

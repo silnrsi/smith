@@ -13,7 +13,7 @@ from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Err
 from waflib.TaskGen import extension, after_method, before_method
 from waflib.Configure import conf
 
-class valac_task(Task.Task):
+class valac(Task.Task):
 	"""
 	Task to compile vala files.
 	"""

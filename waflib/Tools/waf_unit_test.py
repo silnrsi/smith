@@ -50,7 +50,6 @@ class utest(Task.Task):
 	Execute a unit test
 	"""
 	color = 'PINK'
-	ext_in = ['.bin']
 	after = ['vnum']
 	vars = []
 	def runnable_status(self):

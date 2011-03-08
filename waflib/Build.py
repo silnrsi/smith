@@ -776,7 +776,7 @@ class BuildContext(Context.Context):
 	#	"""
 	#	return
 
-class inst_task(Task.Task):
+class inst(Task.Task):
 	"""
     Special task used for installing files and symlinks, it behaves both like a task
 	and like a task generator
