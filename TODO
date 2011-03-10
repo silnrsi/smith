@@ -4,7 +4,7 @@ Waf 1.6.x
 GENERAL IMPROVEMENTS
 
 - special projects using no lock file on the top directory
-- 
+- osx applications
 
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - python 2.3 fixes for msvc.py and fc.py: sort(key=fun)

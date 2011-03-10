@@ -204,10 +204,10 @@ class ConfigurationContext(Context.Context):
 		self.msg('Setting out to', self.bldnode.abspath())
 
 		if id(self.srcnode) == id(self.bldnode):
-			Logs.warn('setting top == out')
+			Logs.warn('Setting top == out (remember to use "update_outputs")')
 		elif id(self.path) != id(self.srcnode):
 			if self.srcnode.is_child_of(self.path):
-				Logs.warn('Using an uncommon top directory')
+				Logs.warn('Are you certain that you do not want to set top="." ?')
 
 		super(ConfigurationContext, self).execute()
 
