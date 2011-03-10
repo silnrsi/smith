@@ -34,6 +34,11 @@ Compilers supported:
 * icl        => Intel compiler, versions 9,10,11
 * Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
 * PocketPC   => Compiler/SDK for PocketPC devices (armv4/v4i)
+
+To use WAF in a VS2008 Make file project (see http://code.google.com/p/waf/issues/detail?id=894)
+You may consider to set the environment variable "VS_UNICODE_OUTPUT" to nothing before calling waf.
+So in your project settings use something like 'cmd.exe /C "set VS_UNICODE_OUTPUT=& set PYTHONUNBUFFERED=true & waf build"'.
+Setting PYTHONUNBUFFERED gives the unbuffered output.
 """
 
 import os, sys, re, tempfile
