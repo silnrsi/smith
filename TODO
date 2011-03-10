@@ -3,13 +3,15 @@ Waf 1.6.x
 
 GENERAL IMPROVEMENTS
 
+- special projects using no lock file on the top directory
+- 
+
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
 - synchronized stdout+stderr for all commands by default
 
 LOW PRIORITY (contributions will be welcome)
 
-+ rewrite the boost detection (boost.py)
 + IDE file generator (msvc, codeblocks)?
 + CMake file interpreter?
 
