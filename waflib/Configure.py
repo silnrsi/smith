@@ -511,7 +511,7 @@ def find_program(self, filename, **kw):
 				for c in path_list:
 					if ret:
 						break
-					x = os.path.join(c, b + a)
+					x = os.path.expanduser(os.path.join(c, b + a))
 					if os.path.isfile(x):
 						ret = x
 
