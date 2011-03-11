@@ -385,7 +385,7 @@ def configure(self):
 	if qtbin:
 		paths = [qtbin]
 
-	# the qt directory has been given - we deduce the qt binary path
+	# the qt directory has been given from QT4_ROOT - deduce the qt binary path
 	if not qtdir:
 		qtdir = self.environ.get('QT4_ROOT', '')
 		qtbin = os.path.join(qtdir, 'bin')
