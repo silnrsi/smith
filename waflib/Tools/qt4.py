@@ -381,14 +381,15 @@ def configure(self):
 
 	paths = []
 
-	# the path to qmake has been given explicitely
-	if qtbin:
-		paths = [qtbin]
+	if qtdir:
+		qtbin = os.path.join(qtdir, 'bin')
 
 	# the qt directory has been given from QT4_ROOT - deduce the qt binary path
 	if not qtdir:
 		qtdir = self.environ.get('QT4_ROOT', '')
 		qtbin = os.path.join(qtdir, 'bin')
+
+	if qtbin:
 		paths = [qtbin]
 
 	# no qtdir, look in the path and in /usr/local/Trolltech
@@ -396,7 +397,7 @@ def configure(self):
 		paths = os.environ.get('PATH', '').split(os.pathsep)
 		paths.append('/usr/share/qt4/bin/')
 		try:
-			lst = os.listdir('/usr/local/Trolltech/')
+			lst = Utils.listdir('/usr/local/Trolltech/')
 		except OSError:
 			pass
 		else:
