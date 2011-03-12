@@ -233,9 +233,12 @@ class ConfigurationContext(Context.Context):
 		env['files'] = self.files
 		env['environ'] = dict(self.environ)
 
-		env.store(Context.run_dir + os.sep + Options.lockfile)
-		env.store(Context.top_dir + os.sep + Options.lockfile)
-		env.store(Context.out_dir + os.sep + Options.lockfile)
+		if not conf.env.NO_LOCK_IN_RUN:
+			env.store(Context.run_dir + os.sep + Options.lockfile)
+		if not conf.env.NO_LOCK_IN_TOP:
+			env.store(Context.top_dir + os.sep + Options.lockfile)
+		if not conf.env.NO_LOCK_IN_OUT:
+			env.store(Context.out_dir + os.sep + Options.lockfile)
 
 	def prepare_env(self, env):
 		"""
