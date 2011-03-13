@@ -16,8 +16,7 @@ def options(opt):
 	opt.load('gnu_dirs')
 
 def configure(conf):
-	#conf.load('akakak')
-	conf.load('relocation why')
+	#conf.load('relocation why')
 	conf.load('compiler_c')
 	#conf.load('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')

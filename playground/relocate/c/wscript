@@ -4,7 +4,7 @@ def options(opt):
 	opt.load('compiler_c')
 
 def configure(conf):
-	conf.load('compiler_c')
+	conf.load('relocation compiler_c')
 
 def build(bld):
 	bld.shlib(source='a.c', target='one')
