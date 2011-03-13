@@ -3,9 +3,9 @@ Waf 1.6.x
 
 GENERAL IMPROVEMENTS
 
-- easy project relocation (change the top directory in the pickle file)
 - put the targets in the build directory even though they seem to be in the source directory
 - osx applications
+- investigate the deadlock on jython with -j>1
 
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
 - python 2.3 fixes for msvc.py and fc.py: sort(key=fun)

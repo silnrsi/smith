@@ -8,7 +8,7 @@ bld.shlib(
 
 
 t = bld.program(
-	features = 'my_precious',
+	#features = 'my_precious',
 	source = 'main.c',
 	target = 'test_shared_link',
 	use    = 'my_shared_lib',

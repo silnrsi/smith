@@ -9,7 +9,7 @@ APPNAME='cc_test'
 top = '.'
 
 import waflib.Configure
-waflib.Configure.autoconfig = True
+#waflib.Configure.autoconfig = True
 
 def options(opt):
 	opt.load('compiler_c')
@@ -17,6 +17,7 @@ def options(opt):
 
 def configure(conf):
 	#conf.load('akakak')
+	conf.load('relocation why')
 	conf.load('compiler_c')
 	#conf.load('gnu_dirs')
 	#conf.check_cfg(package='cppunit', uselib_store='UNIT', args='--cflags --libs')
