@@ -254,7 +254,7 @@ def use_rec(self, name, **kw):
 				self.link_task.dep_nodes.extend(y.link_task.outputs)
 
 				# add the link path too
-				tmp_path = y.link_task.outputs[0].parent.abspath()
+				tmp_path = y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
 				if not tmp_path in self.env[var + 'PATH']:
 					self.env.prepend_value(var + 'PATH', [tmp_path])
 
@@ -375,7 +375,7 @@ def apply_implib(self):
 		if not node:
 			raise Errors.WafError('invalid def file %r' % self.defs)
 		if 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
-			self.env.append_value('LINKFLAGS', '/def:%s' % node.abspath())
+			self.env.append_value('LINKFLAGS', '/def:%s' % node.path_from(self.bld.bldnode))
 			self.link_task.dep_nodes.append(node)
 		else:
 			#gcc for windows takes *.def file a an input without any special flag
