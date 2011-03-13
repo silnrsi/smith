@@ -6,6 +6,7 @@ NEW IN WAF 1.6.4
 * Ensure that unit tests are executed only after the symlinks are created
 * Check for tasks creating the same nodes on waf -v
 * Fix the precedence constraints for classes ending in _task #896
+* New variables conf.env.NO_LOCK_IN_TOP/OUT/RUN for special projects (top='..')
 
 NEW IN WAF 1.6.3
 ----------------

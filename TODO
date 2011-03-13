@@ -3,7 +3,8 @@ Waf 1.6.x
 
 GENERAL IMPROVEMENTS
 
-- special projects using no lock file on the top directory
+- easy project relocation (change the top directory in the pickle file)
+- put the targets in the build directory even though they seem to be in the source directory
 - osx applications
 
 - better apis for shell compilation in Task.py + consistency with Utils.subst_vars
