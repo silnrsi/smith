@@ -15,6 +15,7 @@ files in that directory will change, causing a partial build.
 
 import os
 from waflib import Build, ConfigSet, Task, Utils
+from waflib.TaskGen import feature, before_method, after_method
 
 EXTRA_LOCK = '.old_srcdir'
 
@@ -71,5 +72,13 @@ def uid(self):
 		self.uid_ = m.digest()
 		return self.uid_
 Task.Task.uid = uid
+
+@feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
+@after_method('propagate_uselib_vars', 'process_source')
+def apply_incpaths(self):
+	lst = self.to_incnodes(self.to_list(getattr(self, 'includes', [])) + self.env['INCLUDES'])
+	self.includes_nodes = lst
+	bld = self.bld
+	self.env['INCPATHS'] = [x.is_child_of(bld.srcnode) and x.path_from(bld.srcnode) or x.abspath() for x in lst]
 
 
