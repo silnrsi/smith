@@ -3,7 +3,6 @@ Waf 1.6.x
 
 GENERAL IMPROVEMENTS
 
-- put the targets in the build directory even though they seem to be in the source directory
 - osx applications
 - investigate the deadlock on jython with -j>1
 
@@ -15,5 +14,4 @@ LOW PRIORITY (contributions will be welcome)
 
 + IDE file generator (msvc, codeblocks)?
 + CMake file interpreter?
-
 
