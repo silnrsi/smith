@@ -271,7 +271,7 @@ def build(bld):
 	bld.install_as('${PREFIX}/dir/bar.png', 'foo.png') <2>
 	bld.symlink_as('${PREFIX}/lib/libfoo.so.1', 'libfoo.so.1.2.3') <3>
 
-	env_foo = bld.env.copy()
+	env_foo = bld.env.derive()
 	env_foo.PREFIX = '/opt'
 	bld.install_as('${PREFIX}/dir/test.png', 'foo.png', env=env_foo) <4>
 
