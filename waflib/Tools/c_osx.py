@@ -49,15 +49,10 @@ def create_bundle_dirs(self, name, out):
 	Create bundle folders, used by :py:func:`create_task_macplist` and :py:func:`create_task_macapp`
 	"""
 	bld = self.bld
-	dir = out.parent.get_dir(name)
-
-	if not dir:
-		dir = out.__class__(name, out.parent, 1)
-		bld.rescan(dir)
-		contents = out.__class__('Contents', dir, 1)
-		bld.rescan(contents)
-		macos = out.__class__('MacOS', contents, 1)
-		bld.rescan(macos)
+	dir = out.parent.find_or_declare(name)
+	dir.mkdir()
+	macos = dir.find_or_declare(['Contents', 'MacOS'])
+	macos.mkdir()
 	return dir
 
 def bundle_name_for_output(out):
@@ -106,14 +101,13 @@ def create_task_macplist(self):
 	Create a :py:class:`waflib.Tools.c_osx.macplist` instance.
 	"""
 	if  self.env['MACAPP'] or getattr(self, 'mac_app', False):
+		out = self.link_task.outputs[0]
+		plisttask = self.create_task('macplist', self.link_task.outputs)
+
 		# check if the user specified a plist before using our template
 		if not getattr(self, 'mac_plist', False):
 			self.mac_plist = app_info
-
-		plisttask = self.create_task('macplist', self.link_task.outputs)
-
-		out = self.link_task.outputs[0]
-		self.mac_plist = self.mac_plist % (out.name)
+			self.mac_plist = self.mac_plist % (out.name)
 
 		name = bundle_name_for_output(out)
 		dir = self.create_bundle_dirs(name, out)
