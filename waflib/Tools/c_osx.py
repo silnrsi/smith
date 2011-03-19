@@ -94,6 +94,10 @@ def create_task_macapp(self):
 		apptask.install_path = os.path.join(self.install_path, name, 'Contents', 'MacOS')
 		self.apptask = apptask
 
+	if getattr(self, 'mac_resources', None):
+		res_dir = n1.parent.parent.find_dir('Resources')
+		pass
+
 @feature('cprogram', 'cxxprogram')
 @after_method('apply_link')
 def create_task_macplist(self):
@@ -102,22 +106,23 @@ def create_task_macplist(self):
 	"""
 	if  self.env['MACAPP'] or getattr(self, 'mac_app', False):
 		out = self.link_task.outputs[0]
-		plisttask = self.create_task('macplist', self.link_task.outputs)
-
-		# check if the user specified a plist before using our template
-		if not getattr(self, 'mac_plist', False):
-			self.mac_plist = app_info
-			self.mac_plist = self.mac_plist % (out.name)
 
 		name = bundle_name_for_output(out)
+
 		dir = self.create_bundle_dirs(name, out)
-
 		n1 = dir.find_or_declare(['Contents', 'Info.plist'])
+		self.plisttask = plisttask = self.create_task('macplist', self.link_task.outputs, n1)
 
-		plisttask.set_outputs([n1])
-		plisttask.mac_plist = self.mac_plist
+		if getattr(self, 'mac_plist', False):
+			node = self.path.find_resource(self.mac_plist)
+			if node:
+				plisttask.inputs.append(node)
+			else:
+				plisttask.code = self.mac_plist
+		else:
+			plisttask.code = app_info % self.link_task.outputs[0].name
+
 		plisttask.install_path = os.path.join(self.install_path, name, 'Contents')
-		self.plisttask = plisttask
 
 @feature('cshlib', 'cxxshlib')
 @before_method('apply_link', 'propagate_uselib_vars')
@@ -158,5 +163,9 @@ class macplist(Task.Task):
 	color = 'PINK'
 	ext_in = ['.bin']
 	def run(self):
-		self.outputs[0].write(self.mac_plist)
+		if getattr(self, 'code', None):
+			txt = code
+		else:
+			txt = self.inputs[0].read()
+		self.outputs[0].write(txt)
 
