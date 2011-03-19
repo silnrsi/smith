@@ -22,7 +22,7 @@ def build(bld):
 		source        = 'main.m',
 		mac_app       = True,
 		mac_plist     = 'Info.plist',
-		mac_resources = 'MainMenu.nib MacApp.icns',
+		mac_resources = 'MainMenu.nib/designable.nib MainMenu.nib/keyedobjects.nib MacApp.icns',
 		use           = 'COCOA',
 		install_path  = '${PREFIX}',
 	)
@@ -30,7 +30,7 @@ def build(bld):
 from waflib import TaskGen
 @TaskGen.extension('.m')
 def m_hook(self, node):
-	"""Alias .m files to be compiled the same as .c files.  gcc will do the right thing."""
+	"""Alias .m files to be compiled the same as .c files, gcc will do the right thing."""
 	return self.create_compiled_task('c', node)
 
 # -*- indent-tabs-mode: t -*-
