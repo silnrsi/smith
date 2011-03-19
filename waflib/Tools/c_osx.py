@@ -7,7 +7,7 @@ MacOSX related tools
 """
 
 import os, shutil, sys, platform
-from waflib import TaskGen, Task, Build, Options, Utils
+from waflib import TaskGen, Task, Build, Options, Utils, Errors
 from waflib.TaskGen import taskgen_method, feature, after_method, before_method
 
 app_info = '''
@@ -80,8 +80,6 @@ def create_task_macapp(self):
 			bld.shlib(source='a.c', target='foo')
 	"""
 	if self.env['MACAPP'] or getattr(self, 'mac_app', False):
-		apptask = self.create_task('macapp', self.link_task.outputs)
-
 		out = self.link_task.outputs[0]
 
 		name = bundle_name_for_output(out)
@@ -89,14 +87,20 @@ def create_task_macapp(self):
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
 
-		apptask.set_outputs([n1])
+		apptask = self.create_task('macapp', self.link_task.outputs, n1)
 		apptask.chmod = Utils.O755
 		apptask.install_path = os.path.join(self.install_path, name, 'Contents', 'MacOS')
 		self.apptask = apptask
 
-	if getattr(self, 'mac_resources', None):
-		res_dir = n1.parent.parent.find_dir('Resources')
-		pass
+		if getattr(self, 'mac_resources', None):
+			res_dir = n1.parent.parent.make_node('Resources')
+			for x in self.to_list(self.mac_resources):
+				node = self.path.find_resource(x)
+				if node:
+					rel = node.path_from(self.path)
+					tsk = self.create_task('macapp', node, res_dir.make_node(rel))
+				else:
+					raise Errors.WafError('Missing mac_resource %r in %r' % (x, self))
 
 @feature('cprogram', 'cxxprogram')
 @after_method('apply_link')
@@ -154,6 +158,7 @@ class macapp(Task.Task):
 	"""
 	color = 'PINK'
 	def run(self):
+		self.outputs[0].parent.mkdir()
 		shutil.copy2(self.inputs[0].srcpath(), self.outputs[0].abspath())
 
 class macplist(Task.Task):
