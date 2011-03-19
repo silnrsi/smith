@@ -2,7 +2,6 @@
 # encoding: utf-8
 # Chris Pickel, 2011
 
-# The following two 
 VERSION='0.0.1'
 APPNAME='mac_app_test'
 
@@ -18,13 +17,14 @@ def configure(conf):
 
 def build(bld):
 	bld.program(
-		features='c cprogram',
-		target='MacApp',
-		source='main.m',
-		mac_app=True,
-		mac_plist=open('Info.plist').read(),
-		mac_resources='MainMenu.nib MacApp.icns',  # Not implemented.
-		use='COCOA',
+		features      = 'c cprogram',
+		target        = 'MacApp',
+		source        = 'main.m',
+		mac_app       = True,
+		mac_plist     = 'Info.plist',
+		mac_resources = 'MainMenu.nib MacApp.icns',
+		use           = 'COCOA',
+		install_path  = '${PREFIX}',
 	)
 
 from waflib import TaskGen
