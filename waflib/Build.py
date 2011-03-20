@@ -1247,8 +1247,10 @@ class StepContext(BuildContext):
 				pat = pat.replace('out:', '')
 
 			if not pat.startswith('^'):
-				pat = '.*%s' % pat
-			pat = re.compile(pat, re.M)
+				pat = '^.+?%s' % pat
+			if not pat.endswith('$'):
+				pat = '%s$' % pat
+			pat = re.compile(pat)
 
 			for g in self.groups:
 				for tg in g:
@@ -1268,7 +1270,6 @@ class StepContext(BuildContext):
 								if pat.match(node.abspath()):
 									do_exec = True
 									break
-
 						if do_exec:
 							ret = tsk.run()
 							Logs.info('%s -> %r' % (str(tsk), ret))
