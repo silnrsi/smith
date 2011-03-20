@@ -1246,6 +1246,8 @@ class StepContext(BuildContext):
 				inn = False
 				pat = pat.replace('out:', '')
 
+			if not pat.startswith('^'):
+				pat = '.*%s' % pat
 			pat = re.compile(pat, re.M)
 
 			for g in self.groups:
@@ -1258,12 +1260,12 @@ class StepContext(BuildContext):
 						do_exec = False
 						if inn:
 							for node in getattr(tsk, 'inputs', []):
-								if pat.search(node.abspath()):
+								if pat.match(node.abspath()):
 									do_exec = True
 									break
 						if out and not do_exec:
 							for node in getattr(tsk, 'outputs', []):
-								if pat.search(node.abspath()):
+								if pat.match(node.abspath()):
 									do_exec = True
 									break
 
