@@ -87,20 +87,25 @@ def create_task_macapp(self):
 
 		n1 = dir.find_or_declare(['Contents', 'MacOS', out.name])
 
-		apptask = self.create_task('macapp', self.link_task.outputs, n1)
-		apptask.chmod = Utils.O755
-		apptask.install_path = os.path.join(self.install_path, name, 'Contents', 'MacOS')
-		self.apptask = apptask
+		self.apptask = self.create_task('macapp', self.link_task.outputs, n1)
+		inst_to = getattr(self, 'install_path', '/Applications') + '/%s/Contents/MacOS/' % name
+		self.bld.install_files(inst_to, n1, chmod=Utils.O755)
 
 		if getattr(self, 'mac_resources', None):
 			res_dir = n1.parent.parent.make_node('Resources')
+			inst_to = getattr(self, 'install_path', '/Applications') + '/%s/Resources' % name
 			for x in self.to_list(self.mac_resources):
 				node = self.path.find_resource(x)
 				if node:
 					rel = node.path_from(self.path)
 					tsk = self.create_task('macapp', node, res_dir.make_node(rel))
+					self.bld.install_as(inst_to + '/%s' % rel, node)
 				else:
 					raise Errors.WafError('Missing mac_resource %r in %r' % (x, self))
+
+		if getattr(self.bld, 'is_install', None):
+			# disable the normal binary installation
+			self.install_task.hasrun = Task.SKIP_ME
 
 @feature('cprogram', 'cxxprogram')
 @after_method('apply_link')
@@ -126,7 +131,8 @@ def create_task_macplist(self):
 		else:
 			plisttask.code = app_info % self.link_task.outputs[0].name
 
-		plisttask.install_path = os.path.join(self.install_path, name, 'Contents')
+		inst_to = getattr(self, 'install_path', '/Applications') + '/%s/Contents/' % name
+		self.bld.install_files(inst_to, n1)
 
 @feature('cshlib', 'cxxshlib')
 @before_method('apply_link', 'propagate_uselib_vars')
