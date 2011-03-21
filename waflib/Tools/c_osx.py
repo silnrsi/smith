@@ -115,7 +115,7 @@ def create_task_macplist(self):
 
 		dir = self.create_bundle_dirs(name, out)
 		n1 = dir.find_or_declare(['Contents', 'Info.plist'])
-		self.plisttask = plisttask = self.create_task('macplist', self.link_task.outputs, n1)
+		self.plisttask = plisttask = self.create_task('macplist', [], n1)
 
 		if getattr(self, 'mac_plist', False):
 			node = self.path.find_resource(self.mac_plist)
