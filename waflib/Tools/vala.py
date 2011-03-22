@@ -244,7 +244,7 @@ def vala_file(self, node):
 		except AttributeError:
 			self.install_gir = self.bld.install_files(valatask.gir_path, gir_list, self.env)
 
-valac_task = Task.update_outputs(valac_task) # no decorators for python2 classes
+valac = Task.update_outputs(valac) # no decorators for python2 classes
 
 @conf
 def find_valac(self, valac_name, min_version):
