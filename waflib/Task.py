@@ -966,7 +966,7 @@ def funex(c):
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
 def compile_fun_shell(line):
 	"""
-	Create a compiled function to execute a process without the shell
+	Create a compiled function to execute a process with the shell
 	WARNING: this method may disappear anytime, so use compile_fun instead
 	"""
 
@@ -1063,7 +1063,7 @@ def compile_fun(line, shell=False):
 
 	for example::
 
-		from waflib import compile_fun
+		from waflib.Task import compile_fun
 		compile_fun('cxx', '${CXX} -o ${TGT[0]} ${SRC} -I ${SRC[0].parent.bldpath()}')
 
 		def build(bld):
