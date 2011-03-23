@@ -1071,7 +1071,11 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 				break
 
 		Logs.debug('ccroot: dest platform: ' + ' '.join([conf.env[x] or '?' for x in ('DEST_OS', 'DEST_BINFMT', 'DEST_CPU')]))
-		conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
+		if icc:
+			ver = k['__INTEL_COMPILER']
+			conf.env['CC_VERSION'] = (ver[:-2], ver[-2], ver[-1])
+		else:
+			conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
