@@ -544,7 +544,7 @@ def autodetect(conf):
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
 	v['MSVC_COMPILER'] = compiler
-	v['MSVC_VERSION'] = (str(version), '0', '0')
+	v['CC_VERSION'] = (str(version), '0', '0')
 
 def _get_prog_names(conf, compiler):
 	if compiler=='intel':
