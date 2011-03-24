@@ -518,11 +518,6 @@ def check_libs_msvc(self, libnames, is_static=False):
 	for libname in Utils.to_list(libnames):
 		self.check_lib_msvc(libname, is_static)
 
-@conf
-def no_autodetect(conf):
-	conf.eval_rules(detect.replace('autodetect', ''))
-
-
 def configure(conf):
 	"""
 	Configuration methods to call for detecting msvc
@@ -537,8 +532,15 @@ def configure(conf):
 	conf.link_add_flags()
 
 @conf
+def no_autodetect(conf):
+	conf.env.NO_MSVC_DETECT = 1
+	configure(conf)
+
+@conf
 def autodetect(conf):
 	v = conf.env
+	if v.NO_MSVC_DETECT:
+		return
 	compiler, version, path, includes, libdirs = detect_msvc(conf)
 	v['PATH'] = path
 	v['INCLUDES'] = includes
