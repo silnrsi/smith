@@ -372,6 +372,8 @@ class TaskBase(evil):
 		if isinstance(tmp, str):
 			return [tmp % x for x in self.env[var2]]
 		else:
+			if not tmp:
+				raise Errors.WafError('Missing env variable %r for task %r (generator %r)' % (var1, self, self.generator))
 			lst = []
 			for y in self.env[var2]:
 				lst.extend(tmp)
