@@ -832,7 +832,7 @@ def exec_command_msvc(self, *k, **kw):
 			lst = []
 			carry = ''
 			for a in k[0]:
-				if len(a) == 3 and a.startswith('/F') or a == '/doc' or a[-1] == ':':
+				if (len(a) == 3 and a.startswith('/Fo') and a != '/FC') or a == '/doc' or a[-1] == ':':
 					carry = a
 				else:
 					lst.append(carry + a)
