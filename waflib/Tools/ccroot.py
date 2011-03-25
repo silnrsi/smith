@@ -465,7 +465,7 @@ class fake_shlib(link_task):
 	def runnable_status(self):
 		for t in self.run_after:
 			if not t.hasrun:
-				return ASK_LATER
+				return Task.ASK_LATER
 
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
@@ -478,7 +478,7 @@ class fake_stlib(stlink_task):
 	def runnable_status(self):
 		for t in self.run_after:
 			if not t.hasrun:
-				return ASK_LATER
+				return Task.ASK_LATER
 
 		for x in self.outputs:
 			x.sig = Utils.h_file(x.abspath())
