@@ -372,10 +372,11 @@ class TaskBase(evil):
 		if isinstance(tmp, str):
 			return [tmp % x for x in self.env[var2]]
 		else:
-			if Logs.verbose and not tmp:
+			it = self.env[var2]
+			if Logs.verbose and not tmp and it:
 				Logs.warn('Missing env variable %r for task %r (generator %r)' % (var1, self, self.generator))
 			lst = []
-			for y in self.env[var2]:
+			for y in it:
 				lst.extend(tmp)
 				lst.append(y)
 			return lst
