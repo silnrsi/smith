@@ -10,7 +10,7 @@ a svg file in the build directory
 import os, time, sys
 try: from Queue import Queue
 except: from queue import Queue
-from waflib import Runner, Options, Utils, Task, Logs
+from waflib import Runner, Options, Utils, Task, Logs, Errors
 
 #import random
 #random.seed(100)
@@ -52,44 +52,52 @@ def map_to_color(name):
 		return color2code[cls.color]
 	return color2code['RED']
 
-def process(tsk):
-	m = tsk.master
+def process(self):
+	m = self.master
 	if m.stop:
-		m.out.put(tsk)
+		m.out.put(self)
 		return
 
-	tsk.master.set_running(1, id(Utils.threading.current_thread()), tsk)
+	self.master.set_running(1, id(Utils.threading.current_thread()), self)
+
+	# remove the task signature immediately before it is executed
+	# in case of failure the task will be executed again
+	try:
+		del self.generator.bld.task_sigs[self.uid()]
+	except:
+		pass
 
 	try:
-		tsk.generator.bld.to_log(tsk.display())
-		ret = tsk.run()
+		self.generator.bld.returned_tasks.append(self)
+		self.log_display(self.generator.bld)
+		ret = self.run()
 	except Exception as e:
-		tsk.err_msg = Utils.ex_stack()
-		tsk.hasrun = Task.EXCEPTION
+		self.err_msg = Utils.ex_stack()
+		self.hasrun = Task.EXCEPTION
 
-		m.error_handler(tsk)
-		m.out.put(tsk)
+		# TODO cleanup
+		m.error_handler(self)
+		m.out.put(self)
 		return
 
 	if ret:
-		tsk.err_code = ret
-		tsk.hasrun = Task.CRASHED
+		self.err_code = ret
+		self.hasrun = Task.CRASHED
 	else:
 		try:
-			tsk.post_run()
+			self.post_run()
 		except Errors.WafError:
 			pass
 		except Exception:
-			tsk.err_msg = Utils.ex_stack()
-			tsk.hasrun = Task.EXCEPTION
+			self.err_msg = Utils.ex_stack()
+			self.hasrun = Task.EXCEPTION
 		else:
-			tsk.hasrun = Task.SUCCESS
-	if tsk.hasrun != Task.SUCCESS:
-		m.error_handler(tsk)
+			self.hasrun = Task.SUCCESS
+	if self.hasrun != Task.SUCCESS:
+		m.error_handler(self)
 
-	tsk.master.set_running(-1, id(Utils.threading.current_thread()), tsk)
-	m.out.put(tsk)
-
+	self.master.set_running(-1, id(Utils.threading.current_thread()), self)
+	m.out.put(self)
 Task.Task.process = process
 
 old_start = Runner.Parallel.start
