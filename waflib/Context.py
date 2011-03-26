@@ -435,6 +435,8 @@ class Context(ctx):
 			def build(bld):
 				bld.to_log('starting the build')
 
+		When in doubt, override this method, or provide a logger on the context class.
+
 		:param msg: message
 		:type msg: string
 		"""
@@ -444,6 +446,7 @@ class Context(ctx):
 			self.logger.info(msg)
 		else:
 			sys.stderr.write(str(msg))
+			sys.stderr.flush()
 
 
 	def msg(self, msg, result, color=None):
