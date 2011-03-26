@@ -675,7 +675,7 @@ def add_pcfile(self, node):
 			bld(source='foo.pc.in', install_path='${LIBDIR}/pkgconfig/')
 	"""
 	tsk = self.create_task('subst_pc', node, node.change_ext('.pc', '.pc.in'))
-	self.bld.install_files('${PREFIX}/lib/pkgconfig/', tsk.outputs)
+	self.bld.install_files(getattr(self, 'install_path', '${LIBDIR}/pkgconfig/'), tsk.outputs)
 
 class subst(subst_pc):
 	pass
