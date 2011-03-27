@@ -272,14 +272,14 @@ def get_num(lst):
 		elif v == '~':
 			return (~ int(num), lst)
 		else:
-			raise PreprocError("invalid op token %r for get_num" % lst)
+			raise PreprocError("Invalid op token %r for get_num" % lst)
 	elif p == NUM:
 		return v, lst[1:]
 	elif p == IDENT:
 		# all macros should have been replaced, remaining identifiers eval to 0
 		return 0, lst[1:]
 	else:
-		raise PreprocError("invalid token %r for get_num" % lst)
+		raise PreprocError("Invalid token %r for get_num" % lst)
 
 def get_term(lst):
 	"""
@@ -436,7 +436,7 @@ def reduce_tokens(lst, defs, ban=[]):
 					else:
 						lst[i] = (NUM, 0)
 				else:
-					raise PreprocError("invalid define expression %r" % lst)
+					raise PreprocError("Invalid define expression %r" % lst)
 
 		elif p == IDENT and v in defs:
 
@@ -550,7 +550,7 @@ def reduce_tokens(lst, defs, ban=[]):
 
 							j += 1
 						else:
-							# invalid paste, case    "##a" or "b##"
+							# Invalid paste, case    "##a" or "b##"
 							accu.append((p2, v2))
 
 					elif p2 == IDENT and v2 in arg_table:
@@ -919,9 +919,13 @@ class c_parser(object):
 
 		# macros may be defined on the command-line, so they must be parsed as if they were part of the file
 		if env['DEFINES']:
-			lst = ['%s %s' % (x[0], trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
-			lst.reverse()
-			self.lines.extend([('define', x) for x in lst])
+			try:
+				lst = ['%s %s' % (x[0], trimquotes('='.join(x[1:]))) for x in [y.split('=') for y in env['DEFINES']]]
+				lst.reverse()
+				self.lines.extend([('define', x) for x in lst])
+			except AttributeError:
+				# if the defines are invalid the compiler will tell the user
+				pass
 
 		while self.lines:
 			(token, line) = self.lines.pop()
@@ -979,7 +983,7 @@ class c_parser(object):
 					try:
 						self.defs[define_name(line)] = line
 					except:
-						raise PreprocError("invalid define line %s" % line)
+						raise PreprocError("Invalid define line %s" % line)
 				elif token == 'undef':
 					m = re_mac.match(line)
 					if m and m.group(0) in self.defs:
