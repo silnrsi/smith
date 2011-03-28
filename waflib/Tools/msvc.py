@@ -817,7 +817,10 @@ def exec_response_command(self, cmd, **kw):
 		ret = self.generator.bld.exec_command(cmd, **kw)
 	finally:
 		if tmp:
-			os.remove(tmp)
+			try:
+				os.remove(tmp)
+			except:
+				pass # anti-virus and indexers can keep the files open -_-
 	return ret
 
 ########## stupid evil command modification: concatenate the tokens /Fx, /doc, and /x: with the next token
