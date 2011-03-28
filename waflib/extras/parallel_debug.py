@@ -58,7 +58,7 @@ def process(self):
 		m.out.put(self)
 		return
 
-	self.master.set_running(1, id(Utils.threading.current_thread()), self)
+	self.master.set_running(1, id(Utils.threading.currentThread()), self)
 
 	# remove the task signature immediately before it is executed
 	# in case of failure the task will be executed again
@@ -96,7 +96,7 @@ def process(self):
 	if self.hasrun != Task.SUCCESS:
 		m.error_handler(self)
 
-	self.master.set_running(-1, id(Utils.threading.current_thread()), self)
+	self.master.set_running(-1, id(Utils.threading.currentThread()), self)
 	m.out.put(self)
 Task.Task.process = process
 
