@@ -312,9 +312,16 @@ def check_python_headers(conf):
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
 
 	# See if it compiles
-	conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
+	try:
+		conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
 		   uselib='PYEMBED', fragment=FRAG,
 		   errmsg='Could not find the python development headers')
+	except conf.errors.ConfigurationError:
+		# python3.2, oh yeah
+		conf.check_cfg(path=conf.env.PYTHON_CONFIG, package='', uselib_store='PYEMBED', args=['--cflags', '--libs'])
+		conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
+			uselib='PYEMBED', fragment=FRAG,
+				errmsg='Could not find the python development headers elsewhere')
 
 @conf
 def check_python_version(conf, minver=None):
