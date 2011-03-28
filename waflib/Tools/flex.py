@@ -17,8 +17,8 @@ def decide_ext(self, node):
 
 waflib.TaskGen.declare_chain(
 	name = 'flex',
-	rule = '${FLEX} -t ${FLEXFLAGS} ${SRC} > ${TGT}',
-	#rule = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}', #854
+	#rule = '${FLEX} -t ${FLEXFLAGS} ${SRC} > ${TGT}',
+	rule = '${FLEX} -o${TGT} ${FLEXFLAGS} ${SRC}', #854
 	ext_in = '.l',
 	decider = decide_ext,
 	shell = True,
