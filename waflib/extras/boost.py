@@ -206,21 +206,21 @@ def boost_get_libs(self, *k, **kw):
         if name.startswith('lib'):
             name = name[3:]
         return name.split('.')[0]
+
     libs = []
     for lib in Utils.to_list(k and k[0] or kw.get('lib', None)):
         py = (lib == 'python') and '(-py%s)+' % kw['python'] or ''
-        pattern = 'boost_%s%s%s%s%s' % (lib, toolset, tags, py, version)
-        file = find_lib(re.compile(pattern), files)
-        if file:
-            libs.append(format_lib_name(file.name))
-            continue
-        # second pass with less condition
-        pattern = 'boost_%s%s%s' % (lib, tags, py)
-        file = find_lib(re.compile(pattern), files)
-        if file:
-            libs.append(format_lib_name(file.name))
-            continue
-        self.fatal('lib %s not found in %s' % (lib, path))
+        # Trying libraries, from most strict match to least one
+        for pattern in ['boost_%s%s%s%s%s' % (lib, toolset, tags, py, version),
+                        'boost_%s%s%s' % (lib, tags, py),
+                        'boost_%s%s' % (lib, tags)]:
+            file = find_lib(re.compile(pattern), files)
+            if file:
+                libs.append(format_lib_name(file.name))
+                break
+        else:
+            self.fatal('lib %s not found in %s' % (lib, path))
+
     return path.abspath(), libs
 
 
