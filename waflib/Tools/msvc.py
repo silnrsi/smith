@@ -678,15 +678,15 @@ def msvc_common_flags(conf):
 		v.append_value('LINKFLAGS', ['/MANIFEST'])
 
 	# shared library
-	v['CFLAGS_cshlib']     = ['']
-	v['CXXFLAGS_cxxshlib'] = ['']
+	v['CFLAGS_cshlib']     = []
+	v['CXXFLAGS_cxxshlib'] = []
 	v['LINKFLAGS_cshlib']  = v['LINKFLAGS_cxxshlib'] = ['/DLL']
 	v['cshlib_PATTERN']    = v['cxxshlib_PATTERN'] = '%s.dll'
 	v['implib_PATTERN']    = '%s.lib'
 	v['IMPLIB_ST']         = '/IMPLIB:%s'
 
 	# static library
-	v['LINKFLAGS_cstlib']  = ['']
+	v['LINKFLAGS_cstlib']  = []
 	v['cstlib_PATTERN']    = v['cxxstlib_PATTERN'] = 'lib%s.lib'
 
 	# program
