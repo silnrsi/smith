@@ -17,17 +17,6 @@ class d(Task.Task):
 	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
 	scan    = d_scan.scan
 
-	def exec_command(self, *k, **kw):
-		"""dmd wants -of stuck to the file name"""
-		if isinstance(k[0], list):
-			lst = k[0]
-			for i in range(len(lst)):
-				if lst[i] == '-of':
-					del lst[i]
-					lst[i] = '-of' + lst[i]
-					break
-		return super(d, self).exec_command(*k, **kw)
-
 class d_with_header(d):
 	"Compile a d file and generate a header"
 	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
@@ -42,17 +31,6 @@ class dprogram(link_task):
 	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${RPATH_ST:RPATH} ${DSTLIB_MARKER} ${DSTLIBPATH_ST:STLIBPATH} ${DSTLIB_ST:STLIB} ${DSHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${DSHLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
-	def exec_command(self, *k, **kw):
-		"""dmd wants -of stuck to the file name"""
-		# TODO duplicate, but do we really want multiple inheritance?
-		if isinstance(k[0], list):
-			lst = k[0]
-			for i in range(len(lst)):
-				if lst[i] == '-of':
-					del lst[i]
-					lst[i] = '-of' + lst[i]
-					break
-		return super(dprogram, self).exec_command(*k, **kw)
 
 class dshlib(dprogram):
 	"Link object files into a d shared library"
@@ -61,6 +39,19 @@ class dshlib(dprogram):
 class dstlib(stlink_task):
 	"Link object files into a d static library"
 	pass # do not remove
+
+for x in (d, dprogram, dshlib, dstlib):
+	_old = cls.exec_command
+	def exec_command(self, *k, **kw):
+		if isinstance(k[0], list):
+			lst = k[0]
+			for i in range(len(lst)):
+				if lst[i] == '-of':
+					del lst[i]
+					lst[i] = '-of' + lst[i]
+					break
+		return _old(*k, **kw)
+	cls.exec_command = exec_command
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
