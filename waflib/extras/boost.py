@@ -212,6 +212,10 @@ def boost_get_libs(self, *k, **kw):
         py = (lib == 'python') and '(-py%s)+' % kw['python'] or ''
         # Trying libraries, from most strict match to least one
         for pattern in ['boost_%s%s%s%s%s' % (lib, toolset, tags, py, version),
+                        'boost_%s%s%s%s' % (lib, tags, py, version),
+                        'boost_%s%s%s' % (lib, tags, version),
+                        # Give up trying to find the right version
+                        'boost_%s%s%s%s' % (lib, toolset, tags, py),
                         'boost_%s%s%s' % (lib, tags, py),
                         'boost_%s%s' % (lib, tags)]:
             file = find_lib(re.compile(pattern), files)
