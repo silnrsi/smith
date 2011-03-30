@@ -14,12 +14,12 @@ from waflib.Tools.ccroot import link_task, stlink_task
 class d(Task.Task):
 	"Compile a d file into an object file"
 	color   = 'GREEN'
-	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F:TGT}'
 	scan    = d_scan.scan
 
 class d_with_header(d):
 	"Compile a d file and generate a header"
-	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F}${TGT[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F}${TGT[0].bldpath()}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F:tgt.outputs[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F:tgt.outputs[0].bldpath()}'
 
 class d_header(Task.Task):
 	"Compile d headers"
@@ -28,7 +28,7 @@ class d_header(Task.Task):
 
 class dprogram(link_task):
 	"Link object files into a d program"
-	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F}${TGT} ${RPATH_ST:RPATH} ${DSTLIB_MARKER} ${DSTLIBPATH_ST:STLIBPATH} ${DSTLIB_ST:STLIB} ${DSHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${DSHLIB_ST:LIB} ${LINKFLAGS}'
+	run_str = '${D_LINKER} ${DLNK_SRC_F}${SRC} ${DLNK_TGT_F:TGT} ${RPATH_ST:RPATH} ${DSTLIB_MARKER} ${DSTLIBPATH_ST:STLIBPATH} ${DSTLIB_ST:STLIB} ${DSHLIB_MARKER} ${LIBPATH_ST:LIBPATH} ${DSHLIB_ST:LIB} ${LINKFLAGS}'
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
 
@@ -38,20 +38,7 @@ class dshlib(dprogram):
 
 class dstlib(stlink_task):
 	"Link object files into a d static library"
-	pass # do not remove
-
-for x in (d, dprogram, dshlib, dstlib):
-	_old = cls.exec_command
-	def exec_command(self, *k, **kw):
-		if isinstance(k[0], list):
-			lst = k[0]
-			for i in range(len(lst)):
-				if lst[i] == '-of':
-					del lst[i]
-					lst[i] = '-of' + lst[i]
-					break
-		return _old(*k, **kw)
-	cls.exec_command = exec_command
+	#pass # do not remove
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):

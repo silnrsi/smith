@@ -25,13 +25,13 @@ def common_flags_gdc(conf):
 	# for mory info about the meaning of this dict see dmd.py
 	v['DFLAGS']            = []
 
-	v['D_SRC_F']           = ''
-	v['D_TGT_F']           = ['-c', '-o']
+	v['D_SRC_F']           = ['-c']
+	v['D_TGT_F']           = '-o%s'
 
 	# linker
 	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
-	v['DLNK_TGT_F']        = ['-o']
+	v['DLNK_TGT_F']        = '-o%s'
 	v['DINC_ST']           = '-I%s'
 
 	v['DSHLIB_MARKER'] = v['DSTLIB_MARKER'] = ''
@@ -41,7 +41,8 @@ def common_flags_gdc(conf):
 	v['LINKFLAGS_dshlib']  = ['-shared']
 
 	v['DHEADER_ext']       = '.di'
-	v['D_HDR_F']           = '-fintfc -fintfc-file='
+	v.DFLAGS_d_with_header = '-fintfc'
+	v['D_HDR_F']           = '-fintfc-file=%s'
 
 def configure(conf):
 	"""

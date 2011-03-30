@@ -38,13 +38,13 @@ def common_flags_dmd(conf):
 	# ensure key is there, so wscript can append flags to it
 	#v['DFLAGS']            = ['-version=Posix']
 
-	v['D_SRC_F']           = ''
-	v['D_TGT_F']           = ['-c', '-of']
+	v['D_SRC_F']           = '-c'
+	v['D_TGT_F']           = '-of%s'
 
 	# linker
 	v['D_LINKER']          = v['D']
 	v['DLNK_SRC_F']        = ''
-	v['DLNK_TGT_F']        = '-of'
+	v['DLNK_TGT_F']        = '-of%s'
 	v['DINC_ST'] = '-I%s'
 
 	v['DSHLIB_MARKER'] = v['DSTLIB_MARKER'] = ''
@@ -57,7 +57,8 @@ def common_flags_dmd(conf):
 	v['LINKFLAGS_dshlib']  = ['-L-shared']
 
 	v['DHEADER_ext']       = '.di'
-	v['D_HDR_F']           = ['-H', '-Hf']
+	v.DFLAGS_d_with_header = ['-H', '-Hf']
+	v['D_HDR_F']           = '%s'
 
 def configure(conf):
 	"""

@@ -369,10 +369,13 @@ class TaskBase(evil):
 		then the result will be ['-a', '-b', '1', '-a', '-b', '2']
 		"""
 		tmp = self.env[var1]
-		if isinstance(tmp, str):
-			return [tmp % x for x in self.env[var2]]
-		else:
+		if isinstance(var2, str):
 			it = self.env[var2]
+		else:
+			it = var2
+		if isinstance(tmp, str):
+			return [tmp % x for x in it]
+		else:
 			if Logs.verbose and not tmp and it:
 				Logs.warn('Missing env variable %r for task %r (generator %r)' % (var1, self, self.generator))
 			lst = []
@@ -995,7 +998,14 @@ def compile_fun_shell(line):
 			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.outputs])')
 		elif meth:
 			if meth.startswith(':'):
-				app('" ".join(tsk.colon(%r, %r))' % (var, meth[1:]))
+				m = meth[1:]
+				if m == 'SRC':
+					m = '[a.path_from(bld.bldnode) for a in tsk.inputs]'
+				elif m == 'TGT':
+					m = '[a.path_from(bld.bldnode) for a in tsk.outputs]'
+				elif m[:3] not in ('tsk', 'gen', 'bld'):
+					m = '%r' % m
+				app('" ".join(tsk.colon(%r, %s))' % (var, m))
 				dvars.extend([var, meth[1:]])
 			else:
 				app('%s%s' % (var, meth))
@@ -1042,8 +1052,15 @@ def compile_fun_noshell(line):
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.outputs])")
 		elif meth:
 			if meth.startswith(':'):
-				app('lst.extend(tsk.colon(%r, %r))' % (var, meth[1:]))
-				dvars.extend([var, meth[1:]])
+				m = meth[1:]
+				if m == 'SRC':
+					m = '[a.path_from(bld.bldnode) for a in tsk.inputs]'
+				elif m == 'TGT':
+					m = '[a.path_from(bld.bldnode) for a in tsk.outputs]'
+				elif m[:3] not in ('tsk', 'gen', 'bld'):
+					m = '%r' % m
+				app('lst.extend(tsk.colon(%r, %s))' % (var, m))
+				dvars.extend([var, m])
 			else:
 				app('lst.extend(gen.to_list(%s%s))' % (var, meth))
 		else:
