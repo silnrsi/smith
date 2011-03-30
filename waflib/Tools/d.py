@@ -14,12 +14,12 @@ from waflib.Tools.ccroot import link_task, stlink_task
 class d(Task.Task):
 	"Compile a d file into an object file"
 	color   = 'GREEN'
-	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F}${SRC} ${D_TGT_F:TGT}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_SRC_F:SRC} ${D_TGT_F:TGT}'
 	scan    = d_scan.scan
 
 class d_with_header(d):
 	"Compile a d file and generate a header"
-	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F:tgt.outputs[1].bldpath()} ${D_SRC_F}${SRC} ${D_TGT_F:tgt.outputs[0].bldpath()}'
+	run_str = '${D} ${DFLAGS} ${DINC_ST:INCPATHS} ${D_HDR_F:tgt.outputs[1].bldpath()} ${D_SRC_F:SRC} ${D_TGT_F:tgt.outputs[0].bldpath()}'
 
 class d_header(Task.Task):
 	"Compile d headers"

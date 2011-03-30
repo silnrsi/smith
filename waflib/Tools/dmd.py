@@ -38,7 +38,7 @@ def common_flags_dmd(conf):
 	# ensure key is there, so wscript can append flags to it
 	#v['DFLAGS']            = ['-version=Posix']
 
-	v['D_SRC_F']           = '-c'
+	v['D_SRC_F']           = ['-c']
 	v['D_TGT_F']           = '-of%s'
 
 	# linker
