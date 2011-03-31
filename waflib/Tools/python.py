@@ -195,6 +195,8 @@ def check_python_headers(conf):
 	* PYEMBED: for embedding a python interpreter
 	"""
 
+	# FIXME rewrite
+
 	if not conf.env['CC_NAME'] and not conf.env['CXX_NAME']:
 		conf.fatal('load a compiler first (gcc, g++, ..)')
 
