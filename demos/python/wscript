@@ -28,7 +28,7 @@ def configure(conf):
 def build(bld):
 
 	# first compile a few pyc and pyo files
-	bld(features='py', source=bld.path.ant_glob('*.py'))
+	bld(features='py', source=bld.path.ant_glob('*.py'), install_from='.')
 
 	# then a c extension module
 	bld(
