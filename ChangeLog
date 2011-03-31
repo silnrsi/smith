@@ -1,5 +1,7 @@
 NEW IN WAF 1.6.4
 ----------------
+
+* Improve the support for mac applications (demos/mac_app)
 * Fixed the Python detection on win32 #883
 * Optimized the Python file installation #892
 * Force +x permissions on installed fortran programs #893
@@ -7,6 +9,9 @@ NEW IN WAF 1.6.4
 * Check for tasks creating the same nodes on waf -v
 * Fix the precedence constraints for classes ending in _task #896
 * New variables conf.env.NO_LOCK_IN_TOP/OUT/RUN for special projects (top='..')
+* New example on avoiding rebuilds when moving a project (playground/relocate)
+* Compute a build order based on the preprocessor scanning #777
+* Build better default regexps in "waf step"
 
 NEW IN WAF 1.6.3
 ----------------
