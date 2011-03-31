@@ -284,14 +284,7 @@ def check_python_headers(conf):
 	# We check that pythonX.Y-config exists, and if it exists we
 	# use it to get only the includes, else fall back to distutils.
 	num = '.'.join(env['PYTHON_VERSION'].split('.')[:2])
-	try:
-		conf.find_program(
-			'python%s-config' % num,
-			var='PYTHON_CONFIG')
-	except conf.errors.ConfigurationError:
-		conf.find_program(
-			'python-config-%s' % num,
-			var='PYTHON_CONFIG', mandatory=False)
+	conf.find_program(['python%s-config' % num, 'python-config-%s' % num, 'python%sm-config' % num], var='PYTHON_CONFIG', mandatory=False)
 
 	includes = []
 	if conf.env.PYTHON_CONFIG:
@@ -328,7 +321,7 @@ def check_python_headers(conf):
 	except conf.errors.ConfigurationError:
 		# python3.2, oh yeah
 		conf.check_cfg(path=conf.env.PYTHON_CONFIG, package='', uselib_store='PYEMBED', args=['--cflags', '--libs'])
-		conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
+		conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H', msg='Getting the python flags from python-config',
 			uselib='PYEMBED', fragment=FRAG,
 				errmsg='Could not find the python development headers elsewhere')
 
