@@ -17,8 +17,8 @@ def find_sxx(conf):
 	cc = None
 	if v['CXX']: cc = v['CXX']
 	elif 'CXX' in conf.environ: cc = conf.environ['CXX']
-	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: cc = conf.find_program('CC', var='CXX') #studio
+	if not cc: cc = conf.find_program('c++', var='CXX')
 	if not cc: conf.fatal('Could not find a Sun C++ compiler')
 	cc = conf.cmd_to_list(cc)
 
