@@ -68,15 +68,15 @@ def process_py(self, node):
 		self.install_path = '${PYTHONDIR}'
 
 	# i wonder now why we wanted to do this after the build is over
-	def inst_py(ctx):
-		install_pyfile(self, node)
 	# issue #901: people want to preserve the structure of installed files
-	self.install_from = getattr(self, 'install_from', None)
-	if self.install_from:
-		self.install_from = self.path.find_dir(self.install_from)
+	def inst_py(ctx):
+		install_from = getattr(self, 'install_from', None)
+		if install_from:
+			install_from = self.path.find_dir(install_from)
+		install_pyfile(self, node, install_from)
 	self.bld.add_post_fun(inst_py)
 
-def install_pyfile(self, node):
+def install_pyfile(self, node, install_from=None):
 	"""
 	Execute the installation of a python file
 
@@ -84,7 +84,7 @@ def install_pyfile(self, node):
 	:type node: :py:class:`waflib.Node.Node`
 	"""
 
-	from_node = self.install_from or node.parent
+	from_node = install_from or node.parent
 	tsk = self.bld.install_as(self.install_path + '/' + node.path_from(from_node), node, postpone=False)
 	path = tsk.get_install_path()
 
