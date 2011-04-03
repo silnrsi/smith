@@ -328,9 +328,9 @@ class Context(ctx):
 				p = subprocess.Popen(cmd, **kw)
 				(out, err) = p.communicate()
 				if out:
-					self.logger.debug('out: %s' % out.decode('utf-8'))
+					self.logger.debug('out: %s' % out.decode(sys.stdout.encoding))
 				if err:
-					self.logger.error('err: %s' % err.decode('utf-8'))
+					self.logger.error('err: %s' % err.decode(sys.stdout.encoding))
 				return p.returncode
 			else:
 				p = subprocess.Popen(cmd, **kw)
