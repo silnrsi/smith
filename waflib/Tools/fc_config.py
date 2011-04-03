@@ -344,9 +344,9 @@ def getoutput(conf, cmd, stdin=False):
 		conf.fatal('could not determine the compiler version %r' % cmd)
 	else:
 		if not isinstance(stdout, str):
-			stdout = stdout.decode('utf-8')
+			stdout = stdout.decode(sys.stdout.encoding)
 		if not isinstance(stderr, str):
-			stderr = stderr.decode('utf-8')
+			stderr = stderr.decode(sys.stdout.encoding)
 		return stdout, stderr
 
 # ------------------------------------------------------------------------

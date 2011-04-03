@@ -1010,7 +1010,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		conf.fatal('could not determine the compiler version %r' % cmd)
 
 	if not isinstance(out, str):
-		out = out.decode('utf-8')
+		out = out.decode(sys.stdout.encoding)
 
 	if gcc:
 		if out.find('__INTEL_COMPILER') >= 0:
