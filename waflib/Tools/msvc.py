@@ -239,7 +239,10 @@ def gather_msvc_versions(conf, versions):
 				break
 			ce_index = ce_index + 1
 			sdk = _winreg.OpenKey(ce_sdk, sdk_device)
-			path,type = _winreg.QueryValueEx(sdk, 'SDKRootDir')
+			try:
+				path,type = _winreg.QueryValueEx(sdk, 'SDKRootDir')
+			except WindowsError:
+				continue
 			path=str(path)
 			path,device = os.path.split(path)
 			if not device:
