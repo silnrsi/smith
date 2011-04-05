@@ -251,7 +251,7 @@ def gather_msvc_versions(conf, versions):
 				if platforms:
 					supported_wince_platforms.append((device, platforms))
 	# checks MSVC
-	version_pattern = re.compile('^..?\...?')
+	version_pattern = re.compile('^(\d\d?\.\d\d?)(Exp)?$')
 	detected_versions = []
 	for vcver,vcvar in [('VCExpress','Exp'), ('VisualStudio','')]:
 		try:
@@ -271,8 +271,11 @@ def gather_msvc_versions(conf, versions):
 			except WindowsError:
 				break
 			index = index + 1
-			if not version_pattern.match(version):
+			match = version_pattern.match(version)
+			if not match:
 				continue
+			else:
+				versionnumber = float(match.group(1))
 			if version.endswith('Exp'):
 				versionnumber = float(version[:-3])
 			else:
