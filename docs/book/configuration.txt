@@ -43,14 +43,14 @@ Checking for program touch               : /usr/bin/touch <1>
 Waf: Entering directory `/tmp/configuration_build/build'
 /usr/bin/touch <2>
 abcd
-[1/1] bar.txt:  -> build/bar.txt
-10:56:41 runner '/usr/bin/touch bar.txt' <3>
+[1/1] foo.txt:  -> build/foo.txt
+10:56:41 runner '/usr/bin/touch foo.txt' <3>
 Waf: Leaving directory `/tmp/configuration_build/build'
 'build' finished successfully (0.021s)
 ---------------
 <1> Output of the configuration test _find_program_
 <2> The value of _TOUCH_
-<3> Command-line used to create the target 'bar.txt'
+<3> Command-line used to create the target 'foo.txt'
 
 The variable _ctx.env_ is called a *Configuration set*, and is an instance of the class 'ConfigSet'. The class is a wrapper around Python dicts to handle serialization. For this reason it should be used for simple variables only (no functions or classes). The values are stored in a python-like format in the build directory:
 
@@ -58,7 +58,7 @@ The variable _ctx.env_ is called a *Configuration set*, and is an instance of th
 ---------------
 $ tree
 build/
-|-- bar.txt
+|-- foo.txt
 |-- c4che
 |   |-- build.config.py
 |   `-- _cache.py
@@ -91,7 +91,7 @@ def configure(ctx):
 
 	print(type(ctx.env))
 	print(ctx.env)
-	print(env.FOO)
+	print(ctx.env.FOO)
 ----------------
 
 <1> Key-based access; storing a list

@@ -192,6 +192,8 @@ $ tree -a
 |   |   `-- _cache.py <6>
 |   `-- config.log <7>
 |--.lock-wafbuild <8>
+|-- src
+|   `-- wscript
 `-- wscript
 
 $ waf ping
