@@ -820,8 +820,13 @@ class c_parser(object):
 			return nd[tup]
 		except KeyError:
 			ret = node.find_resource(filename)
-			if ret and (getattr(ret, 'children', None) or os.path.isdir(ret.abspath())):
-				ret = None
+			if ret:
+				if getattr(ret, 'children', None):
+					ret = None
+				elif ret.is_child_of(node.ctx.bldnode):
+					tmp = node.ctx.srcnode.search(ret.path_from(node.ctx.bldnode))
+					if tmp and getattr(tmp, 'children', None):
+						ret = None
 			nd[tup] = ret
 			return ret
 
