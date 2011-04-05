@@ -279,10 +279,6 @@ def gather_msvc_versions(conf, versions):
 				continue
 			else:
 				versionnumber = float(match.group(1))
-			if version.endswith('Exp'):
-				versionnumber = float(version[:-3])
-			else:
-				versionnumber = float(version)
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
 	def fun(tup):
 		return tup[0]
