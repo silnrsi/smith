@@ -29,7 +29,7 @@ Supported platforms: ia64, x64, x86, x86_amd64, x86_ia64
 
 Compilers supported:
 
-* msvc       => Visual Studio, versions 7.1 (2003), 8,0 (2005), 9.0 (2008)
+* msvc       => Visual Studio, versions 7.0 (VC .NET 2002) to 10.0 (Visual Studio 2010)
 * wsdk       => Windows SDK, versions 6.0, 6.1, 7.0
 * icl        => Intel compiler, versions 9,10,11
 * Smartphone => Compiler/SDK for Smartphone devices (armv4/v4i)
@@ -574,6 +574,7 @@ def find_msvc(conf):
 	v['PATH'] = path
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
+	v['MSVC_VERSION'] = float(version)
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 	v.MSVC_MANIFEST = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6) or (compiler == 'intel' and float(version) >= 11)
@@ -648,8 +649,12 @@ def msvc_common_flags(conf):
 
 	v['CC_SRC_F']     = ''
 	v['CC_TGT_F']     = ['/c', '/Fo']
+	if v['MSVC_VERSION'] >= 8:
+		v['CC_TGT_F']= ['/FC'] + v['CC_TGT_F']
 	v['CXX_SRC_F']    = ''
 	v['CXX_TGT_F']    = ['/c', '/Fo']
+	if v['MSVC_VERSION'] >= 8:
+		v['CXX_TGT_F']= ['/FC'] + v['CXX_TGT_F']
 
 	v['CPPPATH_ST']   = '/I%s' # template for adding include paths
 
