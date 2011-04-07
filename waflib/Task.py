@@ -726,19 +726,15 @@ class Task(TaskBase):
 
 		self.are_implicit_nodes_ready()
 
+		# scanner returns a node that does not have a signature
+		# just *ignore* the error and let them figure out from the compiler output
+		# waf -k behaviour
 		try:
 			for k in bld.node_deps.get(self.uid(), []):
-				# can do an optimization here
 				upd(k.get_bld_sig())
-		except AttributeError:
-			# do it again to display a meaningful error message
-			nodes = []
-			for k in bld.node_deps.get(self.uid(), []):
-				try:
-					k.get_bld_sig()
-				except AttributeError:
-					nodes.append(k)
-			raise Errors.WafError('Missing node signature for %r (for implicit dependencies %r)' % (nodes, self))
+		except:
+			if Logs.verbose:
+				Logs.warn('Missing signature for node %r (may cause rebuilds)' % k)
 
 		return self.m.digest()
 
