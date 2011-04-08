@@ -210,7 +210,7 @@ def sfilter(path):
 		tk = tokenize.tokenize(f.readline)
 		next(tk) # the first one is always tokenize.ENCODING for Python 3, ignore it
 		cnt = process_tokens(tk)
-	elif Options.options.strip_comments:
+	elif Options.options.strip_comments and path.endswith('.py'):
 		f = open(path, "r")
 		cnt = process_tokens(tokenize.generate_tokens(f.readline))
 	else:
