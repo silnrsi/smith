@@ -24,6 +24,7 @@ class gopackage(stlink_task):
 class goprogram(link_task):
 	run_str = '${GOL} ${GOLFLAGS} -o ${TGT} ${SRC}'
 	inst_to = '${BINDIR}'
+	chmod   = Utils.O755
 
 @extension('.go')
 def compile_go(self, node):
