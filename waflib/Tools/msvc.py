@@ -727,15 +727,14 @@ def apply_flags_msvc(self):
 		for f in self.env.LINKFLAGS:
 			d = f.lower()
 			if d[1:] == 'debug':
+				pdbnode = self.link_task.outputs[0].change_ext('.pdb')
+				self.link_task.outputs.append(pdbnode)
+
 				try:
-					pdbnode = self.link_task.outputs[0].change_ext('.pdb')
-					dest = self.inst_task.dest
+					self.install_task.source.append(pdbnode)
 				except AttributeError:
 					pass
-				else:
-					pdbfile = pdbnode.bldpath()
-					self.link_task.outputs.append(pdbnode)
-					self.bld.install_files(dest, [pdbnode], env=self.env)
+
 				break
 
 # split the manifest file processing from the link task, like for the rc processing
