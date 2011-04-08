@@ -1000,9 +1000,9 @@ def compile_fun_shell(line):
 				elif m == 'TGT':
 					m = '[a.path_from(bld.bldnode) for a in tsk.outputs]'
 				elif m[:3] not in ('tsk', 'gen', 'bld'):
+					dvars.extend([var, meth[1:]])
 					m = '%r' % m
 				app('" ".join(tsk.colon(%r, %s))' % (var, m))
-				dvars.extend([var, meth[1:]])
 			else:
 				app('%s%s' % (var, meth))
 		else:
@@ -1054,9 +1054,9 @@ def compile_fun_noshell(line):
 				elif m == 'TGT':
 					m = '[a.path_from(bld.bldnode) for a in tsk.outputs]'
 				elif m[:3] not in ('tsk', 'gen', 'bld'):
+					dvars.extend([var, m])
 					m = '%r' % m
 				app('lst.extend(tsk.colon(%r, %s))' % (var, m))
-				dvars.extend([var, m])
 			else:
 				app('lst.extend(gen.to_list(%s%s))' % (var, meth))
 		else:
