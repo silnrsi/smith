@@ -433,8 +433,17 @@ class Task(TaskBase):
 
 	def uid(self):
 		"""
-		Obtain a unique id which will be identical in different build instances.
-		The node paths, the class name, and the function are inputs for the hash.
+		Return an identifier used to determine if tasks are up-to-date. Since the
+		identifier will be stored between executions, it must be:
+
+			- unique: no two tasks return the same value (for a given build context)
+			- the same for a given task instance
+
+		By default, the node paths, the class name, and the function are used
+		as inputs to compute a hash.
+
+		The pointer to the object (python built-in 'id') will change between build executions,
+		and must be avoided in such hashes.
 
 		:return: hash value
 		:rtype: string
