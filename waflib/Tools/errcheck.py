@@ -26,20 +26,42 @@ import waflib.Tools.ccroot
 
 def check_same_targets(self):
 	mp = Utils.defaultdict(list)
+	uids = {}
+
+	def check_task(tsk):
+		if not isinstance(tsk, Task.Task):
+			return
+
+		for node in tsk.outputs:
+			mp[node].append(tsk)
+		try:
+			uids[tsk.uid()].append(tsk)
+		except:
+			uids[tsk.uid()] = [tsk]
+
 	for g in self.groups:
 		for tg in g:
 			try:
 				for tsk in tg.tasks:
-					for node in tsk.outputs:
-						mp[node].append(tsk)
+					check_task(tsk)
 			except AttributeError:
 				# raised if not a task generator, which should be uncommon
-				pass
+				check_task(tg)
+
+	dupe = False
 	for (k, v) in mp.items():
 		if len(v) > 1:
+			dupe = True
 			Logs.error('* Node %r is created by more than one task. The task generators are:' % k)
 			for x in v:
 				Logs.error('  %d. %r' % (1 + v.index(x), x.generator))
+
+	if not dupe:
+		for (k, v) in uids.items():
+			if len(v) > 1:
+				Logs.error('* Several tasks use the same identifier. Please check the information on\n   http://waf.googlecode.com/svn/docs/apidocs/Task.html#waflib.Task.Task.uid')
+				for tsk in v:
+					Logs.error('  - object %r (%r) defined in %r' % (tsk.__class__.__name__, tsk, tsk.generator))
 
 def check_invalid_constraints(self):
 	feat = set([])
@@ -132,8 +154,10 @@ def enhance_lib():
 	old_compile = Build.BuildContext.compile
 	def check_compile(self):
 		check_invalid_constraints(self)
-		ret = old_compile(self)
-		check_same_targets(self)
+		try:
+			ret = old_compile(self)
+		finally:
+			check_same_targets(self)
 		return ret
 	Build.BuildContext.compile = check_compile
 
