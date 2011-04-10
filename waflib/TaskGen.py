@@ -347,7 +347,7 @@ def taskgen_method(func):
 	Decorator: register a method as a task generator method.
 	The function must accept a task generator as first parameter::
 
-		from waflib.Task import taskgen_method
+		from waflib.TaskGen import taskgen_method
 		@taskgen_method
 		def mymethod(self):
 			pass
