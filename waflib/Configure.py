@@ -56,10 +56,14 @@ def download_tool(tool, force=False, ctx=None):
 			url = '/'.join((x, sub, tool + '.py'))
 			try:
 				web = urlopen(url)
-				if web.getcode() != 200:
-					continue
+				try:
+					if web.getcode() != 200:
+						continue
+				except AttributeError:
+					pass
 			except Exception as e:
 				# on python3 urlopen throws an exception
+				# python 2.3 does not have getcode and throws an exception to fail
 				continue
 			else:
 				tmp = ctx.root.make_node(os.sep.join((Context.waf_dir, 'waflib', 'extras', tool + '.py')))
