@@ -11,7 +11,6 @@ import re, shutil, os, sys, string, shlex
 from waflib.Configure import conf
 from waflib.TaskGen import feature, after_method, before_method
 from waflib import Build, Utils
-from waflib.Utils import subprocess
 
 FC_FRAGMENT = '        program main\n        end     program main\n'
 FC_FRAGMENT2 = '        PROGRAM MAIN\n        END\n' # what's the actual difference between these?
@@ -333,10 +332,10 @@ def getoutput(conf, cmd, stdin=False):
 	"""
 	try:
 		if stdin:
-			stdin = subprocess.PIPE
+			stdin = Utils.subprocess.PIPE
 		else:
 			stdin = None
-		p = subprocess.Popen(cmd, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = Utils.subprocess.Popen(cmd, stdin=stdin, stdout=Utils.subprocess.PIPE, stderr=Utils.subprocess.PIPE)
 		if stdin:
 			p.stdin.write('\n'.encode())
 		stdout, stderr = p.communicate()

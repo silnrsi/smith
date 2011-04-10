@@ -10,7 +10,6 @@ import os, imp, sys, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
 from waflib.TaskGen import before_method, after_method, feature
 from waflib.Configure import conf
-from waflib.Utils import subprocess
 
 WAF_CONFIG_H   = 'config.h'
 """default name for the config.h file"""
@@ -1003,7 +1002,7 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 	"""
 	cmd = cc + ['-dM', '-E', '-']
 	try:
-		p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		p = Utils.subprocess.Popen(cmd, stdin=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE, stderr=Utils.subprocess.PIPE)
 		p.stdin.write('\n'.encode())
 		out = p.communicate()[0]
 	except:
