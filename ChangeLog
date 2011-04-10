@@ -2,8 +2,8 @@ NEW IN WAF 1.6.4
 ----------------
 
 * Improve the support for mac applications (demos/mac_app)
-* Fixed the Python detection on win32 #883
-* Optimized the Python file installation #892
+* Fix the Python detection on win32 #883
+* Optimize the Python file installation #892
 * Force +x permissions on installed fortran programs #893
 * Ensure that unit tests are executed only after the symlinks are created
 * Check for tasks creating the same nodes on waf -v
@@ -12,6 +12,7 @@ NEW IN WAF 1.6.4
 * New example on avoiding rebuilds when moving a project (playground/relocate)
 * Compute a build order based on the preprocessor scanning #777
 * Build better default regexps in "waf step"
+* Fix the execution on python 2.3 for: "waf update", msvc.py, fc.py
 
 NEW IN WAF 1.6.3
 ----------------

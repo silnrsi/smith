@@ -282,8 +282,13 @@ def gather_msvc_versions(conf, versions):
 			detected_versions.append((versionnumber, version, prefix+"\\"+version))
 	def fun(tup):
 		return tup[0]
-	# FIXME sort does not have a key on python 2.3
-	detected_versions.sort(key = fun)
+
+	try:
+		detected_versions.sort(key = fun)
+	except:
+		# old python sort
+		detected_versions.sort(lambda x,y: cmp(x[0], y[0]))
+
 	for (v,version,reg) in detected_versions:
 		try:
 			msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\VS")
