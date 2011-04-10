@@ -1,18 +1,26 @@
 NEW IN WAF 1.6.4
 ----------------
 
-* Improve the support for mac applications (demos/mac_app)
 * Fix the Python detection on win32 #883
 * Optimize the Python file installation #892
 * Force +x permissions on installed fortran programs #893
+* Qt library detection fixes #895
 * Ensure that unit tests are executed only after the symlinks are created
-* Check for tasks creating the same nodes on waf -v
 * Fix the precedence constraints for classes ending in _task #896
+* Support the install_path attribute with add_pcfile #913
+* Make the goprograms executable when installed #928
+* Allow non-python data files in the waf executable #927
+* Enforce a build order based on the scanner results #777, #922
+* Multiple msvc detection fixes #907 #910 #923 #924 #926
+* Fix the -of flag append with dmd #917
+* Boost detection fixes #920
+* Support newer javac compilers #921
+* Fix the execution on python 2.3 for: "waf update", msvc.py, fc.py
+* Improve the support for mac applications (demos/mac_app)
+* Better default regexps in "waf step"
+* New error check for tasks creating the same nodes or having the same identifiers (waf -v)
 * New variables conf.env.NO_LOCK_IN_TOP/OUT/RUN for special projects (top='..')
 * New example on avoiding rebuilds when moving a project (playground/relocate)
-* Compute a build order based on the preprocessor scanning #777
-* Build better default regexps in "waf step"
-* Fix the execution on python 2.3 for: "waf update", msvc.py, fc.py
 
 NEW IN WAF 1.6.3
 ----------------
