@@ -16,7 +16,7 @@ except:
 	try:
 		import waflib.extras.subprocess as subprocess
 	except:
-		print("the subprocess module is missing, try to add it to the folder waflib/extras (python 2.3?)")
+		print("The subprocess module is missing (python2.3?):\n try calling 'waf update --files=subprocess'\n or add a copy of subprocess.py to the python libraries")
 
 try:
 	from collections import deque

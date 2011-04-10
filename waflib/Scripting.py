@@ -518,7 +518,7 @@ def update(ctx):
 		try:
 			Configure.download_tool(tool, force=True, ctx=ctx)
 		except Errors.WafError:
-			Logs.warn('Could not find the tool %s in the remote repository' % x)
+			Logs.error('Could not find the tool %s in the remote repository' % x)
 
 def autoconfigure(execute_method):
 	"""

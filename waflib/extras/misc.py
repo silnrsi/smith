@@ -11,7 +11,7 @@ Try using:
 	make-like rules
 """
 
-import shutil, re, os, subprocess
+import shutil, re, os
 from waflib import TaskGen, Node, Task, Utils, Build
 from waflib.TaskGen import feature, after_method, before_method
 from waflib.Logs import debug
@@ -262,7 +262,7 @@ class command_output(Task.Task):
 			os_env = os.environ
 		else:
 			os_env = task.os_env
-		command = subprocess.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
+		command = Utils.subprocess.Popen(argv, stdin=stdin, stdout=stdout, stderr=stderr, cwd=task.cwd, env=os_env)
 		return command.wait()
 
 @feature('command-output')
