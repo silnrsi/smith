@@ -26,11 +26,133 @@ class goprogram(link_task):
 	inst_to = '${BINDIR}'
 	chmod   = Utils.O755
 
+class cgopackage(stlink_task):
+	color   = 'YELLOW'
+	inst_to = '${LIBDIR}'
+	ext_in  = ['.go']
+	ext_out = ['.a']
+
+	def run(self):
+		src_dir = self.generator.bld.path
+		source  = self.inputs
+		target  = self.outputs[0].change_ext('')
+
+		#print ("--> %s" % self.outputs)
+		#print ('++> %s' % self.outputs[1])
+		bld_dir = self.outputs[1]
+		bld_dir.mkdir()
+		obj_dir = bld_dir.make_node('_obj')
+		obj_dir.mkdir()
+
+		bld_srcs = []
+		for s in source:
+			# FIXME: it seems gomake/cgo stumbles on filenames like a/b/c.go
+			# -> for the time being replace '/' with '_'...
+			#b = bld_dir.make_node(s.path_from(src_dir))
+			b = bld_dir.make_node(s.path_from(src_dir).replace(os.sep,'_'))
+			b.parent.mkdir()
+			#print ('++> %s' % (s.path_from(src_dir),))
+			try:
+				os.symlink(s.abspath(), b.abspath())
+			except Exception:
+				# if no support for symlinks, copy the file from src
+				b.write(s.read())
+			bld_srcs.append(b)
+			#print("--|> [%s]" % b.abspath())
+			b.sig = Utils.h_file(b.abspath())
+			pass
+		cgo_flags_node = bld_dir.make_node('_waf_cgoflags.go')
+		cgo_flags_node.write('''\
+package %(target)s
+
+/*
+ #cgo CFLAGS: %(cgo_cflags)s
+ #cgo LDFLAGS: %(cgo_ldflags)s
+*/
+import "C"
+// EOF
+''' % { 'target':      target,
+		'cgo_cflags' : ' '.join(l for l in self.env['GOCFLAGS']),
+		'cgo_ldflags': ' '.join(l for l in self.env['GOLFLAGS']),
+		})
+		bld_srcs.insert(0, cgo_flags_node)
+		cgo_flags_node.sig = Utils.h_file(cgo_flags_node.abspath())
+		#self.set_inputs(bld_srcs)
+		#self.generator.bld.raw_deps[self.uid()] = [self.signature()] + bld_srcs
+		makefile_node = bld_dir.make_node("Makefile")
+		makefile_tmpl = '''\
+# Copyright 2009 The Go Authors.  All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file. ---
+
+include $(GOROOT)/src/Make.inc
+
+TARG=%(target)s
+
+CGOFILES=\\
+\t%(source)s
+
+include $(GOROOT)/src/Make.pkg
+
+%%: install %%.go
+	$(GC) $*.go
+	$(LD) -o $@ $*.$O
+
+''' % {
+'target': target.path_from(obj_dir),
+'source': ' '.join([b.path_from(bld_dir) for b in bld_srcs])
+}
+		makefile_node.write(makefile_tmpl)
+		#print ("::makefile: %s"%makefile_node.abspath())
+		
+		cmd = Utils.subst_vars('gomake ${GOMAKE_FLAGS}', self.env).strip()
+		o = self.outputs[0].change_ext('.gomake.log')
+		fout_node = bld_dir.find_or_declare(o.name)
+		fout = open(fout_node.abspath(), 'w')
+		rc = self.generator.bld.exec_command(
+		    cmd,
+		    stdout=fout,
+           stderr=fout,
+           cwd=bld_dir.abspath(),
+		)
+		if rc != 0:
+			import waflib.Logs as msg
+			msg.error('** error running [%s] (cgo-%s)' % (cmd, target))
+			msg.error(fout_node.read())
+			return rc
+		self.generator.bld.read_stlib(
+			target,
+			paths=[obj_dir.abspath(),],
+			)
+		tgt = self.outputs[0]
+		if tgt.parent != obj_dir:
+			install_dir = os.path.join('${LIBDIR}',
+				tgt.parent.path_from(obj_dir))
+		else:
+			install_dir = '${LIBDIR}'
+		#print('===> %s (%s)' % (tgt.abspath(), install_dir))
+		self.generator.bld.install_files(
+            install_dir,
+            tgt.abspath(),
+            relative_trick=False,
+            postpone=False,
+			)
+		return rc
+
 @extension('.go')
 def compile_go(self, node):
-	return self.create_compiled_task('go', node)
+	#print('*'*80, self.name)
+	if not ('cgopackage' in self.features):
+		return self.create_compiled_task('go', node)
+	#print ('compile_go-cgo...')
+	bld_dir = node.parent.get_bld()
+	obj_dir = bld_dir.make_node('_obj')
+	target  = obj_dir.make_node(node.change_ext('.a').name)
+	return self.create_task('cgopackage',
+							node,
+							node.change_ext('.a'))
 
-@feature('gopackage', 'goprogram')
+@feature('gopackage', 'goprogram', 'cgopackage')
 @before_method('process_source')
 def go_compiler_is_foobar(self):
 	if self.env.GONAME == 'gcc':
@@ -44,25 +166,46 @@ def go_compiler_is_foobar(self):
 		else:
 			src.append(node)
 	self.source = src
-	tsk = self.create_compiled_task('go', go[0])
-	tsk.inputs.extend(go[1:])
+	if not ('cgopackage' in self.features):
+		tsk = self.create_compiled_task('go', go[0])
+		tsk.inputs.extend(go[1:])
+	else:
+		#print ('+++ [%s] +++' % self.target)
+		bld_dir = self.path.get_bld().make_node('cgopackage--%s' %
+												self.target.replace(os.sep,'_'))
+		obj_dir = bld_dir.make_node('_obj')
+		target  = obj_dir.make_node(self.target+'.a')
+		tsk = self.create_task('cgopackage',
+							   go,
+							   [target, bld_dir])
+		self.link_task = tsk
+		self.link_task.add_target(target)
+        
 
-@feature('gopackage', 'goprogram')
-@after_method('process_source', 'apply_incpaths')
+@feature('gopackage', 'goprogram', 'cgopackage')
+@after_method('process_source', 'apply_incpaths',)
 def go_local_libs(self):
+	#print ('== go-local-libs == [%s]' % self.name)
 	names = self.to_list(getattr(self, 'use', []))
 	for name in names:
 		tg = self.bld.get_tgen_by_name(name)
 		if not tg:
 			raise Utils.WafError('no target of name %r necessary for %r in go uselib local' % (name, self))
 		tg.post()
-		for tsk in self.tasks:
-			if isinstance(tsk, go):
-				tsk.set_run_after(tg.link_task)
-				tsk.dep_nodes.extend(tg.link_task.outputs)
-		path = tg.link_task.outputs[0].parent.abspath()
-		self.env.append_unique('GOCFLAGS', ['-I%s' % path])
-		self.env.append_unique('GOLFLAGS', ['-L%s' % path])
+		#print ("-- tg: %s" % name)
+		lnk_task = getattr(tg, 'link_task', None)
+		if lnk_task:
+			for tsk in self.tasks:
+				if isinstance(tsk, (go, cgopackage)):
+					tsk.set_run_after(lnk_task)
+					tsk.dep_nodes.extend(lnk_task.outputs)
+			path = lnk_task.outputs[0].parent.abspath()
+			self.env.append_unique('GOCFLAGS', ['-I%s' % path])
+			self.env.append_unique('GOLFLAGS', ['-L%s' % path])
+		for n in getattr(tg, 'includes_nodes', []):
+			self.env.append_unique('GOCFLAGS', ['-I%s' % n.abspath()])
+		pass
+	pass
 
 def configure(conf):
 
@@ -98,6 +241,7 @@ def configure(conf):
 	set_def('gopackage_PATTERN', '%s.a')
 	set_def('CPPPATH_ST', '-I%s')
 
+	set_def('GOMAKE_FLAGS', ['--quiet'])
 	conf.find_program(conf.env.GO_COMPILER, var='GOC')
 	conf.find_program(conf.env.GO_LINKER,   var='GOL')
 	conf.find_program(conf.env.GO_PACK,     var='GOP')

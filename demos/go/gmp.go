@@ -2,105 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-/*
-An example of wrapping a C library in Go. This is the GNU
-multiprecision library gmp's integer type mpz_t wrapped to look like
-the Go package big's integer type Int.
-
-This is a syntactically valid Go program—it can be parsed with the Go
-parser and processed by godoc—but it is not compiled directly by 6g.
-Instead, a separate tool, cgo, processes it to produce three output
-files.  The first two, 6g.go and 6c.c, are a Go source file for 6g and
-a C source file for 6c; both compile as part of the named package
-(gmp, in this example).  The third, gcc.c, is a C source file for gcc;
-it compiles into a shared object (.so) that is dynamically linked into
-any 6.out that imports the first two files.
-
-The stanza
-
-	// #include <gmp.h>
-	import "C"
-
-is a signal to cgo.  The doc comment on the import of "C" provides
-additional context for the C file.  Here it is just a single #include
-but it could contain arbitrary C definitions to be imported and used.
-
-Cgo recognizes any use of a qualified identifier C.xxx and uses gcc to
-find the definition of xxx.  If xxx is a type, cgo replaces C.xxx with
-a Go translation.  C arithmetic types translate to precisely-sized Go
-arithmetic types.  A C struct translates to a Go struct, field by
-field; unrepresentable fields are replaced with opaque byte arrays.  A
-C union translates into a struct containing the first union member and
-perhaps additional padding.  C arrays become Go arrays.  C pointers
-become Go pointers.  C function pointers become Go's uintptr.
-C void pointer's become Go's unsafe.Pointer.
-
-For example, mpz_t is defined in <gmp.h> as:
-
-	typedef unsigned long int mp_limb_t;
-
-	typedef struct
-	{
-		int _mp_alloc;
-		int _mp_size;
-		mp_limb_t *_mp_d;
-	} __mpz_struct;
-
-	typedef __mpz_struct mpz_t[1];
-
-Cgo generates:
-
-	type _C_int int32
-	type _C_mp_limb_t uint64
-	type _C___mpz_struct struct {
-		_mp_alloc _C_int;
-		_mp_size _C_int;
-		_mp_d *_C_mp_limb_t;
-	}
-	type _C_mpz_t [1]_C___mpz_struct
-
-and then replaces each occurrence of a type C.xxx with _C_xxx.
-
-If xxx is data, cgo arranges for C.xxx to refer to the C variable,
-with the type translated as described above.  To do this, cgo must
-introduce a Go variable that points at the C variable (the linker can
-be told to initialize this pointer).  For example, if the gmp library
-provided
-
-	mpz_t zero;
-
-then cgo would rewrite a reference to C.zero by introducing
-
-	var _C_zero *C.mpz_t
-
-and then replacing all instances of C.zero with (*_C_zero).
-
-Cgo's most interesting translation is for functions.  If xxx is a C
-function, then cgo rewrites C.xxx into a new function _C_xxx that
-calls the C xxx in a standard pthread.  The new function translates
-its arguments, calls xxx, and translates the return value.
-
-Translation of parameters and the return value follows the type
-translation above except that arrays passed as parameters translate
-explicitly in Go to pointers to arrays, as they do (implicitly) in C.
-
-Garbage collection is the big problem.  It is fine for the Go world to
-have pointers into the C world and to free those pointers when they
-are no longer needed.  To help, the garbage collector calls an
-object's destroy() method prior to collecting it.  C pointers can be
-wrapped by Go objects with appropriate destroy methods.
-
-It is much more difficult for the C world to have pointers into the Go
-world, because the Go garbage collector is unaware of the memory
-allocated by C.  The most important consideration is not to
-constrain future implementations, so the rule is that Go code can
-hand a Go pointer to C code but must separately arrange for
-Go to hang on to a reference to the pointer until C is done with it.
-*/
 package gmp
 
 // #include <gmp.h>
 // #include <stdlib.h>
+// #cgo LDFLAGS: -lgmp
 import "C"
 
 import (
@@ -267,7 +173,7 @@ func (z *Int) Mod(x, y *Int) *Int {
 func (z *Int) Lsh(x *Int, s uint) *Int {
 	x.doinit()
 	z.doinit()
-	C.mpz_mul_2exp(&z.i[0], &x.i[0], C.ulong(s))
+	C.mpz_mul_2exp(&z.i[0], &x.i[0], C.mp_bitcnt_t(s))
 	return z
 }
 
@@ -275,7 +181,7 @@ func (z *Int) Lsh(x *Int, s uint) *Int {
 func (z *Int) Rsh(x *Int, s uint) *Int {
 	x.doinit()
 	z.doinit()
-	C.mpz_div_2exp(&z.i[0], &x.i[0], C.ulong(s))
+	C.mpz_div_2exp(&z.i[0], &x.i[0], C.mp_bitcnt_t(s))
 	return z
 }
 

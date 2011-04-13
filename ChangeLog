@@ -21,6 +21,7 @@ NEW IN WAF 1.6.4
 * New error check for tasks creating the same nodes or having the same identifiers (waf -v)
 * New variables conf.env.NO_LOCK_IN_TOP/OUT/RUN for special projects (top='..')
 * New example on avoiding rebuilds when moving a project (playground/relocate)
+* Improve go-lang support for cgo-packages (fixes #932)
 
 NEW IN WAF 1.6.3
 ----------------

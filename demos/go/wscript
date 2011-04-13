@@ -23,7 +23,7 @@ def configure(ctx):
 		ctx.env.TRY_CGO = False
 	else:
 		ctx.env.TRY_CGO = True
-
+	
 def build(ctx):
 
 	ctx(
@@ -46,22 +46,98 @@ def build(ctx):
 	# NOTE: if you use ant_glob, use it like this:     bld.path.ant_glob('*.go', excl='*_test.go')
 
 	if ctx.env.TRY_CGO:
-		# see http://code.google.com/p/go/issues/detail?id=1203
-		# so we still have to move the files, grrrrr
-		ctx(name='cgo', rule='${CGO} ${SRC} && mv .._${TGT[0].name} ${TGT[0].abspath()} && mv .._${TGT[1].name} ${TGT[1].abspath()}',
-			target='gmp.cgo1.go gmp.cgo2.c   gmp.cgo2.c _cgo_gotypes.go _cgo_defun.c',
-			source='gmp.go',
-			shell=True)
-		ctx(features='c cshlib', source='gmp.cgo2.c', target=ctx.path.find_or_declare('cgo_gmp.so'), use='GMP')
+		ctx.read_shlib('gmp')
+		ctx(
+			features = 'c cshlib',
+			source   = 'my-c-lib/src/foo.c',
+			target   = 'my-c-lib',
+			includes = 'my-c-lib/includes',
+			export_includes=['my-c-lib/includes'],
+			)
+		ctx(
+			features = 'cgopackage',
+			name     = 'go-gmp',
+			target   = 'gmp',
+			source   = 'gmp.go gmp/impl.go',
+			use      = 'gmp',
+			)
 
-		# go files can only use go packages, so pi.go cannot compile
+		# testing multiple cgopackage targets...
+		ctx(
+			features = 'cgopackage',
+			name     = 'go-stdio',
+			target   = 'cgo/stdio',
+			source   = 'stdio/file.go',
+			)
+
+		ctx(
+			features = 'cgopackage',
+			name     = 'go-my-c-lib',
+			target   = 'foo',
+			source   = 'my-c-lib.go my-c-lib-2.go',
+			use      = ['my-c-lib',],
+			)
+
 		#ctx.add_group()
-		#ctx(features='go goprogram uselib', source='pi.go', target='pi', gocflags=['-I.', '-I..'])
+		ctx(features='go goprogram uselib',
+			source='pi.go',
+			target='pi',
+			use='go-gmp',
+			#gocflags=['-I.', '-I..'],
+			)
+
+		ctx(
+			features='go goprogram uselib',
+			source='stdio/hello.go',
+			target='go-stdio-hello',
+			use='go-stdio',
+			)
+
+		ctx(
+			features='go goprogram uselib',
+			source='stdio/fib.go',
+			target='go-stdio-fib',
+			use='go-stdio',
+			)
+
+		ctx(
+			features='go goprogram uselib',
+			source='stdio/chain.go',
+			target='go-stdio-chain',
+			use='go-stdio',
+			)
+
+		ctx(
+			features='go goprogram uselib',
+			source='my-cgo-test.go',
+			target='my-cgo-test',
+			use='go-my-c-lib',
+			)
 
 	from waflib import Options, Utils
 	if ctx.env.TRY_CGO and Options.options.exe:
-		def exe(bld):
+		def exe_pi(bld):
 			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/pi', shell=True)
 			p.wait()
-		ctx.add_post_fun(exe)
+		ctx.add_post_fun(exe_pi)
+
+		def exe_hello(bld):
+			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/go-stdio-hello', shell=True)
+			p.wait()
+		ctx.add_post_fun(exe_hello)
+
+		def exe_fib(bld):
+			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/go-stdio-fib', shell=True)
+			p.wait()
+		ctx.add_post_fun(exe_fib)
+
+		def exe_chain(bld):
+			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/go-stdio-chain', shell=True)
+			p.wait()
+		ctx.add_post_fun(exe_chain)
+
+		def exe_mycgolib(bld):
+			p = Utils.subprocess.Popen('LD_LIBRARY_PATH=build ./build/my-cgo-test', shell=True)
+			p.wait()
+		ctx.add_post_fun(exe_mycgolib)
 
