@@ -38,7 +38,7 @@ class dshlib(dprogram):
 
 class dstlib(stlink_task):
 	"Link object files into a d static library"
-	#pass # do not remove
+	pass # do not remove
 
 @extension('.d', '.di', '.D')
 def d_hook(self, node):
