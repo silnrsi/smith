@@ -53,6 +53,8 @@ class cgopackage(stlink_task):
 			b.parent.mkdir()
 			#print ('++> %s' % (s.path_from(src_dir),))
 			try:
+				try:os.remove(b.abspath())
+				except Exception:pass
 				os.symlink(s.abspath(), b.abspath())
 			except Exception:
 				# if no support for symlinks, copy the file from src
