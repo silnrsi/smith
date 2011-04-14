@@ -106,7 +106,6 @@ include $(GOROOT)/src/Make.pkg
 }
 		makefile_node.write(makefile_tmpl)
 		#print ("::makefile: %s"%makefile_node.abspath())
-		
 		cmd = Utils.subst_vars('gomake ${GOMAKE_FLAGS}', self.env).strip()
 		o = self.outputs[0].change_ext('.gomake.log')
 		fout_node = bld_dir.find_or_declare(o.name)
@@ -181,8 +180,6 @@ def go_compiler_is_foobar(self):
 							   go,
 							   [target, bld_dir])
 		self.link_task = tsk
-		self.link_task.add_target(target)
-        
 
 @feature('gopackage', 'goprogram', 'cgopackage')
 @after_method('process_source', 'apply_incpaths',)
