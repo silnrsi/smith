@@ -44,7 +44,7 @@ def sniff_features(**kw):
 	feats = []
 
 	# watch the order, cxx will have the precedence
-	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts or 'cc' in exts:
+	if 'cxx' in exts or 'cpp' in exts or 'c++' in exts or 'cc' in exts or 'C' in exts:
 		feats.append('cxx')
 
 	if 'c' in exts or 'vala' in exts:
