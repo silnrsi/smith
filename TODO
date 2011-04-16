@@ -6,7 +6,6 @@ GENERAL IMPROVEMENTS
 - debugging tool for the list of dependencies
 - investigate the deadlock on jython with -j>1
 
-- python 2.3 fixes for msvc.py and fc.py: sort(key=fun)
 - synchronized stdout+stderr for all commands by default
 
 LOW PRIORITY (contributions will be welcome)

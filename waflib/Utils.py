@@ -110,7 +110,11 @@ except ImportError:
 				return value
 
 is_win32 = sys.platform == 'win32'
-indicator = (is_win32 and os.environ.get('TERM', 'dumb') not in ('msys', 'xterm')) and '\x1b[A\x1b[K%s%s%s\r' or '\x1b[K%s%s%s\r'
+
+# we should have put this in the Logs.py file instead :-/
+indicator = '\x1b[K%s%s%s\r'
+if is_win32 and 'NOCOLOR' in os.environ:
+	indicator = '%s%s%s\r'
 
 def readf(fname, m='r'):
 	"""

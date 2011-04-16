@@ -22,6 +22,7 @@ NEW IN WAF 1.6.4
 * New variables conf.env.NO_LOCK_IN_TOP/OUT/RUN for special projects (top='..')
 * New example on avoiding rebuilds when moving a project (playground/relocate)
 * Improve go-lang support for cgo-packages (fixes #932)
+* Fix the progress bar on cmd and msys
 
 NEW IN WAF 1.6.3
 ----------------
