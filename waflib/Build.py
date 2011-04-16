@@ -249,8 +249,9 @@ class BuildContext(Context.Context):
 			if self.progress_bar == 1:
 				c = len(self.returned_tasks) or 1
 				self.to_log(self.progress_line(c, c, Logs.colors.BLUE, Logs.colors.NORMAL))
-				sys.stderr.write(Logs.colors.cursor_on)
 				print('')
+				sys.stdout.flush()
+				sys.stderr.write(Logs.colors.cursor_on)
 			Logs.info("Waf: Leaving directory `%s'" % self.variant_dir)
 		self.post_build()
 
