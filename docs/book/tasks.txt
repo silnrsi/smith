@@ -526,24 +526,45 @@ The function 'waflib.Task.always_run' is used to force a task to be executed whe
 [source,python]
 ---------------
 def configure(ctx):
-	pass
+    pass
 
 def build(ctx):
-	from waflib import Task
-	class copy(Task.Task):
-		run_str = 'cp ${SRC} ${TGT}'
-	copy = waflib.Task.always_run(copy)
+    from waflib import Task
+    class copy(Task.Task):
+        run_str = 'cp ${SRC} ${TGT}'
+    copy = waflib.Task.always_run(copy)
 
-	tsk = copy(env=ctx.env)
-	tsk.set_inputs(ctx.path.find_resource('wscript'))
-	tsk.set_outputs(ctx.path.find_or_declare('b.out'))
-	ctx.add_to_group(tsk)
+    tsk = copy(env=ctx.env)
+    tsk.set_inputs(ctx.path.find_resource('wscript'))
+    tsk.set_outputs(ctx.path.find_or_declare('b.out'))
+    ctx.add_to_group(tsk)
+---------------
+
+For convenience, rule-based task generators can declare the *always* attribute to achieve the same result:
+
+[source,python]
+---------------
+def build(ctx):
+    ctx(
+        rule   = 'echo hello',
+        always = True
+    )
 ---------------
 
 ===== File hashes
 
-By default, the task signature is also used as the signature of the task nodes outputs. The aim is to detect if the outputs have really been produced by the task.
+To detect if the outputs have really been produced by a task, the task signature is used as the signature of the task nodes outputs. As a consequence, files created in the source directory are going to be rebuilt each time. To avoid this, the node signature should match the actual file contents. This is enforced by using the function 'waflib.Task.update_outputs' on task classes. It replaces the methods _post_run_ and _runnable_status_ of a task class to set the hash file contents to the output nodes.
 
-The function 'waflib.Task.update_outputs' replaces the methods _post_run_ and _runnable_status_ of a task class to set the hash file contents to the output nodes. The main application is to avoid overwriting the signatures for files which are kept in the source directory (not in the build directory).
+For convenience, rule-based task generators can declare the *update_outputs* attribute to achieve the same result:
 
+[source,python]
+---------------
+def build(ctx):
+    ctx(
+        rule           = 'cp ${SRC} ${TGT}',
+        source         = 'wcript',
+        target         = ctx.path.make_node('wscript2'),
+        update_outputs = True
+    )
+---------------
 

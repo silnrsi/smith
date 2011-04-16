@@ -145,7 +145,7 @@ some text
 
 NOTE: More methods may be found in the http://waf.googlecode.com/svn/docs/apidocs/index.html[API documentation]
 
-WARNING: These methods are not safe for concurrent access. The node class methods are not thread-safe.
+WARNING: These methods are not safe for concurrent access. The node class methods are not meant to be thread-safe.
 
 ==== Listing files and folders
 
@@ -280,7 +280,7 @@ To support this, the build context provides two additional nodes:
 . srcnode: node representing the top-level directory
 . bldnode: node representing the build directory
 
-To obtain a build node from a src node and vice-verca, the following methods may be used
+To obtain a build node from a src node and vice-versa, the following methods may be used:
 
 . Node.get_src()
 . Node.get_bld()
@@ -304,6 +304,29 @@ def build(bld):
 
 <1> Not recommended, use _find_dir_ instead
 <2> Path separators are converted automatically according to the platform.
+
+==== Nodes, tasks, and task generators
+
+As seen in the previous chapter, Task objects can process files represented as lists of input and output nodes. The task generators
+will usually process the input files given as strings to obtain such nodes and bind them to the tasks.
+
+Since the build directory can be enabled or disabled, the following file copy is invalid: footnote:[When file copies cannot be avoided, the best practice is to change the file names]
+
+[source,python]
+---------------
+def build(bld):
+    bld(rule='cp ${SRC}' ${TGT}, source='foo.txt', target='foo.txt')
+---------------
+
+To actually copy a file into the corresponding build directory with the same name, the ambiguity must be removed:
+
+[source,python]
+---------------
+def build(bld):
+    bld(rule   = 'cp ${SRC}' ${TGT},
+		source = bld.path.make_node('foo.txt'),
+		target = bld.path.get_bld().make_node('foo.txt'))
+---------------
 
 // ==== Serialization concerns
 

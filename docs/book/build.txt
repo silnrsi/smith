@@ -7,7 +7,7 @@ We will now provide a detailed description of the build phase, which is used for
 ==== Build order and dependencies
 
 To illustrate the various concepts that are part of the build process, we are now going to use a new example.
-The files +foo.txt+ and +bar.txt+ will be created by copying the file +wscript+, and the file +foobar.txt+ will be created from the concatenation of the generated files. Here is a summary:
+The files +foo.txt+ and +bar.txt+ will be created by copying the file +wscript+, and the file +foobar.txt+ will be created from the concatenation of the generated files. Here is a summary: footnote:[The examples are provided for demonstration purposes. It is actually considered a best practice to avoid copying files]
 
 [source,shishell]
 ---------------
@@ -78,7 +78,7 @@ def build(ctx):
 <2> Waf tasks have a method named *run* to generate the targets
 <3> Instances of _waflib.Task.Task_ have input and output objects representing the files to use (Node objects)
 <4> Create a new task instance manually
-<5> Set input and output nodes
+<5> Set input and output files represented as _waflib.Node.Node_ objects
 <6> Add the task to the build context for execution (but do not execute them immediately)
 
 The execution output will be the following:
