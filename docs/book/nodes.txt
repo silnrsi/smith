@@ -298,8 +298,8 @@ Besides, they all use _find_dir_ internally which will create the required direc
 [source,python]
 ---------------
 def build(bld):
-	p = bld.path.parent.find_dir('src') <1>
-	p = bld.path.find_dir('../src') <2>
+    p = bld.path.parent.find_dir('src') <1>
+    p = bld.path.find_dir('../src') <2>
 ---------------
 
 <1> Not recommended, use _find_dir_ instead
@@ -323,9 +323,11 @@ To actually copy a file into the corresponding build directory with the same nam
 [source,python]
 ---------------
 def build(bld):
-    bld(rule   = 'cp ${SRC}' ${TGT},
-		source = bld.path.make_node('foo.txt'),
-		target = bld.path.get_bld().make_node('foo.txt'))
+    bld(
+        rule   = 'cp ${SRC}' ${TGT},
+        source = bld.path.make_node('foo.txt'),
+        target = bld.path.get_bld().make_node('foo.txt')
+    )
 ---------------
 
 // ==== Serialization concerns

@@ -540,7 +540,7 @@ def build(ctx):
     ctx.add_to_group(tsk)
 ---------------
 
-For convenience, rule-based task generators can declare the *always* attribute to achieve the same result:
+For convenience, rule-based task generators can declare the *always* attribute to achieve the same results:
 
 [source,python]
 ---------------
@@ -555,7 +555,7 @@ def build(ctx):
 
 To detect if the outputs have really been produced by a task, the task signature is used as the signature of the task nodes outputs. As a consequence, files created in the source directory are going to be rebuilt each time. To avoid this, the node signature should match the actual file contents. This is enforced by using the function 'waflib.Task.update_outputs' on task classes. It replaces the methods _post_run_ and _runnable_status_ of a task class to set the hash file contents to the output nodes.
 
-For convenience, rule-based task generators can declare the *update_outputs* attribute to achieve the same result:
+For convenience, rule-based task generators can declare the *update_outputs* attribute to achieve the same results:
 
 [source,python]
 ---------------

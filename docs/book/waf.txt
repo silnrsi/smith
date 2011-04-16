@@ -9,7 +9,7 @@ The Waf Book
 [preface]
 == Introduction
 
-Copyright (C) 2010 Thomas Nagy
+Copyright (C) 2010-2011 Thomas Nagy
 
 Copies of this book may be redistributed, verbatim, and for non-commercial
 purposes. The license for this book is
