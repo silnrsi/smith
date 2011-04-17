@@ -48,6 +48,7 @@ be used directly, for example::
 	tools/xlcxx
 	tools/msvc
 	tools/winres
+	tools/irixcc
 
 C/C++ support
 -------------
