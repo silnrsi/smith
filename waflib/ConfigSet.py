@@ -9,7 +9,7 @@ ConfigSet: a special dict
 The values put in :py:class:`ConfigSet` must be lists
 """
 
-import os, copy, re
+import copy, re
 from waflib import Logs, Utils
 re_imp = re.compile('^(#)*?([^#=]*?)\ =\ (.*?)$', re.M)
 

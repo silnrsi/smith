@@ -6,7 +6,7 @@
 Classes and functions required for waf commands
 """
 
-import traceback, os, imp, sys
+import os, imp, sys
 from waflib import Utils, Errors, Logs
 import waflib.Node
 

@@ -68,8 +68,6 @@ class utest(Task.Task):
 		are stored on ``self.generator.bld.utest_results`` for postprocessing.
 		"""
 
-		status = 0
-
 		filename = self.inputs[0].abspath()
 		self.ut_exec = getattr(self, 'ut_exec', [filename])
 		if getattr(self.generator, 'ut_fun', None):

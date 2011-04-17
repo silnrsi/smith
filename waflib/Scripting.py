@@ -4,7 +4,7 @@
 
 "Module called for configuring, compiling and installing targets"
 
-import os, shutil, traceback, datetime, inspect, errno, sys, stat
+import os, shutil, traceback, errno, sys, stat
 from waflib import Utils, Configure, Logs, Options, ConfigSet, Context, Errors, Build, Node
 
 build_dir_override = None
@@ -26,7 +26,7 @@ def waf_entry_point(current_directory, version, wafdir):
 	Logs.init_log()
 
 	if Context.WAFVERSION != version:
-		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, WAFVERSION, wafdir))
+		Logs.error('Waf script %r and library %r do not match (directory %r)' % (version, Context.WAFVERSION, wafdir))
 		sys.exit(1)
 
 	if '--version' in sys.argv:
@@ -178,7 +178,7 @@ def parse_options():
 	Parse the command-line options and initialize the logging system.
 	Called by :py:func:`waflib.Scripting.waf_entry_point` during the initialization.
 	"""
-	opt = Options.OptionsContext().execute()
+	Options.OptionsContext().execute()
 
 	if not Options.commands:
 		Options.commands = ['build']
@@ -254,7 +254,7 @@ def distclean_dir(dirname):
 				except:
 					Logs.warn('could not remove %r' % fname)
 
-	for x in [DBFILE, 'config.log']:
+	for x in [Context.DBFILE, 'config.log']:
 		try:
 			os.unlink(x)
 		except:
@@ -533,7 +533,7 @@ def autoconfigure(execute_method):
 		do_config = False
 		try:
 			env.load(os.path.join(Context.top_dir, Options.lockfile))
-		except Exception as e:
+		except Exception:
 			Logs.warn('Configuring the project')
 			do_config = True
 		else:

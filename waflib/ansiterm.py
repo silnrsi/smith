@@ -161,7 +161,6 @@ else:
 			sbinfo = CONSOLE_SCREEN_BUFFER_INFO()
 			windll.kernel32.GetConsoleScreenBufferInfo(self.hconsole, byref(sbinfo))
 			attr = sbinfo.Attributes
-			neg = False
 			for c in cols:
 				c = to_int(c, 0)
 				if c in range(30,38): # fgcolor

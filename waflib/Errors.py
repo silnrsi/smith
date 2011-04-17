@@ -6,7 +6,7 @@
 Exceptions used in the Waf code
 """
 
-import traceback, os, sys
+import traceback, sys
 
 class WafError(Exception):
 	"""Base class for all Waf errors"""

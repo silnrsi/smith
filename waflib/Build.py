@@ -9,7 +9,7 @@ The inheritance tree is the following:
 
 """
 
-import os, sys, errno, re, datetime, shutil
+import os, sys, errno, re, shutil
 try: import cPickle
 except: import pickle as cPickle
 from waflib import Runner, TaskGen, Utils, ConfigSet, Task, Logs, Options, Context, Errors

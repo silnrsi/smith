@@ -237,7 +237,7 @@ class TaskBase(evil):
 			self.generator.bld.returned_tasks.append(self)
 			self.log_display(self.generator.bld)
 			ret = self.run()
-		except Exception as e:
+		except Exception:
 			self.err_msg = Utils.ex_stack()
 			self.hasrun = EXCEPTION
 
@@ -524,7 +524,7 @@ class Task(TaskBase):
 		# implicit deps / scanner results
 		if self.scan:
 			try:
-				imp_sig = self.sig_implicit_deps()
+				self.sig_implicit_deps()
 			except Errors.TaskRescan:
 				return self.signature()
 
@@ -542,7 +542,6 @@ class Task(TaskBase):
 			if not t.hasrun:
 				return ASK_LATER
 
-		env = self.env
 		bld = self.generator.bld
 
 		# first compute the signature
@@ -581,7 +580,6 @@ class Task(TaskBase):
 		of their contents. See the class decorator :py:func:`waflib.Task.update_outputs` if you need this behaviour.
 		"""
 		bld = self.generator.bld
-		env = self.env
 		sig = self.signature()
 
 		for node in self.outputs:
@@ -731,7 +729,6 @@ class Task(TaskBase):
 		upd = self.m.update
 
 		bld = self.generator.bld
-		env = self.env
 
 		self.are_implicit_nodes_ready()
 
@@ -799,7 +796,6 @@ class Task(TaskBase):
 		if not getattr(self, 'outputs', None):
 			return None
 
-		env = self.env
 		sig = self.signature()
 		ssig = Utils.to_hex(sig)
 

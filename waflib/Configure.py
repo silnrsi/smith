@@ -61,7 +61,7 @@ def download_tool(tool, force=False, ctx=None):
 						continue
 				except AttributeError:
 					pass
-			except Exception as e:
+			except Exception:
 				# on python3 urlopen throws an exception
 				# python 2.3 does not have getcode and throws an exception to fail
 				continue
@@ -558,7 +558,7 @@ def find_perl_program(self, filename, path_list=[], var=None, environ=None, exts
 	try:
 		app = self.find_program(filename, path_list=path_list, var=var, environ=environ, exts=exts)
 	except:
-		perl = self.find_program('perl', var='PERL')
+		self.find_program('perl', var='PERL')
 		app = self.find_file(filename, os.environ['PATH'].split(os.pathsep))
 		if not app:
 			raise

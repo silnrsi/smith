@@ -8,7 +8,6 @@ The **ar** program creates static libraries. This tool is almost always loaded
 from others (C, C++, D, etc) for static library support.
 """
 
-import os
 from waflib.Configure import conf
 
 @conf

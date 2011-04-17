@@ -12,7 +12,7 @@ Try using:
 """
 
 import shutil, re, os
-from waflib import TaskGen, Node, Task, Utils, Build
+from waflib import TaskGen, Node, Task, Utils, Build, Errors
 from waflib.TaskGen import feature, after_method, before_method
 from waflib.Logs import debug
 
@@ -20,7 +20,7 @@ def copy_attrs(orig, dest, names, only_if_set=False):
 	"""
 	copy class attributes from an object to another
 	"""
-	for a in to_list(names):
+	for a in Utils.to_list(names):
 		u = getattr(orig, a, ())
 		if u or not only_if_set:
 			setattr(dest, a, u)

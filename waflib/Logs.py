@@ -135,10 +135,9 @@ class log_filter(logging.Filter):
 				rec.c1 = colors.GREEN
 			return True
 
-		zone = ''
 		m = re_log.match(rec.msg)
 		if m:
-			zone = rec.zone = m.group(1)
+			rec.zone = m.group(1)
 			rec.msg = m.group(2)
 
 		if zones:

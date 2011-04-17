@@ -18,7 +18,7 @@ def configure(cnf):
 	if not cnf.env.BJAM_SRC:
 		cnf.env.BJAM_SRC = cnf.options.bjam_src
 	if not cnf.env.BJAM_UNAME:
-		env.BJAM_UNAME = cnf.options.bjam_uname
+		cnf.env.BJAM_UNAME = cnf.options.bjam_uname
 	try:
 		cnf.find_program('bjam', path_list=[
 			cnf.env.BJAM_SRC + sep + 'bin.' + cnf.env.BJAM_UNAME

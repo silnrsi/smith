@@ -55,10 +55,10 @@ def apply_scalac(self):
 
 # reuse some code
 feature('scalac')(javaw.use_javac_files)
-after('apply_scalac')(javaw.use_javac_files)
+after_method('apply_scalac')(javaw.use_javac_files)
 
 feature('scalac')(javaw.set_classpath)
-after('apply_scalac', 'use_scalac_files')(javaw.set_classpath)
+after_method('apply_scalac', 'use_scalac_files')(javaw.set_classpath)
 
 
 SOURCE_RE = '**/*.scala'

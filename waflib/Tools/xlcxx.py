@@ -5,7 +5,6 @@
 # Yinon Ehrlich, 2009
 # Michael Kuhn, 2009
 
-import os, sys
 from waflib.Tools import ccroot, ar
 from waflib.Configure import conf
 

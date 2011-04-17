@@ -4,8 +4,7 @@
 
 "Process *.rc* files for C/C++: X{.rc -> [.res|.rc.o]}"
 
-import os, sys, re
-from waflib import TaskGen, Task
+from waflib import Task
 from waflib.TaskGen import extension
 
 @extension('.rc')
@@ -40,11 +39,11 @@ def configure(conf):
 	# find rc.exe
 	if not conf.env.WINRC:
 		if v.CC_NAME == 'msvc':
-			winrc = conf.find_program('RC', var='WINRC', path_list = v['PATH'])
+			conf.find_program('RC', var='WINRC', path_list = v['PATH'])
 			v['WINRC_TGT_F'] = '/fo'
 			v['WINRC_SRC_F'] = ''
 		else:
-			winrc = conf.find_program('windres', var='WINRC', path_list = v['PATH'])
+			conf.find_program('windres', var='WINRC', path_list = v['PATH'])
 	if not conf.env.WINRC:
 		conf.fatal('winrc was not found!')
 

@@ -11,7 +11,7 @@ as well as custom ones, used by the ``options`` wscript function.
 
 """
 
-import os, types, tempfile, optparse, sys
+import os, tempfile, optparse, sys, re
 from waflib import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()

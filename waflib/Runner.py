@@ -7,12 +7,12 @@ Runner.py: Task scheduling and execution
 
 """
 
-import os, sys, random, atexit
+import random, atexit
 try:
 	from queue import Queue
 except:
 	from Queue import Queue
-from waflib import Utils, Logs, Task, Errors
+from waflib import Utils, Task, Errors
 
 GAP = 10
 """
@@ -245,9 +245,9 @@ class Parallel(object):
 		:type tsk: :py:attr:`waflib.Task.TaskBase`
 		"""
 		try:
-			pool = self.pool
+			self.pool
 		except AttributeError:
-			pool = self.init_task_pool()
+			self.init_task_pool()
 		self.ready.put(tsk)
 
 	def init_task_pool(self):
@@ -307,7 +307,7 @@ class Parallel(object):
 
 			try:
 				st = tsk.runnable_status()
-			except Exception as e:
+			except Exception:
 				self.processed += 1
 				if self.stop and not self.bld.keep:
 					tsk.hasrun = Task.SKIPPED

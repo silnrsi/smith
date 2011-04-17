@@ -9,8 +9,8 @@ this tool to be too stable either (apis, etc)
 """
 
 import os.path, shutil, re
-from waflib import Context, Task, Runner, Utils, Logs, Build, Node, Options, Errors
-from waflib.TaskGen import extension, after_method, before_method
+from waflib import Context, Task, Utils, Logs, Options, Errors
+from waflib.TaskGen import extension
 from waflib.Configure import conf
 
 class valac(Task.Task):
@@ -36,7 +36,6 @@ class valac(Task.Task):
 			cmd.append('--target-glib=%s' % self.target_glib)
 
 		if self.is_lib:
-			output_dir = self.outputs[0].bld_dir()
 			cmd.append('--library=' + self.target)
 			for x in self.outputs:
 				if x.name.endswith('.h'):
