@@ -1,0 +1,9 @@
+= Smith Manual =
+:author: Martin Hosken
+:numbered:
+
+include::intro.txt[]
+include::font.txt[]
+include::keyboard.txt[]
+include::package.txt[]
+

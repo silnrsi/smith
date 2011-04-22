@@ -1,0 +1,4 @@
+#!/usr/bin/python
+
+font(target = 'Norasi.ttf',
+     source = '../../script-test/fonts/thai/font-source/Norasi.ttf')
