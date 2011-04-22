@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from waflib import Context, Build, Errors, Node
+from waflib import Context, Build, Errors, Node, Options
 import font, templater 
 import os, sys, shutil, time
 
@@ -353,6 +353,8 @@ def add_build() :
 
     def build(bld) :
         bld.post_mode = 1
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         for p in Package.packages :
             p.build(bld)
         if old_build : old_build(bld)

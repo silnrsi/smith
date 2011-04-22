@@ -74,7 +74,8 @@ class Font(object) :
             srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarnode = srcnode.get_bld()
-                bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarnode)
+                if tarnode != srcnode :
+                    bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarnode)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], before = self.target)
                 srcnode = tarnode
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target, name = self.target + "_sfd")
@@ -90,8 +91,11 @@ class Font(object) :
 
         # add smarts
         if hasattr(self, 'ap') :
+            apnode = bld.path.find_or_declare(self.ap)
             if self.source.endswith(".sfd") :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
+            else :
+                bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
             if hasattr(self, 'classes') :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1)
         
