@@ -8,7 +8,7 @@ class Keyboard(object) :
    
     def __init__(self, *k, **kw) :
         base = os.path.basename(kw['source'])
-        if not 'target' in kw : kw['target'] = base
+        if not 'target' in kw : kw['target'] = os.path.join('keyboards', base)
         if not 'kmx' in kw : kw['kmx'] = base.replace('.kmn', '.kmx')
         if not 'svg' in kw : kw['svg'] = base.replace('.kmn', '.svg')
         if not 'xml' in kw : kw['xml'] = base.replace('.kmn', '.xml')

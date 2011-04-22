@@ -90,7 +90,7 @@ class Font(object) :
             self.license.build(bld, self)
 
         # add smarts
-        if hasattr(self, 'ap') :
+        if hasattr(self, 'ap') and not hasattr(self, 'legacy') :
             apnode = bld.path.find_or_declare(self.ap)
             if self.source.endswith(".sfd") :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
