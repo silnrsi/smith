@@ -213,7 +213,7 @@ $ waf ping <9>
 <3> The build directory was created
 <4> The configuration data is stored in the folder 'c4che/'
 <5> The command-line options and environment variables in use are stored in 'build.config.py'
-<6> The user configuration set is stored in this '_cache.py'
+<6> The user configuration set is stored in '_cache.py'
 <7> Configuration log (duplicate of the output generated during the configuration)
 <8> Hidden file pointing at the relevant project file and build directory
 <9> Calling _waf_ from a subfolder will execute the commands from the same wscript file used for the configuration
