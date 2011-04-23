@@ -119,7 +119,7 @@ NOTE: The method _recurse_, and the attribute _path_ are available on all waf co
 ==== Configuring a project (the _configure_ command)
 
 Although Waf may be called from any folder containing a 'wscript' file, it is usually a good idea to have a single entry point in the scripts.
-Besides ensuring a consistent behaviour, it is also saves the redefinition of the same imports and function redefinitions in all wscript files.
+Besides ensuring a consistent behaviour, it also saves the redefinition of the same imports and function redefinitions in all wscript files.
 The following concepts help structuring a Waf project:
 
 . Project directory: directory containing the source files that will be packaged and redistributed to other developers or to end users
