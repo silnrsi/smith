@@ -364,7 +364,7 @@ Main commands (example: ./waf build -j4)
   step     : executes tasks in a step-by-step fashion, for debugging
   uninstall: removes the targets installed
 
-Options:
+Options
   --version             show program's version number and exit
   -h, --help            show this help message and exit
   -j JOBS, --jobs=JOBS  amount of parallel jobs (2)
