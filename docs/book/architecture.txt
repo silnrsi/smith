@@ -36,6 +36,8 @@ image::core{PIC}["Module dependencies"{backend@docbook:,height=400:},align="cent
 
 User commands, such as 'configure' or 'build', are represented by classes derived from 'waflib.Context.Context'. When a command does not have a class associated, the base class 'waflib.Context.Context' is used instead.
 
+The method 'execute' is the start point for a context execution, it often calls the method 'recurse' to start reading the user scripts and execute the functions referenced by the 'fun' class attribute.
+
 The command is associated to a context class by the class attribute 'cmd' set on the class. Context subclasses are added in 'waflib.Context.classes' by the metaclass 'store_context' and loaded through the function 'waflib.Context.create_context'. The classes defined last will replace existing commands.
 
 As an example, the following context class will define or override the 'configure' command. When calling 'waf configure', the function 'foo' will be called from wscript files:
@@ -134,7 +136,6 @@ A few measures are set to ensure that the contexts can be executed concurrently:
 
 . Context objects may use different loggers derived from the 'waflib.Logs' module.
 . Each context object is associated to a private subclass of 'waflib.Node.Node' to ensure that the node objects are unique. To pickle Node objects, it is important to prevent concurrent access by using the lock object 'waflib.Node.pickle_lock'.
-. Each build context is associated with a fixed amount of thread consumers. Because some interpreters cannot destroy thread objects, the consumers are returned to a thread pool after use
 
 ==== Build context and persistence
 
@@ -150,21 +151,10 @@ The build context holds all the information necessary for a build. To accelerate
 |task_sigs | Signature of the tasks executed                        | dict mapping a Task computed uid to a hash
 |=================
 
-////
-==== Parallelization concerns
-
-Nearly all the code is executed in the main thread. The other threads are merely waiting for new tasks, and executing the methods 'run' and 'install' from the task instances. As a consequence, such methods should contain as little code as possible, and access the BuildContext in a read-only manner. If such tasks must declare new nodes while executing the build (find_dir, find_resource, ..), then locks must be used to prevent concurrent access (concurrent directory and node creation).
-
-In particular, direct _Node_ instances are not used anywhere in the Waf code. Instead, each build context creates a new Node subclass (bld.node_class), on which the build context instance is attached as a class attribute.
-
-The TaskBase methods 'run' and 'post_run' are executed by threads ('TaskConsumer'). It is therefore discouraged to search for files and folder in these methods unless the nodes have already been created. For processing tasks dynamically during the build, it is recommended to use the TaskBase method 'runnable_status' which is executed by the main thread.
-
-Should this be insuficient, the Task method method 'get_out' of the class Parallel should be overridden to execute methods in an event-like manner (data is attached to the task, and the method get_out executes the code).
-////
 
 === Support for c-like languages
 
-==== Compiled and link tasks
+==== Compiled tasks and link tasks
 
 The tool _waflib.Tools.ccroot_ provides a system for creating object files and linking them into a single final file. The method _waflib.Tools.ccroot.apply_link_ is called after the method _waflib.TaskGen.process_source_ to create the link task. In pseudocode:
 
@@ -257,61 +247,91 @@ Waf: Leaving directory `/tmp/architecture_link/build'
 NOTE: Task generator instances have at most one link task instance
 
 
-////
-==== include processing
-
-TODO
-
-==== uselib processing
-
-TODO
-
-==== local libraries
-
-TODO
 
 
-=== Execution overview
+=== Writing re-usable Waf tools
 
-==== File system access
+==== Adding a waf tool
 
-File system access is performed through an abstraction layer formed by the build context and 'Node' instances. The data structure was carefully designed to maximize performance, so it is unlikely that it will change again in the future. The idea is to represent one file or one directory by a single Node instance. Dependent data such as file hashes are stored on the build context object and allowed to be persisted. Three kinds of nodes are declared: files, build files and folders. The nodes in a particular directory are unique, but build files used in several variant add duplicate entry on the build context cache.
+===== Importing the code
 
-To access a file, the methods 'Node::find_resource', 'Node::find_build' (find an existing resource or declare a build node) and 'Node::find_dir' must be used. While searching for a particular node, the folders are automatically searched once for the files. Old nodes (which do not have a corresponding file) are automatically removed, except for the build nodes. In some cases (lots of files added and removed), it may be necessary to perform a 'Waf clean' to eliminate the information on build files which do not exist anymore.
+The intent of the Waf tools is to promote high cohesion by moving all conceptually related methods and classes into separate files, hidden from the Waf core, and as independent from each other as possible.
 
-==== Task classes
+Custom Waf tools can be left in the projects, added to a custom waf file through the 'waflib/extras' folder, or used through 'sys.path' changes.
 
-The whole process of generating tasks through Waf is performed by methods added on the class task_gen by code injection. This often puzzles the programmers used to static languages where new functions or classes cannot be defined at runtime.
+The tools can import other tools directly through the 'import' keyword. The scripts however should always import the tools to the 'ctx.load' to limit the coupling. Compare for example:
 
-The task generators automatically inherit the build context attribute 'bld' when created from bld(...). Likewise, tasks created from a task generator (create_task) automatically inherit their generator, and their build context. Direct instantiation may result in problems when running Waf as a library.
+[source,python]
+---------------
+def configure(ctx):
+    from waflib.extras.foo import method1
+    method1(ctx)
+---------------
 
-The tasks created by task generator methods are automatically stored on the build context task manager, which stores the task into a task group. The task groups are later used by the scheduler to obtain the task which may run (state machine). Target (un)installation is performed right after a task has run, using the method 'install'.
+and:
 
-=== Performance and build accuracy
+[source,python]
+---------------
+def configure(ctx):
+    ctx.load('foo')
+    ctx.method1()
+---------------
 
-From the experience with tools such as SCons, users may be concerned about performance and think that all build systems based on interpreted languages such as Python would not scale. We will now describe why this is not the case for Waf and why Waf should be chosen for building very large projects.
+The second version should be preferred, as it makes fewer assumptions on whether 'method1' comes from the module 'foo' or not, and on where the module 'foo' is located.
 
-==== Comparing Waf against other build systems
+===== Naming convention for C/C++/Fortran
 
-Since Waf considers the file contents in the build process, it is often thought that Waf would be much slower than make. For a test project having 5000 files (generated from the script located in `tools/genbench.py`), on a 1.5Ghz computer, the Waf runtime is actually slightly faster than the Gnu/Make one (less than one second). The reason is the time to launch a new process - make is usually called recursively, once by directory.
+The tools 'compiler_c', 'compiler_cxx' and 'compiler_fc' use other waf tools to detect the presense of particular compilers. They provide a particular naming convention to give a chance to new tools to register themselves automatically and save the import in user scripts. The tools having names beginning by 'c_', 'cxx_' and 'fc_' will be tested.
 
-For huge projects, calling make recursively is necessary for flexibility, but it hurts performance (launch many processes), and CPU utilization (running tasks in parallel). Make-based build systems such as CMake or Autotools inherit the limitations of Make.
+The registration code will be similar to the following:
 
-Though Waf uses a similar design as SCons, Waf is about 15 times faster for similar features and without sacrificing build accuracy. The main reasons for this are the following:
+[source,python]
+---------------
+from waflib.Tools.compiler_X import X_compiler
+X_compiler['platform'].append('module_name')
+---------------
 
-. The Waf data structures (file system representation, tasks) have been carefully chosen to minimize memory usage and data duplication
-. For a project of the same size, SCons requires at least 10 times as many function calls
+where *X* represents the type of compiler ('c', 'cxx' or 'fc'), *platform* is the platform on which the detection should take place (linux, win32, etc), and *module_name* is the name of the tool to use.
 
-A few benchmarks are maintained at http://freehackers.org/~tnagy/bench.txt[this location]
+==== Command methods
 
-==== Waf hashing schemes and build accuracy
+===== Subclassing is only for commands
 
-To rebuild targets when source file change, the file contents are hashed and compared. The hashes are used to identify the tasks, and to retrieve the files from a cache (folder defined by the environment variable 'WAFCACHE'). Besides command-lines, this scheme also takes file dependencies into account: it is more accurate than caching systems such as 'ccache'.
+As a general rule, subclasses of 'waflib.Context.Context' are created only when a new user command is necessary. This is the case for example when a command for a specific variant (output folder) is required, or to provide a new behaviour. When this happens, the class methods 'recurse', 'execute' or the class attributes 'cmd', 'fun' are usually overridden.
 
-The Waf hashing scheme uses the md5 algorithm provided by the Python distribution. It is fast enough for up to about 100Mb of data and about 10000 files and very safe (virtually no risk of collision).
+NOTE: If there is no new command needed, do not use subclassing.
 
-If more than 100Mb of data is present in the project, it may be necessary to use a faster hashing algorithm. An implementation of the fnv algorithm is present in the Waf distribution, and can replace md5 without really degrading accuracy.
+===== Domain-specific methods are convenient for the end users
 
-If more than 10000 files are present, it may be necessary to replace the hashing system by a 'file name+size+timestamp hash scheme'. An example is provided in the comment section of the module `Utils.py`. That scheme is more efficient but less accurate: the Waf cache should not be used with this scheme.
-////
+Although the Waf framework promotes the most flexible way of declaring tasks through task generators, it is often more convenient to declare domain-specific wrappers in large projects. For example, the samba project provides a function used as:
+
+[source,python]
+---------------
+bld.SAMBA_SUBSYSTEM('NDR_NBT_BUF',
+    source    = 'nbtname.c',
+    deps      = 'talloc',
+    autoproto = 'nbtname.h'
+    )
+---------------
+
+===== How to bind new methods
+
+New methods are commonly bound to the build context or to the configuration context by using the '@conf' decorator:
+
+[source,python]
+---------------
+from waflib.Configure import conf
+
+@conf
+def enterprise_program(self, *k, **kw):
+    kw['features'] = 'c cprogram debug_tasks'
+    return self(*k, **kw)
+
+def build(bld):
+    # no feature line
+    bld.enterprise_program(source='main.c', target='app')
+---------------
+
+The methods should always be bound in this manner or manually, as subclassing may create conflicts between tools written for different purposes.
+
 

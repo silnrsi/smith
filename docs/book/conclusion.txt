@@ -10,5 +10,6 @@ Due to the amount of features provided by Waf, this book is cannot be both compl
 |http://code.google.com/p/waf|The Waf project page
 |http://code.google.com/p/waf/w/list|The Waf wiki, including the frequently asked questions (FAQ)
 |http://groups.google.com/group/waf-users|The Waf mailing-list
+|http://waf-devel.blogspot.com/2011/01/python-32-and-build-system-kit.html|Information on the build system kit
 |================
 
