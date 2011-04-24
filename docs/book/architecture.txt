@@ -27,6 +27,8 @@ Waf consists of the following modules which constitute the core library. They ar
 |Utils     | Contains support functions and classes used by other Waf modules
 |=================
 
+Not all core modules are required for using Waf as a library. The dependencies between the modules are represented on the following diagram. For example, the module 'Node' requires both modules 'Utils' and 'Errors'. Conversely, if the module 'Build' is used alone, then the modules 'Scripting' and 'Configure' can be removed safely.
+
 image::core{PIC}["Module dependencies"{backend@docbook:,height=400:},align="center"]
 
 ==== Context classes
@@ -38,6 +40,14 @@ The method 'execute' is the start point for a context execution, it often calls 
 The command is associated to a context class by the class attribute 'cmd' set on the class. Context subclasses are added in 'waflib.Context.classes' by the metaclass 'store_context' and loaded through the function 'waflib.Context.create_context'. The classes defined last will replace existing commands.
 
 As an example, the following context class will define or override the 'configure' command. When calling 'waf configure', the function 'foo' will be called from wscript files:
+
+[source,python]
+---------------
+from waflib.Context import Context
+class somename(Context):
+    cmd = 'configure'
+    fun = 'foo'
+---------------
 
 image::classes{PIC}["Context classes"{backend@docbook:,width=500:},align="center"]
 
@@ -141,8 +151,6 @@ The build context holds all the information necessary for a build. To accelerate
 |=================
 
 
-Not all core modules are required for using Waf as a library. The dependencies between the modules are represented on the following diagram. For example, the module 'Node' requires both modules 'Utils' and 'Errors'. Conversely, if the module 'Build' is used alone, then the modules 'Scripting' and 'Configure' can be removed safely.
-
 === Support for c-like languages
 
 ==== Compiled tasks and link tasks
@@ -183,7 +191,6 @@ Here is the project file:
 
 // architecture_link
 [source,python]
-[source,python]
 ---------------
 def configure(ctx):
 	pass
@@ -210,7 +217,6 @@ class ext2o(Task):
 def process_ext(self, node):
 	self.create_compiled_task('ext2o', node) <4>
 ---------------
-
 <1> This import will bind the methods such as _create_compiled_task_ and _apply_link_task_
 <2> An alternate definition would be calling _waflib.TaskGen.feats[`mylink'] = [`apply_link']_
 <3> The link task must be a subclass of another link task class
@@ -220,7 +226,7 @@ The execution outputs will be the following:
 // why the extra space after "setting top to"?
 [source,shishell]
 ---------------
----------------
+
 $ waf distclean configure build -v
 'distclean' finished successfully (0.005s)
 Setting top to   : /tmp/architecture_link
@@ -237,12 +243,6 @@ Waf: Leaving directory `/tmp/architecture_link/build'
 'build' finished successfully (0.041s)
 ---------------
 
----------------
-
-from waflib.Context import Context
-class somename(Context):
-    cmd = 'configure'
-    fun = 'foo'
 NOTE: Task generator instances have at most one link task instance
 
 
