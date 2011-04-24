@@ -7,7 +7,7 @@ This chapter provides describes the Waf library and the interaction between the 
 
 ==== Core modules
 
-Waf consists of the following modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` and `waflib/extras` are only extension and are not part of the Waf core.
+Waf consists of the following modules which constitute the core library. They are located in the directory `waflib/`. The modules located under `waflib/Tools` and `waflib/extras` are extensions which are not part of the Waf core.
 
 .List of core modules
 [options="header", cols="1,6"]
@@ -18,29 +18,47 @@ Waf consists of the following modules which constitute the core library. They ar
 |ConfigSet | Contains a dictionary class which supports a lightweight copy scheme and provides persistence services
 |Context   | Contains the base class for all waf commands (context parameters of the Waf commands)
 |Errors    | Exceptions used in the Waf code
-|Logs        | Loggging system
-|Node        | Contains the file system representation class
-|Options     | Provides a custom command-line option processing system based on optparse
-|Runner      | Contains the task execution system (thread-based producer-consumer)
-|Scripting   | Constitutes the entry point of the Waf application, executes the user commands such as build, configuration and installation
-|TaskGen     | Provides the task generator system, and its extension system based on method addition
-|Task        | Contains the task class definitions, and factory functions for creating new task classes
-|Utils       | Contains support functions and classes used by other Waf modules
+|Logs      | Loggging system wrapping the calls to the python logging module
+|Node      | Contains the file system representation class
+|Options   | Provides a custom command-line option processing system based on optparse
+|Runner    | Contains the task execution system (thread-based producer-consumer)
+|Scripting | Constitutes the entry point of the Waf application, executes the user commands such as build, configuration and installation
+|TaskGen   | Provides the task generator system, and its extension system based on method addition
+|Task      | Contains the task class definitions, and factory functions for creating new task classes
+|Utils     | Contains support functions and classes used by other Waf modules
 |=================
 
-Not all modules are required for using Waf as a library, and the following diagram is provided to help including the required modules. For each module represented depends on all other modules below, for example, the module 'Node' requires both modules 'Utils' and 'Errors'. Conversely, if the module 'Build' is used alone, then the modules 'Scripting' and 'Configure' are not necessary.
+Not all core modules are required for using Waf as a library. The dependencies between the modules are represented on the following diagram. For example, the module 'Node' requires both modules 'Utils' and 'Errors'. Conversely, if the module 'Build' is used alone, then the modules 'Scripting' and 'Configure' can be removed safely.
 
 image::core{PIC}["Module dependencies"{backend@docbook:,height=400:},align="center"]
 
 ==== Context classes
 
-The context classes (which inherit from the class 'Context') are used by the Waf commands. The base class 'Context' may be used directly for the Waf commands that do not have an associated context subclass. The metaclass 'store_context' is used for recording any context subclass created.
+User commands, such as 'configure' or 'build', are represented by classes derived from 'waflib.Context.Context'. When a command does not have a class associated, the base class 'waflib.Context.Context' is used instead.
+
+The command is associated to a context class by the class attribute 'cmd' set on the class. Context subclasses are added in 'waflib.Context.classes' by the metaclass 'store_context' and loaded through the function 'waflib.Context.create_context'. The classes defined last will replace existing commands.
+
+As an example, the following context class will define or override the 'configure' command. When calling 'waf configure', the function 'foo' will be called from wscript files:
+
+[source,python]
+---------------
+from waflib.Context import Context
+class somename(Context):
+    cmd = 'configure'
+    fun = 'foo'
+---------------
 
 image::classes{PIC}["Context classes"{backend@docbook:,width=500:},align="center"]
 
 ==== Build classes
 
-The structure of the build classes is represented on the following diagram:
+The class 'waflib.Build.BuildContext' and its subclasses such as 'waflib.Build.InstallContext' or 'waflib.Build.StepContext' have task generators created when reading the user scripts. The task generators will usually have task instances, depending on the operations performed after all task generators have been processed.
+
+The 'ConfigSet' instances are copied from the build context to the tasks ('waflib.ConfigSet.ConfigSet.derive') to propagate values such as configuration flags. A copy-on-write is performed through most methods of that class (append_value, prepend_value, append_unique).
+
+The 'Parallel' object encapsulates the iteration over all tasks of the build context, and delegates the execution to thread objects (producer-consumer).
+
+The overall structure is represented on the following diagram:
 
 image::classes_build{PIC}["Build classes"{backend@docbook:,width=500:},align="center"]
 
