@@ -33,6 +33,7 @@ POSSIBILITY OF SUCH DAMAGE.
 import os, sys
 
 VERSION="1.6.8"
+VERSION="1.6.5"
 REVISION="x"
 INSTALL="x"
 C1='x'
