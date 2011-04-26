@@ -19,10 +19,10 @@ def build(bld):
 	bld.program(
 		features      = 'c cprogram',
 		target        = 'MacApp',
-		source        = 'main.m',
+		source        = 'sources/main.m',
 		mac_app       = True,
 		mac_plist     = 'Info.plist',
-		mac_resources = 'MainMenu.nib/designable.nib MainMenu.nib/keyedobjects.nib MacApp.icns',
+		mac_resources = 'resources/MainMenu.nib resources/MacApp.icns',
 		use           = 'COCOA',
 		install_path  = '${PREFIX}',
 	)

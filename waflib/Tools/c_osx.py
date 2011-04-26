@@ -95,13 +95,19 @@ def create_task_macapp(self):
 			res_dir = n1.parent.parent.make_node('Resources')
 			inst_to = getattr(self, 'install_path', '/Applications') + '/%s/Resources' % name
 			for x in self.to_list(self.mac_resources):
-				node = self.path.find_resource(x)
-				if node:
-					rel = node.path_from(self.path)
+				node = self.path.find_node(x)
+				if not node:
+					raise Errors.WafError('Missing mac_resource %r in %r' % (x, self))
+
+				parent = node.parent
+				if os.path.isdir(node.abspath()):
+					nodes = node.ant_glob('**')
+				else:
+					nodes = [node]
+				for node in nodes:
+					rel = node.path_from(parent)
 					tsk = self.create_task('macapp', node, res_dir.make_node(rel))
 					self.bld.install_as(inst_to + '/%s' % rel, node)
-				else:
-					raise Errors.WafError('Missing mac_resource %r in %r' % (x, self))
 
 		if getattr(self.bld, 'is_install', None):
 			# disable the normal binary installation
