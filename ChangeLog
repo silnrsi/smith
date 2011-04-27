@@ -1,5 +1,8 @@
-NEW IN WAF 1.6.4
+----------------
+
+* More documentation
 0----------------
+
 * Fix the Python detection on win32 #883
 * Optimize the Python file installation #892
 * Force +x permissions on installed fortran programs #893
@@ -26,8 +29,6 @@ NEW IN WAF 1.6.4
 NEW IN WAF 1.6.3
 ----------------
 
-----------------
-
 * Fixed the interaction of Fortran configuration tests and WAFCACHE #842
 * Various documentation fixes
 * Set the PYTHONARCHDIR variable for installing python extensions
@@ -48,8 +49,6 @@ NEW IN WAF 1.6.3
 * New names for @before/@after: @before_method/@after_method
 
 NEW IN WAF 1.6.2
-----------------
-
 ----------------
 
 * Support for C# debugging files #797
@@ -75,8 +74,6 @@ NEW IN WAF 1.6.2
 * New manifest option for jar targets #832
 
 NEW IN WAF 1.6.1
-----------------
-
 ----------------
 
 * Fixed the method check_waf_version  #764
@@ -135,6 +132,8 @@ NEW IN WAF 1.6.6
 
 
 * Re-enable the colors for msys
+
+
 * Add the .ui files for the qt4 translations
 * Fix the conf.check_large_file() test
 * Fix the conf.check_library() in C++ mode #955
@@ -152,6 +151,8 @@ NEW IN WAF 1.6.6
 * New method ConfigSet.keys
 * New Visual Studio and Eclipse CTD project generators (waflib/extras)
 * New lru_cache tool for use with WAFCACHE (waflib/extras)
+
+----------------
 
 General
 * Python 3 syntax by default (runs unmodified for 2.6, 2.7, 3.0 and 3.1)
