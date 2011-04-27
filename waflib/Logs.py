@@ -42,7 +42,7 @@ if got_tty:
 	except AttributeError:
 		got_tty = False
 
-if not got_tty or 'NOCOLOR' in os.environ:
+if (not got_tty and os.environ.get('TERM', 'dumb') != 'msys') or 'NOCOLOR' in os.environ:
 	colors_lst['USE'] = False
 
 def get_term_cols():
