@@ -696,8 +696,13 @@ class Task(TaskBase):
 			try:
 				if prev == self.compute_sig_implicit_deps():
 					return prev
-			except IOError: # raised if a file was renamed
-				pass
+			except:
+				# when a file was renamed (IOError usually), remove the stale nodes (headers in folders without source files)
+				# this will break the order calculation for headers created during the build in the source directory (should be uncommon)
+				for x in bld.node_deps.get(self.uid(), []):
+					p = x.parent
+					if p.is_child_of(bld.srcnode):
+						p.ant_glob('*')
 			del bld.task_sigs[(key, 'imp')]
 			raise Errors.TaskRescan('rescan')
 
@@ -714,7 +719,15 @@ class Task(TaskBase):
 		self.are_implicit_nodes_ready()
 
 		# recompute the signature and return it
-		bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
+		try:
+			bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
+		except:
+			if Logs.verbose:
+				for x in bld.node_deps.get(self.uid(), []):
+					try:
+						k.get_bld_sig()
+					except:
+						Logs.warn('Missing signature for node %r (may cause rebuilds)' % k)
 		return sig
 
 	def compute_sig_implicit_deps(self):
@@ -735,13 +748,8 @@ class Task(TaskBase):
 		# scanner returns a node that does not have a signature
 		# just *ignore* the error and let them figure out from the compiler output
 		# waf -k behaviour
-		try:
-			for k in bld.node_deps.get(self.uid(), []):
-				upd(k.get_bld_sig())
-		except:
-			if Logs.verbose:
-				Logs.warn('Missing signature for node %r (may cause rebuilds)' % k)
-
+		for k in bld.node_deps.get(self.uid(), []):
+			upd(k.get_bld_sig())
 		return self.m.digest()
 
 	def are_implicit_nodes_ready(self):
