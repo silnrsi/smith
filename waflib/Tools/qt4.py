@@ -37,13 +37,13 @@ Another tool provides a Qt processing that does not require the moc
 includes. See http://code.google.com/p/waf/source/browse/trunk/playground/slow_qt/
 """
 
-try:
+try
 	from xml.sax import make_parser
 	from xml.sax.handler import ContentHandler
 except ImportError:
 	has_xml = False
 	ContentHandler = object
-else:
+else
 	has_xml = True
 
 import os, sys
@@ -278,7 +278,7 @@ def apply_qt4(self):
 
 		if getattr(self, 'update', None) and Options.options.trans_qt4:
 			cxxnodes = [a.inputs[0] for a in self.compiled_tasks] + [
-				a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
+                 a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
 			for x in qmtasks:
 				self.create_task('trans_update', cxxnodes, x.inputs)
 
@@ -296,10 +296,7 @@ def apply_qt4(self):
 		if len(flag) < 2: continue
 		f = flag[0:2]
 		if f in ['-D', '-I', '/D', '/I']:
-			if (f[0] == '/'):
-				lst.append('-' + flag[1:])
-			else:
-				lst.append(flag)
+			lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
 @extension(*EXT_QT4)
