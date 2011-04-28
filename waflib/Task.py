@@ -706,16 +706,10 @@ class Task(TaskBase):
 			except:
 				# when a file was renamed (IOError usually), remove the stale nodes (headers in folders without source files)
 				# this will break the order calculation for headers created during the build in the source directory (should be uncommon)
-				# the behaviour will differ when top != out
 				for x in bld.node_deps.get(self.uid(), []):
-					if x.is_child_of(bld.srcnode):
-						try:
-							os.stat(x.abspath())
-						except:
-							try:
-								del x.parent.children[x.name]
-							except:
-								pass
+					p = x.parent
+					if p.is_child_of(bld.srcnode):
+						p.ant_glob('*')
 			del bld.task_sigs[(key, 'imp')]
 			raise Errors.TaskRescan('rescan')
 
@@ -736,13 +730,12 @@ class Task(TaskBase):
 			bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
 		except:
 			if Logs.verbose:
-				for k in bld.node_deps.get(self.uid(), []):
+				for x in bld.node_deps.get(self.uid(), []):
 					try:
 						k.get_bld_sig()
 					except:
 						Logs.warn('Missing signature for node %r (may cause rebuilds)' % k)
-		else:
-			return sig
+		return sig
 
 	def compute_sig_implicit_deps(self):
 		"""
@@ -819,7 +812,7 @@ class Task(TaskBase):
 			return None
 
 		sig = self.signature()
-		ssig = Utils.to_hex(self.uid()) + Utils.to_hex(sig)
+		ssig = Utils.to_hex(sig)
 
 		# first try to access the cache folder for the task
 		dname = os.path.join(self.generator.bld.cache_global, ssig)
@@ -864,11 +857,9 @@ class Task(TaskBase):
 		# try to avoid data corruption as much as possible
 		if getattr(self, 'cached', None):
 			return None
-		if not getattr(self, 'outputs', None):
-			return None
 
 		sig = self.signature()
-		ssig = Utils.to_hex(self.uid()) + Utils.to_hex(sig)
+		ssig = Utils.to_hex(sig)
 		dname = os.path.join(self.generator.bld.cache_global, ssig)
 		tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
 
@@ -1199,7 +1190,6 @@ def update_outputs(cls):
 		old_post_run(self)
 		for node in self.outputs:
 			node.sig = Utils.h_file(node.abspath())
-			self.generator.bld.task_sigs[node.abspath()] = self.uid() # issue #1017
 	cls.post_run = post_run
 
 
@@ -1214,17 +1204,16 @@ def update_outputs(cls):
 			# perform a second check, returning 'SKIP_ME' as we are expecting that
 			# the signatures do not match
 			bld = self.generator.bld
+			new_sig  = self.signature()
 			prev_sig = bld.task_sigs[self.uid()]
-			if prev_sig == self.signature():
+			if prev_sig == new_sig:
 				for x in self.outputs:
-					if not x.sig or bld.task_sigs[x.abspath()] != self.uid():
+					if not x.sig:
 						return RUN_ME
 				return SKIP_ME
 		except KeyError:
 			pass
 		except IndexError:
-			pass
-		except AttributeError:
 			pass
 		return RUN_ME
 	cls.runnable_status = runnable_status
