@@ -274,7 +274,8 @@ def apply_qt4(self):
 			qmtasks.append(self.create_task('ts2qm', x, x.change_ext('.qm')))
 
 		if getattr(self, 'update', None) and Options.options.trans_qt4:
-			cxxnodes = [a.inputs[0] for a in self.compiled_tasks]
+			cxxnodes = [a.inputs[0] for a in self.compiled_tasks] + [
+                 a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
 			for x in qmtasks:
 				self.create_task('trans_update', cxxnodes, x.inputs)
 
