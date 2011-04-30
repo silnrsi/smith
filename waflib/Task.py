@@ -728,7 +728,8 @@ class Task(TaskBase):
 						k.get_bld_sig()
 					except:
 						Logs.warn('Missing signature for node %r (may cause rebuilds)' % k)
-		return sig
+		else:
+			return sig
 
 	def compute_sig_implicit_deps(self):
 		"""
