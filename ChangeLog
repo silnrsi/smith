@@ -3,7 +3,8 @@ NEW IN WAF 1.6.5
 
 * More documentation
 * Re-enable the colors for msys
-
+* Add the .ui files for the qt4 translations
+* Fix the conf.check_large_file() test
 
 NEW IN WAF 1.6.4
 ----------------
