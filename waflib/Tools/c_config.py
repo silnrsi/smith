@@ -656,7 +656,7 @@ def run_c_code(self, *k, **kw):
 	"""
 	Create a temporary build context to execute a build. A reference to that build
 	context is kept on self.test_bld for debugging purposes.
-	The parameters given in the arguments to this function are passes as arguments for
+	The parameters given in the arguments to this function are passed as arguments for
 	a single task generator created in the build. Only three parameters are obligatory:
 
 	:param features: features to pass to a task generator created in the build
