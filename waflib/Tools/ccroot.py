@@ -70,7 +70,7 @@ def to_incnodes(self, inlst):
 
 	The node objects in the list are returned in the output list. The strings are converted
 	into node objects if possible. The node is searched from the source directory, and if a match is found,
-	the equivalent build directory is added in the returned list too.  When a folder cannot be found, it is ignored.
+	the equivalent build directory is created and added to the returned list too. When a folder cannot be found, it is ignored.
 
 	:param inlst: list of folders
 	:type inlst: space-delimited string or a list of string/nodes
@@ -91,11 +91,14 @@ def to_incnodes(self, inlst):
 				lst.append(self.bld.root.make_node(x) or x)
 			else:
 				if x[0] == '#':
-					lst.append(self.bld.bldnode.make_node(x[1:]))
-					lst.append(self.bld.srcnode.make_node(x[1:]))
+					p = self.bld.bldnode.make_node(x[1:])
+					v = self.bld.srcnode.make_node(x[1:])
 				else:
-					lst.append(self.path.get_bld().make_node(x))
-					lst.append(self.path.make_node(x))
+					p = self.path.get_bld().make_node(x)
+					v = self.path.make_node(x)
+				p.mkdir()
+				lst.append(p)
+				lst.append(v)
 	return lst
 
 @feature('c', 'cxx', 'd', 'go', 'asm', 'fc', 'includes')
