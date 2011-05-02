@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os
+import os, tempfile
 import SocketServer
 
 CONN = ('', 51200)
@@ -38,7 +38,24 @@ class req(SocketServer.StreamRequestHandler):
 			print "get complete"
 		elif len(query) == PUT:
 			# add a file to the cache, the tird parameter is the file size
-			pass
+			print "trying to add some data"
+			(fd, filename) = tempfile.mkstemp()
+			try:
+				print filename
+				size = int(query[1])
+				cnt = 0
+				while cnt < size:
+					r = self.rfile.read(BUF)
+					if not r:
+						raise ValueError('Connection closed')
+					os.write(fd, r)
+					print "works", ord(r[0])
+					cnt += len(r)
+			except Exception, e:
+				print e
+				raise
+			finally:
+				os.close(fd)
 		else:
 			print "invalid query", query
 

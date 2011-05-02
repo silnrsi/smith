@@ -39,7 +39,7 @@ def build(bld):
 
 #########################################################################################
 
-import os, socket, asyncore
+import os, socket, asyncore, tempfile
 import Task
 
 BUF = 8192
@@ -64,8 +64,7 @@ def recv_file(ssig, cnt, p):
 	while cnt < size:
 		data = s.recv(min(BUF, size-cnt))
 		if not data:
-			print "connection ended", cnt, size
-			break
+			raise ValueError('connection ended %r %r' % (cnt, size))
 		f.write(data)
 		cnt += len(data)
 		print len(data), cnt, size
@@ -73,19 +72,22 @@ def recv_file(ssig, cnt, p):
 	s.close()
 
 def put_data(ssig, cnt, p):
-	try:
-		do_put(ssig, cnt, p)
-	except:
-		pass
-
-def do_put(ssig, cnt, p):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(Task.net_cache)
-	st = os.stat(p).ST_MSIZE
-	params = (ssig, str(cnt), st.st_size)
+	size = os.stat(p).st_size
+	params = (ssig, str(cnt), str(size))
 	s.send(','.join(params).ljust(SIZE))
+	f = open(p, 'rb')
+	cnt = 0
+	while cnt < size:
+		r = f.read(min(BUF, size-cnt))
+		while r:
+			k = s.send(r)
+			if not k:
+				raise ValueError('connection ended')
+			cnt += k
+			r = r[k:]
 	s.close()
-	#print 'Received', repr(data)
 
 def can_retrieve_cache(self):
 	if not Task.net_cache:
@@ -133,10 +135,14 @@ def post_run(self):
 		# We could re-create the signature of the task with the signature of the outputs
 		# in practice, this means hashing the output files
 		# this is unnecessary
-		if Task.net_cache and not self.got_cached:
-			ssig = sig.encode('hex')
-			put_data(ssig, cnt, node.abspath(env))
-			cnt += 1
+		try:
+			if Task.net_cache and not self.got_cached:
+				ssig = sig.encode('hex')
+				put_data(ssig, cnt, node.abspath(env))
+				cnt += 1
+		except Exception, e:
+			print e
+			pass
 
 	bld.task_sigs[self.unique_id()] = self.cache_sig
 Task.Task.post_run = post_run
