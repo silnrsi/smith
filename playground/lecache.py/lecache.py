@@ -26,7 +26,7 @@ class req(SocketServer.StreamRequestHandler):
 			self.wfile.write(','.join(params).ljust(SIZE))
 
 			if not fsize:
-				print "file not found in cache"
+				print("file not found in cache %s" % query[0])
 				return
 
 			f = open(tmp, 'rb')
@@ -35,27 +35,29 @@ class req(SocketServer.StreamRequestHandler):
 				r = f.read(BUF)
 				self.wfile.write(r)
 				cnt += len(r)
-			print "get complete"
 		elif len(query) == PUT:
 			# add a file to the cache, the tird parameter is the file size
-			print "trying to add some data"
 			(fd, filename) = tempfile.mkstemp()
 			try:
-				print filename
-				size = int(query[1])
+				size = int(query[2])
 				cnt = 0
 				while cnt < size:
 					r = self.rfile.read(BUF)
 					if not r:
 						raise ValueError('Connection closed')
 					os.write(fd, r)
-					print "works", ord(r[0])
 					cnt += len(r)
 			except Exception, e:
 				print e
 				raise
 			finally:
 				os.close(fd)
+
+			try:
+				os.stat(query[0])
+			except:
+				os.makedirs(query[0])
+			os.rename(filename, os.path.join(query[0], query[1]))
 		else:
 			print "invalid query", query
 

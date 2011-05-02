@@ -67,7 +67,6 @@ def recv_file(ssig, cnt, p):
 			raise ValueError('connection ended %r %r' % (cnt, size))
 		f.write(data)
 		cnt += len(data)
-		print len(data), cnt, size
 	f.close()
 	s.close()
 
@@ -141,7 +140,7 @@ def post_run(self):
 				put_data(ssig, cnt, node.abspath(env))
 				cnt += 1
 		except Exception, e:
-			print e
+			print "Could not restore the files", e
 			pass
 
 	bld.task_sigs[self.unique_id()] = self.cache_sig
