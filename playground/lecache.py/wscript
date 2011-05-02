@@ -46,7 +46,7 @@ BUF = 8192
 SIZE = 50
 Task.net_cache = ('127.0.0.1', 51200)
 
-def get_data(ssig, cnt, p):
+def recv_file(ssig, cnt, p):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(Task.net_cache)
 	params = (ssig, str(cnt))
@@ -54,56 +54,23 @@ def get_data(ssig, cnt, p):
 	data = s.recv(SIZE)
 	size = int(data.split()[0])
 
-	#print "data received", data, "and size to read", size
-	print "size to read", size
+	if not size:
+		raise ValueError('no file %s in cache' % ssig)
 
+	# get the file, writing immediately
+	# TODO for static libraries we should use a tmp file
 	f = open(p, 'wb')
 	cnt = 0
 	while cnt < size:
 		data = s.recv(min(BUF, size-cnt))
-
 		if not data:
-			print  "connection ended", cnt, size
+			print "connection ended", cnt, size
 			break
-
 		f.write(data)
 		cnt += len(data)
 		print len(data), cnt, size
 	f.close()
-	#s.close()
-
-"""
-class get_file(asyncore.dispatcher):
-    def __init__(self, ssig, cnt, p):
-        asyncore.dispatcher.__init__(self)
-		self.ssig = ssig
-		self.cnt = cnt
-		self.path = p
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect( ('', 51200) )
-		self.w = True
-
-    def handle_connect(self):
-        pass
-
-    def handle_close(self):
-        self.close()
-
-    def handle_read(self):
-		buf = 
-        print self.recv(8192)
-
-    def writable(self):
-		return self.w
-
-    def handle_write(self):
-        sent = self.send(self.buffer)
-        self.buffer = self.buffer[sent:]
-
-def get_data(ssig, cnt, p):
-	client = get_file(ssig, cnt, p)
-	asyncore.loop()
-"""
+	s.close()
 
 def put_data(ssig, cnt, p):
 	try:
@@ -122,22 +89,20 @@ def do_put(ssig, cnt, p):
 
 def can_retrieve_cache(self):
 	if not Task.net_cache:
-		return
+		return False
 
 	self.got_cached = False
 	cnt = 0
 	sig = self.signature()
 	ssig = sig.encode('hex')
-	for node in self.outputs:
-		variant = node.variant(self.env)
-		p = node.abspath(self.env)
-		try:
-			get_data(ssig, cnt, p)
-		except Exception, e:
-			print e
-			return
-
-		cnt += 1
+	try:
+		for node in self.outputs:
+			variant = node.variant(self.env)
+			p = node.abspath(self.env)
+			recv_file(ssig, cnt, p)
+			cnt += 1
+	except:
+		return False
 
 	for node in self.outputs:
 		self.generator.bld.node_sigs[variant][node.id] = sig
