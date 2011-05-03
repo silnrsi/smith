@@ -869,7 +869,7 @@ def exec_command_msvc(self, *k, **kw):
 		ret = self.exec_mf()
 	return ret
 
-for k in 'c cxx winrc cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib'.split():
+for k in 'c cxx cprogram cxxprogram cshlib cxxshlib cstlib cxxstlib'.split():
 	cls = Task.classes.get(k, None)
 	if cls:
 		cls.exec_command = exec_command_msvc
