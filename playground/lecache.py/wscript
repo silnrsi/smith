@@ -140,10 +140,10 @@ def post_run(self):
 			if Task.net_cache and not self.got_cached:
 				ssig = sig.encode('hex')
 				put_data(ssig, cnt, node.abspath(env))
-				cnt += 1
 		except Exception, e:
-			print "Could not restore the files", e
+			#print "Could not restore the files", e
 			pass
+		cnt += 1
 
 	bld.task_sigs[self.unique_id()] = self.cache_sig
 Task.Task.post_run = post_run
