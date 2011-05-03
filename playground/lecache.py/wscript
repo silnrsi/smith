@@ -44,7 +44,7 @@ import Task
 
 BUF = 8192
 SIZE = 50
-Task.net_cache = ('127.0.0.1', 51200)
+Task.net_cache = ('', 51200)
 
 def recv_file(ssig, cnt, p):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -90,6 +90,8 @@ def put_data(ssig, cnt, p):
 
 def can_retrieve_cache(self):
 	if not Task.net_cache:
+		return False
+	if not self.outputs:
 		return False
 
 	self.got_cached = False

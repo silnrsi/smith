@@ -1,14 +1,14 @@
 #! /usr/bin/env python
 # Thomas Nagy 2011 (ita)
 
-import os, tempfile
+import os, tempfile, socket
 import SocketServer
 
-CACHEDIR = '.'
-CONN = ('', 51200)
+CACHEDIR = '/tmp/wafcache'
+CONN = (socket.gethostname(), 51200)
 SIZE = 50
 BUF = 8192
-MAX = 1000000 # in bytes
+MAX = 10*1024*1024*1024 # in bytes
 CLEANRATIO = 0.8 # use pareto to make some room ...
 
 GET = 2
@@ -18,7 +18,7 @@ flist = {}
 def init_flist():
 	"""map the cache folder names to the timestamps and sizes"""
 	global flist
-	flist = dict( (x, [os.stat(x).st_mtime, 0]) for x in os.listdir(CACHEDIR) if os.path.isdir(os.path.join(CACHEDIR, x)))
+	flist = dict( (x, [os.stat(os.path.join(CACHEDIR, x)).st_mtime, 0]) for x in os.listdir(CACHEDIR) if os.path.isdir(os.path.join(CACHEDIR, x)))
 	for (x, v) in flist.items():
 		cnt = 0
 		d = os.path.join(CACHEDIR, x)
@@ -45,7 +45,7 @@ def make_clean(ssig):
 	# and do some cleanup if necessary
 	total = sum([x[1] for x in flist.values()])
 
-	print "and the total is", total
+	#print "and the total is", total
 
 	if total >= MAX:
 		lst = [(p, v[0], v[1]) for (p, v) in flist.items()]
@@ -90,7 +90,7 @@ class req(SocketServer.StreamRequestHandler):
 				cnt += len(r)
 		elif len(query) == PUT:
 			# add a file to the cache, the tird parameter is the file size
-			(fd, filename) = tempfile.mkstemp()
+			(fd, filename) = tempfile.mkstemp(dir=CACHEDIR)
 			try:
 				size = int(query[2])
 				cnt = 0
