@@ -89,7 +89,7 @@ CGO_LDFLAGS= %(cgo_ldflags)s
 
 include $(GOROOT)/src/Make.pkg
 
-%%: install %%.go
+%% install %%.go
 	$(GC) $*.go
 	$(LD) -o $@ $*.$O
 
@@ -181,34 +181,24 @@ def go_compiler_is_foobar(self):
 @feature('gopackage', 'goprogram', 'cgopackage')
 @after_method('process_source', 'apply_incpaths',)
 def go_local_libs(self):
+	#print ('== go-local-libs == [%s]' % self.name)
 	names = self.to_list(getattr(self, 'use', []))
-	#print ('== go-local-libs == [%s] == use: %s' % (self.name, names))
 	for name in names:
 		tg = self.bld.get_tgen_by_name(name)
 		if not tg:
 			raise Utils.WafError('no target of name %r necessary for %r in go uselib local' % (name, self))
 		tg.post()
-		#print ("-- tg[%s]: %s" % (self.name,name))
+		#print ("-- tg: %s" % name)
 		lnk_task = getattr(tg, 'link_task', None)
 		if lnk_task:
 			for tsk in self.tasks:
-				if isinstance(tsk, (go, gopackage, cgopackage)):
+				if isinstance(tsk, (go, cgopackage)):
 					tsk.set_run_after(lnk_task)
 					tsk.dep_nodes.extend(lnk_task.outputs)
 			path = lnk_task.outputs[0].parent.abspath()
 			if isinstance(lnk_task, (go, gopackage)):
 				# handle hierarchical packages
 				path = lnk_task.generator.path.get_bld().abspath()
-			elif isinstance(lnk_task, (cgopackage,)):
-				# handle hierarchical cgopackages
-				cgo_obj_dir = lnk_task.outputs[1].find_or_declare('_obj')
-				path = cgo_obj_dir.abspath()
-			# recursively add parent GOCFLAGS...
-			self.env.append_unique('GOCFLAGS',
-                                   getattr(lnk_task.env, 'GOCFLAGS',[]))
-			# ditto for GOLFLAGS...
-			self.env.append_unique('GOLFLAGS',
-                                   getattr(lnk_task.env, 'GOLFLAGS',[]))
 			self.env.append_unique('GOCFLAGS', ['-I%s' % path])
 			self.env.append_unique('GOLFLAGS', ['-L%s' % path])
 		for n in getattr(tg, 'includes_nodes', []):
@@ -258,5 +248,3 @@ def configure(conf):
 	conf.find_program('cgo',                var='CGO')
 
 TaskGen.feature('go')(process_use)
-TaskGen.feature('go')(propagate_uselib_vars)
-
