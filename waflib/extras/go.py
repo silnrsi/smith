@@ -168,6 +168,7 @@ def go_compiler_is_foobar(self):
 			src.append(node)
 	self.source = src
 	if not ('cgopackage' in self.features):
+		#print('--> [%s]... (%s)' % (go[0], getattr(self, 'target', 'N/A')))
 		tsk = self.create_compiled_task('go', go[0])
 		tsk.inputs.extend(go[1:])
 	else:
@@ -199,6 +200,9 @@ def go_local_libs(self):
 					tsk.set_run_after(lnk_task)
 					tsk.dep_nodes.extend(lnk_task.outputs)
 			path = lnk_task.outputs[0].parent.abspath()
+			if isinstance(lnk_task, (go, gopackage)):
+				# handle hierarchical packages
+				path = lnk_task.generator.path.get_bld().abspath()
 			self.env.append_unique('GOCFLAGS', ['-I%s' % path])
 			self.env.append_unique('GOLFLAGS', ['-L%s' % path])
 		for n in getattr(tg, 'includes_nodes', []):
