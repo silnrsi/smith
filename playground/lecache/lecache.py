@@ -6,7 +6,7 @@ import SocketServer
 
 CACHEDIR = '/tmp/wafcache'
 CONN = (socket.gethostname(), 51200)
-SIZE = 50
+SIZE = 99
 BUF = 8192
 MAX = 10*1024*1024*1024 # in bytes
 CLEANRATIO = 0.8 # use pareto to make some room ...
@@ -18,6 +18,10 @@ flist = {}
 def init_flist():
 	"""map the cache folder names to the timestamps and sizes"""
 	global flist
+	try:
+		os.makedirs(CACHEDIR)
+	except:
+		pass
 	flist = dict( (x, [os.stat(os.path.join(CACHEDIR, x)).st_mtime, 0]) for x in os.listdir(CACHEDIR) if os.path.isdir(os.path.join(CACHEDIR, x)))
 	for (x, v) in flist.items():
 		cnt = 0
@@ -45,16 +49,16 @@ def make_clean(ssig):
 	# and do some cleanup if necessary
 	total = sum([x[1] for x in flist.values()])
 
-	#print "and the total is", total
+	#print("and the total is %d" % total)
 
 	if total >= MAX:
+		print("Trimming the cache since %r > %r" % (total, MAX))
 		lst = [(p, v[0], v[1]) for (p, v) in flist.items()]
 		lst.sort(key=lambda x: x[1]) # sort by timestamp
 		lst.reverse()
 
 		while total >= MAX * CLEANRATIO:
 			(k, t, s) = lst.pop()
-			#print "removing", k, t, s
 			os.removedirs(k)
 			total -= s
 			del flist[k]
@@ -65,10 +69,11 @@ class req(SocketServer.StreamRequestHandler):
 		if len(query) == GET:
 			# get a file from the cache if it exists, else return 0
 			tmp = os.path.join(CACHEDIR, query[0], query[1])
-			fsize = 0
+			fsize = -1
 			try:
 				fsize = os.stat(tmp).st_size
-			except:
+			except Exception, e:
+				#print(e)
 				pass
 			else:
 				# cache was useful, update the last access
@@ -78,8 +83,8 @@ class req(SocketServer.StreamRequestHandler):
 			params = [str(fsize)]
 			self.wfile.write(','.join(params).ljust(SIZE))
 
-			if not fsize:
-				print("file not found in cache %s" % query[0])
+			if fsize < 0:
+				#print("file not found in cache %s" % query[0])
 				return
 
 			f = open(tmp, 'rb')
@@ -88,6 +93,7 @@ class req(SocketServer.StreamRequestHandler):
 				r = f.read(BUF)
 				self.wfile.write(r)
 				cnt += len(r)
+
 		elif len(query) == PUT:
 			# add a file to the cache, the tird parameter is the file size
 			(fd, filename) = tempfile.mkstemp(dir=CACHEDIR)
@@ -101,7 +107,7 @@ class req(SocketServer.StreamRequestHandler):
 					os.write(fd, r)
 					cnt += len(r)
 			except Exception, e:
-				print e
+				#print(e)
 				raise
 			finally:
 				os.close(fd)
@@ -110,15 +116,21 @@ class req(SocketServer.StreamRequestHandler):
 			try:
 				os.stat(d)
 			except:
-				os.makedirs(d)
+				try:
+					# obvious race condition here
+					os.makedirs(d)
+				except:
+					pass
 			os.rename(filename, os.path.join(d, query[1]))
 			make_clean(query[0])
 		else:
-			print "invalid query", query
+			print("invalid query %r" % query)
 
 if __name__ == '__main__':
 	init_flist()
-	server = SocketServer.TCPServer(CONN, req)
+	print("ready (%r dirs)" % len(flist.keys()))
+	SocketServer.ThreadingTCPServer.allow_reuse_address = True
+	server = SocketServer.ThreadingTCPServer(CONN, req)
 	server.serve_forever()
 
 
