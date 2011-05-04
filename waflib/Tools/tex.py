@@ -125,7 +125,7 @@ class tex(Task.Task):
 					for k in exts_deps_tex:
 						debug('tex: trying %s%s' % (path, k))
 						found = node.parent.find_resource(path + k)
-						if found:
+						if found and not found in self.outputs:
 							nodes.append(found)
 							add_name = False
 							if found.name.endswith('.tex') or found.name.endswith('.ltx'):
