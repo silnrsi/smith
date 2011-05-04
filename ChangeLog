@@ -5,6 +5,8 @@ NEW IN WAF 1.6.5
 * Re-enable the colors for msys
 * Add the .ui files for the qt4 translations
 * Fix the conf.check_large_file() test
+* Improve the latex scanner to avoid depending on generated files #943
+* Remove the @file processing from the winrc tasks
 
 NEW IN WAF 1.6.4
 ----------------
