@@ -813,7 +813,7 @@ class Task(TaskBase):
 			return None
 
 		sig = self.signature()
-		ssig = Utils.to_hex(sig)
+		ssig = Utils.to_hex(self.uid()) + Utils.to_hex(sig)
 
 		# first try to access the cache folder for the task
 		dname = os.path.join(self.generator.bld.cache_global, ssig)
@@ -860,7 +860,7 @@ class Task(TaskBase):
 			return None
 
 		sig = self.signature()
-		ssig = Utils.to_hex(sig)
+		ssig = Utils.to_hex(self.uid()) + Utils.to_hex(sig)
 		dname = os.path.join(self.generator.bld.cache_global, ssig)
 		tmpdir = tempfile.mkdtemp(prefix=self.generator.bld.cache_global + os.sep + 'waf')
 
