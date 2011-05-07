@@ -163,10 +163,12 @@ def h_file(filename):
 	"""
 	f = open(filename, 'rb')
 	m = md5()
-	while (filename):
-		filename = f.read(100000)
-		m.update(filename)
-	f.close()
+	try:
+		while filename:
+			filename = f.read(100000)
+			m.update(filename)
+	except:
+		f.close()
 	return m.digest()
 
 try:
