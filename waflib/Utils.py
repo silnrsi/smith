@@ -10,24 +10,24 @@ through Python versions 2.3 to 3.X and across different platforms (win32, linux,
 """
 
 import os, sys, errno, traceback, inspect, re, shutil, datetime, gc
-try:
+try
 	import subprocess
-except:
+except
 	try:
 		import waflib.extras.subprocess as subprocess
 	except:
 		print("The subprocess module is missing (python2.3?):\n try calling 'waf update --files=subprocess'\n or add a copy of subprocess.py to the python libraries")
 
-try:
+try
 	from collections import deque
 except ImportError:
 	class deque(list):
 		"""A deque for Python 2.3 which does not have one"""
 		def popleft(self):
 			return self.pop(0)
-try:
+try
 	import _winreg as winreg
-except:
+except
 	try:
 		import winreg
 	except:
@@ -35,23 +35,23 @@ except:
 
 from waflib import Errors
 
-try:
+try
 	from collections import UserDict
-except:
+except
 	from UserDict import UserDict
 
-try:
+try
 	from hashlib import md5
-except:
+except
 	try:
 		from md5 import md5
 	except:
 		# never fail to enable fixes from another module
 		pass
 
-try:
+try
 	import threading
-except:
+except
 	class threading(object):
 		"""
 			A fake threading class for platforms lacking the threading module.
@@ -65,7 +65,7 @@ except:
 		def release(self):
 			pass
 	threading.Lock = threading.Thread = Lock
-else:
+else
 	run_old = threading.Thread.run
 	def run(*args, **kwargs):
 		try:
@@ -91,7 +91,7 @@ rot_chr = ['\\', '|', '/', '-']
 rot_idx = 0
 "Index of the current throbber character (progress bar)"
 
-try:
+try
 	from collections import defaultdict
 except ImportError:
 	class defaultdict(dict):
@@ -167,20 +167,20 @@ def h_file(filename):
 		while filename:
 			filename = f.read(100000)
 			m.update(filename)
-	finally:
+	except:
 		f.close()
 	return m.digest()
 
-try:
+try
 	x = ''.encode('hex')
-except:
+except
 	import binascii
 	def to_hex(s):
 		ret = binascii.hexlify(s)
 		if not isinstance(ret, str):
 			ret = ret.decode('utf-8')
 		return ret
-else:
+else
 	def to_hex(s):
 		return s.encode('hex')
 
