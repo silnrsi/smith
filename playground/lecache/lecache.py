@@ -1,6 +1,13 @@
 #! /usr/bin/env python
 # Thomas Nagy 2011 (ita)
 
+"""
+Simple TCP server to cache files over the network
+It uses a LRU (least recently used).
+
+TODO: retrieve several files at once
+"""
+
 import os, tempfile, socket
 import SocketServer
 
