@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # Thomas Nagy 2011 (ita)
+# encoding: utf-8
 
 """
 Simple TCP server to cache files over the network
