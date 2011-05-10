@@ -471,7 +471,7 @@ def find_program(self, filename, **kw):
 	"""
 	Search for a program on the operating system
 
-	When var is used, you may set os.environ[var] to help finding a specific program version, for example::
+	When var is used, you may set os.environ[var] to help find a specific program version, for example::
 
 		$ VALAC=/usr/bin/valac_test waf configure
 

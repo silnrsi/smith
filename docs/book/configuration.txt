@@ -298,7 +298,7 @@ Waf: Leaving directory `/tmp/configuration_dang/build'
 
 ==== Launching and catching configuration exceptions
 
-Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
+Configuration helpers are methods provided by the conf object to help find parameters, for example the method 'conf.find_program'
 
 [source,python]
 ---------------

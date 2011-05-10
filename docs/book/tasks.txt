@@ -124,7 +124,7 @@ image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=470:},align="ce
 
 ==== Task states and status
 
-A state is a assigned to the each task (_task.hasrun = state_) to keep track of the execution. The possible values are the following:
+A state is assigned to each task (_task.hasrun = state_) to keep track of the execution. The possible values are the following:
 
 [options="header", cols="1,1,6"]
 |=================
