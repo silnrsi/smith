@@ -16,7 +16,6 @@ join = os.path.join
 cwd = os.getcwd()
 extpy = join(cwd, 'extpy.py')
 args = 'python waf-light --tools=compat15,%s --prelude=$"\tfrom waflib.extras import extpy\n" ' % extpy
-print args
 root = up(up(cwd))
 
 subprocess.Popen(args, cwd=root, shell=True).wait()
