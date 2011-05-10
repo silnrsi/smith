@@ -121,9 +121,7 @@ def do_start(self):
 Runner.Parallel.start = do_start
 
 def set_running(self, by, i, tsk):
-	name = repr(tsk).strip()
-	name = name[name.index(":")+2:-1]
-	self.taskinfo.put( (i, id(tsk), time.time(), name, self.processed, self.count, by) )
+	self.taskinfo.put( (i, id(tsk), time.time(), tsk.__class__.__name__, self.processed, self.count, by)  )
 Runner.Parallel.set_running = set_running
 
 def name2class(name):
@@ -148,7 +146,6 @@ def process_colors(producer):
 		seen = []
 		for x in tmp:
 			name = x[3]
-			name = name[:name.index(" ")]
 			if not name in seen:
 				seen.append(name)
 			else:
@@ -240,7 +237,7 @@ svg.addEventListener('mouseover', function(e) {
 	if (x) {
 		g.setAttribute('class', g.getAttribute('class') + ' over');
 		x.setAttribute('class', x.getAttribute('class') + ' over');
-		showInfo(e, g.getElementsByTagName("title")[0].getNodeValue());
+		showInfo(e, g.id);
 	}
 }, false);
 
@@ -293,21 +290,20 @@ function hideInfo(evt) {
 	# the rectangles
 
 	groups = {}
-	for (x, y, w, h, name) in acc:
-		clsname = name[:name.index(" ")]
-		if clsname not in groups:
-			groups[clsname] = []
-		groups[clsname].append((x, y, w, h, name))
-
+	for (x, y, w, h, clsname) in acc:
+		try:
+			groups[clsname].append((x, y, w, h))
+		except:
+			groups[clsname] = [(x, y, w, h)]
 	for cls in groups:
 		out.append("<g id='%s'>\n" % name2class(cls))
 
-		for (x, y, w, h, name) in groups[cls]:
+		for (x, y, w, h) in groups[cls]:
 			out.append("""<rect
    x='%r' y='%r'
    width='%r' height='%r'
    style=\"font-size:10;fill:%s;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;\"
-   ><title>%s</title></rect>\n""" % (2 + x*ratio, 2 + y, w*ratio, h, map_to_color(cls), name[name.index(' '):]))
+   />\n""" % (2 + x*ratio, 2 + y, w*ratio, h, map_to_color(cls)))
 		out.append("</g>\n")
 
 	# output the caption
