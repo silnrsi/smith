@@ -246,20 +246,22 @@ def check_boost(self, *k, **kw):
         key = key[len('boost_'):]
         params[key] = value and value or kw.get(key, '')
 
+	var = kw.get('uselib_store', 'BOOST')
+
     self.start_msg('Checking boost includes')
-    self.env.INCLUDES_BOOST = self.boost_get_includes(**params)
-    self.env.BOOST_VERSION = self.boost_get_version(self.env.INCLUDES_BOOST)
+    self.env['INCLUDES_%s' % var] = self.boost_get_includes(**params)
+    self.env.BOOST_VERSION = self.boost_get_version(self.env['INCLUDES_%s' % var])
     self.end_msg(self.env.BOOST_VERSION)
     if Logs.verbose:
-        Logs.pprint('CYAN', '    path : %s' % self.env.INCLUDES_BOOST)
+        Logs.pprint('CYAN', '    path : %s' % self.env['INCLUDES_%s' % var])
 
     if not params['lib']:
         return
     self.start_msg('Checking boost libs')
     suffix = params['static'] and 'ST' or ''
     path, libs = self.boost_get_libs(**params)
-    self.env['%sLIBPATH_BOOST' % suffix] = [path]
-    self.env['%sLIB_BOOST' % suffix] = libs
+    self.env['%sLIBPATH_%s' % (suffix, var)] = [path]
+    self.env['%sLIB_%s' % (suffix, var)] = libs
     self.end_msg('ok')
     if Logs.verbose:
         Logs.pprint('CYAN', '    path : %s' % path)
