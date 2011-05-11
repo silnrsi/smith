@@ -1209,6 +1209,8 @@ def update_outputs(cls):
 			pass
 		except IndexError:
 			pass
+		except AttributeError:
+			pass
 		return RUN_ME
 	cls.runnable_status = runnable_status
 
