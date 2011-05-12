@@ -699,10 +699,16 @@ class Task(TaskBase):
 			except:
 				# when a file was renamed (IOError usually), remove the stale nodes (headers in folders without source files)
 				# this will break the order calculation for headers created during the build in the source directory (should be uncommon)
+				# the behaviour will differ when top != out
 				for x in bld.node_deps.get(self.uid(), []):
-					p = x.parent
-					if p.is_child_of(bld.srcnode):
-						p.ant_glob('*')
+					if x.is_child_of(bld.srcnode):
+						try:
+							os.stat(x.abspath())
+						except:
+							try:
+								del x.parent.children[x.name]
+							except:
+								pass
 			del bld.task_sigs[(key, 'imp')]
 			raise Errors.TaskRescan('rescan')
 
