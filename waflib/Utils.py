@@ -205,7 +205,7 @@ if is_win32:
 				import ctypes
 			except:
 				# there is nothing much we can do
-				return list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+				return [x + ':\\' for x in list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')]
 			else:
 				dlen = 4 # length of "?:\\x00"
 				maxdrives = 26
