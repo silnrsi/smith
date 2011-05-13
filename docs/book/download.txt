@@ -92,8 +92,8 @@ This is Waf 1.6.4
 
 Foreign files to add into the folder 'extras' must be given by absolute paths in the _--tools_ switch.
 Such files do not have to be Python files, yet, a typical scenario is to add an initializer to modify existing
-functions and classes from the Waf modules. For example, replacing the function 'waflib.Context.load'
-through monkey patching can be used to enable reading instructions from xml files.
+functions and classes from the Waf modules. Various from the http://code.google.com/p/waf/source/browse/trunk/build_system_kit/[build system kit] illustrate how to create custom
+build systems derived from Waf.
 
 === Using the waf file
 
