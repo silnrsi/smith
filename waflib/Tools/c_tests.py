@@ -148,6 +148,7 @@ def check_large_file(self, **kw):
 	kw['fragment'] = LARGE_FRAGMENT
 
 	kw['msg'] = 'Checking for large file support'
+	ret = True
 	try:
 		if self.env.DEST_BINFMT != 'pe':
 			ret = self.check(**kw)
