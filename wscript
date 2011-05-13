@@ -223,7 +223,7 @@ def sfilter(path):
 
 		if cnt.find('set(') > -1:
 			cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
-		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
+		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! Do not edit! http://waf.googlecode.com/svn/docs/wafbook/single.html#_obtaining_the_waf_file\n\n' + cnt
 
 	return (io.BytesIO(cnt.encode('utf-8')), len(cnt), cnt)
 
