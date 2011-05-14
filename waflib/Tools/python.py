@@ -288,7 +288,7 @@ def check_python_headers(conf):
 
 	includes = []
 	if conf.env.PYTHON_CONFIG:
-		for incstr in conf.cmd_and_log(conf.env.PYTHON + [ conf.env.PYTHON_CONFIG, '--includes']).strip().split():
+		for incstr in conf.cmd_and_log([ conf.env.PYTHON_CONFIG, '--includes']).strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I') or incstr.startswith('/I')):
 				incstr = incstr[2:]
