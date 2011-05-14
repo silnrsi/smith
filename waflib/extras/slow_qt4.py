@@ -1,6 +1,17 @@
 #! /usr/bin/env python
 # Thomas Nagy, 2011 (ita)
 
+"""
+Create _moc.cpp files (the builds are 30-40% faster when .moc files are included).
+To use, just create a waf file including slow_qt4 and change the project configuration:
+
+def configure(conf):
+	conf.load('compiler_cxx qt4')
+	conf.load('slow_qt4')
+
+See playground/slow_qt/wscript for a complete example.
+"""
+
 from waflib.TaskGen import extension
 from waflib import Task
 import waflib.Tools.qt4
