@@ -32,7 +32,20 @@ POSSIBILITY OF SUCH DAMAGE.
 
 # not ready yet, some refactoring is needed
 
+import uuid # requires python 2.5
 from waflib.Build import BuildContext
+from waflib import Utils
+
+BIN_GUID_PREFIX = Utils.md5('BIN').hexdigest()[:8].upper()
+LIB_GUID_PREFIX = Utils.md5('LIB').hexdigest()[:8].upper()
+SPU_GUID_PREFIX = Utils.md5('SPU').hexdigest()[:8].upper()
+SAR_GUID_PREFIX = Utils.md5('SAR').hexdigest()[:8].upper()
+EXT_GUID_PREFIX = Utils.md5('EXT').hexdigest()[:8].upper()
+FRG_GUID_PREFIX = Utils.md5('FRG').hexdigest()[:8].upper()
+SHA_GUID_PREFIX = Utils.md5('SHA').hexdigest()[:8].upper()
+
+VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
+VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
 
 class msvs_generator(Build.BuildContext):
 	cmd = 'msvs'
@@ -45,21 +58,62 @@ class msvs_generator(Build.BuildContext):
 		self.recurse([self.run_dir])
 		self.create_files()
 
-	def get_project_generator(self, taskgen):
-		project_generators = {
-			"cprogram"   : msvs_project_generator.generateMSVSProject_Binary,
-			"cstlib"	 : msvs_project_generator.generateMSVSProject_StaticLib,
-			"cxxprogram" : msvs_project_generator.generateMSVSProject_Binary,
-			"cxxstlib"	 : msvs_project_generator.generateMSVSProject_StaticLib,
-		}
-		if hasattr(taskgen, "msvs_project_type") and project_generators.has_key(taskgen.msvs_project_type):
-			return project_generators[taskgen.msvs_project_type]
+	def create_files(self):
+		"""
+		Two parts here: projects and solution files
+		"""
+		self.create_projects()
+		errs = getattr(self, 'msvs_project_errors', [])
+		if not errs:
+			Logs.warn('VS project generation finished without errors')
+		else:
+			Logs.warn('--------------------PROJECT ERRORS ----------------------')
+			Logs.warn('VS project generation finished with %d errors!' % len(errs))
+			Logs.warn('---------------------------------------------------------')
 
-		return msvs_project_generator.generateMSVSProject_UnknownType
+		self.create_solution()
+		errs = getattr(self, 'msvs_solution_errors')
+		if errs:
+			Logs.warn('----------------- SOLUTION ERROR -----------------------')
+			Logs.warn(' No target with feature "msvs_solution" was found.')
+			Logs.warn(' No solution file will be generated')
+			Logs.warn('--------------------------------------------------------')
+
+	def create_projects(self):
+		self.vcxprojs = []
+		for g in self.groups:
+			for x in g:
+				if self.accept(tg):
+					self.vcxprojs.append(self.do_one_project(tg))
+
+	def create_solution(self):
+		if getattr(self, 'solution_name', None):
+			Logs.warn('Creating: %s' % self.solution_name)
+			self.do_solution()
+		else:
+			self.msvs_solution_errors = True
+
+	################## helper methods that may need to be overridden in subclasses
+
+	def make_guid(self, x, prefix = None):
+		d = Utils.md5(str(x)).hexdigest().upper()
+		if prefix:
+			d = '%s%s' % (prefix, d[8:])
+		gid = uuid.UUID(d, version = 4)
+		return str(gid).upper()
+
+	def get_guid_prefix(self, tg):
+		features = tg.to_list(getattr(tg, 'features', []))
+		if 'cprogram' in f or 'cxxprogram' in f:
+			return BIN_GUID_PREFIX
+		if 'cstlib' in f or 'cxxstlib' in f:
+			return LIB_GUID_PREFIX
+		return ''
 
 	def accept(self, tg):
 		"""
-		Return True if a task generator can be used as a msvs project
+		Return True if a task generator can be used as a msvs project,
+		reject the ones that are not task generators or have the attribute "no_msvs"
 		"""
 		if not isinstance(tg, task_gen):
 			return False
@@ -84,51 +138,21 @@ class msvs_generator(Build.BuildContext):
 			return
 		p[id(tg)] = x
 
-	def collect_projects(self):
-		vcxprojs = []
-		for g in self.groups:
-			for x in g:
-				if self.accept(tg):
-					source_files = Utils.to_list(getattr(x, 'source', []))
-					include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
 
-					project_generator = self.get_project_generator(x)
-					generated_projfile = project_generator(platform, project, x.path.abspath(), source_files, include_dirs)
-					vcxprojs.append(generated_projfile)
+	#############################################################################################################
+	# TODO
 
-				if 'msvs_solution' in x.features and hasattr(x, "solution_dir"):
-					solution_name = os.path.join(x.path.abspath(), x.solution_dir, "_%s.sln" % (project, platform))
-		#vcxprojs += msvs_project_generator.generateMSVSProjects_External(platform)
-		return vcxprojs
+	def do_one_project(self, tg):
+		pass
+		#source_files = Utils.to_list(getattr(x, 'source', []))
+		#include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
+		#project_generator = self.get_project_generator(x)
+		#generated_projfile = project_generator(platform, project, x.path.abspath(), source_files, include_dirs)
+		#if 'msvs_solution' in x.features and hasattr(x, "solution_dir"):
+			#solution_name = os.path.join(x.path.abspath(), x.solution_dir, "_%s.sln" % (project, platform))
 
-	def create_files(self):
-		"""
-		Two parts here: projects and solution files
-		"""
-		self.create_projects()
-		errs = getattr(self, 'msvs_project_errors', [])
-		if not errs:
-			Logs.warn('VS project generation finished without errors')
-		else:
-			Logs.warn('--------------------PROJECT ERRORS ----------------------')
-			Logs.warn('VS project generation finished with %d errors!' % len(errs))
-			Logs.warn('---------------------------------------------------------')
+	def do_solution(self):
+		pass
+		#mssolution.GenerateMSVSSolution(self.solution_name, platform, self.vcxprojs)
 
-		self.create_solution()
-		errs = getattr(self, 'msvs_solution_errors')
-		if errs:
-			Logs.warn('----------------- SOLUTION ERROR -----------------------')
-			Logs.warn(' No target with feature "msvs_solution" was found.')
-			Logs.warn(' No solution file will be generated')
-			Logs.warn('--------------------------------------------------------')
-
-	def create_projects(self):
-		vcxprojs = self.collect_projects
-
-	def create_solution(self):
-		if getattr(self, 'solution_name', None):
-			Logs.warn('Creating: %s' % self.solution_name)
-			mssolution.GenerateMSVSSolution(self.solution_name, platform, vcxprojs)
-		else:
-			self.msvs_solution_errors = True
 
