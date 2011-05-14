@@ -34,7 +34,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
-from waflib import Utils
+from waflib import Utils, TaskGen, Logs
 
 BIN_GUID_PREFIX = Utils.md5('BIN').hexdigest()[:8].upper()
 LIB_GUID_PREFIX = Utils.md5('LIB').hexdigest()[:8].upper()
@@ -47,7 +47,9 @@ SHA_GUID_PREFIX = Utils.md5('SHA').hexdigest()[:8].upper()
 VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
 VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
 
-class msvs_generator(Build.BuildContext):
+HEADERS_GLOB = '**/*.h|*.hpp|*.H|*.inl'
+
+class msvs_generator(BuildContext):
 	cmd = 'msvs'
 	fun = 'build'
 
@@ -88,7 +90,7 @@ class msvs_generator(Build.BuildContext):
 		"""
 		self.vcxprojs = []
 		for g in self.groups:
-			for x in g:
+			for tg in g:
 				if self.accept(tg):
 					self.vcxprojs.append(self.do_one_project(tg))
 
@@ -112,7 +114,7 @@ class msvs_generator(Build.BuildContext):
 		return str(gid).upper()
 
 	def get_guid_prefix(self, tg):
-		features = tg.to_list(getattr(tg, 'features', []))
+		f = tg.to_list(getattr(tg, 'features', []))
 		if 'cprogram' in f or 'cxxprogram' in f:
 			return BIN_GUID_PREFIX
 		if 'cstlib' in f or 'cxxstlib' in f:
@@ -125,7 +127,7 @@ class msvs_generator(Build.BuildContext):
 		reject the ones that are not task generators or have the attribute "no_msvs"
 		the ones that have no name are added to the list "msvs_project_errors"
 		"""
-		if not isinstance(tg, task_gen):
+		if not isinstance(tg, TaskGen.task_gen):
 			return False
 
 		if getattr(tg, 'no_msvs', None):
@@ -137,6 +139,7 @@ class msvs_generator(Build.BuildContext):
 				e = self.msvs_project_errors
 			except:
 				e = self.msvs_project_errors = []
+			Logs.error('discarding %r' % tg)
 			e.append(tg)
 			return False
 
@@ -146,7 +149,8 @@ class msvs_generator(Build.BuildContext):
 			p = self.msvs_processed = {}
 		if id(tg) in p:
 			return
-		p[id(tg)] = x
+		p[id(tg)] = tg
+		return True
 
 
 	#############################################################################################################
@@ -156,59 +160,47 @@ class msvs_generator(Build.BuildContext):
 		pass
 		#mssolution.GenerateMSVSSolution(self.solution_name, platform, self.vcxprojs)
 
-	def do_one_project(self, tg)
-		#platform, project, base_path, source_files, include_dirs, guid):
-
-		#source_files = Utils.to_list(getattr(x, 'source', []))
-		#include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
-		#project_generator = self.get_project_generator(x)
-		#generated_projfile = project_generator(platform, project, x.path.abspath(), source_files, include_dirs)
-		#if 'msvs_solution' in x.features and hasattr(x, "solution_dir"):
-			#solution_name = os.path.join(x.path.abspath(), x.solution_dir, "_%s.sln" % (project, platform))
-
+	def do_one_project(self, tg):
 		platform = self.platform
 		project = tg.name
-		base_path = tg.path.abspath()
 		source_files = Utils.to_list(getattr(tg, 'source', []))
-		include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
-		guid = self.get_guid_prefix()
-
-		if not base_path.endswith("/") or not base_path.endswith("\\"):
-			base_path += "/"
-
-		# Grab all headers in the base_path and its subdirs.
-		# The base_path points to  where the wscript file lies on disk.
+		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_dirs', []))
+		guid = self.get_guid_prefix(tg)
 
 		include_files = []
-		for dir in include_dirs:
-			search_dir = base_path + dir.strip()
-			prep = dir.strip()+"\\"
-			include_files += getFiles2(search_dir, ".h", prep)
-			include_files += getFiles2(search_dir, ".inl", prep)
+		for x in include_dirs:
+			d = tg.path.find_node(x)
+			if d:
+				lst = [y.path_from(tg.path) for y in d.ant_glob(HEADERS_GLOB, flat=False)]
+				include_files.extend(lst)
 
-		values = { 'sources'	   : source_files + include_files,
-				   'abs_path'	  : base_path,
-				   'platform'	  : platform,
-				   'name'		  : project,
-				   'flags_debug'   : '',
-				   'flags_release' : '',
-				   'flags_final'   : '',
-				   'include_dirs'  : '' }
-
+		values = {
+				'sources'       : source_files + include_files,
+				'abs_path'      : tg.path.abspath(),
+				'platform'      : self.platform,
+				'name'          : project,
+				'flags_debug'   : '',
+				'flags_release' : '',
+				'flags_final'   : '',
+				'include_dirs'  : ''
+				}
+		# self-referencing hash
 		values['guid'] = self.make_guid(values, prefix = guid)
-		out = self.bldnode().make_node('depprojs')
-		out.mkdir()
-		OUTPUT_PATH = out.abspath()
 
+		out = self.bldnode.make_node('depprojs')
+		out.mkdir()
 		proj_file   = out.make_node('%s_%s.vcxproj' % (project, platform))
 		filter_file = out.make_node('%s_%s.vcxproj.filters' % (project, platform))
 
-		Logs.warn('Creating %s' % proj_file)
+		Logs.warn('Creating %r' % proj_file)
 
-		if guid == BIN_GUID_PREFIX:
-			(proj_str, filter_str) = createProjectString(values, getBinProjectConfigs(values))
-		else:
-			(proj_str, filter_str) = createProjectString(values, getLibProjectConfigs(values))
+		#if guid == BIN_GUID_PREFIX:
+		#	(proj_str, filter_str) = createProjectString(values, getBinProjectConfigs(values))
+		#else:
+		#	(proj_str, filter_str) = createProjectString(values, getLibProjectConfigs(values))
+
+		proj_str = "oki"
+		filter_str = "oki"
 
 		proj_file.write(proj_str)
 		filter_file.write(filter_str)
