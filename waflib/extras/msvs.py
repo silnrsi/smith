@@ -62,6 +62,9 @@ class msvs_generator(Build.BuildContext):
 		"""
 		Two parts here: projects and solution files
 		"""
+
+		self.platform = getattr(self, 'platform', None) or self.env.PLATFORM or 'Win32'
+
 		self.create_projects()
 		errs = getattr(self, 'msvs_project_errors', [])
 		if not errs:
@@ -80,6 +83,9 @@ class msvs_generator(Build.BuildContext):
 			Logs.warn('--------------------------------------------------------')
 
 	def create_projects(self):
+		"""
+		Iterate over all task generators to create the project files
+		"""
 		self.vcxprojs = []
 		for g in self.groups:
 			for x in g:
@@ -87,6 +93,9 @@ class msvs_generator(Build.BuildContext):
 					self.vcxprojs.append(self.do_one_project(tg))
 
 	def create_solution(self):
+		"""
+		Create the top-level solutions file
+		"""
 		if getattr(self, 'solution_name', None):
 			Logs.warn('Creating: %s' % self.solution_name)
 			self.do_solution()
@@ -114,6 +123,7 @@ class msvs_generator(Build.BuildContext):
 		"""
 		Return True if a task generator can be used as a msvs project,
 		reject the ones that are not task generators or have the attribute "no_msvs"
+		the ones that have no name are added to the list "msvs_project_errors"
 		"""
 		if not isinstance(tg, task_gen):
 			return False
@@ -142,8 +152,13 @@ class msvs_generator(Build.BuildContext):
 	#############################################################################################################
 	# TODO
 
-	def do_one_project(self, tg):
+	def do_solution(self):
 		pass
+		#mssolution.GenerateMSVSSolution(self.solution_name, platform, self.vcxprojs)
+
+	def do_one_project(self, tg)
+		#platform, project, base_path, source_files, include_dirs, guid):
+
 		#source_files = Utils.to_list(getattr(x, 'source', []))
 		#include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
 		#project_generator = self.get_project_generator(x)
@@ -151,8 +166,52 @@ class msvs_generator(Build.BuildContext):
 		#if 'msvs_solution' in x.features and hasattr(x, "solution_dir"):
 			#solution_name = os.path.join(x.path.abspath(), x.solution_dir, "_%s.sln" % (project, platform))
 
-	def do_solution(self):
-		pass
-		#mssolution.GenerateMSVSSolution(self.solution_name, platform, self.vcxprojs)
+		platform = self.platform
+		project = tg.name
+		base_path = tg.path.abspath()
+		source_files = Utils.to_list(getattr(tg, 'source', []))
+		include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
+		guid = self.get_guid_prefix()
 
+		if not base_path.endswith("/") or not base_path.endswith("\\"):
+			base_path += "/"
+
+		# Grab all headers in the base_path and its subdirs.
+		# The base_path points to  where the wscript file lies on disk.
+
+		include_files = []
+		for dir in include_dirs:
+			search_dir = base_path + dir.strip()
+			prep = dir.strip()+"\\"
+			include_files += getFiles2(search_dir, ".h", prep)
+			include_files += getFiles2(search_dir, ".inl", prep)
+
+		values = { 'sources'	   : source_files + include_files,
+				   'abs_path'	  : base_path,
+				   'platform'	  : platform,
+				   'name'		  : project,
+				   'flags_debug'   : '',
+				   'flags_release' : '',
+				   'flags_final'   : '',
+				   'include_dirs'  : '' }
+
+		values['guid'] = self.make_guid(values, prefix = guid)
+		out = self.bldnode().make_node('depprojs')
+		out.mkdir()
+		OUTPUT_PATH = out.abspath()
+
+		proj_file   = out.make_node('%s_%s.vcxproj' % (project, platform))
+		filter_file = out.make_node('%s_%s.vcxproj.filters' % (project, platform))
+
+		Logs.warn('Creating %s' % proj_file)
+
+		if guid == BIN_GUID_PREFIX:
+			(proj_str, filter_str) = createProjectString(values, getBinProjectConfigs(values))
+		else:
+			(proj_str, filter_str) = createProjectString(values, getLibProjectConfigs(values))
+
+		proj_file.write(proj_str)
+		filter_file.write(filter_str)
+
+		return proj_file.abspath()
 
