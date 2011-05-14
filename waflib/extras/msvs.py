@@ -42,8 +42,8 @@ class msvs_generator(Build.BuildContext):
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()
-			self.recurse([self.run_dir])
-			self.create_files()
+		self.recurse([self.run_dir])
+		self.create_files()
 
 	def get_project_generator(self, taskgen):
 		project_generators = {
@@ -57,35 +57,38 @@ class msvs_generator(Build.BuildContext):
 
 		return msvs_project_generator.generateMSVSProject_UnknownType
 
-	def get_tg_name(self, x):
-		if hasattr(x, "msvs_project_name"): return x.msvs_project_name
-		return x.name or None
+	def accept(self, tg):
+		"""
+		Return True if a task generator can be used as a msvs project
+		"""
+		if not isinstance(tg, task_gen):
+			return False
 
-	def create_files(self):
-		processed   = []
-		vcxprojs	= []
-		platform    = getattr(self, 'platform', 'Win32')
-		solution_name = None
-		num_taskgen_errors = 0
-		num_taskgen_warnings = 0
+		if getattr(tg, 'no_msvs', None):
+			# no error
+			return False
 
+		if not tg.name:
+			try:
+				e = self.msvs_project_errors
+			except:
+				e = self.msvs_project_errors = []
+			e.append(tg)
+			return False
+
+		try:
+			p = self.msvs_processed
+		except:
+			p = self.msvs_processed = {}
+		if id(tg) in p:
+			return
+		p[id(tg)] = x
+
+	def collect_projects(self):
+		vcxprojs = []
 		for g in self.groups:
 			for x in g:
-				if not isinstance(x, task_gen):
-					continue
-
-				if 'msvs_project' in x.features:
-					project = self.get_tg_name(x)
-					if project == None:
-						Logs.error('A task generator from the file "%s\\wscript" has the feature "msvs_project" but is missing the attribute "msvs_project_name". No project file will be generated.' % x.path.abspath())
-						num_taskgen_errors += 1
-						continue
-
-					if project in processed:
-						continue
-					else:
-						processed.append(project)
-
+				if self.accept(tg):
 					source_files = Utils.to_list(getattr(x, 'source', []))
 					include_dirs = Utils.to_list(getattr(x, 'includes', [])) + Utils.to_list(getattr(x, 'export_dirs', []))
 
@@ -95,26 +98,37 @@ class msvs_generator(Build.BuildContext):
 
 				if 'msvs_solution' in x.features and hasattr(x, "solution_dir"):
 					solution_name = os.path.join(x.path.abspath(), x.solution_dir, "_%s.sln" % (project, platform))
+		#vcxprojs += msvs_project_generator.generateMSVSProjects_External(platform)
+		return vcxprojs
 
-		# Projects for needy libraries.
-		external_projects = msvs_project_generator.generateMSVSProjects_External(platform)
-		vcxprojs += external_projects
-
-		if num_taskgen_errors == 0:
-			Logs.warn("VS project generation finished without errors.")
+	def create_files(self):
+		"""
+		Two parts here: projects and solution files
+		"""
+		self.create_projects()
+		errs = getattr(self, 'msvs_project_errors', [])
+		if not errs:
+			Logs.warn('VS project generation finished without errors')
 		else:
 			Logs.warn('--------------------PROJECT ERRORS ----------------------')
-			Logs.warn("VS project generation finished: %i errors!" % num_taskgen_errors)
+			Logs.warn('VS project generation finished with %d errors!' % len(errs))
 			Logs.warn('---------------------------------------------------------')
 
-		# Solution file.
-		if solution_name != None:
-			Logs.warn("Creating: %s" % solution_name)
-			mssolution.GenerateMSVSSolution(solution_name, platform, vcxprojs)
-		else:
+		self.create_solution()
+		errs = getattr(self, 'msvs_solution_errors')
+		if errs:
 			Logs.warn('----------------- SOLUTION ERROR -----------------------')
 			Logs.warn(' No target with feature "msvs_solution" was found.')
 			Logs.warn(' No solution file will be generated')
 			Logs.warn('--------------------------------------------------------')
 
+	def create_projects(self):
+		vcxprojs = self.collect_projects
+
+	def create_solution(self):
+		if getattr(self, 'solution_name', None):
+			Logs.warn('Creating: %s' % self.solution_name)
+			mssolution.GenerateMSVSSolution(self.solution_name, platform, vcxprojs)
+		else:
+			self.msvs_solution_errors = True
 
