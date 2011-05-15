@@ -18,7 +18,7 @@ def recv_file(ssig, cnt, p):
 	size = int(data.split()[0])
 
 	if size == -1:
-		raise ValueError('no file %s in cache' % (ssig, cnt))
+		raise ValueError('no file %s - %s in cache' % (ssig, cnt))
 
 	# get the file, writing immediately
 	# TODO for static libraries we should use a tmp file

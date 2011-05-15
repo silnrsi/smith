@@ -6,7 +6,9 @@
 Simple TCP server to cache files over the network
 It uses a LRU (least recently used).
 
-TODO: retrieve several files at once
+TODO:
+* retrieve several files at once
+* convert into a DHT
 """
 
 import os, tempfile, socket
@@ -17,7 +19,7 @@ CONN = (socket.gethostname(), 51200)
 SIZE = 99
 BUF = 8192
 MAX = 10*1024*1024*1024 # in bytes
-CLEANRATIO = 0.8 # use pareto to make some room ...
+CLEANRATIO = 0.8
 
 GET = 2
 PUT = 3
