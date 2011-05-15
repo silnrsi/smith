@@ -123,7 +123,20 @@ TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 
 FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-%s
+	<ItemGroup>
+		${for x in project['sources']}
+			<${project['ctx'].compile_key(x)} Include="${x.abspath()}">
+				<Filter>${x.parent.path_from(project['ctx'].srcnode)}</Filter>
+			</${project['ctx'].compile_key(x)}>
+		${endfor}
+	</ItemGroup>
+	<ItemGroup>
+		${for d in project['dirs']}
+			<Filter Include="${d.path_from(project['ctx'].srcnode)}">
+				<UniqueIdentifier>${project['ctx'].make_guid(d.abspath())}</UniqueIdentifier>
+			</Filter>
+		${endfor}
+	</ItemGroup>
 </Project>
 '''
 
@@ -287,7 +300,6 @@ class msvs_generator(BuildContext):
 
 
 	#############################################################################################################
-	# TODO
 
 	def do_solution(self):
 		pass
@@ -307,8 +319,12 @@ class msvs_generator(BuildContext):
 				lst = [y for y in d.ant_glob(HEADERS_GLOB, flat=False)]
 				include_files.extend(lst)
 
+		# remove duplicates
+		sources = list(set(source_files + include_files))
+		sources.sort()
+
 		values = {
-				'sources'       : source_files + include_files,
+				'sources'       : sources,
 				'abs_path'      : tg.path.abspath(),
 				'platform'      : self.platform,
 				'name'          : project,
@@ -327,18 +343,22 @@ class msvs_generator(BuildContext):
 
 		tg.post()
 
-		fstr = ''
-		#(file_str, fstr) = self.gen_tree_string(values.get('sources', []), values['abs_path'])
-		#values['sources'] = file_str
-
 		values['configs'] = self.get_project_config(values, tg)
 
+		# first write the project file
+		Logs.warn('Creating %r' % proj_file)
 		template1 = compile_template(TEMPLATE)
 		proj_str = template1(values)
-		filter_str = FILTER_TEMPLATE % fstr
-
-		Logs.warn('Creating %r' % proj_file)
 		proj_file.write(proj_str)
+
+		# the filter needs a list of folders
+		dirs = list(set([x.parent for x in sources]))
+		dirs.sort()
+		values['dirs'] = dirs
+
+		# write the filter
+		template2 = compile_template(FILTER_TEMPLATE)
+		filter_str = template2(values)
 		filter_file.write(filter_str)
 
 		return proj_file.abspath()
@@ -367,79 +387,4 @@ class msvs_generator(BuildContext):
 				'output_file': link and link.outputs[0].abspath() or '',
 				'pre_defines': Utils.subst_vars('${DEFINES_ST:DEFINES}', tg.env)
 				}]
-
-	def gen_tree_string(self, files, abs_path):
-		filter_dirs = {}
-		added_files = set([]) #removing duplicate files
-		file_str = ""
-		filter_str = "\t<ItemGroup>\n"
-		files = [x.path_from(self.srcnode) for x in files]
-		for (t,v) in genTree(files):
-			if t == 0:
-				ext = v.split('.')[-1]
-				tag = 'None'
-				if ext == 'h' or ext == 'hpp':
-					tag = 'ClInclude'
-				elif ext == 'c' or ext == 'cpp':
-					tag = 'ClCompile'
-
-				filename = v.replace('.\\', '').replace("/","\\")
-				if filename not in added_files:
-					added_files.add(filename)
-					filtername_dirs = filename.split('\\')[0:-1]
-					filtername = '\\'.join(filtername_dirs)
-					file_str += '\t\t<%s Include="%s%s" />\n' % (tag, abs_path, filename)
-					if not filtername == '':
-						filter_str += '\t\t<%s Include="%s%s">\n' % (tag, abs_path, filename)
-						filter_str += '\t\t\t<Filter>%s</Filter>\n' % filtername
-						filter_str += '\t\t</%s>\n' % tag
-						extendFilterMap(filter_dirs, filtername_dirs)
-					else:
-						filter_str += '\t\t<%s Include="%s%s" />\n' % (tag, abs_path, filename)
-
-
-		filter_str += "\t</ItemGroup>\n"
-
-		filter_str += '\t<ItemGroup>\n'
-		for (k,v) in filter_dirs.iteritems():
-			filter_str += '\t\t<Filter Include="%s">\n' % k
-			filter_str += '\t\t\t<UniqueIdentifier>{%s}</UniqueIdentifier>\n' % v.lower()
-			filter_str += '\t\t</Filter>\n'
-		filter_str += '\t</ItemGroup>\n'
-
-		return (file_str, filter_str)
-
-def genGuid(x, prefix = None):
-    d = Utils.md5(str(x)).hexdigest().upper()
-    if prefix:
-        d = "%s%s" % (prefix, d[8:])
-    gid = uuid.UUID(d, version = 4)
-    return str(gid).upper()
-
-
-def extendFilterMap(filtermap, filters):
-    if filters != []:
-        c = '\\'.join(filters)
-        if c not in filtermap:
-            extendFilterMap(filtermap, filters[0:-1])
-            filtermap[c] = genGuid(c)
-
-def genTree(lst):
-    def doGenTree(lst, depth):
-        prefixes = set()
-        for x in lst:
-            if len(x) > depth+1:
-                prefixes.add(x[depth])
-            else:
-                yield (0,string.join(x, os.sep))
-
-        for y in prefixes:
-            l = filter(lambda x: x[depth] == y, lst)
-            yield (1,l[0][depth])
-            for z in doGenTree(l, depth + 1):
-                yield z
-            yield (2,l[0][depth])
-
-    tmp = [ x.split(os.sep) for x in lst if len(x) > 0 ]
-    return doGenTree(tmp, 0)
 
