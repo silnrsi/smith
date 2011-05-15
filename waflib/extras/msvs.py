@@ -32,6 +32,8 @@ POSSIBILITY OF SUCH DAMAGE.
 
 # not ready yet, some refactoring is needed
 
+import os, string
+
 import re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
@@ -48,7 +50,7 @@ SHA_GUID_PREFIX = Utils.md5('SHA').hexdigest()[:8].upper()
 VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
 VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
 
-HEADERS_GLOB = '**/*.h|*.hpp|*.H|*.inl'
+HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
 TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0"
@@ -110,7 +112,8 @@ TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	${endfor}
 
 	<ItemGroup>
-		${project['sources']}
+		${for x in project['sources']}<${project['ctx'].compile_key(x)} Include='${x.abspath()}' />
+		${endfor}
 	</ItemGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 	<ImportGroup Label="ExtensionTargets">
@@ -164,6 +167,8 @@ def compile_template(line):
 		if f.startswith('if') or f.startswith('for'):
 			app(f + ':')
 			indent += 1
+		elif f.startswith('py:'):
+			app(f.lstrip('py:'))
 		elif f.startswith('endif') or f.startswith('endfor'):
 			indent -= 1
 		else:
@@ -291,7 +296,7 @@ class msvs_generator(BuildContext):
 	def do_one_project(self, tg):
 		platform = self.platform
 		project = tg.name
-		source_files = Utils.to_list(getattr(tg, 'source', []))
+		source_files = tg.to_nodes(getattr(tg, 'source', []))
 		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_dirs', []))
 		guid = self.get_guid_prefix(tg)
 
@@ -299,7 +304,7 @@ class msvs_generator(BuildContext):
 		for x in include_dirs:
 			d = tg.path.find_node(x)
 			if d:
-				lst = [y.path_from(tg.path) for y in d.ant_glob(HEADERS_GLOB, flat=False)]
+				lst = [y for y in d.ant_glob(HEADERS_GLOB, flat=False)]
 				include_files.extend(lst)
 
 		values = {
@@ -310,7 +315,8 @@ class msvs_generator(BuildContext):
 				'flags_debug'   : '',
 				'flags_release' : '',
 				'flags_final'   : '',
-				'include_dirs'  : ''
+				'include_dirs'  : '',
+				'ctx'           : self,
 				}
 		values['guid'] = self.make_guid(values, prefix = guid)
 
@@ -321,8 +327,10 @@ class msvs_generator(BuildContext):
 
 		tg.post()
 
-		(file_str, fstr) = self.gen_tree_string(values.get('sources', []), values['abs_path'])
-		values['sources'] = file_str
+		fstr = ''
+		#(file_str, fstr) = self.gen_tree_string(values.get('sources', []), values['abs_path'])
+		#values['sources'] = file_str
+
 		values['configs'] = self.get_project_config(values, tg)
 
 		template1 = compile_template(TEMPLATE)
@@ -334,6 +342,12 @@ class msvs_generator(BuildContext):
 		filter_file.write(filter_str)
 
 		return proj_file.abspath()
+
+	def compile_key(self, node):
+		name = node.name
+		if name.endswith('.cpp') or name.endswith('.c'):
+			return 'ClCompile'
+		return 'ClInclude'
 
 	def get_project_name(self):
 		if self.platform == 'Xenon':
@@ -354,6 +368,78 @@ class msvs_generator(BuildContext):
 				'pre_defines': Utils.subst_vars('${DEFINES_ST:DEFINES}', tg.env)
 				}]
 
-	def gen_tree_string(self, *k, **kw):
-		return ('', '')
+	def gen_tree_string(self, files, abs_path):
+		filter_dirs = {}
+		added_files = set([]) #removing duplicate files
+		file_str = ""
+		filter_str = "\t<ItemGroup>\n"
+		files = [x.path_from(self.srcnode) for x in files]
+		for (t,v) in genTree(files):
+			if t == 0:
+				ext = v.split('.')[-1]
+				tag = 'None'
+				if ext == 'h' or ext == 'hpp':
+					tag = 'ClInclude'
+				elif ext == 'c' or ext == 'cpp':
+					tag = 'ClCompile'
+
+				filename = v.replace('.\\', '').replace("/","\\")
+				if filename not in added_files:
+					added_files.add(filename)
+					filtername_dirs = filename.split('\\')[0:-1]
+					filtername = '\\'.join(filtername_dirs)
+					file_str += '\t\t<%s Include="%s%s" />\n' % (tag, abs_path, filename)
+					if not filtername == '':
+						filter_str += '\t\t<%s Include="%s%s">\n' % (tag, abs_path, filename)
+						filter_str += '\t\t\t<Filter>%s</Filter>\n' % filtername
+						filter_str += '\t\t</%s>\n' % tag
+						extendFilterMap(filter_dirs, filtername_dirs)
+					else:
+						filter_str += '\t\t<%s Include="%s%s" />\n' % (tag, abs_path, filename)
+
+
+		filter_str += "\t</ItemGroup>\n"
+
+		filter_str += '\t<ItemGroup>\n'
+		for (k,v) in filter_dirs.iteritems():
+			filter_str += '\t\t<Filter Include="%s">\n' % k
+			filter_str += '\t\t\t<UniqueIdentifier>{%s}</UniqueIdentifier>\n' % v.lower()
+			filter_str += '\t\t</Filter>\n'
+		filter_str += '\t</ItemGroup>\n'
+
+		return (file_str, filter_str)
+
+def genGuid(x, prefix = None):
+    d = Utils.md5(str(x)).hexdigest().upper()
+    if prefix:
+        d = "%s%s" % (prefix, d[8:])
+    gid = uuid.UUID(d, version = 4)
+    return str(gid).upper()
+
+
+def extendFilterMap(filtermap, filters):
+    if filters != []:
+        c = '\\'.join(filters)
+        if c not in filtermap:
+            extendFilterMap(filtermap, filters[0:-1])
+            filtermap[c] = genGuid(c)
+
+def genTree(lst):
+    def doGenTree(lst, depth):
+        prefixes = set()
+        for x in lst:
+            if len(x) > depth+1:
+                prefixes.add(x[depth])
+            else:
+                yield (0,string.join(x, os.sep))
+
+        for y in prefixes:
+            l = filter(lambda x: x[depth] == y, lst)
+            yield (1,l[0][depth])
+            for z in doGenTree(l, depth + 1):
+                yield z
+            yield (2,l[0][depth])
+
+    tmp = [ x.split(os.sep) for x in lst if len(x) > 0 ]
+    return doGenTree(tmp, 0)
 
