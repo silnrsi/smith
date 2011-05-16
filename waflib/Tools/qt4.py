@@ -335,7 +335,7 @@ class moc(Task.Task):
 	Create *.moc* files
 	"""
 	color   = 'BLUE'
-	run_str = '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}'
+	run_str = '${QT_MOC} ${MOC_FLAGS} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
 
 class ui4(Task.Task):
 	"""
