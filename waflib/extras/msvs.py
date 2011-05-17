@@ -142,19 +142,28 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 
 SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-%(projects)s
+  ${for (x,y,z,t) in project['projects']}
+    Project("{${x}}") = "${y}", "${z}", "{${t}}"
+    EndProject
+  ${endfor}
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
-%(pre_solution)s
+      ${for x in project['pre_solution']}
+        ${x} = ${x}
+      ${endfor}
     EndGlobalSection
     GlobalSection(ProjectConfigurationPlatforms) = postSolution
-%(post_solution)s
+      ${for (guid,cfg,z) in project['post_solution']}
+        {${guid}}.${cfg}.ActiveCfg = ${cfg}
+      ${endfor}
     EndGlobalSection
     GlobalSection(SolutionProperties) = preSolution
         HideSolutionNode = FALSE
     EndGlobalSection
     GlobalSection(NestedProjects) = preSolution
-%(folder_nesting)s
+      ${for (guid1,guid2) in project['folder_nesting']}
+        {${guid1}} = {${guid2}}
+      ${endfor}
     EndGlobalSection
 EndGlobal
 '''
@@ -217,12 +226,16 @@ def compile_template(line):
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
 	fun = 'build'
+	variant = 'Debug'
 
 	def execute(self):
 		self.restore()
 		if not self.all_envs:
 			self.load_envs()
 		self.recurse([self.run_dir])
+
+		self.env.CONFIG = 'Debug'
+		self.env.TARGET_PLATFORM = 'Win32'
 		self.create_files()
 
 	def create_files(self):
@@ -232,6 +245,7 @@ class msvs_generator(BuildContext):
 
 		self.platform = getattr(self, 'platform', None) or self.env.PLATFORM or 'Win32'
 
+		self.guid_map = {}
 		self.create_projects()
 		errs = getattr(self, 'msvs_project_errors', [])
 		if not errs:
@@ -262,6 +276,7 @@ class msvs_generator(BuildContext):
 		"""
 		Create the top-level solutions file
 		"""
+		self.solution_name = 'test.sln'
 		if getattr(self, 'solution_name', None):
 			Logs.warn('Creating: %s' % self.solution_name)
 			self.do_solution()
@@ -319,9 +334,6 @@ class msvs_generator(BuildContext):
 
 	#############################################################################################################
 
-	def do_solution(self):
-		self.GenerateMSVSSolution(self.solution_name, self.platform, self.vcxprojs)
-
 	def do_one_project(self, tg):
 		platform = self.platform
 		project = tg.name
@@ -331,6 +343,9 @@ class msvs_generator(BuildContext):
 
 		include_files = []
 		for x in include_dirs:
+			if not isinstance(x, str):
+				include_files.append(x)
+				continue
 			d = tg.path.find_node(x)
 			if d:
 				lst = [y for y in d.ant_glob(HEADERS_GLOB, flat=False)]
@@ -339,6 +354,11 @@ class msvs_generator(BuildContext):
 		# remove duplicates
 		sources = list(set(source_files + include_files))
 		sources.sort()
+
+		out = self.bldnode.make_node('depprojs')
+		out.mkdir()
+		proj_file   = out.make_node('%s_%s.vcxproj' % (project, platform))
+		filter_file = out.make_node('%s_%s.vcxproj.filters' % (project, platform))
 
 		values = {
 				'sources'       : sources,
@@ -351,14 +371,12 @@ class msvs_generator(BuildContext):
 				'include_dirs'  : '',
 				'ctx'           : self,
 				}
-		values['guid'] = self.make_guid(values, prefix = guid)
+		self.guid_map[proj_file] = values['guid'] = self.make_guid(values, prefix = guid)
 
-		out = self.bldnode.make_node('depprojs')
-		out.mkdir()
-		proj_file   = out.make_node('%s_%s.vcxproj' % (project, platform))
-		filter_file = out.make_node('%s_%s.vcxproj.filters' % (project, platform))
-
-		tg.post()
+		try:
+			tg.post()
+		except:
+			pass
 
 		values['configs'] = self.get_project_config(values, tg)
 
@@ -392,7 +410,6 @@ class msvs_generator(BuildContext):
 		return 'Win32'
 
 	def get_project_config(self, values, tg):
-		# getLibProjectConfigs(values)
 		link = getattr(tg, 'link_task', None)
 		return [{
 				'pname': self.get_project_name(),
@@ -402,263 +419,47 @@ class msvs_generator(BuildContext):
 				'clean_command' : 'waf clean',
 				'output_dir' : link and link.outputs[0].parent.abspath() or '',
 				'output_file': link and link.outputs[0].abspath() or '',
-				'pre_defines': Utils.subst_vars('${DEFINES_ST:DEFINES}', tg.env)
+				'pre_defines': ' '.join([tg.env.DEFINES_ST % x for x in tg.env.DEFINES])
 				}]
 
-	def GenerateMSVSSolution(self, outfile, platform, project_files):
-		projects_str		= ''
-		pre_solution_str	= ''
-		post_solution_str   = ''
-		folder_nesting_str  = ''
-
-		project_files = [x.abspath() for x in project_files]
-
-		for project_path in project_files:
-			if not project_path.endswith('.vcxproj'):
-				print 'Error: %(outfile)s is said to require the file %(project_path)s, which does not end with .vcxproj' % globals()
-				exit(1)
-
-			project_path = project_path.strip()
-			if os.path.exists(project_path):
-				name = os.path.basename(project_path).split('_')[0]
-				project = VSProject(name, project_path)
-			else:
-				print 'Error: file "%s" do not exist, ignoring!' % project_path
-
-		CONFIGURATIONS = ['Release']
-
-		for project in projectsTree():
-			projects_str += project.slnStr()
-			folder_nesting_str += project.slnNestStr()
-
-			if project.__class__ == VSProject:
-				for confs in CONFIGURATIONS:
-					post_solution_str += emitProjectConfigString(project.guid, platform, confs, project.type.guid_prefix == BIN_GUID_PREFIX)
-
-		pre_template = "\t\t%s|Xbox 360 = %s|Xbox 360\n" if platform == 'Xenon' else "\t\t%s|Win32 = %s|Win32\n"
-
-		for conf in CONFIGURATIONS:
-			for type in BUILDTYPES:
-				tmp = '%s%s' % (type, conf)
-				pre_solution_str += pre_template % (tmp, tmp)
-
-		f = open(outfile, "w")
-		f.write( SOLUTION_TEMPLATE % { 'projects'	   : projects_str,
-									   'pre_solution'   : pre_solution_str,
-									   'post_solution'  : post_solution_str,
-									   'folder_nesting' : folder_nesting_str } )
-		f.close()
-
-def projectsTree():
-    for folder_name in VSProjectType.by_folder_name.keys():
-        for node in VSProjectType.by_folder_name[folder_name].selfAndDescendants():
-            yield node
-
-
-DEFAULT_FOLDER_CONFIG = """
-[folders]
-"""
-
-
-class CaseSensitiveConfigParser(ConfigParser.ConfigParser):
-    def optionxform(self, optionstr):
-        return str(optionstr)
-
-
-def readFolderConfig():
-    config_parser = CaseSensitiveConfigParser()
-    if os.path.exists("config\\msvs.config"):
-        config_parser.read("config\\msvs.config")
-    else:
-        config_parser.readfp(StringIO.StringIO(DEFAULT_FOLDER_CONFIG), '<default configuration>')
-    return config_parser
-
-
-folder_config = readFolderConfig()
-
-unknown_project_type = None
-
-
-class VSSolutionTreeElement:
-    def __init__(self):
-        self.guid = genRandomUuid()
-        self.parent_vs_element = None
-
-    def selfAndDescendants(self):
-        yield self
-        for d in self.descendants():
-            yield d
-
-    def descendants(self):
-        for c in self.children():
-            yield c
-            for d in c.descendants():
-                yield d
-
-    def children(self): # To be overridden
-        if False:
-            yield None  # Anyone know of a cleaner way to make a generator
-                        # function that will always return an empty iterator?
-
-    def slnStr(self):
-        if self.__class__ == VSProject:
-            path = os.path.join(os.getcwd(), self.path)
-        else:
-            path = self.name
-        sln_str = 'Project("{%s}") = "%s", "%s", "{%s}"\nEndProject\n' % (self.vs_project_type_guid, self.name, path, self.guid)
-
-        return sln_str
-
-    def slnNestStr(self):
-        if self.parent_vs_element and not self.guid[0:8] == BIN_GUID_PREFIX:
-            sln_nest_str = '\t\t{%s} = {%s}\n' % (self.guid, self.parent_vs_element.guid)
-        else:
-            sln_nest_str = ''
-
-        return sln_nest_str
-
-
-class VSProjectNameGroup(VSSolutionTreeElement):
-    by_type_and_folder_name = {}
-
-    def __init__(self, name, project_type = None):
-        VSSolutionTreeElement.__init__(self)
-
-        self.vs_project_type_guid    = VS_GUID_SOLUTIONFOLDER
-        self.path = self.name        = name
-
-        self.parent_vs_element = self.project_type = project_type
-
-        self.projects = []
-
-    def children(self):
-        for project in self.projects:
-            yield project
-
-
-class VSProjectType(VSSolutionTreeElement):
-    by_guid_prefix = {}
-    by_folder_name = {}
-
-    def __init__(self, folder_name, guid_prefix = None):
-        VSSolutionTreeElement.__init__(self)
-
-        self.vs_project_type_guid    = VS_GUID_SOLUTIONFOLDER
-        self.guid_prefix             = guid_prefix
-
-        self.path = self.name = self.folder_name = folder_name
-
-        VSProjectType.by_folder_name[folder_name] = self
-
-        if guid_prefix != None:
-            VSProjectType.by_guid_prefix[guid_prefix] = self
-
-        self.name_groups = []
-        self.projects = []
-
-    def children(self):
-        for name_group in self.name_groups:
-            yield name_group
-        for project in self.projects:
-            yield project
-
-
-class VSProject(VSSolutionTreeElement):
-    by_type = {}
-
-    def __init__(self, name, path, parent_folder = None):
-        VSSolutionTreeElement.__init__(self)
-
-        global unknown_project_type
-
-        self.vs_project_type_guid = VS_GUID_VCPROJ
-        self.name                 = name
-        self.path                 = path
-        self.guid                 = getGuid(self.path)
-
-        project_types = { BIN_GUID_PREFIX : 'Binaries',
-                          LIB_GUID_PREFIX : 'Project libraries',
-                          SPU_GUID_PREFIX : 'SPU',
-                          SAR_GUID_PREFIX : 'Site libraries',
-                          EXT_GUID_PREFIX : 'External libraries',
-                          FRG_GUID_PREFIX : 'Fragments',
-                          SHA_GUID_PREFIX : 'Shader libraries' }
-
-        self.type = None
-
-        for project_type in project_types.keys():
-            if self.guid[:8] == project_type:
-                if not VSProjectType.by_guid_prefix.has_key(project_type):
-                    VSProjectType(project_types[project_type], project_type)
-                self.type = VSProjectType.by_guid_prefix[project_type]
-
-        if not self.type:
-            if not unknown_project_type:
-                unknown_project_type = VSProjectType('Unknown project type')
-            self.type = unknown_project_type
-
-        if not VSProject.by_type.has_key(self.type):
-            VSProject.by_type[self.type] = []
-        VSProject.by_type[self.type].append(self)
-
-        patterns = folder_config.options('folders')
-        self.subfolder = None
-        for pattern in patterns:
-            subfolder_name = folder_config.get('folders', pattern)
-            if fnmatch.fnmatchcase(self.name, pattern):
-                if not VSProjectNameGroup.by_type_and_folder_name.has_key(self.type):
-                    VSProjectNameGroup.by_type_and_folder_name[self.type] = {}
-                if not VSProjectNameGroup.by_type_and_folder_name[self.type].has_key(subfolder_name):
-                    name_group = VSProjectNameGroup(subfolder_name, self.type)
-                    VSProjectNameGroup.by_type_and_folder_name[self.type][subfolder_name] = name_group
-                    self.type.name_groups.append(name_group)
-                self.parent_vs_element = self.subfolder = VSProjectNameGroup.by_type_and_folder_name[self.type][subfolder_name]
-                VSProjectNameGroup.by_type_and_folder_name[self.type][subfolder_name].projects.append(self)
-                break
-
-        if not self.subfolder:
-            self.parent_vs_element = self.type
-            self.type.projects.append(self)
-
-
-def projectsTree():
-    for folder_name in VSProjectType.by_folder_name.keys():
-        for node in VSProjectType.by_folder_name[folder_name].selfAndDescendants():
-            yield node
-
-
-#---------------------------------------------------------------------------
-
-#######################################################################
-# emitProjectConfigString - emits a configuration string used i Visual Studio Solution files
-#
-# PARAMETERS:
-# guid = the guid of the project to emit string for.
-# conf = configuration to write conf-string for.
-# build = boolean telling if this project should be built when building entire solution.
-#
-
-proj_conf_template  = "\t\t{%(guid)s}.%(config)s.ActiveCfg = %(config)s\n"
-build_conf_template = "\t\t{%(guid)s}.%(config)s.Build.0   = %(config)s\n"
-
-def emitProjectConfigString(guid, platform, conf, build):
-    ret = ''
-    plat_str = 'Xbox 360' if platform == 'Xenon' else 'Win32'
-
-    for type in BUILDTYPES:
-        values = { 'guid' : guid,
-                   'config' : '%s|%s' % (type + conf, plat_str) }
-
-        ret += proj_conf_template % values
-
-        if build:
-            ret += build_conf_template % values
-
-    return ret
-
-#---------------------------------------------------------------------------
-
-
-
-
+	def do_solution(self):
+		model = {}
+		model['projects'] = []
+		seen = []
+		for x in self.vcxprojs:
+			name = x.name.split('_')[0]
+			path = x.abspath()
+			guid = self.guid_map[x]
+			ptype = VS_GUID_VCPROJ
+			model['projects'].append((ptype, name, path, guid))
+
+			# same for the parent folder
+			x = x.parent
+			if x in seen:
+				continue
+			seen.append(x)
+
+			name = x.name.split('_')[0]
+			path = x.abspath()
+			guid = self.guid_map[x] = self.make_guid(path)
+			ptype = VS_GUID_SOLUTIONFOLDER
+			model['projects'].append((ptype, name, path, guid))
+
+		model['pre_solution'] = ["%s|%s" %(self.platform, self.get_project_name())]
+
+		model['post_solution'] = []
+		for x in self.vcxprojs:
+			for y in model['pre_solution']:
+				model['post_solution'].append((self.guid_map[x], y, None))
+
+		model['folder_nesting'] = []
+		for x in self.vcxprojs:
+			model['folder_nesting'].append((self.guid_map[x], self.guid_map[x.parent]))
+
+		# then write the solution file
+		sln_file = self.srcnode.make_node(self.solution_name)
+		Logs.warn('Creating %r' % sln_file)
+		template1 = compile_template(SOLUTION_TEMPLATE)
+		sln_str = template1(model)
+		sln_file.write(sln_str)
 
