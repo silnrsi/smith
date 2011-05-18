@@ -15,6 +15,7 @@ def configure(ctx):
 
 def dist(ctx):
 	ctx.base_name = 'foo_2.0'
+	#ctx.base_path = ctx.path.find_node('build_directory')
 	ctx.algo      = 'zip'
 	ctx.excl      = ' **/.waf-1* **/*~ **/*.pyc **/*.swp **/.lock-w*'
 	ctx.files     = ctx.path.ant_glob('**/wscript')
