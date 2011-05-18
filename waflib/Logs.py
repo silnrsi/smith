@@ -6,7 +6,7 @@
 logging, colors, terminal width and pretty-print
 """
 
-import os, re, logging, traceback, sys
+import os, re, traceback, sys
 
 try:
 	if 'NOCOLOR' not in os.environ:
@@ -14,6 +14,8 @@ try:
 except:
 	# optional module for colors on win32, just ignore if it cannot be imported
 	pass
+
+import logging # do it after
 
 LOG_FORMAT = "%(asctime)s %(c1)s%(zone)s%(c2)s %(message)s"
 HOUR_FORMAT = "%H:%M:%S"
