@@ -234,8 +234,8 @@ $ waf distclean configure build
 'configure' finished successfully (0.005s)
 Waf: Entering directory `/tmp/nested/build'
 /tmp/nested/wscript <1>
-/tmp/nested/build/default/out.out <2>
-/tmp/nested/build/default/ <3>
+/tmp/nested/build/out.out <2>
+/tmp/nested/build/ <3>
 /tmp/nested <4>
 Waf: Leaving directory `/tmp/nested/build'
 'build' finished successfully (0.003s)
