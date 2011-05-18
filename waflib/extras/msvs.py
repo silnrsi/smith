@@ -47,6 +47,16 @@ EXT_GUID_PREFIX = Utils.md5('EXT').hexdigest()[:8].upper()
 FRG_GUID_PREFIX = Utils.md5('FRG').hexdigest()[:8].upper()
 SHA_GUID_PREFIX = Utils.md5('SHA').hexdigest()[:8].upper()
 
+GLOBAL_FOLDERS = {
+	BIN_GUID_PREFIX : 'Binaries',
+	LIB_GUID_PREFIX : 'Project libraries',
+	SPU_GUID_PREFIX : 'SPU',
+	SAR_GUID_PREFIX : 'Site libraries',
+	EXT_GUID_PREFIX : 'External libraries',
+	FRG_GUID_PREFIX : 'Fragments',
+	SHA_GUID_PREFIX : 'Shader libraries',
+}
+
 VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
 VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
 
@@ -142,29 +152,25 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 
 SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-  ${for (x,y,z,t) in project['projects']}
-    Project("{${x}}") = "${y}", "${z}", "{${t}}"
-    EndProject
-  ${endfor}
+${for (x,y,z,t) in project['projects']}
+Project("{${x}}") = "${y}", "${z}", "{${t}}"
+EndProject${endfor}
 Global
-    GlobalSection(SolutionConfigurationPlatforms) = preSolution
-      ${for x in project['pre_solution']}
-        ${x} = ${x}
-      ${endfor}
-    EndGlobalSection
-    GlobalSection(ProjectConfigurationPlatforms) = postSolution
-      ${for (guid,cfg,z) in project['post_solution']}
-        {${guid}}.${cfg}.ActiveCfg = ${cfg}
-      ${endfor}
-    EndGlobalSection
-    GlobalSection(SolutionProperties) = preSolution
-        HideSolutionNode = FALSE
-    EndGlobalSection
-    GlobalSection(NestedProjects) = preSolution
-      ${for (guid1,guid2) in project['folder_nesting']}
-        {${guid1}} = {${guid2}}
-      ${endfor}
-    EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		${for x in project['pre_solution']}
+		${x} = ${x}${endfor}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		${for (guid,cfg,z) in project['post_solution']}
+		{${guid}}.${cfg}.ActiveCfg = ${cfg}${endfor}
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	${for (guid1,guid2) in project['folder_nesting']}
+		{${guid1}} = {${guid2}}${endfor}
+	EndGlobalSection
 EndGlobal
 '''
 
@@ -209,7 +215,7 @@ def compile_template(line):
 			app(f + ':')
 			indent += 1
 		elif f.startswith('py:'):
-			app(f.lstrip('py:'))
+			app(f[3:])
 		elif f.startswith('endif') or f.startswith('endfor'):
 			indent -= 1
 		else:
@@ -270,7 +276,9 @@ class msvs_generator(BuildContext):
 		for g in self.groups:
 			for tg in g:
 				if self.accept(tg):
-					self.vcxprojs.append(self.do_one_project(tg))
+					f = self.do_one_project(tg)
+					if not f in self.vcxprojs:
+						self.vcxprojs.append(f)
 
 	def create_solution(self):
 		"""
@@ -285,12 +293,23 @@ class msvs_generator(BuildContext):
 
 	################## helper methods that may need to be overridden in subclasses
 
-	def make_guid(self, x, prefix = None):
-		d = Utils.md5(str(x)).hexdigest().upper()
+	def make_guid(self, v, prefix = None):
+		if isinstance(v, dict):
+			keys = list(v.keys())
+			keys.sort()
+			tmp = str([(k, v[k]) for k in keys])
+		else:
+			tmp = str(v)
+		d = Utils.md5(tmp).hexdigest().upper()
 		if prefix:
 			d = '%s%s' % (prefix, d[8:])
 		gid = uuid.UUID(d, version = 4)
 		return str(gid).upper()
+
+	def make_project_guid(self, values, tg):
+		guid = self.get_guid_prefix(tg)
+		g = self.make_guid(values, prefix=guid)
+		return g
 
 	def get_guid_prefix(self, tg):
 		f = tg.to_list(getattr(tg, 'features', []))
@@ -298,7 +317,7 @@ class msvs_generator(BuildContext):
 			return BIN_GUID_PREFIX
 		if 'cstlib' in f or 'cxxstlib' in f:
 			return LIB_GUID_PREFIX
-		return ''
+		return EXT_GUID_PREFIX
 
 	def accept(self, tg):
 		"""
@@ -339,8 +358,6 @@ class msvs_generator(BuildContext):
 		project = tg.name
 		source_files = tg.to_nodes(getattr(tg, 'source', []))
 		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_dirs', []))
-		guid = self.get_guid_prefix(tg)
-
 		include_files = []
 		for x in include_dirs:
 			if not isinstance(x, str):
@@ -371,8 +388,10 @@ class msvs_generator(BuildContext):
 				'include_dirs'  : '',
 				'ctx'           : self,
 				}
-		self.guid_map[proj_file] = values['guid'] = self.make_guid(values, prefix = guid)
+		self.guid_map[proj_file] = values['guid'] = self.make_project_guid(values, tg)
 
+		#print values
+		#raise
 		try:
 			tg.post()
 		except:
@@ -426,23 +445,20 @@ class msvs_generator(BuildContext):
 		model = {}
 		model['projects'] = []
 		seen = []
+
+		# first make the folders
+		for x in GLOBAL_FOLDERS:
+			name = path = GLOBAL_FOLDERS[x]
+			guid = self.make_guid(name)
+			ptype = VS_GUID_SOLUTIONFOLDER
+			model['projects'].append((ptype, name, path, guid))
+
+		# then add the projects
 		for x in self.vcxprojs:
 			name = x.name.split('_')[0]
 			path = x.abspath()
 			guid = self.guid_map[x]
 			ptype = VS_GUID_VCPROJ
-			model['projects'].append((ptype, name, path, guid))
-
-			# same for the parent folder
-			x = x.parent
-			if x in seen:
-				continue
-			seen.append(x)
-
-			name = x.name.split('_')[0]
-			path = x.abspath()
-			guid = self.guid_map[x] = self.make_guid(path)
-			ptype = VS_GUID_SOLUTIONFOLDER
 			model['projects'].append((ptype, name, path, guid))
 
 		model['pre_solution'] = ["%s|%s" %(self.platform, self.get_project_name())]
@@ -454,7 +470,13 @@ class msvs_generator(BuildContext):
 
 		model['folder_nesting'] = []
 		for x in self.vcxprojs:
-			model['folder_nesting'].append((self.guid_map[x], self.guid_map[x.parent]))
+			guid_project = self.guid_map[x]
+			name = GLOBAL_FOLDERS[guid_project[:8]]
+			guid_dir = self.make_guid(name)
+
+			model['folder_nesting'].append((guid_project, guid_dir))
+
+		model['folder_nesting'].sort(key=lambda x: x[1])
 
 		# then write the solution file
 		sln_file = self.srcnode.make_node(self.solution_name)
