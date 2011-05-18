@@ -30,7 +30,16 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-# not ready yet, some refactoring is needed
+# almost ready, but some refactoring is needed
+
+"""
+To add this tool to your project:
+def configure(conf):
+	conf.load('msvs')
+
+To generate solution files:
+$ waf configure msvs
+"""
 
 import os, string
 
@@ -228,6 +237,11 @@ def compile_template(line):
 	fun = COMPILE_TEMPLATE % "\n\t".join(buf)
 	#print fun
 	return Task.funex(fun)
+
+re_blank = re.compile('\n\s*\n', re.M)
+def rm_blank_lines(txt):
+	txt = re_blank.sub('\n', txt)
+	return txt
 
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
@@ -483,5 +497,6 @@ class msvs_generator(BuildContext):
 		Logs.warn('Creating %r' % sln_file)
 		template1 = compile_template(SOLUTION_TEMPLATE)
 		sln_str = template1(model)
+		sln_str = rm_blank_lines(sln_str)
 		sln_file.write(sln_str)
 
