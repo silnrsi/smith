@@ -10,6 +10,7 @@ NEW IN WAF 1.6.5
 * Fix the gfortran verbose flag detection on Windows
 * Fix the python detection using python-config
 * Add the missing default includes and defines to the moc command
+* Improve support for hierarchical go-lang packages #953
 
 NEW IN WAF 1.6.4
 ----------------
