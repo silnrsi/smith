@@ -49,7 +49,7 @@ def link_lib_test_fun(self):
 	bld(rule=write_test_file, target='test.' + mode, code=LIB_CODE)
 	bld(rule=write_test_file, target='main.' + mode, code=MAIN_CODE)
 	bld(features= m + 'shlib', source='test.' + mode, target='test')
-	bld(features= m + 'program test_exec', source='main.c', target='app', use='test', rpath=rpath)
+	bld(features= m + 'program test_exec', source='main.' + mode, target='app', use='test', rpath=rpath)
 
 @conf
 def check_library(self, mode=None):
