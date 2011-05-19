@@ -20,9 +20,9 @@ def exec_command(self, cmd, **kw):
 		p = subprocess.Popen(cmd, **kw)
 		(out, err) = p.communicate()
 		if out:
-			sys.stdout.write(out.decode(sys.stdout.encoding))
+			sys.stdout.write(out.decode(sys.stdout.encoding or 'iso8859-1'))
 		if err:
-			sys.stdout.write(err.decode(sys.stdout.encoding))
+			sys.stdout.write(err.decode(sys.stdout.encoding or 'iso8859-1'))
 		return p.returncode
 	except OSError:
 		return -1
