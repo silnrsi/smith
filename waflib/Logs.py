@@ -153,9 +153,10 @@ class formatter(logging.Formatter):
 		"""Messages in warning, error or info mode are displayed in color by default"""
 		if rec.levelno >= logging.WARNING or rec.levelno == logging.INFO:
 			try:
-				return '%s%s%s' % (rec.c1, rec.msg.decode('utf-8'), rec.c2)
+				msg = rec.msg.decode('utf-8')
 			except:
-				return rec.c1+rec.msg+rec.c2
+				msg = rec.msg
+			return '%s%s%s' % (rec.c1, msg, rec.c2)
 		return logging.Formatter.format(self, rec)
 
 log = None
