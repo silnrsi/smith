@@ -30,8 +30,6 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 """
 
-# almost ready, but some refactoring is needed
-
 """
 To add this tool to your project:
 def configure(conf):
@@ -39,61 +37,43 @@ def configure(conf):
 
 To generate solution files:
 $ waf configure msvs
-"""
 
-import os, string
+ASSUMPTIONS:
+* a project can be either a directory or a target, vcxproj files are written only for targets that have source files
+* each project is a vcxproj file, therefore the project guid needs only to be a hash of the absolute path
+
+"""
 
 import re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
 from waflib import Utils, TaskGen, Logs, Task
 
-BIN_GUID_PREFIX = Utils.md5('BIN').hexdigest()[:8].upper()
-LIB_GUID_PREFIX = Utils.md5('LIB').hexdigest()[:8].upper()
-SPU_GUID_PREFIX = Utils.md5('SPU').hexdigest()[:8].upper()
-SAR_GUID_PREFIX = Utils.md5('SAR').hexdigest()[:8].upper()
-EXT_GUID_PREFIX = Utils.md5('EXT').hexdigest()[:8].upper()
-FRG_GUID_PREFIX = Utils.md5('FRG').hexdigest()[:8].upper()
-SHA_GUID_PREFIX = Utils.md5('SHA').hexdigest()[:8].upper()
-
-GLOBAL_FOLDERS = {
-	BIN_GUID_PREFIX : 'Binaries',
-	LIB_GUID_PREFIX : 'Project libraries',
-	SPU_GUID_PREFIX : 'SPU',
-	SAR_GUID_PREFIX : 'Site libraries',
-	EXT_GUID_PREFIX : 'External libraries',
-	FRG_GUID_PREFIX : 'Fragments',
-	SHA_GUID_PREFIX : 'Shader libraries',
-}
-
-VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
-VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
-
 HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
-PROJECT_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
+PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0"
 	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<ItemGroup Label="ProjectConfigurations">
-		${for cfg in project['configs']}
-		<ProjectConfiguration Include="${cfg['name']}|${cfg['pname']}">
-			<Configuration>${cfg['name']}</Configuration>
-			<Platform>${cfg['pname']}</Platform>
+		${for b in project.build_properties()}
+		<ProjectConfiguration Include="${b.configuration}|${b.platform}">
+			<Configuration>${b.configuration}</Configuration>
+			<Platform>${b.platform}</Platform>
 		</ProjectConfiguration>
 		${endfor}
 	</ItemGroup>
 
 	<PropertyGroup Label="Globals">
-		<ProjectGuid>{${project['guid']}}</ProjectGuid>
+		<ProjectGuid>{${project.guid}}</ProjectGuid>
 		<Keyword>MakeFileProj</Keyword>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-	${for cfg in project['configs']}
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${cfg['name']}|${cfg['pname']}'" Label="Configuration">
+	${for b in project.build_properties()}
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'" Label="Configuration">
 		<ConfigurationType>Makefile</ConfigurationType>
-		<OutDir>${cfg['output_dir']}</OutDir>
+		<OutDir>${b.outdir}</OutDir>
 	</PropertyGroup>
 	${endfor}
 
@@ -101,28 +81,28 @@ PROJECT_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	<ImportGroup Label="ExtensionSettings">
 	</ImportGroup>
 
-	${for cfg in project['configs']}
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='${cfg['name']}|${cfg['pname']}'">
+	${for b in project.build_properties()}
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
 		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
 	</ImportGroup>
 	${endfor}
 
-	${for cfg in project['configs']}
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${cfg['name']}|${cfg['pname']}'">
-		<NMakeBuildCommandLine>${cfg['build_command']}</NMakeBuildCommandLine>
-		<NMakeReBuildCommandLine>${cfg['rebuild_command']}</NMakeReBuildCommandLine>
-		<NMakeOutput>${cfg['output_file']}</NMakeOutput>
-		<NMakeCleanCommandLine>${cfg['rebuild_command']}</NMakeCleanCommandLine>
-		<NMakePreprocessorDefinitions>${cfg['pre_defines']};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-		${if 'deploy_dir' in cfg}
-		<RemoteRoot>${cfg['deploy_dir']}</RemoteRoot>
+	${for b in project.build_properties()}
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
+		<NMakeBuildCommandLine>${b.build_command}</NMakeBuildCommandLine>
+		<NMakeReBuildCommandLine>${b.rebuild_command}</NMakeReBuildCommandLine>
+		<NMakeOutput>${b.output_file}</NMakeOutput>
+		<NMakeCleanCommandLine>${b.clean_command}</NMakeCleanCommandLine>
+		<NMakePreprocessorDefinitions>${b.pre_defines};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+		${if getattr(b, 'deploy_dir', None)}
+		<RemoteRoot>${b.deploy_dir}</RemoteRoot>
 		${endif}
 	</PropertyGroup>
 	${endfor}
 
-	${for cfg in project['configs']}
-		${if False}
-	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='${cfg['name']}|${cfg['pname']}'">
+	${for b in project.build_properties()}
+		${if getattr(b, 'deploy_dir', None)}
+	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
 		<Deploy>
 			<DeploymentType>CopyToHardDrive</DeploymentType>
 		</Deploy>
@@ -131,7 +111,8 @@ PROJECT_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	${endfor}
 
 	<ItemGroup>
-		${for x in project['sources']}<${project['ctx'].compile_key(x)} Include='${x.abspath()}' />
+		${for x in project.source}
+		<${project.get_key(x)} Include='${x.abspath()}' />
 		${endfor}
 	</ItemGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -143,16 +124,16 @@ PROJECT_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
-		${for x in project['sources']}
-			<${project['ctx'].compile_key(x)} Include="${x.abspath()}">
-				<Filter>${x.parent.path_from(project['ctx'].srcnode)}</Filter>
-			</${project['ctx'].compile_key(x)}>
+		${for x in project.source}
+			<${project.get_key(x)} Include="${x.abspath()}">
+				<Filter>${x.parent.path_from(project.path)}</Filter>
+			</${project.get_key(x)}>
 		${endfor}
 	</ItemGroup>
 	<ItemGroup>
-		${for d in project['dirs']}
-			<Filter Include="${d.path_from(project['ctx'].srcnode)}">
-				<UniqueIdentifier>${project['ctx'].make_guid(d.abspath())}</UniqueIdentifier>
+		${for x in project.dirs()}
+			<Filter Include="${x.path_from(project.path)}">
+				<UniqueIdentifier>${project.make_guid(x.abspath())}</UniqueIdentifier>
 			</Filter>
 		${endfor}
 	</ItemGroup>
@@ -161,24 +142,35 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 
 SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-${for (x,y,z,t) in project['projects']}
-Project("{${x}}") = "${y}", "${z}", "{${t}}"
+${for p in project}
+Project("{${p.ptype()}}") = "${p.name}", "${p.get_path()}", "{${p.guid}}"
 EndProject${endfor}
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		${for x in project['pre_solution']}
-		${x} = ${x}${endfor}
+		${if project}
+		${for (configuration, platform) in project[0].ctx.project_configurations()}
+		${configuration}|${platform} = ${configuration}|${platform}
+		${endfor}
+		${endif}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		${for (guid,cfg,z) in project['post_solution']}
-		{${guid}}.${cfg}.ActiveCfg = ${cfg}${endfor}
+		${for p in project}
+			${if p.source}
+			${for b in p.build_properties()}
+		{${p.guid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
+			${endfor}
+			${endif}
+		${endfor}
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-	${for (guid1,guid2) in project['folder_nesting']}
-		{${guid1}} = {${guid2}}${endfor}
+	${for p in project}
+		${if p.pguid}
+		{${p.guid}} = {${p.pguid}}
+		${endif}
+	${endfor}
 	EndGlobalSection
 EndGlobal
 '''
@@ -186,6 +178,10 @@ EndGlobal
 COMPILE_TEMPLATE = '''def f(project):
 	lst = []
 	%s
+
+	f = open('cmd.txt', 'w')
+	f.write(str(lst))
+	f.close()
 	return ''.join(lst)
 '''
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<code>[^}]*?)\})", re.M)
@@ -228,6 +224,7 @@ def compile_template(line):
 		elif f.startswith('endif') or f.startswith('endfor'):
 			indent -= 1
 		else:
+			#app('lst.append((%s) or "cannot find %s")' % (f, f))
 			app('lst.append(%s)' % f)
 
 	if extr:
@@ -243,133 +240,49 @@ def rm_blank_lines(txt):
 	txt = re_blank.sub('\n', txt)
 	return txt
 
-class msvs_generator(BuildContext):
-	cmd = 'msvs'
-	fun = 'build'
-	variant = 'Debug'
 
-	def execute(self):
-		self.restore()
-		if not self.all_envs:
-			self.load_envs()
-		self.recurse([self.run_dir])
+def make_guid(v, prefix = None):
+	"""
+	simple utility function
+	"""
+	if isinstance(v, dict):
+		keys = list(v.keys())
+		keys.sort()
+		tmp = str([(k, v[k]) for k in keys])
+	else:
+		tmp = str(v)
+	d = Utils.md5(tmp).hexdigest().upper()
+	if prefix:
+		d = '%s%s' % (prefix, d[8:])
+	gid = uuid.UUID(d, version = 4)
+	return str(gid).upper()
 
-		self.env.CONFIG = 'Debug'
-		self.env.TARGET_PLATFORM = 'Win32'
-		self.create_files()
+class build_property(object):
+	pass
 
-	def create_files(self):
+class project(object):
+	VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
+	VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
+
+	def __init__(self, ctx, tg=None, name=None):
 		"""
-		Two parts here: projects and solution files
+		A project is more or less equivalent to a file/folder
 		"""
+		self.ctx    = ctx # context of the command
+		self.pguid  = None # optional, guid to the parent project
+		self.source = []  # list of source files
+		if tg:
+			self.tg     = tg  # task generator
+			self.name   = name or tg.name # some kind of title for the solution (task generator target name)
 
-		self.platform = getattr(self, 'platform', None) or self.env.PLATFORM or 'Win32'
+			base = getattr(self.ctx, 'projects_dir', None) or tg.path
+			self.path   = base.make_node(self.name + self.ctx.project_extension) # Node
+			self.guid   = self.make_guid(self.path.abspath()) # unique id
 
-		self.guid_map = {}
-		self.create_projects()
-		errs = getattr(self, 'msvs_project_errors', [])
-		if not errs:
-			Logs.warn('VS project generation finished without errors')
-		else:
-			Logs.warn('--------------------PROJECT ERRORS ----------------------')
-			Logs.warn('VS project generation finished with %d errors!' % len(errs))
-			Logs.warn('---------------------------------------------------------')
+			# self.title - when no absolute path is provided, set the absolute path
 
-		self.create_solution()
-		errs = getattr(self, 'msvs_solution_errors', None)
-		if errs:
-			Logs.warn('----------------- SOLUTION ERROR -----------------------')
-			Logs.warn(' Skipping the solution file (no ctx.solution_name given)')
-			Logs.warn('--------------------------------------------------------')
-
-	def create_projects(self):
-		"""
-		Iterate over all task generators to create the project files
-		"""
-		self.vcxprojs = []
-		for g in self.groups:
-			for tg in g:
-				if self.accept(tg):
-					f = self.do_one_project(tg)
-					if not f in self.vcxprojs:
-						self.vcxprojs.append(f)
-
-	def create_solution(self):
-		"""
-		Create the top-level solutions file
-		"""
-		self.solution_name = 'test.sln'
-		if getattr(self, 'solution_name', None):
-			Logs.warn('Creating: %s' % self.solution_name)
-			self.do_solution()
-		else:
-			self.msvs_solution_errors = True
-
-	################## helper methods that may need to be overridden in subclasses
-
-	def make_guid(self, v, prefix = None):
-		if isinstance(v, dict):
-			keys = list(v.keys())
-			keys.sort()
-			tmp = str([(k, v[k]) for k in keys])
-		else:
-			tmp = str(v)
-		d = Utils.md5(tmp).hexdigest().upper()
-		if prefix:
-			d = '%s%s' % (prefix, d[8:])
-		gid = uuid.UUID(d, version = 4)
-		return str(gid).upper()
-
-	def make_project_guid(self, values, tg):
-		guid = self.get_guid_prefix(tg)
-		g = self.make_guid(values, prefix=guid)
-		return g
-
-	def get_guid_prefix(self, tg):
-		f = tg.to_list(getattr(tg, 'features', []))
-		if 'cprogram' in f or 'cxxprogram' in f:
-			return BIN_GUID_PREFIX
-		if 'cstlib' in f or 'cxxstlib' in f:
-			return LIB_GUID_PREFIX
-		return EXT_GUID_PREFIX
-
-	def accept(self, tg):
-		"""
-		Return True if a task generator can be used as a msvs project,
-		reject the ones that are not task generators or have the attribute "no_msvs"
-		the ones that have no name are added to the list "msvs_project_errors"
-		"""
-		if not isinstance(tg, TaskGen.task_gen):
-			return False
-
-		if getattr(tg, 'no_msvs', None):
-			# no error
-			return False
-
-		if not tg.name:
-			try:
-				e = self.msvs_project_errors
-			except:
-				e = self.msvs_project_errors = []
-			Logs.error('discarding %r' % tg)
-			e.append(tg)
-			return False
-
-		try:
-			p = self.msvs_processed
-		except:
-			p = self.msvs_processed = {}
-		if id(tg) in p:
-			return
-		p[id(tg)] = tg
-		return True
-
-
-	#############################################################################################################
-
-	def do_one_project(self, tg):
-		platform = self.platform
-		project = tg.name
+	def collect_source(self):
+		tg = self.tg
 		source_files = tg.to_nodes(getattr(tg, 'source', []))
 		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_dirs', []))
 		include_files = []
@@ -383,120 +296,207 @@ class msvs_generator(BuildContext):
 				include_files.extend(lst)
 
 		# remove duplicates
-		sources = list(set(source_files + include_files))
-		sources.sort()
+		self.source.extend(list(set(source_files + include_files)))
+		self.source.sort(key=lambda x: x.abspath())
 
-		out = self.bldnode.make_node('depprojs')
-		out.mkdir()
-		proj_file   = out.make_node('%s_%s.vcxproj' % (project, platform))
-		filter_file = out.make_node('%s_%s.vcxproj.filters' % (project, platform))
+	def collect_configurations(self):
+		for c in self.ctx.configurations:
+			for p in self.ctx.platforms:
+				b = build_property()
+				b.configuration = c
+				b.platform = p
+				b.build_command = 'waf configure build'
+				b.clean_command = 'waf configure clean'
+				b.rebuild_command = 'waf configure clean build'
+				b.output_file = self.tg.link_task.outputs[0].abspath()
+				b.pre_defines = ' '.join([self.tg.env.DEFINES_ST % x for x in self.tg.env.DEFINES])
 
-		values = {
-				'sources'       : sources,
-				'abs_path'      : tg.path.abspath(),
-				'platform'      : self.platform,
-				'name'          : project,
-				'flags_debug'   : '',
-				'flags_release' : '',
-				'flags_final'   : '',
-				'include_dirs'  : '',
-				'ctx'           : self,
-				}
-		self.guid_map[proj_file] = values['guid'] = self.make_project_guid(values, tg)
+	def dirs(self):
+		"""
+		Get the list of parent folders for writing the filters
+		"""
+		lst = []
+		for x in self.source:
+			if x.parent not in lst:
+				lst.append(x.parent)
+		return lst
 
-		#print values
-		#raise
-		try:
-			tg.post()
-		except:
-			pass
+	def get_path(self):
+		return getattr(self, 'title', self.path.abspath())
 
-		values['configs'] = self.get_project_config(values, tg)
+	def make_guid(self, val):
+		return make_guid(val)
 
-		# first write the project file
-		Logs.warn('Creating %r' % proj_file)
-		template1 = compile_template(PROJECT_TEMPLATE)
-		proj_str = template1(values)
-		proj_file.write(proj_str)
+	def ptype(self):
+		if not self.source:
+			return self.VS_GUID_SOLUTIONFOLDER
+		return self.VS_GUID_VCPROJ
 
-		# the filter needs a list of folders
-		dirs = list(set([x.parent for x in sources]))
-		dirs.sort()
-		values['dirs'] = dirs
+	def build_properties(self):
+		"""
+		Returns a list of triplet (configuration, platform, output_directory)
+		"""
+		ret = []
+		for c in self.ctx.configurations:
+			for p in self.ctx.platforms:
+				x = build_property()
 
-		# write the filter
-		template2 = compile_template(FILTER_TEMPLATE)
-		filter_str = template2(values)
-		filter_file.write(filter_str)
+				x.configuration = c
+				x.platform = p
 
-		return proj_file
+				x.build_command = 'waf.bat configure build'
+				x.clean_command = 'waf.bat configure clean'
+				x.rebuild_command = 'waf.bat configure clean build'
 
-	def compile_key(self, node):
+				x.outdir = self.path.parent.abspath()
+
+				tsk = self.tg.link_task
+				x.output_file = tsk.outputs[0].abspath()
+				x.pre_defines = ' '.join([tsk.env.DEFINES_ST % k for k in tsk.env.DEFINES])
+
+				# can specify "deploy_dir" too
+				ret.append(x)
+		return ret
+
+	def get_key(self, node):
 		name = node.name
 		if name.endswith('.cpp') or name.endswith('.c'):
 			return 'ClCompile'
 		return 'ClInclude'
 
-	def get_project_name(self):
-		if self.platform == 'Xenon':
-			return 'Xbox 360'
-		return 'Win32'
+class msvs_generator(BuildContext):
+	cmd = 'msvs'
+	fun = 'build'
+	variant = 'Debug'
 
-	def get_project_config(self, values, tg):
-		link = getattr(tg, 'link_task', None)
-		return [{
-				'pname': self.get_project_name(),
-				'name': self.platform,
-				'build_command' : 'waf configure build',
-				'rebuild_command' : 'waf configure clean build',
-				'clean_command' : 'waf clean',
-				'output_dir' : link and link.outputs[0].parent.abspath() or '',
-				'output_file': link and link.outputs[0].abspath() or '',
-				'pre_defines': ' '.join([tg.env.DEFINES_ST % x for x in tg.env.DEFINES])
-				}]
+	def init(self):
+		"""
+		Some data that needs to be present
+		"""
+		if not getattr(self, 'configurations', None):
+			self.configurations = ['Release'] # LocalRelease, RemoteDebug, etc
+		if not getattr(self, 'platforms', None):
+			self.platforms = ['Win32']
+		if not getattr(self, 'all_projects', None):
+			self.all_projects = []
+		if not getattr(self, 'project_extension', None):
+			self.project_extension = '.vcxproj'
+		if not getattr(self, 'projects_dir', None):
+			self.projects_dir = self.bldnode.make_node('depproj')
+			self.projects_dir.mkdir()
+	def execute(self):
+		"""
+		Entry point
+		"""
+		self.restore()
+		if not self.all_envs:
+			self.load_envs()
+		self.recurse([self.run_dir])
 
-	def do_solution(self):
-		model = {}
-		model['projects'] = []
-		seen = []
+		# user initialization
+		self.init()
 
-		# first make the folders
-		for x in GLOBAL_FOLDERS:
-			name = path = GLOBAL_FOLDERS[x]
-			guid = self.make_guid(name)
-			ptype = VS_GUID_SOLUTIONFOLDER
-			model['projects'].append((ptype, name, path, guid))
+		# two phases for creating the solution
+		self.collect_projects() # add project objects into "self.all_projects"
+		self.write_files() # write the corresponding project and solution files
 
-		# then add the projects
-		for x in self.vcxprojs:
-			name = x.name.split('_')[0]
-			path = x.abspath()
-			guid = self.guid_map[x]
-			ptype = VS_GUID_VCPROJ
-			model['projects'].append((ptype, name, path, guid))
+	def collect_projects(self):
+		"""
+		Fill the list self.all_projects with project objects
+		Fill the list of build targets
+		"""
+		self.collect_targets()
+		self.collect_dirs()
+		self.all_projects.sort(key=lambda x: x.path.abspath())
 
-		model['pre_solution'] = ["%s|%s" %(self.platform, self.get_project_name())]
+	def write_files(self):
+		"""
+		Write the project and solution files from the data collected
+		so far. It is unlikely that you will want to change this
+		"""
+		for p in self.all_projects:
+			if not p.source:
+				continue
 
-		model['post_solution'] = []
-		for x in self.vcxprojs:
-			for y in model['pre_solution']:
-				model['post_solution'].append((self.guid_map[x], y, None))
+			Logs.warn('Creating %r' % p.path)
 
-		model['folder_nesting'] = []
-		for x in self.vcxprojs:
-			guid_project = self.guid_map[x]
-			name = GLOBAL_FOLDERS[guid_project[:8]]
-			guid_dir = self.make_guid(name)
+			# first write the project file
+			template1 = compile_template(PROJECT_TEMPLATE)
+			proj_str = template1(p)
+			proj_str = rm_blank_lines(proj_str)
+			p.path.write(proj_str)
 
-			model['folder_nesting'].append((guid_project, guid_dir))
+			# then write the filter
+			template2 = compile_template(FILTER_TEMPLATE)
+			filter_str = template2(p)
+			filter_str = rm_blank_lines(filter_str)
+			tmp = p.path.parent.make_node(p.path.name + '.filters')
+			tmp.write(filter_str)
 
-		model['folder_nesting'].sort(key=lambda x: x[1])
+		# and finally write the solution file
+		solution_name = getattr(self, 'solution_name', 'test.sln')
+		sln_file = self.srcnode.make_node(solution_name)
 
-		# then write the solution file
-		sln_file = self.srcnode.make_node(self.solution_name)
 		Logs.warn('Creating %r' % sln_file)
 		template1 = compile_template(SOLUTION_TEMPLATE)
-		sln_str = template1(model)
+		sln_str = template1(self.all_projects)
 		sln_str = rm_blank_lines(sln_str)
 		sln_file.write(sln_str)
+
+	def project_configurations(self):
+		"""
+		data helper
+		"""
+		ret = []
+		for c in self.configurations:
+			for p in self.platforms:
+				ret.append((c, p))
+		return ret
+
+	def collect_targets(self):
+		for g in self.groups:
+			for tg in g:
+				if not isinstance(tg, TaskGen.task_gen):
+					continue
+
+				tg.post()
+				if not getattr(tg, 'link_task', None):
+					continue
+
+				p = project(self, tg)
+				p.collect_source() # delegate this processing
+				p.collect_configurations()
+				self.all_projects.append(p)
+
+	def collect_dirs(self):
+
+		seen = set([])
+		def make_parents(x):
+			if x in seen:
+				return
+			seen.add(x)
+
+			# create a project representing the folder "x"
+			n = project(self, None)
+			n.path = x
+			n.guid = make_guid(x.abspath())
+			n.name = n.title = n.path.name
+
+			self.all_projects.append(n)
+
+			# recurse up to the project directory
+			if x.height() > self.srcnode.height() + 1:
+				up = x.parent
+				n.pguid = make_guid(up.abspath())
+				make_parents(up)
+
+		for p in self.all_projects[:]: # iterate over a copy of all projects
+			if not p.tg:
+				# but only projects that have a task generator
+				continue
+
+			# make a folder for each task generator
+			parent = p.tg.path
+			p.pguid = make_guid(parent.abspath())
+			make_parents(parent)
 
