@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Martin Hosken 2011
 
 from subprocess import Popen, PIPE
 import os

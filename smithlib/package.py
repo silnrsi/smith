@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Martin Hosken 2011
 
 from waflib import Context, Build, Errors, Node, Options
 import font, templater 
@@ -81,7 +82,8 @@ class Package(object) :
         bld = task.generator.bld
         font.make_ofl(task.outputs[0].srcpath(), self.reservedofl,
                 getattr(self, 'ofl_version', '1.1'),
-                copyright = getattr(self, 'copyright', ''))
+                copyright = getattr(self, 'copyright', ''),
+                template = getattr(self, 'ofltemplate', None))
         return 0
         
     def build(self, bld) :
@@ -124,7 +126,7 @@ class Package(object) :
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname
         task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
-        task.set_inputs(bld.root.find_resource(os.path.join(thisdir, 'installer.nsi')))
+        task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
         for f in self.fonts :
             task.set_inputs(bld.bldnode.find_resource(f.target))
         for k in self.keyboards :

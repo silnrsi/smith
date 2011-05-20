@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Martin Hosken 2011
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors
 import os, imp, operator, optparse, sys

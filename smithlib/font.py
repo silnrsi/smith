@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Martin Hosken 2011
 
 from waflib import Context
 from wafplus import modify
@@ -90,12 +91,13 @@ class Font(object) :
             self.license.build(bld, self)
 
         # add smarts
-        if hasattr(self, 'ap') and not hasattr(self, 'legacy') :
-            apnode = bld.path.find_or_declare(self.ap)
-            if self.source.endswith(".sfd") :
-                bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
-            else :
-                bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
+        if hasattr(self, 'ap') :
+            if not hasattr(self, 'legacy') :
+                apnode = bld.path.find_or_declare(self.ap)
+                if self.source.endswith(".sfd") :
+                    bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
+                else :
+                    bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
             if hasattr(self, 'classes') :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1)
         
@@ -134,7 +136,7 @@ class Legacy(object) :
         return res
 
     def build(self, bld, targetap) :
-        cmd = ""
+        cmd = " " + getattr(self, 'params', "")
         srcs = [self.source, self.xml]
         if hasattr(self, 'ap') :
             srcs.append(self.ap)
@@ -246,7 +248,7 @@ class Ofl(object) :
         
     def globalofl(self, task) :
         bld = task.generator.bld
-        make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright)
+        make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright, template = getattr(self, 'template', None))
         return True
 
     def build_global(self, bld) :
@@ -266,14 +268,16 @@ class Ofl(object) :
         os.unlink(tempfn)
         return res
 
-def make_ofl(fname, names, version, copyright = None) :
+def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh = file(fname, "w+")
     if copyright : oflh.write(copyright + "\n")
     if names :
         oflh.write("Reserved names: " + ", ".join(map(lambda x: '"%s"' % x, names)) + "\n")
-    oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
-    thisdir = os.path.dirname(__file__)
-    oflbaseh = file(os.path.join(thisdir, oflbasefn), "r")
+    if not template :
+        oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
+        thisdir = os.path.dirname(__file__)
+        template = os.path.join(thisdir, oflbasefn)
+    oflbaseh = file(template, "r")
     for l in oflbaseh.readlines() : oflh.write(l)
     oflbaseh.close()
     oflh.close()

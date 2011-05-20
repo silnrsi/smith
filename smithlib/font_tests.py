@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Martin Hosken 2011
 
 from waflib import Context, Utils
 import os, shutil, codecs
