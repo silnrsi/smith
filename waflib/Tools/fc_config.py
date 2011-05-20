@@ -177,9 +177,6 @@ POSIX_LIB_FLAGS = re.compile('-l\S+')
 @conf
 def is_link_verbose(self, txt):
 	"""Return True if 'useful' link options can be found in txt"""
-	if sys.platform == 'win32':
-		raise NotImplementedError("FIXME: not implemented on win32")
-
 	assert isinstance(txt, str)
 	for line in txt.splitlines():
 		if not GCC_DRIVER_LINE.search(line):
