@@ -109,7 +109,7 @@ except ImportError:
 				self[key] = value
 				return value
 
-is_win32 = sys.platform == 'win32'
+is_win32 = sys.platform in ('win32', 'cli')
 
 # we should have put this in the Logs.py file instead :-/
 indicator = '\x1b[K%s%s%s\r'

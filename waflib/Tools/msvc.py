@@ -444,7 +444,7 @@ def find_lt_names_msvc(self, libname, is_static=False):
 					else:
 						return (None, olib, True)
 				else:
-					raise Errors.WafError('invalid libtool object file: %s' % laf)
+					raise self.errors.WafError('invalid libtool object file: %s' % laf)
 	return (None, None, None)
 
 @conf

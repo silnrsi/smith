@@ -729,7 +729,7 @@ class Task(TaskBase):
 			bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
 		except:
 			if Logs.verbose:
-				for x in bld.node_deps.get(self.uid(), []):
+				for k in bld.node_deps.get(self.uid(), []):
 					try:
 						k.get_bld_sig()
 					except:

@@ -53,7 +53,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			else:
 				# check if the folder was not moved
 				for x in [env.run_dir, env.top_dir, env.out_dir]:
-					if sys.platform == 'win32':
+					if Utils.is_win32:
 						if cur == x:
 							load = True
 							break

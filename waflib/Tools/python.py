@@ -276,7 +276,7 @@ def check_python_headers(conf):
 
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
-	if (sys.platform == 'win32' or sys.platform.startswith('os2')
+	if (Utils.is_win32 or sys.platform.startswith('os2')
 		or sys.platform == 'darwin' or dct['Py_ENABLE_SHARED']):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
@@ -363,7 +363,7 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONDIR' in conf.environ:
 			pydir = conf.environ['PYTHONDIR']
 		else:
-			if sys.platform == 'win32':
+			if Utils.is_win32:
 				(python_LIBDEST, pydir) = \
 						conf.get_python_variables(
 											  ["get_config_var('LIBDEST') or ''",

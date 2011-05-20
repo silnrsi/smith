@@ -159,7 +159,7 @@ class OptionsContext(Context.Context):
 		"""
 		count = int(os.environ.get('JOBS', 0))
 		if count < 1:
-			if sys.platform == 'win32':
+			if 'NUMBER_OF_PROCESSORS' in os.environ:
 				# on Windows, use the NUMBER_OF_PROCESSORS environment variable
 				count = int(os.environ.get('NUMBER_OF_PROCESSORS', 1))
 			else:
@@ -169,7 +169,7 @@ class OptionsContext(Context.Context):
 						count = int(os.sysconf('SC_NPROCESSORS_ONLN'))
 					elif 'SC_NPROCESSORS_CONF' in os.sysconf_names:
 						count = int(os.sysconf('SC_NPROCESSORS_CONF'))
-				elif os.name != 'java':
+				elif os.name not in ('nt', 'java'):
 					tmp = self.cmd_and_log(['sysctl', '-n', 'hw.ncpu'])
 					if re.match('^[0-9]+$', tmp):
 						count = int(tmp)

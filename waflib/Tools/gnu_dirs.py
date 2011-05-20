@@ -93,7 +93,7 @@ def configure(conf):
 					complete = False
 	if not complete:
 		lst = [name for name, _, _ in _options if not env[name.upper()]]
-		raise Errors.WafError('Variable substitution failure %r' % lst)
+		raise conf.errors.WafError('Variable substitution failure %r' % lst)
 
 def options(opt):
 	"""

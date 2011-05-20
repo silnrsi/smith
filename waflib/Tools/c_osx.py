@@ -181,7 +181,7 @@ class macplist(Task.Task):
 	ext_in = ['.bin']
 	def run(self):
 		if getattr(self, 'code', None):
-			txt = code
+			txt = self.code
 		else:
 			txt = self.inputs[0].read()
 		self.outputs[0].write(txt)

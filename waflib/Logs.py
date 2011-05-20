@@ -82,10 +82,6 @@ get_term_cols.__doc__ = """
 	:rtype: int
 	"""
 
-# test
-#if sys.platform == 'win32':
-#	colors_lst['USE'] = True
-
 def get_color(cl):
 	if not colors_lst['USE']: return ''
 	return colors_lst.get(cl, '')

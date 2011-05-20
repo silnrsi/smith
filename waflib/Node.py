@@ -88,7 +88,7 @@ def split_path_win32(path):
 
 if sys.platform == 'cygwin':
 	split_path = split_path_cygwin
-elif sys.platform == 'win32':
+elif Utils.is_win32:
 	split_path = split_path_win32
 
 class Node(object):
