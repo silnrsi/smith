@@ -483,7 +483,7 @@ def find_program(self, filename, **kw):
 	:type ext: list of string
 	"""
 
-	exts = kw.get('exts', Options.platform == 'win32' and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
+	exts = kw.get('exts', Utils.is_win32 and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
 
 	environ = kw.get('environ', os.environ)
 
