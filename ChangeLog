@@ -12,6 +12,7 @@ NEW IN WAF 1.6.5
 * Fix the python detection using python-config
 * Add the missing default includes and defines to the moc command
 * Improve support for hierarchical go-lang packages #953
+* Support for IronPython
 
 NEW IN WAF 1.6.4
 ----------------
