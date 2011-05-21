@@ -385,7 +385,7 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONARCHDIR' in conf.environ:
 			pyarchdir = conf.environ['PYTHONARCHDIR']
 		else:
-			pyarchdir = conf.get_python_variables(
+			(pyarchdir, ) = conf.get_python_variables(
 											["get_python_lib(plat_specific=1, standard_lib=0, prefix=%r) or ''" % conf.env['PREFIX']],
 											['from distutils.sysconfig import get_python_lib'])
 			if not pyarchdir:
