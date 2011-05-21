@@ -251,7 +251,7 @@ def make_guid(v, prefix = None):
 		tmp = str([(k, v[k]) for k in keys])
 	else:
 		tmp = str(v)
-	d = Utils.md5(tmp).hexdigest().upper()
+	d = Utils.md5(tmp.encode()).hexdigest().upper()
 	if prefix:
 		d = '%s%s' % (prefix, d[8:])
 	gid = uuid.UUID(d, version = 4)
