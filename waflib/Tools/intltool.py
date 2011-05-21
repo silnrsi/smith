@@ -168,8 +168,8 @@ def configure(conf):
 	if not datadir:
 		datadir = os.path.join(prefix,'share')
 
-	conf.define('LOCALEDIR', os.path.join(datadir, 'locale'))
-	conf.define('DATADIR', datadir)
+	conf.define('LOCALEDIR', os.path.join(datadir, 'locale').replace('\\', '\\\\'))
+	conf.define('DATADIR', datadir.replace('\\', '\\\\'))
 
 	if conf.env.CC or conf.env.CXX:
 		conf.check(header_name='locale.h')

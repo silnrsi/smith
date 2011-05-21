@@ -42,6 +42,7 @@ PSDIR          ps documentation                          DOCDIR
 ============== ========================================= =======================
 """
 
+import os
 from waflib import Utils, Options, Context
 
 _options = [x.split(', ') for x in '''
@@ -88,7 +89,7 @@ def configure(conf):
 			name = name.upper()
 			if not env[name]:
 				try:
-					env[name] = Utils.subst_vars(get_param(name, default), env)
+					env[name] = Utils.subst_vars(get_param(name, default).replace('/', os.sep), env)
 				except TypeError:
 					complete = False
 	if not complete:
