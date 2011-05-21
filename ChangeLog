@@ -8,10 +8,11 @@ NEW IN WAF 1.6.5
 * Fix the conf.check_library() in C++ mode #955
 * Improve the latex scanner to avoid depending on generated files #943
 * Remove the @file processing from the winrc tasks
-* Fix the gfortran verbose flag detection on Windows
 * Fix the python detection using python-config
 * Add the missing default includes and defines to the moc command
 * Improve support for hierarchical go-lang packages #953
+* Fix the gfortran verbose flag detection on Windows
+* Fix the support of fortran import libraries #950
 * Support for IronPython
 
 NEW IN WAF 1.6.4
