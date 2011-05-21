@@ -351,7 +351,7 @@ def propagate_uselib_vars(self):
 
 # ============ the code above must not know anything about import libs ==========
 
-@feature('cshlib', 'cxxshlib')
+@feature('cshlib', 'cxxshlib', 'fcshlib')
 @after_method('apply_link')
 def apply_implib(self):
 	"""
