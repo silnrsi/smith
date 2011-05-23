@@ -47,7 +47,7 @@ ASSUMPTIONS:
 import re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
-from waflib import Utils, TaskGen, Logs, Task
+from waflib import Utils, TaskGen, Logs, Task, Context
 
 HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
@@ -434,7 +434,9 @@ class msvs_generator(BuildContext):
 			tmp.write(filter_str)
 
 		# and finally write the solution file
-		solution_name = getattr(self, 'solution_name', 'test.sln')
+		solution_name = getattr(self, 'solution_name', None)
+		if not solution_name:
+			solution_name = getattr(Context.g_module, Context.APPNAME, 'project') + '.sln'
 		sln_file = self.srcnode.make_node(solution_name)
 
 		Logs.warn('Creating %r' % sln_file)
