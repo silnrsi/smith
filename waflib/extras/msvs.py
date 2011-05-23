@@ -133,7 +133,7 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	<ItemGroup>
 		${for x in project.dirs()}
 			<Filter Include="${x.path_from(project.path)}">
-				<UniqueIdentifier>${project.make_guid(x.abspath())}</UniqueIdentifier>
+				<UniqueIdentifier>{${project.make_guid(x.abspath())}}</UniqueIdentifier>
 			</Filter>
 		${endfor}
 	</ItemGroup>
