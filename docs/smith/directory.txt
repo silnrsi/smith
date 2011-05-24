@@ -31,6 +31,6 @@ cldr/:::
 Toolbox/:::
     This directory contains any Toolbox `.lng` files for this language and script in Unicode. Non Unicode files are stored under a corresponding directory in the appropriate `mappings` directory.
 
-Samples/:::
-    Contains sample texts in the language, including `.pdf to show how the text should be rendered.
+Texts/:::
+    Contains sample texts in the language, including `.pdf` to show how the text should be rendered.
 

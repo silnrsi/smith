@@ -4,7 +4,7 @@ Here we install a number of pre-requisite programs that we will need later on. U
 
 === ActivePerl ===
 
-Run the ActivePerl installer. The optional components are optional, although documentation is always a good thing if you have the space.
+Run the ActivePerl installer. The optional components are optional, although documentation is always a good thing if you have the space. ActivePerl comes with Lib-AlgorithmDiff. If running Ubuntu install lib-Algorithm-diff for perl.
 
 === 7-Zip ===
 
@@ -20,6 +20,14 @@ copy C:\Program Files\7-zip\7z.exe C:\Program Files\7-zip\7z.dll C:\Perl\site\bi
 === GNUMake ===
 
 We will make extensive use of GNU Make. NMake is not a sufficient alternative. Have the installer update your path.
+
+=== NSIS ===
+
+Run the nsis installer.
+
+=== XeTeX ===
+
+Paratext 7.x comes with XeTeX.
 
 === Perl Modules ===
 
