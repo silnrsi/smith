@@ -1,0 +1,53 @@
+== Tools ==
+
+Here we install a number of pre-requisite programs that we will need later on. Unless otherwise stated, installers are assumed to take their default installation properties. With care you can change them if you want.
+
+=== ActivePerl ===
+
+Run the ActivePerl installer. The optional components are optional, although documentation is always a good thing if you have the space.
+
+=== 7-Zip ===
+
+While 7-zip isn't necessary for extracting files, it is used as part of the template system, so it may be necessary to install it later on.
+
+* Run the 7-zip installer
+* Copy `7z.exe` and `7z.dll` to somewhere in your path. `C:\Perl\site\bin` has been added to your path by the Perl installer, so that's a good place to try. This is probably easiest done using Windows Explorer, but from the command line:
+
+----
+copy C:\Program Files\7-zip\7z.exe C:\Program Files\7-zip\7z.dll C:\Perl\site\bin
+----
+
+=== GNUMake ===
+
+We will make extensive use of GNU Make. NMake is not a sufficient alternative. Have the installer update your path.
+
+=== Perl Modules ===
+
+Here we install various Perl modules from source. The reason for doing this is so that we can update any software that we might encounter problems with. The basic procedure for installing a perl module is:
+
+* Unpack the .tar.gz file somewhere
+* run `perl Makefile.PL` to create a Makefile
+* run `make` to create the local installation copy
+* run `make install` to install the local copy to the main perl installation
+
+Due to the vagueries of gnu make we will need to pass it a parameter: `make DFSEP=/` in each case. We can use 7-zip to unpack .tar.gz files in a two step process. The three modules we will install, in order are:
+
+* Font-TTF-0.46.tar.gz
+* Text-PDF-0.30.tar.gz
+* Font-TTF-Scripts-0.13.tar.gz
+
+It is the latter module that has all the juicy stuff in it! The following is the sequence of commands to install `Font-TTF-0.46.tar.gz`:
+
+----
+cd Work\Temp
+7z x N:\Font-TTF-0.46.tar.gz
+7z x Font-TTF-0.46.tar
+cd Font-TTF-0.46
+perl Makefile.PL
+make DFSEP=/
+make DFSEP=/ install
+cd ..
+del Font-TTF-0.46.tar
+rd /s Font-TTF-0.46
+----
+
