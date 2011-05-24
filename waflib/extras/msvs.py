@@ -44,7 +44,7 @@ ASSUMPTIONS:
 
 """
 
-import re
+import os, re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
 from waflib import Utils, TaskGen, Logs, Task, Context
@@ -89,10 +89,12 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 
 	${for b in project.build_properties()}
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
-		<NMakeBuildCommandLine>${b.build_command}</NMakeBuildCommandLine>
-		<NMakeReBuildCommandLine>${b.rebuild_command}</NMakeReBuildCommandLine>
+		<NMakeBuildCommandLine>${project.get_build_command(b)}</NMakeBuildCommandLine>
+		<NMakeReBuildCommandLine>${project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
+		<NMakeCleanCommandLine>${project.get_clean_command(b)}</NMakeCleanCommandLine>
+			${if hasattr(b, 'output_file')}
 		<NMakeOutput>${b.output_file}</NMakeOutput>
-		<NMakeCleanCommandLine>${b.clean_command}</NMakeCleanCommandLine>
+			${endif}
 		<NMakePreprocessorDefinitions>${b.pre_defines};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
 		${if getattr(b, 'deploy_dir', None)}
 		<RemoteRoot>${b.deploy_dir}</RemoteRoot>
@@ -158,6 +160,9 @@ Global
 			${if p.source}
 			${for b in p.build_properties()}
 		{${p.guid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
+			${if p.ctx.is_build(p, b)}
+		{${p.guid}}.${b.configuration}|${b.platform}.Build.0 = ${b.configuration}|${b.platform}
+			${endif}
 			${endfor}
 			${endif}
 		${endfor}
@@ -261,6 +266,9 @@ class build_property(object):
 	pass
 
 class project(object):
+	"""
+	TODO this class is going to be split to make a proper hierarchy
+	"""
 	VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
 	VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
 
@@ -305,10 +313,10 @@ class project(object):
 				b = build_property()
 				b.configuration = c
 				b.platform = p
-				b.build_command = 'waf configure build'
-				b.clean_command = 'waf configure clean'
-				b.rebuild_command = 'waf configure clean build'
-				b.output_file = self.tg.link_task.outputs[0].abspath()
+				try:
+					b.output_file = self.tg.link_task.outputs[0].abspath()
+				except:
+					pass
 				b.pre_defines = ' '.join([self.tg.env.DEFINES_ST % x for x in self.tg.env.DEFINES])
 
 	def dirs(self):
@@ -344,15 +352,16 @@ class project(object):
 				x.configuration = c
 				x.platform = p
 
-				x.build_command = 'waf.bat configure build'
-				x.clean_command = 'waf.bat configure clean'
-				x.rebuild_command = 'waf.bat configure clean build'
-
 				x.outdir = self.path.parent.abspath()
+				x.pre_defines = ''
 
-				tsk = self.tg.link_task
-				x.output_file = tsk.outputs[0].abspath()
-				x.pre_defines = ' '.join([tsk.env.DEFINES_ST % k for k in tsk.env.DEFINES])
+				try:
+					tsk = self.tg.link_task
+				except:
+					pass
+				else:
+					x.output_file = tsk.outputs[0].abspath()
+					x.pre_defines = ' '.join([tsk.env.DEFINES_ST % k for k in tsk.env.DEFINES])
 
 				# can specify "deploy_dir" too
 				ret.append(x)
@@ -363,6 +372,24 @@ class project(object):
 		if name.endswith('.cpp') or name.endswith('.c'):
 			return 'ClCompile'
 		return 'ClInclude'
+
+	def get_build_command(self, props):
+		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
+		waf = waf and waf.abspath() or 'waf'
+		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
+		return "%s build %s" % (waf, opt)
+
+	def get_clean_command(self, props):
+		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
+		waf = waf and waf.abspath() or 'waf'
+		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
+		return "%s clean %s" % (waf, opt)
+
+	def get_rebuild_command(self, props):
+		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
+		waf = waf and waf.abspath() or 'waf'
+		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
+		return "%s clean build %s" % (waf, opt)
 
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
@@ -384,6 +411,7 @@ class msvs_generator(BuildContext):
 		if not getattr(self, 'projects_dir', None):
 			self.projects_dir = self.bldnode.make_node('depproj')
 			self.projects_dir.mkdir()
+
 	def execute(self):
 		"""
 		Entry point
@@ -434,26 +462,57 @@ class msvs_generator(BuildContext):
 			tmp.write(filter_str)
 
 		# and finally write the solution file
-		solution_name = getattr(self, 'solution_name', None)
-		if not solution_name:
-			solution_name = getattr(Context.g_module, Context.APPNAME, 'project') + '.sln'
-		sln_file = self.srcnode.make_node(solution_name)
-
-		Logs.warn('Creating %r' % sln_file)
+		node = self.get_solution_node()
+		node.parent.mkdir()
+		Logs.warn('Creating %r' % node)
 		template1 = compile_template(SOLUTION_TEMPLATE)
 		sln_str = template1(self.all_projects)
 		sln_str = rm_blank_lines(sln_str)
-		sln_file.write(sln_str)
+		node.write(sln_str)
+
+	def get_solution_node(self):
+		"""
+		The solution filename is required when writing the .vcproj files
+		return self.solution_node and if it does not exist, make one
+		"""
+		try:
+			return self.solution_node
+		except:
+			pass
+
+		solution_name = getattr(self, 'solution_name', None)
+		if not solution_name:
+			solution_name = getattr(Context.g_module, Context.APPNAME, 'project') + '.sln'
+		if os.path.isabs(solution_name):
+			self.solution_node = self.root.make_node(solution_name)
+		else:
+			self.solution_node = self.srcnode.make_node(solution_name)
+		return self.solution_node
 
 	def project_configurations(self):
 		"""
-		data helper
+		Helper that returns all the pairs (config,platform)
 		"""
 		ret = []
 		for c in self.configurations:
 			for p in self.platforms:
 				ret.append((c, p))
 		return ret
+
+	def is_build(self, p, props):
+		"""
+		Helper for the "guid.config.Build.0 = config"
+		The idea is to enable exactly one line of such kind by platform/config
+		"""
+		try:
+			cache = self.is_build_cache
+		except AttributeError:
+			cache = self.is_build_cache = {}
+		key = (props.configuration, props.platform)
+		if key in cache:
+			return False
+		cache[key] = True
+		return True
 
 	def collect_targets(self):
 		for g in self.groups:
@@ -501,4 +560,36 @@ class msvs_generator(BuildContext):
 			parent = p.tg.path
 			p.pguid = make_guid(parent.abspath())
 			make_parents(parent)
+
+def options(ctx):
+	"""
+	If the msvs option is used, try to detect if the build is made from visual studio
+	"""
+	ctx.add_option('--execsolution', action='store', help='when building with visual studio, use a build state file')
+
+	old = BuildContext.execute
+	def override_build_state(ctx):
+		def lock(rm, add):
+			uns = ctx.options.execsolution.replace('.sln', rm)
+			uns = ctx.root.make_node(uns)
+			try:
+				uns.delete()
+			except:
+				pass
+
+			uns = ctx.options.execsolution.replace('.sln', add)
+			uns = ctx.root.make_node(uns)
+			try:
+				uns.write('')
+			except:
+				pass
+
+		if ctx.options.execsolution:
+			ctx.launch_dir = Context.top_dir # force a build for the whole project (invalid cwd when called by visual studio)
+			lock('.lastbuildstate', '.unsuccessfulbuild')
+			old(ctx)
+			lock('.unsuccessfulbuild', '.lastbuildstate')
+		else:
+			old(ctx)
+	BuildContext.execute = override_build_state
 
