@@ -132,6 +132,7 @@ font(target = 'results/myfont.ttf',
      source = legacy('myfont_src.ttf',
                      source = 'my_legacyfont.ttf',
                      xml = 'legacy_encoding.xml',
+                     params = '-f ../roman_font.ttf',
                      ap = 'my_legacyfont.xml'))
 ----
 
@@ -144,6 +145,9 @@ source::
 
 xml::
     ttfbuilder configuration xml file to use for the conversion
+
+params::
+    Command line arguments to ttfbuilder. Note that files specified here need `../` prepended to them.
 
 ap::
     Attachment point database of the legacy font that will be converted to the font.ap attribute file.
