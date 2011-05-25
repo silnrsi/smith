@@ -94,10 +94,12 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		<NMakeBuildCommandLine>${project.get_build_command(b)}</NMakeBuildCommandLine>
 		<NMakeReBuildCommandLine>${project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
 		<NMakeCleanCommandLine>${project.get_clean_command(b)}</NMakeCleanCommandLine>
-			${if hasattr(b, 'output_file')}
+		<NMakeIncludeSearchPath>${b.includes_search_path}</NMakeIncludeSearchPath>
+		<NMakePreprocessorDefinitions>${b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+
+			${if getattr(b, 'output_file', None)}
 		<NMakeOutput>${b.output_file}</NMakeOutput>
 			${endif}
-		<NMakePreprocessorDefinitions>${b.pre_defines};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
 		${if getattr(b, 'deploy_dir', None)}
 		<RemoteRoot>${b.deploy_dir}</RemoteRoot>
 		${endif}
@@ -159,10 +161,10 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		${for p in project}
-			${if p.source}
+			${if p.source or getattr(p, 'is_build_all', None)}
 			${for b in p.build_properties()}
 		{${p.guid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
-			${if p.ctx.is_build(p, b)}
+			${if getattr(p, 'is_build_all', None)}
 		{${p.guid}}.${b.configuration}|${b.platform}.Build.0 = ${b.configuration}|${b.platform}
 			${endif}
 			${endfor}
@@ -318,8 +320,9 @@ class project(object):
 				try:
 					b.output_file = self.tg.link_task.outputs[0].abspath()
 				except:
-					pass
-				b.pre_defines = ';'.join(self.tg.env.DEFINES)
+					b.output_file = ''
+				b.preprocessor_definitions = ';'.join(self.tg.env.DEFINES)
+				b.includes_search_path = ';'.join(self.tg.env.INCPATHS)
 
 	def dirs(self):
 		"""
@@ -338,7 +341,7 @@ class project(object):
 		return make_guid(val)
 
 	def ptype(self):
-		if not self.source:
+		if not self.source and not hasattr(self, 'output_file'):
 			return self.VS_GUID_SOLUTIONFOLDER
 		return self.VS_GUID_VCPROJ
 
@@ -355,15 +358,17 @@ class project(object):
 				x.platform = p
 
 				x.outdir = self.path.parent.abspath()
-				x.pre_defines = ''
+				x.preprocessor_definitions = ''
+				x.includes_search_path = ''
 
 				try:
 					tsk = self.tg.link_task
 				except:
-					pass
+					x.output_file = ''
 				else:
 					x.output_file = tsk.outputs[0].abspath()
-					x.pre_defines = ' '.join([tsk.env.DEFINES_ST % k for k in tsk.env.DEFINES])
+					x.preprocessor_definitions = ';'.join(tsk.env.DEFINES)
+					x.includes_search_path = ';'.join(self.tg.env.INCPATHS)
 
 				# can specify "deploy_dir" too
 				ret.append(x)
@@ -375,23 +380,22 @@ class project(object):
 			return 'ClCompile'
 		return 'ClInclude'
 
-	def get_build_command(self, props):
+	def get_build_params(self, props):
 		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
 		waf = waf and waf.abspath() or 'waf'
 		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
-		return "%s build %s" % (waf, opt)
+		if getattr(self, 'tg', None):
+			opt += " --targets=%s" % self.tg.name
+		return (waf, opt)
+
+	def get_build_command(self, props):
+		return "%s build %s" % self.get_build_params(props)
 
 	def get_clean_command(self, props):
-		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
-		waf = waf and waf.abspath() or 'waf'
-		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
-		return "%s clean %s" % (waf, opt)
+		return "%s clean %s" % self.get_build_params(props)
 
 	def get_rebuild_command(self, props):
-		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
-		waf = waf and waf.abspath() or 'waf'
-		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
-		return "%s clean build %s" % (waf, opt)
+		return "%s clean build %s" % self.get_build_params(props)
 
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
@@ -436,6 +440,7 @@ class msvs_generator(BuildContext):
 		Fill the list of build targets
 		"""
 		self.collect_targets()
+		self.add_build_all_projects()
 		self.collect_dirs()
 		self.all_projects.sort(key=lambda x: x.path.abspath())
 
@@ -445,7 +450,7 @@ class msvs_generator(BuildContext):
 		so far. It is unlikely that you will want to change this
 		"""
 		for p in self.all_projects:
-			if not p.source:
+			if not p.source and not hasattr(p, 'output_file'):
 				continue
 
 			Logs.warn('Creating %r' % p.path)
@@ -501,22 +506,10 @@ class msvs_generator(BuildContext):
 				ret.append((c, p))
 		return ret
 
-	def is_build(self, p, props):
-		"""
-		Helper for the "guid.config.Build.0 = config"
-		The idea is to enable exactly one line of such kind by platform/config
-		"""
-		try:
-			cache = self.is_build_cache
-		except AttributeError:
-			cache = self.is_build_cache = {}
-		key = (props.configuration, props.platform)
-		if key in cache:
-			return False
-		cache[key] = True
-		return True
-
 	def collect_targets(self):
+		"""
+		Process the list of task generators
+		"""
 		for g in self.groups:
 			for tg in g:
 				if not isinstance(tg, TaskGen.task_gen):
@@ -531,8 +524,32 @@ class msvs_generator(BuildContext):
 				p.collect_configurations()
 				self.all_projects.append(p)
 
-	def collect_dirs(self):
+	def add_build_all_projects(self):
+		"""
+		Add a specific target that emulates the "make all" behaviour, necessary for Visual studio
+		"""
+		p = project(self)
+		base = getattr(self, 'projects_dir', None) or tg.path
+		p.path = base.make_node('build_all_projects' + self.project_extension) # Node
 
+		p.guid   = make_guid(p.path.abspath()) # unique id
+		p.source = []
+		p.is_build_all = True
+		p.tg = None
+		p.name = 'build_all_projects'
+		p.output_file = ''
+		self.all_projects.append(p)
+
+		n = project(self, None)
+		n.path = p.path.parent
+		n.guid = p.pguid = make_guid(n.path.abspath())
+		n.name = n.title = n.path.name
+		self.all_projects.append(n)
+
+	def collect_dirs(self):
+		"""
+		Create the folder structure in the Visual studio project view
+		"""
 		seen = set([])
 		def make_parents(x):
 			if x in seen:
@@ -554,7 +571,7 @@ class msvs_generator(BuildContext):
 				make_parents(up)
 
 		for p in self.all_projects[:]: # iterate over a copy of all projects
-			if not p.tg:
+			if not getattr(p, 'tg', None):
 				# but only projects that have a task generator
 				continue
 
