@@ -319,7 +319,7 @@ class project(object):
 					b.output_file = self.tg.link_task.outputs[0].abspath()
 				except:
 					pass
-				b.pre_defines = ' '.join([self.tg.env.DEFINES_ST % x for x in self.tg.env.DEFINES])
+				b.pre_defines = ';'.join(self.tg.env.DEFINES)
 
 	def dirs(self):
 		"""
