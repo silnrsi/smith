@@ -32,8 +32,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 """
 To add this tool to your project:
-def configure(conf):
-	conf.load('msvs')
+def options(conf):
+	opt.load('msvs')
+
+It can be a good idea to add the sync_exec tool too.
 
 To generate solution files:
 $ waf configure msvs
