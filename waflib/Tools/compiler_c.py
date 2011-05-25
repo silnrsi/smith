@@ -71,7 +71,7 @@ def configure(conf):
 			debug('compiler_c: %r' % e)
 		else:
 			if conf.env['CC']:
-				conf.end_msg(conf.env['CC'])
+				conf.end_msg(conf.env.get_flat('CC'))
 				conf.env['COMPILER_CC'] = compiler
 				break
 			conf.end_msg(False)
