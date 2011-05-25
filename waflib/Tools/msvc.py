@@ -132,6 +132,7 @@ echo LIB=%%LIB%%
 	sout = conf.cmd_and_log(['cmd', '/E:on', '/V:on', '/C', batfile.abspath()])
 	lines = sout.splitlines()
 
+	if not lines[0]: lines=lines[1:]
 	for x in ('Setting environment', 'Setting SDK environment', 'Intel(R) C++ Compiler', 'Intel Parallel Studio'):
 		if lines[0].find(x) != -1:
 			break
@@ -291,7 +292,10 @@ def gather_msvc_versions(conf, versions):
 
 	for (v,version,reg) in detected_versions:
 		try:
-			msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\VS")
+			try:
+				msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\VS")
+			except WindowsError:
+				msvc_version = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, reg + "\\Setup\\Microsoft VIsual C++")
 			path,type = _winreg.QueryValueEx(msvc_version, 'ProductDir')
 			path=str(path)
 			targets = []
@@ -323,10 +327,15 @@ def gather_msvc_versions(conf, versions):
 					targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, 'x86', os.path.join(path, 'Common7', 'Tools', 'vsvars32.bat')))))
 				except conf.errors.ConfigurationError:
 					pass
+			elif os.path.isfile(os.path.join(path, 'Bin', 'vcvars32.bat')):
+				try:
+					targets.append(('x86', ('x86', conf.get_msvc_version('msvc', version, '', os.path.join(path, 'Bin', 'vcvars32.bat')))))
+				except conf.errors.ConfigurationError:
+					pass
 			versions.append(('msvc '+version, targets))
-
 		except WindowsError:
 			continue
+
 
 @conf
 def gather_icl_versions(conf, versions):
@@ -591,7 +600,7 @@ def find_msvc(conf):
 
 	# before setting anything, check if the compiler is really msvc
 	env = dict(conf.environ)
-	env.update(PATH = ';'.join(path))
+	if path: env.update(PATH = ';'.join(path))
 	if not conf.cmd_and_log(cxx + ['/nologo', '/help'], env=env):
 		conf.fatal('the msvc compiler could not be identified')
 
@@ -851,9 +860,10 @@ def exec_command_msvc(self, *k, **kw):
 					carry = ''
 			k = [lst]
 
-		env = dict(os.environ)
-		env.update(PATH = ';'.join(self.env['PATH']))
-		kw['env'] = env
+		if self.env['PATH']:
+			env = dict(os.environ)
+			env.update(PATH = ';'.join(self.env['PATH']))
+			kw['env'] = env
 
 	bld = self.generator.bld
 	try:
