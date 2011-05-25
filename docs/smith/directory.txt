@@ -2,6 +2,8 @@
 
 Having a good layout for all the different files in a script project is very helpful.
 
+Ideally this document would have a live project to illustrate the ideas, but for now a description is all there is.
+
 === Create Working Area ===
 
 Create a directory to work in. We will use the directory `work\`. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly.
