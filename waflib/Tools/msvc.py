@@ -553,7 +553,7 @@ def autodetect(conf):
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
 	v['MSVC_COMPILER'] = compiler
-	v['CC_VERSION'] = (str(version), '0', '0')
+	v['MSVC_VERSION'] = float(version)
 
 def _get_prog_names(conf, compiler):
 	if compiler=='intel':
@@ -573,13 +573,11 @@ def find_msvc(conf):
 	if sys.platform == 'cygwin':
 		conf.fatal('MSVC module does not work under cygwin Python!')
 
+	# the autodetection is supposed to be performed before entering in this method
 	v = conf.env
-
-	compiler, version, path, includes, libdirs = detect_msvc(conf)
-	v['PATH'] = path
-	v['INCLUDES'] = includes
-	v['LIBPATH'] = libdirs
-	v['MSVC_VERSION'] = float(version)
+	path = v['PATH']
+	compiler = v['MSVC_COMPILER']
+	version = v['MSVC_VERSION']
 
 	compiler_name, linker_name, lib_name = _get_prog_names(conf, compiler)
 	v.MSVC_MANIFEST = (compiler == 'msvc' and float(version) >= 8) or (compiler == 'wsdk' and float(version) >= 6) or (compiler == 'intel' and float(version) >= 11)
