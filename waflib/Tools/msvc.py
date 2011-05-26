@@ -547,6 +547,7 @@ def configure(conf):
 	conf.cc_add_flags()
 	conf.cxx_add_flags()
 	conf.link_add_flags()
+	conf.visual_studio_add_flags()
 
 @conf
 def no_autodetect(conf):
@@ -609,12 +610,6 @@ def find_msvc(conf):
 	v['CC'] = v['CXX'] = cxx
 	v['CC_NAME'] = v['CXX_NAME'] = 'msvc'
 
-	# environment flags
-	try: v.prepend_value('INCLUDES', conf.environ['INCLUDE']) # notice the 'S'
-	except KeyError: pass
-	try: v.prepend_value('LIBPATH', conf.environ['LIB'])
-	except KeyError: pass
-
 	# linker
 	if not v['LINK_CXX']:
 		link = conf.find_program(linker_name, path_list=path)
@@ -640,6 +635,15 @@ def find_msvc(conf):
 
 	if not conf.env['WINRC']:
 		warn('Resource compiler not found. Compiling resource file is disabled')
+
+@conf
+def visual_studio_add_flags(self):
+	v = self.env
+	# environment flags
+	try: v.prepend_value('INCLUDES', self.environ['INCLUDE']) # notice the 'S'
+	except KeyError: pass
+	try: v.prepend_value('LIBPATH', self.environ['LIB'])
+	except KeyError: pass
 
 @conf
 def msvc_common_flags(conf):
