@@ -415,6 +415,7 @@ def print_all_msvc_detected(conf):
 		for target,l in targets:
 			info("\t"+target)
 
+@conf
 def detect_msvc(conf):
 	versions = get_msvc_versions(conf)
 	return setup_msvc(conf, versions)
@@ -557,7 +558,7 @@ def autodetect(conf):
 	v = conf.env
 	if v.NO_MSVC_DETECT:
 		return
-	compiler, version, path, includes, libdirs = detect_msvc(conf)
+	compiler, version, path, includes, libdirs = conf.detect_msvc()
 	v['PATH'] = path
 	v['INCLUDES'] = includes
 	v['LIBPATH'] = libdirs
