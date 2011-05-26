@@ -96,6 +96,8 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		<NMakeCleanCommandLine>${project.get_clean_command(b)}</NMakeCleanCommandLine>
 		<NMakeIncludeSearchPath>${b.includes_search_path}</NMakeIncludeSearchPath>
 		<NMakePreprocessorDefinitions>${b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+		<IncludePath></IncludePath>
+		<ExecutablePath>$(ExecutablePath)</ExecutablePath>
 
 			${if getattr(b, 'output_file', None)}
 		<NMakeOutput>${b.output_file}</NMakeOutput>
