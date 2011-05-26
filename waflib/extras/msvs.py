@@ -42,7 +42,7 @@ $ waf configure msvs
 
 ASSUMPTIONS:
 * a project can be either a directory or a target, vcxproj files are written only for targets that have source files
-* each project is a vcxproj file, therefore the project guid needs only to be a hash of the absolute path
+* each project is a vcxproj file, therefore the project uuid needs only to be a hash of the absolute path
 
 """
 
@@ -67,7 +67,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	</ItemGroup>
 
 	<PropertyGroup Label="Globals">
-		<ProjectGuid>{${project.guid}}</ProjectGuid>
+		<ProjectGuid>{${project.uuid}}</ProjectGuid>
 		<Keyword>MakeFileProj</Keyword>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	<ItemGroup>
 		${for x in project.dirs()}
 			<Filter Include="${x.path_from(project.path)}">
-				<UniqueIdentifier>{${project.make_guid(x.abspath())}}</UniqueIdentifier>
+				<UniqueIdentifier>{${project.make_uuid(x.abspath())}}</UniqueIdentifier>
 			</Filter>
 		${endfor}
 	</ItemGroup>
@@ -149,7 +149,7 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 ${for p in project}
-Project("{${p.ptype()}}") = "${p.name}", "${p.get_path()}", "{${p.guid}}"
+Project("{${p.ptype()}}") = "${p.name}", "${p.title}", "{${p.uuid}}"
 EndProject${endfor}
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -161,11 +161,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		${for p in project}
-			${if p.source or getattr(p, 'is_build_all', None)}
+			${if hasattr(p, 'source')}
 			${for b in p.build_properties()}
-		{${p.guid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
-			${if getattr(p, 'is_build_all', None)}
-		{${p.guid}}.${b.configuration}|${b.platform}.Build.0 = ${b.configuration}|${b.platform}
+		{${p.uuid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
+			${if getattr(p, 'is_active', None)}
+		{${p.uuid}}.${b.configuration}|${b.platform}.Build.0 = ${b.configuration}|${b.platform}
 			${endif}
 			${endfor}
 			${endif}
@@ -176,8 +176,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	${for p in project}
-		${if p.pguid}
-		{${p.guid}} = {${p.pguid}}
+		${if p.parent}
+		{${p.uuid}} = {${p.parent.uuid}}
 		${endif}
 	${endfor}
 	EndGlobalSection
@@ -250,7 +250,7 @@ def rm_blank_lines(txt):
 	return txt
 
 
-def make_guid(v, prefix = None):
+def make_uuid(v, prefix = None):
 	"""
 	simple utility function
 	"""
@@ -269,29 +269,171 @@ def make_guid(v, prefix = None):
 class build_property(object):
 	pass
 
-class project(object):
+class vsnode(object):
 	"""
-	TODO this class is going to be split to make a proper hierarchy
+	Abstract class representing visual studio elements
+	We assume that all visual studio nodes have a uuid and a parent
 	"""
-	VS_GUID_VCPROJ         = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
-	VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
+	def __init__(self, ctx):
+		self.ctx = ctx # msvs context
+		self.name = '' # string, mandatory
+		self.vspath = '' # path in visual studio (name for dirs, absolute path for projects)
+		self.uuid = '' # string, mandatory
+		self.parent = None # parent node for visual studio nesting
 
-	def __init__(self, ctx, tg=None, name=None):
+	def ptype(self):
+		"""
+		Return a special uuid for projects written in the solution file
+		"""
+		pass
+
+	def write(self):
+		"""
+		Write the project file, by default, do nothing
+		"""
+		pass
+
+	def make_uuid(self, val):
+		"""
+		Alias for creating uuid values easily (the templates cannot access global variables)
+		"""
+		return make_uuid(val)
+
+class vsnode_vsdir(vsnode):
+	"""
+	Nodes representing visual studio folders (which do not match the filesystem tree!)
+	"""
+	VS_GUID_SOLUTIONFOLDER = "2150E333-8FDC-42A3-9474-1A3956D46DE8"
+	def __init__(self, ctx, uuid, name, vspath=''):
+		vsnode.__init__(self, ctx)
+		self.title = self.name = name
+		self.uuid = uuid
+		self.vspath = vspath or name
+
+	def ptype(self):
+		return self.VS_GUID_SOLUTIONFOLDER
+
+class vsnode_project(vsnode):
+	"""
+	Abstract class representing visual studio project elements
+	A project is assumed to be writeable, and has a node representing the file to write to
+	"""
+	VS_GUID_VCPROJ = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
+	def ptype(self):
+		return self.VS_GUID_VCPROJ
+
+	def __init__(self, ctx, node):
+		vsnode.__init__(self, ctx)
+		self.path = node
+		self.uuid = make_uuid(node.abspath())
+		self.name = node.name
+		self.title = self.path.abspath()
+		self.source = [] # list of node objects
+
+	def dirs(self):
+		"""
+		Get the list of parent folders of the source files (header files included)
+		for writing the filters
+		"""
+		lst = []
+		for x in self.source:
+			if x.parent not in lst:
+				lst.append(x.parent)
+		return lst
+
+	def write(self):
+		Logs.warn('Creating %r' % self.path)
+
+		# first write the project file
+		template1 = compile_template(PROJECT_TEMPLATE)
+		proj_str = template1(self)
+		proj_str = rm_blank_lines(proj_str)
+		self.path.write(proj_str)
+
+		# then write the filter
+		template2 = compile_template(FILTER_TEMPLATE)
+		filter_str = template2(self)
+		filter_str = rm_blank_lines(filter_str)
+		tmp = self.path.parent.make_node(self.path.name + '.filters')
+		tmp.write(filter_str)
+
+	def get_key(self, node):
+		"""
+		required for writing the source files
+		"""
+		name = node.name
+		if name.endswith('.cpp') or name.endswith('.c'):
+			return 'ClCompile'
+		return 'ClInclude'
+
+	def build_properties(self):
+		"""
+		Returns a list of triplet (configuration, platform, output_directory)
+		"""
+		ret = []
+		for c in self.ctx.configurations:
+			for p in self.ctx.platforms:
+				x = build_property()
+				x.outdir = ''
+
+				x.configuration = c
+				x.platform = p
+
+				x.preprocessor_definitions = ''
+				x.includes_search_path = ''
+
+				# can specify "deploy_dir" too
+				ret.append(x)
+		return ret
+
+	def get_build_params(self, props):
+		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
+		waf = waf and waf.abspath() or 'waf'
+		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
+		return (waf, opt)
+
+	def get_build_command(self, props):
+		return "%s build %s" % self.get_build_params(props)
+
+	def get_clean_command(self, props):
+		return "%s clean %s" % self.get_build_params(props)
+
+	def get_rebuild_command(self, props):
+		return "%s clean build %s" % self.get_build_params(props)
+
+class vsnode_alias(vsnode_project):
+	"""
+	Fake target used to emulate the behaviour of "make all" (starting one process by target is slow)
+	"""
+	def __init__(self, ctx, node, name):
+		vsnode_project.__init__(self, ctx, node)
+		self.is_active = True
+		self.name = name
+
+class vsnode_target(vsnode_project):
+	"""
+	Visual studio project representing a targets (programs, libraries, etc) and bound
+	to a task generator
+	"""
+	def __init__(self, ctx, tg):
 		"""
 		A project is more or less equivalent to a file/folder
 		"""
-		self.ctx    = ctx # context of the command
-		self.pguid  = None # optional, guid to the parent project
-		self.source = []  # list of source files
-		if tg:
-			self.tg     = tg  # task generator
-			self.name   = name or tg.name # some kind of title for the solution (task generator target name)
+		base = getattr(ctx, 'projects_dir', None) or tg.path
+		node = base.make_node(tg.name + ctx.project_extension) # the project file as a Node
+		vsnode_project.__init__(self, ctx, node)
+		self.tg     = tg  # task generator
 
-			base = getattr(self.ctx, 'projects_dir', None) or tg.path
-			self.path   = base.make_node(self.name + self.ctx.project_extension) # Node
-			self.guid   = self.make_guid(self.path.abspath()) # unique id
-
-			# self.title - when no absolute path is provided, set the absolute path
+	def get_build_params(self, props):
+		"""
+		Override the default to add the target name
+		"""
+		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
+		waf = waf and waf.abspath() or 'waf'
+		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
+		if getattr(self, 'tg', None):
+			opt += " --targets=%s" % self.tg.name
+		return (waf, opt)
 
 	def collect_source(self):
 		tg = self.tg
@@ -312,6 +454,9 @@ class project(object):
 		self.source.sort(key=lambda x: x.abspath())
 
 	def collect_configurations(self):
+		"""
+		Visual studio projects are associated with platforms and configurations (for building especially)
+		"""
 		for c in self.ctx.configurations:
 			for p in self.ctx.platforms:
 				b = build_property()
@@ -320,82 +465,29 @@ class project(object):
 				try:
 					b.output_file = self.tg.link_task.outputs[0].abspath()
 				except:
-					b.output_file = ''
+					pass
 				b.preprocessor_definitions = ';'.join(self.tg.env.DEFINES)
 				b.includes_search_path = ';'.join(self.tg.env.INCPATHS)
-
-	def dirs(self):
-		"""
-		Get the list of parent folders for writing the filters
-		"""
-		lst = []
-		for x in self.source:
-			if x.parent not in lst:
-				lst.append(x.parent)
-		return lst
-
-	def get_path(self):
-		return getattr(self, 'title', self.path.abspath())
-
-	def make_guid(self, val):
-		return make_guid(val)
-
-	def ptype(self):
-		if not self.source and not hasattr(self, 'output_file'):
-			return self.VS_GUID_SOLUTIONFOLDER
-		return self.VS_GUID_VCPROJ
 
 	def build_properties(self):
 		"""
 		Returns a list of triplet (configuration, platform, output_directory)
 		"""
-		ret = []
-		for c in self.ctx.configurations:
-			for p in self.ctx.platforms:
-				x = build_property()
+		ret = vsnode_project.build_properties(self)
+		for x in ret:
+			x.outdir = self.path.parent.abspath()
+			x.preprocessor_definitions = ''
+			x.includes_search_path = ''
 
-				x.configuration = c
-				x.platform = p
-
-				x.outdir = self.path.parent.abspath()
-				x.preprocessor_definitions = ''
-				x.includes_search_path = ''
-
-				try:
-					tsk = self.tg.link_task
-				except:
-					x.output_file = ''
-				else:
-					x.output_file = tsk.outputs[0].abspath()
-					x.preprocessor_definitions = ';'.join(tsk.env.DEFINES)
-					x.includes_search_path = ';'.join(self.tg.env.INCPATHS)
-
-				# can specify "deploy_dir" too
-				ret.append(x)
+			try:
+				tsk = self.tg.link_task
+			except AttributeError:
+				pass
+			else:
+				x.output_file = tsk.outputs[0].abspath()
+				x.preprocessor_definitions = ';'.join(tsk.env.DEFINES)
+				x.includes_search_path = ';'.join(self.tg.env.INCPATHS)
 		return ret
-
-	def get_key(self, node):
-		name = node.name
-		if name.endswith('.cpp') or name.endswith('.c'):
-			return 'ClCompile'
-		return 'ClInclude'
-
-	def get_build_params(self, props):
-		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
-		waf = waf and waf.abspath() or 'waf'
-		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
-		if getattr(self, 'tg', None):
-			opt += " --targets=%s" % self.tg.name
-		return (waf, opt)
-
-	def get_build_command(self, props):
-		return "%s build %s" % self.get_build_params(props)
-
-	def get_clean_command(self, props):
-		return "%s clean %s" % self.get_build_params(props)
-
-	def get_rebuild_command(self, props):
-		return "%s clean build %s" % self.get_build_params(props)
 
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
@@ -417,6 +509,14 @@ class msvs_generator(BuildContext):
 		if not getattr(self, 'projects_dir', None):
 			self.projects_dir = self.bldnode.make_node('depproj')
 			self.projects_dir.mkdir()
+
+		# bind the classes to the object, so that subclass can provide custom generators
+		if not getattr(self, 'vsnode_vsdir', None):
+			self.vsnode_vsdir = vsnode_vsdir
+		if not getattr(self, 'vsnode_target', None):
+			self.vsnode_target = vsnode_target
+		if not getattr(self, 'vsnode_alias', None):
+			self.vsnode_alias = vsnode_alias
 
 	def execute(self):
 		"""
@@ -442,7 +542,7 @@ class msvs_generator(BuildContext):
 		self.collect_targets()
 		self.add_build_all_projects()
 		self.collect_dirs()
-		self.all_projects.sort(key=lambda x: x.path.abspath())
+		self.all_projects.sort(key=lambda x: getattr(x, 'path', None) and x.path.abspath() or x.name)
 
 	def write_files(self):
 		"""
@@ -450,23 +550,7 @@ class msvs_generator(BuildContext):
 		so far. It is unlikely that you will want to change this
 		"""
 		for p in self.all_projects:
-			if not p.source and not hasattr(p, 'output_file'):
-				continue
-
-			Logs.warn('Creating %r' % p.path)
-
-			# first write the project file
-			template1 = compile_template(PROJECT_TEMPLATE)
-			proj_str = template1(p)
-			proj_str = rm_blank_lines(proj_str)
-			p.path.write(proj_str)
-
-			# then write the filter
-			template2 = compile_template(FILTER_TEMPLATE)
-			filter_str = template2(p)
-			filter_str = rm_blank_lines(filter_str)
-			tmp = p.path.parent.make_node(p.path.name + '.filters')
-			tmp.write(filter_str)
+			p.write()
 
 		# and finally write the solution file
 		node = self.get_solution_node()
@@ -519,7 +603,7 @@ class msvs_generator(BuildContext):
 				if not getattr(tg, 'link_task', None):
 					continue
 
-				p = project(self, tg)
+				p = self.vsnode_target(self, tg)
 				p.collect_source() # delegate this processing
 				p.collect_configurations()
 				self.all_projects.append(p)
@@ -528,22 +612,15 @@ class msvs_generator(BuildContext):
 		"""
 		Add a specific target that emulates the "make all" behaviour, necessary for Visual studio
 		"""
-		p = project(self)
 		base = getattr(self, 'projects_dir', None) or tg.path
-		p.path = base.make_node('build_all_projects' + self.project_extension) # Node
+		node_project = base.make_node('build_all_projects' + self.project_extension) # Node
 
-		p.guid   = make_guid(p.path.abspath()) # unique id
-		p.source = []
-		p.is_build_all = True
-		p.tg = None
-		p.name = 'build_all_projects'
+		p = self.vsnode_alias(self, node_project, 'build_all_projects')
 		p.output_file = ''
 		self.all_projects.append(p)
 
-		n = project(self, None)
-		n.path = p.path.parent
-		n.guid = p.pguid = make_guid(n.path.abspath())
-		n.name = n.title = n.path.name
+		n = self.vsnode_vsdir(self, make_uuid(self.srcnode.abspath() + 'build_aliases'), "build_aliases")
+		p.parent = n
 		self.all_projects.append(n)
 
 	def collect_dirs(self):
@@ -551,24 +628,23 @@ class msvs_generator(BuildContext):
 		Create the folder structure in the Visual studio project view
 		"""
 		seen = set([])
-		def make_parents(x):
-			if x in seen:
+		def make_parents(proj):
+			# look at a project, try to make a parent
+			if proj.iter_path in seen:
 				return
-			seen.add(x)
+			seen.add(proj.iter_path)
 
 			# create a project representing the folder "x"
-			n = project(self, None)
-			n.path = x
-			n.guid = make_guid(x.abspath())
-			n.name = n.title = n.path.name
 
+			x = proj.iter_path
+			n = self.vsnode_vsdir(self, make_uuid(x.abspath()), x.name)
+			n.iter_path = x.parent
+			proj.parent = n
 			self.all_projects.append(n)
 
 			# recurse up to the project directory
 			if x.height() > self.srcnode.height() + 1:
-				up = x.parent
-				n.pguid = make_guid(up.abspath())
-				make_parents(up)
+				make_parents(n)
 
 		for p in self.all_projects[:]: # iterate over a copy of all projects
 			if not getattr(p, 'tg', None):
@@ -576,9 +652,8 @@ class msvs_generator(BuildContext):
 				continue
 
 			# make a folder for each task generator
-			parent = p.tg.path
-			p.pguid = make_guid(parent.abspath())
-			make_parents(parent)
+			p.iter_path = p.tg.path
+			make_parents(p)
 
 def options(ctx):
 	"""
