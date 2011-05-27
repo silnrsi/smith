@@ -40,6 +40,18 @@ It can be a good idea to add the sync_exec tool too.
 To generate solution files:
 $ waf configure msvs
 
+To customize the outputs, provide subclasses in your wscript files:
+
+from waflib.extras import msvs
+class vsnode_target(msvs.vsnode_target):
+    def get_build_command(self, props):
+        return "waf.bat build"
+class msvs_bar(msvs.msvs_generator):
+    def init(self):
+        msvs.msvs_generator.init(self)
+        self.vsnode_target = vsnode_target
+
+
 ASSUMPTIONS:
 * a project can be either a directory or a target, vcxproj files are written only for targets that have source files
 * each project is a vcxproj file, therefore the project uuid needs only to be a hash of the absolute path
