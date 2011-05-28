@@ -295,6 +295,12 @@ class vsnode(object):
 		self.uuid = '' # string, mandatory
 		self.parent = None # parent node for visual studio nesting
 
+	def get_waf(self):
+		"""
+		Override in subclasses...
+		"""
+		return 'cd /d "%s" &amp; waf.bat' % self.ctx.srcnode.abspath()
+
 	def ptype(self):
 		"""
 		Return a special uuid for projects written in the solution file
@@ -401,10 +407,8 @@ class vsnode_project(vsnode):
 		return ret
 
 	def get_build_params(self, props):
-		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
-		waf = waf and waf.abspath() or 'waf'
 		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
-		return (waf, opt)
+		return (self.get_waf(), opt)
 
 	def get_build_command(self, props):
 		return "%s build %s" % self.get_build_params(props)
@@ -464,12 +468,10 @@ class vsnode_target(vsnode_project):
 		"""
 		Override the default to add the target name
 		"""
-		waf = self.ctx.srcnode.find_node('waf') or self.ctx.srcnode.find_node('waf.bat')
-		waf = waf and waf.abspath() or 'waf'
 		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
 		if getattr(self, 'tg', None):
 			opt += " --targets=%s" % self.tg.name
-		return (waf, opt)
+		return (self.get_waf(), opt)
 
 	def collect_source(self):
 		tg = self.tg
