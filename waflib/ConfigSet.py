@@ -48,8 +48,8 @@ class ConfigSet(object):
 		try: return self.parent.__contains__(key)
 		except AttributeError: return False # parent may not exist
 
-	def __str__(self):
-		"""Text representation of the ConfigSet (for debugging purposes)"""
+	def keys(self):
+		"""Dict interface (unknown purpose)"""
 		keys = set()
 		cur = self
 		while cur:
@@ -57,7 +57,11 @@ class ConfigSet(object):
 			cur = getattr(cur, 'parent', None)
 		keys = list(keys)
 		keys.sort()
-		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in keys])
+		return keys
+
+	def __str__(self):
+		"""Text representation of the ConfigSet (for debugging purposes)"""
+		return "\n".join(["%r %r" % (x, self.__getitem__(x)) for x in self.keys()])
 
 	def __getitem__(self, key):
 		"""
