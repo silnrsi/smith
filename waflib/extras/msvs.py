@@ -506,7 +506,6 @@ class vsnode_target(vsnode_project):
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
 	fun = 'build'
-	variant = 'Debug'
 
 	def init(self):
 		"""
