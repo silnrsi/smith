@@ -416,13 +416,35 @@ class vsnode_project(vsnode):
 		return "%s clean build %s" % self.get_build_params(props)
 
 class vsnode_alias(vsnode_project):
-	"""
-	Fake target used to emulate the behaviour of "make all" (starting one process by target is slow)
-	"""
 	def __init__(self, ctx, node, name):
 		vsnode_project.__init__(self, ctx, node)
-		self.is_active = True
 		self.name = name
+		self.output_file = ''
+
+class vsnode_build_all(vsnode_alias):
+	"""
+	Fake target used to emulate the behaviour of "make all" (starting one process by target is slow)
+	This is the only alias enabled by default
+	"""
+	def __init__(self, ctx, node, name='build_all_projects'):
+		vsnode_alias.__init__(self, ctx, node, name)
+		self.is_active = True
+
+class vsnode_install_all(vsnode_alias):
+	"""
+	Fake target used to emulate the behaviour of "make install"
+	"""
+	def __init__(self, ctx, node, name='build_all_projects'):
+		vsnode_alias.__init__(self, ctx, node, name)
+
+	def get_build_command(self, props):
+		return "%s build install %s" % self.get_build_params(props)
+
+	def get_clean_command(self, props):
+		return "%s clean %s" % self.get_build_params(props)
+
+	def get_rebuild_command(self, props):
+		return "%s clean build install %s" % self.get_build_params(props)
 
 class vsnode_target(vsnode_project):
 	"""
@@ -528,8 +550,10 @@ class msvs_generator(BuildContext):
 			self.vsnode_vsdir = vsnode_vsdir
 		if not getattr(self, 'vsnode_target', None):
 			self.vsnode_target = vsnode_target
-		if not getattr(self, 'vsnode_alias', None):
-			self.vsnode_alias = vsnode_alias
+		if not getattr(self, 'vsnode_build_all', None):
+			self.vsnode_build_all = vsnode_build_all
+		if not getattr(self, 'vsnode_install_all', None):
+			self.vsnode_install_all = vsnode_install_all
 
 	def execute(self):
 		"""
@@ -623,17 +647,21 @@ class msvs_generator(BuildContext):
 
 	def add_build_all_projects(self):
 		"""
-		Add a specific target that emulates the "make all" behaviour, necessary for Visual studio
+		Add a specific target that emulates the "make all" necessary for Visual studio when pressing F7
+		We also add an alias for "make install" (disabled by default)
 		"""
 		base = getattr(self, 'projects_dir', None) or tg.path
-		node_project = base.make_node('build_all_projects' + self.project_extension) # Node
 
-		p = self.vsnode_alias(self, node_project, 'build_all_projects')
-		p.output_file = ''
-		self.all_projects.append(p)
+		node_project = base.make_node('build_all_projects' + self.project_extension) # Node
+		p_build = self.vsnode_build_all(self, node_project)
+		self.all_projects.append(p_build)
+
+		node_project = base.make_node('install_all_projects' + self.project_extension) # Node
+		p_install = self.vsnode_install_all(self, node_project)
+		self.all_projects.append(p_install)
 
 		n = self.vsnode_vsdir(self, make_uuid(self.srcnode.abspath() + 'build_aliases'), "build_aliases")
-		p.parent = n
+		p_build.parent = p_install.parent = n
 		self.all_projects.append(n)
 
 	def collect_dirs(self):
