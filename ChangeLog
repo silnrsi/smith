@@ -17,6 +17,7 @@ NEW IN WAF 1.6.5
 * Limited support for IronPython
 * Support for older Visual Studio versions (VC6) #952
 * New waf.bat file #964
+* New method ConfigSet.keys
 
 NEW IN WAF 1.6.4
 ----------------
