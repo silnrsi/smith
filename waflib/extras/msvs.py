@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# encoding: utf-8
 # Avalanche Studios 2009-2011
 # Thomas Nagy 2011
 
