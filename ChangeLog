@@ -18,6 +18,7 @@ NEW IN WAF 1.6.5
 * Support for older Visual Studio versions (VC6) #952
 * New waf.bat file #964
 * New method ConfigSet.keys
+* New Visual Studio and Eclipse CTD project generators
 
 NEW IN WAF 1.6.4
 ----------------
