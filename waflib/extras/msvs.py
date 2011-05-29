@@ -544,7 +544,7 @@ class msvs_generator(BuildContext):
 		if not getattr(self, 'project_extension', None):
 			self.project_extension = '.vcxproj'
 		if not getattr(self, 'projects_dir', None):
-			self.projects_dir = self.bldnode.make_node('depproj')
+			self.projects_dir = self.srcnode.make_node('.depproj')
 			self.projects_dir.mkdir()
 
 		# bind the classes to the object, so that subclass can provide custom generators
