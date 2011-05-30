@@ -188,7 +188,9 @@ class task_gen(object):
 				if a in x: break
 			else:
 				tmp.append(a)
-		tmp.sort()
+
+		# TODO waf 1.7
+		#tmp.sort()
 
 		# topological sort
 		out = []
@@ -406,7 +408,7 @@ def before_method(*k):
 		for fun_name in k:
 			if not func.__name__ in task_gen.prec[fun_name]:
 				task_gen.prec[fun_name].append(func.__name__)
-				task_gen.prec[fun_name].sort()
+				#task_gen.prec[fun_name].sort()
 		return func
 	return deco
 before = before_method
@@ -435,7 +437,7 @@ def after_method(*k):
 		for fun_name in k:
 			if not fun_name in task_gen.prec[func.__name__]:
 				task_gen.prec[func.__name__].append(fun_name)
-				task_gen.prec[func.__name__].sort()
+				#task_gen.prec[func.__name__].sort()
 		return func
 	return deco
 after = after_method
