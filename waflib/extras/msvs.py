@@ -580,7 +580,7 @@ class msvs_generator(BuildContext):
 		Fill the list of build targets
 		"""
 		self.collect_targets()
-		self.add_build_all_projects()
+		self.add_aliases()
 		self.collect_dirs()
 		self.all_projects.sort(key=lambda x: getattr(x, 'path', None) and x.path.abspath() or x.name)
 
@@ -648,7 +648,7 @@ class msvs_generator(BuildContext):
 				p.collect_configurations()
 				self.all_projects.append(p)
 
-	def add_build_all_projects(self):
+	def add_aliases(self):
 		"""
 		Add a specific target that emulates the "make all" necessary for Visual studio when pressing F7
 		We also add an alias for "make install" (disabled by default)
