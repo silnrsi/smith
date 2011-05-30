@@ -112,9 +112,9 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		<IncludePath></IncludePath>
 		<ExecutablePath>$(ExecutablePath)</ExecutablePath>
 
-			${if getattr(b, 'output_file', None)}
+		${if getattr(b, 'output_file', None)}
 		<NMakeOutput>${b.output_file}</NMakeOutput>
-			${endif}
+		${endif}
 		${if getattr(b, 'deploy_dir', None)}
 		<RemoteRoot>${b.deploy_dir}</RemoteRoot>
 		${endif}
@@ -337,7 +337,7 @@ class vsnode_vsdir(vsnode):
 class vsnode_project(vsnode):
 	"""
 	Abstract class representing visual studio project elements
-	A project is assumed to be writeable, and has a node representing the file to write to
+	A project is assumed to be writable, and has a node representing the file to write to
 	"""
 	VS_GUID_VCPROJ = "8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942"
 	def ptype(self):
