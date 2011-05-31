@@ -71,7 +71,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 	<ItemGroup Label="ProjectConfigurations">
-		${for b in project.build_properties()}
+		${for b in project.build_properties}
 		<ProjectConfiguration Include="${b.configuration}|${b.platform}">
 			<Configuration>${b.configuration}</Configuration>
 			<Platform>${b.platform}</Platform>
@@ -85,7 +85,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-	${for b in project.build_properties()}
+	${for b in project.build_properties}
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'" Label="Configuration">
 		<ConfigurationType>Makefile</ConfigurationType>
 		<OutDir>${b.outdir}</OutDir>
@@ -96,13 +96,13 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	<ImportGroup Label="ExtensionSettings">
 	</ImportGroup>
 
-	${for b in project.build_properties()}
+	${for b in project.build_properties}
 	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
 		<Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
 	</ImportGroup>
 	${endfor}
 
-	${for b in project.build_properties()}
+	${for b in project.build_properties}
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
 		<NMakeBuildCommandLine>${project.get_build_command(b)}</NMakeBuildCommandLine>
 		<NMakeReBuildCommandLine>${project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
@@ -121,7 +121,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	</PropertyGroup>
 	${endfor}
 
-	${for b in project.build_properties()}
+	${for b in project.build_properties}
 		${if getattr(b, 'deploy_dir', None)}
 	<ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
 		<Deploy>
@@ -177,7 +177,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		${for p in project}
 			${if hasattr(p, 'source')}
-			${for b in p.build_properties()}
+			${for b in p.build_properties}
 		{${p.uuid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
 			${if getattr(p, 'is_active', None)}
 		{${p.uuid}}.${b.configuration}|${b.platform}.Build.0 = ${b.configuration}|${b.platform}
@@ -350,6 +350,7 @@ class vsnode_project(vsnode):
 		self.name = node.name
 		self.title = self.path.abspath()
 		self.source = [] # list of node objects
+		self.build_properties = [] # list of properties (nmake commands, output dir, etc)
 
 	def dirs(self):
 		"""
@@ -387,7 +388,7 @@ class vsnode_project(vsnode):
 			return 'ClCompile'
 		return 'ClInclude'
 
-	def build_properties(self):
+	def collect_properties(self):
 		"""
 		Returns a list of triplet (configuration, platform, output_directory)
 		"""
@@ -405,7 +406,7 @@ class vsnode_project(vsnode):
 
 				# can specify "deploy_dir" too
 				ret.append(x)
-		return ret
+		self.build_properties = ret
 
 	def get_build_params(self, props):
 		opt = '--execsolution=%s' % self.ctx.get_solution_node().abspath()
@@ -492,28 +493,12 @@ class vsnode_target(vsnode_project):
 		self.source.extend(list(set(source_files + include_files)))
 		self.source.sort(key=lambda x: x.abspath())
 
-	def collect_configurations(self):
+	def collect_properties(self):
 		"""
 		Visual studio projects are associated with platforms and configurations (for building especially)
 		"""
-		for c in self.ctx.configurations:
-			for p in self.ctx.platforms:
-				b = build_property()
-				b.configuration = c
-				b.platform = p
-				try:
-					b.output_file = self.tg.link_task.outputs[0].abspath()
-				except:
-					pass
-				b.preprocessor_definitions = ';'.join(self.tg.env.DEFINES)
-				b.includes_search_path = ';'.join(self.tg.env.INCPATHS)
-
-	def build_properties(self):
-		"""
-		Returns a list of triplet (configuration, platform, output_directory)
-		"""
-		ret = vsnode_project.build_properties(self)
-		for x in ret:
+		super(vsnode_target, self).collect_properties()
+		for x in self.build_properties:
 			x.outdir = self.path.parent.abspath()
 			x.preprocessor_definitions = ''
 			x.includes_search_path = ''
@@ -526,7 +511,6 @@ class vsnode_target(vsnode_project):
 				x.output_file = tsk.outputs[0].abspath()
 				x.preprocessor_definitions = ';'.join(tsk.env.DEFINES)
 				x.includes_search_path = ';'.join(self.tg.env.INCPATHS)
-		return ret
 
 class msvs_generator(BuildContext):
 	cmd = 'msvs'
@@ -645,7 +629,7 @@ class msvs_generator(BuildContext):
 
 				p = self.vsnode_target(self, tg)
 				p.collect_source() # delegate this processing
-				p.collect_configurations()
+				p.collect_properties()
 				self.all_projects.append(p)
 
 	def add_aliases(self):
