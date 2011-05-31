@@ -262,14 +262,14 @@ class SVG(object) :
 #                    rend = 'icu'
                 if (lang and len(lang) > 0 and len(lang) < 4):
                     rend += " --feat " + lang + " "
-                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m
+                targfile = test.results_node(n.get_src()).bld_base() + '_' + fid + "_" + m
                 ntarg = os.path.split(targfile)
                 targfile = os.path.join(ntarg[0], nfile, ntarg[1])
                 ctx(rule='${GRSVG} ' + font.target + ' -p 24 -i ${SRC} -o ' + targfile +
                         ' --page ' + str(svgLinesPerPage) + ' --renderer ' + rend + ' ',
                         source = n, target = targfile + ".html")
             if self.diffs and 'XSLTPROC' in ctx.env :
-                targ = test.results_node(n).bld_base() + '_' + fid
+                targ = test.results_node(n.get_src()).bld_base() + '_' + fid
                 ntarg = os.path.split(targ)
                 targtfile = os.path.join(ntarg[0], nfile, ntarg[1])
                 ctx(rule = curry_fn(make_diffHtml, targtfile, svgDiffXsl, svgLinesPerPage, fid), source = [n, targfile + '.html'], target = targ + 'diff.html')
