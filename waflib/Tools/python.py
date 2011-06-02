@@ -25,6 +25,7 @@ from waflib.TaskGen import extension, taskgen_method, before_method, after_metho
 from waflib.Configure import conf
 
 FRAG = '''
+#include <Python.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
