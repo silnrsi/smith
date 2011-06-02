@@ -224,11 +224,6 @@ def use_rec(self, name, **kw):
 	* empty libraries may be used to propagate include paths
 	* there are object-only targets (no link task)
 	"""
-	if name in self.seen_libs:
-		return
-	else:
-		self.seen_libs.add(name)
-
 	objects = kw.get('objects', True)
 	stlib = kw.get('stlib', True)
 
@@ -299,7 +294,6 @@ def process_use(self):
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
-	self.seen_libs = set([])
 
 	for x in names:
 		self.use_rec(x)
