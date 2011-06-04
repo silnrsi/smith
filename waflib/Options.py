@@ -99,7 +99,7 @@ class opt_parser(optparse.OptionParser):
 		"""
 		cmds_str = {}
 		for cls in Context.classes:
-			if not cls.cmd:
+			if not cls.cmd or cls.cmd == 'options':
 				continue
 
 			s = cls.__doc__ or ''
@@ -135,7 +135,7 @@ class OptionsContext(Context.Context):
 	Set the global :py:const:`waflib.Options.commands` and :py:const:`waflib.Options.options` values.
 	"""
 
-	cmd = ''
+	cmd = 'options'
 	fun = 'options'
 
 	def __init__(self, **kw):
