@@ -13,9 +13,9 @@ from waflib.Logs import warn
 from waflib.Tools import tex as texmodule
 
 class tex(texmodule.tex):
-	bibtex_fun, _ = Task.compile_fun('${BIBTEX} ${BIBTEXFLAGS} ${SRCFILE}', shell=False)
-	bibtex_fun.__doc__ = """
-	Execute the program **bibtex**
+	biber_fun, _ = Task.compile_fun('${BIBER} ${BIBERFLAGS} ${SRCFILE}',shell=False)
+	biber_fun.__doc__ = """
+	Execute the program **biber**
 	"""
 
 	def bibfile(self):
