@@ -113,8 +113,7 @@ class tex(Task.Task):
 		def parse_node(node):
 			if node in seen:
 				return
-			seen.append(node
-)
+			seen.append(node)
 			code = node.read()
 			global re_tex
 			for match in re_tex.finditer(code):
