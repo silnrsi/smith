@@ -402,7 +402,7 @@ def check_jni_headers(conf):
 	incDirs = [x.parent.abspath() for x in f]
 
 	dir = conf.root.find_dir(conf.env.JAVA_HOME[0])
-	f = dir.ant_glob('**/*jvm.(so|dll)')
+	f = dir.ant_glob('**/*jvm.(so|dll|dylib)')
 	libDirs = [x.parent.abspath() for x in f] or [javaHome]
 
 	for i, d in enumerate(libDirs):
