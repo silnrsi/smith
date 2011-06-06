@@ -290,9 +290,10 @@ class TaskBase(evil):
 		"""
 		col1 = Logs.colors(self.color)
 		col2 = Logs.colors.NORMAL
+		master = self.master
 
 		if self.generator.bld.progress_bar == 1:
-			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
+			return self.generator.bld.progress_line(master.processed - master.ready.qsize() - 1, master.total, col1, col2)
 
 		if self.generator.bld.progress_bar == 2:
 			ela = str(self.generator.bld.timer)
@@ -304,16 +305,15 @@ class TaskBase(evil):
 				outs = ','.join([n.name for n in self.outputs])
 			except AttributeError:
 				outs = ''
-			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (self.position[1], self.generator.bld.producer.processed-1, ins, outs, ela)
+			return '|Total %s|Current %s|Inputs %s|Outputs %s|Time %s|\n' % (master.total, master.processed - master.ready.qsize() - 1, ins, outs, ela)
 
 		s = str(self)
 		if not s:
 			return None
 
-		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		return fs % (self.position[0], self.position[1], col1, s, col2)
+		return fs % (master.processed - master.ready.qsize() - 1, master.total, col1, s, col2)
 
 	def attr(self, att, default=None):
 		"""
