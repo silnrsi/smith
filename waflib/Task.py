@@ -292,7 +292,7 @@ class TaskBase(evil):
 		col2 = Logs.colors.NORMAL
 
 		if self.generator.bld.progress_bar == 1:
-			return self.generator.bld.progress_line(self.generator.bld.producer.processed-1, self.position[1], col1, col2)
+			return self.generator.bld.progress_line(self.position[0], self.position[1], col1, col2)
 
 		if self.generator.bld.progress_bar == 2:
 			ela = str(self.generator.bld.timer)
@@ -313,8 +313,7 @@ class TaskBase(evil):
 		total = self.position[1]
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		# we could use self.position[0], but the threading can make the reading unreliable
-		return fs % (self.generator.bld.producer.processed-1, self.position[1], col1, s, col2)
+		return fs % (self.position[0], self.position[1], col1, s, col2)
 
 	def attr(self, att, default=None):
 		"""
