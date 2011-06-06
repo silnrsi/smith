@@ -311,9 +311,10 @@ class TaskBase(evil):
 		if not s:
 			return None
 
+		total = master.total
 		n = len(str(total))
 		fs = '[%%%dd/%%%dd] %%s%%s%%s' % (n, n)
-		return fs % (master.processed - master.ready.qsize() - 1, master.total, col1, s, col2)
+		return fs % (master.processed - master.ready.qsize() - 1, total, col1, s, col2)
 
 	def attr(self, att, default=None):
 		"""
