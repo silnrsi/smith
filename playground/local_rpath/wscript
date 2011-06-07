@@ -3,11 +3,14 @@
 # Thomas Nagy, 2011 (ita)
 
 """
-rpath processing example
+rpath processing example:
+add all rpaths from local libraries
+
+(warning: do not use in production code...)
 """
 
 VERSION='0.0.1'
-APPNAME='cc_test'
+APPNAME='local_rpath'
 
 top = '.'
 

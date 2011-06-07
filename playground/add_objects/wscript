@@ -1,0 +1,28 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# Thomas Nagy, 2011 (ita)
+
+"""
+An extension enables adding object files to particular targets as if
+they were source files. This is most likely for proprietary projects.
+
+This is an example only: use='foo' would add the object files more easily.
+We are not providing .o files in this example as they would cause
+portability issues.
+"""
+
+VERSION='0.0.1'
+APPNAME='add_objects'
+
+top = '.'
+
+def options(opt):
+	opt.load('compiler_c')
+
+def configure(conf):
+	conf.load('compiler_c add_objects')
+
+def build(bld):
+	bld.objects(source='a.c', name='foo')
+	bld(features='c cprogram', source='a.c.0.o', target='bar')
+
