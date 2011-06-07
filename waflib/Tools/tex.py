@@ -117,21 +117,21 @@ class tex(Task.Task):
 			code = node.read()
 			global re_tex
 			for match in re_tex.finditer(code):
-				path = match.group('file')
-				if path:
-					add_name = True
-					found = None
-					for k in exts_deps_tex:
-						debug('tex: trying %s%s' % (path, k))
-						found = node.parent.find_resource(path + k)
-						if found and not found in self.outputs:
-							nodes.append(found)
-							add_name = False
-							if found.name.endswith('.tex') or found.name.endswith('.ltx'):
-								parse_node(found)
-						# no break, people are crazy
-					if add_name:
-						names.append(path)
+				for path in match.group('file').split(','):
+					if path:
+						add_name = True
+						found = None
+						for k in exts_deps_tex:
+							debug('tex: trying %s%s' % (path, k))
+							found = node.parent.find_resource(path + k)
+							if found and not found in self.outputs:
+								nodes.append(found)
+								add_name = False
+								if found.name.endswith('.tex') or found.name.endswith('.ltx'):
+									parse_node(found)
+							# no break, people are crazy
+						if add_name:
+							names.append(path)
 		parse_node(node)
 
 		for x in nodes:
