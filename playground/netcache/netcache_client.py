@@ -7,7 +7,7 @@ import Task, Constants
 
 BUF = 8192
 SIZE = 99
-Task.net_cache = ('', 51200)
+Task.net_cache = (socket.gethostname(), 51200)
 
 def recv_file(ssig, cnt, p):
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
