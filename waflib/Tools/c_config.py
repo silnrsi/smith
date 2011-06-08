@@ -626,9 +626,10 @@ class test_exec(Task.Task):
 			else:
 				self.generator.bld.retval = self.generator.bld.exec_command([self.inputs[0].abspath()])
 		else:
-			env = {}
+			env = self.env.env or {}
 			env.update(dict(os.environ))
-			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
+			for var in ('LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH', 'PATH'):
+				env[var] = self.inputs[0].parent.abspath() + os.path.pathsep + env.get(var, '')
 			if getattr(self.generator, 'define_ret', False):
 				self.generator.bld.retval = self.generator.bld.cmd_and_log([self.inputs[0].abspath()], env=env)
 			else:
