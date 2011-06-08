@@ -217,7 +217,10 @@ class OptionsContext(Context.Context):
 		try:
 			return self.option_groups[opt_str]
 		except KeyError:
-			return self.parser.get_option_group(opt_str)
+			for group in self.parser.option_groups:
+				if group.title == opt_str:
+					return group
+			return None
 
 	def parse_args(self, _args=None):
 		"""
