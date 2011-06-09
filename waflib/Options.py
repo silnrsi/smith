@@ -139,7 +139,7 @@ class OptionsContext(Context.Context):
 	fun = 'options'
 
 	def __init__(self, **kw):
-		super(self.__class__, self).__init__(**kw)
+		super(OptionsContext, self).__init__(**kw)
 
 		self.parser = opt_parser(self)
 		"""Instance of :py:class:`waflib.Options.opt_parser`"""
