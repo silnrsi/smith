@@ -303,7 +303,7 @@ def gather_msvc_targets(conf, versions, version, vc_path):
 		for target,realtarget in all_msvc_platforms[::-1]:
 			try:
 				targets.append((target, (realtarget, conf.get_msvc_version('msvc', version, target, os.path.join(vc_path, 'vcvarsall.bat')))))
-			except conf.errors.ConfigurationError as e:
+			except conf.errors.ConfigurationError:
 				pass
 	elif os.path.isfile(os.path.join(vc_path, 'Common7', 'Tools', 'vsvars32.bat')):
 		try:
@@ -667,12 +667,12 @@ def find_msvc(conf):
 
 @conf
 def visual_studio_add_flags(self):
+	"""visual studio flags found in the system environment"""
 	v = self.env
-	# environment flags
-	try: v.prepend_value('INCLUDES', self.environ['INCLUDE']) # notice the 'S'
-	except KeyError: pass
-	try: v.prepend_value('LIBPATH', self.environ['LIB'])
-	except KeyError: pass
+	try: v.prepend_value('INCLUDES', self.environ['INCLUDE'].split(';')) # notice the 'S'
+	except: pass
+	try: v.prepend_value('LIBPATH', self.environ['LIB'].split(';'))
+	except: pass
 
 @conf
 def msvc_common_flags(conf):
