@@ -4,18 +4,18 @@
 # moved the code into a separate tool (ita)
 
 """
+There are several things here:
+- a different command-line option management making options persistent
+- the review command to display the options set
+
 Assumptions:
 - configuration options are not always added to the right group (and do not count on the users to do it...)
-- the options are persistent between the executions (waf options are NOT persistent by design)
-
-Questions:
-  * should the configuration re-use those persistent options too?
-  * why should the review command force a reconfiguration?
-  * should a few options be non-persistent anyway (-jn, destdir, etc)
+- the options are persistent between the executions (waf options are NOT persistent by design), even for the configuration
+- when the options change, the build is invalidated (forcing a reconfiguration)
 """
 
-import os, types, tempfile, optparse, sys, textwrap, shutil
-from waflib import Logs, Utils, Context, ConfigSet, Options, Build
+import os, textwrap, shutil
+from waflib import Logs, Context, ConfigSet, Options, Build
 
 class Odict(dict):
 	"""Ordered dictionary"""
@@ -61,7 +61,7 @@ class Odict(dict):
 		self._keys = []
 
 	def copy(self):
-		return odict(self.plist())
+		return Odict(self.plist())
 
 	def items(self):
 		return zip(self._keys, self.values())
@@ -128,9 +128,6 @@ class OptionsReview(Options.OptionsContext):
 				setattr(Options.options, opt.dest, opt.default)
 
 	def add_configuration_options(self):
-		#if 'configure' in Options.commands: # <- TODO to decide
-		#	return
-
 		path = Context.run_dir + os.sep + Options.lockfile
 		env = ConfigSet.ConfigSet()
 		try:
@@ -181,15 +178,9 @@ class ReviewContext(Context.Context):
 		Load the previous review set, update the review set with the options
 		specified on the command line, import the option values in the option
 		dictionary, store the review set on disk and display the review set.
-		The configuration cache is invalidated if the reviewable options have
-		changed.
 		"""
 		(old_set, new_set) = self.refresh_review_set()
 		print(self.display_review_set(new_set))
-
-		# TODO uh, why removing that?
-		#if not self.compare_review_set(old_set, new_set):
-		#	self.delete_cache()
 
 	def refresh_review_set(self, store=True):
 		"""
