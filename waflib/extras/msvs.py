@@ -203,9 +203,9 @@ COMPILE_TEMPLATE = '''def f(project):
 	lst = []
 	%s
 
-	f = open('cmd.txt', 'w')
-	f.write(str(lst))
-	f.close()
+	#f = open('cmd.txt', 'w')
+	#f.write(str(lst))
+	#f.close()
 	return ''.join(lst)
 '''
 reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<code>[^}]*?)\})", re.M)
