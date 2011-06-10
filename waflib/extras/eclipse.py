@@ -94,14 +94,14 @@ class eclipse(Build.BuildContext):
 	def impl_create_project(self, executable, appname):
 		doc = Document()
 		projectDescription = doc.createElement('projectDescription')
-		add(doc, projectDescription, 'name', appname)
-		add(doc, projectDescription, 'comment')
-		add(doc, projectDescription, 'projects')
-		buildSpec = add(doc, projectDescription, 'buildSpec')
-		buildCommand = add(doc, buildSpec, 'buildCommand')
-		add(doc, buildCommand, 'name', oe_cdt + '.managedbuilder.core.genmakebuilder')
-		add(doc, buildCommand, 'triggers', 'clean,full,incremental,')
-		arguments = add(doc, buildCommand, 'arguments')
+		self.add(doc, projectDescription, 'name', appname)
+		self.add(doc, projectDescription, 'comment')
+		self.add(doc, projectDescription, 'projects')
+		buildSpec = self.add(doc, projectDescription, 'buildSpec')
+		buildCommand = self.add(doc, buildSpec, 'buildCommand')
+		self.add(doc, buildCommand, 'name', oe_cdt + '.managedbuilder.core.genmakebuilder')
+		self.add(doc, buildCommand, 'triggers', 'clean,full,incremental,')
+		arguments = self.add(doc, buildCommand, 'arguments')
 		# the default make-style targets are overwritten by the .cproject values
 		dictionaries = {
 				cdt_mk + '.contents': cdt_mk + '.activeConfigSettings',
@@ -112,7 +112,7 @@ class eclipse(Build.BuildContext):
 		for k, v in dictionaries.items():
 			self.addDictionary(doc, arguments, k, v)
 
-		natures = add(doc, projectDescription, 'natures')
+		natures = self.add(doc, projectDescription, 'natures')
 		nature_list = """
 			core.ccnature
 			managedbuilder.core.ScannerConfigNature
@@ -120,9 +120,9 @@ class eclipse(Build.BuildContext):
 			core.cnature
 		""".split()
 		for n in nature_list:
-			add(doc, natures, 'nature', oe_cdt + '.' + n)
+			self.add(doc, natures, 'nature', oe_cdt + '.' + n)
 
-		add(doc, natures, 'nature', 'org.python.pydev.pythonNature')
+		self.add(doc, natures, 'nature', 'org.python.pydev.pythonNature')
 
 		doc.appendChild(projectDescription)
 		return doc
@@ -132,19 +132,19 @@ class eclipse(Build.BuildContext):
 		doc.appendChild(doc.createProcessingInstruction('fileVersion', '4.0.0'))
 		cconf_id = cdt_core + '.default.config.1'
 		cproject = doc.createElement('cproject')
-		storageModule = add(doc, cproject, 'storageModule',
+		storageModule = self.add(doc, cproject, 'storageModule',
 				{'moduleId': cdt_core + '.settings'})
-		cconf = add(doc, storageModule, 'cconfiguration', {'id':cconf_id})
+		cconf = self.add(doc, storageModule, 'cconfiguration', {'id':cconf_id})
 
-		storageModule = add(doc, cconf, 'storageModule',
+		storageModule = self.add(doc, cconf, 'storageModule',
 				{'buildSystemId': oe_cdt + '.managedbuilder.core.configurationDataProvider',
 				 'id': cconf_id,
 				 'moduleId': cdt_core + '.settings',
 				 'name': 'Default'})
 
-		add(doc, storageModule, 'externalSettings')
+		self.add(doc, storageModule, 'externalSettings')
 
-		extensions = add(doc, storageModule, 'extensions')
+		extensions = self.add(doc, storageModule, 'extensions')
 		extension_list = """
 			VCErrorParser
 			MakeErrorParser
@@ -152,35 +152,35 @@ class eclipse(Build.BuildContext):
 			GASErrorParser
 			GLDErrorParser
 		""".split()
-		ext = add(doc, extensions, 'extension',
+		ext = self.add(doc, extensions, 'extension',
 					{'id': cdt_core + '.ELF', 'point':cdt_core + '.BinaryParser'})
 		for e in extension_list:
-			ext = add(doc, extensions, 'extension',
+			ext = self.add(doc, extensions, 'extension',
 					{'id': cdt_core + '.' + e, 'point':cdt_core + '.ErrorParser'})
 
-		storageModule = add(doc, cconf, 'storageModule',
+		storageModule = self.add(doc, cconf, 'storageModule',
 				{'moduleId': 'cdtBuildSystem', 'version': '4.0.0'})
-		config = add(doc, storageModule, 'configuration',
+		config = self.add(doc, storageModule, 'configuration',
 					{'artifactName': appname,
 					 'id': cconf_id,
 					 'name': 'Default',
 					 'parent': cdt_bld + '.prefbase.cfg'})
-		folderInfo = add(doc, config, 'folderInfo',
+		folderInfo = self.add(doc, config, 'folderInfo',
 							{'id': cconf_id+'.', 'name': '/', 'resourcePath': ''})
 
-		toolChain = add(doc, folderInfo, 'toolChain',
+		toolChain = self.add(doc, folderInfo, 'toolChain',
 				{'id': cdt_bld + '.prefbase.toolchain.1',
 				 'name': 'No ToolChain',
 				 'resourceTypeBasedDiscovery': 'false',
 				 'superClass': cdt_bld + '.prefbase.toolchain'})
 
-		targetPlatform = add(doc, toolChain, 'targetPlatform',
+		targetPlatform = self.add(doc, toolChain, 'targetPlatform',
 				{ 'binaryParser': 'org.eclipse.cdt.core.ELF',
 				  'id': cdt_bld + '.prefbase.toolchain.1', 'name': ''})
 
 		waf_build = '"%s" build'%(waf)
 		waf_clean = '"%s" clean'%(waf)
-		builder = add(doc, toolChain, 'builder',
+		builder = self.add(doc, toolChain, 'builder',
 						{'autoBuildTarget': waf_build,
 						 'command': executable,
 						 'enableAutoBuild': 'false',
@@ -193,42 +193,42 @@ class eclipse(Build.BuildContext):
 						 'superClass': cdt_bld + '.settings.default.builder'})
 
 		for tool_name in ("Assembly", "GNU C++", "GNU C"):
-			tool = add(doc, toolChain, 'tool',
+			tool = self.add(doc, toolChain, 'tool',
 					{'id': cdt_bld + '.settings.holder.1',
 					 'name': tool_name,
 					 'superClass': cdt_bld + '.settings.holder'})
 			if cpppath or workspace_includes:
 				incpaths = cdt_bld + '.settings.holder.incpaths'
-				option = add(doc, tool, 'option',
+				option = self.add(doc, tool, 'option',
 						{'id': incpaths+'.1',
 						 'name': 'Include Paths',
 						 'superClass': incpaths,
 						 'valueType': 'includePath'})
 				for i in workspace_includes:
-					add(doc, option, 'listOptionValue',
+					self.add(doc, option, 'listOptionValue',
 								{'builtIn': 'false',
 								'value': '"${workspace_loc:/%s/%s}"'%(appname, i)})
 				for i in cpppath:
-					add(doc, option, 'listOptionValue',
+					self.add(doc, option, 'listOptionValue',
 								{'builtIn': 'false',
 								'value': '"%s"'%(i)})
 		if source_dirs:
-			sourceEntries = add(doc, config, 'sourceEntries')
+			sourceEntries = self.add(doc, config, 'sourceEntries')
 			for i in source_dirs:
-				 add(doc, sourceEntries, 'entry',
+				 self.add(doc, sourceEntries, 'entry',
 							{'excluding': i,
 							'flags': 'VALUE_WORKSPACE_PATH|RESOLVED',
 							'kind': 'sourcePath',
 							'name': ''})
-				 add(doc, sourceEntries, 'entry',
+				 self.add(doc, sourceEntries, 'entry',
 							{
 							'flags': 'VALUE_WORKSPACE_PATH|RESOLVED',
 							'kind': 'sourcePath',
 							'name': i})
 
-		storageModule = add(doc, cconf, 'storageModule',
+		storageModule = self.add(doc, cconf, 'storageModule',
 							{'moduleId': cdt_mk + '.buildtargets'})
-		buildTargets = add(doc, storageModule, 'buildTargets')
+		buildTargets = self.add(doc, storageModule, 'buildTargets')
 		def addTargetWrap(name, runAll):
 			return self.addTarget(doc, buildTargets, executable, name,
 								'"%s" %s'%(waf, name), runAll)
@@ -237,11 +237,11 @@ class eclipse(Build.BuildContext):
 		addTargetWrap('install', False)
 		addTargetWrap('check', False)
 
-		storageModule = add(doc, cproject, 'storageModule',
+		storageModule = self.add(doc, cproject, 'storageModule',
 							{'moduleId': 'cdtBuildSystem',
 							 'version': '4.0.0'})
 
-		project = add(doc, storageModule, 'project',
+		project = self.add(doc, storageModule, 'project',
 					{'id': '%s.null.1'%appname, 'name': appname})
 
 		doc.appendChild(cproject)
@@ -252,57 +252,57 @@ class eclipse(Build.BuildContext):
 		doc = Document()
 		doc.appendChild(doc.createProcessingInstruction('eclipse-pydev', 'version="1.0"'))
 		pydevproject = doc.createElement('pydev_project')
-		prop = add(doc, pydevproject,
+		prop = self.add(doc, pydevproject,
 					   'pydev_property',
 					   'python %d.%d'%(sys.version_info[0], sys.version_info[1]))
 		prop.setAttribute('name', 'org.python.pydev.PYTHON_PROJECT_VERSION')
-		prop = add(doc, pydevproject, 'pydev_property', 'Default')
+		prop = self.add(doc, pydevproject, 'pydev_property', 'Default')
 		prop.setAttribute('name', 'org.python.pydev.PYTHON_PROJECT_INTERPRETER')
 		# add waf's paths
 		wafadmin = [p for p in system_path if p.find('wafadmin') != -1]
 		if wafadmin:
-			prop = add(doc, pydevproject, 'pydev_pathproperty',
+			prop = self.add(doc, pydevproject, 'pydev_pathproperty',
 					{'name':'org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH'})
 			for i in wafadmin:
-				add(doc, prop, 'path', i)
+				self.add(doc, prop, 'path', i)
 		if user_path:
-			prop = add(doc, pydevproject, 'pydev_pathproperty',
+			prop = self.add(doc, pydevproject, 'pydev_pathproperty',
 					{'name':'org.python.pydev.PROJECT_SOURCE_PATH'})
 			for i in user_path:
-				add(doc, prop, 'path', '/'+appname+'/'+i)
+				self.add(doc, prop, 'path', '/'+appname+'/'+i)
 
 		doc.appendChild(pydevproject)
 		return doc
 
 	def addDictionary(self, doc, parent, k, v):
-		dictionary = add(doc, parent, 'dictionary')
-		add(doc, dictionary, 'key', k)
-		add(doc, dictionary, 'key', v)
+		dictionary = self.add(doc, parent, 'dictionary')
+		self.add(doc, dictionary, 'key', k)
+		self.add(doc, dictionary, 'key', v)
 		return dictionary
 
 	def addTarget(self, doc, buildTargets, executable, name, buildTarget, runAllBuilders=True):
-		target = add(doc, buildTargets, 'target',
+		target = self.add(doc, buildTargets, 'target',
 						{'name': name,
 						 'path': '',
 						 'targetID': oe_cdt + '.build.MakeTargetBuilder'})
-		add(doc, target, 'buildCommand', executable)
-		add(doc, target, 'buildArguments', None)
-		add(doc, target, 'buildTarget', buildTarget)
-		add(doc, target, 'stopOnError', 'true')
-		add(doc, target, 'useDefaultCommand', 'false')
-		add(doc, target, 'runAllBuilders', str(runAllBuilders).lower())
+		self.add(doc, target, 'buildCommand', executable)
+		self.add(doc, target, 'buildArguments', None)
+		self.add(doc, target, 'buildTarget', buildTarget)
+		self.add(doc, target, 'stopOnError', 'true')
+		self.add(doc, target, 'useDefaultCommand', 'false')
+		self.add(doc, target, 'runAllBuilders', str(runAllBuilders).lower())
 
-def add(doc, parent, tag, value = None):
-	el = doc.createElement(tag)
-	if (value):
-		if type(value) == type(str()):
-			el.appendChild(doc.createTextNode(value))
-		elif type(value) == type(dict()):
-			setAttributes(el, value)
-	parent.appendChild(el)
-	return el
+	def add(self, doc, parent, tag, value = None):
+		el = doc.createElement(tag)
+		if (value):
+			if type(value) == type(str()):
+				el.appendChild(doc.createTextNode(value))
+			elif type(value) == type(dict()):
+				self.setAttributes(el, value)
+		parent.appendChild(el)
+		return el
 
-def setAttributes(node, attrs):
-	for k, v in attrs.items():
-		node.setAttribute(k, v)
+	def setAttributes(self, node, attrs):
+		for k, v in attrs.items():
+			node.setAttribute(k, v)
 
