@@ -266,6 +266,10 @@ def use_rec(self, name, **kw):
 	for x in self.to_list(getattr(y, 'use', [])):
 		self.use_rec(x, objects=objects and not has_link, stlib=stlib and (is_static or not has_link))
 
+	# quite important optimization here
+	if name in self.seen_libs:
+		return
+	self.seen_libs.add(name)
 
 	# add ancestors uselib too - but only propagate those that have no staticlib defined
 	for v in self.to_list(getattr(y, 'uselib', [])):
@@ -291,6 +295,7 @@ def process_use(self):
 
 	See :py:func:`waflib.Tools.ccroot.use_rec`.
 	"""
+	self.seen_libs = set([])
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
