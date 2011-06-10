@@ -144,12 +144,36 @@ class OptionsReview(Options.OptionsContext):
 				#print "setting %r to %r" % (opt.dest, opt.default)
 				setattr(Options.options, opt.dest, opt.default)
 
+	def invalidate_cache(self):
+		path = Context.run_dir + os.sep + Options.lockfile
+		env = ConfigSet.ConfigSet()
+		try:
+			env.load(path)
+		except:
+			return
+		d = env.out_dir + os.sep + Build.CACHE_DIR
+
+		s1 = env.options
+		s2 = Options.options.__dict__
+		if len(s1.keys()) == len(s2.keys()):
+			for (k, v) in s1.items():
+				if v != s2.get(k, None):
+					break
+			else:
+				return
+		try:
+			Logs.warn("Removing the cached configuration since the options have changed")
+			shutil.rmtree(d)
+		except:
+			pass
+
 	def parse_args(self):
 		self.prepare_config_review()
 		self.parser.get_option('--prefix').help = 'installation prefix'
 		super(OptionsReview, self).parse_args()
 		self.add_configuration_options()
 		self.put_the_default_options_back()
+		self.invalidate_cache()
 
 class ReviewContext(Context.Context):
 	'''reviews the configuration values'''
@@ -250,23 +274,6 @@ class ReviewContext(Context.Context):
 			else:
 				value = review_defaults[name]
 			setattr(Options.options, name, value)
-
-	def compare_review_set(self, set1, set2):
-		"""
-		Return true if the review sets specified are equal.
-		"""
-		if len(set1.table) != len(set2.table): return False
-		for key in set1.table:
-			if not key in set2 or set1[key] != set2[key]:
-				return False
-		return True
-
-	def delete_cache(self):
-		"""
-		Delete the build cache directory, if any.
-		"""
-		if os.path.isdir(self.cache_path):
-			shutil.rmtree(self.cache_path)
 
 	def display_review_set(self, review_set):
 		"""
