@@ -80,11 +80,15 @@ class req(SocketServer.StreamRequestHandler):
 		while 1:
 			try:
 				self.process_command()
-			except:
+			except Exception:
+				#print e
 				break
 
 	def process_command(self):
-		query = self.rfile.read(HEADER_SIZE).strip().split(',')
+		query = self.rfile.read(HEADER_SIZE)
+		#print "%r" % query
+		query = query.strip().split(',')
+
 		if query[0] == GET:
 			self.get_file(query[1:])
 		elif query[0] == PUT:
@@ -93,6 +97,8 @@ class req(SocketServer.StreamRequestHandler):
 			self.lst_file(query[1:])
 		elif query[0] == BYE:
 			raise ValueError('exit')
+		else:
+			raise ValueError("invalid command %r" % query)
 
 	def get_file(self, query):
 		# get a file from the cache if it exists, else return 0
@@ -114,7 +120,6 @@ class req(SocketServer.StreamRequestHandler):
 		if fsize < 0:
 			#print("file not found in cache %s" % query[0])
 			return
-
 		f = open(tmp, 'rb')
 		cnt = 0
 		while cnt < fsize:
@@ -129,16 +134,14 @@ class req(SocketServer.StreamRequestHandler):
 			size = int(query[2])
 			cnt = 0
 			while cnt < size:
-				r = self.rfile.read(BUF)
+				r = self.rfile.read(min(BUF, size-cnt))
 				if not r:
 					raise ValueError('Connection closed')
 				os.write(fd, r)
 				cnt += len(r)
-		except Exception, e:
-			#print(e)
-			raise
 		finally:
 			os.close(fd)
+
 
 		d = os.path.join(CACHEDIR, query[0])
 		try:
@@ -159,5 +162,4 @@ if __name__ == '__main__':
 	server = SocketServer.ThreadingTCPServer(CONN, req)
 	server.timeout = 60 # i think it sounds reasonable
 	server.serve_forever()
-
 
