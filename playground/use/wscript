@@ -7,7 +7,7 @@ def configure(ctx):
 	ctx.load('compiler_c')
 
 def build(ctx):
-	sub = ctx.add_subdirs
+	sub = ctx.recurse
 	sub('fakelibs')
 	sub('objects')
 	sub('order')

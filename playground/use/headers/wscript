@@ -1,2 +1,2 @@
 def build(bld):
-	bld.add_subdirs('a b')
+	bld.recurse('a b')
