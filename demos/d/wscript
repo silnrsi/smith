@@ -24,9 +24,8 @@ def configure(conf):
 
 def build(bld):
 
-
 	if bld.env.DLIBRARY != 'tango':
-		bld.add_subdirs('src')
+		bld.recurse('src')
 
 		# here is how to use the object-oriented notation
 		bld.stlib(
