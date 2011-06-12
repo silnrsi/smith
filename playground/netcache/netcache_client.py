@@ -3,7 +3,7 @@
 # Thomas Nagy, 2011 (ita)
 
 import os, socket, asyncore, tempfile
-import Task, Constants
+from waflib import Task, Logs, Utils
 
 BUF = 8192 * 16
 HEADER_SIZE = 128
@@ -14,12 +14,15 @@ PUT = 'PUT'
 LST = 'LST'
 BYE = 'BYE'
 
+all_sigs_in_cache = []
+
 def get_connection():
 	# return a new connection... do not forget to close it!
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.connect(Task.net_cache)
+	return s
 
-def close_connection(conn):
+def close_connection(conn, msg=''):
 	if conn:
 		try:
 			conn.send(BYE.ljust(HEADER_SIZE))
@@ -30,14 +33,55 @@ def close_connection(conn):
 		except:
 			pass
 
-def recv_file(conn, ssig, cnt, p):
-	params = (GET, ssig, str(cnt))
+def read_header(conn):
+	cnt = 0
+	buf = []
+	while cnt < HEADER_SIZE:
+		data = conn.recv(HEADER_SIZE - cnt)
+		if not data:
+			#import traceback
+			#traceback.print_stack()
+			raise ValueError('connection ended when reading a header %r' % buf)
+		buf.append(data)
+		cnt += len(data)
+	return ''.join(buf)
+
+def check_cache(conn, ssig):
+	global all_sigs_in_cache
+	if not all_sigs_in_cache:
+
+		params = (LST,'')
+		conn.send(','.join(params).ljust(HEADER_SIZE))
+
+		# read what is coming back
+		ret = read_header(conn)
+		size = int(ret.split(',')[0])
+
+		buf = []
+		cnt = 0
+		while cnt < size:
+			data = conn.recv(min(BUF, size-cnt))
+			if not data:
+				raise ValueError('connection ended %r %r' % (cnt, size))
+			buf.append(data)
+			cnt += len(data)
+		all_sigs_in_cache = ''.join(buf).split('\n')
+		Logs.debug('netcache: server cache has %r entries' % len(all_sigs_in_cache))
+
+	if not ssig in all_sigs_in_cache:
+		raise ValueError('no file %s in cache' % ssig)
+
+def recv_file(conn, ssig, count, p):
+	check_cache(conn, ssig)
+
+	params = (GET, ssig, str(count))
 	conn.send(','.join(params).ljust(HEADER_SIZE))
-	data = conn.recv(HEADER_SIZE)
-	size = int(data.split()[0])
+	data = read_header(conn)
+
+	size = int(data.split(',')[0])
 
 	if size == -1:
-		raise ValueError('no file %s - %s in cache' % (ssig, cnt))
+		raise ValueError('no file %s - %s in cache' % (ssig, count))
 
 	# get the file, writing immediately
 	# TODO for static libraries we should use a tmp file
@@ -67,56 +111,60 @@ def put_data(conn, ssig, cnt, p):
 			cnt += k
 			r = r[k:]
 
+#def put_data(conn, ssig, cnt, p):
+#	size = os.stat(p).st_size
+#	params = (PUT, ssig, str(cnt), str(size))
+#	conn.send(','.join(params).ljust(HEADER_SIZE))
+#	conn.send(','*size)
+#	params = (BYE, 'he')
+#	conn.send(','.join(params).ljust(HEADER_SIZE))
+
 def can_retrieve_cache(self):
 	if not Task.net_cache:
 		return False
 	if not self.outputs:
 		return False
-
 	self.got_cached = False
+
 	cnt = 0
 	sig = self.signature()
-	ssig = self.unique_id().encode('hex') + sig.encode('hex')
+	ssig = self.uid().encode('hex') + sig.encode('hex')
 
 	conn = None
 	try:
-		conn = get_connection()
+		if not conn:
+			conn = get_connection()
 		for node in self.outputs:
-			variant = node.variant(self.env)
-			p = node.abspath(self.env)
+			p = node.abspath()
 			recv_file(conn, ssig, cnt, p)
 			cnt += 1
 	except Exception, e:
-		close_connection(conn)
+		print e
+		close_connection(conn, ',ddddddd')
 		return False
+	finally:
+		close_connection(conn, ',eeeeee')
+
+	for node in self.outputs:
+		node.sig = sig
+		if self.generator.bld.progress_bar < 1:
+			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
 
 	self.got_cached = True
 	return True
 Task.Task.can_retrieve_cache = can_retrieve_cache
 
-def post_run(self):
+@Utils.run_once
+def put_files_cache(self):
+	#print "called put_files_cache", id(self)
 	bld = self.generator.bld
-	env = self.env
 	sig = self.signature()
-	ssig = self.unique_id().encode('hex') + sig.encode('hex')
+	ssig = self.uid().encode('hex') + sig.encode('hex')
 
 	conn = None
-
 	cnt = 0
-	variant = env.variant()
-
 	try:
 		for node in self.outputs:
-			try:
-				os.stat(node.abspath(env))
-			except OSError:
-				self.has_run = MISSING
-				self.err_msg = '-> missing file: %r' % node.abspath(env)
-				raise Utils.WafError
-
-			# important, store the signature for the next run
-			bld.node_sigs[variant][node.id] = sig
-
 			# We could re-create the signature of the task with the signature of the outputs
 			# in practice, this means hashing the output files
 			# this is unnecessary
@@ -124,14 +172,14 @@ def post_run(self):
 				if Task.net_cache and not self.got_cached:
 					if not conn:
 						conn = get_connection()
-					put_data(conn, ssig, cnt, node.abspath(env))
+					put_data(conn, ssig, cnt, node.abspath())
 			except Exception, e:
-				#print "Could not restore the files", e
+				print "Could not restore the files", e
 				pass
 			cnt += 1
 	finally:
 		close_connection(conn)
 
-	bld.task_sigs[self.unique_id()] = self.cache_sig
-Task.Task.post_run = post_run
+	bld.task_sigs[self.uid()] = self.cache_sig
+Task.Task.put_files_cache = put_files_cache
 
