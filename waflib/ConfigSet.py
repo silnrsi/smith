@@ -86,11 +86,11 @@ class ConfigSet(object):
 		"""
 		self.table[key] = value
 
-	def __delitem__(self, key, value):
+	def __delitem__(self, key):
 		"""
 		Dictionary interface: get value from key
 		"""
-		del self.table[key]
+		self[key] = []
 
 	def __getattr__(self, name):
 		"""
