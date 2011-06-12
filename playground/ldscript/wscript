@@ -20,8 +20,8 @@ def build(bld):
 		linkflags = ['-nostdlib'],
 		)
 
-import Utils
-from TaskGen import after, feature
+from waflib import Utils
+from waflib.TaskGen import after, feature
 
 @after('apply_link')
 @feature('cprogram', 'cshlib')
