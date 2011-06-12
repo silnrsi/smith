@@ -100,6 +100,12 @@ class req(SocketServer.StreamRequestHandler):
 		else:
 			raise ValueError("invalid command %r" % query)
 
+	def lst_file(self, query):
+		response = '\n'.join(flist.keys())
+		params = [str(len(response)),'']
+		self.wfile.write(','.join(params).ljust(HEADER_SIZE))
+		self.wfile.write(response)
+
 	def get_file(self, query):
 		# get a file from the cache if it exists, else return 0
 		tmp = os.path.join(CACHEDIR, query[0], query[1])
