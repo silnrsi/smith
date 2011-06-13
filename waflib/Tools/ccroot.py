@@ -216,71 +216,29 @@ def apply_link(self):
 @taskgen_method
 def use_rec(self, name, **kw):
 	"""
-	Processes the ``use`` keyword recursively. The processing is complicated by the following scenarios:
-
-	* dependent shared libraries must be linked to all targets
-	* static libraries must not be linked twice
-	* static libraries may depend on other static libraries to propagate include paths
-	* empty libraries may be used to propagate include paths
-	* there are object-only targets (no link task)
+	Processes the ``use`` keyword recursively. This method is kind of private and only meant to be used from ``process_use``
 	"""
-	objects = kw.get('objects', True)
-	stlib = kw.get('stlib', True)
 
-	get = self.bld.get_tgen_by_name
+	if name in self.tmp_use_not or name in self.tmp_use_seen:
+		return
+
 	try:
-		y = get(name)
+		y = self.bld.get_tgen_by_name(name)
 	except Errors.WafError:
 		self.uselib.append(name)
+		self.tmp_use_not.add(name)
 		return
 
+	self.tmp_use_seen.add(name)
 	y.post()
-	has_link = getattr(y, 'link_task', None)
-	is_static = has_link and isinstance(y.link_task, stlink_task)
 
-	# link task and flags
-	if getattr(self, 'link_task', None):
-		if has_link:
-			if (not is_static) or (is_static and stlib):
-				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
-				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
-
-				# the order
-				self.link_task.set_run_after(y.link_task)
-
-				# for the recompilation
-				self.link_task.dep_nodes.extend(y.link_task.outputs)
-
-				# add the link path too
-				tmp_path = y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
-				if not tmp_path in self.env[var + 'PATH']:
-					self.env.prepend_value(var + 'PATH', [tmp_path])
-
-			#if is_static and stlib:
-			#	self.link_task.inputs.extend(y.link_task.inputs)
-
-		elif objects:
-			for t in getattr(y, 'compiled_tasks', []):
-				self.link_task.inputs.extend(t.outputs)
-
+	p = self.tmp_use_prec
 	for x in self.to_list(getattr(y, 'use', [])):
-		self.use_rec(x, objects=objects and not has_link, stlib=stlib and (is_static or not has_link))
-
-	# quite important optimization here
-	if name in self.seen_libs:
-		return
-	self.seen_libs.add(name)
-
-	# add ancestors uselib too - but only propagate those that have no staticlib defined
-	for v in self.to_list(getattr(y, 'uselib', [])):
-		if not self.env['STLIB_' + v]:
-			if not v in self.uselib:
-				self.uselib.insert(0, v)
-
-	# if the library task generator provides 'export_incdirs', add to the include path
-	# the export_incdirs must be a list of paths relative to the other library
-	if getattr(y, 'export_includes', None):
-		self.includes.extend(y.to_incnodes(y.export_includes))
+		try:
+			p[x].append(name)
+		except:
+			p[x] = [name]
+		self.use_rec(x)
 
 @feature('c', 'cxx', 'd', 'use', 'fc')
 @before_method('apply_incpaths', 'propagate_uselib_vars')
@@ -295,13 +253,75 @@ def process_use(self):
 
 	See :py:func:`waflib.Tools.ccroot.use_rec`.
 	"""
-	self.seen_libs = set([])
+
+	self.tmp_use_not = set([])
+	use_seen = self.tmp_use_seen = set([])
+	use_prec = self.tmp_use_prec = {}
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
 	names = self.to_list(getattr(self, 'use', []))
 
 	for x in names:
 		self.use_rec(x)
+
+	# topological sort
+	out = []
+	tmp = []
+	for x in self.tmp_use_seen:
+		for k in use_prec.values():
+			if x in k:
+				break
+		else:
+			tmp.append(x)
+
+	while tmp:
+		e = tmp.pop()
+		out.append(e)
+		try:
+			nlst = use_prec[e]
+		except KeyError:
+			pass
+		else:
+			del use_prec[e]
+			for x in nlst:
+				for y in use_prec:
+					if x in use_prec[y]:
+						break
+				else:
+					tmp.append(x)
+	if use_prec:
+		raise Errors.WafError('Cycle detected in the use processing %r' % use_prec)
+	out.reverse()
+
+	for x in out:
+		y = self.bld.get_tgen_by_name(x)
+		if getattr(self, 'link_task', None):
+			if getattr(y, 'link_task', None):
+				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
+				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
+				self.link_task.set_run_after(y.link_task)
+				self.link_task.dep_nodes.extend(y.link_task.outputs)
+
+				tmp_path = y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
+				if not tmp_path in self.env[var + 'PATH']:
+					self.env.prepend_value(var + 'PATH', [tmp_path])
+		else:
+			for t in getattr(y, 'compiled_tasks', []):
+				self.link_task.inputs.extend(t.outputs)
+		if getattr(y, 'export_includes', None):
+			self.includes.extend(y.to_incnodes(y.export_includes))
+
+	# and finally, add the uselib variables (no recursion needed)
+	for x in names:
+		try:
+			y = self.bld.get_tgen_by_name(x)
+		except:
+			if not self.env['STLIB_' + x] and not x in self.uselib:
+				self.uselib.append(x)
+		else:
+			for k in self.to_list(getattr(y, 'uselib', [])):
+				if not self.env['STLIB_' + k] and not k in self.uselib:
+					self.uselib.append(k)
 
 @taskgen_method
 def get_uselib_vars(self):
