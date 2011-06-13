@@ -104,19 +104,19 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 
 	${for b in project.build_properties}
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='${b.configuration}|${b.platform}'">
-		<NMakeBuildCommandLine>${project.get_build_command(b)}</NMakeBuildCommandLine>
-		<NMakeReBuildCommandLine>${project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
-		<NMakeCleanCommandLine>${project.get_clean_command(b)}</NMakeCleanCommandLine>
-		<NMakeIncludeSearchPath>${b.includes_search_path}</NMakeIncludeSearchPath>
-		<NMakePreprocessorDefinitions>${b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+		<NMakeBuildCommandLine>${xml:project.get_build_command(b)}</NMakeBuildCommandLine>
+		<NMakeReBuildCommandLine>${xml:project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
+		<NMakeCleanCommandLine>${xml:project.get_clean_command(b)}</NMakeCleanCommandLine>
+		<NMakeIncludeSearchPath>${xml:b.includes_search_path}</NMakeIncludeSearchPath>
+		<NMakePreprocessorDefinitions>${xml:b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
 		<IncludePath></IncludePath>
 		<ExecutablePath>$(ExecutablePath)</ExecutablePath>
 
 		${if getattr(b, 'output_file', None)}
-		<NMakeOutput>${b.output_file}</NMakeOutput>
+		<NMakeOutput>${xml:b.output_file}</NMakeOutput>
 		${endif}
 		${if getattr(b, 'deploy_dir', None)}
-		<RemoteRoot>${b.deploy_dir}</RemoteRoot>
+		<RemoteRoot>${xml:b.deploy_dir}</RemoteRoot>
 		${endif}
 	</PropertyGroup>
 	${endfor}
@@ -201,6 +201,9 @@ EndGlobal
 
 COMPILE_TEMPLATE = '''def f(project):
 	lst = []
+	def xml_escape(value):
+		return value.replace("&", "&amp;").replace('"', "&quot;").replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
+
 	%s
 
 	#f = open('cmd.txt', 'w')
@@ -247,6 +250,8 @@ def compile_template(line):
 			app(f[3:])
 		elif f.startswith('endif') or f.startswith('endfor'):
 			indent -= 1
+		elif f.startswith('xml:'):
+			app('lst.append(xml_escape(%s))' % f[4:])
 		else:
 			#app('lst.append((%s) or "cannot find %s")' % (f, f))
 			app('lst.append(%s)' % f)
@@ -300,7 +305,7 @@ class vsnode(object):
 		"""
 		Override in subclasses...
 		"""
-		return 'cd /d "%s" &amp; waf.bat' % self.ctx.srcnode.abspath()
+		return 'cd /d "%s" & waf.bat' % self.ctx.srcnode.abspath()
 
 	def ptype(self):
 		"""
