@@ -864,6 +864,8 @@ class Task(TaskBase):
 		# try to avoid data corruption as much as possible
 		if getattr(self, 'cached', None):
 			return None
+		if not getattr(self, 'outputs', None):
+			return None
 
 		sig = self.signature()
 		ssig = Utils.to_hex(self.uid()) + Utils.to_hex(sig)
