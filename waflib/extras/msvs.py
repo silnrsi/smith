@@ -250,6 +250,10 @@ def compile_template(line):
 			app(f[3:])
 		elif f.startswith('endif') or f.startswith('endfor'):
 			indent -= 1
+		elif f.startswith('else') or f.startswith('elif'):
+			indent -= 1
+			app(f + ':')
+			indent += 1
 		elif f.startswith('xml:'):
 			app('lst.append(xml_escape(%s))' % f[4:])
 		else:
