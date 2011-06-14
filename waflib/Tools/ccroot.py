@@ -309,8 +309,8 @@ def process_use(self):
 				tmp_path = y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
 				if not tmp_path in self.env[var + 'PATH']:
 					self.env.prepend_value(var + 'PATH', [tmp_path])
-		else:
-			self.add_objects_from_tgen(y)
+			else:
+				self.add_objects_from_tgen(y)
 		if getattr(y, 'export_includes', None):
 			self.includes.extend(y.to_incnodes(y.export_includes))
 
