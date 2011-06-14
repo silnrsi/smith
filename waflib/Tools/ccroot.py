@@ -254,7 +254,7 @@ def process_use(self):
 	See :py:func:`waflib.Tools.ccroot.use_rec`.
 	"""
 
-	self.tmp_use_not = set([])
+	use_not = self.tmp_use_not = set([])
 	use_seen = self.tmp_use_seen = set([])
 	use_prec = self.tmp_use_prec = {}
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
@@ -263,6 +263,10 @@ def process_use(self):
 
 	for x in names:
 		self.use_rec(x)
+
+	for x in use_not:
+		if x in use_prec:
+			del use_prec[x]
 
 	# topological sort
 	out = []
@@ -306,8 +310,7 @@ def process_use(self):
 				if not tmp_path in self.env[var + 'PATH']:
 					self.env.prepend_value(var + 'PATH', [tmp_path])
 		else:
-			for t in getattr(y, 'compiled_tasks', []):
-				self.link_task.inputs.extend(t.outputs)
+			self.add_objects_from_tgen(y):
 		if getattr(y, 'export_includes', None):
 			self.includes.extend(y.to_incnodes(y.export_includes))
 
@@ -322,6 +325,20 @@ def process_use(self):
 			for k in self.to_list(getattr(y, 'uselib', [])):
 				if not self.env['STLIB_' + k] and not k in self.uselib:
 					self.uselib.append(k)
+
+@taskgen_method
+def add_objects_from_tgen(self, tg):
+	# Not public yet, wait for waf 1.6.7 at least - the purpose of this is to add pdb files to the compiled
+	# tasks but not to the link tasks (to avoid errors)
+	try:
+		link_task = self.link_task
+	except AttributeError:
+		pass
+	else:
+		for tsk in getattr(tg, 'compiled_tasks', []):
+			for x in tsk.outputs:
+				if x.name.endswith('.o') or x.name.endswith('.obj'):
+					link_task.inputs.append(x)
 
 @taskgen_method
 def get_uselib_vars(self):
