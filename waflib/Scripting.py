@@ -11,6 +11,8 @@ build_dir_override = None
 
 no_climb_commands = ['configure']
 
+default_cmd = "build"
+
 def waf_entry_point(current_directory, version, wafdir):
 	"""
 	This is the main entry point, all Waf execution starts here.
@@ -181,7 +183,7 @@ def parse_options():
 	Context.create_context('options').execute()
 
 	if not Options.commands:
-		Options.commands = ['build']
+		Options.commands = [default_cmd]
 
 	# process some internal Waf options
 	Logs.verbose = Options.options.verbose
