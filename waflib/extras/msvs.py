@@ -142,6 +142,78 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 </Project>
 '''
 
+PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9,00"
+	Name="${project.name}"
+	ProjectGUID="{${project.uuid}}"
+	RootNamespace=""
+	Keyword="MakeFileProj"
+	TargetFrameworkVersion="196613"
+	>
+	<Platforms>
+		${if project.build_properties}
+		${for b in project.build_properties}
+		<Platform
+			Name="${b.platform}"
+		/>
+		${endfor}
+		${else}
+		<!-- This is a default platform, VisualStudioProject must have one -->
+		<Platform
+			Name="Win32"
+			/>
+		${endif}
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		${if project.build_properties}
+		${for b in project.build_properties}
+		<Configuration
+			Name="${b.configuration}|${b.platform}"
+			OutputDirectory="${b.outdir}"
+			ConfigurationType="0"
+			InheritedPropertySheets="">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="${project.get_build_command(b)}"
+				ReBuildCommandLine="${project.get_rebuild_command(b)}"
+				CleanCommandLine="${project.get_clean_command(b)}"
+				${if getattr(b, 'output_file', None)}
+				OutPut="${b.output_file}"
+				${endif}
+				PreprocessorDefinitions="${b.preprocessor_definitions}"
+				IncludeSearchPath="${b.includes_search_path}"
+				ForceIncludes=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		${endfor}
+		${else}
+		<!-- This is a default configuration, VisualStudioProject must have one -->
+		<Configuration
+			Name="Release|Win32"
+			>
+		</Configuration>
+		${endif}
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		${for x in project.source}
+		<File
+			RelativePath="${x.abspath()}"
+			FileType="${project.get_key(x)}"
+			>
+		</File>
+		${endfor}
+	</Files>
+</VisualStudioProject>
+'''
+
 FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
