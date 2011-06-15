@@ -767,6 +767,58 @@ class msvs_generator(BuildContext):
 			p.iter_path = p.tg.path
 			make_parents(p)
 
+def wrap_2008(cls):
+	class dec(cls):
+		def __init__(self, *k, **kw):
+			cls.__init__(self, *k, **kw)
+			self.project_template = PROJECT_2008_TEMPLATE
+		def get_key(self, node):
+			"""
+			required for writing the source files.
+			If empty, visual studio uses the file extension,
+			else values are:
+				0: C/C++ Code, 1: C++ Class, 2: C++ Header File, 3: C++ Form,
+				4: C++ Control, 5: Text File, 6: DEF File, 7: IDL File,
+				8: Makefile, 9: RGS File, 10: RC File, 11: RES File, 12: XSD File,
+				13: XML File, 14: HTML File, 15: CSS File, 16: Bitmap, 17: Icon,
+				18: Resx File, 19: BSC File, 20: XSX File, 21: C++ Web Service,
+				22: ASAX File, 23: Asp Page, 24: Document, 25: Discovery File,
+				26: C# File, 27: eFileTypeClassDiagram, 28: MHTML Document,
+				29: Property Sheet, 30: Cursor, 31: Manifest, 32: eFileTypeRDLC
+			"""
+			return ''
+	return dec
+
+class msvs_2008_generator(msvs_generator):
+	cmd = 'msvs2008'
+	fun = msvs_generator.fun
+	__doc__ = msvs_generator.__doc__
+
+	def init(self):
+		if not getattr(self, 'project_extension', None):
+			self.project_extension = '_2008.vcproj'
+		if not getattr(self, 'solution_name', None):
+			self.solution_name = getattr(Context.g_module, Context.APPNAME,	'project_2008') + '.sln'
+
+		if not getattr(self, 'vsnode_target', None):
+			self.vsnode_target = wrap_2008(vsnode_target)
+		if not getattr(self, 'vsnode_build_all', None):
+			self.vsnode_build_all = wrap_2008(vsnode_build_all)
+		if not getattr(self, 'vsnode_install_all', None):
+			self.vsnode_install_all = wrap_2008(vsnode_install_all)
+
+		msvs_generator.init(self)
+		self.numver = '10.0'
+		self.vsver  = '2008'
+
+	def write(self):
+		Logs.warn('Creating %r' % self.path)
+		# write the project file only (no filters in vs2008)
+		template1 = compile_template(self.project_template)
+		proj_str = template1(self)
+		proj_str = rm_blank_lines(proj_str)
+		self.path.write(proj_str)
+
 def options(ctx):
 	"""
 	If the msvs option is used, try to detect if the build is made from visual studio
