@@ -15,7 +15,9 @@ this hashing scheme
 import os, stat
 try: import cPickle
 except: import pickle as cPickle
-from waflib import Utils, Build
+from waflib import Utils, Build, Context
+
+Context.DBFILE += '_md5tstamp'
 
 Build.hash_cache = {}
 Build.SAVED_ATTRS.append('hash_cache')
