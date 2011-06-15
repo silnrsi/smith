@@ -229,8 +229,23 @@ def use_rec(self, name, **kw):
 		self.tmp_use_not.add(name)
 		return
 
-	self.tmp_use_seen.add(name)
+	self.tmp_use_seen.append(name)
 	y.post()
+
+	# bind temporary attributes on the task generator
+	y.tmp_use_objects = objects = kw.get('objects', True)
+	y.tmp_use_stlib   = stlib   = kw.get('stlib', True)
+	try:
+		link_task = y.link_task
+	except AttributeError:
+		y.tmp_use_var = ''
+	else:
+		objects = False
+		if not isinstance(y.link_task, stlink_task):
+			stlib = False
+			y.tmp_use_var = 'LIB'
+		else:
+			y.tmp_use_var = 'STLIB'
 
 	p = self.tmp_use_prec
 	for x in self.to_list(getattr(y, 'use', [])):
@@ -238,7 +253,7 @@ def use_rec(self, name, **kw):
 			p[x].append(name)
 		except:
 			p[x] = [name]
-		self.use_rec(x)
+		self.use_rec(x, objects=objects, stlib=stlib)
 
 @feature('c', 'cxx', 'd', 'use', 'fc')
 @before_method('apply_incpaths', 'propagate_uselib_vars')
@@ -255,7 +270,7 @@ def process_use(self):
 	"""
 
 	use_not = self.tmp_use_not = set([])
-	use_seen = self.tmp_use_seen = set([])
+	use_seen = self.tmp_use_seen = [] # we would like an ordered set
 	use_prec = self.tmp_use_prec = {}
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	self.includes = self.to_list(getattr(self, 'includes', []))
@@ -297,20 +312,20 @@ def process_use(self):
 		raise Errors.WafError('Cycle detected in the use processing %r' % use_prec)
 	out.reverse()
 
+	link_task = getattr(self, 'link_task', None)
 	for x in out:
 		y = self.bld.get_tgen_by_name(x)
-		if getattr(self, 'link_task', None):
-			if getattr(y, 'link_task', None):
-				var = isinstance(y.link_task, stlink_task) and 'STLIB' or 'LIB'
+		var = y.tmp_use_var
+		if var:
+			if var == 'LIB' or y.tmp_use_stlib:
 				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
-				self.link_task.set_run_after(y.link_task)
 				self.link_task.dep_nodes.extend(y.link_task.outputs)
-
 				tmp_path = y.link_task.outputs[0].parent.path_from(self.bld.bldnode)
-				if not tmp_path in self.env[var + 'PATH']:
-					self.env.prepend_value(var + 'PATH', [tmp_path])
-			else:
+				self.env.append_value(var + 'PATH', [tmp_path])
+		else:
+			if y.tmp_use_objects:
 				self.add_objects_from_tgen(y)
+
 		if getattr(y, 'export_includes', None):
 			self.includes.extend(y.to_incnodes(y.export_includes))
 
