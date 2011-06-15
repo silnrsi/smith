@@ -161,21 +161,21 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 </Project>
 '''
 
-SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-${for p in project}
+SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version ${project.numver}
+# Visual Studio ${project.vsver}
+${for p in project.all_projects}
 Project("{${p.ptype()}}") = "${p.name}", "${p.title}", "{${p.uuid}}"
 EndProject${endfor}
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		${if project}
-		${for (configuration, platform) in project[0].ctx.project_configurations()}
+		${if project.all_projects}
+		${for (configuration, platform) in project.all_projects[0].ctx.project_configurations()}
 		${configuration}|${platform} = ${configuration}|${platform}
 		${endfor}
 		${endif}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		${for p in project}
+		${for p in project.all_projects}
 			${if hasattr(p, 'source')}
 			${for b in p.build_properties}
 		{${p.uuid}}.${b.configuration}|${b.platform}.ActiveCfg = ${b.configuration}|${b.platform}
@@ -190,7 +190,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-	${for p in project}
+	${for p in project.all_projects}
 		${if p.parent}
 		{${p.uuid}} = {${p.parent.uuid}}
 		${endif}
@@ -551,6 +551,9 @@ class msvs_generator(BuildContext):
 		if not getattr(self, 'vsnode_install_all', None):
 			self.vsnode_install_all = vsnode_install_all
 
+		self.numver = '11.0'
+		self.vsver  = '2010'
+
 	def execute(self):
 		"""
 		Entry point
@@ -590,7 +593,7 @@ class msvs_generator(BuildContext):
 		node.parent.mkdir()
 		Logs.warn('Creating %r' % node)
 		template1 = compile_template(SOLUTION_TEMPLATE)
-		sln_str = template1(self.all_projects)
+		sln_str = template1(self)
 		sln_str = rm_blank_lines(sln_str)
 		node.write(sln_str)
 
