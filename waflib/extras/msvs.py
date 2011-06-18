@@ -787,6 +787,13 @@ def wrap_2008(cls):
 				29: Property Sheet, 30: Cursor, 31: Manifest, 32: eFileTypeRDLC
 			"""
 			return ''
+		def write(self):
+			Logs.warn('Creating %r' % self.path)
+			# write the project file only (no filters in vs2008)
+			template1 = compile_template(self.project_template)
+			proj_str = template1(self)
+			proj_str = rm_blank_lines(proj_str)
+			self.path.write(proj_str)
 	return dec
 
 class msvs_2008_generator(msvs_generator):
@@ -810,14 +817,6 @@ class msvs_2008_generator(msvs_generator):
 		msvs_generator.init(self)
 		self.numver = '10.0'
 		self.vsver  = '2008'
-
-	def write(self):
-		Logs.warn('Creating %r' % self.path)
-		# write the project file only (no filters in vs2008)
-		template1 = compile_template(self.project_template)
-		proj_str = template1(self)
-		proj_str = rm_blank_lines(proj_str)
-		self.path.write(proj_str)
 
 def options(ctx):
 	"""
