@@ -1,6 +1,6 @@
-rem from issue #964
-
 @echo off
+
+rem from issue #964
 
 Setlocal EnableDelayedExpansion
 
