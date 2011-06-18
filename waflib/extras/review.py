@@ -47,7 +47,7 @@ class Odict(dict):
 
 	def __delitem__(self, key):
 		if not key in self._keys:
-			raise KeyError, key
+			raise KeyError(key)
 		dict.__delitem__(self, key)
 		self._keys.remove(key)
 

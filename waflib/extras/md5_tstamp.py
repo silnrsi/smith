@@ -33,7 +33,7 @@ def restore(self):
 	self.restore_real()
 	try:
 		Build.hash_cache = self.hash_cache or {}
-	except Exception, e:
+	except Exception as e:
 		Build.hash_cache = {}
 Build.BuildContext.restore_real = Build.BuildContext.restore
 Build.BuildContext.restore      = restore
