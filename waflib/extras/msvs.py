@@ -146,7 +146,7 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="${project.name}"
+	Name="${xml: project.name}"
 	ProjectGUID="{${project.uuid}}"
 	RootNamespace=""
 	Keyword="MakeFileProj"
@@ -156,7 +156,7 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		${if project.build_properties}
 		${for b in project.build_properties}
 		<Platform
-			Name="${b.platform}"
+			Name="${xml: b.platform}"
 		/>
 		${endfor}
 		${else}
@@ -172,20 +172,20 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		${if project.build_properties}
 		${for b in project.build_properties}
 		<Configuration
-			Name="${b.configuration}|${b.platform}"
-			OutputDirectory="${b.outdir}"
+			Name="${xml: b.configuration}|${xml: b.platform}"
+			OutputDirectory="${xml: b.outdir}"
 			ConfigurationType="0"
 			InheritedPropertySheets="">
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="${project.get_build_command(b)}"
-				ReBuildCommandLine="${project.get_rebuild_command(b)}"
-				CleanCommandLine="${project.get_clean_command(b)}"
+				BuildCommandLine="${xml: project.get_build_command(b)}"
+				ReBuildCommandLine="${xml: project.get_rebuild_command(b)}"
+				CleanCommandLine="${xml: project.get_clean_command(b)}"
 				${if getattr(b, 'output_file', None)}
-				OutPut="${b.output_file}"
+				OutPut="${xml: b.output_file}"
 				${endif}
-				PreprocessorDefinitions="${b.preprocessor_definitions}"
-				IncludeSearchPath="${b.includes_search_path}"
+				PreprocessorDefinitions="${xml: b.preprocessor_definitions}"
+				IncludeSearchPath="${xml: b.includes_search_path}"
 				ForceIncludes=""
 				ForcedUsingAssemblies=""
 				CompileAsManaged=""
