@@ -725,10 +725,12 @@ class msvs_generator(BuildContext):
 
 		node_project = base.make_node('build_all_projects' + self.project_extension) # Node
 		p_build = self.vsnode_build_all(self, node_project)
+		p_build.collect_properties()
 		self.all_projects.append(p_build)
 
 		node_project = base.make_node('install_all_projects' + self.project_extension) # Node
 		p_install = self.vsnode_install_all(self, node_project)
+		p_install.collect_properties()
 		self.all_projects.append(p_install)
 
 		n = self.vsnode_vsdir(self, make_uuid(self.srcnode.abspath() + 'build_aliases'), "build_aliases")
