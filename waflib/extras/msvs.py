@@ -562,7 +562,7 @@ class vsnode_target(vsnode_project):
 	def collect_source(self):
 		tg = self.tg
 		source_files = tg.to_nodes(getattr(tg, 'source', []))
-		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_includes', []))
+		include_dirs = Utils.to_list(getattr(tg, 'msvs_includes', []))
 		include_files = []
 		for x in include_dirs:
 			if isinstance(x, str):
@@ -708,6 +708,8 @@ class msvs_generator(BuildContext):
 				if not isinstance(tg, TaskGen.task_gen):
 					continue
 
+				if not hasattr(tg, 'msvs_includes'):
+					tg.msvs_includes = tg.to_list(getattr(tg, 'includes', [])) + tg.to_list(getattr(tg, 'export_includes', []))
 				tg.post()
 				if not getattr(tg, 'link_task', None):
 					continue
