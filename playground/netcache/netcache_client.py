@@ -156,6 +156,11 @@ Task.Task.can_retrieve_cache = can_retrieve_cache
 
 @Utils.run_once
 def put_files_cache(self):
+	if not self.outputs:
+		return
+	if getattr(self, 'got_cached', None):
+		return
+
 	#print "called put_files_cache", id(self)
 	bld = self.generator.bld
 	sig = self.signature()
