@@ -521,7 +521,7 @@ class vsnode_install_all(vsnode_alias):
 	"""
 	Fake target used to emulate the behaviour of "make install"
 	"""
-	def __init__(self, ctx, node, name='build_all_projects'):
+	def __init__(self, ctx, node, name='install_all_projects'):
 		vsnode_alias.__init__(self, ctx, node, name)
 
 	def get_build_command(self, props):
@@ -807,7 +807,7 @@ class msvs_2008_generator(msvs_generator):
 		if not getattr(self, 'project_extension', None):
 			self.project_extension = '_2008.vcproj'
 		if not getattr(self, 'solution_name', None):
-			self.solution_name = getattr(Context.g_module, Context.APPNAME,	'project_2008') + '.sln'
+			self.solution_name = getattr(Context.g_module, Context.APPNAME, 'project') + '_2008.sln'
 
 		if not getattr(self, 'vsnode_target', None):
 			self.vsnode_target = wrap_2008(vsnode_target)
