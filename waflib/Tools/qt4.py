@@ -50,6 +50,7 @@ import os, sys
 from waflib.Tools import c_preproc, cxx
 from waflib import TaskGen, Task, Utils, Runner, Options, Node, Errors
 from waflib.TaskGen import feature, after_method, extension
+from waflib.Configure import conf
 from waflib.Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -485,13 +486,12 @@ def configure(self):
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
-	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
-	vars_debug = [a+'_debug' for a in vars]
+	self.set_qt4_libs_to_check()
 
 	if not 'PKG_CONFIG_PATH' in os.environ:
 		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 
-	for i in vars_debug+vars:
+	for i in self.qt4_vars_debug + self.qt4_vars:
 		try:
 			self.check_cfg(package=i, args='--cflags --libs')
 		except self.errors.ConfigurationError:
@@ -515,8 +515,8 @@ def configure(self):
 					accu.append(lib)
 				env['LIBPATH_'+var] = accu
 
-	process_lib(vars, 'LIBPATH_QTCORE')
-	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+	process_lib(self.qt4_vars,       'LIBPATH_QTCORE')
+	process_lib(self.qt4_vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
 	# rpath if wanted
 	if Options.options.want_rpath:
@@ -533,8 +533,17 @@ def configure(self):
 								continue
 						accu.append('-Wl,--rpath='+lib)
 					env['RPATH_'+var] = accu
-		process_rpath(vars, 'LIBPATH_QTCORE')
-		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+		process_rpath(self.qt4_vars,       'LIBPATH_QTCORE')
+		process_rpath(self.qt4_vars_debug, 'LIBPATH_QTCORE_DEBUG')
+
+@conf
+def set_qt4_libs_to_check(self):
+	if not hasattr(self, 'qt4_vars'):
+		self.qt4_vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support QtHelp QtScript"
+	self.qt4_vars = Utils.to_list(self.qt4_vars)
+	if not hasattr(self, 'qt4_vars_debug'):
+		self.qt4_vars_debug = [a + '_debug' for a in self.qt4_vars]
+	self.qt4_vars_debug = Utils.to_list(self.qt4_vars_debug)
 
 def options(opt):
 	"""
