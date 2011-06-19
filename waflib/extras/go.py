@@ -11,7 +11,7 @@ The methods apply_link and apply_incpaths from ccroot.py are re-used
 
 import os, platform
 
-from waflib import Utils, Task
+from waflib import Utils, Task, TaskGen
 from waflib.TaskGen import feature, extension, after_method, before_method
 from waflib.Tools.ccroot import link_task, stlink_task, propagate_uselib_vars, process_use
 
