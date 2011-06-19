@@ -823,14 +823,14 @@ class inst(Task.Task):
 		"""The attribute 'exec_task' holds the method to execute"""
 		return self.generator.exec_task()
 
-	def get_install_path(self):
+	def get_install_path(self, destdir=True):
 		"""
 		Installation path obtained from ``self.dest`` and prefixed by the destdir.
 		The variables such as '${PREFIX}/bin' are substituted.
 		"""
 		dest = self.dest.replace('/', os.sep)
 		dest = Utils.subst_vars(self.dest, self.env)
-		if Options.options.destdir:
+		if destdir and Options.options.destdir:
 			dest = os.path.join(Options.options.destdir, os.path.splitdrive(dest)[1].lstrip(os.sep))
 		return dest
 

@@ -47,8 +47,7 @@ Piece of C/C++ code used in :py:func:`waflib.Tools.python.check_python_headers`
 
 INST = '''
 import sys, py_compile
-for pyfile in sys.argv[1:]:
-	py_compile.compile(pyfile, pyfile + %r)
+py_compile.compile(sys.argv[1], sys.argv[2], sys.argv[3])
 '''
 """
 Piece of Python code used in :py:func:`waflib.Tools.python.install_pyfile` for installing python files
@@ -115,7 +114,8 @@ def install_pyfile(self, node, install_from=None):
 
 			if do_inst:
 				lst = (x == 'o') and [self.env['PYFLAGS_OPT']] or []
-				argv = self.env['PYTHON'] + lst + ['-c', INST % x, path]
+				(a, b, c) = (path, path + x, tsk.get_install_path(destdir=False) + x)
+				argv = self.env['PYTHON'] + lst + ['-c', INST, a, b, c]
 				info('+ byte compiling %r' % (path + x))
 				ret = Utils.subprocess.Popen(argv).wait()
 				if ret:
