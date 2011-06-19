@@ -4,9 +4,12 @@
 # Thomas Nagy 2010
 
 """
-go language support
+Go as a language may look nice, but its toolchain is one of the worse a developer
+has ever seen. It keeps changing though, and I would like to believe that it will get
+better eventually, but the crude reality is that this tool and the examples are
+getting broken every few months.
 
-The methods apply_link and apply_incpaths from ccroot.py are re-used
+If you have been lured into trying to use Go, you should stick to their Makefiles.
 """
 
 import os, platform
