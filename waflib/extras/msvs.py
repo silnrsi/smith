@@ -46,12 +46,15 @@ To customize the outputs, provide subclasses in your wscript files:
 from waflib.extras import msvs
 class vsnode_target(msvs.vsnode_target):
     def get_build_command(self, props):
+		# likely to be required
         return "waf.bat build"
+	def collect_source(self):
+		# likely to be required
+		...
 class msvs_bar(msvs.msvs_generator):
     def init(self):
         msvs.msvs_generator.init(self)
         self.vsnode_target = vsnode_target
-
 
 ASSUMPTIONS:
 * a project can be either a directory or a target, vcxproj files are written only for targets that have source files
@@ -559,15 +562,13 @@ class vsnode_target(vsnode_project):
 	def collect_source(self):
 		tg = self.tg
 		source_files = tg.to_nodes(getattr(tg, 'source', []))
-		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_dirs', []))
+		include_dirs = Utils.to_list(getattr(tg, 'includes', [])) + Utils.to_list(getattr(tg, 'export_includes', []))
 		include_files = []
 		for x in include_dirs:
-			if not isinstance(x, str):
-				include_files.append(x)
-				continue
-			d = tg.path.find_node(x)
-			if d:
-				lst = [y for y in d.ant_glob(HEADERS_GLOB, flat=False)]
+			if isinstance(x, str):
+				x = tg.path.find_node(x)
+			if x:
+				lst = [y for y in x.ant_glob(HEADERS_GLOB, flat=False)]
 				include_files.extend(lst)
 
 		# remove duplicates
