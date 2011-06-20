@@ -24,8 +24,9 @@ def get_connection():
 
 def close_connection(conn, msg=''):
 	if conn:
+		data = '%s,%s' % (BYE, msg)
 		try:
-			conn.send(BYE.ljust(HEADER_SIZE))
+			conn.send(data.ljust(HEADER_SIZE))
 		except:
 			pass
 		try:
@@ -124,7 +125,7 @@ def can_retrieve_cache(self):
 		return False
 	if not self.outputs:
 		return False
-	self.got_cached = False
+	self.cached = False
 
 	cnt = 0
 	sig = self.signature()
@@ -139,26 +140,28 @@ def can_retrieve_cache(self):
 			recv_file(conn, ssig, cnt, p)
 			cnt += 1
 	except Exception, e:
-		print e
-		close_connection(conn, ',ddddddd')
+		#print e
+		close_connection(conn)
 		return False
 	finally:
-		close_connection(conn, ',eeeeee')
+		close_connection(conn)
 
 	for node in self.outputs:
 		node.sig = sig
 		if self.generator.bld.progress_bar < 1:
 			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
 
-	self.got_cached = True
+	self.cached = True
 	return True
 Task.Task.can_retrieve_cache = can_retrieve_cache
 
 @Utils.run_once
 def put_files_cache(self):
+	if not Task.net_cache:
+		return
 	if not self.outputs:
 		return
-	if getattr(self, 'got_cached', None):
+	if getattr(self, 'cached', None):
 		return
 
 	#print "called put_files_cache", id(self)
@@ -174,12 +177,11 @@ def put_files_cache(self):
 			# in practice, this means hashing the output files
 			# this is unnecessary
 			try:
-				if Task.net_cache and not self.got_cached:
-					if not conn:
-						conn = get_connection()
-					put_data(conn, ssig, cnt, node.abspath())
+				if not conn:
+					conn = get_connection()
+				put_data(conn, ssig, cnt, node.abspath())
 			except Exception, e:
-				print "Could not restore the files", e
+				#print "Could not restore the files", e
 				pass
 			cnt += 1
 	finally:
