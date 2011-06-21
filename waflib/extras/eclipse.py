@@ -14,7 +14,7 @@ $ waf configure eclipse
 """
 
 import sys, os
-from waflib import Utils, Logs, Context, Options, Build, TaskGen
+from waflib import Utils, Logs, Context, Options, Build, TaskGen, Scripting
 from xml.dom.minidom import Document
 
 oe_cdt = 'org.eclipse.cdt'
@@ -24,7 +24,7 @@ cdt_bld = oe_cdt + '.build.core'
 
 class eclipse(Build.BuildContext):
 	cmd = 'eclipse'
-	fun = 'build'
+	fun = Scripting.default_cmd
 
 	def execute(self):
 		"""
@@ -82,14 +82,14 @@ class eclipse(Build.BuildContext):
 						source_dirs.append(path)
 
 		project = self.impl_create_project(sys.executable, appname)
-		self.srcnode.make_node('.project').write(project.toxml())
+		self.srcnode.make_node('.project').write(project.toprettyxml())
 
 		waf = os.path.abspath(sys.argv[0])
 		project = self.impl_create_cproject(sys.executable, waf, appname, workspace_includes, cpppath, source_dirs)
-		self.srcnode.make_node('.cproject').write(project.toxml())
+		self.srcnode.make_node('.cproject').write(project.toprettyxml())
 
 		project = self.impl_create_pydevproject(appname, sys.path, pythonpath)
-		self.srcnode.make_node('.pydevproject').write(project.toxml())
+		self.srcnode.make_node('.pydevproject').write(project.toprettyxml())
 
 	def impl_create_project(self, executable, appname):
 		doc = Document()
@@ -178,7 +178,7 @@ class eclipse(Build.BuildContext):
 				{ 'binaryParser': 'org.eclipse.cdt.core.ELF',
 				  'id': cdt_bld + '.prefbase.toolchain.1', 'name': ''})
 
-		waf_build = '"%s" build'%(waf)
+		waf_build = '"%s" %s'%(waf, eclipse.fun)
 		waf_clean = '"%s" clean'%(waf)
 		builder = self.add(doc, toolChain, 'builder',
 						{'autoBuildTarget': waf_build,
