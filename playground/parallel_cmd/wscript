@@ -20,11 +20,11 @@ def options(opt):
 def configure(conf):
 	conf.setenv('debug')
 	conf.load('compiler_c')
-	conf.write_config_header('debug/config.h', remove=False)
+	conf.env.DEFINES = ["A=1"]
 
 	conf.setenv('release', env=conf.env.derive())
 	conf.env.CFLAGS = ['-O2']
-	conf.write_config_header('release/config.h')
+	conf.env.DEFINES = ["A=2"]
 
 def build(bld):
 	if not bld.variant:

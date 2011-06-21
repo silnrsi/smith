@@ -1,8 +1,8 @@
-
 #include "config.h"
+#include <stdio.h>
 
-#if A
 int main() {
+	printf("A=%d\n", A);
 	return 0;
 }
-#endif
+
