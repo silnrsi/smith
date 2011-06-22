@@ -11,7 +11,7 @@ TODO:
 * convert into a DHT
 """
 
-import os, tempfile, socket
+import os, tempfile, socket, threading
 import SocketServer
 
 CACHEDIR = '/tmp/wafcache'
@@ -42,10 +42,18 @@ def init_flist():
 			cnt += os.stat(os.path.join(d, k)).st_size
 		flist[x][1] = cnt
 
+lock = threading.Lock()
 def make_clean(ssig):
+	global lock
+	try:
+		lock.acquire()
+		make_clean_unsafe(ssig)
+	finally:
+		lock.release()
+
+def make_clean_unsafe(ssig):
 	"""update the cache folder and make some space if necessary"""
 	global MAX, flist
-
 	# D, T, S : directory, timestamp, size
 
 	# update the contents with the last folder created
