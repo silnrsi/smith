@@ -624,7 +624,7 @@ class msvs_generator(BuildContext):
 		if not getattr(self, 'vsnode_install_all', None):
 			self.vsnode_install_all = vsnode_install_all
 
-		self.numver = '11.0'
+		self.numver = '11.00'
 		self.vsver  = '2010'
 
 	def execute(self):
@@ -820,7 +820,7 @@ class msvs_2008_generator(msvs_generator):
 			self.vsnode_install_all = wrap_2008(vsnode_install_all)
 
 		msvs_generator.init(self)
-		self.numver = '10.0'
+		self.numver = '10.00'
 		self.vsver  = '2008'
 
 def options(ctx):
