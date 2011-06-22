@@ -56,10 +56,13 @@ class msvs_bar(msvs.msvs_generator):
         msvs.msvs_generator.init(self)
         self.vsnode_target = vsnode_target
 
+For visual studio 2008, the command is called 'msvs2008', and the classes
+such as vsnode_target are wrapped by a decorator class 'wrap_2008' to
+provide special functionality.
+
 ASSUMPTIONS:
 * a project can be either a directory or a target, vcxproj files are written only for targets that have source files
 * each project is a vcxproj file, therefore the project uuid needs only to be a hash of the absolute path
-
 """
 
 import os, re
