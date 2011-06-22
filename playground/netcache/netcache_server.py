@@ -5,10 +5,6 @@
 """
 Simple TCP server to cache files over the network
 It uses a LRU (least recently used).
-
-TODO:
-* retrieve several files at once
-* convert into a DHT
 """
 
 import os, tempfile, socket, threading
@@ -45,8 +41,10 @@ def init_flist():
 lock = threading.Lock()
 def make_clean(ssig):
 	global lock
+	# there is no need to spend a lot of time cleaning
+	# so one thread cleans and the others return immediately
 	try:
-		lock.acquire()
+		lock.acquire(0)
 		make_clean_unsafe(ssig)
 	finally:
 		lock.release()
@@ -124,7 +122,7 @@ class req(SocketServer.StreamRequestHandler):
 			#print(e)
 			pass
 		else:
-			# cache was useful, update the last access
+			# cache was useful, update the last access for LRU
 			d = os.path.join(CACHEDIR, query[0])
 			os.utime(d, None)
 			flist[query[0]][0] = os.stat(d).st_mtime
@@ -174,6 +172,6 @@ if __name__ == '__main__':
 	print("ready (%r dirs)" % len(flist.keys()))
 	SocketServer.ThreadingTCPServer.allow_reuse_address = True
 	server = SocketServer.ThreadingTCPServer(CONN, req)
-	server.timeout = 60 # i think it sounds reasonable
+	server.timeout = 60 # sounds reasonable?
 	server.serve_forever()
 
