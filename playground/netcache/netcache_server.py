@@ -21,6 +21,7 @@ GET = 'GET'
 PUT = 'PUT'
 LST = 'LST'
 BYE = 'BYE'
+CLEAN = 'CLN'
 
 flist = {}
 def init_flist():
@@ -39,36 +40,22 @@ def init_flist():
 		flist[x][1] = cnt
 
 lock = threading.Lock()
-def make_clean(ssig):
+def make_clean():
 	global lock
 	# there is no need to spend a lot of time cleaning
 	# so one thread cleans and the others return immediately
 	try:
-		lock.acquire(0)
-		make_clean_unsafe(ssig)
+		if lock.acquire(0):
+			make_clean_unsafe(ssig)
 	finally:
 		lock.release()
 
-def make_clean_unsafe(ssig):
-	"""update the cache folder and make some space if necessary"""
+def make_clean_unsafe():
 	global MAX, flist
-	# D, T, S : directory, timestamp, size
-
-	# update the contents with the last folder created
-	cnt = 0
-	d = os.path.join(CACHEDIR, ssig)
-	for k in os.listdir(d):
-		cnt += os.stat(os.path.join(d, k)).st_size
-	try:
-		flist[ssig][1] = cnt
-	except:
-		flist[ssig] = [os.stat(d).st_mtime, cnt]
-
 	# and do some cleanup if necessary
 	total = sum([x[1] for x in flist.values()])
 
 	#print("and the total is %d" % total)
-
 	if total >= MAX:
 		print("Trimming the cache since %r > %r" % (total, MAX))
 		lst = [(p, v[0], v[1]) for (p, v) in flist.items()]
@@ -80,6 +67,21 @@ def make_clean_unsafe(ssig):
 			os.removedirs(k)
 			total -= s
 			del flist[k]
+
+def update(ssig):
+	"""update the cache folder and make some space if necessary"""
+	global flist
+	# D, T, S : directory, timestamp, size
+
+	# update the contents with the last folder created
+	cnt = 0
+	d = os.path.join(CACHEDIR, ssig)
+	for k in os.listdir(d):
+		cnt += os.stat(os.path.join(d, k)).st_size
+	try:
+		flist[ssig][1] = cnt
+	except:
+		flist[ssig] = [os.stat(d).st_mtime, cnt]
 
 class req(SocketServer.StreamRequestHandler):
 	def handle(self):
@@ -101,6 +103,8 @@ class req(SocketServer.StreamRequestHandler):
 			self.put_file(query[1:])
 		elif query[0] == LST:
 			self.lst_file(query[1:])
+		elif query[0] == CLEAN:
+			make_clean()
 		elif query[0] == BYE:
 			raise ValueError('exit')
 		else:
@@ -165,7 +169,8 @@ class req(SocketServer.StreamRequestHandler):
 			except:
 				pass
 		os.rename(filename, os.path.join(d, query[1]))
-		make_clean(query[0])
+		update(query[0])
+		make_clean()
 
 if __name__ == '__main__':
 	init_flist()
