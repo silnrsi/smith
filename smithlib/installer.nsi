@@ -25,6 +25,7 @@ SetCompressor lzma
 !include FileFunc.nsh
 !include FontRegAdv.nsh
 !include WordFunc.nsh
+!include x64.nsh
 
 !insertmacro VersionCompare
 !insertmacro GetParent
@@ -316,7 +317,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     IfErrors NoKeyman
 +for k in kbds :
     File "@k.kmx@"
-    Exec "start.exe ${OUTDIR}\@k.kmx@"
+    Exec "start.exe $OUTDIR\@k.kmx@"
 -
     NoKeyman:
 
@@ -326,9 +327,49 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32
 +for k in kbds :
-    CopyFiles "${OUTDIR}\@k.source@" "$0\Ekaya\kmfl"
+    CopyFiles "$OUTDIR\@k.source@" "$0\Ekaya\kmfl"
 -
     NoEkaya32:
+
++for k in kbds : m = getattr(k, 'mskbd', None);
++ if m :
+    IntOp $R1 0 + @m.lid@
+    StrCpy $R2 "@m.dll.replace('.', '-86.')@"
+    StrCpy $R3 "@m.dll.replace('.', '-64.')@"
+    ${If} ${RunningX64}
+        StrCpy $R4 $R3
+    ${Else}
+        StrCpy $R4 $R2
+    ${Endif}
+    File "@m.dll.replace('.', '-86.')@"
+    File "@m.dll.replace('.', '-64.')@"
+
+    LidStart:
+    IntFmt $R5 "SYSTEM\ControlSet\Control\Keyboard Layouts\%08X" $R1
+    ReadRegStr $0 HKLM $R5 ""
+    IfErrors LidDone
+        IntOp $R1 $R1 + 0x10000
+        Goto LidStart
+
+    LidDone:
+    WriteRegStr HKLM $R5 \
+        "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
+    WriteRegStr HKLM $R5 \
+        "Layout File" $R4
+    WriteRegStr HKLM $R5 \
+        "Layout Id" "$R1"
+    WriteRegStr HKLM $R5 \
+        "Layout Product Code" "{@m.guid@}"
+    WriteRegStr HKLM $R5 \
+        "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
+
+    CopyFiles "$OUTDIR\$R4" $SYSDIR
+    ${If} ${RunningX64}
+        CopyFiles "$OUTDIR\$R2" "$WINDIR\WOW64"
+    ${Endif}
+-
+-
+
 SectionEnd
 
 Section -StartMenu

@@ -21,7 +21,7 @@ class Copier(Task.Task):
             # uncomment for debug: print '!!! replacing',match.group(1)
             # expr = self.preproc(match.group(1), 'eval')
             try: return str(eval(match.group(1), self.globals, self.locals))
-            except e :
+            except Exception, e :
                 e.lineno = i
                 e.filename = match.group(1)
                 raise e
