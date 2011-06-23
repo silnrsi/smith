@@ -15,7 +15,7 @@ Assumptions:
 """
 
 import os, textwrap, shutil
-from waflib import Logs, Context, ConfigSet, Options, Build
+from waflib import Logs, Context, ConfigSet, Options, Build, Configure
 
 class Odict(dict):
 	"""Ordered dictionary"""
@@ -102,11 +102,26 @@ review_defaults = {}
 Dictionary mapping configuration option names to their default value.
 """
 
+old_review_set = None
+"""
+Review set containing the configuration values before parsing the command line.
+"""
+
+new_review_set = None
+"""
+Review set containing the configuration values after parsing the command line.
+"""
+
 class OptionsReview(Options.OptionsContext):
 	def __init__(self, **kw):
 		super(self.__class__, self).__init__(**kw)
 
 	def prepare_config_review(self):
+		"""
+		Find the configuration options that are reviewable, detach
+		their default value from their optparse object and store them
+		into the review dictionaries.
+		"""
 		gr = self.get_option_group('configure options')
 		for opt in gr.option_list:
 			if opt.action != 'store' or opt.dest in ("out", "top"):
@@ -117,63 +132,11 @@ class OptionsReview(Options.OptionsContext):
 				del gr.defaults[opt.dest]
 			opt.default = None
 
-	def put_the_default_options_back(self):
-		gr = self.get_option_group('configure options')
-		for opt in gr.option_list:
-			if opt.action != 'store' or opt.dest in ("out", "top"):
-				continue
-			if opt.dest in review_defaults and opt.default is None:
-				opt.default = review_defaults[opt.dest]
-			if not getattr(Options.options, opt.dest, None):
-				setattr(Options.options, opt.dest, opt.default)
-
-	def add_configuration_options(self):
-		path = Context.run_dir + os.sep + Options.lockfile
-		env = ConfigSet.ConfigSet()
-		try:
-			env.load(path)
-		except:
-			return
-		gr = self.get_option_group('configure options')
-		for opt in gr.option_list:
-			if opt.action != 'store' or opt.dest in ("out", "top"):
-				continue
-			if opt.dest in review_defaults and opt.default is None:
-				opt.default = env.options.get(opt.dest, None)
-			if not getattr(Options.options, opt.dest, None):
-				#print "setting %r to %r" % (opt.dest, opt.default)
-				setattr(Options.options, opt.dest, opt.default)
-
-	def invalidate_cache(self):
-		path = Context.run_dir + os.sep + Options.lockfile
-		env = ConfigSet.ConfigSet()
-		try:
-			env.load(path)
-		except:
-			return
-		d = env.out_dir + os.sep + Build.CACHE_DIR
-
-		s1 = env.options
-		s2 = Options.options.__dict__
-		if len(s1.keys()) == len(s2.keys()):
-			for (k, v) in s1.items():
-				if v != s2.get(k, None):
-					break
-			else:
-				return
-		try:
-			Logs.warn("Removing the cached configuration since the options have changed")
-			shutil.rmtree(d)
-		except:
-			pass
-
 	def parse_args(self):
 		self.prepare_config_review()
 		self.parser.get_option('--prefix').help = 'installation prefix'
 		super(OptionsReview, self).parse_args()
-		self.add_configuration_options()
-		self.put_the_default_options_back()
-		self.invalidate_cache()
+		Context.create_context('review').refresh_review_set()
 
 class ReviewContext(Context.Context):
 	'''reviews the configuration values'''
@@ -199,26 +162,29 @@ class ReviewContext(Context.Context):
 
 	def execute(self):
 		"""
-		Load the previous review set, update the review set with the options
-		specified on the command line, import the option values in the option
-		dictionary, store the review set on disk and display the review set.
+		Display and store the review set. Invalidate the cache as required.
 		"""
-		(old_set, new_set) = self.refresh_review_set()
-		print(self.display_review_set(new_set))
+		if not self.compare_review_set(old_review_set, new_review_set):
+			self.invalidate_cache()
+		self.store_review_set(new_review_set)
+		print(self.display_review_set(new_review_set))
 
-	def refresh_review_set(self, store=True):
+	def invalidate_cache(self):
+		"""Invalidate the cache to prevent bad builds."""
+		try:
+			Logs.warn("Removing the cached configuration since the options have changed")
+			shutil.rmtree(self.cache_path)
+		except:
+			pass
+
+	def refresh_review_set(self):
 		"""
-		Load the previous review set, update the review set with the options
-		specified on the command line, import the option values in the option
-		dictionary and store the review set on disk if requested. Return a
-		tuple containing the previous and the current review sets.
+		Obtain the old review set and the new review set, and import the new set.
 		"""
-		old_set = self.load_review_set()
-		new_set = self.update_review_set(old_set)
-		self.import_review_set(new_set)
-		if store:
-			self.store_review_set(new_set)
-		return (old_set, new_set)
+		global old_review_set, new_review_set
+		old_review_set = self.load_review_set()
+		new_review_set = self.update_review_set(old_review_set)
+		self.import_review_set(new_review_set)
 
 	def load_review_set(self):
 		"""
@@ -233,8 +199,8 @@ class ReviewContext(Context.Context):
 		"""
 		Store the review set specified in the cache.
 		"""
-		if not os.path.isdir(self.build_path):
-			os.makedirs(self.build_path)
+		if not os.path.isdir(self.cache_path):
+			os.makedirs(self.cache_path)
 		review_set.store(self.review_path)
 
 	def update_review_set(self, old_set):
@@ -243,6 +209,9 @@ class ReviewContext(Context.Context):
 		from the previous review set and return the corresponding
 		preview set.
 		"""
+
+		# Convert value to string. It's important that 'None' maps to
+		# the empty string.
 		def val_to_str(val):
 			if val == None or val == '':
 				return ''
@@ -274,6 +243,16 @@ class ReviewContext(Context.Context):
 			else:
 				value = review_defaults[name]
 			setattr(Options.options, name, value)
+
+	def compare_review_set(self, set1, set2):
+		"""
+		Return true if the review sets specified are equal.
+		"""
+		if len(set1.keys()) != len(set2.keys()): return False
+		for key in set1.keys():
+			if not key in set2 or set1[key] != set2[key]:
+				return False
+		return True
 
 	def display_review_set(self, review_set):
 		"""
@@ -339,4 +318,11 @@ class ReviewContext(Context.Context):
 		out += Logs.colors.NORMAL + w.fill(default_fmt) + Logs.colors.NORMAL
 
 		return out
+
+# Monkey-patch ConfigurationContext.execute() to have it store the review set.
+old_configure_execute = Configure.ConfigurationContext.execute
+def new_configure_execute(self):
+	old_configure_execute(self)
+	Context.create_context('review').store_review_set(new_review_set)
+Configure.ConfigurationContext.execute = new_configure_execute
 
