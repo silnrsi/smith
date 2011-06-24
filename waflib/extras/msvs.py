@@ -88,6 +88,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	<PropertyGroup Label="Globals">
 		<ProjectGuid>{${project.uuid}}</ProjectGuid>
 		<Keyword>MakeFileProj</Keyword>
+		<ProjectName>${project.name}</ProjectName>
 	</PropertyGroup>
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
@@ -351,6 +352,9 @@ def rm_blank_lines(txt):
 	txt = re_blank.sub('\n', txt)
 	return txt
 
+re_quote = re.compile("[^a-zA-Z0-9]")
+def quote(s):
+	return re_quote.sub("_", s)
 
 def make_uuid(v, prefix = None):
 	"""
@@ -549,8 +553,9 @@ class vsnode_target(vsnode_project):
 		A project is more or less equivalent to a file/folder
 		"""
 		base = getattr(ctx, 'projects_dir', None) or tg.path
-		node = base.make_node(tg.name + ctx.project_extension) # the project file as a Node
+		node = base.make_node(quote(tg.name) + ctx.project_extension) # the project file as a Node
 		vsnode_project.__init__(self, ctx, node)
+		self.name = quote(tg.name)
 		self.tg     = tg  # task generator
 
 	def get_build_params(self, props):
