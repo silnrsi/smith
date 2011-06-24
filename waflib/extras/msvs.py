@@ -598,6 +598,7 @@ class vsnode_target(vsnode_project):
 				x.includes_search_path = ';'.join(self.tg.env.INCPATHS)
 
 class msvs_generator(BuildContext):
+	'''generates a visual studio 2010 solution'''
 	cmd = 'msvs'
 	fun = 'build'
 
@@ -805,9 +806,9 @@ def wrap_2008(cls):
 	return dec
 
 class msvs_2008_generator(msvs_generator):
+	'''generates a visual studio 2008 solution'''
 	cmd = 'msvs2008'
 	fun = msvs_generator.fun
-	__doc__ = msvs_generator.__doc__
 
 	def init(self):
 		if not getattr(self, 'project_extension', None):
