@@ -1,3 +1,9 @@
+NEW IN WAF 1.6.7
+----------------
+
+* Provide more diagnostic for invalid build groups #914
+* Various msvs enhancements
+
 NEW IN WAF 1.6.6
 ----------------
 
