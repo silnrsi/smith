@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 # encoding: utf-8
-# Thomas Nagy, 2010 (ita)
+# Thomas Nagy, 2011 (ita)
 
 """
 errheck: Search for common mistakes
 
-There is a performance hit, so this tool is only loaded when running "waf -vv"
+There is a performance hit, so this tool is only loaded when running "waf -v"
 """
 
 typos = {
@@ -151,15 +151,35 @@ def enhance_lib():
 	TaskGen.feature('*')(check_err_order)
 
 	# check for @extension used with @feature/@before_method/@after_method
-	old_compile = Build.BuildContext.compile
 	def check_compile(self):
 		check_invalid_constraints(self)
 		try:
-			ret = old_compile(self)
+			ret = self.orig_compile()
 		finally:
 			check_same_targets(self)
 		return ret
+	Build.BuildContext.orig_compile = Build.BuildContext.compile
 	Build.BuildContext.compile = check_compile
+
+	# check for invalid build groups #914
+	def use_rec(self, name, **kw):
+		try:
+			y = self.bld.get_tgen_by_name(name)
+		except Errors.WafError:
+			pass
+		else:
+			idx = self.bld.get_group_idx(self)
+			odx = self.bld.get_group_idx(y)
+			if odx > idx:
+				msg = "Invalid 'use' across build groups:"
+				if Logs.verbose > 1:
+					msg += '\n  target %r\n  uses:\n  %r' % (self, y)
+				else:
+					msg += " %r uses %r (try 'waf -v -v' for the full error)" % (self.name, name)
+				raise Errors.WafError(msg)
+		self.orig_use_rec(name, **kw)
+	TaskGen.task_gen.orig_use_rec = TaskGen.task_gen.use_rec
+	TaskGen.task_gen.use_rec = use_rec
 
 	# check for env.append
 	def getattri(self, name, default=None):
