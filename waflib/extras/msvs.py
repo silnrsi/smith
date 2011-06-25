@@ -352,7 +352,7 @@ def rm_blank_lines(txt):
 	txt = re_blank.sub('\n', txt)
 	return txt
 
-re_quote = re.compile("[^a-zA-Z0-9]")
+re_quote = re.compile("[^a-zA-Z0-9-]")
 def quote(s):
 	return re_quote.sub("_", s)
 
