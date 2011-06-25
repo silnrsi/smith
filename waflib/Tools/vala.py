@@ -99,9 +99,9 @@ def vala_file(self, node):
 	# there is only one vala task and it compiles all vala files .. :-/
 	if not valatask:
 		def _get_api_version():
-			api_version = getattr (Context.g_module, 'API_VERSION', None)
-			if api_version == None:
-				version = Context.g_module.VERSION.split(".")
+			api_version = '1.0'
+			if hasattr(Context.g_module, 'API_VERSION'):
+				version = Context.g_module.API_VERSION.split(".")
 				if version[0] == "0":
 					api_version = "0." + version[1]
 				else:
