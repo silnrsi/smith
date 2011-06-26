@@ -68,7 +68,7 @@ ASSUMPTIONS:
 import os, re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
-from waflib import Utils, TaskGen, Logs, Task, Context
+from waflib import Utils, TaskGen, Logs, Task, Context, Node
 
 HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
@@ -226,13 +226,13 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 	<ItemGroup>
 		${for x in project.source}
 			<${project.get_key(x)} Include="${x.abspath()}">
-				<Filter>${x.parent.path_from(project.path)}</Filter>
+				<Filter>${project.get_filter_name(x.parent)}</Filter>
 			</${project.get_key(x)}>
 		${endfor}
 	</ItemGroup>
 	<ItemGroup>
 		${for x in project.dirs()}
-			<Filter Include="${x.path_from(project.path)}">
+			<Filter Include="${project.get_filter_name(x)}">
 				<UniqueIdentifier>{${project.make_uuid(x.abspath())}}</UniqueIdentifier>
 			</Filter>
 		${endfor}
@@ -511,6 +511,9 @@ class vsnode_project(vsnode):
 
 	def get_rebuild_command(self, props):
 		return "%s clean build %s" % self.get_build_params(props)
+
+	def get_filter_name(self, node):
+		return '\\'.join([x != '..' and x or '(..)' for x in Node.split_path(node.path_from(self.tg.path))])
 
 class vsnode_alias(vsnode_project):
 	def __init__(self, ctx, node, name):
