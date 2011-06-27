@@ -150,27 +150,17 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 '''
 
 PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
-<VisualStudioProject
-	ProjectType="Visual C++"
-	Version="9,00"
-	Name="${xml: project.name}"
-	ProjectGUID="{${project.uuid}}"
-	RootNamespace=""
-	Keyword="MakeFileProj"
-	TargetFrameworkVersion="196613"
-	>
+<VisualStudioProject ProjectType="Visual C++" Version="9,00"
+	Name="${xml: project.name}" ProjectGUID="{${project.uuid}}"
+	RootNamespace="" Keyword="MakeFileProj"
+	TargetFrameworkVersion="196613">
 	<Platforms>
 		${if project.build_properties}
 		${for b in project.build_properties}
-		<Platform
-			Name="${xml: b.platform}"
-		/>
+		   <Platform Name="${xml: b.platform}" />
 		${endfor}
 		${else}
-		<!-- This is a default platform, VisualStudioProject must have one -->
-		<Platform
-			Name="Win32"
-			/>
+		   <Platform Name="Win32" />
 		${endif}
 	</Platforms>
 	<ToolFiles>
@@ -200,10 +190,7 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 		</Configuration>
 		${endfor}
 		${else}
-		<!-- This is a default configuration, VisualStudioProject must have one -->
-		<Configuration
-			Name="Release|Win32"
-			>
+			<Configuration Name="Release|Win32" >
 		</Configuration>
 		${endif}
 	</Configurations>
@@ -211,11 +198,7 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	</References>
 	<Files>
 		${for x in project.source}
-		<File
-			RelativePath="${x.abspath()}"
-			FileType="${project.get_key(x)}"
-			>
-		</File>
+			<File RelativePath="${x.abspath()}" FileType="${project.get_key(x)}" />
 		${endfor}
 	</Files>
 </VisualStudioProject>
