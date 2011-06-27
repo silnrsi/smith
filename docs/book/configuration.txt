@@ -294,6 +294,31 @@ Waf: Leaving directory `/tmp/configuration_dang/build'
 <1> First the tool is imported as a python module, and then the method _configure_ is called by _load_
 <2> The tools loaded during the configuration will be loaded during the build phase
 
+==== Multiple configurations
+
+The 'conf.env' object is an important point of the configuration which is accessed and modified by Waf tools and by user-provided configuration functions. The Waf tools do not enforce a particular structure for the build scripts, so the tools will only modify the contents of the default object. The user scripts may provide several 'env' objects in the configuration and pre-set or post-set specific values:
+
+[source,python]
+---------------
+def configure(ctx):
+	env = ctx.env <1>
+	ctx.setenv('debug') <2>
+	ctx.env.CC = 'gcc' <3>
+	ctx.load('gcc')
+
+	ctx.setenv('release', env) <4>
+	ctx.load('msvc')
+	ctx.env.CFLAGS = ['/O2']
+
+	print ctx.all_envs['debug'] <5>
+---------------
+
+<1> Save a reference to 'conf.env'
+<2> Copy and replace 'conf.env'
+<3> Modify 'conf.env'
+<4> Copy and replace 'conf.env' again, from the initial data
+<5> Recall a configuration set by its name
+
 === Exception handling
 
 ==== Launching and catching configuration exceptions
@@ -432,29 +457,6 @@ The methods should always be used instead:
 def configure(ctx):
     ctx.env.append_value('CFLAGS', '-O2')
 ---------------
-
-==== Multiple configurations
-
-The 'conf.env' is an important point of the configuration which is accessed and modified by Waf tools and by user-provided configuration functions. The Waf tools do not enforce a particular structure for the build scripts and will only modify this default object. The user scripts may provide several 'env' objects in the configuration:
-
-[source,python]
----------------
-def configure(ctx):
-	ctx.setenv('debug') <1>
-	ctx.load('gcc') <2>
-	ctx.env.CFLAGS = ['-g']
-
-	ctx.setenv('release') <3>
-	ctx.load('msvc')
-	ctx.env.CFLAGS = ['/O2']
-
-	print ctx.all_envs['debug'] <4>
----------------
-
-<1> A new configuration set named 'debug' stored in `debug.cache.py`
-<2> Modify 'conf.env'
-<3> Replace 'conf.env' by a reference to another configuration set
-<4> Recall a configuration set by its name
 
 ////
 To conclude this chapter on the configuration, we will now insist a little bit on the roles of the configuration context and of the configuration set objects. The configuration context is meant as a container for non-persistent data such as methods, functions, code and utilities. This means in particular that the following is an acceptable way of sharing data with scripts and tools:
