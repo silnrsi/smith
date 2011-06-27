@@ -240,7 +240,7 @@ def options(opt): <1>
 def read_dang(ctx): <2>
 	ctx.start_msg('Checking for the variable DANG')
 	if ctx.options.dang:
-		ctx.env.DANG = ctx.options.dang
+		ctx.env.DANG = ctx.options.dang <3>
 		ctx.end_msg(ctx.env.DANG)
 	else:
 		ctx.end_msg('DANG is not set')
@@ -250,8 +250,9 @@ def configure(ctx): <3>
 ---------------
 
 <1> Provide command-line options
-<2> Provide a detection method to set ctx.env.DANG and print a message on the console
-<3> Provide a method named _configure_
+<2> Bind the function 'read_dang' as a new configuration method to call ctx.read_dang() below
+<3> Set an persistent value from the current command-line options
+<4> Provide a command named _configure_ accepting a build context instance as parameter
 
 For loading a tool, the method 'load' must be used during the configuration:
 
