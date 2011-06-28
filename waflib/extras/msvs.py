@@ -149,6 +149,25 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 </Project>
 '''
 
+FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<ItemGroup>
+		${for x in project.source}
+			<${project.get_key(x)} Include="${x.abspath()}">
+				<Filter>${project.get_filter_name(x.parent)}</Filter>
+			</${project.get_key(x)}>
+		${endfor}
+	</ItemGroup>
+	<ItemGroup>
+		${for x in project.dirs()}
+			<Filter Include="${project.get_filter_name(x)}">
+				<UniqueIdentifier>{${project.make_uuid(x.abspath())}}</UniqueIdentifier>
+			</Filter>
+		${endfor}
+	</ItemGroup>
+</Project>
+'''
+
 PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject ProjectType="Visual C++" Version="9,00"
 	Name="${xml: project.name}" ProjectGUID="{${project.uuid}}"
@@ -197,30 +216,9 @@ PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 	<References>
 	</References>
 	<Files>
-		${for x in project.source}
-			<File RelativePath="${x.abspath()}" FileType="${project.get_key(x)}" />
-		${endfor}
+${project.display_filter()}
 	</Files>
 </VisualStudioProject>
-'''
-
-FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<ItemGroup>
-		${for x in project.source}
-			<${project.get_key(x)} Include="${x.abspath()}">
-				<Filter>${project.get_filter_name(x.parent)}</Filter>
-			</${project.get_key(x)}>
-		${endfor}
-	</ItemGroup>
-	<ItemGroup>
-		${for x in project.dirs()}
-			<Filter Include="${project.get_filter_name(x)}">
-				<UniqueIdentifier>{${project.make_uuid(x.abspath())}}</UniqueIdentifier>
-			</Filter>
-		${endfor}
-	</ItemGroup>
-</Project>
 '''
 
 SOLUTION_TEMPLATE = '''Microsoft Visual Studio Solution File, Format Version ${project.numver}
@@ -339,6 +337,9 @@ re_quote = re.compile("[^a-zA-Z0-9-]")
 def quote(s):
 	return re_quote.sub("_", s)
 
+def xml_escape(value):
+	return value.replace("&", "&amp;").replace('"', "&quot;").replace("'", "&apos;").replace("<", "&lt;").replace(">", "&gt;")
+
 def make_uuid(v, prefix = None):
 	"""
 	simple utility function
@@ -354,6 +355,39 @@ def make_uuid(v, prefix = None):
 		d = '%s%s' % (prefix, d[8:])
 	gid = uuid.UUID(d, version = 4)
 	return str(gid).upper()
+
+def diff(node, fromnode):
+	# difference between two nodes, but with "(..)" instead of ".."
+	c1 = fromnode
+	c2 = node
+
+	c1h = c1.height()
+	c2h = c2.height()
+
+	lst = []
+	up = 0
+
+	while c1h > c2h:
+		lst.append(c1.name)
+		c1 = c1.parent
+		c1h -= 1
+
+	while c2h > c1h:
+		up += 1
+		c2 = c2.parent
+		c2h -= 1
+
+	while id(c1) != id(c2):
+		lst.append(c1.name)
+		up += 1
+
+		c1 = c1.parent
+		c2 = c2.parent
+
+	for i in range(up):
+		lst.append('(..)')
+	lst.reverse()
+	return tuple(lst)
 
 class build_property(object):
 	pass
@@ -496,7 +530,8 @@ class vsnode_project(vsnode):
 		return "%s clean build %s" % self.get_build_params(props)
 
 	def get_filter_name(self, node):
-		return '\\'.join([x != '..' and x or '(..)' for x in Node.split_path(node.path_from(self.tg.path))])
+		lst = diff(node, self.tg.path)
+		return '\\'.join(lst)
 
 class vsnode_alias(vsnode_project):
 	def __init__(self, ctx, node, name):
@@ -772,28 +807,53 @@ def wrap_2008(cls):
 		def __init__(self, *k, **kw):
 			cls.__init__(self, *k, **kw)
 			self.project_template = PROJECT_2008_TEMPLATE
-		def get_key(self, node):
-			"""
-			required for writing the source files.
-			If empty, visual studio uses the file extension,
-			else values are:
-				0: C/C++ Code, 1: C++ Class, 2: C++ Header File, 3: C++ Form,
-				4: C++ Control, 5: Text File, 6: DEF File, 7: IDL File,
-				8: Makefile, 9: RGS File, 10: RC File, 11: RES File, 12: XSD File,
-				13: XML File, 14: HTML File, 15: CSS File, 16: Bitmap, 17: Icon,
-				18: Resx File, 19: BSC File, 20: XSX File, 21: C++ Web Service,
-				22: ASAX File, 23: Asp Page, 24: Document, 25: Discovery File,
-				26: C# File, 27: eFileTypeClassDiagram, 28: MHTML Document,
-				29: Property Sheet, 30: Cursor, 31: Manifest, 32: eFileTypeRDLC
-			"""
-			return ''
+
+		def display_filter(self):
+
+			root = build_property()
+			root.subfilters = []
+			root.sourcefiles = []
+			root.source = []
+			root.name = ''
+
+			@Utils.run_once
+			def add_path(lst):
+				if not lst:
+					return root
+				child = build_property()
+				child.subfilters = []
+				child.sourcefiles = []
+				child.source = []
+				child.name = lst[-1]
+
+				par = add_path(lst[:-1])
+				par.subfilters.append(child)
+				return child
+
+			for x in self.source:
+				tmp = diff(x.parent, self.tg.path)
+				par = add_path(tmp)
+				par.source.append(x)
+
+			def display(n):
+				buf = []
+				for x in n.source:
+					buf.append('<File RelativePath="%s" FileType=""/>\n' % xml_escape(x.abspath()))
+				for x in n.subfilters:
+					buf.append('<Filter Name="%s">' % xml_escape(x.name))
+					buf.append(display(x))
+					buf.append('</Filter>')
+				return '\n'.join(buf)
+
+			return display(root)
+
 		def write(self):
 			Logs.warn('Creating %r' % self.path)
-			# write the project file only (no filters in vs2008)
 			template1 = compile_template(self.project_template)
 			proj_str = template1(self)
 			proj_str = rm_blank_lines(proj_str)
 			self.path.write(proj_str)
+
 	return dec
 
 class msvs_2008_generator(msvs_generator):
