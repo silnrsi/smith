@@ -531,7 +531,7 @@ class vsnode_project(vsnode):
 
 	def get_filter_name(self, node):
 		lst = diff(node, self.tg.path)
-		return '\\'.join(lst)
+		return '\\'.join(lst) or '.'
 
 class vsnode_alias(vsnode_project):
 	def __init__(self, ctx, node, name):
