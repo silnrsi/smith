@@ -280,6 +280,8 @@ def compile_template(line):
 	def repl(match):
 		g = match.group
 		if g('dollar'): return "$"
+		elif g('backslash'):
+			return "\\"
 		elif g('subst'):
 			extr.append(g('code'))
 			return "<<|@|>>"
@@ -358,8 +360,8 @@ def make_uuid(v, prefix = None):
 
 def diff(node, fromnode):
 	# difference between two nodes, but with "(..)" instead of ".."
-	c1 = fromnode
-	c2 = node
+	c1 = node
+	c2 = fromnode
 
 	c1h = c1.height()
 	c2h = c2.height()
@@ -466,9 +468,12 @@ class vsnode_project(vsnode):
 		for writing the filters
 		"""
 		lst = []
+		def add(x):
+			if x.height() > self.tg.path.height() and x not in lst:
+				lst.append(x)
+				add(x.parent)
 		for x in self.source:
-			if x.parent not in lst:
-				lst.append(x.parent)
+			add(x.parent)
 		return lst
 
 	def write(self):
