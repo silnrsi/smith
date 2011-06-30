@@ -9,6 +9,10 @@ Microsoft Visual C++/Intel C++ compiler support
 
 Usage::
 
+	$ waf configure --msvc_version='msvc 10.0,msvc 9.0' --msvc_target='x64'
+
+or::
+
 	def configure(conf):
 		conf.env['MSVC_VERSIONS'] = ['msvc 10.0', 'msvc 9.0', 'msvc 8.0', 'msvc 7.1', 'msvc 7.0', 'msvc 6.0', 'wsdk 7.0', 'intel 11', 'PocketPC 9.0', 'Smartphone 8.0']
 		conf.env['MSVC_TARGETS'] = ['x64']
@@ -90,9 +94,13 @@ all_wince_platforms = [ ('armv4', 'arm'), ('armv4i', 'arm'), ('mipsii', 'mips'),
 all_icl_platforms = [ ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86'), ('Itanium', 'ia64')]
 """List of icl platforms"""
 
+def options(opt):
+	opt.add_option('--msvc_version', type='string', help = 'msvc version, eg: "msvc 10.0,msvc 9.0"', default=[])
+	opt.add_option('--msvc_targets', type='string', help = 'msvc targets, eg: "x64,arm"', default=[])
+
 def setup_msvc(conf, versions):
-	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
-	desired_versions = conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
+	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or getattr(Options.options, 'msvc_targets', []) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
+	desired_versions = conf.env['MSVC_VERSIONS'] or getattr(Options.options, 'msvc_version', []) or [v for v,_ in versions][::-1]
 	versiondict = dict(versions)
 
 	for version in desired_versions:
