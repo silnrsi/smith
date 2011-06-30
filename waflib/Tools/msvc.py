@@ -99,8 +99,8 @@ def options(opt):
 	opt.add_option('--msvc_targets', type='string', help = 'msvc targets, eg: "x64,arm"', default=[])
 
 def setup_msvc(conf, versions):
-	platforms = Utils.to_list(conf.env['MSVC_TARGETS']) or getattr(Options.options, 'msvc_targets', []) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
-	desired_versions = conf.env['MSVC_VERSIONS'] or getattr(Options.options, 'msvc_version', []) or [v for v,_ in versions][::-1]
+	platforms = getattr(Options.options, 'msvc_targets', '').split(',') or Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
+	desired_versions = getattr(Options.options, 'msvc_version', '').split(',') or conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
 	versiondict = dict(versions)
 
 	for version in desired_versions:
