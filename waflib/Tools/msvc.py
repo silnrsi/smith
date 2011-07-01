@@ -95,12 +95,16 @@ all_icl_platforms = [ ('intel64', 'amd64'), ('em64t', 'amd64'), ('ia32', 'x86'),
 """List of icl platforms"""
 
 def options(opt):
-	opt.add_option('--msvc_version', type='string', help = 'msvc version, eg: "msvc 10.0,msvc 9.0"', default=[])
-	opt.add_option('--msvc_targets', type='string', help = 'msvc targets, eg: "x64,arm"', default=[])
+	opt.add_option('--msvc_version', type='string', help = 'msvc version, eg: "msvc 10.0,msvc 9.0"', default='')
+	opt.add_option('--msvc_targets', type='string', help = 'msvc targets, eg: "x64,arm"', default='')
 
 def setup_msvc(conf, versions):
-	platforms = getattr(Options.options, 'msvc_targets', '').split(',') or Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
-	desired_versions = getattr(Options.options, 'msvc_version', '').split(',') or conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
+	platforms = getattr(Options.options, 'msvc_targets', '').split(',')
+	if platforms == ['']:
+		platforms=Utils.to_list(conf.env['MSVC_TARGETS']) or [i for i,j in all_msvc_platforms+all_icl_platforms+all_wince_platforms]
+	desired_versions = getattr(Options.options, 'msvc_version', '').split(',')
+	if desired_versions == ['']:
+		desired_versions = conf.env['MSVC_VERSIONS'] or [v for v,_ in versions][::-1]
 	versiondict = dict(versions)
 
 	for version in desired_versions:
@@ -364,12 +368,13 @@ def gather_msvc_versions(conf, versions):
 
 	for version,vc_path in vc_paths:
 		vs_path = os.path.dirname(vc_path)
-		#debug("Check", version, vc_path, vs_path)
-		conf.gather_msvc_targets(versions, version, vc_path)
 		vsvars = os.path.join(vs_path, 'Common7', 'Tools', 'vsvars32.bat')
-		#debug("Looking for ce targets!", vsvars, os.path.isfile(vsvars))
 		if wince_supported_platforms and os.path.isfile(vsvars):
 			conf.gather_wince_targets(versions, version, vc_path, vsvars, wince_supported_platforms)
+
+	for version,vc_path in vc_paths:
+		vs_path = os.path.dirname(vc_path)
+		conf.gather_msvc_targets(versions, version, vc_path)
 
 @conf
 def gather_icl_versions(conf, versions):
