@@ -4,6 +4,7 @@ NEW IN WAF 1.6.7
 * Provide more diagnostic for invalid build groups #914
 * Various msvs enhancements
 * Read MSVC_VERSIONS and MSVC_TARGETS from the command-line
+* Minor cross-compiler detection fix on msvc.py
 
 NEW IN WAF 1.6.6
 ----------------
