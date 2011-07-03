@@ -843,7 +843,7 @@ def wrap_2008(cls):
 			def display(n):
 				buf = []
 				for x in n.source:
-					buf.append('<File RelativePath="%s" FileType=""/>\n' % xml_escape(x.abspath()))
+					buf.append('<File RelativePath="%s" FileType="%s"/>\n' % (xml_escape(x.abspath()), self.get_key(x)))
 				for x in n.subfilters:
 					buf.append('<Filter Name="%s">' % xml_escape(x.name))
 					buf.append(display(x))
@@ -851,6 +851,21 @@ def wrap_2008(cls):
 				return '\n'.join(buf)
 
 			return display(root)
+
+		def get_key(self, node):
+			"""
+			If you do not want to let visual studio use the default file extensions,
+			override this method to return a value:
+				0: C/C++ Code, 1: C++ Class, 2: C++ Header File, 3: C++ Form,
+				4: C++ Control, 5: Text File, 6: DEF File, 7: IDL File,
+				8: Makefile, 9: RGS File, 10: RC File, 11: RES File, 12: XSD File,
+				13: XML File, 14: HTML File, 15: CSS File, 16: Bitmap, 17: Icon,
+				18: Resx File, 19: BSC File, 20: XSX File, 21: C++ Web Service,
+				22: ASAX File, 23: Asp Page, 24: Document, 25: Discovery File,
+				26: C# File, 27: eFileTypeClassDiagram, 28: MHTML Document,
+				29: Property Sheet, 30: Cursor, 31: Manifest, 32: eFileTypeRDLC
+			"""
+			return ''
 
 		def write(self):
 			Logs.warn('Creating %r' % self.path)
