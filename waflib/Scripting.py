@@ -40,6 +40,14 @@ def waf_entry_point(current_directory, version, wafdir):
 	Context.waf_dir = wafdir
 	Context.launch_dir = current_directory
 
+	# if 'configure' is in the commands, do not search any further
+	no_climb = os.environ.get('NOCLIMB', None)
+	if not no_climb:
+		for k in no_climb_commands:
+			if k in sys.argv:
+				no_climb = True
+				break
+
 	# try to find a lock file (if the project was configured)
 	# at the same time, store the first wscript file seen
 	cur = current_directory
@@ -88,13 +96,8 @@ def waf_entry_point(current_directory, version, wafdir):
 			break
 		cur = next
 
-		# if 'configure' is in the commands, do not search any further
-		for k in no_climb_commands:
-			if k in sys.argv:
-				break
-		else:
-			continue
-		break
+		if no_climb:
+			break
 
 	if not Context.run_dir:
 		if '-h' in sys.argv or '--help' in sys.argv:
