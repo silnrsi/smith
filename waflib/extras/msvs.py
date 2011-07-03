@@ -836,7 +836,9 @@ def wrap_2008(cls):
 				return child
 
 			for x in self.source:
-				tmp = diff(x.parent, self.tg.path)
+				# this crap is for enabling subclasses to override get_filter_name
+				tmp = self.get_filter_name(x.parent)
+				tmp = tmp != '.' and tuple(tmp.split('\\')) or ()
 				par = add_path(tmp)
 				par.source.append(x)
 
