@@ -1,6 +1,6 @@
 == Further reading
 
-Due to the amount of features provided by Waf, this book is cannot be both complete and up-to-date. For greater understanding and practice the following links are recommended to the reader:
+Due to the amount of features provided by Waf, this book cannot be both complete and up-to-date. For greater understanding and practice the following links are recommended to the reader:
 
 .Recommended links
 [options="header"]
