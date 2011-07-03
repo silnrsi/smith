@@ -328,9 +328,9 @@ class Context(ctx):
 				p = subprocess.Popen(cmd, **kw)
 				(out, err) = p.communicate()
 				if out:
-					self.logger.debug('out: %s' % out.decode(sys.stdout.encoding))
+					self.logger.debug('out: %s' % out.decode(sys.stdout.encoding or 'iso8859-1'))
 				if err:
-					self.logger.error('err: %s' % err.decode(sys.stdout.encoding))
+					self.logger.error('err: %s' % err.decode(sys.stdout.encoding or 'iso8859-1'))
 				return p.returncode
 			else:
 				p = subprocess.Popen(cmd, **kw)
@@ -385,9 +385,9 @@ class Context(ctx):
 			raise Errors.WafError('Execution failure', ex=e)
 
 		if not isinstance(out, str):
-			out = out.decode(sys.stdout.encoding)
+			out = out.decode(sys.stdout.encoding or 'iso8859-1')
 		if not isinstance(err, str):
-			err = err.decode(sys.stdout.encoding)
+			err = err.decode(sys.stdout.encoding or 'iso8859-1')
 
 		if out and quiet != STDOUT and quiet != BOTH:
 			self.to_log('out: %s' % out)

@@ -1,7 +1,6 @@
 Waf 1.6.x
 ---------
 
-GENERAL IMPROVEMENTS
-
-- pipe is broken
+* fix the remaining bugs
+* provide more extensions
 

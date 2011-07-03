@@ -5,6 +5,7 @@ NEW IN WAF 1.6.7
 * Various msvs enhancements
 * Read MSVC_VERSIONS and MSVC_TARGETS from the command-line
 * Minor cross-compiler detection fix on msvc.py
+* Fix the redirections with pipes (waf configure > log)
 
 NEW IN WAF 1.6.6
 ----------------

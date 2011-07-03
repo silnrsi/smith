@@ -55,7 +55,7 @@ def subst(*k):
 def r1(code):
 	"utf-8 fixes for python < 2.6"
 	code = code.replace('as e:', ',e:')
-	code = code.replace(".decode(sys.stdout.encoding)", '')
+	code = code.replace(".decode(sys.stdout.encoding or 'iso8859-1')", '')
 	code = code.replace('.encode()', '')
 	return code
 
