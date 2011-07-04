@@ -56,6 +56,14 @@ class msvs_bar(msvs.msvs_generator):
         msvs.msvs_generator.init(self)
         self.vsnode_target = vsnode_target
 
+The msvs class re-uses the same build() function for reading the targets (task generators),
+you may therefore specify msvs settings on the context object:
+
+def build(bld):
+	bld.solution_name = 'foo.sln'
+	bld.projects_dir = bld.srcnode.make_node('.depproj')
+	bld.projects_dir.mkdir()
+
 For visual studio 2008, the command is called 'msvs2008', and the classes
 such as vsnode_target are wrapped by a decorator class 'wrap_2008' to
 provide special functionality.
