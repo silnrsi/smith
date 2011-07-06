@@ -7,7 +7,7 @@ Simple TCP server to cache files over the network
 It uses a LRU (least recently used).
 """
 
-import os, tempfile, socket, threading
+import os, tempfile, socket, threading, shutil
 import SocketServer
 
 CACHEDIR = '/tmp/wafcache'
@@ -44,11 +44,11 @@ def make_clean():
 	global lock
 	# there is no need to spend a lot of time cleaning
 	# so one thread cleans and the others return immediately
-	try:
-		if lock.acquire(0):
+	if lock.acquire(0):
+		try:
 			make_clean_unsafe(ssig)
-	finally:
-		lock.release()
+		finally:
+			lock.release()
 
 def make_clean_unsafe():
 	global MAX, flist
@@ -64,7 +64,7 @@ def make_clean_unsafe():
 
 		while total >= MAX * CLEANRATIO:
 			(k, t, s) = lst.pop()
-			os.removedirs(k)
+			shutil.rmtree(os.path.join(CACHEDIR, k))
 			total -= s
 			del flist[k]
 
