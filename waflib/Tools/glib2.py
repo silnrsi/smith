@@ -291,7 +291,7 @@ def process_settings(self):
 		enums_task.env['GLIB_MKENUMS_TARGET'] = tgt_node.abspath()
 		enums_tgt_node = [tgt_node]
 
-		install_files.append (target)
+		install_files.append (tgt_node)
 
 		options = '--comments "<!-- @comment@ -->" --fhead "<schemalist>" --vhead "  <@type@ id=\\"%s.@EnumName@\\">" --vprod "    <value nick=\\"@valuenick@\\" value=\\"@valuenum@\\"/>" --vtail "  </@type@>" --ftail "</schemalist>" ' % (self.settings_enum_namespace)
 		enums_task.env['GLIB_MKENUMS_OPTIONS'] = options
@@ -301,11 +301,10 @@ def process_settings(self):
 	for schema in settings_schema_files:
 		schema_task = self.create_task ('glib_validate_schema')
 
-		install_files.append(schema)
-
 		schema_node = self.path.find_resource(schema)
 		if not schema_node:
 			raise Errors.WafError("Cannot find the schema file '%s'" % schema)
+		install_files.append(schema_node)
 		source_list = enums_tgt_node + [schema_node]
 
 		schema_task.set_inputs (source_list)
