@@ -9,7 +9,7 @@ Microsoft Visual C++/Intel C++ compiler support
 
 Usage::
 
-	$ waf configure --msvc_version='msvc 10.0,msvc 9.0' --msvc_target='x64'
+	$ waf configure --msvc_version="msvc 10.0,msvc 9.0" --msvc_target="x64"
 
 or::
 
