@@ -418,7 +418,7 @@ class vsnode(object):
 		"""
 		Override in subclasses...
 		"""
-		return 'cd /d "%s" & waf.bat' % self.ctx.srcnode.abspath()
+		return 'cd /d "%s" & %s' % (self.ctx.srcnode.abspath(), getattr(self.ctx, 'waf_command', 'waf.bat'))
 
 	def ptype(self):
 		"""
