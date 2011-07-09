@@ -569,7 +569,7 @@ def process_rule(self):
 	if getattr(self, 'always', None):
 		Task.always_run(cls)
 
-	for x in ['after', 'before', 'ext_in', 'ext_out']:
+	for x in ['after', 'before', 'ext_in', 'ext_out', '__str__']:
 		setattr(cls, x, getattr(self, x, []))
 
 @feature('seq')
