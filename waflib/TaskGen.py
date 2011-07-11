@@ -640,9 +640,8 @@ class subst_pc(Task.Task):
 		except AttributeError:
 			d = {}
 			for x in lst:
-				d[x] = getattr(self.generator, x, '') or self.env.get_flat(x) or self.env.get_flat(x.upper())
-				if not isinstance(d[x], str):
-					raise ValueError('variable %r has no value for %r' % (x, self.outputs))
+				tmp = getattr(self.generator, x, '') or self.env.get_flat(x) or self.env.get_flat(x.upper())
+				d[x] = str(tmp)
 
 		self.outputs[0].write(code % d)
 		self.generator.bld.raw_deps[self.uid()] = self.dep_vars = lst
