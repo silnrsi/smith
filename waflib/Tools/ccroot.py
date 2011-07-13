@@ -316,7 +316,7 @@ def process_use(self):
 	for x in out:
 		y = self.bld.get_tgen_by_name(x)
 		var = y.tmp_use_var
-		if var:
+		if var and link_task:
 			if var == 'LIB' or y.tmp_use_stlib:
 				self.env.append_value(var, [y.target[y.target.rfind(os.sep) + 1:]])
 				self.link_task.dep_nodes.extend(y.link_task.outputs)
