@@ -66,8 +66,13 @@ def build(bld):
 		target   = 'hello_inc')
 
 	bld(
-		features = 'fc fcprogram',
+		features = 'fc',
 		source   = 'src/calculator_main.f src/calculator.f',
+		target   = 'calc_objs')
+
+	bld(
+		features = 'fc fcprogram',
+		use      = 'calc_objs',
 		target   = 'calculator')
 
 	bld(
