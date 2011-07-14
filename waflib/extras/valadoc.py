@@ -13,10 +13,10 @@ from Logs import debug, warn, error
 
 VALADOC_STR = '${VALADOC}'
 
-class valadoc_task(Task.Task):
+class valadoc(Task.Task):
   vars  = ['VALADOC', 'VALADOCFLAGS']
   color = 'BLUE'
-  after = ['cxx_link', 'c_link']
+  after = ['cprogram', 'cstlib', 'cshlib', 'cxxprogram', 'cxxstlib', 'cxxshlib']
   quiet = True # no outputs .. this is weird
 
   def __init__(self, *k, **kw):
