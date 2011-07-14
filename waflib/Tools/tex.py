@@ -21,6 +21,10 @@ Example::
 			deps     = 'crossreferencing.lst', # to give dependencies directly
 			prompt   = 1, # 0 for the batch mode
 			)
+
+To configure with a special program use::
+
+	$ PDFLATEX=luatex waf configure
 """
 
 import os, re
