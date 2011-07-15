@@ -10,7 +10,7 @@ as C/C++/D/Assembly/Go (this support module is almost never used alone).
 import os, sys, re
 from waflib import TaskGen, Task, Utils, Logs, Build, Options, Node, Errors
 from waflib.Logs import error, debug, warn
-from waflib.TaskGen import after_method, before_method, feature, taskgen_method
+from waflib.TaskGen import after_method, before_method, feature, taskgen_method, extension
 from waflib.Tools import c_aliases, c_preproc, c_config, c_osx, c_tests
 from waflib.Configure import conf
 
@@ -587,4 +587,17 @@ def process_lib(self):
 		raise Errors.WafError('could not find library %r' % self.name)
 	self.link_task = self.create_task('fake_%s' % self.lib_type, [], [node])
 	self.target = self.name
+
+
+class fake_o(Task.Task):
+	def runnable_status(self):
+		return Task.SKIP_ME
+
+@extension('.o', '.obj')
+def add_those_o_files(self, node):
+	tsk = self.create_task('fake_o', [], node)
+	try:
+		self.compiled_tasks.append(tsk)
+	except AttributeError:
+		self.compiled_tasks = [tsk]
 
