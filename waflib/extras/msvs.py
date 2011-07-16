@@ -588,6 +588,35 @@ class vsnode_install_all(vsnode_alias):
 	def get_rebuild_command(self, props):
 		return "%s clean build install %s" % self.get_build_params(props)
 
+class vsnode_project_view(vsnode_alias):
+	"""
+	Fake target used to emulate a file system view
+	"""
+	def __init__(self, ctx, node, name='project_view'):
+		vsnode_alias.__init__(self, ctx, node, name)
+		self.is_active = True
+		# fake root taskgen for building a file-system view
+		self.tg = self.ctx()
+
+	def collect_source(self):
+		all_sources = []
+		for p in self.ctx.all_projects:
+			all_sources.extend(getattr(p, 'source', []))
+
+		# remove duplicates
+		self.source.extend(list(set(all_sources)))
+		self.source.sort(key=lambda x: x.abspath())
+
+	def get_build_command(self, props):
+		params = self.get_build_params(props) + (self.ctx.cmd,)
+		return "%s %s %s" % params
+
+	def get_clean_command(self, props):
+		return ""
+
+	def get_rebuild_command(self, props):
+		return self.get_build_command(props)
+
 class vsnode_target(vsnode_project):
 	"""
 	Visual studio project representing a targets (programs, libraries, etc) and bound
@@ -677,6 +706,8 @@ class msvs_generator(BuildContext):
 			self.vsnode_build_all = vsnode_build_all
 		if not getattr(self, 'vsnode_install_all', None):
 			self.vsnode_install_all = vsnode_install_all
+		if not getattr(self, 'vsnode_project_view', None):
+			self.vsnode_project_view = vsnode_project_view
 
 		self.numver = '11.00'
 		self.vsver  = '2010'
@@ -790,8 +821,14 @@ class msvs_generator(BuildContext):
 		p_install.collect_properties()
 		self.all_projects.append(p_install)
 
+		node_project = base.make_node('project_view' + self.project_extension) # Node
+		p_view = self.vsnode_project_view(self, node_project)
+		p_view.collect_source()
+		p_view.collect_properties()
+		self.all_projects.append(p_view)
+
 		n = self.vsnode_vsdir(self, make_uuid(self.srcnode.abspath() + 'build_aliases'), "build_aliases")
-		p_build.parent = p_install.parent = n
+		p_build.parent = p_install.parent = p_view.parent = n
 		self.all_projects.append(n)
 
 	def collect_dirs(self):
@@ -914,6 +951,8 @@ class msvs_2008_generator(msvs_generator):
 			self.vsnode_build_all = wrap_2008(vsnode_build_all)
 		if not getattr(self, 'vsnode_install_all', None):
 			self.vsnode_install_all = wrap_2008(vsnode_install_all)
+		if not getattr(self, 'vsnode_project_view', None):
+			self.vsnode_project_view = wrap_2008(vsnode_project_view)
 
 		msvs_generator.init(self)
 		self.numver = '10.00'
