@@ -343,6 +343,17 @@ def rm_blank_lines(txt):
 	txt = re_blank.sub('\n', txt)
 	return txt
 
+def stealth_write(self, data, flags='w'):
+	try:
+		txt = self.read()
+		if txt != data:
+			raise ValueError('already done')
+	except (IOError, ValueError), e:
+		self.write(data, flags=flags)
+	else:
+		Logs.debug('msvs: skipping %s' % self.abspath())
+Node.Node.stealth_write = stealth_write
+
 re_quote = re.compile("[^a-zA-Z0-9-]")
 def quote(s):
 	return re_quote.sub("_", s)
@@ -485,20 +496,20 @@ class vsnode_project(vsnode):
 		return lst
 
 	def write(self):
-		Logs.warn('Creating %r' % self.path)
+		Logs.debug('msvs: creating %r' % self.path)
 
 		# first write the project file
 		template1 = compile_template(PROJECT_TEMPLATE)
 		proj_str = template1(self)
 		proj_str = rm_blank_lines(proj_str)
-		self.path.write(proj_str)
+		self.path.stealth_write(proj_str)
 
 		# then write the filter
 		template2 = compile_template(FILTER_TEMPLATE)
 		filter_str = template2(self)
 		filter_str = rm_blank_lines(filter_str)
 		tmp = self.path.parent.make_node(self.path.name + '.filters')
-		tmp.write(filter_str)
+		tmp.stealth_write(filter_str)
 
 	def get_key(self, node):
 		"""
@@ -711,7 +722,7 @@ class msvs_generator(BuildContext):
 		template1 = compile_template(SOLUTION_TEMPLATE)
 		sln_str = template1(self)
 		sln_str = rm_blank_lines(sln_str)
-		node.write(sln_str)
+		node.stealth_write(sln_str)
 
 	def get_solution_node(self):
 		"""
@@ -878,11 +889,11 @@ def wrap_2008(cls):
 			return ''
 
 		def write(self):
-			Logs.warn('Creating %r' % self.path)
+			Logs.debug('msvs: creating %r' % self.path)
 			template1 = compile_template(self.project_template)
 			proj_str = template1(self)
 			proj_str = rm_blank_lines(proj_str)
-			self.path.write(proj_str)
+			self.path.stealth_write(proj_str)
 
 	return dec
 
