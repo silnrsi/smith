@@ -809,7 +809,7 @@ class msvs_generator(BuildContext):
 		Add a specific target that emulates the "make all" necessary for Visual studio when pressing F7
 		We also add an alias for "make install" (disabled by default)
 		"""
-		base = getattr(self, 'projects_dir', None) or tg.path
+		base = getattr(self, 'projects_dir', None) or self.tg.path
 
 		node_project = base.make_node('build_all_projects' + self.project_extension) # Node
 		p_build = self.vsnode_build_all(self, node_project)

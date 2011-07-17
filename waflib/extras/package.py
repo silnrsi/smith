@@ -19,6 +19,7 @@ def configure(conf):
     conf.load_packages()
 """
 
+from waflib import Logs
 from waflib.Configure import conf
 
 try:
@@ -61,7 +62,7 @@ def download_archive(self, src, dst):
 			# python 2.3 does not have getcode and throws an exception to fail
 			continue
 		else:
-			tmp = ctx.root.make_node(dst)
+			tmp = self.root.make_node(dst)
 			tmp.write(web.read())
 			Logs.warn('Downloaded %s from %s' % (tmp.abspath(), url))
 			break
