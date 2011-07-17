@@ -25,9 +25,9 @@ PRELUDE = '\timport waflib.extras.compat15'
 #from tokenize import *
 import tokenize
 
-import os, sys, base64, shutil, re, random, io, optparse, tempfile
+import os, sys, re, io, optparse
 
-from waflib import Utils, Options, Build
+from waflib import Utils, Options
 from hashlib import md5
 
 from waflib import Configure
@@ -141,7 +141,6 @@ def process_tokens(tokens):
 	accu = []
 	prev = tokenize.NEWLINE
 
-	accu_deco = []
 	indent = 0
 	line_buf = []
 
@@ -239,7 +238,6 @@ def create_waf(*k, **kw):
 
 	#open a file as tar.[extension] for writing
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
-	tarFiles = []
 
 	files = []
 	add3rdparty = []
