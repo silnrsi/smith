@@ -348,7 +348,7 @@ def stealth_write(self, data, flags='w'):
 		txt = self.read()
 		if txt != data:
 			raise ValueError('already done')
-	except (IOError, ValueError), e:
+	except (IOError, ValueError):
 		self.write(data, flags=flags)
 	else:
 		Logs.debug('msvs: skipping %s' % self.abspath())
