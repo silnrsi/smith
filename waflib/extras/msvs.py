@@ -61,6 +61,7 @@ you may therefore specify msvs settings on the context object:
 
 def build(bld):
 	bld.solution_name = 'foo.sln'
+	bld.waf_command = 'waf.bat'
 	bld.projects_dir = bld.srcnode.make_node('.depproj')
 	bld.projects_dir.mkdir()
 
