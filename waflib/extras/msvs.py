@@ -77,7 +77,7 @@ ASSUMPTIONS:
 import os, re
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
-from waflib import Utils, TaskGen, Logs, Task, Context, Node
+from waflib import Utils, TaskGen, Logs, Task, Context, Node, Options
 
 HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
@@ -595,18 +595,21 @@ class vsnode_project_view(vsnode_alias):
 	"""
 	def __init__(self, ctx, node, name='project_view'):
 		vsnode_alias.__init__(self, ctx, node, name)
-		self.is_active = True
-		# fake root taskgen for building a file-system view
-		self.tg = self.ctx()
+		self.tg = self.ctx() # fake one, cannot remove
+		self.exclude_files = Node.exclude_regs + '''
+waf-1.6.*
+waf3-1.6.*/**
+.waf-1.6.*
+.waf3-1.6.*/**
+**/*.sdf
+**/*.suo
+**/*.ncb
+**/%s
+		''' % Options.lockfile
 
 	def collect_source(self):
-		all_sources = []
-		for p in self.ctx.all_projects:
-			all_sources.extend(getattr(p, 'source', []))
-
-		# remove duplicates
-		self.source.extend(list(set(all_sources)))
-		self.source.sort(key=lambda x: x.abspath())
+		# this is likely to be slow
+		self.source = self.ctx.srcnode.ant_glob('**', excl=self.exclude_files)
 
 	def get_build_command(self, props):
 		params = self.get_build_params(props) + (self.ctx.cmd,)
