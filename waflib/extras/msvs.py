@@ -843,7 +843,7 @@ class msvs_generator(BuildContext):
 		def make_parents(proj):
 			# look at a project, try to make a parent
 			if getattr(proj, 'parent', None):
-				# we are not supposed to have duplicate projects.. TODO
+				# aliases already have parents
 				return
 			x = proj.iter_path
 			if x in seen:
