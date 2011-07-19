@@ -81,7 +81,7 @@ from waflib import Utils, TaskGen, Logs, Task, Context, Node, Options
 
 HEADERS_GLOB = '**/(*.h|*.hpp|*.H|*.inl)'
 
-PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
+PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0"
 	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
@@ -158,7 +158,7 @@ PROJECT_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
 </Project>
 '''
 
-FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
+FILTER_TEMPLATE = '''<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<ItemGroup>
 		${for x in project.source}
@@ -177,7 +177,7 @@ FILTER_TEMPLATE = '''<?xml version="1.0" encoding="Windows-1252"?>
 </Project>
 '''
 
-PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="Windows-1252"?>
+PROJECT_2008_TEMPLATE = r'''<?xml version="1.0" encoding="utf-8"?>
 <VisualStudioProject ProjectType="Visual C++" Version="9,00"
 	Name="${xml: project.name}" ProjectGUID="{${project.uuid}}"
 	RootNamespace="" Keyword="MakeFileProj"
@@ -336,7 +336,7 @@ def compile_template(line):
 			app("lst.append(%r)" % params[-1])
 
 	fun = COMPILE_TEMPLATE % "\n\t".join(buf)
-	#print fun
+	#print(fun)
 	return Task.funex(fun)
 
 re_blank = re.compile('\n\s*\n', re.M)
@@ -345,6 +345,11 @@ def rm_blank_lines(txt):
 	return txt
 
 def stealth_write(self, data, flags='w'):
+	try:
+		data = data.encode('utf-8') # just a guess
+	except:
+		pass
+
 	try:
 		txt = self.read()
 		if txt != data:
