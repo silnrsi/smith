@@ -73,6 +73,8 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 File extensions of C++ files that may require a .moc processing
 """
 
+QT4_LIBS = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtXmlPatterns QtWebKit Qt3Support QtHelp QtScript QtDeclarative"
+
 class qxx(cxx.cxx):
 	"""
 	Each C++ file can have zero or several .moc files to create.
@@ -539,7 +541,7 @@ def configure(self):
 @conf
 def set_qt4_libs_to_check(self):
 	if not hasattr(self, 'qt4_vars'):
-		self.qt4_vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support QtHelp QtScript"
+		self.qt4_vars = QT4_LIBS
 	self.qt4_vars = Utils.to_list(self.qt4_vars)
 	if not hasattr(self, 'qt4_vars_debug'):
 		self.qt4_vars_debug = [a + '_debug' for a in self.qt4_vars]
