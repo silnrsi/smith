@@ -346,7 +346,7 @@ def rm_blank_lines(txt):
 
 def stealth_write(self, data, flags='w'):
 	try:
-		data = data.encode('utf-8') # just a guess
+		data = data.decode('utf-8') # just a guess
 	except:
 		pass
 
