@@ -348,7 +348,7 @@ def stealth_write(self, data, flags='w'):
 	try:
 		txt = self.read()
 		if txt != data:
-			raise ValueError('already done')
+			raise ValueError('must write')
 	except (IOError, ValueError):
 		self.write(data, flags=flags)
 	else:
