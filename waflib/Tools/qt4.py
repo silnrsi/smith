@@ -493,11 +493,71 @@ def configure(self):
 	if not 'PKG_CONFIG_PATH' in os.environ:
 		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 
-	for i in self.qt4_vars_debug + self.qt4_vars:
-		try:
+	try:
+		for i in self.qt4_vars_debug + self.qt4_vars:
 			self.check_cfg(package=i, args='--cflags --libs')
-		except self.errors.ConfigurationError:
-			pass
+	except self.errors.ConfigurationError:
+		for i in self.qt4_vars:
+			uselib = i.upper()
+			if sys.platform == "darwin" and version == "version 4.7.3":
+			# Since at least qt 4.7.3 each library locates in separate directory
+				frameworkName = i + ".framework"
+				qtDynamicLib = os.path.join(qtlibs, frameworkName, i)
+				if os.path.exists(qtDynamicLib):
+					env.append_unique('FRAMEWORK_' + uselib, i)
+					self.msg('Checking for %s' % i, qtDynamicLib, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtlibs, frameworkName, 'Headers'))
+			elif sys.platform != "win32":
+				qtDynamicLib = os.path.join(qtlibs, "lib" + i + ".so")
+				qtStaticLib = os.path.join(qtlibs, "lib" + i + ".a")
+				if os.path.exists(qtDynamicLib):
+					env.append_unique('LIB_' + uselib, i)
+					self.msg('Checking for %s' % i, qtDynamicLib, 'GREEN')
+				elif os.path.exists(qtStaticLib):
+					env.append_unique('LIB_' + uselib, i)
+					self.msg('Checking for %s' % i, qtStaticLib, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+			else:
+				# Release:
+				if os.path.exists(os.path.join(qtlibs, "lib" + i + ".a")):
+					env.append_unique('LIB_' + uselib, i)
+					ret = os.path.join(qtlibs, "lib" + i + ".a")
+					self.msg('Checking for %s' % i, ret, 'GREEN')
+				elif os.path.exists(os.path.join(qtlibs, "lib" + i + "4.a")):
+					env.append_unique('LIB_' + uselib, i + "4")
+					ret = os.path.join(qtlibs, "lib" + i + ".a")
+					self.msg('Checking for %s' % i, ret, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+
+				# Debug:
+				uselib = i.upper() + "_debug"
+				if os.path.exists(os.path.join(qtlibs, "lib" + i + "d.a")):
+					env.append_unique('LIB_' + uselib, i)
+					ret = os.path.join(qtlibs, "lib" + i + "d.a")
+					self.msg('Checking for %s' % i, ret, 'GREEN')
+				elif os.path.exists(os.path.join(qtlibs, "lib" + i + "d4.a")):
+					env.append_unique('LIB_' + uselib, i + "d4")
+					ret = os.path.join(qtlibs, "lib" + i + "d4.a")
+					self.msg('Checking for %s' % i, ret, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 
 	# the libpaths make really long command-lines
 	# remove the qtcore ones from qtgui, etc
