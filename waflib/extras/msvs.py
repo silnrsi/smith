@@ -839,19 +839,21 @@ class msvs_generator(BuildContext):
 		"""
 		Create the folder structure in the Visual studio project view
 		"""
-		seen = set([])
+		seen = {}
 		def make_parents(proj):
 			# look at a project, try to make a parent
-			if proj.iter_path in seen:
+			if getattr(proj, 'parent', None):
+				# we are not supposed to have duplicate projects.. TODO
 				return
-			seen.add(proj.iter_path)
-
-			# create a project representing the folder "x"
-
 			x = proj.iter_path
-			n = self.vsnode_vsdir(self, make_uuid(x.abspath()), x.name)
+			if x in seen:
+				proj.parent = seen[x]
+				return
+
+			# There is not vsnode_vsdir for x.
+			# So create a project representing the folder "x"
+			n = proj.parent = seen[x] = self.vsnode_vsdir(self, make_uuid(x.abspath()), x.name)
 			n.iter_path = x.parent
-			proj.parent = n
 			self.all_projects.append(n)
 
 			# recurse up to the project directory
