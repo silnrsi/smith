@@ -441,13 +441,11 @@ def find_qt4_binaries(self):
 						cand = qmake
 						prev_ver = new_ver
 	if cand:
-		qmake = cand
+		self.env.QMAKE = cand
 	else:
 		self.fatal('Could not find qmake for qt4')
 
-	self.env.QMAKE = qmake
-	qtdir = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
-	qtbin = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
+	qtbin = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
 
 	def find_bin(lst, var):
 		for f in lst:
@@ -491,6 +489,7 @@ def find_qt4_libraries(self):
 		try:
 			qtlibs = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_LIBS']).strip()
 		except Errors.WafError:
+			qtdir = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
 			qtlibs = os.path.join(qtdir, 'lib')
 	self.msg('Found the Qt4 libraries in', qtlibs)
 
