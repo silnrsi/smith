@@ -373,14 +373,21 @@ def configure(self):
 	Besides the configuration options, the environment variable QT4_ROOT may be used
 	to give the location of the qt4 libraries (absolute path).
 
-	The detection may use the program *pkg-config* through :py:func:`waflib.Tools.config_c.check_cfg`
+	The detection will use the program *pkg-config* through :py:func:`waflib.Tools.config_c.check_cfg`
 	"""
+	self.find_qt4_binaries()
+	self.set_qt4_libs_to_check()
+	self.find_qt4_libraries()
+	self.add_qt4_rpath()
+	self.simplify_qt4_libs()
+
+@conf
+def find_qt4_binaries(self):
 	env = self.env
 	opt = Options.options
 
 	qtdir = getattr(opt, 'qtdir', '')
 	qtbin = getattr(opt, 'qtbin', '')
-	qtlibs = getattr(opt, 'qtlibs', '')
 	useframework = getattr(opt, 'use_qt4_osxframework', True)
 
 	paths = []
@@ -440,15 +447,8 @@ def configure(self):
 		self.fatal('could not find qmake for qt4')
 
 	self.env.QMAKE = qmake
-	qtincludes = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
 	qtdir = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
 	qtbin = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
-
-	if not qtlibs:
-		try:
-			qtlibs = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_LIBS']).strip()
-		except Errors.WafError:
-			qtlibs = os.path.join(qtdir, 'lib')
 
 	def find_bin(lst, var):
 		for f in lst:
@@ -488,8 +488,18 @@ def configure(self):
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
 
-	self.set_qt4_libs_to_check()
+@conf
+def find_qt4_libraries(self):
+	qtlibs = getattr(Options.options, 'qtlibs', '')
+	if not qtlibs:
+		try:
+			qtlibs = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_LIBS']).strip()
+		except Errors.WafError:
+			qtlibs = os.path.join(qtdir, 'lib')
+	self.msg('Using the qt libraries in', qtlibs)
 
+	qtincludes = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_HEADERS']).strip()
+	env = self.env
 	if not 'PKG_CONFIG_PATH' in os.environ:
 		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 
@@ -559,8 +569,11 @@ def configure(self):
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 
+@conf
+def simplify_qt4_libs(self):
 	# the libpaths make really long command-lines
 	# remove the qtcore ones from qtgui, etc
+	env = self.env
 	def process_lib(vars_, coreval):
 		for d in vars_:
 			var = d.upper()
@@ -580,7 +593,10 @@ def configure(self):
 	process_lib(self.qt4_vars,       'LIBPATH_QTCORE')
 	process_lib(self.qt4_vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
+@conf
+def add_qt4_rpath(self):
 	# rpath if wanted
+	env = self.env
 	if Options.options.want_rpath:
 		def process_rpath(vars_, coreval):
 			for d in vars_:
