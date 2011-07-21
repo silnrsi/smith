@@ -48,7 +48,7 @@ else:
 
 import os, sys
 from waflib.Tools import c_preproc, cxx
-from waflib import TaskGen, Task, Utils, Runner, Options, Node, Errors
+from waflib import Task, Utils, Options, Errors
 from waflib.TaskGen import feature, after_method, extension
 from waflib.Configure import conf
 from waflib.Logs import error
@@ -388,7 +388,6 @@ def find_qt4_binaries(self):
 
 	qtdir = getattr(opt, 'qtdir', '')
 	qtbin = getattr(opt, 'qtbin', '')
-	useframework = getattr(opt, 'use_qt4_osxframework', True)
 
 	paths = []
 
@@ -468,14 +467,12 @@ def find_qt4_binaries(self):
 	try:
 		version = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
 	except self.errors.ConfigurationError:
-		self.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
-
+		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
 	version = version.replace('Qt User Interface Compiler ','')
 	version = version.replace('User Interface Compiler for Qt', '')
+	self.msg('Checking for uic version', '%s' % version)
 	if version.find(' 3.') != -1:
-		self.msg('Checking for uic version', '(%s: too old)' % version, False)
-		self.fatal('uic is too old')
-	self.msg('Checking for uic version', '(%s)'%version)
+		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
@@ -509,8 +506,8 @@ def find_qt4_libraries(self):
 	except self.errors.ConfigurationError:
 		for i in self.qt4_vars:
 			uselib = i.upper()
-			if sys.platform == "darwin" and version == "version 4.7.3":
-			# Since at least qt 4.7.3 each library locates in separate directory
+			if sys.platform == "darwin":
+				# Since at least qt 4.7.3 each library locates in separate directory
 				frameworkName = i + ".framework"
 				qtDynamicLib = os.path.join(qtlibs, frameworkName, i)
 				if os.path.exists(qtDynamicLib):
@@ -518,7 +515,6 @@ def find_qt4_libraries(self):
 					self.msg('Checking for %s' % i, qtDynamicLib, 'GREEN')
 				else:
 					self.msg('Checking for %s' % i, False, 'YELLOW')
-
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtlibs, frameworkName, 'Headers'))
 			elif sys.platform != "win32":
 				qtDynamicLib = os.path.join(qtlibs, "lib" + i + ".so")
