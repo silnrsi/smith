@@ -493,7 +493,7 @@ def find_qt4_libraries(self):
 			qtlibs = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_LIBS']).strip()
 		except Errors.WafError:
 			qtlibs = os.path.join(qtdir, 'lib')
-	self.msg('Using the qt libraries in', qtlibs)
+	self.msg('Found the Qt4 libraries in', qtlibs)
 
 	qtincludes = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_HEADERS']).strip()
 	env = self.env
@@ -501,8 +501,7 @@ def find_qt4_libraries(self):
 		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 
 	try:
-		for i in self.qt4_vars_debug + self.qt4_vars:
-			self.check_cfg(package=i, args='--cflags --libs')
+		self.check_cfg(atleast_pkgconfig_version='0.1')
 	except self.errors.ConfigurationError:
 		for i in self.qt4_vars:
 			uselib = i.upper()
@@ -564,6 +563,9 @@ def find_qt4_libraries(self):
 				env.append_unique('LIBPATH_' + uselib, qtlibs)
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+	else:
+		for i in self.qt4_vars_debug + self.qt4_vars:
+			self.check_cfg(package=i, args='--cflags --libs', mandatory=False)
 
 @conf
 def simplify_qt4_libs(self):
