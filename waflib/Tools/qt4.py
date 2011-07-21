@@ -443,7 +443,7 @@ def find_qt4_binaries(self):
 	if cand:
 		qmake = cand
 	else:
-		self.fatal('could not find qmake for qt4')
+		self.fatal('Could not find qmake for qt4')
 
 	self.env.QMAKE = qmake
 	qtdir = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
@@ -465,13 +465,12 @@ def find_qt4_binaries(self):
 		self.fatal('cannot find the uic compiler for qt4')
 
 	try:
-		version = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
+		uicver = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
 	except self.errors.ConfigurationError:
 		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
-	version = version.replace('Qt User Interface Compiler ','')
-	version = version.replace('User Interface Compiler for Qt', '')
-	self.msg('Checking for uic version', '%s' % version)
-	if version.find(' 3.') != -1:
+	uicver = uicver.replace('Qt User Interface Compiler ','').replace('User Interface Compiler for Qt', '')
+	self.msg('Checking for uic version', '%s' % uicver)
+	if uicver.find(' 3.') != -1:
 		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
