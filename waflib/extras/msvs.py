@@ -339,14 +339,21 @@ def compile_template(line):
 	#print(fun)
 	return Task.funex(fun)
 
+
 re_blank = re.compile('\n\s*\n', re.M)
 def rm_blank_lines(txt):
 	txt = re_blank.sub('\n', txt)
 	return txt
 
+BOM = '\xef\xbb\xbf'
+try:
+	BOM = bytes(BOM, 'iso8859-1') # python 3
+except:
+	pass
+
 def stealth_write(self, data, flags='wb'):
 	try:
-		data = ('\ufeff' + data).encode('utf-8') # python 3
+		data = BOM + data.encode('utf-8') # python 3
 	except:
 		pass
 	try:
