@@ -27,7 +27,7 @@ def apply_fsc(self):
 			no_nodes.append(x)
 	self.source = no_nodes
 
-	bintype = getattr(self, 'type', 'exe')
+	bintype = getattr(self, 'type', self.gen.endswith('.exe') and 'exe' or 'lib')
 	self.cs_task = tsk = self.create_task('fsc', cs_nodes, self.path.find_or_declare(self.gen))
 	tsk.env.CSTYPE = '/target:%s' % bintype
 	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()
