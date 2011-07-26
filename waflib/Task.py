@@ -1199,6 +1199,7 @@ def update_outputs(cls):
 		old_post_run(self)
 		for node in self.outputs:
 			node.sig = Utils.h_file(node.abspath())
+			self.generator.bld.task_sigs[node.abspath()] = self.uid() # issue #1017
 	cls.post_run = post_run
 
 
@@ -1213,11 +1214,10 @@ def update_outputs(cls):
 			# perform a second check, returning 'SKIP_ME' as we are expecting that
 			# the signatures do not match
 			bld = self.generator.bld
-			new_sig  = self.signature()
 			prev_sig = bld.task_sigs[self.uid()]
-			if prev_sig == new_sig:
+			if prev_sig == self.signature():
 				for x in self.outputs:
-					if not x.sig:
+					if not x.sig or bld.task_sigs[x.abspath()] != self.uid():
 						return RUN_ME
 				return SKIP_ME
 		except KeyError:

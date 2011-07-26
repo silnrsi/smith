@@ -2,13 +2,14 @@ NEW IN WAF 1.6.7
 ----------------
 
 * Provide more diagnostic for invalid build groups #914
-* Various msvs enhancements
+* Various enhancements to msvs.py
 * Read MSVC_VERSIONS and MSVC_TARGETS from the command-line
 * Minor cross-compiler detection fix on msvc.py
 * Fix the redirections with pipes (waf configure > log)
 * Do not display runnable_status exceptions when running with -k
 * Let -k stop at the first runnable_status error and -kk run even further
 * Merge the add_object extension in the main line (source='file.o')
+* Make update_outputs more robust with changes in the task definition #1017
 
 NEW IN WAF 1.6.6
 ----------------
