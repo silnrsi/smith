@@ -55,7 +55,7 @@ def configure(conf):
 	"""
 	Find a F# compiler, set the variable FSC for the compiler and FS_NAME (mono or fsc)
 	"""
-	conf.find_program(['fsc.exe', 'fsharpc.exe'], var='FSC')
+	conf.find_program(['fsc.exe', 'fsharpc'], var='FSC')
 	conf.env.FSC = conf.cmd_to_list(conf.env.FSC)
 	conf.env.ASS_ST = '/r:%s'
 	conf.env.RES_ST = '/resource:%s'
