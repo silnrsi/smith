@@ -338,7 +338,7 @@ class moc(Task.Task):
 	Create *.moc* files
 	"""
 	color   = 'BLUE'
-	run_str = '${QT_MOC} ${MOC_FLAGS} ${CPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
+	run_str = '${QT_MOC} ${MOC_FLAGS} ${MOCCPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
 
 class ui4(Task.Task):
 	"""
@@ -481,6 +481,7 @@ def find_qt4_binaries(self):
 	env['MOC_ST'] = '-o'
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
+	env.MOCCPPPATH_ST = '-I%s'
 
 @conf
 def find_qt4_libraries(self):
