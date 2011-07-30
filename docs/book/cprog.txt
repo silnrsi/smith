@@ -200,8 +200,8 @@ For performance reasons, the implicit dependency on the system headers is ignore
 
 [source,python]
 ---------------
-from waflib import preproc
-preproc.go_absolute = True
+from waflib import c_preproc
+c_preproc.go_absolute = True
 ---------------
 
 Additional tools such as http://code.google.com/p/waf/source/browse/trunk/waflib/extras/gccdeps.py[gccdeps] provide alternate dependency resolution by using various heuristics (using the compiler, ignoring the macros, etc).
