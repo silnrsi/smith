@@ -74,7 +74,7 @@ ASSUMPTIONS:
 * each project is a vcxproj file, therefore the project uuid needs only to be a hash of the absolute path
 """
 
-import os, re
+import os, re, sys
 import uuid # requires python 2.5
 from waflib.Build import BuildContext
 from waflib import Utils, TaskGen, Logs, Task, Context, Node, Options
@@ -353,9 +353,16 @@ except:
 
 def stealth_write(self, data, flags='wb'):
 	try:
-		data = BOM + data.encode('utf-8') # python 3
+		x = unicode
 	except:
-		pass
+		data = data.encode('utf-8') # python 3
+	else:
+		data = data.decode(sys.getfilesystemencoding(), 'replace')
+		data = data.encode('utf-8')
+
+	if self.name.endswith('.xml'):
+		data = BOM + data
+
 	try:
 		txt = self.read(flags='rb')
 		if txt != data:
