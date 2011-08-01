@@ -278,7 +278,7 @@ def apply_qt4(self):
 
 		if getattr(self, 'update', None) and Options.options.trans_qt4:
 			cxxnodes = [a.inputs[0] for a in self.compiled_tasks] + [
-                 a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
+				a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
 			for x in qmtasks:
 				self.create_task('trans_update', cxxnodes, x.inputs)
 
@@ -296,7 +296,10 @@ def apply_qt4(self):
 		if len(flag) < 2: continue
 		f = flag[0:2]
 		if f in ['-D', '-I', '/D', '/I']:
-			lst.append(flag)
+			if (f[0] == '/'):
+				lst.append('-' + flag[1:])
+			else:
+				lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
 @extension(*EXT_QT4)
@@ -338,7 +341,7 @@ class moc(Task.Task):
 	Create *.moc* files
 	"""
 	color   = 'BLUE'
-	run_str = '${QT_MOC} ${MOC_FLAGS} ${MOCCPPPATH_ST:INCPATHS} ${DEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
+	run_str = '${QT_MOC} ${MOC_FLAGS} ${MOCCPPPATH_ST:INCPATHS} ${MOCDEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
 
 class ui4(Task.Task):
 	"""
@@ -482,6 +485,7 @@ def find_qt4_binaries(self):
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
 	env.MOCCPPPATH_ST = '-I%s'
+	env.MOCDEFINES_ST = '-D%s'
 
 @conf
 def find_qt4_libraries(self):
@@ -531,14 +535,13 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 			else:
 				# Release:
-				if os.path.exists(os.path.join(qtlibs, "lib" + i + ".a")):
-					env.append_unique('LIB_' + uselib, i)
-					ret = os.path.join(qtlibs, "lib" + i + ".a")
-					self.msg('Checking for %s' % i, ret, 'GREEN')
-				elif os.path.exists(os.path.join(qtlibs, "lib" + i + "4.a")):
-					env.append_unique('LIB_' + uselib, i + "4")
-					ret = os.path.join(qtlibs, "lib" + i + ".a")
-					self.msg('Checking for %s' % i, ret, 'GREEN')
+
+				for k in ("lib%s.a", "lib%s4.a", "%.lib", "%s4.lib"):
+					if os.path.exists(os.path.join(qtlibs, k % i)):
+						env.append_unique('LIB_' + uselib, i)
+						ret = os.path.join(qtlibs, k % i)
+						self.msg('Checking for %s' % i, ret, 'GREEN')
+						break
 				else:
 					self.msg('Checking for %s' % i, False, 'YELLOW')
 
