@@ -536,7 +536,7 @@ def find_qt4_libraries(self):
 			else:
 				# Release:
 
-				for k in ("lib%s.a", "lib%s4.a", "%.lib", "%s4.lib"):
+				for k in ("lib%s.a", "lib%s4.a", "%s.lib", "%s4.lib"):
 					if os.path.exists(os.path.join(qtlibs, k % i)):
 						env.append_unique('LIB_' + uselib, i)
 						ret = os.path.join(qtlibs, k % i)
