@@ -1238,21 +1238,7 @@ class StepContext(BuildContext):
 					f()
 
 		for pat in self.files.split(','):
-			inn = True
-			out = True
-			if pat.startswith('in:'):
-				out = False
-				pat = pat.replace('in:', '')
-			elif pat.startswith('out:'):
-				inn = False
-				pat = pat.replace('out:', '')
-
-			if not pat.startswith('^'):
-				pat = '^.+?%s' % pat
-			if not pat.endswith('$'):
-				pat = '%s$' % pat
-			pat = re.compile(pat)
-
+			matcher = self.get_matcher(pat)
 			for g in self.groups:
 				for tg in g:
 					if isinstance(tg, Task.TaskBase):
@@ -1261,19 +1247,49 @@ class StepContext(BuildContext):
 						lst = tg.tasks
 					for tsk in lst:
 						do_exec = False
-						if inn:
-							for node in getattr(tsk, 'inputs', []):
-								if pat.match(node.abspath()):
-									do_exec = True
-									break
-						if out and not do_exec:
-							for node in getattr(tsk, 'outputs', []):
-								if pat.match(node.abspath()):
-									do_exec = True
-									break
+						for node in getattr(tsk, 'inputs', []):
+							if matcher(node, output=False):
+								do_exec = True
+								break
+						for node in getattr(tsk, 'outputs', []):
+							if matcher(node, output=True):
+								do_exec = True
+								break
 						if do_exec:
 							ret = tsk.run()
 							Logs.info('%s -> %r' % (str(tsk), ret))
+
+	def get_matcher(self, pat):
+		# this returns a function
+		inn = True
+		out = True
+		if pat.startswith('in:'):
+			out = False
+			pat = pat.replace('in:', '')
+		elif pat.startswith('out:'):
+			inn = False
+			pat = pat.replace('out:', '')
+
+		anode = self.root.find_node(pat)
+		pattern = None
+		if not anode:
+			if not pat.startswith('^'):
+				pat = '^.+?%s' % pat
+			if not pat.endswith('$'):
+				pat = '%s$' % pat
+			pattern = re.compile(pat)
+
+		def match(node, output):
+			if output == True and not out:
+				return False
+			if output == False and not inn:
+				return False
+
+			if anode:
+				return anode == node
+			else:
+				return pattern.match(node.abspath())
+		return match
 
 BuildContext.store = Utils.nogc(BuildContext.store)
 BuildContext.restore = Utils.nogc(BuildContext.restore)
