@@ -6,11 +6,15 @@ Ideally this document would have a live project to illustrate the ideas, but for
 
 === Create Working Area ===
 
-Create a directory to work in. We will use the directory `work\`. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly.
+If you need a suggestion of where to place all the needed files, the following directory structure is suggested.
+
+Create a directory to work in. We will use the directory `fontwork\`. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly. Your home folder is a good place for this directory.
+
+In `fontwork` create a directory called `script`. In `fontwork` place Perl sources (either from CPAN tarbals or subversion repositories) and other miscellaneous files. In `script` there should be one directory for each script. The directory name should be the ISO 15924 four letter code for the script you are working with. For example `deva` for Devanagari, `latn` for Latin (or Roman) script.
 
 === Script Projects ===
 
-While it isn't necessary to follow the script project directory structure when using the font template build system, it is a useful directory structure.
+These projects are named for the ISO 15924 four letter codes mentioned above. While it isn't necessary to follow the script project directory structure when using the font template build system, it is a useful directory structure.
 
 fonts/::
     Contains one directory per font project in this script
