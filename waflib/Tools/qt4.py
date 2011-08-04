@@ -534,13 +534,12 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 			else:
-				# Release:
-
+				# Release
 				for k in ("lib%s.a", "lib%s4.a", "%s.lib", "%s4.lib"):
-					if os.path.exists(os.path.join(qtlibs, k % i)):
+					lib = os.path.join(qtlibs, k % i)
+					if os.path.exists(lib):
 						env.append_unique('LIB_' + uselib, i)
-						ret = os.path.join(qtlibs, k % i)
-						self.msg('Checking for %s' % i, ret, 'GREEN')
+						self.msg('Checking for %s' % i, lib, 'GREEN')
 						break
 				else:
 					self.msg('Checking for %s' % i, False, 'YELLOW')
@@ -549,16 +548,14 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 
-				# Debug:
+				# Debug
 				uselib = i.upper() + "_debug"
-				if os.path.exists(os.path.join(qtlibs, "lib" + i + "d.a")):
-					env.append_unique('LIB_' + uselib, i)
-					ret = os.path.join(qtlibs, "lib" + i + "d.a")
-					self.msg('Checking for %s' % i, ret, 'GREEN')
-				elif os.path.exists(os.path.join(qtlibs, "lib" + i + "d4.a")):
-					env.append_unique('LIB_' + uselib, i + "d4")
-					ret = os.path.join(qtlibs, "lib" + i + "d4.a")
-					self.msg('Checking for %s' % i, ret, 'GREEN')
+				for k in ("lib%sd.a", "lib%sd4.a", "%sd.lib", "%sd4.lib"):
+					lib = os.path.join(qtlibs, k % i)
+					if os.path.exists(lib):
+						env.append_unique('LIB_' + uselib, i)
+						self.msg('Checking for %s' % i, lib, 'GREEN')
+						break
 				else:
 					self.msg('Checking for %s' % i, False, 'YELLOW')
 
