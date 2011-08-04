@@ -74,6 +74,12 @@ smith zip
 
 Creates a zip appropriate for a source package.
 
+----
+smith clean
+----
+
+Not sure what this does.
+
 === Writing wscript ===
 
 The `wscript` file is a python program, but the internal program environment is set up to minimise the amount of actual programming that needs to be done. There is no setup needed in the file, and object registration is automatic. It is possible to add waf specific extensions to the file and for details of this, users should read the waf manual.

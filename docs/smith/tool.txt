@@ -14,9 +14,15 @@ Before installing packages, you should have `http://packages.sil.org/ubuntu` add
 * nsis
 * mercurial
 * subversion
+* libalgorithm-diff-perl
+
+Optional but very useful packages include:
+
 * meld
 * kdiff3
-* libalgorithm-diff-perl
+* tortoisehg
+* tortoisehg-nautilus
+* subversion-tools
 
 The following packages are needed, and should already be installed on an Ubuntu system.
 
@@ -39,7 +45,7 @@ You will need to install the following programs:
 
 === Perl Modules ===
 
-Many of the tools that smith uses are perl scripts. There are several ways to install these tools.
+Many of the tools that smith uses are perl scripts. There are several ways to install these tools. You can unpack the sources anywhere on your system. If you need a suggestion of where to do this unpacking, please read the section Directory Structure.
 
 ==== Packages ====
 
@@ -64,46 +70,44 @@ Here we install various Perl modules from source. The reason for doing this is s
 * run `make` to create the local installation copy
 * run `make install` to install the local copy to the main perl installation
 
-First you need to create a local repository. You will only need to do this once. Run the command
+First you need to create three local repositories. You will only need to do this once. Run the commands
 
 ----
-svn co http://scripts.sil.org/svn-public/utilities
+svn co http://scripts.sil.org/svn-public/utilities/Font-TTF/trunk Font-TTF
+svn co http://scripts.sil.org/svn-public/utilities/Text-PDF/trunk Text-PDF
+svn co http://scripts.sil.org/svn-public/utilities/Font-TTF-scripts/trunk Font-TTF-scripts
 ----
 
 Every time you wish to update and install the perl tools run the following commands. On Windows you will need to replace `make` with 
 `make DFSEP=/` due to the vagueries of GNU make. You should also change the command `sudo make install` to `make install`.
 
-----
-cd utilities
-----
-
 To install Font-TTF:
 
 ----
-cd Font-TTF/trunk/
+cd Font-TTF
 perl Makefile.PL
 make
 sudo make install
-cd ../..
+cd ..
 ----
 
 To install Text-PDF:
 
 ----
-cd Text-PDF/trunk/
+cd Text-PDF
 perl Makefile.PL
 make
 sudo make install
-cd ../..
+cd ..
 ----
 
 To install Font-TTF-Scripts:
 
 ----
-cd Font-TTF-scripts/trunk/
+cd Font-TTF-scripts
 perl Makefile.PL
 make
 sudo make install
-cd ../..
+cd ..
 ----
 
