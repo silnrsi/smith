@@ -1,0 +1,109 @@
+== Tools ==
+
+Here we install a number of pre-requisite programs that we will need later on. Unless otherwise stated, installers are assumed to take their default installation properties. With care you can change them if you want.
+
+=== Ubuntu ===
+
+Before installing packages, you should have `http://packages.sil.org/ubuntu` added as software source. Needed packages are:
+
+* fontforge
+* python-fontforge
+* texlive-xetex
+* grcompiler
+* graphite-utilities
+* nsis
+* mercurial
+* subversion
+* meld
+* kdiff3
+* libalgorithm-diff-perl
+
+The following packages are needed, and should already be installed on an Ubuntu system.
+
+* perl
+* python
+
+=== Windows ===
+
+You will need to install the following programs:
+
+* FontForge
+* XeTeX - Paratext 7.x comes with XeTeX.
+* Graphite compiler
+* Graphite utilities
+* NSIS
+* TortoiseHg
+* TortoiseSVN
+* ActivePerl - Comes with Lib-AlgorithmDiff.
+* ActivePython
+
+=== Perl Modules ===
+
+Many of the tools that smith uses are perl scripts. There are several ways to install these tools.
+
+==== Packages ====
+
+If you are running Ubuntu, installed the following packages
+
+* libfont-ttf-scripts-perl
+* libfont-ttf-perl
+
+If you are running Windows you can get tarballs (`.tar.gz`) from CPAN for the following packages.
+
+* Font-TTF-0.46.tar.gz
+* Text-PDF-0.30.tar.gz
+* Font-TTF-Scripts-0.13.tar.gz
+
+The versions will probably be newer by now. Extract the tarballs and follow the steps for installing from subversion repositories. You can use a program such a `7-zip` to extract the tarballs.
+
+==== Subversion Repositories ====
+
+Here we install various Perl modules from source. The reason for doing this is so that we can update any software that we might encounter problems with. The basic procedure for installing a perl module is:
+
+* run `perl Makefile.PL` to create a Makefile
+* run `make` to create the local installation copy
+* run `make install` to install the local copy to the main perl installation
+
+First you need to create a local repository. You will only need to do this once. Run the command
+
+----
+svn co http://scripts.sil.org/svn-public/utilities
+----
+
+Every time you wish to update and install the perl tools run the following commands. On Windows you will need to replace `make` with 
+`make DFSEP=/` due to the vagueries of GNU make. You should also change the command `sudo make install` to `make install`.
+
+----
+cd utilities
+----
+
+To install Font-TTF:
+
+----
+cd Font-TTF/trunk/
+perl Makefile.PL
+make
+sudo make install
+cd ../..
+----
+
+To install Text-PDF:
+
+----
+cd Text-PDF/trunk/
+perl Makefile.PL
+make
+sudo make install
+cd ../..
+----
+
+To install Font-TTF-Scripts:
+
+----
+cd Font-TTF-scripts/trunk/
+perl Makefile.PL
+make
+sudo make install
+cd ../..
+----
+

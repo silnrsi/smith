@@ -1,0 +1,38 @@
+== Directory Structure ==
+
+Having a good layout for all the different files in a script project is very helpful.
+
+Ideally this document would have a live project to illustrate the ideas, but for now a description is all there is.
+
+=== Create Working Area ===
+
+Create a directory to work in. We will use the directory `work\`. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly.
+
+=== Script Projects ===
+
+While it isn't necessary to follow the script project directory structure when using the font template build system, it is a useful directory structure.
+
+fonts/::
+    Contains one directory per font project in this script
+
+keyboards/::
+    Contains one directory per keyboard layout collection
+
+mappings/::
+    Contains one directory per legacy encoding. Inside that is any mapping tables and a sample font in that encoding.
+
+wsis/::
+    Each directory under here corresponds to a particular language that uses script. The directory name is the RFC4646bis code for the language. Each language directory in its turn contains other directories:
+
+Words/:::
+    This directory contains Unicode encoded wordlist files
+
+cldr/:::
+    This directory contains any LDML files for this language in this writing system
+
+Toolbox/:::
+    This directory contains any Toolbox `.lng` files for this language and script in Unicode. Non Unicode files are stored under a corresponding directory in the appropriate `mappings` directory.
+
+Texts/:::
+    Contains sample texts in the language, including `.pdf` to show how the text should be rendered.
+

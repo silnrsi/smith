@@ -436,7 +436,7 @@ class Task(TaskBase):
 
 	def __repr__(self):
 		"for debugging purposes"
-		return "".join(['\n\t{task %r: ' % id(self), self.__class__.__name__, " ", ",".join([x.name for x in self.inputs]), " -> ", ",".join([x.name for x in self.outputs]), '}'])
+		return "".join(['\n\t{task %r: ' % id(self), self.__class__.__name__, " ", ",".join([getattr(x, 'name', '') for x in self.inputs]), " -> ", ",".join([getattr(x, 'name', '') for x in self.outputs]), '}'])
 
 	def uid(self):
 		"""

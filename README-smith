@@ -1,0 +1,13 @@
+For general waf build information, please see the README file.
+
+HOW TO CREATE THE SMITH SCRIPT
+------------------------------
+
+$ ./mywaflite
+
+HOW TO CREATE THE SMITH DOCUMENTATION
+-------------------------------------
+
+$ cd docs/smith/
+$ a2x manual.txt
+
