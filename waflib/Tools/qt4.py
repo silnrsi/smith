@@ -534,11 +534,11 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 			else:
-				# Release
+				# Release library names are like QtCore4
 				for k in ("lib%s.a", "lib%s4.a", "%s.lib", "%s4.lib"):
 					lib = os.path.join(qtlibs, k % i)
 					if os.path.exists(lib):
-						env.append_unique('LIB_' + uselib, i)
+						env.append_unique('LIB_' + uselib, i + k[k.find("%s") + 2 : k.find('.')])
 						self.msg('Checking for %s' % i, lib, 'GREEN')
 						break
 				else:
@@ -548,12 +548,12 @@ def find_qt4_libraries(self):
 				env.append_unique('INCLUDES_' + uselib, qtincludes)
 				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
 
-				# Debug
+				# Debug library names are like QtCore4d
 				uselib = i.upper() + "_debug"
 				for k in ("lib%sd.a", "lib%sd4.a", "%sd.lib", "%sd4.lib"):
 					lib = os.path.join(qtlibs, k % i)
 					if os.path.exists(lib):
-						env.append_unique('LIB_' + uselib, i)
+						env.append_unique('LIB_' + uselib, i + k[k.find("%s") + 2 : k.find('.')])
 						self.msg('Checking for %s' % i, lib, 'GREEN')
 						break
 				else:
