@@ -32,15 +32,15 @@ def crayftn_flags(conf):
 
 @conf
 def get_crayftn_version(conf, fc):
-        version_re = re.compile(r"Cray Fortran\s*:\s*Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
-        cmd = fc + ['-V']
-        out,err = fc_config.getoutput(conf, cmd, stdin=False)
-        if out: match = version_re(out)
-        else: match = version_re(err)
-        if not match:
-                conf.fatal('Could not determine the Cray Fortran compiler version.')
-        k = match.groupdict()
-        conf.env['FC_VERSION'] = (k['major'], k['minor'])
+		version_re = re.compile(r"Cray Fortran\s*:\s*Version\s*(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+		cmd = fc + ['-V']
+		out,err = fc_config.getoutput(conf, cmd, stdin=False)
+		if out: match = version_re(out)
+		else: match = version_re(err)
+		if not match:
+				conf.fatal('Could not determine the Cray Fortran compiler version.')
+		k = match.groupdict()
+		conf.env['FC_VERSION'] = (k['major'], k['minor'])
 
 def configure(conf):
 	conf.find_crayftn()

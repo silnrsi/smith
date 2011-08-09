@@ -45,16 +45,16 @@ To customize the outputs, provide subclasses in your wscript files:
 
 from waflib.extras import msvs
 class vsnode_target(msvs.vsnode_target):
-    def get_build_command(self, props):
+	def get_build_command(self, props):
 		# likely to be required
-        return "waf.bat build"
+		return "waf.bat build"
 	def collect_source(self):
 		# likely to be required
 		...
 class msvs_bar(msvs.msvs_generator):
-    def init(self):
-        msvs.msvs_generator.init(self)
-        self.vsnode_target = vsnode_target
+	def init(self):
+		msvs.msvs_generator.init(self)
+		self.vsnode_target = vsnode_target
 
 The msvs class re-uses the same build() function for reading the targets (task generators),
 you may therefore specify msvs settings on the context object:
