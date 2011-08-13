@@ -245,7 +245,7 @@ def read_dang(ctx): <2>
 	else:
 		ctx.end_msg('DANG is not set')
 
-def configure(ctx): <3>
+def configure(ctx): <4>
 	ctx.read_dang()
 ---------------
 
