@@ -1,3 +1,7 @@
+NEW IN WAF 1.6.8
+----------------
+* Found a typo that prevented Waf from running on Pypy-trunk
+
 NEW IN WAF 1.6.7
 ----------------
 
