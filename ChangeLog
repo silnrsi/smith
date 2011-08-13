@@ -10,6 +10,7 @@ NEW IN WAF 1.6.7
 * Let -k stop at the first runnable_status error and -kk run even further
 * Merge the add_object extension in the main line (source='file.o')
 * Make update_outputs more robust with changes in the task definition #1017
+* Qt4 detection on Win32
 
 NEW IN WAF 1.6.6
 ----------------
