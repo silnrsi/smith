@@ -188,7 +188,7 @@ class Parallel(object):
 						lst = []
 						for tsk in self.frozen:
 							lst.append('%s\t-> %r' % (repr(tsk), [id(x) for x in tsk.run_after]))
-						raise Errors.WafError("Deadlock detected: %s%s" % (msg, ''.join(lst)))
+						raise Errors.WafError('Deadlock detected: %s%s' % (msg, ''.join(lst)))
 				self.deadlock = self.processed
 
 			if self.frozen:
@@ -304,6 +304,9 @@ class Parallel(object):
 				# if the task is marked as "run", just skip it
 				self.processed += 1
 				continue
+
+			if self.stop: # stop immediately after a failure was detected
+				break
 
 			try:
 				st = tsk.runnable_status()
