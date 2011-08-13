@@ -167,7 +167,7 @@ def h_file(filename):
 		while filename:
 			filename = f.read(100000)
 			m.update(filename)
-	except:
+	finally:
 		f.close()
 	return m.digest()
 
