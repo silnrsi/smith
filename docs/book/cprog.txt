@@ -111,7 +111,7 @@ def build(bld):
 
 ==== Execution path and flags
 
-Include paths are used by the C/C++ compilers for finding the headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
+Include paths are used by the C/C++ compilers for finding headers. When one header changes, the files are recompiled automatically. For example on a project having the following structure:
 
 [source,shishell]
 ---------------
@@ -204,7 +204,9 @@ from waflib import c_preproc
 c_preproc.go_absolute = True
 ---------------
 
-Additional tools such as http://code.google.com/p/waf/source/browse/trunk/waflib/extras/gccdeps.py[gccdeps] provide alternate dependency resolution by using various heuristics (using the compiler, ignoring the macros, etc).
+Additional tools such as http://code.google.com/p/waf/source/browse/trunk/waflib/extras/gccdeps.py[gccdeps] or http://code.google.com/p/waf/source/browse/trunk/waflib/extras/dumbpreproc.py[dumbpreproc] provide alternate dependency scanners that can be faster in certain cases (boost).
+
+NOTE: The Waf engine will detect if tasks generate headers necessary for the compilation and compute the build order accordingly. It may sometimes improve the performance of the scanner if the tasks creating headers provide the hint 'ext_out=[".h"]'.
 
 ==== Dependency debugging
 
@@ -232,6 +234,7 @@ $ waf --zones=deps
 
 The dependency computation is performed only when the files are not up-to-date, so these commands will display something only when there is a file to compile.
 
+NOTE: The scanner is only called when C files or dependencies change. In the rare case of adding headers after a successful compilation, then it may be necessary to run 'waf clean build' to force a full scanning.
 
 === Library interaction (use)
 
