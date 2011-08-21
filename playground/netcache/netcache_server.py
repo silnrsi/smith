@@ -49,7 +49,7 @@ def make_clean():
 	# so one thread cleans and the others return immediately
 	if lock.acquire(0):
 		try:
-			make_clean_unsafe(ssig)
+			make_clean_unsafe()
 		finally:
 			lock.release()
 
