@@ -214,7 +214,7 @@ def hash_env_vars(self, env, vars_lst):
 	m.update(v.encode())
 	ret = m.digest()
 
-	Logs.debug('envhash: %r %r', ret, lst)
+	Logs.debug('envhash: %r %r', ret, v)
 
 	cache[idx] = ret
 
