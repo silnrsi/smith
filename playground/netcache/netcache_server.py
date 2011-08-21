@@ -166,10 +166,16 @@ class req(SocketServer.StreamRequestHandler):
 			try:
 				# obvious race condition here
 				os.makedirs(d)
-			except:
+			except OSError:
 				pass
-		os.rename(filename, os.path.join(d, query[1]))
-		update(query[0])
+		try:
+			os.rename(filename, os.path.join(d, query[1]))
+		except OSError:
+			pass # folder removed by the user, or another thread is pushing the same file
+		try:
+			update(query[0])
+		except OSError:
+			pass
 		make_clean()
 
 if __name__ == '__main__':
