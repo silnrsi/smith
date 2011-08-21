@@ -3,7 +3,7 @@
 # Thomas Nagy, 2011 (ita)
 
 import os, socket, asyncore, tempfile
-from waflib import Task, Logs, Utils
+from waflib import Task, Logs, Utils, Build
 
 BUF = 8192 * 16
 HEADER_SIZE = 128
@@ -189,4 +189,35 @@ def put_files_cache(self):
 
 	bld.task_sigs[self.uid()] = self.cache_sig
 Task.Task.put_files_cache = put_files_cache
+
+
+def hash_env_vars(self, env, vars_lst):
+	if not env.table:
+		env = env.parent
+		if not env:
+			return Utils.SIG_NIL
+
+	idx = str(id(env)) + str(vars_lst)
+	try:
+		cache = self.cache_env
+	except AttributeError:
+		cache = self.cache_env = {}
+	else:
+		try:
+			return self.cache_env[idx]
+		except KeyError:
+			pass
+
+	v = str([env[a] for a in vars_lst])
+	v = v.replace(self.srcnode.abspath(), '') # here
+	m = Utils.md5()
+	m.update(v.encode())
+	ret = m.digest()
+
+	Logs.debug('envhash: %r %r', ret, lst)
+
+	cache[idx] = ret
+
+	return ret
+Build.BuildContext.hash_env_vars = hash_env_vars
 
