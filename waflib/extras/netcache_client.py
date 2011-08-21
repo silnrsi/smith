@@ -2,12 +2,28 @@
 # encoding: utf-8
 # Thomas Nagy, 2011 (ita)
 
+"""
+Use:
+	def options(opt):
+		opt.load('netcache_client')
+with:
+	NETCACHE=host:port waf configure build
+
+To enable for the build only:
+	def options(opt):
+		opt.load('netcache_client', funs=[])
+	def build(bld):
+		bld.setup_netcache('localhost', 51200, 'PUSH_PULL')
+"""
+
+
 import os, socket, asyncore, tempfile
-from waflib import Task, Logs, Utils, Build
+from waflib import Task, Logs, Utils, Build, Options
+from waflib.Configure import conf
 
 BUF = 8192 * 16
 HEADER_SIZE = 128
-Task.net_cache = (socket.gethostname(), 51200)
+MODES = ['PUSH', 'PULL', 'PUSH_PULL']
 
 GET = 'GET'
 PUT = 'PUT'
@@ -19,7 +35,7 @@ all_sigs_in_cache = []
 def get_connection():
 	# return a new connection... do not forget to close it!
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect(Task.net_cache)
+	s.connect(Task.net_cache[:2])
 	return s
 
 def close_connection(conn, msg=''):
@@ -85,7 +101,7 @@ def recv_file(conn, ssig, count, p):
 		raise ValueError('no file %s - %s in cache' % (ssig, count))
 
 	# get the file, writing immediately
-	# TODO for static libraries we should use a tmp file
+	# TODO a tmp file would be better
 	f = open(p, 'wb')
 	cnt = 0
 	while cnt < size:
@@ -125,6 +141,8 @@ def can_retrieve_cache(self):
 		return False
 	if not self.outputs:
 		return False
+	if Task.net_cache[-1] == 'PUSH':
+		return
 	self.cached = False
 
 	cnt = 0
@@ -153,13 +171,14 @@ def can_retrieve_cache(self):
 
 	self.cached = True
 	return True
-Task.Task.can_retrieve_cache = can_retrieve_cache
 
 @Utils.run_once
 def put_files_cache(self):
 	if not Task.net_cache:
 		return
 	if not self.outputs:
+		return
+	if Task.net_cache[-1] == 'PULL':
 		return
 	if getattr(self, 'cached', None):
 		return
@@ -181,15 +200,13 @@ def put_files_cache(self):
 					conn = get_connection()
 				put_data(conn, ssig, cnt, node.abspath())
 			except Exception, e:
-				#print "Could not restore the files", e
+				#print("Could not push the files", e)
 				pass
 			cnt += 1
 	finally:
 		close_connection(conn)
 
 	bld.task_sigs[self.uid()] = self.cache_sig
-Task.Task.put_files_cache = put_files_cache
-
 
 def hash_env_vars(self, env, vars_lst):
 	if not env.table:
@@ -219,7 +236,6 @@ def hash_env_vars(self, env, vars_lst):
 	cache[idx] = ret
 
 	return ret
-Build.BuildContext.hash_env_vars = hash_env_vars
 
 def uid(self):
 	try:
@@ -233,5 +249,33 @@ def uid(self):
 			up(x.path_from(src).encode())
 		self.uid_ = m.digest()
 		return self.uid_
-Task.Task.uid = uid
+
+@conf
+def setup_netcache(ctx, host, port, mode):
+	Logs.warn('Using the network cache %s, %s, %s' % (host, port, mode))
+	Task.net_cache = (host, port, mode)
+	Task.Task.can_retrieve_cache = can_retrieve_cache
+	Task.Task.put_files_cache = put_files_cache
+	Task.Task.uid = uid
+	Build.BuildContext.hash_env_vars = hash_env_vars
+	ctx.cache_global = Options.cache_global = True
+
+def options(opt):
+	if not 'NETCACHE' in os.environ:
+		Logs.warn('the network cache is disabled, set NETCACHE=host:port@mode to enable')
+	else:
+		v = os.environ['NETCACHE']
+		if v in MODES:
+			host = socket.gethostname()
+			port = 51200
+			mode = v
+		else:
+			mode = 'PUSH_PULL'
+			host, port = v.split(':')
+			if port.find('@'):
+				port, mode = port.split('@')
+			port = int(port)
+			if not mode in MODES:
+				opt.fatal('Invalid mode %s not in %r' % (mode, MODES))
+		setup_netcache(opt, host, port, mode)
 
