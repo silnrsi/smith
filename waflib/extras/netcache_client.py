@@ -24,20 +24,21 @@ The cache can be enabled for the build only:
 		bld.setup_netcache('localhost', 51200, 'PUSH_PULL')
 """
 
-import os, socket, asyncore, tempfile
+import os, socket, asyncore, tempfile, time
 from waflib import Task, Logs, Utils, Build, Options
 from waflib.Configure import conf
 
 BUF = 8192 * 16
 HEADER_SIZE = 128
 MODES = ['PUSH', 'PULL', 'PUSH_PULL']
+STALE_TIME = 30 # seconds
 
 GET = 'GET'
 PUT = 'PUT'
 LST = 'LST'
 BYE = 'BYE'
 
-all_sigs_in_cache = []
+all_sigs_in_cache = (0.0, [])
 
 def get_connection():
 	# return a new connection... do not forget to close it!
@@ -71,8 +72,14 @@ def read_header(conn):
 	return ''.join(buf)
 
 def check_cache(conn, ssig):
+	"""
+	List the files on the server, this is an optimization because it assumes that
+	concurrent builds are rare
+	"""
 	global all_sigs_in_cache
-	if not all_sigs_in_cache:
+	if not STALE_TIME:
+		return
+	if time.time() - all_sigs_in_cache[0] > STALE_TIME:
 
 		params = (LST,'')
 		conn.send(','.join(params).ljust(HEADER_SIZE))
@@ -89,10 +96,10 @@ def check_cache(conn, ssig):
 				raise ValueError('connection ended %r %r' % (cnt, size))
 			buf.append(data)
 			cnt += len(data)
-		all_sigs_in_cache = ''.join(buf).split('\n')
-		Logs.debug('netcache: server cache has %r entries' % len(all_sigs_in_cache))
+		all_sigs_in_cache = (time.time(), ''.join(buf).split('\n'))
+		Logs.debug('netcache: server cache has %r entries' % len(all_sigs_in_cache[1]))
 
-	if not ssig in all_sigs_in_cache:
+	if not ssig in all_sigs_in_cache[1]:
 		raise ValueError('no file %s in cache' % ssig)
 
 def recv_file(conn, ssig, count, p):
