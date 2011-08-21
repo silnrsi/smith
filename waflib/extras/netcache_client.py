@@ -24,8 +24,8 @@ The cache can be enabled for the build only:
 		bld.setup_netcache('localhost', 51200, 'PUSH_PULL')
 """
 
-import os, socket, asyncore, tempfile, time
-from waflib import Task, Logs, Utils, Build, Options
+import os, socket, asyncore, tempfile, time, atexit
+from waflib import Task, Logs, Utils, Build, Options, Runner
 from waflib.Configure import conf
 
 BUF = 8192 * 16
@@ -40,11 +40,18 @@ BYE = 'BYE'
 
 all_sigs_in_cache = (0.0, [])
 
+active_connections = Runner.Queue(0)
 def get_connection():
-	# return a new connection... do not forget to close it!
-	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	s.connect(Task.net_cache[:2])
-	return s
+	# return a new connection... do not forget to release it!
+	try:
+		ret = active_connections.get(block=False)
+	except Exception, e:
+		ret = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		ret.connect(Task.net_cache[:2])
+	return ret
+
+def release_connection(conn, msg=''):
+	active_connections.put(conn)
 
 def close_connection(conn, msg=''):
 	if conn:
@@ -57,6 +64,15 @@ def close_connection(conn, msg=''):
 			conn.close()
 		except:
 			pass
+
+def close_all():
+	while active_connections.qsize():
+		conn = active_connections.get()
+		try:
+			close_connection(conn)
+		except:
+			pass
+atexit.register(close_all)
 
 def read_header(conn):
 	cnt = 0
@@ -173,10 +189,10 @@ def can_retrieve_cache(self):
 			cnt += 1
 	except Exception, e:
 		Logs.debug('netcache: could not get the files %r' % e)
-		close_connection(conn)
+		release_connection(conn)
 		return False
 	finally:
-		close_connection(conn)
+		release_connection(conn)
 
 	for node in self.outputs:
 		node.sig = sig
@@ -218,7 +234,7 @@ def put_files_cache(self):
 				pass
 			cnt += 1
 	finally:
-		close_connection(conn)
+		release_connection(conn)
 
 	bld.task_sigs[self.uid()] = self.cache_sig
 
