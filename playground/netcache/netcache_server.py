@@ -31,13 +31,16 @@ def init_flist():
 		os.makedirs(CACHEDIR)
 	except:
 		pass
-	flist = dict( (x, [os.stat(os.path.join(CACHEDIR, x)).st_mtime, 0]) for x in os.listdir(CACHEDIR) if os.path.isdir(os.path.join(CACHEDIR, x)))
-	for (x, v) in flist.items():
-		cnt = 0
-		d = os.path.join(CACHEDIR, x)
-		for k in os.listdir(d):
-			cnt += os.stat(os.path.join(d, k)).st_size
-		flist[x][1] = cnt
+	flist = {}
+	for x in os.listdir(CACHEDIR):
+		if len(x) != 2:
+			continue
+		for y in os.listdir(os.path.join(CACHEDIR, x)):
+			path = os.path.join(CACHEDIR, x, y)
+			size = 0
+			for z in os.listdir(path):
+				size += os.stat(os.path.join(path, z)).st_size
+				flist[y] = [os.stat(path).st_mtime, size]
 
 lock = threading.Lock()
 def make_clean():
@@ -75,7 +78,7 @@ def update(ssig):
 
 	# update the contents with the last folder created
 	cnt = 0
-	d = os.path.join(CACHEDIR, ssig)
+	d = os.path.join(CACHEDIR, ssig[:2], ssig)
 	for k in os.listdir(d):
 		cnt += os.stat(os.path.join(d, k)).st_size
 	try:
@@ -118,7 +121,7 @@ class req(SocketServer.StreamRequestHandler):
 
 	def get_file(self, query):
 		# get a file from the cache if it exists, else return 0
-		tmp = os.path.join(CACHEDIR, query[0], query[1])
+		tmp = os.path.join(CACHEDIR, query[0][:2], query[0], query[1])
 		fsize = -1
 		try:
 			fsize = os.stat(tmp).st_size
@@ -127,7 +130,7 @@ class req(SocketServer.StreamRequestHandler):
 			pass
 		else:
 			# cache was useful, update the last access for LRU
-			d = os.path.join(CACHEDIR, query[0])
+			d = os.path.join(CACHEDIR, query[0][:2], query[0])
 			os.utime(d, None)
 			flist[query[0]][0] = os.stat(d).st_mtime
 		params = [str(fsize)]
@@ -159,7 +162,7 @@ class req(SocketServer.StreamRequestHandler):
 			os.close(fd)
 
 
-		d = os.path.join(CACHEDIR, query[0])
+		d = os.path.join(CACHEDIR, query[0][:2], query[0])
 		try:
 			os.stat(d)
 		except:
