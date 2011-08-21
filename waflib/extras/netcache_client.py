@@ -221,3 +221,17 @@ def hash_env_vars(self, env, vars_lst):
 	return ret
 Build.BuildContext.hash_env_vars = hash_env_vars
 
+def uid(self):
+	try:
+		return self.uid_
+	except AttributeError:
+		m = Utils.md5()
+		src = self.generator.bld.srcnode
+		up = m.update
+		up(self.__class__.__name__.encode())
+		for x in self.inputs + self.outputs:
+			up(x.path_from(src).encode())
+		self.uid_ = m.digest()
+		return self.uid_
+Task.Task.uid = uid
+
