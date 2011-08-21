@@ -3,19 +3,26 @@
 # Thomas Nagy, 2011 (ita)
 
 """
-Use:
+A client for the network cache (playground/netcache/). Launch the server with:
+./netcache_server, then use it for the builds by adding the following:
+
 	def options(opt):
 		opt.load('netcache_client')
-with:
-	NETCACHE=host:port waf configure build
 
-To enable for the build only:
+The parameters should be present in the environment in the form:
+	NETCACHE=host:port@mode waf configure build
+
+where:
+	mode: PUSH, PULL, PUSH_PULL
+	host: host where the server resides, for example 127.0.0.1
+	port: by default the server runs on port 51200
+
+The cache can be enabled for the build only:
 	def options(opt):
 		opt.load('netcache_client', funs=[])
 	def build(bld):
 		bld.setup_netcache('localhost', 51200, 'PUSH_PULL')
 """
-
 
 import os, socket, asyncore, tempfile
 from waflib import Task, Logs, Utils, Build, Options
@@ -158,7 +165,7 @@ def can_retrieve_cache(self):
 			recv_file(conn, ssig, cnt, p)
 			cnt += 1
 	except Exception, e:
-		#print e
+		Logs.debug('netcache: could not get the files %r' % e)
 		close_connection(conn)
 		return False
 	finally:
@@ -200,7 +207,7 @@ def put_files_cache(self):
 					conn = get_connection()
 				put_data(conn, ssig, cnt, node.abspath())
 			except Exception, e:
-				#print("Could not push the files", e)
+				Logs.debug("netcache: could not push the files %r" % e)
 				pass
 			cnt += 1
 	finally:
