@@ -67,7 +67,7 @@ def make_clean_unsafe():
 
 		while total >= MAX * CLEANRATIO:
 			(k, t, s) = lst.pop()
-			shutil.rmtree(os.path.join(CACHEDIR, k))
+			shutil.rmtree(os.path.join(CACHEDIR, k[:2], k))
 			total -= s
 			del flist[k]
 
@@ -140,11 +140,14 @@ class req(SocketServer.StreamRequestHandler):
 			#print("file not found in cache %s" % query[0])
 			return
 		f = open(tmp, 'rb')
-		cnt = 0
-		while cnt < fsize:
-			r = f.read(BUF)
-			self.wfile.write(r)
-			cnt += len(r)
+		try:
+			cnt = 0
+			while cnt < fsize:
+				r = f.read(BUF)
+				self.wfile.write(r)
+				cnt += len(r)
+		finally:
+			f.close()
 
 	def put_file(self, query):
 		# add a file to the cache, the tird parameter is the file size
