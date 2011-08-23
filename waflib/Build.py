@@ -271,11 +271,12 @@ class BuildContext(Context.Context):
 
 		f = None
 		try:
+			dbfn = os.path.join(self.variant_dir, Context.DBFILE)
 			try:
-				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
+				f = open(dbfn, 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
-				Logs.debug('build: could not load the build cache (missing)')
+				Logs.debug('build: could not load the build cache %s (missing)' % dbfn)
 			else:
 				try:
 					waflib.Node.pickle_lock.acquire()
@@ -283,7 +284,7 @@ class BuildContext(Context.Context):
 					try:
 						data = cPickle.load(f)
 					except Exception as e:
-						Logs.debug('build: could not load the build cache %r' % e)
+						Logs.debug('build: could not pickle the build cache %s: %r' % (dbfn, e))
 					else:
 						for x in SAVED_ATTRS:
 							setattr(self, x, data[x])
@@ -451,7 +452,7 @@ class BuildContext(Context.Context):
 
 		lst = [env[a] for a in vars_lst]
 		ret = Utils.h_list(lst)
-		Logs.debug('envhash: %r %r', ret, lst)
+		Logs.debug('envhash: %s %r', Utils.to_hex(ret), lst)
 
 		cache[idx] = ret
 
