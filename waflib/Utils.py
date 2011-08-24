@@ -18,6 +18,15 @@ except:
 	except:
 		print("The subprocess module is missing (python2.3?):\n try calling 'waf update --files=subprocess'\n or add a copy of subprocess.py to the python libraries")
 
+if sys.platform == "qnx6":
+	try:
+		import waflib.extras.qnxnto as qnxnto
+		qnxnto.Popen.real_Popen = subprocess.Popen
+		#qnxnto.Popen.verbose = 1
+		subprocess.Popen = qnxnto.Popen
+	except:
+		print("Running on QNX, heh ? You'll probably have problem in build\n try packaging the extra qnxnto module into waf!")
+
 try:
 	from collections import deque
 except ImportError:
