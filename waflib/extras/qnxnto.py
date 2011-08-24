@@ -4,6 +4,7 @@
 # QNX neutrino compatibility functions
 
 import sys, os
+from waflib import Utils
 
 class Popen(object):
 	"""
@@ -66,3 +67,8 @@ class Popen(object):
 		if 'cwd' in self.kw:
 			cmd = 'cd "%s" && %s' % (self.kw['cwd'], cmd)
 		return os.system(cmd)
+
+if sys.platform == "qnx6":
+	Popen.real_Popen = Utils.subprocess.Popen
+	Utils.subprocess.Popen = Popen
+
