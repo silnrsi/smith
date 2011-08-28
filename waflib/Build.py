@@ -1238,9 +1238,8 @@ class StepContext(BuildContext):
 				else:
 					f()
 
-		for pat in self.files.split(','):
-			matcher = self.get_matcher(pat)
-			for g in self.groups:
+			for pat in self.files.split(','):
+				matcher = self.get_matcher(pat)
 				for tg in g:
 					if isinstance(tg, Task.TaskBase):
 						lst = [tg]
