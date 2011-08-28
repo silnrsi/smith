@@ -1078,6 +1078,21 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 			conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
 
+@conf
+def get_xlc_version(conf, cc):
+	"""Get the compiler version"""
+
+	version_re = re.compile(r"IBM XL C/C\+\+.*, V(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = cc + ['-qversion']
+
+	out, err = conf.cmd_and_log(cmd, output=0)
+	if out: match = version_re(out)
+	else: match = version_re(err)
+	if not match:
+		conf.fatal('Could not determine the XLC version.')
+	k = match.groupdict()
+	conf.env['CC_VERSION'] = (k['major'], k['minor'])
+
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 
 @conf
