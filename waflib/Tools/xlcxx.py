@@ -5,7 +5,7 @@
 # Yinon Ehrlich, 2009
 # Michael Kuhn, 2009
 
-from waflib.Tools import ccroot, ar
+from waflib.Tools import ccroot, ar, xlc
 from waflib.Configure import conf
 
 @conf
@@ -15,6 +15,7 @@ def find_xlcxx(conf):
 	"""
 	cxx = conf.find_program(['xlc++_r', 'xlc++'], var='CXX')
 	cxx = conf.cmd_to_list(cxx)
+	conf.get_xlc_version(cxx)
 	conf.env.CXX_NAME = 'xlc++'
 	conf.env.CXX      = cxx
 

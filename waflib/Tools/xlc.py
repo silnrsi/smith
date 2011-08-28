@@ -15,6 +15,7 @@ def find_xlc(conf):
 	"""
 	cc = conf.find_program(['xlc_r', 'xlc'], var='CC')
 	cc = conf.cmd_to_list(cc)
+	conf.get_xlc_version(cc)
 	conf.env.CC_NAME = 'xlc'
 	conf.env.CC      = cc
 
@@ -57,6 +58,21 @@ def xlc_common_flags(conf):
 	# static lib
 	v['LINKFLAGS_cstlib']    = []
 	v['cstlib_PATTERN']      = 'lib%s.a'
+
+@conf
+def get_xlc_version(conf, cc):
+	"""Get the compiler version"""
+
+	version_re = re.compile(r"IBM XL C/C\+\+.*, V(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = cc + ['-qversion']
+
+	out, err = conf.cmd_and_log(cmd, output=0)
+	if out: match = version_re(out)
+	else: match = version_re(err)
+	if not match:
+		conf.fatal('Could not determine the XLC version.')
+	k = match.groupdict()
+	conf.env['CC_VERSION'] = (k['major'], k['minor'])
 
 def configure(conf):
 	conf.find_xlc()
