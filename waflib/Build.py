@@ -1257,7 +1257,7 @@ class StepContext(BuildContext):
 								break
 						if do_exec:
 							ret = tsk.run()
-							Logs.info('%s -> %r' % (str(tsk), ret))
+							Logs.info('%s -> exit %r' % (str(tsk), ret))
 
 	def get_matcher(self, pat):
 		# this returns a function
