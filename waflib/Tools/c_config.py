@@ -1087,8 +1087,8 @@ def get_xlc_version(conf, cc):
 
 	try:
 		out, err = conf.cmd_and_log(cmd, output=0)
-	except:
-		conf.fatal('Could not run the command %r' % cmd)
+	except Errors.WafError:
+		conf.fatal('Could not find xlc %r' % cmd)
 	if out: match = version_re(out)
 	else: match = version_re(err)
 	if not match:
