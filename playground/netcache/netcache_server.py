@@ -111,6 +111,7 @@ class req(SocketServer.StreamRequestHandler):
 		elif query[0] == BYE:
 			raise ValueError('exit')
 		else:
+			print "ehey!!!", query
 			raise ValueError("invalid command %r" % query)
 
 	def lst_file(self, query):
