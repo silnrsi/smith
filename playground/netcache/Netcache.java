@@ -95,27 +95,29 @@ public class Netcache implements Runnable, Comparator<Object[]> {
 		File cachedir = new File(CACHEDIR);
 		File temp = File.createTempFile("foo", ".suffix", cachedir);
 
-		OutputStream w = new FileOutputStream(temp);
 		long size = new Long(args[3].trim());
 
 		//System.out.println("" + args[1] + " " + args[2] + " " + args[3] + " " + args.length);
 
 		byte[] buf = new byte[BUF];
 		long cnt = 0;
-		while (cnt < size) {
-			int c = in.read(buf, 0, (int) Math.min(BUF, size-cnt));
-			if (c == 0) {
-				throw new RuntimeException("Connection closed too early");
+		OutputStream w = new FileOutputStream(temp);
+		try {
+			while (cnt < size) {
+				int c = in.read(buf, 0, (int) Math.min(BUF, size-cnt));
+				if (c == 0) {
+					throw new RuntimeException("Connection closed too early");
+				}
+				w.write(buf, 0, c);
+				cnt += c;
 			}
-			w.write(buf, 0, c);
-			cnt += c;
+		} finally {
+			w.close();
 		}
 
 		/*if (cnt != size) {
 		  System.out.println("error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		  }*/
-
-		w.close();
 
 		File parent = new File(new File(new File(CACHEDIR), args[1].substring(0, 2)), args[1]);
 		File dest = new File(parent, args[2]);
@@ -160,10 +162,14 @@ public class Netcache implements Runnable, Comparator<Object[]> {
 
 		long cnt = 0;
 		InputStream s = new FileInputStream(f);
-		while (cnt < fsize) {
-			long c = s.read(buf);
-			cnt += c;
-			out.write(buf, 0, (int) c);
+		try {
+			while (cnt < fsize) {
+				long c = s.read(buf);
+				cnt += c;
+				out.write(buf, 0, (int) c);
+			}
+		} finally {
+			s.close();
 		}
 
 		File parent = f.getParentFile();
