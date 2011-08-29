@@ -92,7 +92,7 @@ class req(SocketServer.StreamRequestHandler):
 			try:
 				self.process_command()
 			except Exception:
-				#print e
+				print(e)
 				break
 
 	def process_command(self):
@@ -111,7 +111,6 @@ class req(SocketServer.StreamRequestHandler):
 		elif query[0] == BYE:
 			raise ValueError('exit')
 		else:
-			print "ehey!!!", query
 			raise ValueError("invalid command %r" % query)
 
 	def lst_file(self, query):
