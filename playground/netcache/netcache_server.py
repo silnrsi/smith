@@ -91,7 +91,7 @@ class req(SocketServer.StreamRequestHandler):
 		while 1:
 			try:
 				self.process_command()
-			except Exception:
+			except Exception as e:
 				print(e)
 				break
 
