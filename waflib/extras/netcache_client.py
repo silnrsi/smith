@@ -180,6 +180,7 @@ def can_retrieve_cache(self):
 	ssig = self.uid().encode('hex') + sig.encode('hex')
 
 	conn = None
+	err = False
 	try:
 		if not conn:
 			conn = get_connection()
@@ -189,10 +190,11 @@ def can_retrieve_cache(self):
 			cnt += 1
 	except Exception, e:
 		Logs.debug('netcache: could not get the files %r' % e)
-		release_connection(conn)
-		return False
+		err = True
 	finally:
 		release_connection(conn)
+	if err:
+		return False
 
 	for node in self.outputs:
 		node.sig = sig
