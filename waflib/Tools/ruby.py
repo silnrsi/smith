@@ -24,7 +24,7 @@ Support for Ruby extensions. A C/C++ compiler is required::
 
 import os
 from waflib import Task, Options, Utils
-from waflib.TaskGen import before_method, feature, after_method
+from waflib.TaskGen import before_method, feature, after_method, Task, extension
 from waflib.Configure import conf
 
 @feature('rubyext')
@@ -162,6 +162,26 @@ def check_ruby_module(self, module_name):
 		self.end_msg(False)
 		self.fatal('Could not find the ruby module %r' % module_name)
 	self.end_msg(True)
+
+@extension('.rb')
+def process(self, node):
+	tsk = self.create_task('run_ruby', node)
+
+class run_ruby(Task.Task):
+	"""
+	Task to run ruby files detected by file extension .rb::
+	
+		def options(opt):
+			opt.load('ruby')
+		
+		def configure(ctx):
+			ctx.check_ruby_version()
+		
+		def build(bld):
+			bld.env['RBFLAGS'] = '-e puts "hello world"'
+			bld(source='a_ruby_file.rb')
+	"""
+	run_str = '${RUBY} ${RBFLAGS} -I ${SRC[0].parent.abspath()} ${SRC}'
 
 def options(opt):
 	"""
