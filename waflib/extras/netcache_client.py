@@ -51,7 +51,8 @@ def get_connection():
 	return ret
 
 def release_connection(conn, msg=''):
-	active_connections.put(conn)
+	if conn:
+		active_connections.put(conn)
 
 def close_connection(conn, msg=''):
 	if conn:
@@ -182,15 +183,19 @@ def can_retrieve_cache(self):
 	conn = None
 	err = False
 	try:
-		if not conn:
-			conn = get_connection()
-		for node in self.outputs:
-			p = node.abspath()
-			recv_file(conn, ssig, cnt, p)
-			cnt += 1
-	except Exception, e:
-		Logs.debug('netcache: could not get the files %r' % e)
-		err = True
+		conn = get_connection()
+		try:
+			for node in self.outputs:
+				p = node.abspath()
+				recv_file(conn, ssig, cnt, p)
+				cnt += 1
+		except Exception, e:
+			Logs.debug('netcache: could not get the files %r' % e)
+			err = True
+
+			# broken connection? remove this one
+			close_connection(conn)
+			conn = None
 	finally:
 		release_connection(conn)
 	if err:
@@ -198,8 +203,8 @@ def can_retrieve_cache(self):
 
 	for node in self.outputs:
 		node.sig = sig
-		if self.generator.bld.progress_bar < 1:
-			self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
+		#if self.generator.bld.progress_bar < 1:
+		#	self.generator.bld.to_log('restoring from cache %r\n' % node.abspath())
 
 	self.cached = True
 	return True
@@ -233,7 +238,10 @@ def put_files_cache(self):
 				put_data(conn, ssig, cnt, node.abspath())
 			except Exception, e:
 				Logs.debug("netcache: could not push the files %r" % e)
-				pass
+
+				# broken connection? remove this one
+				close_connection(conn)
+				conn = None
 			cnt += 1
 	finally:
 		release_connection(conn)
