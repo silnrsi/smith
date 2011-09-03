@@ -340,9 +340,9 @@ def compile_template(line):
 	return Task.funex(fun)
 
 
-re_blank = re.compile('\n\s*\n', re.M)
+re_blank = re.compile('(\n\r\\s)*\n', re.M)
 def rm_blank_lines(txt):
-	txt = re_blank.sub('\n', txt)
+	txt = re_blank.sub('\r\n', txt)
 	return txt
 
 BOM = '\xef\xbb\xbf'
