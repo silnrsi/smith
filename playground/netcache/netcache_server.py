@@ -23,6 +23,7 @@ performance results to the Waf mailing-list!
 
 Future ideas:
 -------------
+- File transfer integrity
 - Use servers on different ports (eg: get->1200, put->51201) to enable firewall filtering
 - Use different processes for get/put (performance improvement)
 """
