@@ -43,6 +43,7 @@ PUT = 'PUT'
 LST = 'LST'
 BYE = 'BYE'
 CLEAN = 'CLN'
+RESET = 'RST'
 
 re_valid_query = re.compile('^[a-zA-Z0-9_, ]+$')
 
@@ -95,6 +96,21 @@ def make_clean_unsafe():
 			total -= s
 			del flist[k]
 
+def reset():
+	global MAX, flist
+	tmp = list(flist.keys())
+	lock.acquire()
+	flist = {}
+	try:
+		for k in tmp[:]:
+			# iterate over a copy
+			try:
+				shutil.rmtree(os.path.join(CACHEDIR, k[:2], k))
+			except:
+				pass
+	finally:
+		lock.release()
+
 def update(ssig):
 	"""update the cache folder and make some space if necessary"""
 	global flist
@@ -121,11 +137,6 @@ class req(SocketServer.StreamRequestHandler):
 				print(e)
 				break
 
-	def check_names(self, *k):
-		for x in k:
-			if not re_f.match(x):
-				raise ValueError('Invalid file name')
-
 	def process_command(self):
 		query = self.rfile.read(HEADER_SIZE).strip()
 		#print "%r" % query
@@ -142,6 +153,8 @@ class req(SocketServer.StreamRequestHandler):
 			self.lst_file(query[1:])
 		elif query[0] == CLEAN:
 			make_clean()
+		elif query[0] == RESET:
+			reset()
 		elif query[0] == BYE:
 			raise ValueError('Exit')
 		else:
@@ -159,7 +172,7 @@ class req(SocketServer.StreamRequestHandler):
 		fsize = -1
 		try:
 			fsize = os.stat(tmp).st_size
-		except Exception, e:
+		except Exception:
 			#print(e)
 			pass
 		else:
