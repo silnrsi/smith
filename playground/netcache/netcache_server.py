@@ -37,6 +37,7 @@ HEADER_SIZE = 128
 BUF = 8192*16
 MAX = 50*1024*1024*1024 # in bytes
 CLEANRATIO = 0.85
+CHARS = '0123456789abcdef'
 
 GET = 'GET'
 PUT = 'PUT'
@@ -100,16 +101,23 @@ def reset():
 	global MAX, flist
 	tmp = list(flist.keys())
 	lock.acquire()
-	flist = {}
 	try:
-		for k in tmp[:]:
-			# iterate over a copy
-			try:
-				shutil.rmtree(os.path.join(CACHEDIR, k[:2], k))
-			except:
-				pass
+		flist = {}
 	finally:
 		lock.release()
+	for x in CHARS:
+		for y in CHARS:
+			try:
+				os.rename(os.path.join(CACHEDIR, x+y), os.path.join(CACHEDIR, x+y+'_rm'))
+			except:
+				pass
+	for x in CHARS:
+		for y in CHARS:
+			try:
+				shutil.rmtree(os.path.join(CACHEDIR, x+y+'_rm'))
+			except:
+				pass
+
 
 def update(ssig):
 	"""update the cache folder and make some space if necessary"""
