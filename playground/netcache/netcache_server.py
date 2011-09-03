@@ -3,25 +3,47 @@
 # Thomas Nagy 2011 (ita)
 
 """
-Simple TCP server to cache files over the network
-It uses a LRU (least recently used).
+A simple TCP server to cache files over the network.
+The client is located in waflib/extras/netcache_client.py
+
+This server uses a LRU cache policy (remove least recently used files), which means
+that there is no risk of filling up the entire filesystem.
+
+Security:
+---------
++ the LRU cache policy will prevent filesystem saturation
++ invalid queries will be rejected (no risk of reading/writing arbitrary files on the OS)
+- attackers might poison the cache
+
+Performance:
+------------
+The server seems to work pretty well (for me) at the moment. cPython is limited to only
+one CPU core, but there is a Java version of this server (Netcache.java). Send your
+performance results to the Waf mailing-list!
+
+Future ideas:
+-------------
+- Use servers on different ports (eg: get->1200, put->51201) to enable firewall filtering
+- Use different processes for get/put (performance improvement)
 """
 
-import os, tempfile, socket, threading, shutil
+import os, re, tempfile, socket, threading, shutil
 import SocketServer
 
 CACHEDIR = '/tmp/wafcache'
 CONN = (socket.gethostname(), 51200)
 HEADER_SIZE = 128
 BUF = 8192*16
-MAX = 10*1024*1024*1024 # in bytes
-CLEANRATIO = 0.8
+MAX = 50*1024*1024*1024 # in bytes
+CLEANRATIO = 0.85
 
 GET = 'GET'
 PUT = 'PUT'
 LST = 'LST'
 BYE = 'BYE'
 CLEAN = 'CLN'
+
+re_valid_query = re.compile('^[a-zA-Z0-9_, ]+$')
 
 flist = {}
 def init_flist():
@@ -47,6 +69,7 @@ def make_clean():
 	global lock
 	# there is no need to spend a lot of time cleaning
 	# so one thread cleans and the others return immediately
+
 	if lock.acquire(0):
 		try:
 			make_clean_unsafe()
@@ -81,6 +104,8 @@ def update(ssig):
 	d = os.path.join(CACHEDIR, ssig[:2], ssig)
 	for k in os.listdir(d):
 		cnt += os.stat(os.path.join(d, k)).st_size
+
+	# the same thread will usually push the next files
 	try:
 		flist[ssig][1] = cnt
 	except:
@@ -95,9 +120,17 @@ class req(SocketServer.StreamRequestHandler):
 				print(e)
 				break
 
+	def check_names(self, *k):
+		for x in k:
+			if not re_f.match(x):
+				raise ValueError('Invalid file name')
+
 	def process_command(self):
-		query = self.rfile.read(HEADER_SIZE)
+		query = self.rfile.read(HEADER_SIZE).strip()
 		#print "%r" % query
+		if not re_valid_query.match(query):
+			raise ValueError('Invalid query %r' % query)
+
 		query = query.strip().split(',')
 
 		if query[0] == GET:
@@ -109,9 +142,9 @@ class req(SocketServer.StreamRequestHandler):
 		elif query[0] == CLEAN:
 			make_clean()
 		elif query[0] == BYE:
-			raise ValueError('exit')
+			raise ValueError('Exit')
 		else:
-			raise ValueError("invalid command %r" % query)
+			raise ValueError('Invalid query %r' % query)
 
 	def lst_file(self, query):
 		response = '\n'.join(flist.keys())
@@ -150,7 +183,7 @@ class req(SocketServer.StreamRequestHandler):
 			f.close()
 
 	def put_file(self, query):
-		# add a file to the cache, the tird parameter is the file size
+		# add a file to the cache, the third parameter is the file size
 		(fd, filename) = tempfile.mkstemp(dir=CACHEDIR)
 		try:
 			size = int(query[2])
@@ -184,11 +217,24 @@ class req(SocketServer.StreamRequestHandler):
 			pass
 		make_clean()
 
+class req_only_get(req):
+	def put_file(self, query):
+		self.wfile.write('ERROR,'.ljust(HEADER_SIZE))
+		raise ValueError('Put is forbidden')
+
+class req_only_put(req):
+	def get_file(self, query):
+		self.wfile.write('ERROR,'.ljust(HEADER_SIZE))
+		raise ValueError('Get is forbidden')
+
+def create_server(conn, cls):
+	SocketServer.ThreadingTCPServer.allow_reuse_address = True
+	server = SocketServer.ThreadingTCPServer(CONN, req)
+	server.timeout = 60 # seconds
+	server.serve_forever()
+
 if __name__ == '__main__':
 	init_flist()
 	print("ready (%r dirs)" % len(flist.keys()))
-	SocketServer.ThreadingTCPServer.allow_reuse_address = True
-	server = SocketServer.ThreadingTCPServer(CONN, req)
-	server.timeout = 60 # sounds reasonable?
-	server.serve_forever()
+	create_server(CONN, req)
 
