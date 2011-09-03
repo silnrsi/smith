@@ -119,6 +119,9 @@ def check_cache(conn, ssig):
 	if not ssig in all_sigs_in_cache[1]:
 		raise ValueError('no file %s in cache' % ssig)
 
+class MissingFile(Exception):
+	pass
+
 def recv_file(conn, ssig, count, p):
 	check_cache(conn, ssig)
 
@@ -129,7 +132,7 @@ def recv_file(conn, ssig, count, p):
 	size = int(data.split(',')[0])
 
 	if size == -1:
-		raise ValueError('no file %s - %s in cache' % (ssig, count))
+		raise MissingFile('no file %s - %s in cache' % (ssig, count))
 
 	# get the file, writing immediately
 	# TODO a tmp file would be better
@@ -183,12 +186,16 @@ def can_retrieve_cache(self):
 	conn = None
 	err = False
 	try:
-		conn = get_connection()
 		try:
+			conn = get_connection()
 			for node in self.outputs:
 				p = node.abspath()
 				recv_file(conn, ssig, cnt, p)
 				cnt += 1
+		except MissingFile:
+			Logs.debug('netcache: file is not in the cache %r' % e)
+			err = True
+
 		except Exception, e:
 			Logs.debug('netcache: could not get the files %r' % e)
 			err = True
