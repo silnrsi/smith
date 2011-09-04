@@ -159,6 +159,11 @@ def parse_flags(self, line, uselib, env=None):
 		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
 			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
+		elif x.startswith('-bundle'):
+			app('LINKFLAGS_' + uselib, [x])
+		elif x.startswith('-undefined'):
+			arg = lst.pop(0)
+			app('LINKFLAGS_' + uselib, [x, arg])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
 			app('CFLAGS_' + uselib, tmp)
