@@ -558,6 +558,16 @@ def process_rule(self):
 
 	if getattr(self, 'scan', None):
 		cls.scan = self.scan
+	elif getattr(self, 'deps', None):
+		def scan(self):
+			nodes = []
+			for x in self.generator.to_list(self.generator.deps):
+				node = self.generator.path.find_resource(x)
+				if not node:
+					self.generator.bld.fatal('Could not find %r (was it declared?)' % x)
+				nodes.append(node)
+			return [nodes, []]
+		cls.scan = scan
 
 	if getattr(self, 'cwd', None):
 		tsk.cwd = self.cwd
