@@ -360,7 +360,7 @@ def stealth_write(self, data, flags='wb'):
 		data = data.decode(sys.getfilesystemencoding(), 'replace')
 		data = data.encode('utf-8')
 
-	if self.name.endswith('.xml'):
+	if self.name.endswith('.vcproj') or self.name.endswith('.vcxproj'):
 		data = BOM + data
 
 	try:
