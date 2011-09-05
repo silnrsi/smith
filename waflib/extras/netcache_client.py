@@ -24,7 +24,7 @@ The cache can be enabled for the build only:
 		bld.setup_netcache('localhost', 51200, 'PUSH_PULL')
 """
 
-import os, socket, asyncore, tempfile, time, atexit
+import os, socket, time, atexit
 from waflib import Task, Logs, Utils, Build, Options, Runner
 from waflib.Configure import conf
 
@@ -45,7 +45,7 @@ def get_connection():
 	# return a new connection... do not forget to release it!
 	try:
 		ret = active_connections.get(block=False)
-	except Exception, e:
+	except Exception:
 		ret = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		ret.connect(Task.net_cache[:2])
 	return ret
@@ -192,11 +192,11 @@ def can_retrieve_cache(self):
 				p = node.abspath()
 				recv_file(conn, ssig, cnt, p)
 				cnt += 1
-		except MissingFile:
+		except MissingFile as e:
 			Logs.debug('netcache: file is not in the cache %r' % e)
 			err = True
 
-		except Exception, e:
+		except Exception as e:
 			Logs.debug('netcache: could not get the files %r' % e)
 			err = True
 
@@ -243,7 +243,7 @@ def put_files_cache(self):
 				if not conn:
 					conn = get_connection()
 				put_data(conn, ssig, cnt, node.abspath())
-			except Exception, e:
+			except Exception as e:
 				Logs.debug("netcache: could not push the files %r" % e)
 
 				# broken connection? remove this one
