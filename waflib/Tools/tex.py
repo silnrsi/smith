@@ -239,7 +239,9 @@ class tex(Task.Task):
 
 		node = self.inputs[0]
 		srcfile = node.abspath()
-		self.TEXINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+
+		texinputs = self.env.TEXINPUTS or ''
+		self.TEXINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep + texinputs + os.pathsep
 
 		self.aux_node = node.change_ext('.aux')
 		self.idx_node = node.change_ext('.idx')

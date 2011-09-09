@@ -13,7 +13,9 @@ c_compiler['linux'].insert(0, 'c_bgxlc')
 @conf
 def find_bgxlc(conf):
 	cc = conf.find_program(['bgxlc_r','bgxlc'], var='CC')
-	conf.env.CC = conf.cmd_to_list(cc)
+	cc = conf.cmd_to_list(cc)
+	conf.get_xlc_version(cc)
+	conf.env.CC = cc
 	conf.env.CC_NAME = 'bgxlc'
 
 def configure(conf):

@@ -277,7 +277,7 @@ class eclipse(Build.BuildContext):
 	def addDictionary(self, doc, parent, k, v):
 		dictionary = self.add(doc, parent, 'dictionary')
 		self.add(doc, dictionary, 'key', k)
-		self.add(doc, dictionary, 'key', v)
+		self.add(doc, dictionary, 'value', v)
 		return dictionary
 
 	def addTarget(self, doc, buildTargets, executable, name, buildTarget, runAllBuilders=True):

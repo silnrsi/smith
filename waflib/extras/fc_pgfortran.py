@@ -25,37 +25,37 @@ def pgfortran_flags(conf):
 	v['FCFLAGS_DEBUG'] = ['-Minform=inform', '-Mstandard'] # why not
 	v['FCSTLIB_MARKER'] = '-Bstatic'
 	v['FCSHLIB_MARKER'] = '-Bdynamic'
-	v['SONAME_ST']      = '-soname %s'
+	v['SONAME_ST']	  = '-soname %s'
 
 @conf
 def get_pgfortran_version(conf,fc):
-        version_re = re.compile(r"The Portland Group", re.I).search
-        cmd = fc + ['-V']
-        out,err = fc_config.getoutput(conf, cmd, stdin=False)
-        if out: match = version_re(out)
-        else: match = version_re(err)
-        if not match:
-                conf.fatal('Could not verify PGI signature')
-        cmd = fc + ['-help=variable']
-        out,err = fc_config.getoutput(conf, cmd, stdin=False)
-        if out.find('COMPVER')<0:
-                conf.fatal('Could not determine the compiler type')
-        k = {}
-        prevk = ''
-        out = out.split('\n')
-        for line in out:
-                lst = line.partition('=')
-                if lst[1] == '=':
-                        key = lst[0].rstrip()
-                        if key == '': key = prevk
-                        val = lst[2].rstrip()
-                        k[key] = val
-                else: prevk = line.partition(' ')[0]
-        def isD(var):
-                return var in k
-        def isT(var):
-                return var in k and k[var]!='0'
-        conf.env['FC_VERSION'] = (k['COMPVER'].split('.'))
+		version_re = re.compile(r"The Portland Group", re.I).search
+		cmd = fc + ['-V']
+		out,err = fc_config.getoutput(conf, cmd, stdin=False)
+		if out: match = version_re(out)
+		else: match = version_re(err)
+		if not match:
+				conf.fatal('Could not verify PGI signature')
+		cmd = fc + ['-help=variable']
+		out,err = fc_config.getoutput(conf, cmd, stdin=False)
+		if out.find('COMPVER')<0:
+				conf.fatal('Could not determine the compiler type')
+		k = {}
+		prevk = ''
+		out = out.split('\n')
+		for line in out:
+				lst = line.partition('=')
+				if lst[1] == '=':
+						key = lst[0].rstrip()
+						if key == '': key = prevk
+						val = lst[2].rstrip()
+						k[key] = val
+				else: prevk = line.partition(' ')[0]
+		def isD(var):
+				return var in k
+		def isT(var):
+				return var in k and k[var]!='0'
+		conf.env['FC_VERSION'] = (k['COMPVER'].split('.'))
 
 def configure(conf):
 	conf.find_pgfortran()

@@ -612,7 +612,7 @@ def process_shpip(self, node): <1>
 
 class src2c(Task.Task):
     color = 'PINK'
-    quiet = 1 <2>
+    quiet = True <2>
     ext_out = ['.h'] <3>
 
     def run(self):

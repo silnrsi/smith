@@ -1,26 +1,27 @@
 #! /usr/bin/env python
 
 """
-function for posting some task generators from the input/output nodes
-(for illustration purposes, you should use chains instead of rules anyway)
+A build iterator similar to "waf step" but following the dependencies of input/output files
 
-waf --targets=aa
+waf make --files=aa
+waf clean make --files=cc
 """
 
 top = '.'
-out = '.'
+out = 'build'
+
+def options(opt):
+	opt.load('make')
 
 def configure(conf):
-	pass
+	conf.load('make')
 
 def build(bld):
-	bld.add_pre_fun(makedeps)
 
-	# test below
-
-	x = bld.path.make_node("wscript")
+	x = bld.path.make_node('wscript')
 
 	def xxx(**kw):
+		# this is just an alias, but aliases are convenient, use them!
 		kw['update_outputs'] = True
 		if not 'rule' in kw:
 			kw['rule'] = 'cp ${SRC} ${TGT}'
@@ -35,67 +36,4 @@ def build(bld):
 	xxx(source=x, target=x.change_ext('.c'), name='c')
 
 	xxx(rule='cat ${SRC} > ${TGT}', source=[x.change_ext('.bb'), x.change_ext('.aa')], target=[x.change_ext('.cc')], name='cc')
-
-def makedeps(bld):
-	ins = {}
-	outs = {}
-	tg_ins = {}
-	tg_outs = {}
-
-	for tg in bld.groups[-1]:
-
-		try:
-			s = tg.source
-		except:
-			pass
-		else:
-			if isinstance(s, bld.root.__class__):
-				s = [s]
-			tg_ins[id(tg)] = s
-
-			for x in s:
-				try:
-					ins[x].append(tg)
-				except KeyError:
-					ins[x] = [tg]
-
-		try:
-			s = tg.target
-		except:
-			pass
-		else:
-			if isinstance(s, bld.root.__class__):
-				s = [s]
-			tg_outs[id(tg)] = s
-
-			for x in s:
-				try:
-					outs[x].append(tg)
-				except KeyError:
-					outs[x] = [tg]
-
-	acc = set([])
-	def add_rec(tg):
-		if id(tg) in acc:
-			return
-		else:
-			acc.add(id(tg))
-
-		try:
-			tg.post()
-		except:
-			pass
-
-		up = tg_ins.get(id(tg), [])
-		for k in up:
-			for y in outs.get(k, []):
-				add_rec(y)
-
-	for name in bld.targets.split(','):
-		if not name or name == '*':
-			continue
-		tg = bld.get_tgen_by_name(name)
-		if not tg:
-			raise ValueError('invalid task generator %r' % name)
-		add_rec(tg)
 

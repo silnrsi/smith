@@ -6,7 +6,7 @@
 C/C++/D configuration helpers
 """
 
-import os, imp, sys, shlex, shutil
+import os, imp, sys, re, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
 from waflib.TaskGen import before_method, after_method, feature
 from waflib.Configure import conf
@@ -159,6 +159,11 @@ def parse_flags(self, line, uselib, env=None):
 		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
 			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
+		elif x.startswith('-bundle'):
+			app('LINKFLAGS_' + uselib, [x])
+		elif x.startswith('-undefined'):
+			arg = lst.pop(0)
+			app('LINKFLAGS_' + uselib, [x, arg])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
 			app('CFLAGS_' + uselib, tmp)
@@ -1077,6 +1082,24 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		else:
 			conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
+
+@conf
+def get_xlc_version(conf, cc):
+	"""Get the compiler version"""
+
+	version_re = re.compile(r"IBM XL C/C\+\+.*, V(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = cc + ['-qversion']
+
+	try:
+		out, err = conf.cmd_and_log(cmd, output=0)
+	except Errors.WafError:
+		conf.fatal('Could not find xlc %r' % cmd)
+	if out: match = version_re(out)
+	else: match = version_re(err)
+	if not match:
+		conf.fatal('Could not determine the XLC version.')
+	k = match.groupdict()
+	conf.env['CC_VERSION'] = (k['major'], k['minor'])
 
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 

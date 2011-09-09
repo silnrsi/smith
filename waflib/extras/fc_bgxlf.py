@@ -18,9 +18,9 @@ def find_bgxlf(conf):
 
 @conf
 def bg_flags(self):
-	self.env.SONAME_ST         = ''
-	self.env.FCSHLIB_MARKER    = ''
-	self.env.FCSTLIB_MARKER    = ''
+	self.env.SONAME_ST		 = ''
+	self.env.FCSHLIB_MARKER	= ''
+	self.env.FCSTLIB_MARKER	= ''
 	self.env.FCFLAGS_fcshlib   = ['-fPIC']
 	self.env.LINKFLAGS_fcshlib = ['-G', '-Wl,-bexpfull']
 
@@ -28,6 +28,6 @@ def configure(conf):
 	conf.find_bgxlf()
 	conf.find_ar()
 	conf.fc_flags()
-        conf.xlf_flags()
+	conf.xlf_flags()
 	conf.bg_flags()
 

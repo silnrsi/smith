@@ -12,6 +12,7 @@ Support for Ruby extensions. A C/C++ compiler is required::
 		conf.load('compiler_c ruby')
 		conf.check_ruby_version((1,8,0))
 		conf.check_ruby_ext_devel()
+		conf.check_ruby_module('libxml')
 	def build(bld):
 		bld(
 			features = 'c cshlib rubyext',
@@ -23,7 +24,7 @@ Support for Ruby extensions. A C/C++ compiler is required::
 
 import os
 from waflib import Task, Options, Utils
-from waflib.TaskGen import before_method, feature, after_method
+from waflib.TaskGen import before_method, feature, after_method, Task, extension
 from waflib.Configure import conf
 
 @feature('rubyext')
@@ -78,8 +79,10 @@ def check_ruby_version(self, minver=()):
 		if ver < minver:
 			self.fatal('ruby is too old %r' % ver)
 		cver = '.'.join([str(x) for x in minver])
+	else:
+		cver = ver
 
-	self.msg('ruby', cver)
+	self.msg('Checking for ruby version %s' % str(minver or ''), cver)
 
 @conf
 def check_ruby_ext_devel(self):
@@ -140,6 +143,45 @@ def check_ruby_ext_devel(self):
 		self.env.LIBDIR_RUBY = Options.options.rubylibdir
 	else:
 		self.env.LIBDIR_RUBY = read_config('sitelibdir')[0]
+
+@conf
+def check_ruby_module(self, module_name):
+	"""
+	Check if the selected ruby interpreter can require the given ruby module::
+
+		def configure(conf):
+			conf.check_ruby_module('libxml')
+
+	:param module_name: module
+	:type  module_name: string
+	"""
+	self.start_msg('Ruby module %s' % module_name)
+	try:
+		self.cmd_and_log([self.env['RUBY'], '-e', 'require \'%s\';puts 1' % module_name])
+	except:
+		self.end_msg(False)
+		self.fatal('Could not find the ruby module %r' % module_name)
+	self.end_msg(True)
+
+@extension('.rb')
+def process(self, node):
+	tsk = self.create_task('run_ruby', node)
+
+class run_ruby(Task.Task):
+	"""
+	Task to run ruby files detected by file extension .rb::
+	
+		def options(opt):
+			opt.load('ruby')
+		
+		def configure(ctx):
+			ctx.check_ruby_version()
+		
+		def build(bld):
+			bld.env['RBFLAGS'] = '-e puts "hello world"'
+			bld(source='a_ruby_file.rb')
+	"""
+	run_str = '${RUBY} ${RBFLAGS} -I ${SRC[0].parent.abspath()} ${SRC}'
 
 def options(opt):
 	"""

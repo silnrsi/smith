@@ -271,11 +271,12 @@ class BuildContext(Context.Context):
 
 		f = None
 		try:
+			dbfn = os.path.join(self.variant_dir, Context.DBFILE)
 			try:
-				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
+				f = open(dbfn, 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
-				Logs.debug('build: could not load the build cache (missing)')
+				Logs.debug('build: could not load the build cache %s (missing)' % dbfn)
 			else:
 				try:
 					waflib.Node.pickle_lock.acquire()
@@ -283,7 +284,7 @@ class BuildContext(Context.Context):
 					try:
 						data = cPickle.load(f)
 					except Exception as e:
-						Logs.debug('build: could not load the build cache %r' % e)
+						Logs.debug('build: could not pickle the build cache %s: %r' % (dbfn, e))
 					else:
 						for x in SAVED_ATTRS:
 							setattr(self, x, data[x])
@@ -451,7 +452,7 @@ class BuildContext(Context.Context):
 
 		lst = [env[a] for a in vars_lst]
 		ret = Utils.h_list(lst)
-		Logs.debug('envhash: %r %r', ret, lst)
+		Logs.debug('envhash: %s %r', Utils.to_hex(ret), lst)
 
 		cache[idx] = ret
 
@@ -904,7 +905,7 @@ class InstallContext(BuildContext):
 				pass
 			else:
 				# same size and identical timestamps -> make no copy
-				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
+				if st1.st_mtime + 2 >= st2.st_mtime and st1.st_size == st2.st_size:
 					if not self.progress_bar:
 						Logs.info('- install %s (from %s)' % (tgt, srclbl))
 					return False
@@ -1237,9 +1238,8 @@ class StepContext(BuildContext):
 				else:
 					f()
 
-		for pat in self.files.split(','):
-			matcher = self.get_matcher(pat)
-			for g in self.groups:
+			for pat in self.files.split(','):
+				matcher = self.get_matcher(pat)
 				for tg in g:
 					if isinstance(tg, Task.TaskBase):
 						lst = [tg]
@@ -1257,7 +1257,7 @@ class StepContext(BuildContext):
 								break
 						if do_exec:
 							ret = tsk.run()
-							Logs.info('%s -> %r' % (str(tsk), ret))
+							Logs.info('%s -> exit %r' % (str(tsk), ret))
 
 	def get_matcher(self, pat):
 		# this returns a function

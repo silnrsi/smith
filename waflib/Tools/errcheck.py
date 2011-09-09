@@ -52,9 +52,13 @@ def check_same_targets(self):
 	for (k, v) in mp.items():
 		if len(v) > 1:
 			dupe = True
-			Logs.error('* Node %r is created by more than one task. The task generators are:' % k)
+			msg = '* Node %r is created by more than once%s. The task generators are:' % (k, Logs.verbose == 1 and " (full message on 'waf -v -v')" or "")
+			Logs.error(msg)
 			for x in v:
-				Logs.error('  %d. %r' % (1 + v.index(x), x.generator))
+				if Logs.verbose > 1:
+					Logs.error('  %d. %r' % (1 + v.index(x), x.generator))
+				else:
+					Logs.error('  %d. %r in %r' % (1 + v.index(x), x.generator.name, getattr(x.generator, 'path', None)))
 
 	if not dupe:
 		for (k, v) in uids.items():

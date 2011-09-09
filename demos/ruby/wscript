@@ -20,6 +20,7 @@ def configure(conf):
 	# check for ruby
 	conf.check_ruby_version((1,8,0))
 	conf.check_ruby_ext_devel()
+	conf.check_ruby_module('libxml', mandatory=False)
 
 def build(bld):
 
@@ -36,6 +37,9 @@ def build(bld):
 		def foo(bld):
 			bld.exec_command(bld.env.RUBY + ' -I' + bld.get_variant_dir() + ' -rMytest -e "Mytest.hello()"')
 		bld.add_post_fun(foo)
+
+	# or, another way
+	bld(source='hello_world.rb')
 
 from waflib.Build import BuildContext
 class one(BuildContext):

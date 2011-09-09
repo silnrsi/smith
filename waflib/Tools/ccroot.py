@@ -80,7 +80,7 @@ def to_incnodes(self, inlst):
 	lst = []
 	seen = set([])
 	for x in self.to_list(inlst):
-		if x in seen:
+		if x in seen or not x:
 			continue
 		seen.add(x)
 
