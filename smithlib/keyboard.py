@@ -26,6 +26,7 @@ class Keyboard(object) :
     def get_build_tools(self, ctx) :
         res = set(['kmn2xml', 'kmnxml2svg', 'inkscape', 'ttfeval', 'cp'])
         if hasattr(self, 'mskbd') : res.update(self.mskbd.get_build_tools(ctx))
+        if hasattr(self, 'modifiers') : res.update(['pdftk'])
         try: ctx.find_program('kmcomp', var = 'KMCOMP')
         except:
             path = os.path.join(os.getenv('HOME'), '.wine', 'drive_c', 'Program Files', 'Tavultesoft', 'Keyman Developer', 'kmcomp.exe')
@@ -54,13 +55,35 @@ class Keyboard(object) :
         if hasattr(self, 'mskbd') : self.mskbd.build(bld, self)
 
     def build_pdf(self, bld) :
-        self.build_svg(bld)
-        bld(rule = 'FONTCONFIG=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [self.svg, self.kbdfont], target = bld.bldnode.find_or_declare(self.pdf))
+        allpdfs = []
+        for m in self.modifiers if self.modifiers else ('',) :
+            self.build_svg(bld, m)
+            if m or self.modifiers :
+                modname = m.replace(" ", '_')
+                svg = self.svg.replace(".", "_" + modname + ".", 1) if m else self.svg
+                pdf = self.pdf.replace(".", "_" + modname + ".", 1)
+                allpdfs.append(pdf)
+            else :
+                svg = self.svg
+                pdf = self.pdf
+            bld(rule = 'FONTCONFIG=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [svg, self.kbdfont], target = bld.bldnode.find_or_declare(pdf))
+        if self.modifiers :
+            bld(rule = '${PDFTK} ${SRC} cat output ${TGT}', source = allpdfs, target = bld.bldnode.find_or_declare(self.pdf))
 
-    def build_svg(self, bld) :
-        bld(rule = '${KMN2XML} ${SRC} > ${TGT}', shell = 1, source = self.source, target = self.xml)
+    def build_svg(self, bld, mods) :
+        if mods :
+            args = '--modifiers="{0}"'.format(mods)
+            modname = mods.replace(" ", '_')
+            xml = self.xml.replace(".", "_" + modname + ".", 1)
+            svg = self.svg.replace(".", "_" + modname + ".", 1)
+        else :
+            args = ''
+            modname = ''
+            xml = self.xml
+            svg = self.svg
+        bld(rule = '${KMN2XML} ' + args + ' ${SRC} > ${TGT}', shell = 1, source = self.source, target = xml)
         bld(rule = '${CP} ${SRC} ${TGT}', source = self.font, target = self.kbdfont)
-        bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = self.xml, target = self.svg)
+        bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = xml, target = svg)
     
 class MSKBD(object) :
 
