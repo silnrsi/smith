@@ -111,25 +111,9 @@ except ImportError:
 
 is_win32 = sys.platform in ('win32', 'cli')
 
-
-def envvar_as_bool(name):
-	"""
-	Retrieves an environment variable and tells its boolean value
-	Typical boolean variables are true when they are '', or any other value, except 'no', 'false', or '0'.
-
-	:type name: string
-	:param name: environment variable name
-	:rtype: bool
-	:return: whether the environment variable is set
-
-	"""
-	value = os.environ.get(name, 'no').lower()
-	return value not in ['no', 'false', '0']
-
-
 # we should have put this in the Logs.py file instead :-/
 indicator = '\x1b[K%s%s%s\r'
-if is_win32 and envvar_as_bool('NOCOLOR'):
+if is_win32 and 'NOCOLOR' in os.environ:
 	indicator = '%s%s%s\r'
 
 def readf(fname, m='r'):
