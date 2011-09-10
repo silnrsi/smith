@@ -6,10 +6,10 @@
 logging, colors, terminal width and pretty-print
 """
 
-import os, re, traceback, sys
+import os, re, traceback, sys, Utils
 
 try:
-	if 'NOCOLOR' not in os.environ:
+	if not Utils.envvar_as_bool('NOCOLOR'):
 		import waflib.ansiterm
 except:
 	# optional module for colors on win32, just ignore if it cannot be imported
@@ -44,7 +44,7 @@ if got_tty:
 	except AttributeError:
 		got_tty = False
 
-if (not got_tty and os.environ.get('TERM', 'dumb') != 'msys') or 'NOCOLOR' in os.environ:
+if (not got_tty and os.environ.get('TERM', 'dumb') != 'msys') or Utils.envvar_as_bool('NOCOLOR'):
 	colors_lst['USE'] = False
 
 def get_term_cols():
