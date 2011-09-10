@@ -323,6 +323,14 @@ def check_python_headers(conf):
 		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
 
+	if env.CC_NAME == "msvc":
+		from distutils.msvccompiler import MSVCCompiler
+		dist_compiler = MSVCCompiler()
+		dist_compiler.initialize()
+		env.append_value('CFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('CXXFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('LINKFLAGS_PYEXT', dist_compiler.ldflags_shared)
+
 	# See if it compiles
 	try:
 		conf.check(header_name='Python.h', define_name='HAVE_PYTHON_H',
