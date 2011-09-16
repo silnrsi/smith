@@ -125,9 +125,12 @@ class Legacy(object) :
             setattr(self, k, v)
 
     def get_build_tools(self) :
-        res = ["ttfbuilder"]
-        if self.target.endswith('.sfd') :
-            res.append("fontforge")
+        if self.source.endswith(".ttf") :
+            res = ["ttfbuilder"]
+            if self.target.endswith('.sfd') :
+                res.append("fontforge")
+        else :
+            res = ["ffbuilder", "sfd2ap"]
         return res
 
     def get_sources(self, ctx) :
@@ -138,16 +141,21 @@ class Legacy(object) :
     def build(self, bld, targetap) :
         cmd = " " + getattr(self, 'params', "")
         srcs = [self.source, self.xml]
-        if hasattr(self, 'ap') :
-            srcs.append(self.ap)
-            cmd += " -x ${SRC[2].bldpath()}"
-        trgt = [re.sub(r'\..*', '.ttf', self.target)]
-        if targetap :
-            trgt.append(targetap)
-            cmd += " -z ${TGT[1].bldpath()}"
-        bld(rule = "${TTFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = trgt)
-        if self.target.endswith(".sfd") :
-            bld(rule = "${FONTFORGE} -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
+        if self.source.endswith(".ttf") :
+            if hasattr(self, 'ap') :
+                srcs.append(self.ap)
+                cmd += " -x ${SRC[2].bldpath()}"
+            trgt = [re.sub(r'\..*', '.ttf', self.target)]
+            if targetap :
+                trgt.append(targetap)
+                cmd += " -z ${TGT[1].bldpath()}"
+            bld(rule = "${TTFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = trgt)
+            if self.target.endswith(".sfd") :
+                bld(rule = "${FONTFORGE} -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
+        else :
+            bld(rule = "${FFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = self.target)
+            if targetap :
+                bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
 
 class Internal(object) :
