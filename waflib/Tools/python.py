@@ -19,9 +19,9 @@ Support for Python, detect the headers and libraries and provide
 """
 
 import os, sys
-from waflib import TaskGen, Utils, Utils, Runner, Options, Build, Errors
+from waflib import Utils, Options, Errors
 from waflib.Logs import debug, warn, info, error
-from waflib.TaskGen import extension, taskgen_method, before_method, after_method, feature
+from waflib.TaskGen import extension, before_method, after_method, feature
 from waflib.Configure import conf
 
 FRAG = '''
@@ -322,6 +322,14 @@ def check_python_headers(conf):
 	if env['CXX_NAME'] == 'gcc':
 		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
+
+	if env.CC_NAME == "msvc":
+		from distutils.msvccompiler import MSVCCompiler
+		dist_compiler = MSVCCompiler()
+		dist_compiler.initialize()
+		env.append_value('CFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('CXXFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('LINKFLAGS_PYEXT', dist_compiler.ldflags_shared)
 
 	# See if it compiles
 	try:
