@@ -109,7 +109,13 @@ class Package(object) :
         for f in self.fonts :
             f.build_svg(bld)
         for k in self.keyboards :
-            k.build_pdf(bld)
+            k.build_svg(bld)
+
+    def build_test(self, bld) :
+        for f in self.fonts :
+            f.build_test(bld)
+        for k in self.keyboards :
+            k.build_test(bld)
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env : return
@@ -194,6 +200,15 @@ class svgContext(Build.BuildContext) :
         self.add_group('svg')
         for p in Package.packages :
             p.build_svg(self)
+
+class testContext(Build.BuildContext) :
+    cmd = 'test'
+    func = 'test'
+
+    def pre_build(self) :
+        self.add_group('test')
+        for p in Package.packages :
+            p.build_test(self)
 
 class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'

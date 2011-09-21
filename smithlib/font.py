@@ -115,6 +115,10 @@ class Font(object) :
         if self.tests :
             self.tests.build_tests(bld, self, 'svg')
 
+    def build_test(self, bld) :
+        if self.tests :
+            self.tests.build_tests(bld, self, 'test')
+
 
 class Legacy(object) :
 
@@ -315,7 +319,8 @@ def onload(ctx) :
     varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
-            'tex' : font_tests.TeX, 'svg' : font_tests.SVG
+            'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
+            'tests' : font_tests.Tests
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :

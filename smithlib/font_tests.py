@@ -282,3 +282,25 @@ class SVG(object) :
             ctx.bldnode.find_or_declare(indexhtmltarg).write(svgIndexHtml)
             ctx(rule='${FIREFOX} ' + indexhtmltarg, source = diffSvgs)
 
+class Tests(object) :
+    def __init__(self, tests, *kv, **kw) :
+        for k, item in kw.items() :
+            setattr(self, k, item)
+        self.tests = tests
+
+    def build(self, ctx, test, font) :
+        if not hasattr(self, 'standards') :
+            self.standards = ctx.env['STANDARDS'] or 'standards'
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+
+        for name, t in self.tests.items() :
+            for n in txtfiles.keys() :
+                for m in test.modes.keys() :
+                    f = os.path.basename(font.target)
+                    inputs = [font.target, n]
+                    inputs.append(os.path.join(self.standards, f))
+                    target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + '.log')
+                    t.build(ctx, inputs, target, shaper = m, script = getattr(font, 'script', None), name = name, fileinfo = txtfiles[n])
