@@ -1,3 +1,4 @@
+
 == Waf architecture overview
 
 This chapter provides describes the Waf library and the interaction between the components.
@@ -217,6 +218,7 @@ class ext2o(Task):
 def process_ext(self, node):
 	self.create_compiled_task('ext2o', node) <4>
 ---------------
+
 <1> This import will bind the methods such as _create_compiled_task_ and _apply_link_task_
 <2> An alternate definition would be calling _waflib.TaskGen.feats[`mylink'] = [`apply_link']_
 <3> The link task must be a subclass of another link task class
@@ -226,7 +228,6 @@ The execution outputs will be the following:
 // why the extra space after "setting top to"?
 [source,shishell]
 ---------------
-
 $ waf distclean configure build -v
 'distclean' finished successfully (0.005s)
 Setting top to   : /tmp/architecture_link
@@ -267,7 +268,7 @@ def configure(ctx):
     method1(ctx)
 ---------------
 
-and
+and:
 
 [source,python]
 ---------------
@@ -331,5 +332,6 @@ def build(bld):
     bld.enterprise_program(source='main.c', target='app')
 ---------------
 
-////
+The methods should always be bound in this manner or manually, as subclassing may create conflicts between tools written for different purposes.
+
 

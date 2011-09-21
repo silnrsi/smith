@@ -20,15 +20,6 @@ WAFVERSION="1.6.8"
 WAFREVISION="11517"
 """Constant updated on new releases"""
 
-HEXVERSION=0x1060500
-"""Constant updated on new releases"""
-
-WAFVERSION="1.6.5"
-"""Constant updated on new releases"""
-
-WAFREVISION="11200"
-"""Constant updated on new releases"""
-
 ABI = 98
 """Version of the build data cache file format (used in :py:const:`waflib.Context.DBFILE`)"""
 

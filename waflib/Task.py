@@ -706,10 +706,16 @@ class Task(TaskBase):
 			except:
 				# when a file was renamed (IOError usually), remove the stale nodes (headers in folders without source files)
 				# this will break the order calculation for headers created during the build in the source directory (should be uncommon)
+				# the behaviour will differ when top != out
 				for x in bld.node_deps.get(self.uid(), []):
-					p = x.parent
-					if p.is_child_of(bld.srcnode):
-						p.ant_glob('*')
+					if x.is_child_of(bld.srcnode):
+						try:
+							os.stat(x.abspath())
+						except:
+							try:
+								del x.parent.children[x.name]
+							except:
+								pass
 			del bld.task_sigs[(key, 'imp')]
 			raise Errors.TaskRescan('rescan')
 
@@ -730,7 +736,7 @@ class Task(TaskBase):
 			bld.task_sigs[(key, 'imp')] = sig = self.compute_sig_implicit_deps()
 		except:
 			if Logs.verbose:
-				for x in bld.node_deps.get(self.uid(), []):
+				for k in bld.node_deps.get(self.uid(), []):
 					try:
 						k.get_bld_sig()
 					except:
@@ -857,6 +863,8 @@ class Task(TaskBase):
 		# file caching, if possible
 		# try to avoid data corruption as much as possible
 		if getattr(self, 'cached', None):
+			return None
+		if not getattr(self, 'outputs', None):
 			return None
 
 		sig = self.signature()
@@ -1191,6 +1199,7 @@ def update_outputs(cls):
 		old_post_run(self)
 		for node in self.outputs:
 			node.sig = Utils.h_file(node.abspath())
+			self.generator.bld.task_sigs[node.abspath()] = self.uid() # issue #1017
 	cls.post_run = post_run
 
 
@@ -1205,16 +1214,17 @@ def update_outputs(cls):
 			# perform a second check, returning 'SKIP_ME' as we are expecting that
 			# the signatures do not match
 			bld = self.generator.bld
-			new_sig  = self.signature()
 			prev_sig = bld.task_sigs[self.uid()]
-			if prev_sig == new_sig:
+			if prev_sig == self.signature():
 				for x in self.outputs:
-					if not x.sig:
+					if not x.sig or bld.task_sigs[x.abspath()] != self.uid():
 						return RUN_ME
 				return SKIP_ME
 		except KeyError:
 			pass
 		except IndexError:
+			pass
+		except AttributeError:
 			pass
 		return RUN_ME
 	cls.runnable_status = runnable_status
