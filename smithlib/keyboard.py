@@ -56,9 +56,9 @@ class Keyboard(object) :
 
     def build_pdf(self, bld) :
         allpdfs = []
-        for m in self.modifiers if self.modifiers else ('',) :
+        for m in getattr(self, 'modifiers', ['']) :
             self.build_svg(bld, m)
-            if m or self.modifiers :
+            if m or hasattr(self, 'modifiers') :
                 modname = m.replace(" ", '_')
                 svg = self.svg.replace(".", "_" + modname + ".", 1) if m else self.svg
                 pdf = self.pdf.replace(".", "_" + modname + ".", 1)
@@ -66,8 +66,8 @@ class Keyboard(object) :
             else :
                 svg = self.svg
                 pdf = self.pdf
-            bld(rule = 'FONTCONFIG=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [svg, self.kbdfont], target = bld.bldnode.find_or_declare(pdf))
-        if self.modifiers :
+            bld(rule = 'FONTCONFIG_PATH=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [svg, self.kbdfont], target = bld.bldnode.find_or_declare(pdf))
+        if hasattr(self, 'modifiers') :
             bld(rule = '${PDFTK} ${SRC} cat output ${TGT}', source = allpdfs, target = bld.bldnode.find_or_declare(self.pdf))
 
     def build_svg(self, bld, mods) :
