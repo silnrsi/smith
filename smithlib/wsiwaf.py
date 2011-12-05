@@ -44,7 +44,7 @@ class cmd(object) :
                     return kw[g('var')]
                 else : return '${' + g('var') + g('code') + '}'
         if kw : c = Task.reg_act.sub(repl, self.c)
-        ctx(rule = c, source = inputs, target = tgt)
+        return ctx(rule = c, source = inputs, target = tgt)
         
 def onload(ctx) :
     varmap = { 'process' : process, 'create' : create, 'cmd' : cmd, 

@@ -20,7 +20,7 @@ class Keyboard(object) :
         if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(kw['font'])[1])
         for k, v in kw.items() : setattr(self, k, v)
         if not hasattr(self, 'package') :
-            self.package = package.global_package()
+            self.package = package.Package.global_package()
         self.package.add_kbd(self)
  
     def get_build_tools(self, ctx) :

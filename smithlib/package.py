@@ -2,21 +2,9 @@
 # Martin Hosken 2011
 
 from waflib import Context, Build, Errors, Node, Options
+import wafplus
 import font, templater 
 import os, sys, shutil, time
-
-globalpackage = None
-def global_package(**kw) :
-    global globalpackage
-    if not globalpackage :
-        globalpackage = Package()
-        for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
-                    'DOCDIR', 'DEBPKG') :
-            setattr(globalpackage, k.lower(), getattr(Context.g_module, k, ''))
-    for k, v in kw.items() :
-        setattr(globalpackage, k, v)
-    return globalpackage
 
 def formatdesc(s) :
     res = []
@@ -36,13 +24,41 @@ def formattz(tzsec) :
 
 class Package(object) :
 
-    packages = []
+    packagestore = []
+    packdict = {}
+    globalpackage = None
+
+    @classmethod
+    def initPackages(cls, ps = [], g = None) :
+        cls.packagestore = ps
+        cls.globalpackage = g
+
+    @classmethod
+    def packages(cls) :
+        return cls.packagestore
+
+    @classmethod
+    def global_package(cls, **kw) :
+        if cls.globalpackage == None :
+            cls.globalpackage = len(cls.packagestore)
+            p = Package()
+            for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
+                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
+                    'DOCDIR', 'DEBPKG') :
+                setattr(p, k.lower(), getattr(Context.g_module, k, ''))
+        else :
+            p = cls.packagestore[cls.globalpackage]
+        for k, v in kw.items() :
+            setattr(p, k, v)
+        return p
+
     def __init__(self, **kw) :
         for k, v in kw.items() :
             setattr(self, k, v)
-        self.packages.append(self)
+        self.packagestore.append(self)
         self.fonts = []
         self.keyboards = []
+        self.subpackages = {}
 
     def get_build_tools(self, ctx) :
         try :
@@ -58,6 +74,7 @@ class Package(object) :
 
     def get_sources(self, ctx) :
         res = []
+        self.subtrun(ctx, lambda p, c: res.extend(p.get_sources(c)))
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         if hasattr(self, 'docdir') :
@@ -65,6 +82,11 @@ class Package(object) :
                 for f in fs :
                     res.append(os.path.join(p, f))
         return res
+
+    def add_package(self, package, path) :
+        if path not in self.subpackages :
+            self.subpackages[path] = []
+        self.subpackages[path].append(package)
 
     def add_font(self, font) :
         self.fonts.append(font)
@@ -78,19 +100,38 @@ class Package(object) :
         else :
             self.reservedofl = set(reserved)
 
-    def make_ofl_license(self, task) :
+    def make_ofl_license(self, task, base) :
         bld = task.generator.bld
-        font.make_ofl(task.outputs[0].srcpath(), self.reservedofl,
+        font.make_ofl(task.outputs[0].path_from(base.path if base else bld.path), self.reservedofl,
                 getattr(self, 'ofl_version', '1.1'),
                 copyright = getattr(self, 'copyright', ''),
                 template = getattr(self, 'ofltemplate', None))
         return 0
+    
+    def subrun(self, bld, fn) :
+        for k, v in self.subpackages.items() :
+            relpath = os.path.relpath(k, bld.top_dir or bld.path.abspath())
+            b = bld.__class__(out_dir = os.path.join(bld.out_dir or bld.bldnode.abspath() or "", relpath),
+                              top_dir = os.path.abspath(k), run_dir = os.path.abspath(k))
+            b.fun = bld.fun
+            gm = Context.g_module
+            Context.g_module = Context.cache_modules[os.path.join(os.path.abspath(b.top_dir), 'wscript')]
+            oexe = getattr(Context.g_module, bld.fun, None)
+            def lexe(ctx) :
+                for p in v :
+                    fn(p, ctx)
+                if oexe : oexe(ctx)
+            setattr(Context.g_module, bld.fun, lexe)
+            b.execute()
+            setattr(Context.g_module, bld.fun, oexe)
+            Context.g_module = gm
         
-    def build(self, bld) :
+    def build(self, bld, base = None) :
 
         def methodwrapofl(tsk) :
-            return self.make_ofl_license(tsk)
+            return self.make_ofl_license(tsk, base)
 
+        self.subrun(bld, lambda p, b: p.build(b, bld))
         for f in self.fonts :
             f.build(bld)
         for k in self.keyboards :
@@ -100,18 +141,21 @@ class Package(object) :
             bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
     def build_pdf(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_pdf(b))
         for f in self.fonts :
             f.build_pdf(bld)
         for k in self.keyboards :
             k.build_pdf(bld)
 
     def build_svg(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_svg(b))
         for f in self.fonts :
             f.build_svg(bld)
         for k in self.keyboards :
             k.build_svg(bld)
 
     def build_test(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_test(b))
         for f in self.fonts :
             f.build_test(bld)
         for k in self.keyboards :
@@ -133,12 +177,11 @@ class Package(object) :
         bname = 'installer_' + self.appname
         task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
-        for f in self.fonts :
-            task.set_inputs(bld.bldnode.find_resource(f.target))
-        for k in self.keyboards :
-            for t in ('target', 'kmx', 'pdf') :
-                n = bld.bldnode.find_resource(getattr(k, t, None))
-                if n : task.set_inputs(n)
+        for x in self.get_files() :
+            if not x : continue
+            y = bld.bldnode.find_or_declare(x)
+            if y : task.set_inputs(y)
+
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
         bld(rule='${MAKENSIS} -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
@@ -151,21 +194,23 @@ class Package(object) :
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
 
-        for x in self.get_files() :
+        for x in self.get_files(bld) :
             if not x : continue
             y = bld.path.find_or_declare(x)
             archive_name = self.appname + '-' + str(self.version) + '/' + x
             zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
         zip.close()
         
-    def get_files(self) :
+    def get_files(self, bld) :
         res = []
+        self.subrun(lambda p, c: res.extend(p.get_files(c)))
+
         try: res.append(self.license)
         except: pass
         for f in self.fonts :
-            res.append(f.target)
+            res.append(os.path.join(bld.out_dir, f.target))
         for k in self.keyboards :
-            res.extend([k.target, k.kmx, k.pdf])
+            res.extend(map(lambda x: os.path.join(bld.out_dir, x), [k.target, k.kmx, k.pdf]))
         return res
 
 class exeContext(Build.BuildContext) :
@@ -173,14 +218,14 @@ class exeContext(Build.BuildContext) :
 
     def pre_build(self) :
         self.add_group('exe')
-        for p in Package.packages :
+        for p in Package.packages() :
             p.build_exe(self)
 
 class zipContext(Build.BuildContext) :
     cmd = 'zip'
 
     def execute_build(self) :
-        for p in Package.packages :
+        for p in Package.packages() :
             p.execute_zip(self)
 
 class pdfContext(Build.BuildContext) :
@@ -189,8 +234,11 @@ class pdfContext(Build.BuildContext) :
 
     def pre_build(self) :
         self.add_group('pdfs')
-        for p in Package.packages :
+        for p in Package.packages() :
             p.build_pdf(self)
+
+    def build(self) :
+        pass
 
 class svgContext(Build.BuildContext) :
     cmd = 'svg'
@@ -198,7 +246,7 @@ class svgContext(Build.BuildContext) :
 
     def pre_build(self) :
         self.add_group('svg')
-        for p in Package.packages :
+        for p in Package.packages() :
             p.build_svg(self)
 
 class testContext(Build.BuildContext) :
@@ -207,7 +255,7 @@ class testContext(Build.BuildContext) :
 
     def pre_build(self) :
         self.add_group('test')
-        for p in Package.packages :
+        for p in Package.packages() :
             p.build_test(self)
 
 class srcdistContext(Build.BuildContext) :
@@ -218,7 +266,7 @@ class srcdistContext(Build.BuildContext) :
         files = {}
         if os.path.exists('debian') :
             files['debian'] = self.srcnode.find_node('debian')
-        for p in Package.packages :
+        for p in Package.packages() :
             res.update(set(p.get_sources(self)))
         for f in res :
             if not f : continue
@@ -242,6 +290,7 @@ class makedebianContext(Build.BuildContext) :
     def execute_build(self) :
         # check we have all the info we need
         if os.path.exists('debian') : return
+        globalpackage = globals().get('globalpackage')
         srcname = getattr(globalpackage, 'debpkg', None)
         if not srcname :
             raise Errors.WafError('No debpkg information given to default_package. E.g. set DEBPKG')
@@ -263,7 +312,7 @@ class makedebianContext(Build.BuildContext) :
         shutil.copy(sys.argv[0], 'debian/bin')
         hasfonts = 0
         haskbds = False
-        for p in Package.packages :
+        for p in Package.packages() :
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
             fdir = "/usr/share/fonts/truetype/" + pname + "\n"
@@ -306,7 +355,7 @@ Build-Depends: debhelper (>= 8.0), {2}
 Standards-Version: 3.9.1
 
 '''.format(srcname, maint, ", ".join(bdeps)))
-        for p in Package.packages :
+        for p in Package.packages() :
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
             fcontrol.write('''Package: {0}
@@ -347,19 +396,55 @@ override_dh_auto_install :
             if k == 'rules' : os.fchmod(f.fileno(), 0775)
             f.close()
 
+def subdir(path) :
+    currpackages = Package.packages()
+    currglobal = Package.globalpackage
+    Package.initPackages()
+
+    def src(p) :
+        return os.path.join(os.path.abspath(path), p)
+
+    mpath = os.path.join(os.path.abspath(path), 'wscript')
+    Context.wscript_vars['src'] = src
+    Context.load_module(mpath)
+
+    respackages = Package.packages()
+    Package.packdict[path] = respackages
+    Package.initPackages(currpackages, currglobal)
+    return respackages
+
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
 
-    def configure(ctx) :
-        programs = set()
-        for p in Package.packages :
-            programs.update(p.get_build_tools(ctx))
-        programs.update(font.progset)
-        for p in programs :
+    def subconfig(ctx) :
+        progs = set()
+        for p in Package.packages() :
+            progs.update(p.get_build_tools(ctx))
+        for p in progs :
             ctx.find_program(p, var=p.upper())
         ctx.find_program('cp', var='COPY')
         for key, val in Context.g_module.__dict__.items() :
             if key == key.upper() : ctx.env[key] = val
+
+    def configure(ctx) :
+        currpackages = Package.packages()
+        gm = Context.g_module
+        for k, v in Package.packdict.items() :
+            Package.initPackages(v, None)
+            c = ctx.__class__()
+            c.out_dir = os.path.join(ctx.bldnode.abspath(), k)
+            c.top_dir = os.path.join(ctx.srcnode.abspath(), k)
+            Context.g_module = Context.cache_modules[os.path.join(c.top_dir, 'wscript')]
+            oconfig = Context.g_module.configure
+            def lconfig(ctx) :
+                subconfig(ctx)
+                if oconfig : oconfig(ctx)
+            Context.g_module.configure = lconfig
+            c.execute()
+            Context.g_module.configure = oconfig
+            Context.g_module = gm
+        Package.initPackages(currpackages, None)
+        subconfig(ctx)
         if old_config :
             old_config(ctx)
 
@@ -372,7 +457,7 @@ def add_build() :
         bld.post_mode = 1
         if Options.options.debug :
             import pdb; pdb.set_trace()
-        for p in Package.packages :
+        for p in Package.packages() :
             p.build(bld)
         if old_build : old_build(bld)
 
@@ -383,7 +468,7 @@ def init(ctx) :
     add_build()
 
 def onload(ctx) :
-    varmap = { 'package' : Package, 'default_package' : global_package }
+    varmap = { 'package' : Package, 'subdir' : subdir }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v

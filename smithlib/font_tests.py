@@ -175,7 +175,7 @@ class TeX(object) :
             textfiles.append((targ, n))
         for n in textfiles :
             targ = n[0].get_bld()
-            ctx(rule = '${XETEX} --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
+            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
                 taskgens = [font.target + "_" + m])
@@ -288,6 +288,9 @@ class Tests(object) :
             setattr(self, k, item)
         self.tests = tests
 
+    def config(self, ctx) :
+        return []
+
     def build(self, ctx, test, font) :
         if not hasattr(self, 'standards') :
             self.standards = ctx.env['STANDARDS'] or 'standards'
@@ -303,4 +306,5 @@ class Tests(object) :
                     inputs = [font.target, n]
                     inputs.append(os.path.join(self.standards, f))
                     target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + '.log')
-                    t.build(ctx, inputs, target, shaper = m, script = getattr(font, 'script', None), name = name, fileinfo = txtfiles[n])
+                    gen = t.build(ctx, inputs, target, shaper = m, script = getattr(font, 'script', None), name = name, fileinfo = txtfiles[n])
+                    gen.taskgens = [font.target + "_" + m]

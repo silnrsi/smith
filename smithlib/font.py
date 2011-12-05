@@ -25,7 +25,7 @@ class Font(object) :
             self.source = self.legacy.target
         self.fonts.append(self)
         if not hasattr(self, 'package') :
-            self.package = package.global_package()
+            self.package = package.Package.global_package()
         self.package.add_font(self)
         if not hasattr(self, 'tests') :
             self.tests = font_tests.global_test()
@@ -44,6 +44,7 @@ class Font(object) :
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license')) :
             if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools())
+        res.update(progset)
         return res
 
     def get_sources(self, ctx) :
@@ -77,14 +78,14 @@ class Font(object) :
                 tarnode = srcnode.get_bld()
                 if tarnode != srcnode :
                     bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarnode)
-                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], before = self.target)
+                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
                 srcnode = tarnode
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
-            modify("${TTFSETVER} " + self.version + " ${DEP} ${TGT}", self.target)
+            modify("${TTFSETVER} " + self.version + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath())
         if hasattr(self, 'copyright') :
-            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target)
+            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = bld.srcnode.find_node('wscript').abspath())
         if hasattr(self, 'license') :
             if hasattr(self.license, 'reserve') :
                 self.package.add_reservedofls(*self.license.reserve)
@@ -95,11 +96,12 @@ class Font(object) :
             if not hasattr(self, 'legacy') :
                 apnode = bld.path.find_or_declare(self.ap)
                 if self.source.endswith(".sfd") :
-                    bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.source, target = self.ap)
+                    apopts = getattr(self, 'ap_params', "")
+                    bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
                 else :
                     bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
             if hasattr(self, 'classes') :
-                modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1)
+                modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = bld.srcnode.find_node('wscript').abspath())
         
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite')) :
@@ -196,7 +198,7 @@ class Volt(Internal) :
         ind = 0
         srcs = []
         if hasattr(font, 'ap') :
-            srcs.append(font.ap)
+            srcs.append(bld.path.find_or_declare(font.ap))
             cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
         if hasattr(self, 'master') :
@@ -204,7 +206,7 @@ class Volt(Internal) :
             cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
             ind += 1
         bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-        modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_ot")
+        modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
 
 
 class Gdl(Internal) :
@@ -221,24 +223,28 @@ class Gdl(Internal) :
         return [getattr(self, 'master', None)]
 
     def build(self, bld, target, tgen, font) :
-        modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, [getattr(self, 'source', None), getattr(self, 'master', None)])
+        srcs = [self.source]
+        if self.master : srcs.append(self.master)
+        modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, srcs, path = bld.srcnode.find_node('wscript').abspath())
         if self.source :
             srcs = []
             cmd = getattr(self, 'make_params', '') + " "
             ind = 0
             if hasattr(font, 'ap') :
-                srcs.append(font.ap)
+                srcs.append(bld.path.find_or_declare(font.ap))
                 cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
-            if hasattr(self, 'master') :
+            if self.master :
                 srcs.append(self.master)
-                loc = os.path.relpath(self.master, os.path.dirname(bld.path.find_or_declare(self.source).srcpath()))
+                mnode = bld.path.find_or_declare(self.master)
+                snode = bld.bldnode.find_or_declare(self.source)
+                loc = mnode.path_from(snode.parent)
                 cmd += '-i "' + loc + '" '
                 ind += 1
             bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], name = font.target + "_gr")
+            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
         elif self.master :
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], name = font.target + "_gr")
+            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
 
 class Ofl(object) :
 
@@ -256,7 +262,7 @@ class Ofl(object) :
         return []
 
     def build(self, bld, font) :
-        modify(self.insert_ofl, font.target)
+        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath())
         
     def globalofl(self, task) :
         bld = task.generator.bld

@@ -89,22 +89,35 @@ def process_taskgens(tg) :
                 t.set_run_after(ot)
 
 modifications = {}
-rules = []
+rules = {}
 
-def modify(cmd, infile, inputs = [], shell = 0, **kw) :
+def getpath() :
+    src = Context.wscript_vars.get('src', None)
+    if src :
+        return src('wscript')
+    else :
+        return os.path.abspath('wscript')
+
+def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
     """ modify taskgens are tasks with no formal output, although one is
         given. This output is modified in place. For input purposes it
         is referred to ${DEP} in the cmd, and ${TGT}. A modify task may also
         have other inputs ${SRC}.
     """
     # can't create taskgens here because we have no bld context
-    if not infile in modifications :
-        modifications[infile] = []
+    if not path : path = getpath()
+    if path not in modifications :
+        modifications[path] = {}
+    if not infile in modifications[path] :
+        modifications[path][infile] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py
-    modifications[infile].append((cmd, inputs, shell, kw))
+    modifications[path][infile].append((cmd, inputs, shell, kw))
 
-def rule(cmd, inputs, outputs, shell = 0, **kw) :
-    rules.append((cmd, inputs, outputs, shell, kw))
+def rule(cmd, inputs, outputs, shell = 0, path = None, **kw) :
+    if not path : path = getpath()
+    if path not in rules :
+        rules[path] = []
+    rules[path].append((cmd, inputs, outputs, shell, kw))
 
 def make_tempnode(n, bld) :
     path = ".tmp" + os.sep + n.get_bld().bld_dir()
@@ -115,8 +128,10 @@ def make_tempnode(n, bld) :
     return res
 
 def build_modifys(bld) :
+    path = bld.srcnode.find_node('wscript').abspath()
+    if path not in modifications : return
     count = 0
-    for key, item in modifications.items() :
+    for key, item in modifications[path].items() :
         outnode = bld.path.find_or_declare(key)
         for i in item :
             tmpnode = make_tempnode(outnode, bld)
@@ -132,11 +147,14 @@ def build_modifys(bld) :
             temp.update(i[3])
             bld(rule = cmd, source = i[1], shell = i[2], **temp)
             count += 1
+    del modifications[path]
 
 def build_rules(bld) :
-    for r in rules :
-        bld(rule = r[0], source = r[1], target = r[2], shell = r[3], **r[4])
-
+    path = bld.srcnode.find_node('wscript').abspath()
+    if path in rules :
+        for r in rules[path] :
+            bld(rule = r[0], source = r[1], target = r[2], shell = r[3], **r[4])
+        del rules[path]
 
 def add_reasons() :
     """ adds support for --zones=reason """
@@ -252,6 +270,15 @@ def runs_after(self, task, cache = set()) :
     return res
 
 def add_build_wafplus() :
+    old_pre_recurse = Context.Context.pre_recurse
+
+    def cpre_recurse(ctx, node) :
+        def src(path) :
+            return ctx.srcnode.find_node(path).srcpath()
+        Context.wscript_vars['src'] = src
+        if old_pre_recurse : old_pre_recurse(ctx, node)
+
+    Context.Context.pre_recurse = cpre_recurse
     old_prerecurse = Build.BuildContext.pre_recurse
     old_postrecurse = Build.BuildContext.post_recurse
     old_exec = Build.BuildContext.execute
@@ -259,6 +286,7 @@ def add_build_wafplus() :
     def pre_recurse(bld, node) :
         old_prerecurse(bld, node)
         build_rules(bld)
+        super(Build.BuildContext, bld).pre_recurse(node)
 
     def post_recurse(bld, node) :
         old_postrecurse(bld, node)
@@ -360,10 +388,16 @@ def load_module(file_path) :
     sys.path.insert(0, module_dir)
 
     for k, v in Context.wscript_vars.items() : setattr(module, k, v)
+    if not hasattr(module, 'src') :
+        def src(x) :
+            import os.path
+            return os.path.abspath(x)
+        module.src = src
 
     Context.g_module = module
     exec(compile(code, file_path, 'exec'), module.__dict__)
     sys.path.remove(module_dir)
+    if not hasattr(module, 'root_path') : module.root_path = file_path
 
     Context.cache_modules[file_path] = module
     return module
@@ -380,5 +414,5 @@ varmap = { 'modify' : modify,
             'rule' : rule,
             'preprocess_args' : preprocess_args }
 for k, v in varmap.items() :
-    Context.wscript_vars[k] = v
+    if k not in Context.wscript_vars : Context.wscript_vars[k] = v
 
