@@ -335,14 +335,15 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 + if m :
     IntOp $R1 0 + @m.lid@
     StrCpy $R2 "@m.dll.replace('.', '-86.')@"
+    File "@m.dll.replace('.', '-86.')@"
++    if env['AMD64GCC'] :
+    StrCpy $R4 $R2
     StrCpy $R3 "@m.dll.replace('.', '-64.')@"
+    File "@m.dll.replace('.', '-64.')@"
     ${If} ${RunningX64}
         StrCpy $R4 $R3
-    ${Else}
-        StrCpy $R4 $R2
     ${Endif}
-    File "@m.dll.replace('.', '-86.')@"
-    File "@m.dll.replace('.', '-64.')@"
+-
 
     LidStart:
     IntFmt $R5 "SYSTEM\ControlSet\Control\Keyboard Layouts\%08X" $R1

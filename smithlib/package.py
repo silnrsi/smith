@@ -6,6 +6,10 @@ import wafplus
 import font, templater 
 import os, sys, shutil, time
 
+keyfields = ('copyright', 'license', 'version', 'appname', 'desc_short',
+            'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
+            'docdir', 'debpkg')
+
 def formatdesc(s) :
     res = []
     for l in s.strip().splitlines(True) :
@@ -42,10 +46,8 @@ class Package(object) :
         if cls.globalpackage == None :
             cls.globalpackage = len(cls.packagestore)
             p = Package()
-            for k in ('COPYRIGHT', 'LICENSE', 'VERSION', 'APPNAME', 'DESC_SHORT',
-                    'DESC_LONG', 'OUTDIR', 'ZIPFILE', 'ZIPDIR', 'DESC_NAME',
-                    'DOCDIR', 'DEBPKG') :
-                setattr(p, k.lower(), getattr(Context.g_module, k, ''))
+            for k in keyfields :
+                setattr(p, k, getattr(Context.g_module, k.upper(), ''))
         else :
             p = cls.packagestore[cls.globalpackage]
         for k, v in kw.items() :
@@ -55,6 +57,8 @@ class Package(object) :
     def __init__(self, **kw) :
         for k, v in kw.items() :
             setattr(self, k, v)
+        for k in keyfields :
+            if not hasattr(self, k) : setattr(self, k, '')
         self.packagestore.append(self)
         self.fonts = []
         self.keyboards = []
@@ -171,15 +175,17 @@ class Package(object) :
             'project' : self,
             'fonts' : self.fonts,
             'kbds' : self.keyboards,
-            'basedir' : thisdir
+            'basedir' : thisdir,
+            'env' : bld.env
                 }
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname
         task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
-        for x in self.get_files() :
+        for x in self.get_files(bld) :
             if not x : continue
-            y = bld.bldnode.find_or_declare(x)
+            r = os.path.relpath(x, bld.bldnode.abspath())
+            y = bld.bldnode.find_or_declare(r)
             if y : task.set_inputs(y)
 
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
@@ -203,7 +209,7 @@ class Package(object) :
         
     def get_files(self, bld) :
         res = []
-        self.subrun(lambda p, c: res.extend(p.get_files(c)))
+        self.subrun(bld, lambda p, c: res.extend(p.get_files(c)))
 
         try: res.append(self.license)
         except: pass
