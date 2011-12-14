@@ -336,8 +336,8 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     IntOp $R1 0 + @m.lid@
     StrCpy $R2 "@m.dll.replace('.', '-86.')@"
     File "@m.dll.replace('.', '-86.')@"
-+    if env['AMD64GCC'] :
     StrCpy $R4 $R2
++    if env['AMD64GCC'] :
     StrCpy $R3 "@m.dll.replace('.', '-64.')@"
     File "@m.dll.replace('.', '-64.')@"
     ${If} ${RunningX64}
