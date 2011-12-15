@@ -34,6 +34,9 @@ svg::
 xml::
     Intermediate xml that represents the basic keystrokes of the keyboard ('source'.xml)
 
+mskbd::
+    An object that describes how to create an MS keyboard from the .kmn file.
+
 An example specification of a keyboard object might be:
 
 ----
@@ -42,6 +45,38 @@ kbd(source = 'mykbd.kmn',
     font = 'results/myfont.ttf')
 ----
 
+=== mskbd ===
+
+The mskbd object can be used for the mskbd parameter of a keyboard. It automatically generates
+a normal MS Keyboard from the .kmn file and compiles it. The dependencies are pretty stiff, but
+it does mean that a complete MS solution can be generated without needing to run special GUI
+software during the development cycle. The parameters to mskbd() are:
+
+lid::
+    Language LCID to store this keyboard under. If not specified, defaults to 0xC00.
+
+guid::
+    GUID to associate with the keyboard. If not specified a random one is created.
+
+The following are internal attributes that may be set:
+
+arches::
+    List of architectures that may be built for. Currently i586 and amd64. This is unlikely to be set by a user.
+
+source::
+    .kmn source file, defaults to keyboard .source attribute
+
+c_file::
+    .c file to generate (same as source but with .c extension)
+
+rc_file::
+    .rc file to generate (same as source but with .rc extension)
+
+o_file::
+    .o file to generate from .c file (same as source but with .o extension)
+
+dll::
+    .dll file to create (same as source but with .dll extension)
 
 === Tests ===
 
