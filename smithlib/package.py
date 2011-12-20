@@ -202,7 +202,8 @@ class Package(object) :
 
         for x in self.get_files(bld) :
             if not x : continue
-            y = bld.path.find_or_declare(x)
+            r = os.path.relpath(x, bld.bldnode.abspath())
+            y = bld.path.find_or_declare(r)
             archive_name = self.appname + '-' + str(self.version) + '/' + x
             zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
         zip.close()
