@@ -321,8 +321,8 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 -
     NoKeyman:
 
-    @"\n".join(['File "' + k.target + '"' for k in kbds])@
-    @"\n".join(['File "' + k.pdf + '"' for k in kbds])@ 
+    @"\n".join(['File "' + k.target + '"' for k in kbds if hasattr(k, 'target')])@
+    @"\n".join(['File "' + k.pdf + '"' for k in kbds if hasattr(k, 'pdf')])@ 
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32

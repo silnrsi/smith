@@ -217,7 +217,11 @@ class Package(object) :
         for f in self.fonts :
             res.append(os.path.join(bld.out_dir, f.target))
         for k in self.keyboards :
-            res.extend(map(lambda x: os.path.join(bld.out_dir, x), [k.target, k.kmx, k.pdf]))
+            for l in ('target', 'kmx', 'pdf') :
+                try :
+                    res.append(os.path.join(bld.out_dir, getattr(k, l)))
+                except :
+                    pass
         return res
 
 class exeContext(Build.BuildContext) :

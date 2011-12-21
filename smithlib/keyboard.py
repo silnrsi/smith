@@ -11,13 +11,14 @@ class Keyboard(object) :
         base = os.path.basename(kw['source'])
         if not 'target' in kw : kw['target'] = os.path.join('keyboards', base)
         if not 'kmx' in kw : kw['kmx'] = base.replace('.kmn', '.kmx')
-        if not 'svg' in kw : kw['svg'] = base.replace('.kmn', '.svg')
         if not 'xml' in kw : kw['xml'] = base.replace('.kmn', '.xml')
-        if not 'pdf' in kw : kw['pdf'] = base.replace('.kmn', '.pdf')
 #        if not 'fontname' in kw : kw['fontname'] = Popen(r"ttfeval -e 'print scalar $f->{q/name/}->read->find_name(2)' " + kw['font'], shell = True, stdout=PIPE).communicate()[0]
-        if not 'fontsize' in kw : kw['fontsize'] = 18
-        if not 'fontdir' in kw : kw['fontdir'] = 'kbdfonts'
-        if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(kw['font'])[1])
+        if 'font' in kw :
+            if not 'svg' in kw : kw['svg'] = base.replace('.kmn', '.svg')
+            if not 'pdf' in kw : kw['pdf'] = base.replace('.kmn', '.pdf')
+            if not 'fontsize' in kw : kw['fontsize'] = 18
+            if not 'fontdir' in kw : kw['fontdir'] = 'kbdfonts'
+            if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(kw['font'])[1])
         for k, v in kw.items() : setattr(self, k, v)
         if not hasattr(self, 'package') :
             self.package = package.Package.global_package()
@@ -31,11 +32,12 @@ class Keyboard(object) :
         except:
             path = os.path.join(os.getenv('HOME'), '.wine', 'drive_c', 'Program Files', 'Tavultesoft', 'Keyman Developer', 'kmcomp.exe')
             if os.path.exists(path) : ctx.env['KMCOMP'] = 'wine "' + path + '"'
-        fdir = ctx.bldnode.make_node(self.fontdir)
-        fdir.mkdir()
-        fconf = fdir.make_node('fonts.conf')
-        if not os.path.exists(fconf.bldpath()) :
-            dat = '''<fontconfig>
+        if hasattr(self, 'fontdir') :
+            fdir = ctx.bldnode.make_node(self.fontdir)
+            fdir.mkdir()
+            fconf = fdir.make_node('fonts.conf')
+            if not os.path.exists(fconf.bldpath()) :
+                dat = '''<fontconfig>
 
     <include ignore_missing="yes">/etc/fonts/fonts.conf</include>
     <dir>%s</dir>
@@ -43,7 +45,7 @@ class Keyboard(object) :
 
 </fontconfig>
 ''' % (fdir.abspath(), fdir.abspath())
-            fconf.write(dat)
+                fconf.write(dat)
 
         return res
 
@@ -51,7 +53,7 @@ class Keyboard(object) :
         if bld.env['KMCOMP'] :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
-        self.build_pdf(bld)
+        if hasattr(self, 'kbdfont') : self.build_pdf(bld)
         if hasattr(self, 'mskbd') : self.mskbd.build(bld, self)
 
     def build_pdf(self, bld) :
