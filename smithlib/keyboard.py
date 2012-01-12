@@ -89,7 +89,7 @@ class Keyboard(object) :
     
 class MSKBD(object) :
 
-    arches = ('i586', 'amd64')
+    arches = ('i686', 'x86_64')
 
     def __init__(self, *k, **kw) :
         if not 'lid' in kw : kw['lid'] = 0xC00
@@ -99,7 +99,7 @@ class MSKBD(object) :
     def get_build_tools(self, ctx) :
         for p in self.arches :
             for a in ('gcc', 'windres') :
-                try : ctx.find_program(p + '-mingw32msvc-' + a, var = (p + a).upper())
+                try : ctx.find_program(p + '-w64-mingw32-' + a, var = (p + a).upper())
                 except : pass
         return set(('kmn2c', ))
 
@@ -111,12 +111,14 @@ class MSKBD(object) :
         if not hasattr(self, 'o_file') : self.o_file = base.replace('.kmn', '.o')
         if not hasattr(self, 'dll') : self.dll = base.replace('.kmn', '.dll')
 
+        linkermap = bld.bldnode.make_node("linker.script")
+        linkermap.write("SECTIONS { .data : {*(.data) *(.rdata)} }")
         bld(rule = '${KMN2C} -o ${TGT[0]} ${SRC}', source = self.source, target = [self.c_file, self.rc_file])
         for p in self.arches :
             if bld.env[(p+'gcc').upper()] :
                 ofile = self.o_file.replace('.', '-'+p[-2:]+'.', 1)        # p[-2:] is 86 or 64, which is a bit sneaky
                 bld(rule = '${' + (p+'windres').upper() + '} ${SRC} ${TGT}', source = self.rc_file, target = ofile)
-                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -Wl,${SRC[1]} ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
+                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -Wl,linker.script -Wl,${SRC[1]} -Wl,--stack,4000 -Wl,--subsystem,native ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
 
 def onload(ctx) :
     varmap = { 'kbd' : Keyboard, 'mskbd' : MSKBD }
