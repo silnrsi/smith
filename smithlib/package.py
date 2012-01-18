@@ -78,7 +78,7 @@ class Package(object) :
 
     def get_sources(self, ctx) :
         res = []
-        self.subtrun(ctx, lambda p, c: res.extend(p.get_sources(c)))
+        self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)))
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         if hasattr(self, 'docdir') :
@@ -212,7 +212,7 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)))
 
-        try: res.append(self.license)
+        try: res.append(os.path.relpath(bld.path.find_or_declare(self.license)))
         except: pass
         for f in self.fonts :
             res.append(os.path.join(bld.out_dir, f.target))
@@ -301,7 +301,7 @@ class makedebianContext(Build.BuildContext) :
     def execute_build(self) :
         # check we have all the info we need
         if os.path.exists('debian') : return
-        globalpackage = globals().get('globalpackage')
+        globalpackage = Package.packagestore[Package.globalpackage]
         srcname = getattr(globalpackage, 'debpkg', None)
         if not srcname :
             raise Errors.WafError('No debpkg information given to default_package. E.g. set DEBPKG')

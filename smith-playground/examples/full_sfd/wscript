@@ -9,11 +9,16 @@ TESTDIR = join(srcdir, 'tests')
 TESTRESULTSDIR = 'tests'
 APPNAME = 'norasi'
 VERSION = 0.8
+SRCDIST = 'full_sfd'
+STANDARDS = 'standards'
+DEBPKG = 'ttf-sil-norasi'
+LICENSE = 'OFL.txt'
 
 for f in ('Norasi', 'Norasi-Bold') :
     font(target = f + '.ttf',
         source = join(srcdir, 'font-source', f + '.sfd'),
         opentype = internal(),
-#        graphite = gdl(join('font-source', f + '.gdl'), master = join(srcdir, 'font-source' , 'master.gdl')),
+        ap = join(srcdir, 'font-source', f + '.xml'),
+        graphite = gdl(join('font-source', f + '.gdl'), master = join(srcdir, 'font-source' , 'master.gdl')),
         license = ofl('norasi'),
         script = 'thai')

@@ -2,6 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Utils
+import wsiwaf
 import os, shutil, codecs
 from functools import partial
 
@@ -56,7 +57,7 @@ class font_test(object) :
     def __init__(self, *kv, **kw) :
         if 'htexts' not in kw : kw['htexts'] = '*.htxt'
         if 'texts' not in kw : kw['texts'] = '*.txt'
-        if 'targets' not in kw : kw['targets'] = { 'pdfs' : TeX(), 'svg' : SVG() }
+        if 'targets' not in kw : kw['targets'] = { 'pdfs' : TeX(), 'svg' : SVG(), 'test' : Tests() }
         for k, item in kw.items() :
             setattr(self, k, item)
 
@@ -283,9 +284,11 @@ class SVG(object) :
             ctx(rule='${FIREFOX} ' + indexhtmltarg, source = diffSvgs)
 
 class Tests(object) :
-    def __init__(self, tests, *kv, **kw) :
+    def __init__(self, tests = None, *kv, **kw) :
         for k, item in kw.items() :
             setattr(self, k, item)
+        if not tests :
+            tests = {'regression' : wsiwaf.cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
         self.tests = tests
 
     def config(self, ctx) :
