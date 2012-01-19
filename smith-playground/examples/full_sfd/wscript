@@ -13,6 +13,7 @@ SRCDIST = 'full_sfd'
 STANDARDS = 'standards'
 DEBPKG = 'ttf-sil-norasi'
 LICENSE = 'OFL.txt'
+COPYRIGHT = "Copyright SIL International. All rights reserved."
 
 for f in ('Norasi', 'Norasi-Bold') :
     font(target = f + '.ttf',

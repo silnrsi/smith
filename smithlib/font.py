@@ -290,7 +290,7 @@ def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh = file(fname, "w+")
     if copyright : oflh.write(copyright + "\n")
     if names :
-        oflh.write("Reserved names: " + ", ".join(map(lambda x: '"%s"' % x, names)) + "\n")
+        oflh.write("Reserved Font Names: " + ", ".join(map(lambda x: '"%s"' % x, names)) + "\n")
     if not template :
         oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
         thisdir = os.path.dirname(__file__)
