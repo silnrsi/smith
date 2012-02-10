@@ -101,7 +101,7 @@ class MSKBD(object) :
             for a in ('gcc', 'windres') :
                 try : ctx.find_program(p + '-w64-mingw32-' + a, var = (p + a).upper())
                 except : pass
-        return set(('kmn2c', 'kmncfixdll'))
+        return set(('kmn2c', ))
 
     def build(self, bld, parent) :
         base = os.path.basename(parent.source)
