@@ -118,8 +118,7 @@ class MSKBD(object) :
             if bld.env[(p+'gcc').upper()] :
                 ofile = self.o_file.replace('.', '-'+p[-2:]+'.', 1)        # p[-2:] is 86 or 64, which is a bit sneaky
                 bld(rule = '${' + (p+'windres').upper() + '} ${SRC} ${TGT}', source = self.rc_file, target = ofile)
-                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -fno-exceptions -Wl,--script,linker.script -Wl,${SRC[1]} -Wl,--stack,4000 -Wl,--subsystem,native -Wl,--disable-auto-image-base ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.tmp.', 1))
-                bld(rule = '${KMNCFIXDLL} ${SRC} ${TGT}', source = [self.dll.replace('.', '-'+p[-2:]+'.tmp.', 1)], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
+                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -fno-exceptions -Wl,--script,linker.script -Wl,${SRC[1]} -Wl,--stack,4000 -Wl,--subsystem,native -Wl,--disable-auto-image-base ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
 
 def onload(ctx) :
     varmap = { 'kbd' : Keyboard, 'mskbd' : MSKBD }
