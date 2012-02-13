@@ -308,9 +308,9 @@ class makedebianContext(Build.BuildContext) :
         srcversion = getattr(globalpackage, 'version', None)
         if not srcversion :
             raise Errors.WafError('No version information given to default_package. E.g. set VERSION')
-        maint = os.getenv('DEBEMAIL')
+        maint = os.getenv('DEBFULLNAME') + ' <' + os.getenv('DEBEMAIL') + '>'
         if not maint :
-            raise Errors.WafError("I don't know who you are, please set the DEBEMAIL environment variable")
+            raise Errors.WafError("I don't know who you are, please set the DEBFULLNAME and DEBEMAIL environment variables")
         license = getattr(globalpackage, 'license', None)
         if not license :
             raise Errors.WafError("default_package needs a license. E.g. set LICENSE")
@@ -326,7 +326,7 @@ class makedebianContext(Build.BuildContext) :
         for p in Package.packages() :
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
-            fdir = "/usr/share/fonts/truetype/" + pname + "\n"
+            fdir = "/usr/share/fonts/opentype/" + pname + "\n"
             fdirs = file(os.path.join('debian', pname + '.dirs'), 'w')
             if len(p.fonts) :
                 fdirs.write(fdir)
