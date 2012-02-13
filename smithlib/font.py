@@ -279,18 +279,19 @@ class Ofl(object) :
         make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
         tempfn = make_tempnode(bld)
         # ttfname -t 13 -s fname inputs[0] temp
-        # ttfname -t 14 -p "http://scripts.sil.org/ofl" temp outputs[0]
+        # ttfname -t 14 -p "http://scripts.sil.org/OFL" temp outputs[0]
         task.exec_command([task.env.get_flat("TTFNAME"), "-t", "13", "-s", fname, task.dep.path_from(bld.bldnode), tempfn], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
         os.unlink(fname)
-        res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/ofl", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
+        res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/OFL", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
         os.unlink(tempfn)
         return res
 
 def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh = file(fname, "w+")
-    if copyright : oflh.write(copyright + "\n")
+    # if copyright : oflh.write(copyright + "  (" + os.getenv('DEBEMAIL') + "), \n")
+    if copyright : oflh.write(copyright +"  (<URL|email>), \n")
     if names :
-        oflh.write("Reserved Font Names: " + ", ".join(map(lambda x: '"%s"' % x, names)) + "\n")
+        oflh.write("with Reserved Font Name " + " and ".join(map(lambda x: '"%s"' % x, names)) + ".\n")
     if not template :
         oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
         thisdir = os.path.dirname(__file__)
