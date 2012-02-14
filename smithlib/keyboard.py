@@ -68,7 +68,7 @@ class Keyboard(object) :
             else :
                 svg = self.svg
                 pdf = self.pdf
-            bld(rule = 'FONTCONFIG_PATH=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -T -d 2400", shell = 1, source = [svg, self.kbdfont], target = bld.bldnode.find_or_declare(pdf))
+            bld(rule = 'FONTCONFIG_PATH=' + bld.bldnode.find_or_declare(self.fontdir).bldpath() + " ${INKSCAPE} -f ${SRC[0].bldpath()} -A ${TGT} -d 2400", shell = 1, source = [svg, self.kbdfont], target = bld.bldnode.find_or_declare(pdf))
         if hasattr(self, 'modifiers') :
             bld(rule = '${PDFTK} ${SRC} cat output ${TGT}', source = allpdfs, target = bld.bldnode.find_or_declare(self.pdf))
 

@@ -317,6 +317,8 @@ def name(n, **kw) :
     if 'full' in kw :
         opts += '-f "' + kw['full'] + '" '
         del kw['full']
+    if 'nopost' in kw :
+        opts += '-p '
     def iname(tgt) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname

@@ -212,7 +212,7 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)))
 
-        try: res.append(os.path.relpath(bld.path.find_or_declare(self.license)))
+        try: res.append(os.path.relpath(bld.path.find_or_declare(self.license).abspath()))
         except: pass
         for f in self.fonts :
             res.append(os.path.join(bld.out_dir, f.target))
@@ -228,6 +228,8 @@ class exeContext(Build.BuildContext) :
     cmd = 'exe'
 
     def pre_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         self.add_group('exe')
         for p in Package.packages() :
             p.build_exe(self)
@@ -236,6 +238,8 @@ class zipContext(Build.BuildContext) :
     cmd = 'zip'
 
     def execute_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
 
@@ -244,6 +248,8 @@ class pdfContext(Build.BuildContext) :
     func = 'pdfs'
 
     def pre_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         self.add_group('pdfs')
         for p in Package.packages() :
             p.build_pdf(self)
@@ -256,6 +262,8 @@ class svgContext(Build.BuildContext) :
     func = 'svg'
 
     def pre_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         self.add_group('svg')
         for p in Package.packages() :
             p.build_svg(self)
@@ -265,6 +273,8 @@ class testContext(Build.BuildContext) :
     func = 'test'
 
     def pre_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         self.add_group('test')
         for p in Package.packages() :
             p.build_test(self)
@@ -408,6 +418,7 @@ override_dh_auto_install :
             f.close()
 
 def subdir(path) :
+#    import pdb; pdb.set_trace()
     currpackages = Package.packages()
     currglobal = Package.globalpackage
     Package.initPackages()
@@ -417,7 +428,10 @@ def subdir(path) :
 
     mpath = os.path.join(os.path.abspath(path), 'wscript')
     Context.wscript_vars['src'] = src
-    Context.load_module(mpath)
+    #fcode = self.root.find_node(mpath).read('rU')
+    #exec_dict = dict(Context.wscript_vars)
+    #exec(compile(fcode, mpath, 'exec'), exec_dict)
+    Component.load_module(mpath)
 
     respackages = Package.packages()
     Package.packdict[path] = respackages
@@ -446,13 +460,14 @@ def add_configure() :
             c.out_dir = os.path.join(ctx.bldnode.abspath(), k)
             c.top_dir = os.path.join(ctx.srcnode.abspath(), k)
             Context.g_module = Context.cache_modules[os.path.join(c.top_dir, 'wscript')]
-            oconfig = Context.g_module.configure
+            oconfig = getattr(Context.g_module, 'configure', None)
             def lconfig(ctx) :
                 subconfig(ctx)
                 if oconfig : oconfig(ctx)
             Context.g_module.configure = lconfig
             c.execute()
-            Context.g_module.configure = oconfig
+            if oconfig :
+                Context.g_module.configure = oconfig
             Context.g_module = gm
         Package.initPackages(currpackages, None)
         subconfig(ctx)
