@@ -8,7 +8,7 @@
 !endif
 
 !define PACKNAME "@prj.desc_name or prj.appname.title()@"
-!define SRC_ARCHIVE "ttf-sil-@prj.appname@-${VERSION}.zip"
+!define SRC_ARCHIVE "fonts-@prj.appname@-${VERSION}.zip"
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
 -
