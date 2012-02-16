@@ -116,11 +116,11 @@ class Package(object) :
         return 0
     
     def subrun(self, bld, fn, onlyfn = False) :
-        #import pdb; pdb.set_trace()
         for k, v in self.subpackages.items() :
             relpath = os.path.relpath(k, bld.top_dir or bld.path.abspath())
             b = bld.__class__(out_dir = os.path.join(os.path.abspath(k), bld.bldnode.srcpath()),
                               top_dir = os.path.abspath(k), run_dir = os.path.abspath(k))
+            b.issub = True
             if onlyfn :
                 for p in v :
                     fn(p, b)
@@ -187,15 +187,28 @@ class Package(object) :
             'basedir' : thisdir,
             'env' : bld.env
                 }
+        def blddir(base, val) :
+            base = os.path.join(bld.srcnode.abspath(), base.package.reldir, bld.bldnode.srcpath())
+            return os.path.join(base, val)
+
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname
-        task = templater.Copier(prj = self, fonts = self.fonts, kbds = self.keyboards, basedir = thisdir, env = bld.env)
+        kbds = []
+        fonts = []
+        def procpkg(p, c) :
+            for k in p.keyboards :
+                k.setup_vars(c)
+            kbds.extend(p.keyboards)
+            fonts.extend(p.fonts)
+
+        self.subrun(bld, procpkg, onlyfn = True)
+        task = templater.Copier(prj = self, fonts = fonts, kbds = kbds, basedir = thisdir, env = bld.env, bld = blddir)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
         for d, x in self.get_files(bld) :
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
             y = bld.bldnode.find_or_declare(r)
-            if y : task.set_inputs(y)
+            if os.path.isfile(y and y.abspath()) : task.set_inputs(y)
 
         task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
         bld.add_to_group(task)
@@ -238,6 +251,7 @@ class exeContext(Build.BuildContext) :
     cmd = 'exe'
 
     def pre_build(self) :
+        if hasattr(self, 'issub') : return
         if Options.options.debug :
             import pdb; pdb.set_trace()
         self.add_group('exe')
@@ -258,6 +272,7 @@ class pdfContext(Build.BuildContext) :
     func = 'pdfs'
 
     def pre_build(self) :
+        if hasattr(self, 'issub') : return
         if Options.options.debug :
             import pdb; pdb.set_trace()
         self.add_group('pdfs')
@@ -272,6 +287,7 @@ class svgContext(Build.BuildContext) :
     func = 'svg'
 
     def pre_build(self) :
+        if hasattr(self, 'issub') : return
         if Options.options.debug :
             import pdb; pdb.set_trace()
         self.add_group('svg')
@@ -283,6 +299,7 @@ class testContext(Build.BuildContext) :
     func = 'test'
 
     def pre_build(self) :
+        if hasattr(self, 'issub') : return
         if Options.options.debug :
             import pdb; pdb.set_trace()
         self.add_group('test')

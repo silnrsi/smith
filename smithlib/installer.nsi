@@ -269,7 +269,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
     ;File "${FONT_REG_FILE}"  ; done by InstallTTF
 
 + for f in fonts :
-    !insertmacro InstallTTF "@f.target@"
+    !insertmacro InstallTTF "@bld(f, f.target)@"
 -
     
     SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
@@ -318,13 +318,13 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
     IfErrors NoKeyman
 +for k in kbds :
-    File /r "@k.kmx@"
+    File "@bld(k, k.kmx)@"
     Exec "start.exe $OUTDIR\@k.kmx@"
 -
     NoKeyman:
 
-    @"\n".join(['File /r "' + k.target + '"' for k in kbds if hasattr(k, 'target')])@
-    @"\n".join(['File /r "' + k.pdf + '"' for k in kbds if hasattr(k, 'pdf')])@ 
+    @"\n".join(['File "' + bld(k, k.target) + '"' for k in kbds if hasattr(k, 'target')])@
+    @"\n".join(['File "' + bld(k, k.pdf) + '"' for k in kbds if hasattr(k, 'pdf')])@ 
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32
@@ -338,11 +338,11 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 + if m :
     IntOp $R1 0 + @m.lid@
     StrCpy $R2 "@m.dll.replace('.', '-86.')@"
-    File /r "@m.dll.replace('.', '-86.')@"
+    File "@bld(k, m.dll.replace('.', '-86.'))@"
     StrCpy $R4 $R2
 +    if env['X86_64GCC'] :
     StrCpy $R3 "@m.dll.replace('.', '-64.')@"
-    File /r "@m.dll.replace('.', '-64.')@"
+    File "@bld(k, m.dll.replace('.', '-64.'))@"
     ${If} ${RunningX64}
         StrCpy $R4 $R3
     ${Endif}
@@ -399,11 +399,11 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 SectionEnd
 
 Section -StartMenu
-  @'File /r "' + prj.license + '"' if prj.license else ''@
+  @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
-   File /r "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+   File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
 -
 -
 -
@@ -441,7 +441,7 @@ Section "Documentation" SecSrc
 -
 -
 +for f in getattr(prj, 'extra_dist', '').split(' ') :
-  @'File /r "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
+  @'File "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
 -
   
 SectionEnd

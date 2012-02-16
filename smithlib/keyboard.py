@@ -24,6 +24,9 @@ class Keyboard(object) :
             self.package = package.Package.global_package()
         self.package.add_kbd(self)
  
+    def setup_vars(self, bld) :
+        if hasattr(self, 'mskbd') : self.mskbd.setup_vars(bld, self)
+
     def get_build_tools(self, ctx) :
         res = set(['kmn2xml', 'kmnxml2svg', 'inkscape', 'ttfeval', 'cp'])
         if hasattr(self, 'mskbd') : res.update(self.mskbd.get_build_tools(ctx))
@@ -103,7 +106,7 @@ class MSKBD(object) :
                 except : pass
         return set(('kmn2c', ))
 
-    def build(self, bld, parent) :
+    def setup_vars(self, bld, parent) :
         base = os.path.basename(parent.source)
         if not hasattr(self, 'source') : self.source = parent.source
         if not hasattr(self, 'c_file') : self.c_file = base.replace('.kmn', '.c')
@@ -111,6 +114,8 @@ class MSKBD(object) :
         if not hasattr(self, 'o_file') : self.o_file = base.replace('.kmn', '.o')
         if not hasattr(self, 'dll') : self.dll = base.replace('.kmn', '.dll')
 
+    def build(self, bld, parent) :
+        self.setup_vars(bld, parent)
         linkermap = bld.bldnode.make_node("linker.script")
         linkermap.write("SECTIONS { /DISCARD/ : {*(.pdata .xdata)} .data __image_base__ + __section_alignment__ : {*(.data .rdata .text)} }")
         bld(rule = '${KMN2C} -o ${TGT[0]} ${SRC}', source = self.source, target = [self.c_file, self.rc_file])
