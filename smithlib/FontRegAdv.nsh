@@ -68,11 +68,11 @@ var FONT_DIR
     "${Index}-New:"
     ;Implementation of Font Backup Store
       WriteRegStr HKLM "${FontBackup}" "${FontFileName}" "OK"
-      File '${FontFile}'
+      File /r '${FontFile}'
       goto ${Index}
   !else
     "${Index}-New:"
-      File '${FontFile}'
+      File /r '${FontFile}'
       goto ${Index}
   !endif
 
@@ -136,11 +136,11 @@ ${Index}:
     "${Index}-New:"
     ;Implementation of Font Backup Store
       WriteRegStr HKLM "${FontBackup}" "${FontFileName}" "OK"
-      File '${FontFile}'
+      File /r '${FontFile}'
       goto ${Index}
   !else
     "${Index}-New:"
-      File '${FontFile}'
+      File /r '${FontFile}'
       goto ${Index}
   !endif
 

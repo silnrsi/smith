@@ -53,15 +53,21 @@ class Font(object) :
             res.extend(self.legacy.get_sources(ctx))
         else :
             res.append(self.source)
-        res.append(getattr(self, 'sfd_master', None))
-        res.append(getattr(self, 'classes', None))
-        res.append(getattr(self, 'ap', None))
+        for x in ('sfd_master', 'classes', 'ap') :
+            try :
+                res.append(getattr(self, x))
+            except :
+                pass
         for x in (getattr(self, y, None) for y in ('license', 'opentype', 'graphite', 'tests')) :
             if x :
                 res.extend(x.get_sources(ctx))
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
+    def get_targets(self, ctx) :
+        res = [self.target]
+        return res
+
     def build(self, bld) :
         res = {}
 
@@ -289,7 +295,8 @@ class Ofl(object) :
 def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh = file(fname, "w+")
     # if copyright : oflh.write(copyright + "  (" + os.getenv('DEBEMAIL') + "), \n")
-    if copyright : oflh.write(copyright +"  (<URL|email>), \n")
+    # if copyright : oflh.write(copyright +"  (<URL|email>), \n")
+    if copyright : oflh.write(copyright + "\n") # URL/email is not required and often doesn't exist. Find a better way to handle it if given.
     if names :
         oflh.write("with Reserved Font Name " + " and ".join(map(lambda x: '"%s"' % x, names)) + ".\n")
     if not template :
@@ -318,6 +325,8 @@ def name(n, **kw) :
     if 'full' in kw :
         opts += '-f "' + kw['full'] + '" '
         del kw['full']
+    if 'nopost' in kw :
+        opts += '-p '
     def iname(tgt) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname

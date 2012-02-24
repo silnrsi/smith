@@ -37,7 +37,9 @@ def curry_fn(fn, *parms, **kw) :
 def antlist(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
         globs = [globs]
-    return ctx.srcnode.find_node(testdir).ant_glob(globs)
+    found = ctx.path.find_node(testdir)
+    if found : return found.ant_glob(globs)
+    return []
 
 def antdict(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
@@ -72,7 +74,7 @@ class font_test(object) :
 
     def get_sources(self, ctx) :
         if not hasattr(self, 'testdir') :
-            self.testdir = ctx.env['TESTDIR'] or 'tests'
+            self.testdir = 'tests'
         testsdir = self.testdir + os.sep
         res = []
         for s in (getattr(self, y, None) for y in ('texts', 'htexts', 'texs')) :
