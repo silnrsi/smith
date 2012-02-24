@@ -79,7 +79,7 @@ class Package(object) :
 
     def get_sources(self, ctx) :
         res = []
-        self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)))
+        self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         if hasattr(self, 'docdir') :
@@ -140,7 +140,6 @@ class Package(object) :
         
     def build(self, bld, base = None) :
         self.subrun(bld, lambda p, b: p.build(b, bld))
-        print self.appname
         for f in self.fonts :
             f.build(bld)
         for k in self.keyboards :
@@ -235,16 +234,12 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
-        try: res.append((bld.path.abspath(), os.path.relpath(bld.path.find_or_declare(self.license).abspath())))
+        try: res.append((bld.path.abspath(), os.path.relpath(bld.path.find_or_declare(self.license).abspath(), bld.path.abspath())))
         except: pass
         for f in self.fonts :
-            res.append((bld.out_dir, f.target))
+            res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
         for k in self.keyboards :
-            for l in ('target', 'kmx', 'pdf') :
-                try :
-                    res.append((bld.out_dir, getattr(k, l)))
-                except :
-                    pass
+            res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
         return res
 
 class exeContext(Build.BuildContext) :
@@ -329,7 +324,8 @@ class srcdistContext(Build.BuildContext) :
         tar = tarfile.open(tarname + '.tar.gz', 'w:gz')
         for f in sorted(files.keys()) :
             if f.startswith('../') : continue
-            tar.add(files[f].abspath(), arcname = os.path.join(tarname, f))
+            if files[f] :
+                tar.add(files[f].abspath(), arcname = os.path.join(tarname, f))
         tar.close()
 
 class makedebianContext(Build.BuildContext) :

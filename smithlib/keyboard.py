@@ -52,6 +52,24 @@ class Keyboard(object) :
 
         return res
 
+    def get_targets(self, ctx) :
+        res = []
+        for k in ('target', 'kmx', 'pdf') :
+            try :
+                res.append(getattr(self, k))
+            except :
+                pass
+        return res
+
+    def get_sources(self, ctx) :
+        res = [self.source]
+        for k in ('font') :
+            try :
+                res.append(getattr(self, k))
+            except :
+                pass
+        return res
+
     def build(self, bld) :
         if bld.env['KMCOMP'] :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)

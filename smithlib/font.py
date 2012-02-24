@@ -53,15 +53,21 @@ class Font(object) :
             res.extend(self.legacy.get_sources(ctx))
         else :
             res.append(self.source)
-        res.append(getattr(self, 'sfd_master', None))
-        res.append(getattr(self, 'classes', None))
-        res.append(getattr(self, 'ap', None))
+        for x in ('sfd_master', 'classes', 'ap') :
+            try :
+                res.append(getattr(self, x))
+            except :
+                pass
         for x in (getattr(self, y, None) for y in ('license', 'opentype', 'graphite', 'tests')) :
             if x :
                 res.extend(x.get_sources(ctx))
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
+    def get_targets(self, ctx) :
+        res = [self.target]
+        return res
+
     def build(self, bld) :
         res = {}
 
