@@ -39,7 +39,7 @@ def configure(conf):
 			if conf.env['FC']:
 				orig.table = conf.env.get_merged_dict()
 				conf.env = orig
-				conf.end_msg(True)
+				conf.end_msg(conf.env.get_flat('FC'))
 				conf.env.COMPILER_FORTRAN = compiler
 				break
 			conf.end_msg(False)

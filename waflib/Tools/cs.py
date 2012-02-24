@@ -44,7 +44,7 @@ def apply_cs(self):
 			no_nodes.append(x)
 	self.source = no_nodes
 
-	bintype = getattr(self, 'type', 'exe')
+	bintype = getattr(self, 'type', self.gen.endswith('.dll') and 'library' or 'exe')
 	self.cs_task = tsk = self.create_task('mcs', cs_nodes, self.path.find_or_declare(self.gen))
 	tsk.env.CSTYPE = '/target:%s' % bintype
 	tsk.env.OUT    = '/out:%s' % tsk.outputs[0].abspath()

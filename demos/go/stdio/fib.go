@@ -11,7 +11,7 @@ package main
 
 import (
 	"runtime"
-	"stdio"
+	"cgo/stdio"
 	"strconv"
 )
 

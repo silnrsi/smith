@@ -31,7 +31,7 @@ time make -j4 --silent
 def lib_name(i):
     return "lib_" + str(i)
 
-def CreateHeader(name):
+def createHeader(name):
     filename = name + ".h"
     handle = file(filename, "w" )
 
@@ -48,7 +48,7 @@ def CreateHeader(name):
     handle.write ('#endif\n');
 
 
-def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_includes):
+def createCPP(name, lib_number, classes_per_lib, internal_includes, external_includes):
     filename = name + ".cpp"
     handle = file(filename, "w" )
 
@@ -71,7 +71,7 @@ def CreateCPP(name, lib_number, classes_per_lib, internal_includes, external_inc
     handle.write (name + '::~' + name  + '() {}\n');
 
 
-def CreateSConscript(lib_number, classes):
+def createSConscript(lib_number, classes):
     handle = file("SConscript", "w");
     handle.write("Import('env')\n")
     handle.write('list = Split("""\n');
@@ -80,7 +80,11 @@ def CreateSConscript(lib_number, classes):
     handle.write('    """)\n\n')
     handle.write('env.StaticLibrary("lib_' + str(lib_number) + '", list)\n\n')
 
-def CreateLibMakefile(lib_number, classes):
+def createLibCMakeLists(lib_number, classes):
+    handle = file("CMakeLists.txt", "w")
+    handle.write("""add_library(lib_%s STATIC %s)\n""" % (str(lib_number), ' '.join(('class_%s' % str(i) for i in range(classes)))))
+
+def createLibMakefile(lib_number, classes):
     handle = file("Makefile", "w");
     handle.write ("""COMPILER = g++
 INC = -I..
@@ -115,7 +119,7 @@ depend:
 
 """)
 
-def CreateLibJamFile(lib_number, classes):
+def createLibJamFile(lib_number, classes):
     handle = file("Jamfile", "w")
     handle.write ("SubDir TOP lib_" + str(lib_number) + " ;\n\n")
     handle.write ("SubDirHdrs $(INCLUDES) ;\n\n")
@@ -124,7 +128,7 @@ def CreateLibJamFile(lib_number, classes):
         handle.write('    class_' + str(i) + '.cpp\n')
     handle.write ('    ;\n')
 
-def CreateVCProjFile(lib_number, classes):
+def createVCProjFile(lib_number, classes):
     handle = file("lib_" + str(lib_number) + ".vcproj", "w")
     handle.write("""<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
@@ -178,23 +182,32 @@ def CreateVCProjFile(lib_number, classes):
 </VisualStudioProject>
 """)
 
-def CreateLibrary(lib_number, classes, internal_includes, external_includes):
+def createLibrary(lib_number, classes, internal_includes, external_includes):
     name = "lib_" + str(lib_number)
-    SetDir(name)
+    setDir(name)
     for i in range(classes):
         classname = "class_" + str(i)
-        CreateHeader(classname)
-        CreateCPP(classname, lib_number, classes, internal_includes, external_includes)
-    CreateSConscript(lib_number, classes)
-    CreateLibMakefile(lib_number, classes)
-    #CreateLibJamFile(lib_number, classes)
-    #CreateVCProjFile(lib_number, classes)
-    #CreateW(lib_number, classes)
-    CreateAutotools(lib_number, classes)
+        createHeader(classname)
+        createCPP(classname, lib_number, classes, internal_includes, external_includes)
+    createSConscript(lib_number, classes)
+    createLibCMakeLists(lib_number, classes)
+    createLibMakefile(lib_number, classes)
+    createAutotools(lib_number, classes)
 
     os.chdir("..")
 
-def CreateSConstruct(libs):
+def createCMakeLists(libs):
+    handle = file("CMakeLists.txt", "w")
+    handle.write("""project('profiling-test')
+cmake_minimum_required(VERSION 2.8)
+
+include_directories(${CMAKE_SOURCE_DIR})
+""")
+
+    for i in range(libs):
+        handle.write("""add_subdirectory(lib_%s)\n""" % str(i))
+
+def createSConstruct(libs):
     handle = file("SConstruct", "w");
     handle.write("""env = Environment(CPPFLAGS=['-Wall'], CPPDEFINES=['LINUX'], CPPPATH=[Dir('#')])\n""")
     handle.write("""env.Decider('timestamp-newer')\n""")
@@ -204,7 +217,7 @@ def CreateSConstruct(libs):
     for i in range(libs):
         handle.write("""env.SConscript("lib_%s/SConscript", exports=['env'])\n""" % str(i))
 
-def CreateFullMakefile(libs):
+def createFullMakefile(libs):
     handle = file("Makefile", "w")
 
     handle.write('subdirs = \\\n')
@@ -225,7 +238,7 @@ depend:
 	(cd $$i; $(MAKE) depend); done
 """)
 
-def CreateFullJamfile(libs):
+def createFullJamfile(libs):
     handle = file("Jamfile", "w")
     handle.write ("SubDir TOP ;\n\n")
 
@@ -256,12 +269,12 @@ def build(bld):
 		)
 """
 
-def CreateWtop(libs, classes):
+def createWtop(libs, classes):
 	f = open('wscript', 'w')
 	f.write(WT % (libs, classes))
 	f.close()
 
-def CreateFullSolution(libs):
+def createFullSolution(libs):
     handle = file("solution.sln", "w")
     handle.write("Microsoft Visual Studio Solution File, Format Version 8.00\n")
 
@@ -271,7 +284,7 @@ def CreateFullSolution(libs):
                       '", "' + project_name + '", "{CF495178-8865-4D20-939D-AAA' + str(i) + '}"\n')
         handle.write('EndProject\n')
 
-def CreateAutotoolsTop(libs):
+def createAutotoolsTop(libs):
     handle = file("configure.ac", "w")
     handle.write('''\
 AC_INIT([bench], [1.0.0])
@@ -290,7 +303,7 @@ lib_LTLIBRARIES =
 ''')
     for i in range(libs): handle.write('include lib_%s/Makefile.am\n' % str(i))
 
-def CreateAutotools(lib_number, classes):
+def createAutotools(lib_number, classes):
 
     handle = file("Makefile.am", "w")
     handle.write('''\
@@ -299,7 +312,7 @@ lib%s_la_SOURCES =''' % (str(lib_number), str(lib_number)))
     for i in range(classes): handle.write(' lib_%s/class_%s.cpp' % (str(lib_number), str(i)))
     handle.write('\n')
 
-def SetDir(dir):
+def setDir(dir):
     if (not os.path.exists(dir)):
         os.mkdir(dir)
     os.chdir(dir)
@@ -315,16 +328,15 @@ def main(argv):
     internal_includes = int(argv[4])
     external_includes = int(argv[5])
 
-    SetDir(root_dir)
+    setDir(root_dir)
     for i in range(libs):
-        CreateLibrary(i, classes, internal_includes, external_includes)
+        createLibrary(i, classes, internal_includes, external_includes)
 
-    CreateSConstruct(libs)
-    CreateFullMakefile(libs)
-    CreateWtop(libs, classes)
-    #CreateFullJamfile(libs)
-    #CreateFullSolution(libs)
-    CreateAutotoolsTop(libs)
+    createSConstruct(libs)
+    createCMakeLists(libs)
+    createFullMakefile(libs)
+    createWtop(libs, classes)
+    createAutotoolsTop(libs)
 
 if __name__ == "__main__":
     main( sys.argv )

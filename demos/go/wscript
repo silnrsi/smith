@@ -16,6 +16,10 @@ def options(opt):
 def configure(ctx):
 	ctx.load('go')
 
+	# the compiler keeps changing, think twice before trying it for a serious project
+	ctx.env.TRY_CGO = False
+
+	return
 	try:
 		ctx.load('gcc')
 		ctx.check_cc(fragment='#include <gmp.h>\nint main() {return 0;}\n', uselib_store='GMP', lib='gmp')
@@ -23,7 +27,7 @@ def configure(ctx):
 		ctx.env.TRY_CGO = False
 	else:
 		ctx.env.TRY_CGO = True
-	
+
 def build(ctx):
 
 	ctx(

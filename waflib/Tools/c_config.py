@@ -6,7 +6,7 @@
 C/C++/D configuration helpers
 """
 
-import os, imp, sys, shlex, shutil
+import os, imp, sys, re, shlex, shutil
 from waflib import Build, Utils, Configure, Task, Options, Logs, TaskGen, Errors, ConfigSet, Runner
 from waflib.TaskGen import before_method, after_method, feature
 from waflib.Configure import conf
@@ -159,6 +159,11 @@ def parse_flags(self, line, uselib, env=None):
 		elif x.startswith('-m') or x.startswith('-f') or x.startswith('-dynamic'):
 			app('CFLAGS_' + uselib, [x])
 			app('CXXFLAGS_' + uselib, [x])
+		elif x.startswith('-bundle'):
+			app('LINKFLAGS_' + uselib, [x])
+		elif x.startswith('-undefined'):
+			arg = lst.pop(0)
+			app('LINKFLAGS_' + uselib, [x, arg])
 		elif x.startswith('-arch') or x.startswith('-isysroot'):
 			tmp = [x, lst.pop(0)]
 			app('CFLAGS_' + uselib, tmp)
@@ -626,9 +631,10 @@ class test_exec(Task.Task):
 			else:
 				self.generator.bld.retval = self.generator.bld.exec_command([self.inputs[0].abspath()])
 		else:
-			env = {}
+			env = self.env.env or {}
 			env.update(dict(os.environ))
-			env['LD_LIBRARY_PATH'] = self.inputs[0].parent.abspath()
+			for var in ('LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH', 'PATH'):
+				env[var] = self.inputs[0].parent.abspath() + os.path.pathsep + env.get(var, '')
 			if getattr(self.generator, 'define_ret', False):
 				self.generator.bld.retval = self.generator.bld.cmd_and_log([self.inputs[0].abspath()], env=env)
 			else:
@@ -656,7 +662,7 @@ def run_c_code(self, *k, **kw):
 	"""
 	Create a temporary build context to execute a build. A reference to that build
 	context is kept on self.test_bld for debugging purposes.
-	The parameters given in the arguments to this function are passes as arguments for
+	The parameters given in the arguments to this function are passed as arguments for
 	a single task generator created in the build. Only three parameters are obligatory:
 
 	:param features: features to pass to a task generator created in the build
@@ -683,7 +689,7 @@ def run_c_code(self, *k, **kw):
 
 	lst = [str(v) for (p, v) in kw.items() if p != 'env']
 	h = Utils.h_list(lst)
-	dir = self.bldnode.abspath() + os.sep + (sys.platform != 'win32' and '.' or '') + 'conf_check_' + Utils.to_hex(h)
+	dir = self.bldnode.abspath() + os.sep + (not Utils.is_win32 and '.' or '') + 'conf_check_' + Utils.to_hex(h)
 
 	try:
 		os.makedirs(dir)
@@ -1076,6 +1082,24 @@ def get_cc_version(conf, cc, gcc=False, icc=False):
 		else:
 			conf.env['CC_VERSION'] = (k['__GNUC__'], k['__GNUC_MINOR__'], k['__GNUC_PATCHLEVEL__'])
 	return k
+
+@conf
+def get_xlc_version(conf, cc):
+	"""Get the compiler version"""
+
+	version_re = re.compile(r"IBM XL C/C\+\+.*, V(?P<major>\d*)\.(?P<minor>\d*)", re.I).search
+	cmd = cc + ['-qversion']
+
+	try:
+		out, err = conf.cmd_and_log(cmd, output=0)
+	except Errors.WafError:
+		conf.fatal('Could not find xlc %r' % cmd)
+	if out: match = version_re(out)
+	else: match = version_re(err)
+	if not match:
+		conf.fatal('Could not determine the XLC version.')
+	k = match.groupdict()
+	conf.env['CC_VERSION'] = (k['major'], k['minor'])
 
 # ============ the --as-needed flag should added during the configuration, not at runtime =========
 

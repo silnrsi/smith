@@ -1,0 +1,10 @@
+#!/bin/python
+
+APPNAME="a2btest"
+VERSION=0.1
+
+kbd (source = 'demo-a2b.kmn',
+     target = 'demo-a2b.kmx',
+     mskbd = mskbd()
+    )
+       

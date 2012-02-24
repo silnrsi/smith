@@ -42,6 +42,7 @@ PSDIR          ps documentation                          DOCDIR
 ============== ========================================= =======================
 """
 
+import os
 from waflib import Utils, Options, Context
 
 _options = [x.split(', ') for x in '''
@@ -88,12 +89,12 @@ def configure(conf):
 			name = name.upper()
 			if not env[name]:
 				try:
-					env[name] = Utils.subst_vars(get_param(name, default), env)
+					env[name] = Utils.subst_vars(get_param(name, default).replace('/', os.sep), env)
 				except TypeError:
 					complete = False
 	if not complete:
 		lst = [name for name, _, _ in _options if not env[name.upper()]]
-		raise Errors.WafError('Variable substitution failure %r' % lst)
+		raise conf.errors.WafError('Variable substitution failure %r' % lst)
 
 def options(opt):
 	"""

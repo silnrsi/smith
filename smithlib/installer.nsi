@@ -14,6 +14,8 @@
 -
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
+var UninstFile
+!define Uninst "UnInstall.log"
 
 SetCompressor lzma
 
@@ -267,7 +269,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
     ;File "${FONT_REG_FILE}"  ; done by InstallTTF
 
 + for f in fonts :
-    !insertmacro InstallTTF "@f.target@"
+    !insertmacro InstallTTF "@bld(f, f.target)@"
 -
     
     SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
@@ -316,36 +318,38 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
     IfErrors NoKeyman
 +for k in kbds :
-    File "@k.kmx@"
+    File "@bld(k, k.kmx)@"
     Exec "start.exe $OUTDIR\@k.kmx@"
 -
     NoKeyman:
 
-    @"\n".join(['File "' + k.target + '"' for k in kbds])@
-    @"\n".join(['File "' + k.pdf + '"' for k in kbds])@ 
+    @"\n".join(['File "' + bld(k, k.target) + '"' for k in kbds if hasattr(k, 'target')])@
+    @"\n".join(['File "' + bld(k, k.pdf) + '"' for k in kbds if hasattr(k, 'pdf')])@ 
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32
 +for k in kbds :
-    CopyFiles "$OUTDIR\@k.source@" "$0\Ekaya\kmfl"
+    CopyFiles "$OUTDIR\@k.target@" "$0\Ekaya\kmfl"
 -
     NoEkaya32:
+    FileOpen $UninstFile "$INSTDIR\${Uninst}" w
 
 +for k in kbds : m = getattr(k, 'mskbd', None);
 + if m :
     IntOp $R1 0 + @m.lid@
     StrCpy $R2 "@m.dll.replace('.', '-86.')@"
+    File "@bld(k, m.dll.replace('.', '-86.'))@"
+    StrCpy $R4 $R2
++    if env['X86_64GCC'] :
     StrCpy $R3 "@m.dll.replace('.', '-64.')@"
+    File "@bld(k, m.dll.replace('.', '-64.'))@"
     ${If} ${RunningX64}
         StrCpy $R4 $R3
-    ${Else}
-        StrCpy $R4 $R2
     ${Endif}
-    File "@m.dll.replace('.', '-86.')@"
-    File "@m.dll.replace('.', '-64.')@"
+-
 
     LidStart:
-    IntFmt $R5 "SYSTEM\ControlSet\Control\Keyboard Layouts\%08X" $R1
+    IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 ""
     IfErrors LidDone
         IntOp $R1 $R1 + 0x10000
@@ -362,11 +366,33 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         "Layout Product Code" "{@m.guid@}"
     WriteRegStr HKLM $R5 \
         "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
+    FileWrite $UninstFile "$R1$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR
     ${If} ${RunningX64}
         CopyFiles "$OUTDIR\$R2" "$WINDIR\WOW64"
     ${Endif}
++  for l in getattr(m, 'lidinstall', []) :
+    StrCpy $R2 @l@
+    LidInstall:
+      IntFmt $R5 "%08X" $R2
+      ReadRegStr $0 HKCU "Keyboard Layout\Substitutes" $R2
+      IfErrors LidInstallDone
+        IntOp $R2 $R2 + 0x10000
+        Goto LidInstall
+
+    LidInstallDone:
+    IntFmt $R3 "%08X" $R1
+    WriteRegStr HKCU "Keyboard Layout\Substitutes" $R5 $R3
+    StrCpy $R4 1
+    LidInstallLoop:
+      ClearErrors
+      ReadRegStr $R6 HKCU "Keyboard Layout\Preload" $R4
+      IntOp $R4 $R4 + 1
+      IfErrors 0 LidInstallLoop
+    IntOp $R4 $R4 - 1
+    WriteRegStr HKCU "Keyboard Layout\Preload" $R4 $R5
+-
 -
 -
 
@@ -384,7 +410,7 @@ Section -StartMenu
   !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
   SetShellVarContext all
   CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
-IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
+  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
     SetShellVarContext current
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
@@ -472,6 +498,60 @@ Section "Uninstall"
 -
 -
 -
+
+  IfFileExists "$INSTDIR\${Uninst}" dokbds
+    goto donekbds
+  dokbds:
+    FileOpen $UninstFile "$INSTDIR\${Uninst}" r
+    loopkbd:
+      ClearErrors
+      FileRead $UninstFile $R1
+      IfErrors donekbdloop
+      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
+      DeleteRegKey HKLM $R5
+      StrCpy $1 0
+      loopinstalledkbd:
+        ClearErrors
+        EnumRegValue $2 HKCU "Keyboard Layout\Substitutes" $1
+        IfErrors doneinstallkbd
+        IntOp $1 $1 + 1
+        ReadRegStr $3 HKCU "Keyboard Layout\Substitutes" $2
+        IntCmp $3 $R1 0 loopinstalledkbd loopinstalledkbd
+        DeleteRegKey HKCU "Keyboard Layout\Substitutes\$2"
+        IntOp $1 $1 - 1
+        StrCpy $4 0
+        loopkbdinstallers:
+          ClearErrors
+          EnumRegValue $5 HKCU "Keyboard Layout\Preload" $4
+          IfErrors loopinstalledkbd
+          IntOp $4 $4 + 1
+          ReadRegStr $6 HKCU "Keyboard Layout\Preload" $5
+          IntCmp $6 $2 0 loopkbdinstallers loopkbdinstallers
+          DeleteRegKey HKCU "Keyboard Layout\Preload\$5"
+          IntOp $4 $4 - 1
+          IfErrors loopinstalledkbd loopkbdinstallers
+        
+      doneinstallkbd:
+      IfErrors 0 loopkbd
+
+    donekbdloop:
++for k in kbds : m = getattr(k, 'mskbd', None);
++ if m :
+      StrCpy $R2 "@m.dll.replace('.', '-86.')@"
+      StrCpy $R4 $R2
++    if env['X86_64GCC'] :
+      StrCpy $R3 "@m.dll.replace('.', '-64.')@"
+      ${If} ${RunningX64}
+        StrCpy $R4 $R3
+      ${Endif}
+-
+      Delete "$SYSDIR\$R4"
+      ${If} ${RunningX64}
+        Delete "$WINDIR\WOW64\$R2"
+      ${Endif}
+-
+-
+  donekbds:
   Delete "$0\Uninstall.lnk"
   RMDir "$0"
 

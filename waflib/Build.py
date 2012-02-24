@@ -271,11 +271,12 @@ class BuildContext(Context.Context):
 
 		f = None
 		try:
+			dbfn = os.path.join(self.variant_dir, Context.DBFILE)
 			try:
-				f = open(os.path.join(self.variant_dir, Context.DBFILE), 'rb')
+				f = open(dbfn, 'rb')
 			except (IOError, EOFError):
 				# handle missing file/empty file
-				Logs.debug('build: could not load the build cache (missing)')
+				Logs.debug('build: could not load the build cache %s (missing)' % dbfn)
 			else:
 				try:
 					waflib.Node.pickle_lock.acquire()
@@ -283,7 +284,7 @@ class BuildContext(Context.Context):
 					try:
 						data = cPickle.load(f)
 					except Exception as e:
-						Logs.debug('build: could not load the build cache %r' % e)
+						Logs.debug('build: could not pickle the build cache %s: %r' % (dbfn, e))
 					else:
 						for x in SAVED_ATTRS:
 							setattr(self, x, data[x])
@@ -323,7 +324,7 @@ class BuildContext(Context.Context):
 		try:
 			st = os.stat(db)
 			os.unlink(db)
-			if sys.platform != 'win32': # win32 has no chown but we're paranoid
+			if not Utils.is_win32: # win32 has no chown but we're paranoid
 				os.chown(db + '.tmp', st.st_uid, st.st_gid)
 		except (AttributeError, OSError):
 			pass
@@ -451,7 +452,7 @@ class BuildContext(Context.Context):
 
 		lst = [env[a] for a in vars_lst]
 		ret = Utils.h_list(lst)
-		Logs.debug('envhash: %r %r', ret, lst)
+		Logs.debug('envhash: %s %r', Utils.to_hex(ret), lst)
 
 		cache[idx] = ret
 
@@ -823,14 +824,14 @@ class inst(Task.Task):
 		"""The attribute 'exec_task' holds the method to execute"""
 		return self.generator.exec_task()
 
-	def get_install_path(self):
+	def get_install_path(self, destdir=True):
 		"""
 		Installation path obtained from ``self.dest`` and prefixed by the destdir.
 		The variables such as '${PREFIX}/bin' are substituted.
 		"""
-		dest = self.dest.replace('/', os.sep)
 		dest = Utils.subst_vars(self.dest, self.env)
-		if Options.options.destdir:
+		dest = dest.replace('/', os.sep)
+		if destdir and Options.options.destdir:
 			dest = os.path.join(Options.options.destdir, os.path.splitdrive(dest)[1].lstrip(os.sep))
 		return dest
 
@@ -904,7 +905,7 @@ class InstallContext(BuildContext):
 				pass
 			else:
 				# same size and identical timestamps -> make no copy
-				if st1.st_mtime >= st2.st_mtime and st1.st_size == st2.st_size:
+				if st1.st_mtime + 2 >= st2.st_mtime and st1.st_size == st2.st_size:
 					if not self.progress_bar:
 						Logs.info('- install %s (from %s)' % (tgt, srclbl))
 					return False
@@ -1058,7 +1059,7 @@ class InstallContext(BuildContext):
 		:type postpone: bool
 		"""
 
-		if sys.platform == 'win32':
+		if Utils.is_win32:
 			# symlinks *cannot* work on that platform
 			return
 
@@ -1237,23 +1238,8 @@ class StepContext(BuildContext):
 				else:
 					f()
 
-		for pat in self.files.split(','):
-			inn = True
-			out = True
-			if pat.startswith('in:'):
-				out = False
-				pat = pat.replace('in:', '')
-			elif pat.startswith('out:'):
-				inn = False
-				pat = pat.replace('out:', '')
-
-			if not pat.startswith('^'):
-				pat = '^.+?%s' % pat
-			if not pat.endswith('$'):
-				pat = '%s$' % pat
-			pat = re.compile(pat)
-
-			for g in self.groups:
+			for pat in self.files.split(','):
+				matcher = self.get_matcher(pat)
 				for tg in g:
 					if isinstance(tg, Task.TaskBase):
 						lst = [tg]
@@ -1261,19 +1247,49 @@ class StepContext(BuildContext):
 						lst = tg.tasks
 					for tsk in lst:
 						do_exec = False
-						if inn:
-							for node in getattr(tsk, 'inputs', []):
-								if pat.match(node.abspath()):
-									do_exec = True
-									break
-						if out and not do_exec:
-							for node in getattr(tsk, 'outputs', []):
-								if pat.match(node.abspath()):
-									do_exec = True
-									break
+						for node in getattr(tsk, 'inputs', []):
+							if matcher(node, output=False):
+								do_exec = True
+								break
+						for node in getattr(tsk, 'outputs', []):
+							if matcher(node, output=True):
+								do_exec = True
+								break
 						if do_exec:
 							ret = tsk.run()
-							Logs.info('%s -> %r' % (str(tsk), ret))
+							Logs.info('%s -> exit %r' % (str(tsk), ret))
+
+	def get_matcher(self, pat):
+		# this returns a function
+		inn = True
+		out = True
+		if pat.startswith('in:'):
+			out = False
+			pat = pat.replace('in:', '')
+		elif pat.startswith('out:'):
+			inn = False
+			pat = pat.replace('out:', '')
+
+		anode = self.root.find_node(pat)
+		pattern = None
+		if not anode:
+			if not pat.startswith('^'):
+				pat = '^.+?%s' % pat
+			if not pat.endswith('$'):
+				pat = '%s$' % pat
+			pattern = re.compile(pat)
+
+		def match(node, output):
+			if output == True and not out:
+				return False
+			if output == False and not inn:
+				return False
+
+			if anode:
+				return anode == node
+			else:
+				return pattern.match(node.abspath())
+		return match
 
 BuildContext.store = Utils.nogc(BuildContext.store)
 BuildContext.restore = Utils.nogc(BuildContext.restore)

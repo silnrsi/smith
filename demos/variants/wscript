@@ -75,7 +75,8 @@ for x in 'debug release'.split():
 
 def buildall(ctx):
 	import waflib.Options
-	waflib.Options.commands.extend(['build_debug', 'build_release'])
+	for x in ['build_debug', 'build_release']:
+		waflib.Options.commands.insert(0, x)
 
 
 

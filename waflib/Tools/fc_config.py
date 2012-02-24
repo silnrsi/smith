@@ -101,13 +101,13 @@ def fortran_modifier_darwin(conf):
 def fortran_modifier_win32(conf):
 	"""Define fortran flags for the windows platforms"""
 	v = conf.env
-	v['fcprogram_PATTERN']    = '%s.exe'
+	v['fcprogram_PATTERN'] = v['fcprogram_test_PATTERN']  = '%s.exe'
 
-	v['fcshlib_PATTERN']      = '%s.dll'
-	v['implib_PATTERN']      = 'lib%s.dll.a'
-	v['IMPLIB_ST']           = '-Wl,--out-implib,%s'
+	v['fcshlib_PATTERN']   = '%s.dll'
+	v['implib_PATTERN']    = 'lib%s.dll.a'
+	v['IMPLIB_ST']         = '-Wl,--out-implib,%s'
 
-	v['FCFLAGS_fcshlib']      = []
+	v['FCFLAGS_fcshlib']   = []
 
 	v.append_value('FCFLAGS_fcshlib', ['-DDLL_EXPORT']) # TODO adding nonstandard defines like this DLL_EXPORT is not a good idea
 
@@ -177,9 +177,6 @@ POSIX_LIB_FLAGS = re.compile('-l\S+')
 @conf
 def is_link_verbose(self, txt):
 	"""Return True if 'useful' link options can be found in txt"""
-	if sys.platform == 'win32':
-		raise NotImplementedError("FIXME: not implemented on win32")
-
 	assert isinstance(txt, str)
 	for line in txt.splitlines():
 		if not GCC_DRIVER_LINE.search(line):

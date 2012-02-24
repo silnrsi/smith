@@ -4,7 +4,7 @@
 
 package main
 
-import "stdio"
+import "cgo/stdio"
 
 func main() {
 	stdio.Stdout.WriteString(stdio.Greeting + "\n")

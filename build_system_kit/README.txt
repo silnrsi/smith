@@ -28,5 +28,6 @@ A few examples are provided to illustrate the range of possibilities:
 * noscript:        infer what to build from given files, use no script file
 * makefile_dumper: create a makefile corresponding to the current build, extracting as many dependencies as possible
 * nostate:         use timestamps only, and no build directory (very make-like)
+* extpy:           a custom waf file able to read wscript files having the extension ".py"
 
-Thomas Nagy, 2010
+Thomas Nagy, 2010-2011

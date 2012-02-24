@@ -4,16 +4,19 @@
 # Thomas Nagy 2010
 
 """
-go language support
+Go as a language may look nice, but its toolchain is one of the worse a developer
+has ever seen. It keeps changing though, and I would like to believe that it will get
+better eventually, but the crude reality is that this tool and the examples are
+getting broken every few months.
 
-The methods apply_link and apply_incpaths from ccroot.py are re-used
+If you have been lured into trying to use Go, you should stick to their Makefiles.
 """
 
 import os, platform
 
-from waflib import Utils, Task
+from waflib import Utils, Task, TaskGen
 from waflib.TaskGen import feature, extension, after_method, before_method
-from waflib.Tools.ccroot import link_task, stlink_task
+from waflib.Tools.ccroot import link_task, stlink_task, propagate_uselib_vars, process_use
 
 class go(Task.Task):
 	run_str = '${GOC} ${GOCFLAGS} ${CPPPATH_ST:INCPATHS} -o ${TGT} ${SRC}'
@@ -63,22 +66,6 @@ class cgopackage(stlink_task):
 			#print("--|> [%s]" % b.abspath())
 			b.sig = Utils.h_file(b.abspath())
 			pass
-		cgo_flags_node = bld_dir.make_node('_waf_cgoflags.go')
-		cgo_flags_node.write('''\
-package %(target)s
-
-/*
- #cgo CFLAGS: %(cgo_cflags)s
- #cgo LDFLAGS: %(cgo_ldflags)s
-*/
-import "C"
-// EOF
-''' % { 'target':      target,
-		'cgo_cflags' : ' '.join(l for l in self.env['GOCFLAGS']),
-		'cgo_ldflags': ' '.join(l for l in self.env['GOLFLAGS']),
-		})
-		bld_srcs.insert(0, cgo_flags_node)
-		cgo_flags_node.sig = Utils.h_file(cgo_flags_node.abspath())
 		#self.set_inputs(bld_srcs)
 		#self.generator.bld.raw_deps[self.uid()] = [self.signature()] + bld_srcs
 		makefile_node = bld_dir.make_node("Makefile")
@@ -91,8 +78,14 @@ include $(GOROOT)/src/Make.inc
 
 TARG=%(target)s
 
+GCIMPORTS= %(gcimports)s
+
 CGOFILES=\\
 \t%(source)s
+
+CGO_CFLAGS= %(cgo_cflags)s
+
+CGO_LDFLAGS= %(cgo_ldflags)s
 
 include $(GOROOT)/src/Make.pkg
 
@@ -101,6 +94,9 @@ include $(GOROOT)/src/Make.pkg
 	$(LD) -o $@ $*.$O
 
 ''' % {
+'gcimports': ' '.join(l for l in self.env['GOCFLAGS']),
+'cgo_cflags' : ' '.join(l for l in self.env['GOCFLAGS']),
+'cgo_ldflags': ' '.join(l for l in self.env['GOLFLAGS']),
 'target': target.path_from(obj_dir),
 'source': ' '.join([b.path_from(bld_dir) for b in bld_srcs])
 }
@@ -168,6 +164,7 @@ def go_compiler_is_foobar(self):
 			src.append(node)
 	self.source = src
 	if not ('cgopackage' in self.features):
+		#print('--> [%s]... (%s)' % (go[0], getattr(self, 'target', 'N/A')))
 		tsk = self.create_compiled_task('go', go[0])
 		tsk.inputs.extend(go[1:])
 	else:
@@ -184,21 +181,34 @@ def go_compiler_is_foobar(self):
 @feature('gopackage', 'goprogram', 'cgopackage')
 @after_method('process_source', 'apply_incpaths',)
 def go_local_libs(self):
-	#print ('== go-local-libs == [%s]' % self.name)
 	names = self.to_list(getattr(self, 'use', []))
+	#print ('== go-local-libs == [%s] == use: %s' % (self.name, names))
 	for name in names:
 		tg = self.bld.get_tgen_by_name(name)
 		if not tg:
 			raise Utils.WafError('no target of name %r necessary for %r in go uselib local' % (name, self))
 		tg.post()
-		#print ("-- tg: %s" % name)
+		#print ("-- tg[%s]: %s" % (self.name,name))
 		lnk_task = getattr(tg, 'link_task', None)
 		if lnk_task:
 			for tsk in self.tasks:
-				if isinstance(tsk, (go, cgopackage)):
+				if isinstance(tsk, (go, gopackage, cgopackage)):
 					tsk.set_run_after(lnk_task)
 					tsk.dep_nodes.extend(lnk_task.outputs)
 			path = lnk_task.outputs[0].parent.abspath()
+			if isinstance(lnk_task, (go, gopackage)):
+				# handle hierarchical packages
+				path = lnk_task.generator.path.get_bld().abspath()
+			elif isinstance(lnk_task, (cgopackage,)):
+				# handle hierarchical cgopackages
+				cgo_obj_dir = lnk_task.outputs[1].find_or_declare('_obj')
+				path = cgo_obj_dir.abspath()
+			# recursively add parent GOCFLAGS...
+			self.env.append_unique('GOCFLAGS',
+                                   getattr(lnk_task.env, 'GOCFLAGS',[]))
+			# ditto for GOLFLAGS...
+			self.env.append_unique('GOLFLAGS',
+                                   getattr(lnk_task.env, 'GOLFLAGS',[]))
 			self.env.append_unique('GOCFLAGS', ['-I%s' % path])
 			self.env.append_unique('GOLFLAGS', ['-L%s' % path])
 		for n in getattr(tg, 'includes_nodes', []):
@@ -246,4 +256,7 @@ def configure(conf):
 	conf.find_program(conf.env.GO_PACK,     var='GOP')
 
 	conf.find_program('cgo',                var='CGO')
+
+TaskGen.feature('go')(process_use)
+TaskGen.feature('go')(propagate_uselib_vars)
 

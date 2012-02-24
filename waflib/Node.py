@@ -88,7 +88,7 @@ def split_path_win32(path):
 
 if sys.platform == 'cygwin':
 	split_path = split_path_cygwin
-elif sys.platform == 'win32':
+elif Utils.is_win32:
 	split_path = split_path_win32
 
 class Node(object):
@@ -390,13 +390,21 @@ class Node(object):
 		except:
 			pass
 		# think twice before touching this (performance + complexity + correctness)
-		if not self.parent:
-			val = os.sep == '/' and os.sep or ''
-		elif not self.parent.name:
-			# drive letter for win32
-			val = (os.sep == '/' and os.sep or '') + self.name
+
+		if os.sep == '/':
+			if not self.parent:
+				val = os.sep
+			elif not self.parent.name:
+				val = os.sep + self.name
+			else:
+				val = self.parent.abspath() + os.sep + self.name
 		else:
-			val = self.parent.abspath() + os.sep + self.name
+			if not self.parent:
+				val = ''
+			elif not self.parent.name:
+				val = self.name + os.sep
+			else:
+				val = self.parent.abspath().rstrip(os.sep) + os.sep + self.name
 
 		self.cache_abspath = val
 		return val
@@ -787,7 +795,7 @@ class Node(object):
 		x = id(self.ctx.bldnode)
 		while cur.parent:
 			if id(cur) == x:
-				return self.ctx.path()
+				return self.bldpath()
 			cur = cur.parent
 		return self.srcpath()
 

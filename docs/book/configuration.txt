@@ -178,7 +178,7 @@ out = 'build'
 
 def configure(ctx):
 	ctx.find_program('touch', var='TOUCH')
-	ctx.check_waf_version(mini='1.6.4')
+	ctx.check_waf_version(mini='1.6.8')
 	ctx.find_file('fstab', ['/opt', '/etc'])
 ---------------
 
@@ -240,18 +240,19 @@ def options(opt): <1>
 def read_dang(ctx): <2>
 	ctx.start_msg('Checking for the variable DANG')
 	if ctx.options.dang:
-		ctx.env.DANG = ctx.options.dang
+		ctx.env.DANG = ctx.options.dang <3>
 		ctx.end_msg(ctx.env.DANG)
 	else:
 		ctx.end_msg('DANG is not set')
 
-def configure(ctx): <3>
+def configure(ctx): <4>
 	ctx.read_dang()
 ---------------
 
 <1> Provide command-line options
-<2> Provide a detection method to set ctx.env.DANG and print a message on the console
-<3> Provide a method named _configure_
+<2> Bind the function 'read_dang' as a new configuration method to call ctx.read_dang() below
+<3> Set an persistent value from the current command-line options
+<4> Provide a command named _configure_ accepting a build context instance as parameter
 
 For loading a tool, the method 'load' must be used during the configuration:
 
@@ -294,22 +295,47 @@ Waf: Leaving directory `/tmp/configuration_dang/build'
 <1> First the tool is imported as a python module, and then the method _configure_ is called by _load_
 <2> The tools loaded during the configuration will be loaded during the build phase
 
+==== Multiple configurations
+
+The 'conf.env' object is an important point of the configuration which is accessed and modified by Waf tools and by user-provided configuration functions. The Waf tools do not enforce a particular structure for the build scripts, so the tools will only modify the contents of the default object. The user scripts may provide several 'env' objects in the configuration and pre-set or post-set specific values:
+
+[source,python]
+---------------
+def configure(ctx):
+	env = ctx.env <1>
+	ctx.setenv('debug') <2>
+	ctx.env.CC = 'gcc' <3>
+	ctx.load('gcc')
+
+	ctx.setenv('release', env) <4>
+	ctx.load('msvc')
+	ctx.env.CFLAGS = ['/O2']
+
+	print ctx.all_envs['debug'] <5>
+---------------
+
+<1> Save a reference to 'conf.env'
+<2> Copy and replace 'conf.env'
+<3> Modify 'conf.env'
+<4> Copy and replace 'conf.env' again, from the initial data
+<5> Recall a configuration set by its name
+
 === Exception handling
 
 ==== Launching and catching configuration exceptions
 
-Configuration helpers are methods provided by the conf object to help finding parameters, for example the method 'conf.find_program'
+Configuration helpers are methods provided by the conf object to help find parameters, for example the method 'conf.find_program'
 
 [source,python]
 ---------------
 top = '.'
 out = 'build'
 
-def configure(conf):
-	conf.find_program('some_app')
+def configure(ctx):
+	ctx.find_program('some_app')
 ---------------
 
-When a test fails, an exception of the type 'waflib.Errors.ConfigurationError' is raised. For example:
+When a test cannot complete properly, an exception of the type 'waflib.Errors.ConfigurationError' is raised. This often occurs when something is missing in the operating system environment or because a particular condition is not satisfied. For example:
 
 [source,shishell]
 ---------------
@@ -368,7 +394,7 @@ Checking for program some_app            : not found
 
 $ cat build/config.log <2>
 # project  configured on Tue Jul 13 19:15:04 2010 by
-# waf 1.6.4 (abi 98, python 20605f0 on linux2)
+# waf 1.6.8 (abi 98, python 20605f0 on linux2)
 # using /home/waf/bin/waf configure
 #
 Checking for program some_app
@@ -382,7 +408,7 @@ some_app was not found (ignoring) <3>
 <2> The log file contains useful information about the configuration execution
 <3> Our log entry
 
-Catching the errors by hand can be inconvenient. For this reason, all *@conf* methods will accept a parameter named 'mandatory' to suppress the exception. The code snippet is therefore equivalent to:
+Catching the errors by hand can be inconvenient. For this reason, all *@conf* methods accept a parameter named 'mandatory' to suppress configuration errors. The code snippet is therefore equivalent to:
 
 [source,python]
 ---------------
@@ -393,24 +419,58 @@ def configure(ctx):
 	ctx.find_program('some_app', mandatory=False)
 ---------------
 
-As a general rule, configuration methods should not rely on exit codes and raise exceptions instead.
+As a general rule, clients should never rely on exit codes or returned values and must catch configuration exceptions. The tools should always raise configuration errors to display the errors and to give a chance to the clients to process the exceptions.
 
-==== Handling configuration exceptions
+==== Transactions
 
-An error handler attached to the conf object is used for catching the Configuration exceptions and processing the errors. Here is how to replace the default configuration error handler by a custom method which may modify the list of tests, stop the evaluation, or re-raise the exception:
+Waf tools called during the configuration may use and modify the contents of 'conf.env' at will. Those changes may be complex to track and to undo. Fortunately, the configuration exceptions make it possible to simplify the logic and to go back to a previous state easily. The following example illustrates how to use a transaction to to use several tools at once:
 
 [source,python]
 ---------------
-from waflib.Configure import conf, BREAK, CONTINUE
+top = '.'
+out = 'build'
 
-@conf
-def error_handler(fun, exc):
-	print('exception %r' % exc)
-	# other optionals return values: CONTINUE or anything else to re-raise the exception
-	return BREAK
+def configure(ctx):
+	for compiler in ('gcc', 'msvc'):
+		try:
+			ctx.env.stash()
+			ctx.load(compiler)
+		except ctx.errors.ConfigurationError:
+			ctx.env.revert()
+		else:
+			break
+	else:
+		ctx.fatal('Could not find a compiler')
 ---------------
 
-The following diagram illustrates the test execution loop performed from conf.load
+Though several calls to 'stash' can be made, the copies made are shallow, which means that any complex object (such as a list) modification will be permanent. For this reason, the following is a configuration anti-pattern:
 
-image::conftest{PIC}["Configuration tests"{backend@docbook:,width=210:},align="center"]
+[source,python]
+---------------
+def configure(ctx):
+	ctx.env.CFLAGS += ['-O2']
+---------------
+
+The methods should always be used instead:
+
+[source,python]
+---------------
+def configure(ctx):
+    ctx.env.append_value('CFLAGS', '-O2')
+---------------
+
+////
+To conclude this chapter on the configuration, we will now insist a little bit on the roles of the configuration context and of the configuration set objects. The configuration context is meant as a container for non-persistent data such as methods, functions, code and utilities. This means in particular that the following is an acceptable way of sharing data with scripts and tools:
+
+[source,python]
+---------------
+def configure(ctx):
+    ctx.logfile = ctx.bldnode.make_node('config.log').abspath()
+    ctx.load('some_tool') # ... def configure(ctx): print ctx.logfile ...
+---------------
+
+In practice, values are frequently needed in the build section too. Adding the data to 'conf.env' is therefore a logical way of separating the concerns between the code (configuration methods) and the persistent data.
+
+A typical application of this is 
+////
 

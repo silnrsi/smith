@@ -43,7 +43,7 @@ go_absolute = False
 "Set to 1 to track headers on files in /usr/include - else absolute paths are ignored"
 
 standard_includes = ['/usr/include']
-if sys.platform == "win32":
+if Utils.is_win32:
 	standard_includes = []
 
 use_trigraphs = 0

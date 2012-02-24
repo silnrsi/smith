@@ -471,7 +471,7 @@ def find_program(self, filename, **kw):
 	"""
 	Search for a program on the operating system
 
-	When var is used, you may set os.environ[var] to help finding a specific program version, for example::
+	When var is used, you may set os.environ[var] to help find a specific program version, for example::
 
 		$ VALAC=/usr/bin/valac_test waf configure
 
@@ -483,7 +483,7 @@ def find_program(self, filename, **kw):
 	:type ext: list of string
 	"""
 
-	exts = kw.get('exts', Options.platform == 'win32' and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
+	exts = kw.get('exts', Utils.is_win32 and '.exe,.com,.bat,.cmd' or ',.sh,.pl,.py')
 
 	environ = kw.get('environ', os.environ)
 

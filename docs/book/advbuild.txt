@@ -226,7 +226,7 @@ $ export WAFLOCK=.lock-wafdebug <1>
 
 $ waf
 Waf: Entering directory `/tmp/advbuild_waflock/debug'
-[1/1] foo.txt:  -> debug/default/foo.txt <2>
+[1/1] foo.txt:  -> debug//foo.txt <2>
 Waf: Leaving directory `/tmp/advbuild_waflock/debug'
 'build' finished successfully (0.012s)
 
@@ -238,7 +238,7 @@ $ waf distclean configure
 
 $ waf
 Waf: Entering directory `/tmp/advbuild_waflock/release' <3>
-[1/1] foo.txt:  -> release/default/foo.txt
+[1/1] foo.txt:  -> release/foo.txt
 Waf: Leaving directory `/tmp/advbuild_waflock/release'
 'build' finished successfully (0.034s)
 

@@ -10,7 +10,7 @@ To add a tool that does not exist in the folder compat15, pass an absolute path:
 """
 
 
-VERSION="1.6.4"
+VERSION="1.6.8"
 APPNAME='waf'
 REVISION=''
 
@@ -25,9 +25,9 @@ PRELUDE = '\timport waflib.extras.compat15'
 #from tokenize import *
 import tokenize
 
-import os, sys, base64, shutil, re, random, io, optparse, tempfile
+import os, sys, re, io, optparse
 
-from waflib import Utils, Options, Build
+from waflib import Utils, Options
 from hashlib import md5
 
 from waflib import Configure
@@ -141,7 +141,6 @@ def process_tokens(tokens):
 	accu = []
 	prev = tokenize.NEWLINE
 
-	accu_deco = []
 	indent = 0
 	line_buf = []
 
@@ -223,7 +222,7 @@ def sfilter(path):
 
 		if cnt.find('set(') > -1:
 			cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt
-		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! All changes made to this file will be lost!\n\n' + cnt
+		cnt = '#! /usr/bin/env python\n# encoding: utf-8\n# WARNING! Do not edit! http://waf.googlecode.com/svn/docs/wafbook/single.html#_obtaining_the_waf_file\n\n' + cnt
 
 	return (io.BytesIO(cnt), len(cnt), cnt)
 
@@ -239,7 +238,6 @@ def create_waf(*k, **kw):
 
 	#open a file as tar.[extension] for writing
 	tar = tarfile.open('%s.tar.%s' % (mw, zipType), "w:%s" % zipType)
-	tarFiles = []
 
 	files = []
 	add3rdparty = []

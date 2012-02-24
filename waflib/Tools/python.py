@@ -19,12 +19,13 @@ Support for Python, detect the headers and libraries and provide
 """
 
 import os, sys
-from waflib import TaskGen, Utils, Utils, Runner, Options, Build, Errors
+from waflib import Utils, Options, Errors
 from waflib.Logs import debug, warn, info, error
-from waflib.TaskGen import extension, taskgen_method, before_method, after_method, feature
+from waflib.TaskGen import extension, before_method, after_method, feature
 from waflib.Configure import conf
 
 FRAG = '''
+#include <Python.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -46,8 +47,7 @@ Piece of C/C++ code used in :py:func:`waflib.Tools.python.check_python_headers`
 
 INST = '''
 import sys, py_compile
-for pyfile in sys.argv[1:]:
-	py_compile.compile(pyfile, pyfile + %r)
+py_compile.compile(sys.argv[1], sys.argv[2], sys.argv[3])
 '''
 """
 Piece of Python code used in :py:func:`waflib.Tools.python.install_pyfile` for installing python files
@@ -114,7 +114,8 @@ def install_pyfile(self, node, install_from=None):
 
 			if do_inst:
 				lst = (x == 'o') and [self.env['PYFLAGS_OPT']] or []
-				argv = self.env['PYTHON'] + lst + ['-c', INST % x, path]
+				(a, b, c) = (path, path + x, tsk.get_install_path(destdir=False) + x)
+				argv = self.env['PYTHON'] + lst + ['-c', INST, a, b, c]
 				info('+ byte compiling %r' % (path + x))
 				ret = Utils.subprocess.Popen(argv).wait()
 				if ret:
@@ -129,6 +130,7 @@ def feature_py(self):
 
 @feature('pyext')
 @before_method('propagate_uselib_vars', 'apply_link')
+@after_method('apply_bundle')
 def init_pyext(self):
 	"""
 	Change the values of *cshlib_PATTERN* and *cxxshlib_PATTERN* to remove the
@@ -140,7 +142,13 @@ def init_pyext(self):
 	if not 'PYEXT' in self.uselib:
 		self.uselib.append('PYEXT')
 	# override shlib_PATTERN set by the osx module
-	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['pyext_PATTERN']
+	self.env['cshlib_PATTERN'] = self.env['cxxshlib_PATTERN'] = self.env['macbundle_PATTERN'] = self.env['pyext_PATTERN']
+
+@feature('pyext')
+@before_method('apply_link', 'apply_bundle')
+def set_bundle(self):
+	if sys.platform.startswith('darwin'):
+		self.mac_bundle = True
 
 @before_method('propagate_uselib_vars')
 @feature('pyembed')
@@ -234,8 +242,10 @@ def check_python_headers(conf):
 
 	# Check for python libraries for embedding
 
-	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
+	all_flags = dct['LDFLAGS'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEMBED')
+
+	all_flags = dct['LDFLAGS'] + ' ' + dct['LDSHARED'] + ' ' + dct['CFLAGS']
 	conf.parse_flags(all_flags, 'PYEXT')
 
 	result = None
@@ -276,8 +286,8 @@ def check_python_headers(conf):
 
 	# under certain conditions, python extensions must link to
 	# python libraries, not just python embedding programs.
-	if (sys.platform == 'win32' or sys.platform.startswith('os2')
-		or sys.platform == 'darwin' or dct['Py_ENABLE_SHARED']):
+	if (Utils.is_win32 or sys.platform.startswith('os2')
+		or dct['Py_ENABLE_SHARED']):
 		env['LIBPATH_PYEXT'] = env['LIBPATH_PYEMBED']
 		env['LIB_PYEXT'] = env['LIB_PYEMBED']
 
@@ -288,7 +298,7 @@ def check_python_headers(conf):
 
 	includes = []
 	if conf.env.PYTHON_CONFIG:
-		for incstr in conf.cmd_and_log(conf.env.PYTHON + [ conf.env.PYTHON_CONFIG, '--includes']).strip().split():
+		for incstr in conf.cmd_and_log([ conf.env.PYTHON_CONFIG, '--includes']).strip().split():
 			# strip the -I or /I
 			if (incstr.startswith('-I') or incstr.startswith('/I')):
 				incstr = incstr[2:]
@@ -312,6 +322,14 @@ def check_python_headers(conf):
 	if env['CXX_NAME'] == 'gcc':
 		env.append_value('CXXFLAGS_PYEMBED', ['-fno-strict-aliasing'])
 		env.append_value('CXXFLAGS_PYEXT', ['-fno-strict-aliasing'])
+
+	if env.CC_NAME == "msvc":
+		from distutils.msvccompiler import MSVCCompiler
+		dist_compiler = MSVCCompiler()
+		dist_compiler.initialize()
+		env.append_value('CFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('CXXFLAGS_PYEXT', dist_compiler.compile_options)
+		env.append_value('LINKFLAGS_PYEXT', dist_compiler.ldflags_shared)
 
 	# See if it compiles
 	try:
@@ -363,7 +381,7 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONDIR' in conf.environ:
 			pydir = conf.environ['PYTHONDIR']
 		else:
-			if sys.platform == 'win32':
+			if Utils.is_win32:
 				(python_LIBDEST, pydir) = \
 						conf.get_python_variables(
 											  ["get_config_var('LIBDEST') or ''",
@@ -385,7 +403,7 @@ def check_python_version(conf, minver=None):
 		if 'PYTHONARCHDIR' in conf.environ:
 			pyarchdir = conf.environ['PYTHONARCHDIR']
 		else:
-			pyarchdir = conf.get_python_variables(
+			(pyarchdir, ) = conf.get_python_variables(
 											["get_python_lib(plat_specific=1, standard_lib=0, prefix=%r) or ''" % conf.env['PREFIX']],
 											['from distutils.sysconfig import get_python_lib'])
 			if not pyarchdir:

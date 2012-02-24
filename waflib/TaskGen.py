@@ -91,7 +91,7 @@ class task_gen(object):
 				self.idx = self.bld.idx[id(self.path)] = self.bld.idx.get(id(self.path), 0) + 1
 			except AttributeError:
 				self.bld.idx = {}
-				self.idx = self.bld.idx[id(self.path)] = 0
+				self.idx = self.bld.idx[id(self.path)] = 1
 
 		for key, val in kw.items():
 			setattr(self, key, val)
@@ -172,7 +172,7 @@ class task_gen(object):
 			if not st:
 				if not x in Task.classes:
 					Logs.warn('feature %r does not exist - bind at least one method to it' % x)
-			keys.update(st)
+			keys.update(list(st)) # ironpython 2.7 wants the cast to list
 
 		# copy the precedence table
 		prec = {}
@@ -188,6 +188,9 @@ class task_gen(object):
 				if a in x: break
 			else:
 				tmp.append(a)
+
+		# TODO waf 1.7
+		#tmp.sort()
 
 		# topological sort
 		out = []
@@ -405,6 +408,7 @@ def before_method(*k):
 		for fun_name in k:
 			if not func.__name__ in task_gen.prec[fun_name]:
 				task_gen.prec[fun_name].append(func.__name__)
+				#task_gen.prec[fun_name].sort()
 		return func
 	return deco
 before = before_method
@@ -433,6 +437,7 @@ def after_method(*k):
 		for fun_name in k:
 			if not fun_name in task_gen.prec[func.__name__]:
 				task_gen.prec[func.__name__].append(fun_name)
+				#task_gen.prec[func.__name__].sort()
 		return func
 	return deco
 after = after_method
@@ -553,6 +558,16 @@ def process_rule(self):
 
 	if getattr(self, 'scan', None):
 		cls.scan = self.scan
+	elif getattr(self, 'deps', None):
+		def scan(self):
+			nodes = []
+			for x in self.generator.to_list(self.generator.deps):
+				node = self.generator.path.find_resource(x)
+				if not node:
+					self.generator.bld.fatal('Could not find %r (was it declared?)' % x)
+				nodes.append(node)
+			return [nodes, []]
+		cls.scan = scan
 
 	if getattr(self, 'cwd', None):
 		tsk.cwd = self.cwd
@@ -635,9 +650,8 @@ class subst_pc(Task.Task):
 		except AttributeError:
 			d = {}
 			for x in lst:
-				d[x] = getattr(self.generator, x, '') or self.env.get_flat(x) or self.env.get_flat(x.upper())
-				if not d[x] and not getattr(self.generator, 'quiet', False):
-					raise ValueError('variable %r has no value for %r' % (x, self.outputs))
+				tmp = getattr(self.generator, x, '') or self.env.get_flat(x) or self.env.get_flat(x.upper())
+				d[x] = str(tmp)
 
 		self.outputs[0].write(code % d)
 		self.generator.bld.raw_deps[self.uid()] = self.dep_vars = lst

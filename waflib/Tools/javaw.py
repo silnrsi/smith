@@ -398,16 +398,29 @@ def check_jni_headers(conf):
 	javaHome = conf.env['JAVA_HOME'][0]
 
 	dir = conf.root.find_dir(conf.env.JAVA_HOME[0] + '/include')
+	if dir is None:
+		conf.fatal('JAVA_HOME does not seem to be set properly')
+
 	f = dir.ant_glob('**/(jni|jni_md).h')
 	incDirs = [x.parent.abspath() for x in f]
 
 	dir = conf.root.find_dir(conf.env.JAVA_HOME[0])
-	f = dir.ant_glob('**/*jvm.(so|dll)')
+	f = dir.ant_glob('**/*jvm.(so|dll|dylib)')
 	libDirs = [x.parent.abspath() for x in f] or [javaHome]
 
-	for i, d in enumerate(libDirs):
-		if conf.check(header_name='jni.h', define_name='HAVE_JNI_H', lib='jvm',
-				libpath=d, includes=incDirs, uselib_store='JAVA', uselib='JAVA'):
+	# On windows, we need both the .dll and .lib to link.  On my JDK, they are
+	# in different directories...
+	f = dir.ant_glob('**/*jvm.(lib)')
+	if f:
+		libDirs = [[x, y.parent.abspath()] for x in libDirs for y in f]
+
+	for d in libDirs:
+		try:
+			conf.check(header_name='jni.h', define_name='HAVE_JNI_H', lib='jvm',
+				libpath=d, includes=incDirs, uselib_store='JAVA', uselib='JAVA')
+		except:
+			pass
+		else:
 			break
 	else:
 		conf.fatal('could not find lib jvm in %r (see config.log)' % libDirs)

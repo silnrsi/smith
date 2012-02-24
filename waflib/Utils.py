@@ -109,7 +109,7 @@ except ImportError:
 				self[key] = value
 				return value
 
-is_win32 = sys.platform == 'win32'
+is_win32 = sys.platform in ('win32', 'cli')
 
 # we should have put this in the Logs.py file instead :-/
 indicator = '\x1b[K%s%s%s\r'
@@ -163,10 +163,12 @@ def h_file(filename):
 	"""
 	f = open(filename, 'rb')
 	m = md5()
-	while (filename):
-		filename = f.read(100000)
-		m.update(filename)
-	f.close()
+	try:
+		while filename:
+			filename = f.read(100000)
+			m.update(filename)
+	finally:
+		f.close()
 	return m.digest()
 
 try:
@@ -191,7 +193,6 @@ Return the hexadecimal representation of a string
 
 listdir = os.listdir
 if is_win32:
-	from ctypes import windll, byref, create_string_buffer
 	def listdir_win32(s):
 		"""
 		List the contents of a folder in a portable manner.
@@ -200,13 +201,17 @@ if is_win32:
 		:param s: a string, which can be empty on Windows for listing the drive letters
 		"""
 		if not s:
-			dlen = 4 # length of "?:\\x00"
-			maxdrives = 26
-			buf = create_string_buffer(maxdrives * dlen)
-			ndrives = windll.kernel32.GetLogicalDriveStringsA(maxdrives, byref(buf))
-
-			# FIXME decode('ascii') will return unicode strings on python 2.3, but we want strings
-			return [ buf.raw[4*i:4*i+3].decode("ascii") for i in range(int(ndrives/dlen)) ]
+			try:
+				import ctypes
+			except:
+				# there is nothing much we can do
+				return [x + ':\\' for x in list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')]
+			else:
+				dlen = 4 # length of "?:\\x00"
+				maxdrives = 26
+				buf = ctypes.create_string_buffer(maxdrives * dlen)
+				ndrives = ctypes.windll.kernel32.GetLogicalDriveStringsA(maxdrives, ctypes.byref(buf))
+				return [ buf.raw[4*i:4*i+3].decode('ascii') for i in range(int(ndrives/dlen)) ]
 
 		if len(s) == 2 and s[1] == ":":
 			s += os.sep
@@ -510,7 +515,7 @@ if is_win32:
 		hack into the shutil module to fix the problem
 		"""
 		old(src, dst)
-		shutil.copystat(src, src)
+		shutil.copystat(src, dst)
 	setattr(shutil, 'copy2', copy2)
 
 if os.name == 'java':

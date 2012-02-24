@@ -2,6 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Utils
+import wsiwaf
 import os, shutil, codecs
 from functools import partial
 
@@ -36,7 +37,9 @@ def curry_fn(fn, *parms, **kw) :
 def antlist(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
         globs = [globs]
-    return ctx.srcnode.find_node(testdir).ant_glob(globs)
+    found = ctx.path.find_node(testdir)
+    if found : return found.ant_glob(globs)
+    return []
 
 def antdict(ctx, testdir, globs) :
     if isinstance(globs, basestring) :
@@ -56,7 +59,7 @@ class font_test(object) :
     def __init__(self, *kv, **kw) :
         if 'htexts' not in kw : kw['htexts'] = '*.htxt'
         if 'texts' not in kw : kw['texts'] = '*.txt'
-        if 'targets' not in kw : kw['targets'] = { 'pdfs' : TeX(), 'svg' : SVG() }
+        if 'targets' not in kw : kw['targets'] = { 'pdfs' : TeX(), 'svg' : SVG(), 'test' : Tests() }
         for k, item in kw.items() :
             setattr(self, k, item)
 
@@ -71,7 +74,7 @@ class font_test(object) :
 
     def get_sources(self, ctx) :
         if not hasattr(self, 'testdir') :
-            self.testdir = ctx.env['TESTDIR'] or 'tests'
+            self.testdir = 'tests'
         testsdir = self.testdir + os.sep
         res = []
         for s in (getattr(self, y, None) for y in ('texts', 'htexts', 'texs')) :
@@ -175,7 +178,7 @@ class TeX(object) :
             textfiles.append((targ, n))
         for n in textfiles :
             targ = n[0].get_bld()
-            ctx(rule = '${XETEX} --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
+            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
                 taskgens = [font.target + "_" + m])
@@ -282,3 +285,31 @@ class SVG(object) :
             ctx.bldnode.find_or_declare(indexhtmltarg).write(svgIndexHtml)
             ctx(rule='${FIREFOX} ' + indexhtmltarg, source = diffSvgs)
 
+class Tests(object) :
+    def __init__(self, tests = None, *kv, **kw) :
+        for k, item in kw.items() :
+            setattr(self, k, item)
+        if not tests :
+            tests = {'regression' : wsiwaf.cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
+        self.tests = tests
+
+    def config(self, ctx) :
+        return []
+
+    def build(self, ctx, test, font) :
+        if not hasattr(self, 'standards') :
+            self.standards = ctx.env['STANDARDS'] or 'standards'
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+
+        for name, t in self.tests.items() :
+            for n in txtfiles.keys() :
+                for m in test.modes.keys() :
+                    f = os.path.basename(font.target)
+                    inputs = [font.target, n]
+                    inputs.append(os.path.join(self.standards, f))
+                    target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + '.log')
+                    gen = t.build(ctx, inputs, target, shaper = m, script = getattr(font, 'script', None), name = name, fileinfo = txtfiles[n])
+                    gen.taskgens = [font.target + "_" + m]

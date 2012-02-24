@@ -124,7 +124,7 @@ image::prodcons{PIC}["Parallel execution"{backend@docbook:,width=470:},align="ce
 
 ==== Task states and status
 
-A state is a assigned to the each task (_task.hasrun = state_) to keep track of the execution. The possible values are the following:
+A state is assigned to each task (_task.hasrun = state_) to keep track of the execution. The possible values are the following:
 
 [options="header", cols="1,1,6"]
 |=================
@@ -187,12 +187,12 @@ Another way to force the order is by declaring lists of abstract symbols on the 
 ---------------
 from waflib.Task import TaskBase
 class task_test_a(TaskBase):
-    ext_in  = ['.c']
+    ext_in  = ['.h']
 class task_test_b(TaskBase):
-    ext_out = ['.c']
+    ext_out = ['.h']
 ---------------
 
-The 'extensions' ext_in and ext_out have to match to add a valid precedence constraint, but they are only symbols in this context. They do not mean the tasks actually have to produce files of that type.
+The 'extensions' ext_in and ext_out do not mean that the tasks have to produce files with such extensions, but are mere symbols for use as precedence constraints.
 
 ===== Order extraction
 

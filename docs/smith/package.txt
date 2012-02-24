@@ -2,4 +2,42 @@
 
 Once a set of writing system components have been created, there is the need to package them for distribution. smith works to make that as simple but as powerful as appropriate. Each writing system component (`font`, `kbd`) has an optional `package` attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition a global package object is created into which go all the components for which no `package` attribute has been set.
 
+The global package can take its parameters from the wscript file as global variables with the same name as the attribute, but with the name uppper cased.
 
+The attributes to package are:
+
+appname::
+    Base application name to use for the installer in lower case. This is required.
+
+version::
+    Version number of the installer. This is required.
+
+desc_short::
+    One line description of the package.
+
+desc_long::
+    Multi-line description of the package.
+
+desc_name::
+    Multi-case name to use for the Windows installer generated.
+
+outdir::
+    Where to store the generated Windows installer relative to the build directory.
+
+docdir::
+    Directory tree to walk pulling in all the files as source files. Used for identifying documentation files. Also used in adding documentation files to installers.
+
+license::
+    License file to use within the package.
+
+reservedofl::
+    If set, uses the OFL and assembles a list of reserved words from the constiuent fonts for use within it.
+
+zipfile::
+    Name of zip file to use when creating smith zip. Is auto-generated if not set, based on appname and version.
+
+zipdir::
+    Directory to store generated zip file in, relative to build directory.
+
+debpkg::
+    debian package name for this package.

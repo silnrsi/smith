@@ -48,8 +48,9 @@ else:
 
 import os, sys
 from waflib.Tools import c_preproc, cxx
-from waflib import TaskGen, Task, Utils, Runner, Options, Node, Errors
+from waflib import Task, Utils, Options, Errors
 from waflib.TaskGen import feature, after_method, extension
+from waflib.Configure import conf
 from waflib.Logs import error
 
 MOC_H = ['.h', '.hpp', '.hxx', '.hh']
@@ -71,6 +72,8 @@ EXT_QT4 = ['.cpp', '.cc', '.cxx', '.C']
 """
 File extensions of C++ files that may require a .moc processing
 """
+
+QT4_LIBS = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtXmlPatterns QtWebKit Qt3Support QtHelp QtScript QtDeclarative"
 
 class qxx(cxx.cxx):
 	"""
@@ -274,7 +277,8 @@ def apply_qt4(self):
 			qmtasks.append(self.create_task('ts2qm', x, x.change_ext('.qm')))
 
 		if getattr(self, 'update', None) and Options.options.trans_qt4:
-			cxxnodes = [a.inputs[0] for a in self.compiled_tasks]
+			cxxnodes = [a.inputs[0] for a in self.compiled_tasks] + [
+				a.inputs[0] for a in self.tasks if getattr(a, 'inputs', None) and a.inputs[0].name.endswith('.ui')]
 			for x in qmtasks:
 				self.create_task('trans_update', cxxnodes, x.inputs)
 
@@ -292,7 +296,10 @@ def apply_qt4(self):
 		if len(flag) < 2: continue
 		f = flag[0:2]
 		if f in ['-D', '-I', '/D', '/I']:
-			lst.append(flag)
+			if (f[0] == '/'):
+				lst.append('-' + flag[1:])
+			else:
+				lst.append(flag)
 	self.env['MOC_FLAGS'] = lst
 
 @extension(*EXT_QT4)
@@ -334,7 +341,7 @@ class moc(Task.Task):
 	Create *.moc* files
 	"""
 	color   = 'BLUE'
-	run_str = '${QT_MOC} ${MOC_FLAGS} ${SRC} ${MOC_ST} ${TGT}'
+	run_str = '${QT_MOC} ${MOC_FLAGS} ${MOCCPPPATH_ST:INCPATHS} ${MOCDEFINES_ST:DEFINES} ${SRC} ${MOC_ST} ${TGT}'
 
 class ui4(Task.Task):
 	"""
@@ -369,15 +376,21 @@ def configure(self):
 	Besides the configuration options, the environment variable QT4_ROOT may be used
 	to give the location of the qt4 libraries (absolute path).
 
-	The detection may use the program *pkg-config* through :py:func:`waflib.Tools.config_c.check_cfg`
+	The detection will use the program *pkg-config* through :py:func:`waflib.Tools.config_c.check_cfg`
 	"""
+	self.find_qt4_binaries()
+	self.set_qt4_libs_to_check()
+	self.find_qt4_libraries()
+	self.add_qt4_rpath()
+	self.simplify_qt4_libs()
+
+@conf
+def find_qt4_binaries(self):
 	env = self.env
 	opt = Options.options
 
 	qtdir = getattr(opt, 'qtdir', '')
 	qtbin = getattr(opt, 'qtbin', '')
-	qtlibs = getattr(opt, 'qtlibs', '')
-	useframework = getattr(opt, 'use_qt4_osxframework', True)
 
 	paths = []
 
@@ -431,20 +444,11 @@ def configure(self):
 						cand = qmake
 						prev_ver = new_ver
 	if cand:
-		qmake = cand
+		self.env.QMAKE = cand
 	else:
-		self.fatal('could not find qmake for qt4')
+		self.fatal('Could not find qmake for qt4')
 
-	self.env.QMAKE = qmake
-	qtincludes = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_HEADERS']).strip()
-	qtdir = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
-	qtbin = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
-
-	if not qtlibs:
-		try:
-			qtlibs = self.cmd_and_log([qmake, '-query', 'QT_INSTALL_LIBS']).strip()
-		except Errors.WafError:
-			qtlibs = os.path.join(qtdir, 'lib')
+	qtbin = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_BINS']).strip() + os.sep
 
 	def find_bin(lst, var):
 		for f in lst:
@@ -462,16 +466,13 @@ def configure(self):
 		self.fatal('cannot find the uic compiler for qt4')
 
 	try:
-		version = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
+		uicver = self.cmd_and_log(env['QT_UIC'] + " -version 2>&1").strip()
 	except self.errors.ConfigurationError:
-		self.fatal('your uic compiler is for qt3, add uic for qt4 to your path')
-
-	version = version.replace('Qt User Interface Compiler ','')
-	version = version.replace('User Interface Compiler for Qt', '')
-	if version.find(' 3.') != -1:
-		self.msg('Checking for uic version', '(%s: too old)' % version, False)
-		self.fatal('uic is too old')
-	self.msg('Checking for uic version', '(%s)'%version)
+		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
+	uicver = uicver.replace('Qt User Interface Compiler ','').replace('User Interface Compiler for Qt', '')
+	self.msg('Checking for uic version', '%s' % uicver)
+	if uicver.find(' 3.') != -1:
+		self.fatal('this uic compiler is for qt3, add uic for qt4 to your path')
 
 	find_bin(['moc-qt4', 'moc'], 'QT_MOC')
 	find_bin(['rcc'], 'QT_RCC')
@@ -483,21 +484,93 @@ def configure(self):
 	env['MOC_ST'] = '-o'
 	env['ui_PATTERN'] = 'ui_%s.h'
 	env['QT_LRELEASE_FLAGS'] = ['-silent']
+	env.MOCCPPPATH_ST = '-I%s'
+	env.MOCDEFINES_ST = '-D%s'
 
-	vars = "QtCore QtGui QtUiTools QtNetwork QtOpenGL QtSql QtSvg QtTest QtXml QtWebKit Qt3Support".split()
-	vars_debug = [a+'_debug' for a in vars]
+@conf
+def find_qt4_libraries(self):
+	qtlibs = getattr(Options.options, 'qtlibs', '')
+	if not qtlibs:
+		try:
+			qtlibs = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_LIBS']).strip()
+		except Errors.WafError:
+			qtdir = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_PREFIX']).strip() + os.sep
+			qtlibs = os.path.join(qtdir, 'lib')
+	self.msg('Found the Qt4 libraries in', qtlibs)
 
+	qtincludes = self.cmd_and_log([self.env.QMAKE, '-query', 'QT_INSTALL_HEADERS']).strip()
+	env = self.env
 	if not 'PKG_CONFIG_PATH' in os.environ:
 		os.environ['PKG_CONFIG_PATH'] = '%s:%s/pkgconfig:/usr/lib/qt4/lib/pkgconfig:/opt/qt4/lib/pkgconfig:/usr/lib/qt4/lib:/opt/qt4/lib' % (qtlibs, qtlibs)
 
-	for i in vars_debug+vars:
-		try:
-			self.check_cfg(package=i, args='--cflags --libs')
-		except self.errors.ConfigurationError:
-			pass
+	try:
+		self.check_cfg(atleast_pkgconfig_version='0.1')
+	except self.errors.ConfigurationError:
+		for i in self.qt4_vars:
+			uselib = i.upper()
+			if sys.platform == "darwin":
+				# Since at least qt 4.7.3 each library locates in separate directory
+				frameworkName = i + ".framework"
+				qtDynamicLib = os.path.join(qtlibs, frameworkName, i)
+				if os.path.exists(qtDynamicLib):
+					env.append_unique('FRAMEWORK_' + uselib, i)
+					self.msg('Checking for %s' % i, qtDynamicLib, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtlibs, frameworkName, 'Headers'))
+			elif sys.platform != "win32":
+				qtDynamicLib = os.path.join(qtlibs, "lib" + i + ".so")
+				qtStaticLib = os.path.join(qtlibs, "lib" + i + ".a")
+				if os.path.exists(qtDynamicLib):
+					env.append_unique('LIB_' + uselib, i)
+					self.msg('Checking for %s' % i, qtDynamicLib, 'GREEN')
+				elif os.path.exists(qtStaticLib):
+					env.append_unique('LIB_' + uselib, i)
+					self.msg('Checking for %s' % i, qtStaticLib, 'GREEN')
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
 
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+			else:
+				# Release library names are like QtCore4
+				for k in ("lib%s.a", "lib%s4.a", "%s.lib", "%s4.lib"):
+					lib = os.path.join(qtlibs, k % i)
+					if os.path.exists(lib):
+						env.append_unique('LIB_' + uselib, i + k[k.find("%s") + 2 : k.find('.')])
+						self.msg('Checking for %s' % i, lib, 'GREEN')
+						break
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+
+				# Debug library names are like QtCore4d
+				uselib = i.upper() + "_debug"
+				for k in ("lib%sd.a", "lib%sd4.a", "%sd.lib", "%sd4.lib"):
+					lib = os.path.join(qtlibs, k % i)
+					if os.path.exists(lib):
+						env.append_unique('LIB_' + uselib, i + k[k.find("%s") + 2 : k.find('.')])
+						self.msg('Checking for %s' % i, lib, 'GREEN')
+						break
+				else:
+					self.msg('Checking for %s' % i, False, 'YELLOW')
+
+				env.append_unique('LIBPATH_' + uselib, qtlibs)
+				env.append_unique('INCLUDES_' + uselib, qtincludes)
+				env.append_unique('INCLUDES_' + uselib, os.path.join(qtincludes, i))
+	else:
+		for i in self.qt4_vars_debug + self.qt4_vars:
+			self.check_cfg(package=i, args='--cflags --libs', mandatory=False)
+
+@conf
+def simplify_qt4_libs(self):
 	# the libpaths make really long command-lines
 	# remove the qtcore ones from qtgui, etc
+	env = self.env
 	def process_lib(vars_, coreval):
 		for d in vars_:
 			var = d.upper()
@@ -514,10 +587,13 @@ def configure(self):
 					accu.append(lib)
 				env['LIBPATH_'+var] = accu
 
-	process_lib(vars, 'LIBPATH_QTCORE')
-	process_lib(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+	process_lib(self.qt4_vars,       'LIBPATH_QTCORE')
+	process_lib(self.qt4_vars_debug, 'LIBPATH_QTCORE_DEBUG')
 
+@conf
+def add_qt4_rpath(self):
 	# rpath if wanted
+	env = self.env
 	if Options.options.want_rpath:
 		def process_rpath(vars_, coreval):
 			for d in vars_:
@@ -532,8 +608,17 @@ def configure(self):
 								continue
 						accu.append('-Wl,--rpath='+lib)
 					env['RPATH_'+var] = accu
-		process_rpath(vars, 'LIBPATH_QTCORE')
-		process_rpath(vars_debug, 'LIBPATH_QTCORE_DEBUG')
+		process_rpath(self.qt4_vars,       'LIBPATH_QTCORE')
+		process_rpath(self.qt4_vars_debug, 'LIBPATH_QTCORE_DEBUG')
+
+@conf
+def set_qt4_libs_to_check(self):
+	if not hasattr(self, 'qt4_vars'):
+		self.qt4_vars = QT4_LIBS
+	self.qt4_vars = Utils.to_list(self.qt4_vars)
+	if not hasattr(self, 'qt4_vars_debug'):
+		self.qt4_vars_debug = [a + '_debug' for a in self.qt4_vars]
+	self.qt4_vars_debug = Utils.to_list(self.qt4_vars_debug)
 
 def options(opt):
 	"""

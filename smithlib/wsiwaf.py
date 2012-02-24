@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Context
+from waflib import Context, Task
 from wafplus import *
 import font, package, keyboard
 
@@ -25,11 +25,27 @@ def create(tgt, *cmds, **kw) :
         modify(res[0], tgt, res[1], **res[2])
     return tgt
 
-def cmd(c, inputs = [], **kw) :
-    def icmd(tgt) :
-        return (c, inputs, kw)
-    return icmd
+class cmd(object) :
+    def __init__(self, c, inputs = [], **kw) :
+        self.c = c
+        self.inputs = inputs
+        self.opts = kw
 
+    def __call__(self, tgt) :
+        return (self.c, self.inputs, self.opts)
+
+    def build(self, ctx, inputs, tgt, **kw) :
+        def repl(match) :
+            g = match.group
+            if g('dollar') : return '$'
+            elif g('backslash') : return '\\\\'
+            elif g('subst') :
+                if not g('code') and g('var') in kw :
+                    return kw[g('var')]
+                else : return '${' + g('var') + g('code') + '}'
+        if kw : c = Task.reg_act.sub(repl, self.c)
+        return ctx(rule = c, source = inputs, target = tgt)
+        
 def onload(ctx) :
     varmap = { 'process' : process, 'create' : create, 'cmd' : cmd, 
                'init' : init

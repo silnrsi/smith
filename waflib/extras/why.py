@@ -3,10 +3,13 @@
 # Thomas Nagy, 2010 (ita)
 
 """
-# TODO
+This tool modifies the task signature scheme to store and obtain
+information about the task execution (why it must run, etc)::
 
-a waf tool that modifies the task signature scheme to store and obtain
-information about the task execution (why it must run, etc)
+	def configure(conf):
+		conf.load('why')
+
+After adding the tool, a full rebuild is necessary.
 """
 
 from waflib import Task, Utils, Logs, Errors

@@ -21,6 +21,10 @@ Example::
 			deps     = 'crossreferencing.lst', # to give dependencies directly
 			prompt   = 1, # 0 for the batch mode
 			)
+
+To configure with a special program use::
+
+	$ PDFLATEX=luatex waf configure
 """
 
 import os, re
@@ -113,26 +117,25 @@ class tex(Task.Task):
 		def parse_node(node):
 			if node in seen:
 				return
-			seen.append(node
-)
+			seen.append(node)
 			code = node.read()
 			global re_tex
 			for match in re_tex.finditer(code):
-				path = match.group('file')
-				if path:
-					add_name = True
-					found = None
-					for k in exts_deps_tex:
-						debug('tex: trying %s%s' % (path, k))
-						found = node.parent.find_resource(path + k)
-						if found:
-							nodes.append(found)
-							add_name = False
-							if found.name.endswith('.tex') or found.name.endswith('.ltx'):
-								parse_node(found)
-						# no break, people are crazy
-					if add_name:
-						names.append(path)
+				for path in match.group('file').split(','):
+					if path:
+						add_name = True
+						found = None
+						for k in exts_deps_tex:
+							debug('tex: trying %s%s' % (path, k))
+							found = node.parent.find_resource(path + k)
+							if found and not found in self.outputs:
+								nodes.append(found)
+								add_name = False
+								if found.name.endswith('.tex') or found.name.endswith('.ltx'):
+									parse_node(found)
+							# no break, people are crazy
+						if add_name:
+							names.append(path)
 		parse_node(node)
 
 		for x in nodes:
@@ -236,7 +239,9 @@ class tex(Task.Task):
 
 		node = self.inputs[0]
 		srcfile = node.abspath()
-		self.TEXINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep
+
+		texinputs = self.env.TEXINPUTS or ''
+		self.TEXINPUTS = node.parent.get_bld().abspath() + os.pathsep + node.parent.get_src().abspath() + os.pathsep + texinputs + os.pathsep
 
 		self.aux_node = node.change_ext('.aux')
 		self.idx_node = node.change_ext('.idx')

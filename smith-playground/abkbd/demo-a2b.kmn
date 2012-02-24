@@ -1,0 +1,16 @@
+c 
+c Sample Keyboard: demo-a2b
+c 
+c Provided by: SIL International
+c              
+c
+c Fonts: demofont.ttf
+c
+
+NAME "demo"
+VERSION 6.0
+
+begin Unicode > use(Umain)
+
+group (Umain) using keys
++ 'a' > u+0062

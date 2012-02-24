@@ -49,7 +49,7 @@ def link_lib_test_fun(self):
 	bld(rule=write_test_file, target='test.' + mode, code=LIB_CODE)
 	bld(rule=write_test_file, target='main.' + mode, code=MAIN_CODE)
 	bld(features= m + 'shlib', source='test.' + mode, target='test')
-	bld(features= m + 'program test_exec', source='main.c', target='app', use='test', rpath=rpath)
+	bld(features= m + 'program test_exec', source='main.' + mode, target='app', use='test', rpath=rpath)
 
 @conf
 def check_library(self, mode=None):
@@ -148,23 +148,25 @@ def check_large_file(self, **kw):
 	kw['fragment'] = LARGE_FRAGMENT
 
 	kw['msg'] = 'Checking for large file support'
+	ret = True
 	try:
 		if self.env.DEST_BINFMT != 'pe':
-			self.check(**kw)
+			ret = self.check(**kw)
 	except self.errors.ConfigurationError:
 		pass
 	else:
-		return True
+		if ret:
+			return True
 
 	kw['msg'] = 'Checking for -D_FILE_OFFSET_BITS=64'
 	kw['defines'] = ['_FILE_OFFSET_BITS=64']
 	try:
-		self.check(**kw)
+		ret = self.check(**kw)
 	except self.errors.ConfigurationError:
 		pass
 	else:
 		self.define('_FILE_OFFSET_BITS', 64)
-		return True
+		return ret
 
 	self.fatal('There is no support for large files')
 

@@ -32,7 +32,7 @@ from waflib import Utils, TaskGen
 @TaskGen.feature('*')
 @TaskGen.before('process_source', 'process_rule', 'apply_incpaths', 'apply_link')
 def transform_strings(self):
-	for x in 'includes target source uselib_local libpath linkflags'.split():
+	for x in 'includes target source use libpath linkflags'.split():
 		val = getattr(self, x, None)
 		if val:
 			if isinstance(val, str):

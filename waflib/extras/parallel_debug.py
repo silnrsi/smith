@@ -3,8 +3,15 @@
 # Thomas Nagy, 2007-2010 (ita)
 
 """
-debugging helpers for parallel compilation, outputs
-a svg file in the build directory
+Debugging helper for parallel compilation, outputs
+a file named pdebug.svg in the source directory::
+
+	def options(opt):
+		opt.load('parallel_debug')
+	def configure(conf):
+		conf.load('parallel_debug')
+	def build(bld):
+   	 ...
 """
 
 import os, time, sys
@@ -18,7 +25,7 @@ from waflib import Runner, Options, Utils, Task, Logs, Errors
 def options(opt):
 	opt.add_option('--dtitle', action='store', default='Parallel build representation for %r' % ' '.join(sys.argv),
 		help='title for the svg diagram', dest='dtitle')
-	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=500, dest='dwidth')
+	opt.add_option('--dwidth', action='store', type='int', help='diagram width', default=800, dest='dwidth')
 	opt.add_option('--dtime', action='store', type='float', help='recording interval in seconds', default=0.009, dest='dtime')
 	opt.add_option('--dband', action='store', type='int', help='band width', default=22, dest='dband')
 	opt.add_option('--dmaxtime', action='store', type='float', help='maximum time, for drawing fair comparisons', default=0, dest='dmaxtime')
@@ -71,7 +78,7 @@ def process(self):
 		self.generator.bld.returned_tasks.append(self)
 		self.log_display(self.generator.bld)
 		ret = self.run()
-	except Exception as e:
+	except Exception:
 		self.err_msg = Utils.ex_stack()
 		self.hasrun = Task.EXCEPTION
 
@@ -116,6 +123,9 @@ Runner.Parallel.start = do_start
 def set_running(self, by, i, tsk):
 	self.taskinfo.put( (i, id(tsk), time.time(), tsk.__class__.__name__, self.processed, self.count, by)  )
 Runner.Parallel.set_running = set_running
+
+def name2class(name):
+	return name.replace(' ', '_').replace('.', '_')
 
 def process_colors(producer):
 	# first, cast the parameters
@@ -213,7 +223,55 @@ def process_colors(producer):
 <svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.0\"
    x=\"%r\" y=\"%r\" width=\"%r\" height=\"%r\"
    id=\"svg602\" xml:space=\"preserve\">
-<defs id=\"defs604\" />\n
+
+<style type='text/css' media='screen'>
+	g.over rect  { stroke:#FF0000; fill-opacity:0.4 }
+</style>
+
+<script type='text/javascript'><![CDATA[
+var svg  = document.getElementsByTagName('svg')[0];
+
+svg.addEventListener('mouseover', function(e) {
+	var g = e.target.parentNode;
+	var x = document.getElementById('r_' + g.id);
+	if (x) {
+		g.setAttribute('class', g.getAttribute('class') + ' over');
+		x.setAttribute('class', x.getAttribute('class') + ' over');
+		showInfo(e, g.id);
+	}
+}, false);
+
+svg.addEventListener('mouseout', function(e) {
+		var g = e.target.parentNode;
+		var x = document.getElementById('r_' + g.id);
+		if (x) {
+			g.setAttribute('class', g.getAttribute('class').replace(' over', ''));
+			x.setAttribute('class', x.getAttribute('class').replace(' over', ''));
+			hideInfo(e);
+		}
+}, false);
+
+function showInfo(evt, txt) {
+	tooltip = document.getElementById('tooltip');
+
+	var t = document.getElementById('tooltiptext');
+	t.firstChild.data = txt;
+
+	var x = evt.clientX + 9;
+	if (x > 250) { x -= t.getComputedTextLength() + 16; }
+	var y = evt.clientY + 20;
+	tooltip.setAttribute("transform", "translate(" + x + "," + y + ")");
+	tooltip.setAttributeNS(null, "visibility", "visible");
+
+	var r = document.getElementById('tooltiprect');
+	r.setAttribute('width', t.getComputedTextLength() + 6);
+}
+
+function hideInfo(evt) {
+	var tooltip = document.getElementById('tooltip');
+	tooltip.setAttributeNS(null,"visibility","hidden");
+}
+]]></script>
 
 <!-- inkscape requires a big rectangle or it will not export the pictures properly -->
 <rect
@@ -230,12 +288,23 @@ def process_colors(producer):
 """ % (gwidth/2, gheight - 5, Options.options.dtitle))
 
 	# the rectangles
+
+	groups = {}
 	for (x, y, w, h, clsname) in acc:
-		out.append("""<rect
+		try:
+			groups[clsname].append((x, y, w, h))
+		except:
+			groups[clsname] = [(x, y, w, h)]
+	for cls in groups:
+		out.append("<g id='%s'>\n" % name2class(cls))
+
+		for (x, y, w, h) in groups[cls]:
+			out.append("""<rect
    x='%r' y='%r'
    width='%r' height='%r'
-   style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
-   />\n""" % (2 + x*ratio, 2 + y, w*ratio, h, map_to_color(clsname)))
+   style=\"font-size:10;fill:%s;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;\"
+   />\n""" % (2 + x*ratio, 2 + y, w*ratio, h, map_to_color(cls)))
+		out.append("</g>\n")
 
 	# output the caption
 	cnt = THREAD_AMOUNT
@@ -243,17 +312,23 @@ def process_colors(producer):
 	for (text, color) in info:
 		# caption box
 		b = BAND/2
-		out.append("""<rect
+		out.append("""<g id='r_%s'><rect
 		x='%r' y='%r'
 		width='%r' height='%r'
-		style=\"font-size:10;fill:%s;fill-opacity:1.0;fill-rule:evenodd;stroke:#000000;\"
-  />\n""" %                       (2 + BAND,     5 + (cnt + 0.5) * BAND, b, b, color))
+		style=\"font-size:10;fill:%s;fill-rule:evenodd;stroke:#000000;stroke-width:0.4;\"
+  />\n""" %                       (name2class(text), 2 + BAND,     5 + (cnt + 0.5) * BAND, b, b, color))
 
 		# caption text
 		out.append("""<text
    style="font-size:12px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
-   x="%r" y="%d">%s</text>\n""" % (2 + 2 * BAND, 5 + (cnt + 0.5) * BAND + 10, text))
+   x="%r" y="%d">%s</text></g>\n""" % (2 + 2 * BAND, 5 + (cnt + 0.5) * BAND + 10, text))
 		cnt += 1
+
+	out.append("""
+<g transform="translate(0,0)" visibility="hidden" id="tooltip">
+  <rect id="tooltiprect" y="-15" x="-3" width="1" height="20" style="stroke:black;fill:#edefc2;stroke-width:1"/>
+  <text id="tooltiptext" style="font-family:Arial; font-size:12;fill:black;"> </text>
+</g>""")
 
 	out.append("\n</svg>")
 

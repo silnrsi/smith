@@ -27,18 +27,13 @@ pali {
 endtable;
 
 
-table (glyph)
-    cToneMark_low = unicode(0xF70A .. 0xF70E)
-    cToneMark = unicode(0x0E48 .. 0x0E4C)
-endtable;
-
 table (substitution)
 pass(1)
     // Latin f(f?)[fil] ligatures
     g_f (g_f, g_i, g_l) > _ (g_ff, g_fi, g_fl):(1 2) / _ ^ _;
     g_ff (g_i, g_l)     > _ (g_ffi, g_ffl):(1 2);
-    _ g0e33 > g0e4d g0e32 / _ cToneMark? _ ;
-    cToneMark > cToneMark_low / cnTakesAboveMarkDia _;
+    _ g0e33 > g0e4d g0e32 / _ cno_low? _ ;
+    cno_low > clow / cnTakesAboveMarkDia _;
     cno_uline g0331 > culine:(1 3) _ / _ cBelowBaseDia? _;
 
 if (bclr)
