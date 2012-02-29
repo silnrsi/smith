@@ -137,7 +137,7 @@ class Legacy(object) :
             setattr(self, k, v)
 
     def get_build_tools(self) :
-        if self.source.endswith(".ttf") :
+        if self.source.lower().endswith(".ttf") :
             res = ["ttfbuilder"]
             if self.target.endswith('.sfd') :
                 res.append("fontforge")
@@ -153,7 +153,7 @@ class Legacy(object) :
     def build(self, bld, targetap) :
         cmd = " " + getattr(self, 'params', "")
         srcs = [self.source, self.xml]
-        if self.source.endswith(".ttf") :
+        if self.source.lower().endswith(".ttf") :
             if hasattr(self, 'ap') :
                 srcs.append(self.ap)
                 cmd += " -x ${SRC[2].bldpath()}"
