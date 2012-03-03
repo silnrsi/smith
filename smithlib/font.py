@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Context
+from waflib import Context, Logs
 from wafplus import modify
 import font_tests, package, keyboard
 import sys, os, re
@@ -71,6 +71,8 @@ class Font(object) :
     def build(self, bld) :
         res = {}
 
+        if self.source == self.target :
+            Logs.error("Font source may not be the same as the target: '%s'" % self.target)
         # convert from legacy
         if hasattr(self, 'legacy') :
             self.legacy.build(bld, getattr(self, 'ap', None))
