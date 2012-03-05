@@ -35,6 +35,10 @@ class Keyboard(object) :
         except:
             path = os.path.join(os.getenv('HOME'), '.wine', 'drive_c', 'Program Files', 'Tavultesoft', 'Keyman Developer', 'kmcomp.exe')
             if os.path.exists(path) : ctx.env['KMCOMP'] = 'wine "' + path + '"'
+        self.ensure_fontdir(ctx)
+        return res
+
+    def ensure_fontdir(self, ctx) :
         if hasattr(self, 'fontdir') :
             fdir = ctx.bldnode.make_node(self.fontdir)
             fdir.mkdir()
@@ -49,8 +53,6 @@ class Keyboard(object) :
 </fontconfig>
 ''' % (fdir.abspath(), fdir.abspath())
                 fconf.write(dat)
-
-        return res
 
     def get_targets(self, ctx) :
         res = []
@@ -79,6 +81,7 @@ class Keyboard(object) :
 
     def build_pdf(self, bld) :
         allpdfs = []
+        self.ensure_fontdir(bld)
         for m in getattr(self, 'modifiers', ['']) :
             self.build_svg(bld, m)
             if m or hasattr(self, 'modifiers') :

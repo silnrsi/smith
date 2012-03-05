@@ -192,8 +192,8 @@ class Package(object) :
 
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname
-        kbds = []
-        fonts = []
+        kbds = list(self.keyboards)
+        fonts = list(self.fonts)
         def procpkg(p, c) :
             for k in p.keyboards :
                 k.setup_vars(c)
