@@ -202,18 +202,19 @@ class Volt(Internal) :
         return [getattr(self, 'master', None)]
 
     def build(self, bld, target, tgen, font) :
-        cmd = getattr(self, 'make_params', '') + " "
-        ind = 0
-        srcs = []
-        if hasattr(font, 'ap') :
-            srcs.append(bld.path.find_or_declare(font.ap))
-            cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
-            ind += 1
-        if hasattr(self, 'master') :
-            srcs.append(self.master)
-            cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
-            ind += 1
-        bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+        if not hasattr(self, 'no_make_volt') :
+            cmd = getattr(self, 'make_params', '') + " "
+            ind = 0
+            srcs = []
+            if hasattr(font, 'ap') :
+                srcs.append(bld.path.find_or_declare(font.ap))
+                cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
+                ind += 1
+            if hasattr(self, 'master') :
+                srcs.append(self.master)
+                cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
+                ind += 1
+            bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
         modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
 
 
