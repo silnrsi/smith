@@ -305,6 +305,7 @@ class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
 
     def execute_build(self) :
+        self.recurse([self.run_dir], 'srcdist')
         res = set(['wscript'])
         files = {}
         if os.path.exists('debian') :

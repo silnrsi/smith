@@ -10,11 +10,11 @@ def preprocess_args(*opts) :
     for o in opts:
         for a in sys.argv :
             if a.startswith(o['opt']) :
-                key, val = a.split('=')
-                if val :
-                    res[key] = val
+                if '=' in a :
+                    key, val = a.split('=')
+                    res[key.strip()] = val.strip()
                 else :
-                    res[key] = 1
+                    res[a.strip()] = 1
                 sys.argv.remove(a)
     return res
 

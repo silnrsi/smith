@@ -103,7 +103,7 @@ class Font(object) :
         if hasattr(self, 'ap') :
             if not hasattr(self, 'legacy') :
                 apnode = bld.path.find_or_declare(self.ap)
-                if self.source.endswith(".sfd") :
+                if self.source.endswith(".sfd") and not os.path.exists(apnode.abspath()) :
                     apopts = getattr(self, 'ap_params', "")
                     bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
                 else :
