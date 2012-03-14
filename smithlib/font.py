@@ -103,7 +103,7 @@ class Font(object) :
         if hasattr(self, 'ap') :
             if not hasattr(self, 'legacy') :
                 apnode = bld.path.find_or_declare(self.ap)
-                if self.source.endswith(".sfd") and not os.path.exists(apnode.abspath()) :
+                if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
                     bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
                 else :
@@ -236,21 +236,22 @@ class Gdl(Internal) :
         if self.master : srcs.append(self.master)
         modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, srcs, path = bld.srcnode.find_node('wscript').abspath())
         if self.source :
-            srcs = []
-            cmd = getattr(self, 'make_params', '') + " "
-            ind = 0
-            if hasattr(font, 'ap') :
-                srcs.append(bld.path.find_or_declare(font.ap))
-                cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
-                ind += 1
-            if self.master :
-                srcs.append(self.master)
-                mnode = bld.path.find_or_declare(self.master)
-                snode = bld.bldnode.find_or_declare(self.source)
-                loc = mnode.path_from(snode.parent)
-                cmd += '-i "' + loc + '" '
-                ind += 1
-            bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+            if not hasattr(self, 'no_make_gdl') :
+                srcs = []
+                cmd = getattr(self, 'make_params', '') + " "
+                ind = 0
+                if hasattr(font, 'ap') :
+                    srcs.append(bld.path.find_or_declare(font.ap))
+                    cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
+                    ind += 1
+                if self.master :
+                    srcs.append(self.master)
+                    mnode = bld.path.find_or_declare(self.master)
+                    snode = bld.bldnode.find_or_declare(self.source)
+                    loc = mnode.path_from(snode.parent)
+                    cmd += '-i "' + loc + '" '
+                    ind += 1
+                bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
         elif self.master :
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")

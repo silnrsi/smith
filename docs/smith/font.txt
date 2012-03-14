@@ -33,6 +33,9 @@ source::
 version::
     This takes a version number in the form 'x'.'y' (a floating point number) and sets the output font to have that version.
 
+sfd_master::
+    This attribute specifies a fontforge file that should be merged with the source fontforge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.
+
 ap::
     Attachment point database associated with the source font.
 
@@ -97,6 +100,9 @@ make_params::
 params::
     These parameters are passed to volt2ttf to modify the compiling of the volt source into opentype tables.
 
+no_make_volt::
+    If this attribute is present, make_volt isn't run and the first parameter is assumed to be the specific .vtp for this font.
+
 === Graphite ===
 
 Adding graphite tables to a font is much like adding volt information. The relevant files are declared either to the font or a `gdl()` object. For example:
@@ -123,6 +129,8 @@ make_params::
 params::
     Parameters to pass to `grcompiler` to control the compilation of graphite source to graphite tables in the font.
 
+no_make_gdl::
+    If this attribute is present, make_gdl is not run and the first parameter is assumed to be the gdl for the specific font.
 === Legacy Fonts ===
 
 Many fonts are actually built from another font, either legacy encoded or generated from a source font or fonts. This can be achieved by giving a `legacy()` object as the `source` attribute for the font. For example, for a font generated from a legacy font using `ttfbuilder` we might do:
