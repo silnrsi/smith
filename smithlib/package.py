@@ -234,7 +234,12 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
-        try: res.append((bld.path.abspath(), os.path.relpath(bld.path.find_or_declare(self.license).abspath(), bld.path.abspath())))
+        try:
+            licensenode = bld.path.find_or_declare(self.license)
+            if licensenode.is_src() :
+                res.append((bld.path.abspath(), licensnode.srcpath()))
+            else :
+                res.append((bld.bldnode.abspath(), licensenode.bldpath()))
         except: pass
         for f in self.fonts :
             res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
@@ -247,7 +252,6 @@ class Package(object) :
 
 class exeContext(Build.BuildContext) :
     cmd = 'exe'
-
     def pre_build(self) :
         if hasattr(self, 'issub') : return
         if Options.options.debug :
