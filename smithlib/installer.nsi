@@ -349,6 +349,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 -
 
     LidStart:
+    ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
     IfErrors LidDone
