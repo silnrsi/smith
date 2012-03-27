@@ -312,7 +312,7 @@ class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
 
     def execute_build(self) :
-        self.recurse([self.run_dir], 'srcdist')
+        self.recurse([self.run_dir], 'srcdist', mandatory = False)
         res = set(['wscript'])
         files = {}
         if os.path.exists('debian') :
@@ -328,12 +328,17 @@ class srcdistContext(Build.BuildContext) :
                 files[f] = n
         import tarfile
 
-        tarname = getattr(Context.g_module, 'SRCDIST', 'srcdist')
+        tarname = getattr(Context.g_module, 'SRCDIST', None)
+        if not tarname :
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + getattr(Context.g_module, 'VERSION', "0.0")
+            tarname = tarbase + "_srcdist"
+        else :
+            tarbase = tarname
         tar = tarfile.open(tarname + '.tar.gz', 'w:gz')
         for f in sorted(files.keys()) :
             if f.startswith('../') : continue
             if files[f] :
-                tar.add(files[f].abspath(), arcname = os.path.join(tarname, f))
+                tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
         tar.close()
 
 class makedebianContext(Build.BuildContext) :
