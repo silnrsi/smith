@@ -334,6 +334,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     NoEkaya32:
     FileOpen $UninstFile "$INSTDIR\${Uninst}" w
 
+    FileWrite $UninstFile "IAFFM 0$\r$\n"
 +for k in kbds : m = getattr(k, 'mskbd', None);
 + if m :
     IntOp $R1 0 + @m.lid@
@@ -348,7 +349,9 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ${Endif}
 -
 
+    FileWrite $UninstFile "IAFFM 1$\r$\n"
     LidStart:
+    FileWrite $UninstFile "IAFFM 2$\r$\n"
     ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
@@ -359,6 +362,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         Goto LidStart
 
     LidDone:
+    FileWrite $UninstFile "IAFFM 3$\r$\n"
     WriteRegStr HKLM $R5 \
         "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
     WriteRegStr HKLM $R5 \
