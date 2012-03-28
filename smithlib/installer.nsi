@@ -32,41 +32,39 @@ SetCompressor lzma
 !insertmacro GetParent
 !insertmacro un.GetFileName
 
-!ifmacrondef GetFileNameCall
-        !macro GetFileNameCall _PATHSTRING _RESULT
+!ifmacrondef GetUnixFileNameCall
+        !macro GetUnixFileNameCall _PATHSTRING _RESULT
                 Push `${_PATHSTRING}`
-              	Call GetFileName
+              	Call GetUnixFileName
                	Pop ${_RESULT}
         !macroend
 !endif
 
-!ifndef GetFileName
-	!define GetFileName `!insertmacro GetFileNameCall`
+!define GetUnixFileName `!insertmacro GetUnixFileNameCall`
 
-	Function GetFileName
-		Exch $0
-		Push $1
-		Push $2
+Function GetUnixFileName
+    Exch $0
+    Push $1
+    Push $2
 
-		StrCpy $2 $0 1 -1
-		StrCmp $2 '/' 0 +3
-		StrCpy $0 $0 -1
-		goto -3
+    StrCpy $2 $0 1 -1
+    StrCmp $2 '/' 0 +3
+    StrCpy $0 $0 -1
+    goto -3
 
-		StrCpy $1 0
-		IntOp $1 $1 - 1
-		StrCpy $2 $0 1 $1
-		StrCmp $2 '' end
-		StrCmp $2 '/' 0 -3
-		IntOp $1 $1 + 1
-		StrCpy $0 $0 '' $1
+    StrCpy $1 0
+    IntOp $1 $1 - 1
+    StrCpy $2 $0 1 $1
+    StrCmp $2 '' end
+    StrCmp $2 '/' 0 -3
+    IntOp $1 $1 + 1
+    StrCpy $0 $0 '' $1
 
-		end:
-		Pop $2
-		Pop $1
-		Exch $0
-	FunctionEnd
-!endif
+    end:
+    Pop $2
+    Pop $1
+    Exch $0
+FunctionEnd
 
 ### End Code From ###
 
@@ -80,7 +78,7 @@ SetCompressor lzma
   !define Index 'Line${__LINE__}'
   
 ; Get the Font's File name
-  ${GetFileName} ${FontFile} $0
+  ${GetUnixFileName} ${FontFile} $0
   !define FontFileName $0
 
   SetOutPath ${FONT_DIR}
@@ -207,7 +205,7 @@ FunctionEnd
   !define Index 'Line${__LINE__}'
   
 ; Get the Font's File name
-  ${GetFileName} ${FontFile} $0
+  ${GetUnixFileName} ${FontFile} $0
   !define FontFileName $0
 
   IfFileExists "${FONT_DIR}\${FontFileName}" ${Index} "${Index}-End"
