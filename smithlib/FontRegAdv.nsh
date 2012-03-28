@@ -27,7 +27,7 @@ var FONT_DIR
 		Push $2
 
 		StrCpy $2 $0 1 -1
-		StrCmp $2 '\' 0 +3
+		StrCmp $2 '/' 0 +3
 		StrCpy $0 $0 -1
 		goto -3
 
@@ -35,7 +35,7 @@ var FONT_DIR
 		IntOp $1 $1 - 1
 		StrCpy $2 $0 1 $1
 		StrCmp $2 '' end
-		StrCmp $2 '\' 0 -3
+		StrCmp $2 '/' 0 -3
 		IntOp $1 $1 + 1
 		StrCpy $0 $0 '' $1
 
@@ -104,7 +104,6 @@ ${Index}:
   ReadRegStr $R0 HKLM "$R1" "$R2"
   StrCmp $R0 "" 0 "${Index}-End"
     WriteRegStr HKLM "$R1" "$R2" "${FontFileName}"
-    FileWrite $UninstFile "$R1/$R2->${FontFileName}$\r$\n"
     goto "${Index}-End"
 
 "${Index}-End:"
