@@ -349,20 +349,15 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ${Endif}
 -
 
-    FileWrite $UninstFile "IAFFM 1$\r$\n"
     LidStart:
-    FileWrite $UninstFile "IAFFM 2$\r$\n"
     ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
-    FileWrite $UninstFile "$R5 -> $0$\r$\n"
     StrCmp $0 "" LidDone
-;    IfErrors LidDone
         IntOp $R1 $R1 + 0x10000
         Goto LidStart
 
     LidDone:
-    FileWrite $UninstFile "IAFFM 3$\r$\n"
     WriteRegStr HKLM $R5 \
         "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
     WriteRegStr HKLM $R5 \
@@ -374,7 +369,6 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     WriteRegStr HKLM $R5 \
         "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
     FileWrite $UninstFile "$R5$\r$\n"
-    FileWrite $UninstFile "IAFFM 4$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR
     ${If} ${RunningX64}
@@ -383,9 +377,10 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 +  for l in getattr(m, 'lidinstall', []) :
     StrCpy $R2 @l@
     LidInstall:
+      ClearErrors
       IntFmt $R5 "%08X" $R2
-      ReadRegStr $0 HKCU "Keyboard Layout\Substitutes" $R2
-      IfErrors LidInstallDone
+      ReadRegStr $0 HKCU "Keyboard Layout\Substitutes" $R5
+      Strcmp $0 "" LidInstallDone
         IntOp $R2 $R2 + 0x10000
         Goto LidInstall
 
@@ -513,9 +508,9 @@ Section "Uninstall"
     FileOpen $UninstFile "$INSTDIR\${Uninst}" r
     loopkbd:
       ClearErrors
-      FileRead $UninstFile $R1
+      FileRead $UninstFile $R5
       IfErrors donekbdloop
-      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
+;      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
       DeleteRegKey HKLM $R5
       StrCpy $1 0
       loopinstalledkbd:

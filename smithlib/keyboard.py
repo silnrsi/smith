@@ -140,7 +140,9 @@ class MSKBD(object) :
         self.setup_vars(bld, parent)
         linkermap = bld.bldnode.make_node("linker.script")
         linkermap.write("SECTIONS { /DISCARD/ : {*(.pdata .xdata)} .data __image_base__ + __section_alignment__ : {*(.data .rdata .text)} }")
-        bld(rule = '${KMN2C} -o ${TGT[0]} ${SRC}', source = self.source, target = [self.c_file, self.rc_file])
+        kmn2copts = ' '
+        if hasattr(self, 'langname') : kmn2copts += "--langname=" + self.langname
+        bld(rule = '${KMN2C} -o ${TGT[0]}' + kmn2copts + ' ${SRC}', source = self.source, target = [self.c_file, self.rc_file])
         for p in self.arches :
             if bld.env[(p+'gcc').upper()] :
                 ofile = self.o_file.replace('.', '-'+p[-2:]+'.', 1)        # p[-2:] is 86 or 64, which is a bit sneaky
