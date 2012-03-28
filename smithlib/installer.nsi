@@ -15,6 +15,7 @@
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 var UninstFile
+var LogFile
 !define Uninst "UnInstall.log"
 
 SetCompressor lzma
@@ -81,6 +82,7 @@ FunctionEnd
   ${GetUnixFileName} ${FontFile} $0
   !define FontFileName $0
 
+  FileWrite $LogFile "${FontFileName} - ${FontFile}$\r$\n"
   SetOutPath ${FONT_DIR}
   IfFileExists "${FONT_DIR}\${FontFileName}" ${Index} "${Index}-New"
   
@@ -123,6 +125,7 @@ ${Index}:
   ClearErrors
   ReadRegStr $R0 HKLM "$R1" "$R2"
   StrCmp $R0 "" 0 "${Index}-End"
+    FileWrite $LogFile "${FontFileName} - ${FontFile}$\r$\n"
     WriteRegStr HKLM "$R1" "$R2" "${FontFileName}"
     goto "${Index}-End"
 
@@ -442,6 +445,7 @@ ${Index}:
 
 Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 
+  FileOpen $LogFile "$INSTDIR\logging.txt" w
   SetOutPath "$WINDIR\Fonts"
   
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Version"
