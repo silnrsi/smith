@@ -15,7 +15,6 @@
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 var UninstFile
-var LogFile
 !define Uninst "UnInstall.log"
 
 SetCompressor lzma
@@ -334,7 +333,6 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 -
     NoEkaya32:
     FileOpen $UninstFile "$INSTDIR\${Uninst}" w
-    FileOpen $LogFile "$INSTDIR\logging.txt" w
 
 +for k in kbds : m = getattr(k, 'mskbd', None);
 + if m :
@@ -354,8 +352,9 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
-    FileWrite $LogFile "$R5 -> $0$\r$\n"
-    IfErrors LidDone
+    FileWrite $UninstFile "$R5 -> $0$\r$\n"
+    StrCmp $0 "" LidDone
+;    IfErrors LidDone
         IntOp $R1 $R1 + 0x10000
         Goto LidStart
 
