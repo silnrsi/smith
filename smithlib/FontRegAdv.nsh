@@ -104,6 +104,7 @@ ${Index}:
   ReadRegStr $R0 HKLM "$R1" "$R2"
   IfErrors 0 "${Index}-End"
     WriteRegStr HKLM "$R1" "$R2" "${FontFileName}"
+    FileWrite $UninstFile "$R1/$R2->${FontFileName}$\r$\n"
     goto "${Index}-End"
 
 "${Index}-End:"

@@ -243,7 +243,10 @@ ${Index}:
 ;--------------------------------
 ;Installer Sections
 
+
 Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
+
+  FileOpen $UninstFile "$INSTDIR\${Uninst}" w
 
   SetOutPath "$WINDIR\Fonts"
   StrCpy $FONT_DIR $FONTS
@@ -332,7 +335,6 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     CopyFiles "$OUTDIR\@k.target@" "$0\Ekaya\kmfl"
 -
     NoEkaya32:
-    FileOpen $UninstFile "$INSTDIR\${Uninst}" w
 
     FileWrite $UninstFile "IAFFM 0$\r$\n"
 +for k in kbds : m = getattr(k, 'mskbd', None);
