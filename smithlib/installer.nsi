@@ -373,7 +373,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         "Layout Product Code" "{@m.guid@}"
     WriteRegStr HKLM $R5 \
         "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
-    FileWrite $UninstFile "$R1$\r$\n"
+    FileWrite $UninstFile "$R5$\r$\n"
     FileWrite $UninstFile "IAFFM 4$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR
