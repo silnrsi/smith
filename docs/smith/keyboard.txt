@@ -3,10 +3,10 @@
 Keyboard objects (`kbd()`) are much simpler than fonts. There are a number of attributes associated with a keyboard and they are listed here along with their default values:
 
 source::
-    The source file is a keyman keyboard source file with extension `.kmn`. (Required)
+    The source file is a Keyman keyboard source file with extension `.kmn`. (Required)
 
 target::
-    The target file is the compiled keyman keyboard and defaults to the source `.kmn` file with kmn replaced as `.kmx`
+    The target file is the compiled Keyman keyboard and defaults to the source `.kmn` file with kmn replaced as `.kmx`
 
 The following are attributes specific to generating a sample layout of the keyboard:
 
