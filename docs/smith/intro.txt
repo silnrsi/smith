@@ -12,7 +12,7 @@ any version control system. In addition a file `wscript` needs to be created
 to control the build process. This wscript file is in fact a python program
 but the way it is run is designed to hide that as much from the unsuspecting
 user as possible. Thus only those who want to get into the programming aspects
-need do.
+need to.
 
 In terms of necessary tools that smith makes use of, the details are listed
 in the parts of documentation specific to the tools that get used.
@@ -36,7 +36,7 @@ smith configure
 This process creates the build directory, checks that all the tools that smith
 needs to achieve the build as described in `wscript` are available, and sets
 up various internal environment variables. Thus if any changes are made to the
-`wscript` that change what tools are needed, then the `configure` command needs
+`wscript` that indicate what extra tools are needed, then the `configure` command needs
 to be rerun.
 
 After configuration it is possible to build the system. This is done using:
@@ -78,7 +78,13 @@ Creates a zip appropriate for a source package.
 smith clean
 ----
 
-Not sure what this does.
+Removes the various files created by `smith build` in the build directory.
+
+----
+smith distclean
+----
+
+Removes the build directory completely.
 
 === Writing wscript ===
 
@@ -86,7 +92,7 @@ The `wscript` file is a python program, but the internal program environment is 
 
 The basic process of describing a build process is to create writing system component objects. These objects are `font()`, `kbd()` and `package()`. Specific details on what information each of these objects requires is given in the corresponding sections of this document. Likewise examples are given in the sections.
 
-The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the `wscript` writer to take more control over the build process. The functions described here should be considered advanced, and the beginning author should not need to concern themselves with them initially.
+The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the `wscript` writer to take more control over the build process. The functions described here should be considered advanced, and the beginning authors should not need to concern themselves with them initially.
 
 cmd()::
     The `cmd()` function specifies are command to run as a string, then a list of dependent input files that are referenced via `${SRC}` in the command string. The target (which is given by the context of `cmd()` function is accessible via the ${TGT} string.
@@ -95,5 +101,5 @@ create()::
     The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function.
 
 process()::
-    This function does an in place modifiction of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section.
+    This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section.
 
