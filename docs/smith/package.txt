@@ -2,7 +2,7 @@
 
 Once a set of writing system components have been created, there is the need to package them for distribution. smith works to make that as simple but as powerful as appropriate. Each writing system component (`font`, `kbd`) has an optional `package` attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition a global package object is created into which go all the components for which no `package` attribute has been set.
 
-The global package can take its parameters from the wscript file as global variables with the same name as the attribute, but with the name uppper cased.
+The global package can take its parameters from the wscript file as global variables with the same name as the attribute, but with the name uppercased.
 
 The attributes to package are:
 
@@ -31,7 +31,7 @@ license::
     License file to use within the package.
 
 reservedofl::
-    If set, uses the OFL and assembles a list of reserved words from the constiuent fonts for use within it.
+    If set, uses the OFL and assembles a list of reserved font names from the constituent fonts for use within it.
 
 zipfile::
     Name of zip file to use when creating smith zip. Is auto-generated if not set, based on appname and version.
