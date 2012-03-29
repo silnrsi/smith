@@ -10,7 +10,7 @@ If you need a suggestion of where to place all the needed files, the following d
 
 Create a directory to work in. We will use the directory `fontwork\`. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly. Your home folder is a good place for this directory.
 
-In `fontwork` create a directory called `script`. In `fontwork` place Perl sources (either from CPAN tarbals or subversion repositories) and other miscellaneous files. In `script` there should be one directory for each script. The directory name should be the ISO 15924 four letter code for the script you are working with. For example `deva` for Devanagari, `latn` for Latin (or Roman) script.
+In `fontwork` create a directory called `script`. In `fontwork` place Perl sources (either from CPAN tarballs or subversion repositories) and other miscellaneous files. In `script` there should be one directory for each script. The directory name should be the ISO 15924 four letter code for the script you are working with. For example `deva` for Devanagari, `latn` for Latin (or Roman) script.
 
 === Script Projects ===
 
@@ -35,7 +35,7 @@ cldr/:::
     This directory contains any LDML files for this language in this writing system
 
 Toolbox/:::
-    This directory contains any Toolbox `.lng` files for this language and script in Unicode. Non Unicode files are stored under a corresponding directory in the appropriate `mappings` directory.
+    This directory contains any Toolbox `.lng` files for this language and script in Unicode. Non-Unicode files are stored under a corresponding directory in the appropriate `mappings` directory.
 
 Texts/:::
     Contains sample texts in the language, including `.pdf` to show how the text should be rendered.
