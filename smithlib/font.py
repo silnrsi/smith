@@ -201,7 +201,7 @@ class Volt(Internal) :
         return [getattr(self, 'master', None)]
 
     def build(self, bld, target, tgen, font) :
-        if not hasattr(self, 'no_make_volt') :
+        if not hasattr(self, 'no_make') :
             cmd = getattr(self, 'make_params', '') + " "
             ind = 0
             srcs = []
@@ -235,7 +235,7 @@ class Gdl(Internal) :
         if self.master : srcs.append(self.master)
         modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, srcs, path = bld.srcnode.find_node('wscript').abspath())
         if self.source :
-            if not hasattr(self, 'no_make_gdl') :
+            if not hasattr(self, 'no_make') :
                 srcs = []
                 cmd = getattr(self, 'make_params', '') + " "
                 ind = 0
