@@ -15,7 +15,6 @@
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 var UninstFile
-var LogFile
 !define Uninst "UnInstall.log"
 
 SetCompressor lzma
@@ -82,7 +81,6 @@ FunctionEnd
   ${GetUnixFileName} ${FontFile} $0
   !define FontFileName $0
 
-  FileWrite $LogFile "${FontFileName} - ${FontFile}$\r$\n"
   SetOutPath ${FONT_DIR}
   IfFileExists "${FONT_DIR}\${FontFileName}" ${Index} "${Index}-New"
   
@@ -125,7 +123,6 @@ ${Index}:
   ClearErrors
   ReadRegStr $R0 HKLM "$R1" "$R2"
   StrCmp $R0 "" 0 "${Index}-End"
-    FileWrite $LogFile "${FontFileName} - ${FontFile}$\r$\n"
     WriteRegStr HKLM "$R1" "$R2" "${FontFileName}"
     goto "${Index}-End"
 
@@ -445,7 +442,6 @@ ${Index}:
 
 Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 
-  FileOpen $LogFile "$INSTDIR\logging.txt" w
   SetOutPath "$WINDIR\Fonts"
   
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Version"
@@ -708,23 +704,24 @@ Section "Uninstall"
       ClearErrors
       FileRead $UninstFile $R5
       IfErrors donekbdloop
+      StrCmp $R5 "" donekbdloop
 ;      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
       DeleteRegKey HKLM $R5
       StrCpy $1 0
       loopinstalledkbd:
         ClearErrors
         EnumRegValue $2 HKCU "Keyboard Layout\Substitutes" $1
-        IfErrors doneinstallkbd
+        StrCmp $2 "" doneinstallkbd
         IntOp $1 $1 + 1
         ReadRegStr $3 HKCU "Keyboard Layout\Substitutes" $2
-        IntCmp $3 $R1 0 loopinstalledkbd loopinstalledkbd
+        IntCmp $3 $1 0 loopinstalledkbd loopinstalledkbd
         DeleteRegKey HKCU "Keyboard Layout\Substitutes\$2"
         IntOp $1 $1 - 1
         StrCpy $4 0
         loopkbdinstallers:
           ClearErrors
           EnumRegValue $5 HKCU "Keyboard Layout\Preload" $4
-          IfErrors loopinstalledkbd
+          StrCmp $5 "" loopinstalledkbd
           IntOp $4 $4 + 1
           ReadRegStr $6 HKCU "Keyboard Layout\Preload" $5
           IntCmp $6 $2 0 loopkbdinstallers loopkbdinstallers
@@ -733,7 +730,7 @@ Section "Uninstall"
           IfErrors loopinstalledkbd loopkbdinstallers
         
       doneinstallkbd:
-      IfErrors 0 loopkbd
+      StrCmp $R5 "" 0 loopkbd
 
     donekbdloop:
 +for k in kbds : m = getattr(k, 'mskbd', None);

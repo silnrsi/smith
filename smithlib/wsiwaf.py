@@ -5,6 +5,32 @@ from waflib import Context, Task
 from wafplus import *
 import font, package, keyboard
 
+class create(str) :
+
+    isGenerated = 1
+
+    def __new__(self, tgt, *cmds, **kw) :
+        return str.__new__(self, tgt)
+
+    def __init__(self, tgt, *cmds, **kw) :
+        self.cmds = cmds
+        if len(cmds) > 0 :
+            res = cmds[0](tgt)
+            rule(res[0], res[1], tgt, **res[2])
+        for c in cmds[1:] :
+            res = c(tgt)
+            modify(res[0], tgt, res[1], **res[2])
+
+    def get_sources(self, ctx) :
+        res = []
+        for c in self.cmds :
+            for i in c.inputs :
+                if hasattr(i, 'get_sources') :
+                    res.extend(i.get_sources(ctx))
+                else :
+                    res.append(i)
+        return res
+
 def init(ctx) :
     for m in (font, package, keyboard) :
         if hasattr(m, 'init') :
@@ -12,15 +38,6 @@ def init(ctx) :
 
 def process(tgt, *cmds, **kw) :
     for c in cmds :
-        res = c(tgt)
-        modify(res[0], tgt, res[1], **res[2])
-    return tgt
-
-def create(tgt, *cmds, **kw) :
-    if len(cmds) > 0 :
-        res = cmds[0](tgt)
-        rule(res[0], res[1], tgt, **res[2])
-    for c in cmds[1:] :
         res = c(tgt)
         modify(res[0], tgt, res[1], **res[2])
     return tgt

@@ -330,7 +330,7 @@ class srcdistContext(Build.BuildContext) :
 
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + getattr(Context.g_module, 'VERSION', "0.0")
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
             tarname = tarbase + "_srcdist"
         else :
             tarbase = tarname

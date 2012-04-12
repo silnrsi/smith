@@ -49,18 +49,12 @@ class Font(object) :
 
     def get_sources(self, ctx) :
         res = []
-        if hasattr(self, 'legacy') :
-            res.extend(self.legacy.get_sources(ctx))
-        else :
-            res.append(self.source)
-        for x in ('sfd_master', 'classes', 'ap') :
-            try :
-                res.append(getattr(self, x))
-            except :
-                pass
-        for x in (getattr(self, y, None) for y in ('license', 'opentype', 'graphite', 'tests')) :
+        for x in (getattr(self, y, None) for y in ('legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')) :
             if x :
-                res.extend(x.get_sources(ctx))
+                if hasattr(x, 'get_sources') :
+                    res.extend(x.get_sources(ctx))
+                else :
+                    res.append(x)
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
@@ -106,7 +100,7 @@ class Font(object) :
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
                     bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
-                else :
+                elif not hasattr(self.ap, 'isGenerated') :
                     bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
             if hasattr(self, 'classes') :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = bld.srcnode.find_node('wscript').abspath())
@@ -148,8 +142,13 @@ class Legacy(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = [self.source, self.xml]
-        res.append(getattr(self, 'ap', None))
+        res = []
+        for x in (getattr(self, y, None) for y in ('source', 'xml', 'ap')) :
+            if x :
+                if hasattr(x, 'get_sources') :
+                    res.extend(x.get_sources(ctx))
+                else :
+                    res.append(x)
         return res
 
     def build(self, bld, targetap) :
