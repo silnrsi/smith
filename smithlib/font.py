@@ -3,6 +3,7 @@
 
 from waflib import Context, Logs
 from wafplus import modify
+from wsiwaf import get_all_sources
 import font_tests, package, keyboard
 import sys, os, re
 from random import randint
@@ -48,13 +49,7 @@ class Font(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = []
-        for x in (getattr(self, y, None) for y in ('legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')) :
-            if x :
-                if hasattr(x, 'get_sources') :
-                    res.extend(x.get_sources(ctx))
-                else :
-                    res.append(x)
+        res = get_all_sources(self, ctx, 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
@@ -142,14 +137,7 @@ class Legacy(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = []
-        for x in (getattr(self, y, None) for y in ('source', 'xml', 'ap')) :
-            if x :
-                if hasattr(x, 'get_sources') :
-                    res.extend(x.get_sources(ctx))
-                else :
-                    res.append(x)
-        return res
+        return get_all_sources(self, ctx, 'source', 'xml', 'ap')
 
     def build(self, bld, targetap) :
         cmd = " " + getattr(self, 'params', "")
@@ -198,7 +186,7 @@ class Volt(Internal) :
         return ('make_volt', 'volt2ttf')
 
     def get_sources(self, ctx) :
-        return [getattr(self, 'master', None)]
+        return get_all_sources(self, ctx, 'master')
 
     def build(self, bld, target, tgen, font) :
         if not hasattr(self, 'no_make') :
@@ -228,7 +216,7 @@ class Gdl(Internal) :
         return ("make_gdl", "grcompiler", "ttftable")
 
     def get_sources(self, ctx) :
-        return [getattr(self, 'master', None)]
+        return get_all_sources(self, ctx, 'master')
 
     def build(self, bld, target, tgen, font) :
         srcs = [self.source]

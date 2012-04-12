@@ -3,11 +3,8 @@
 
 from waflib import Context, Task
 from wafplus import *
-import font, package, keyboard
 
 class create(str) :
-
-    isGenerated = 1
 
     def __new__(self, tgt, *cmds, **kw) :
         return str.__new__(self, tgt)
@@ -31,16 +28,15 @@ class create(str) :
                     res.append(i)
         return res
 
-def init(ctx) :
-    for m in (font, package, keyboard) :
-        if hasattr(m, 'init') :
-            m.init(ctx)
 
-def process(tgt, *cmds, **kw) :
-    for c in cmds :
-        res = c(tgt)
-        modify(res[0], tgt, res[1], **res[2])
-    return tgt
+class process(create) :
+
+    def __init__(self, tgt, *cmds, **kw) :
+        self.cmds = cmds
+        for c in cmds :
+            res = c(tgt)
+            modify(res[0], tgt, res[1], **res[2])
+
 
 class cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
@@ -62,6 +58,22 @@ class cmd(object) :
                 else : return '${' + g('var') + g('code') + '}'
         if kw : c = Task.reg_act.sub(repl, self.c)
         return ctx(rule = c, source = inputs, target = tgt)
+
+
+def get_all_sources(self, ctx, *attrs) :
+    res = []
+    for a in (getattr(self, x, None) for x in attrs) :
+        if a :
+            if hasattr(a, 'get_sources') :
+                res.extend(a.get_sources(ctx))
+            else :
+                res.append(a)
+    return res
+        
+def init(ctx) :
+    for m in (font, package, keyboard) :
+        if hasattr(m, 'init') :
+            m.init(ctx)
         
 def onload(ctx) :
     varmap = { 'process' : process, 'create' : create, 'cmd' : cmd, 
@@ -72,6 +84,8 @@ def onload(ctx) :
             Context.wscript_vars[k] = v
         else :
             setattr(Context.g_module, k, v)
+
+import font, package, keyboard
 
 for m in (font, package, keyboard) :
     if hasattr(m, 'onload') :

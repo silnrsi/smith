@@ -2,6 +2,7 @@
 # Martin Hosken 2011
 
 from subprocess import Popen, PIPE
+from wsiwaf import get_all_sources
 import os, uuid
 import package
 
@@ -64,13 +65,7 @@ class Keyboard(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = [self.source]
-        for k in ('font') :
-            try :
-                res.append(getattr(self, k))
-            except :
-                pass
-        return res
+        return get_all_sources(self, ctx, 'source', 'font')
 
     def build(self, bld) :
         if bld.env['KMCOMP'] :
