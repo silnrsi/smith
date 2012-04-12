@@ -100,7 +100,7 @@ make_params::
 params::
     These parameters are passed to volt2ttf to modify the compiling of the volt source into OpenType tables.
 
-no_make_volt::
+no_make::
     If this attribute is present, make_volt isn't run and the first parameter is assumed to be the specific .vtp for this font.
 
 === Graphite ===
@@ -129,7 +129,7 @@ make_params::
 params::
     Parameters to pass to `grcompiler` to control the compilation of Graphite source to Graphite tables in the font.
 
-no_make_gdl::
+no_make::
     If this attribute is present, make_gdl is not run and the first parameter is assumed to be the gdl for the specific font.
 
 === Legacy Fonts ===
