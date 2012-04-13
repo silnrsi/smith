@@ -31,7 +31,7 @@ source::
     Basic design file used to generate the initial form of the output font.
 
 version::
-    This takes a version number in the form 'x'.'y' (a floating point number) and sets the output font to have that version.
+    This takes a version number in the form 'x'.'y' (a floating point number) and sets the output font to have that version. It may also be a tuple of the form (x.y, "text") where the text will be appended to the version string inside the font.
 
 sfd_master::
     This attribute specifies a FontForge file that should be merged with the source FontForge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.

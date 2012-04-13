@@ -80,7 +80,11 @@ class Font(object) :
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
-            modify("${TTFSETVER} " + self.version + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath())
+            if len(self.version) and not isinstance(self.version, basestring) :
+                ttfsetvarparms = self.version[0] + "-d " + self.version[1]
+            else :
+                ttfsetverparms = self.version
+            modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath())
         if hasattr(self, 'copyright') :
             modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = bld.srcnode.find_node('wscript').abspath())
         if hasattr(self, 'license') :
