@@ -6,6 +6,7 @@ from wafplus import *
 
 class create(str) :
 
+    isGenerated = 1
     def __new__(self, tgt, *cmds, **kw) :
         return str.__new__(self, tgt)
 
