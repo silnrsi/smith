@@ -81,7 +81,7 @@ class Font(object) :
 
         if hasattr(self, 'version') :
             if len(self.version) and not isinstance(self.version, basestring) :
-                ttfsetvarparms = self.version[0] + "-d " + self.version[1]
+                ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
                 ttfsetverparms = self.version
             modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath())
