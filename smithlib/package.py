@@ -145,6 +145,7 @@ class Package(object) :
         for k in self.keyboards :
             k.build(bld)
 
+        self.subrun(bld, lambda p, b: self.add_reservedofls(*p.reservedofl) if hasattr(p, 'reservedofl') else None, onlyfn = True)
         def methodwrapofl(tsk) :
             return self.make_ofl_license(tsk, base)
 

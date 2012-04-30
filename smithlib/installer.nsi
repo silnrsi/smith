@@ -536,7 +536,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     StrCpy $R2 "@m.dll.replace('.', '-86.')@"
     File "@bld(k, m.dll.replace('.', '-86.'))@"
     StrCpy $R4 $R2
-+    if env['X86_64GCC'] :
++    if os.path.exists(bld(k, m.dll.replace('.', '-64.'))) :
     StrCpy $R3 "@m.dll.replace('.', '-64.')@"
     File "@bld(k, m.dll.replace('.', '-64.'))@"
     ${If} ${RunningX64}
