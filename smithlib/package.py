@@ -64,6 +64,7 @@ class Package(object) :
         self.keyboards = []
         self.subpackages = {}
         self.reldir = ''
+        self.order = []
 
     def get_build_tools(self, ctx) :
         try :
@@ -91,6 +92,7 @@ class Package(object) :
     def add_package(self, package, path) :
         if path not in self.subpackages :
             self.subpackages[path] = []
+            self.order.append(path)
         for p in package if isinstance(package, list) else (package, ) :
             p.reldir = path
             self.subpackages[path].append(p)
@@ -116,7 +118,8 @@ class Package(object) :
         return 0
     
     def subrun(self, bld, fn, onlyfn = False) :
-        for k, v in self.subpackages.items() :
+        for k in self.order :
+            v = self.subpackages[k]
             relpath = os.path.relpath(k, bld.top_dir or bld.path.abspath())
             b = bld.__class__(out_dir = os.path.join(os.path.abspath(k), bld.bldnode.srcpath()),
                               top_dir = os.path.abspath(k), run_dir = os.path.abspath(k))
