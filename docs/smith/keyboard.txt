@@ -25,6 +25,18 @@ kbdfont::
 fontsize::
     Font size to render glyphs at in the layout, given in pt (18).
 
+modifiers::
+    A list of strings which can take a sequence of the following strings, for example 'Ctrl RAlt'::
+
+    ''::
+        The empty string to indicate no modifier
+
+    Ctrl::
+        Can be modified by L or R as well, as in LCtrl, RCtrl, Ctrl
+
+    Alt::
+        Can be further modified by L or R or Gr, as in Alt, LAlt, RAlt, AltGr (equivalent to RAlt)
+
 pdf::
     Filename to put keyboard layout pdf in ('source'.pdf)
 

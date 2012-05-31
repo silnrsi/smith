@@ -94,7 +94,7 @@ class Font(object) :
 
         # add smarts
         if hasattr(self, 'ap') :
-            if not hasattr(self, 'legacy') :
+            if not hasattr(self, 'legacy') or hasattr(self, 'rebuildap') :
                 apnode = bld.path.find_or_declare(self.ap)
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
