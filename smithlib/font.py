@@ -322,6 +322,9 @@ def name(n, **kw) :
         del kw['full']
     if 'nopost' in kw :
         opts += '-p '
+    if 'subfamily' in kw :
+        opts += '-w "' + kw['subfamily'] + '" '
+        del kw['subfamily']
     def iname(tgt) :
         return ('${TTFNAME} -n "' + n + '"' + opts + "${DEP} ${TGT}", [], kw)
     return iname
