@@ -30,6 +30,8 @@ class Font(object) :
         self.package.add_font(self)
         if not hasattr(self, 'tests') :
             self.tests = font_tests.global_test()
+        if not hasattr(self, 'ots_target') :
+            self.ots_target = self.target[:-4] + "_ots.log"
 
     def get_build_tools(self, ctx) :
         res = self.tests.config(ctx)
@@ -122,6 +124,8 @@ class Font(object) :
         if self.tests :
             self.tests.build_tests(bld, self, 'test')
 
+    def build_ots(self, bld) :
+        bld(rule="${OTSANITISE} ${SRC} > /dev/null 2>${TGT}", target=self.ots_target, source=[self.target], shell=1)
 
 class Legacy(object) :
 

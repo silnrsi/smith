@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Context, Build, Errors, Node, Options
+from waflib import Context, Build, Errors, Node, Options, Logs
 import wafplus
 import font, templater 
 import os, sys, shutil, time
@@ -68,9 +68,14 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            ctx.find_program('makensis')
+            ctx.find_program('ot-sanitise', var="OTSANITISE")
         except ctx.errors.ConfigurationError :
             pass
+        for p in ('makensis', ) :
+            try :
+                ctx.find_program(p)
+            except ctx.errors.ConfigurationError :
+                pass
         res = set()
         for f in self.fonts :
             res.update(f.get_build_tools(ctx))
@@ -156,7 +161,7 @@ class Package(object) :
             if not getattr(self, 'license', None) : self.license = 'OFL.txt'
             bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
-    def build_pdf(self, bld) :
+    def build_pdfs(self, bld) :
         self.subrun(bld, lambda p, b: p.build_pdf(b))
         for f in self.fonts :
             f.build_pdf(bld)
@@ -177,8 +182,18 @@ class Package(object) :
         for k in self.keyboards :
             k.build_test(bld)
 
+    def build_ots(self, bld) :
+        if 'OTSANITISE' not in bld.env :
+            Logs.error("ot-sanitise not installed. Can't complete")
+            return
+        self.subrun(bld, lambda p, b: p.build_ots(b))
+        for f in self.fonts :
+            f.build_ots(bld)
+
     def build_exe(self, bld) :
-        if 'MAKENSIS' not in bld.env : return
+        if 'MAKENSIS' not in bld.env :
+            Logs.error("makensis not installed. Can't complete")
+            return
         for t in ('appname', 'version') :
             if not hasattr(self, t) :
                 raise Errors.WafError("Package '%r' needs '%s' attribute" % (self, t))
@@ -254,16 +269,6 @@ class Package(object) :
             os.path.walk(y.abspath(), lambda a, d, f : res.extend([(a, os.path.relpath(os.path.join(d, x), a)) for x in f if os.path.isfile(os.path.join(d, x))]), bld.path.abspath())
         return res
 
-class exeContext(Build.BuildContext) :
-    cmd = 'exe'
-    def pre_build(self) :
-        if hasattr(self, 'issub') : return
-        if Options.options.debug :
-            import pdb; pdb.set_trace()
-        self.add_group('exe')
-        for p in Package.packages() :
-            p.build_exe(self)
-
 class zipContext(Build.BuildContext) :
     cmd = 'zip'
 
@@ -273,44 +278,37 @@ class zipContext(Build.BuildContext) :
         for p in Package.packages() :
             p.execute_zip(self)
 
-class pdfContext(Build.BuildContext) :
-    cmd = 'pdfs'
-    func = 'pdfs'
+class cmdContext(Build.BuildContext) :
 
     def pre_build(self) :
         if hasattr(self, 'issub') : return
         if Options.options.debug :
             import pdb; pdb.set_trace()
-        self.add_group('pdfs')
+        self.add_group(self.cmd)
         for p in Package.packages() :
-            p.build_pdf(self)
+            getattr(p, 'build_' + self.cmd)(self)
+    
+class exeContext(cmdContext) :
+    cmd = 'exe'
+
+class pdfContext(cmdContext) :
+    cmd = 'pdfs'
+    func = 'pdfs'
 
     def build(self) :
         pass
 
-class svgContext(Build.BuildContext) :
+class svgContext(cmdContext) :
     cmd = 'svg'
     func = 'svg'
 
-    def pre_build(self) :
-        if hasattr(self, 'issub') : return
-        if Options.options.debug :
-            import pdb; pdb.set_trace()
-        self.add_group('svg')
-        for p in Package.packages() :
-            p.build_svg(self)
-
-class testContext(Build.BuildContext) :
+class testContext(cmdContext) :
     cmd = 'test'
     func = 'test'
 
-    def pre_build(self) :
-        if hasattr(self, 'issub') : return
-        if Options.options.debug :
-            import pdb; pdb.set_trace()
-        self.add_group('test')
-        for p in Package.packages() :
-            p.build_test(self)
+class otsContext(cmdContext) :
+    cmd = 'ots'
+    func = 'ots'
 
 class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
