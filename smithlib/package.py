@@ -279,6 +279,7 @@ class zipContext(Build.BuildContext) :
             p.execute_zip(self)
 
 class cmdContext(Build.BuildContext) :
+    cmd = 'exe' # must have a cmd otherwise this class overrides Build.BuildContext
 
     def pre_build(self) :
         if hasattr(self, 'issub') : return
@@ -288,9 +289,6 @@ class cmdContext(Build.BuildContext) :
         for p in Package.packages() :
             getattr(p, 'build_' + self.cmd)(self)
     
-class exeContext(cmdContext) :
-    cmd = 'exe'
-
 class pdfContext(cmdContext) :
     cmd = 'pdfs'
     func = 'pdfs'
