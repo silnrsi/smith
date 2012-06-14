@@ -453,6 +453,40 @@ override_dh_auto_install :
             if k == 'rules' : os.fchmod(f.fileno(), 0775)
             f.close()
 
+class graideContext(Build.BuildContext) :
+    cmd = 'graide'
+
+    def execute_build(self) :
+        if not os.path.exists('graide') : os.mkdir('graide')
+        for p in Package.packages() :
+            for f in p.fonts :
+                if not hasattr(f, 'graphite') : continue
+                base = f.target[:-4]
+                if f.graphite.make_params :
+                    makegdl = "makegdl " + f.graphite.make_params + " -i %i -a %a %f %g"
+                else :
+                    makegdl = ''
+                fh = file('graide/%s.cfg' % base, "w")
+                fh.write("""[main]
+font = {0}/{1}
+testsfile = khun_tests.xml
+defaultrtl = 0
+ap = {0}/{2}
+size = 40
+
+[build]
+gdlfile = ../font-source/khun.gdl
+usemakegdl = 1
+makegdlfile = {0}/{3}
+pospass = 0
+makegdlcmd = {4}
+
+[ui]
+textsize = 10
+""".format(os.path.relpath(self.out_dir, 'graide'), f.target, f.ap, f.graphite.source, makegdl))
+                fh.close()
+
+
 def subdir(path) :
 #    import pdb; pdb.set_trace()
     currpackages = Package.packages()

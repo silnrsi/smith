@@ -161,6 +161,12 @@ params::
 ap::
     Attachment point database of the legacy font that will be converted to the font.ap attribute file.
 
+noap::
+    Instructs the legacy converter not to create the ap database specified in the font. This would
+    get used when another process, after legacy conversion, modifies the font and then you want the
+    build system to autogenerate the ap database from that modified font rather than from the
+    legacy font conversion process.
+
 === Licensing and Copyright ===
 
 Fonts contain both copyright and license information. The `copyright` attribute is the copyright string for the font and if present that string will be inserted into the font as the copyright statement.

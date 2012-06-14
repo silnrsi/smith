@@ -63,6 +63,13 @@ smith pdfs
 This creates font tests output as pdf.
 
 ----
+smith graide
+----
+
+This creates a subdirectory called graide that contains one .cfg file per font for use with graide.
+If the font has no graphite smarts, no configuration file is created (for obvious reasons).
+
+----
 smith svg
 ----
 

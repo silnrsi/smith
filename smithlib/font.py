@@ -151,11 +151,11 @@ class Legacy(object) :
         cmd = " " + getattr(self, 'params', "")
         srcs = [self.source, self.xml]
         if self.source.lower().endswith(".ttf") :
-            if hasattr(self, 'ap') and not hasattr(self, 'noap') :
+            if hasattr(self, 'ap') :
                 srcs.append(self.ap)
                 cmd += " -x ${SRC[2].bldpath()}"
             trgt = [re.sub(r'\..*', '.ttf', self.target)]
-            if targetap :
+            if targetap and not hasattr(self, 'noap') :
                 trgt.append(targetap)
                 cmd += " -z ${TGT[1].bldpath()}"
             bld(rule = "${TTFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = trgt)
@@ -163,7 +163,7 @@ class Legacy(object) :
                 bld(rule = "${FONTFORGE} -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
         else :
             bld(rule = "${FFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = self.target)
-            if targetap :
+            if targetap and not hasattr(self, 'noap') :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
 
