@@ -96,7 +96,7 @@ class Font(object) :
 
         # add smarts
         if hasattr(self, 'ap') :
-            if not hasattr(self, 'legacy') or hasattr(self, 'rebuildap') :
+            if not hasattr(self, 'legacy') or hasattr(self.legacy, 'noap') :
                 apnode = bld.path.find_or_declare(self.ap)
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
@@ -151,7 +151,7 @@ class Legacy(object) :
         cmd = " " + getattr(self, 'params', "")
         srcs = [self.source, self.xml]
         if self.source.lower().endswith(".ttf") :
-            if hasattr(self, 'ap') :
+            if hasattr(self, 'ap') and not hasattr(self, 'noap') :
                 srcs.append(self.ap)
                 cmd += " -x ${SRC[2].bldpath()}"
             trgt = [re.sub(r'\..*', '.ttf', self.target)]
