@@ -135,7 +135,10 @@ def build_modifys(bld) :
         outnode = bld.path.find_or_declare(key)
         for i in item :
             tmpnode = make_tempnode(outnode, bld)
-            kw = {'tempcopy' : [tmpnode, outnode]}
+            if 'nochange' in i[3] :
+                kw = {}
+            else :
+                kw = {'tempcopy' : [tmpnode, outnode]}
             temp = dict(kw)
             if isinstance(i[0], basestring) :
                 cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())

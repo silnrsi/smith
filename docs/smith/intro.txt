@@ -108,5 +108,7 @@ create()::
     The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function.
 
 process()::
-    This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section.
+    This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use `${DEP}`
 
+test()::
+    This function applies a process to its output file with no expected output, so any `cmd()` would only have a `${TGT}` in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.

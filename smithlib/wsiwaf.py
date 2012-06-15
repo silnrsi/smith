@@ -39,6 +39,12 @@ class process(create) :
             modify(res[0], tgt, res[1], **res[2])
 
 
+class test(create) :
+
+    def __init__(self, tgt, *cmds, **kw) :
+        kw['nochange'] = 1
+        super(test, self).__init__(tgt, *cmds, **kw)
+
 class cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
         self.c = c
@@ -77,8 +83,8 @@ def init(ctx) :
             m.init(ctx)
         
 def onload(ctx) :
-    varmap = { 'process' : process, 'create' : create, 'cmd' : cmd, 
-               'init' : init
+    varmap = { 'process' : process, 'create' : create, 'test' : test,
+                'cmd' : cmd, 'init' : init
              }
     for k, v in varmap.items() :
         if hasattr(Context, 'wscript_vars') :
