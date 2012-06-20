@@ -17,6 +17,7 @@ def make_tex(mf, font, task) :
     texdat = r'''
 \font\test="[%s]%s" at 12pt
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
+\emergencystretch=3in
 \obeylines
 \test
 \input %s
