@@ -17,7 +17,8 @@ def make_tex(mf, font, task) :
     texdat = r'''
 \font\test="[%s]%s" at 12pt
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\emergencystretch=3in
+\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
+\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000
 \obeylines
 \test
 \input %s
