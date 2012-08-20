@@ -69,8 +69,10 @@ class Font(object) :
             self.legacy.build(bld, getattr(self, 'ap', None))
 
         # build font
+        targetnode = bld.path:if expand("%") == ""|browse confirm w|else|confirm w|endif
+.find_or_declare(self.target)
         if self.source.endswith(".ttf") :
-            bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = self.target)
+            bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = targetnode)
         else :
             srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
@@ -79,7 +81,7 @@ class Font(object) :
                     bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarnode)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
                 srcnode = tarnode
-            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = self.target, name = self.target + "_sfd")
+            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = targetnode, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
             if len(self.version) and not isinstance(self.version, basestring) :
