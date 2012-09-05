@@ -69,8 +69,7 @@ class Font(object) :
             self.legacy.build(bld, getattr(self, 'ap', None))
 
         # build font
-        targetnode = bld.path:if expand("%") == ""|browse confirm w|else|confirm w|endif
-.find_or_declare(self.target)
+        targetnode = bld.path.find_or_declare(self.target)
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = targetnode)
         else :
