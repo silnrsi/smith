@@ -84,6 +84,7 @@ class Package(object) :
         return res
 
     def get_sources(self, ctx) :
+        #import pdb; pdb.set_trace()
         res = []
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
         for f in self.fonts :

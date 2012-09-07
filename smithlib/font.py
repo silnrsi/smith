@@ -51,7 +51,7 @@ class Font(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = get_all_sources(self, ctx, 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')
+        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
@@ -74,13 +74,12 @@ class Font(object) :
             bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = targetnode)
         else :
             srcnode = bld.path.find_or_declare(self.source)
+            tarname = None
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
-                tarnode = srcnode.get_bld()
-                if tarnode != srcnode :
-                    bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarnode)
-                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", self.source, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
-                srcnode = tarnode
-            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = srcnode, target = targetnode, name = self.target + "_sfd")
+                tarname = self.source + "_"
+                bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarname)
+                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
+            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = targetnode, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
             if len(self.version) and not isinstance(self.version, basestring) :
