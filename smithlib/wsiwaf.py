@@ -14,9 +14,11 @@ class create(str) :
         self.cmds = cmds
         if len(cmds) > 0 :
             res = cmds[0](tgt)
+            res[2].update(kw)
             rule(res[0], res[1], tgt, **res[2])
         for c in cmds[1:] :
             res = c(tgt)
+            res[2].update(kw)
             modify(res[0], tgt, res[1], **res[2])
 
     def get_sources(self, ctx) :
@@ -36,6 +38,8 @@ class process(create) :
         self.cmds = cmds
         for c in cmds :
             res = c(tgt)
+            res[2]['late'] = 1
+            res[2].update(kw)
             modify(res[0], tgt, res[1], **res[2])
 
 

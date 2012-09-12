@@ -108,10 +108,15 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
     if not path : path = getpath()
     if path not in modifications :
         modifications[path] = {}
-    if not infile in modifications[path] :
-        modifications[path][infile] = []
+    if isinstance(infile, list) :
+        inf = infile[0]
+        if len(infile) > 1 :
+            kw['targets'] = infile[1:]
+    else : inf = infile
+    if not inf in modifications[path] :
+        modifications[path][inf] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py
-    modifications[path][infile].append((cmd, inputs, shell, kw))
+    modifications[path][inf].append((cmd, inputs, shell, kw))
 
 def rule(cmd, inputs, outputs, shell = 0, path = None, **kw) :
     if not path : path = getpath()
@@ -132,23 +137,34 @@ def build_modifys(bld) :
     if path not in modifications : return
     count = 0
     for key, item in modifications[path].items() :
+        def local_cmp(a, b) :
+            if 'late' in item[a][3] :
+                if 'late' in item[b][3] : return cmp(a, b)
+                return 1
+            elif 'late' in item[b][3] :
+                return -1
+            else :
+                return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
-        for i in item :
+        for i in sorted(range(len(item)), cmp=local_cmp) :
             tmpnode = make_tempnode(outnode, bld)
-            if 'nochange' in i[3] :
+            if 'nochange' in item[i][3] :
                 kw = {}
             else :
                 kw = {'tempcopy' : [tmpnode, outnode]}
             temp = dict(kw)
-            if isinstance(i[0], basestring) :
-                cmd = i[0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
+            if isinstance(item[i][0], basestring) :
+                cmd = item[i][0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
                 if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             else :
                 temp['dep'] = tmpnode
-                cmd = i[0]
+                cmd = item[i][0]
                 if not 'name' in temp : temp['name'] = '%s[%d]' % (key, count)
-            temp.update(i[3])
-            bld(rule = cmd, source = i[1], shell = i[2], **temp)
+            temp.update(item[i][3])
+            if 'targets' in temp :
+                temp['target'] = temp['targets']
+                del temp['targets']
+            bld(rule = cmd, source = item[i][1], shell = item[i][2], **temp)
             count += 1
     del modifications[path]
 
@@ -156,6 +172,10 @@ def build_rules(bld) :
     path = bld.srcnode.find_node('wscript').abspath()
     if path in rules :
         for r in rules[path] :
+            for t in (r[2] if hasattr(r[2], 'len') else [r[2]]) :
+                c = bld.bldnode.find_or_declare(t)
+                if not c.is_bld() and 'nochange' not in r[4] :
+                    raise Errors.WafError("Cannot create() already existing file: %s" % t)
             bld(rule = r[0], source = r[1], target = r[2], shell = r[3], **r[4])
         del rules[path]
 
@@ -227,7 +247,8 @@ def add_sort_tasks(base) :
         tmap = {}
         for t in tasks :
             for n in getattr(t, 'outputs', []) :
-                tmap[id(n)] = [t]
+                if id(n) not in tmap : tmap[id(n)] = []
+                tmap[id(n)].append(t)
         for t in tasks :
             tmpnode, outnode = getattr(t, 'tempcopy', (None, None))
             if outnode :
@@ -242,14 +263,16 @@ def add_sort_tasks(base) :
             for n in getattr(t, 'inputs', []) :
                 if id(n) in tmap :
                     entry = tmap[id(n)]
-                    res = len(entry) - 1
-                    for i in range(res + 1) :
-                        if entry[i].runs_after(t) :
-                            res = i - 1
+                    res = len(entry)
+                    for i in range(res) :
+                        if entry[i].runs_after(t) or id(entry[i]) == id(t) :
+                            res = i
                             break
-                    try: t.intasks.append(entry[res])
-                    except AttributeError : t.intasks = [entry[res]]
-                    t.set_run_after(entry[res])
+                    if res :
+                        e = entry[res - 1]
+                        try: t.intasks.append(e)
+                        except AttributeError : t.intasks = [e]
+                        t.set_run_after(e)
 
     def wrap_biter(self) :
         for b in old_biter(self) :

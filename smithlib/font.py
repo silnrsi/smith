@@ -44,6 +44,8 @@ class Font(object) :
             res.add('ttfsetver')
         if hasattr(self, 'classes') :
             res.add('add_classes')
+        if hasattr(self, 'typetuner') :
+            res.add('typetuner')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license')) :
             if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools())
@@ -79,16 +81,16 @@ class Font(object) :
                 tarname = self.source + "_"
                 bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarname)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
-            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = targetnode, name = self.target + "_sfd")
+            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
             if len(self.version) and not isinstance(self.version, basestring) :
                 ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
                 ttfsetverparms = self.version
-            modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath())
+            modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
         if hasattr(self, 'copyright') :
-            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = bld.srcnode.find_node('wscript').abspath())
+            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
         if hasattr(self, 'license') :
             if hasattr(self.license, 'reserve') :
                 self.package.add_reservedofls(*self.license.reserve)
@@ -110,6 +112,10 @@ class Font(object) :
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite')) :
             if x :
                 x.build(bld, self.target, bgen, self)
+
+        if hasattr(self, 'typetuner') :
+            modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, [self.typetuner])
+
         return self
 
     def build_pdf(self, bld) :
@@ -210,7 +216,13 @@ class Volt(Internal) :
                 cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
             bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-        modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
+        if hasattr(self, 'xml_export') :
+            xmlparms = " -x ${TGT[0].bldpath()}"
+            tgts = [target, self.xml_export]
+            modify("${VOLT2TTF} " + self.params + xmlparms + " -t ${SRC} ${DEP} ${TGT}", tgts, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
+        else :
+            modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
+            
 
 
 class Gdl(Internal) :
@@ -251,6 +263,7 @@ class Gdl(Internal) :
         elif self.master :
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
 
+
 class Ofl(object) :
 
     def __init__(self, *reserved, **kw) :
@@ -267,7 +280,7 @@ class Ofl(object) :
         return []
 
     def build(self, bld, font) :
-        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath())
+        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
         
     def globalofl(self, task) :
         bld = task.generator.bld
