@@ -256,7 +256,7 @@ class Gdl(Internal) :
                     mnode = bld.path.find_or_declare(self.master)
                     snode = bld.bldnode.find_or_declare(self.source)
                     loc = mnode.path_from(snode.parent)
-                    cmd += '-i "' + loc + '" '
+                    cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "
                     ind += 1
                 bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
             modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")

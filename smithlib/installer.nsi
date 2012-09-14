@@ -513,9 +513,11 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 
     ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
     IfErrors NoKeyman
-+for k in kbds :
++if 'KMCOMP' in env:
++ for k in kbds :
     File "@bld(k, k.kmx)@"
     Exec "start.exe $OUTDIR\@k.kmx@"
+-
 -
     NoKeyman:
 

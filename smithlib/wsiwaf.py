@@ -8,6 +8,7 @@ class create(str) :
 
     isGenerated = 1
     def __new__(self, tgt, *cmds, **kw) :
+        if hasattr(tgt, 'len') : tgt = tgt[0]
         return str.__new__(self, tgt)
 
     def __init__(self, tgt, *cmds, **kw) :
