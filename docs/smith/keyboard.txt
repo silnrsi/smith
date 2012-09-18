@@ -26,17 +26,22 @@ fontsize::
     Font size to render glyphs at in the layout, given in pt (18).
 
 modifiers::
-    A list of strings which can take a sequence of the following strings, for example 'Ctrl RAlt'::
 
-    ''::
-        The empty string to indicate no modifier
+    A list of strings which can take a sequence of the following strings, for example 'Ctrl RAlt'
 
-    Ctrl::
-        Can be modified by L or R as well, as in LCtrl, RCtrl, Ctrl
+        '';;
+            The empty string to indicate no modifier
 
-    Alt::
-        Can be further modified by L or R or Gr, as in Alt, LAlt, RAlt, AltGr (equivalent to RAlt)
+        Ctrl;;
+            Can be modified by L or R as well, as in LCtrl, RCtrl, Ctrl
 
+        Alt;;
+            Can be further modified by L or R or Gr, as in Alt, LAlt, RAlt, AltGr (equivalent to RAlt)
+
+        key;;
+            This specifies a key that is to be considered pressed before the keytop. This is used
+            to document keyboard layouts following a deadkey. For example '[K_BKSLASH]' or '\\' which
+            are equivalent.
 pdf::
     Filename to put keyboard layout pdf in ('source'.pdf)
 
@@ -69,6 +74,11 @@ lid::
 
 guid::
     GUID to associate with the keyboard. If not specified a random one is created.
+
+capslockkeys::
+    A list of keytops that should have capslock enabled for them. That is capslock will have
+    a shift action (and shift will unshift). The keytop characters are:
+    abcdefghijklmnopqrstuvwxyz0123456789-=[];',./\`
 
 The following are internal attributes that may be set:
 

@@ -3,7 +3,7 @@
 
 from subprocess import Popen, PIPE
 from wsiwaf import get_all_sources
-import os, uuid
+import os, uuid, re
 import package
 
 class Keyboard(object) :
@@ -136,8 +136,9 @@ class MSKBD(object) :
         linkermap = bld.bldnode.make_node("linker.script")
         linkermap.write("SECTIONS { /DISCARD/ : {*(.pdata .xdata)} .data __image_base__ + __section_alignment__ : {*(.data .rdata .text)} }")
         kmn2copts = ' '
-        if hasattr(self, 'langname') : kmn2copts += "--langname=" + self.langname
-        bld(rule = '${KMN2C} -o ${TGT[0]}' + kmn2copts + ' ${SRC}', source = self.source, target = [self.c_file, self.rc_file])
+        if hasattr(self, 'langname') : kmn2copts += " --langname=" + self.langname
+        if hasattr(self, 'capslockkeys') : kmn2copts += " -c '" + re.sub(r"([\\'])", r"\\1", self.capslockkeys) + "'"
+        bld(rule = '${KMN2C} -o ${TGT[0]}' + kmn2copts + ' ${SRC}', source = self.source, target = [self.c_file, self.rc_file], shell = 1)
         for p in self.arches :
             if bld.env[(p+'gcc').upper()] :
                 ofile = self.o_file.replace('.', '-'+p[-2:]+'.', 1)        # p[-2:] is 86 or 64, which is a bit sneaky
