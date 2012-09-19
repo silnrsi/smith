@@ -15,6 +15,7 @@
 !define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 var UninstFile
+var UnDebugFile
 !define Uninst "UnInstall.log"
 
 SetCompressor lzma
@@ -444,8 +445,8 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 
   SetOutPath "$WINDIR\Fonts"
   
+  IfErrors BranchDoit
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Version"
-  IfErrors BranchTestRem
   ${VersionCompare} $0 ${VERSION} $R0
   IntCmp $R0 1 BranchQuery BranchQuery BranchUninstall
 
@@ -460,25 +461,17 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
     ${GetParent} "$0" $1
     ExecWait '"$0" /S _?=$1'
 
-  BranchInstall:
     ;ADD YOUR OWN FILES HERE...
     ;File "${FONT_REG_FILE}"  ; done by InstallTTF
 
-+ for f in fonts :
-    !insertmacro InstallTTF "@bld(f, f.target)@"
--
-    
-    SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
-  
+  BranchDoit:
+
     SetOutPath "$INSTDIR"
     ;Default installation folder
   
     ;Store installation folder
     WriteRegStr HKLM "Software\${INSTALL_SUFFIX}" "" $INSTDIR
   
-    ;Create uninstaller
-    WriteUninstaller "$INSTDIR\Uninstall.exe"
-
     ; add keys for Add/Remove Programs entry
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
                  "DisplayName" "${PACKNAME} ${VERSION}"
@@ -486,10 +479,21 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
                  "UninstallString" "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
                  "Version" "${VERSION}"
+    ;MessageBox MB_OK "Creating Uninstaller"
+  BranchInstall:
+
++if len(fonts) :
+  IfErrors BranchTestRem
++ for f in fonts :
+    !insertmacro InstallTTF "@bld(f, f.target)@"
+-
+    
+    SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
+  
     Goto BranchDone
 
   BranchTestRem:
-+for f in fonts:
++ for f in fonts:
     IfFileExists "$WINDIR/Fonts/@f.target@" 0 BranchNoExist
 -
     MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to overwrite existing ${PACKNAME} fonts?" /SD IDYES IDYES BranchOverwrite ; skipped if file doesn't exist
@@ -497,7 +501,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
     Abort
 
   BranchOverwrite:
-+for f in fonts :
++ for f in fonts :
     !insertmacro RemoveTTF "@f.target@"
 -
       SetOverwrite try
@@ -505,8 +509,10 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
   BranchNoExist:
       SetOverwrite ifnewer ; NOT AN INSTRUCTION, NOT COUNTED IN SKIPPINGS
       Goto BranchInstall
-
+-
   BranchDone:
+    ;Create uninstaller
+    WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
 Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
@@ -565,7 +571,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         "Layout Product Code" "{@m.guid@}"
     WriteRegStr HKLM $R5 \
         "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
-    FileWrite $UninstFile "$R5$\r$\n"
+    FileWrite $UninstFile "$R1$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR
     ${If} ${RunningX64}
@@ -596,6 +602,8 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 -
 -
     FileClose $UninstFile
+    ;Create uninstaller
+    WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
 Section -StartMenu
@@ -665,6 +673,9 @@ Section "Uninstall"
 
   ;ADD YOUR OWN FILES HERE...
 
+  ;FileOpen $UnDebugFile "$INSTDIR\..\Uninstalled.log" w
+  ;FileWrite $UnDebugFile "Debugging uninstall$\r$\n"
+
 +for f in fonts :
     !insertmacro unRemoveTTF "@f.target@"
 -
@@ -672,24 +683,27 @@ Section "Uninstall"
   
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Menus"
 +for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
-  Delete "$INSTDIR\\@f.replace('/','\\')@"
++ if f:
+  ;Delete "$INSTDIR\\@f.replace('/','\\')@"
+-
 -
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
-   Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
++    if fn :
+   ;Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
 -
 -
 -
-  Delete "$INSTDIR\Uninstall.exe"
+-
 +d = {}; 
 +for f in getattr(prj, 'extra_dist', '').split(' ') :
-+ if not os.path.dirname(f) in d :
-  RmDir "$INSTDIR\@os.path.dirname(f).replace('/','\\')@"
--d[f] = 1
++ if os.path.dirname(f) and not os.path.dirname(f) in d :
+   ;RmDir "$INSTDIR\@os.path.dirname(f).replace('/','\\')@"
+- d[f] = 1
 -
 -
-  RMDir "$INSTDIR"
+
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
@@ -704,11 +718,13 @@ Section "Uninstall"
     FileOpen $UninstFile "$INSTDIR\${Uninst}" r
     loopkbd:
       ClearErrors
-      FileRead $UninstFile $R5
+      FileRead $UninstFile $R1
+      ;FileWrite $UnDebugFile "Read from Uninstall.log: $R1$\r$\n"
       IfErrors donekbdloop
-      StrCmp $R5 "" donekbdloop
-;      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
+      StrCmp $R1 "" donekbdloop
+      IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
       DeleteRegKey HKLM $R5
+      ;FileWrite $UnDebugFile "DeleteRegKey: $R5$\r$\n"
       StrCpy $1 0
       loopinstalledkbd:
         ClearErrors
@@ -716,8 +732,9 @@ Section "Uninstall"
         StrCmp $2 "" doneinstallkbd
         IntOp $1 $1 + 1
         ReadRegStr $3 HKCU "Keyboard Layout\Substitutes" $2
-        IntCmp $3 $1 0 loopinstalledkbd loopinstalledkbd
+        IntCmp $3 $R1 0 loopinstalledkbd loopinstalledkbd
         DeleteRegKey HKCU "Keyboard Layout\Substitutes\$2"
+        ;FileWrite $UnDebugFile "Delete Substitutes: $2$\r$\n"
         IntOp $1 $1 - 1
         StrCpy $4 0
         loopkbdinstallers:
@@ -735,12 +752,16 @@ Section "Uninstall"
       StrCmp $R5 "" 0 loopkbd
 
     donekbdloop:
+      FileClose $UninstFile
+
 +for k in kbds : m = getattr(k, 'mskbd', None);
 + if m :
       StrCpy $R2 "@m.dll.replace('.', '-86.')@"
+      ;Delete "$INSTDIR\$R2"
       StrCpy $R4 $R2
 +    if env['X86_64GCC'] :
       StrCpy $R3 "@m.dll.replace('.', '-64.')@"
+      ;Delete "$INSTDIR\$R3"
       ${If} ${RunningX64}
         StrCpy $R4 $R3
       ${Endif}
@@ -752,11 +773,27 @@ Section "Uninstall"
 -
 -
   donekbds:
-  Delete "$0\Uninstall.lnk"
-  RMDir "$0"
++if 'KMCOMP' in env:
++ for k in kbds :
+    ;Delete "$INSTDIR\@os.path.basename(k.kmx)@"
+-
+-
+    ;@"\n".join(['Delete "$INSTDIR\\' + os.path.basename(k.target) + '"' for k in kbds if hasattr(k, 'target')])@
+    ;@"\n".join(['Delete "$INSTDIR\\' + os.path.basename(k.pdf) + '"' for k in kbds if hasattr(k, 'pdf')])@ 
+
+  ;@'Delete "$INSTDIR\\' + prj.license + '"' if prj.license else ''@
+
+  ;Delete "$0\Uninstall.lnk"
+  ;RMDir "$0"
 
   noshortcuts:
 
+  ;FileClose $UnDebugFile
+  RMDir /r "$INSTDIR"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}"
+  DeleteRegKey HKLM "Software\${INSTALL_SUFFIX}"
+    ;FileWrite $UnDebugFile "Cleared dir $INSTDIR, and key for ${PACKNAME}"
+  doneall:
+  ;FileClose $UnDebugFile
 SectionEnd
 
