@@ -46,7 +46,7 @@ class Font(object) :
             res.add('add_classes')
         if hasattr(self, 'typetuner') :
             res.add('typetuner')
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf')) :
             if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools())
         res.update(progset)
@@ -109,7 +109,7 @@ class Font(object) :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = bld.srcnode.find_node('wscript').abspath())
         
         # add smarts
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf')) :
             if x :
                 x.build(bld, self.target, bgen, self)
 
@@ -321,6 +321,24 @@ def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh.close()
     return fname
 
+class Fret(object) :
+
+    def __init__(self, tgt = None, **kw) :
+        self.target = tgt
+        for k, v in kw.items() :
+            setattr(self, k, v)
+
+    def get_build_tools(self) :
+        return ['fret']
+
+    def build(self, bld, tgt, tgen, font) :
+        if self.target is None :
+            output = tgt.replace(".ttf", ".pdf")
+        else :
+            output = self.target
+        args = getattr(self, 'params', '-r')
+        bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
+
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
     
@@ -348,7 +366,7 @@ def name(n, **kw) :
 
 def onload(ctx) :
     varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
-            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl,
+            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
             'tests' : font_tests.Tests
