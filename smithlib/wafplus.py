@@ -306,7 +306,7 @@ def add_build_wafplus() :
 
     Context.Context.pre_recurse = cpre_recurse
     old_prerecurse = Build.BuildContext.pre_recurse
-    old_postbuild = Build.BuildContext.post_build
+    old_prebuild = Build.BuildContext.pre_build
     old_exec = Build.BuildContext.execute
 
     def pre_recurse(bld, node) :
@@ -314,8 +314,8 @@ def add_build_wafplus() :
         build_rules(bld)
         super(Build.BuildContext, bld).pre_recurse(node)
 
-    def post_build(bld) :
-        old_postbuild(bld)
+    def pre_build(bld) :
+        old_prebuild(bld)
         build_modifys(bld)
 
     def execute(bld) :
@@ -325,7 +325,7 @@ def add_build_wafplus() :
             return old_exec(bld)
 
     Build.BuildContext.pre_recurse = pre_recurse
-    Build.BuildContext.post_build = post_build
+    Build.BuildContext.pre_build = pre_build
     Build.BuildContext.execute = execute
 
 def add_unicode_exec() :
