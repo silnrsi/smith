@@ -23,7 +23,8 @@ class Keyboard(object) :
         for k, v in kw.items() : setattr(self, k, v)
         if not hasattr(self, 'package') :
             self.package = package.Package.global_package()
-        self.package.add_kbd(self)
+        if self.package is not None :
+            self.package.add_kbd(self)
  
     def setup_vars(self, bld) :
         if hasattr(self, 'mskbd') : self.mskbd.setup_vars(bld, self)

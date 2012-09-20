@@ -27,7 +27,8 @@ class Font(object) :
         self.fonts.append(self)
         if not hasattr(self, 'package') :
             self.package = package.Package.global_package()
-        self.package.add_font(self)
+        if self.package is not None :
+            self.package.add_font(self)
         if not hasattr(self, 'tests') :
             self.tests = font_tests.global_test()
         if not hasattr(self, 'ots_target') :

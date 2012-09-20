@@ -199,11 +199,13 @@ class Package(object) :
             if not hasattr(self, t) :
                 raise Errors.WafError("Package '%r' needs '%s' attribute" % (self, t))
         thisdir = os.path.dirname(__file__)
+        fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
+        kbds = [x for x in self.keyboards if not hasattr(x, 'dontship')]
         env =   {
             'project' : self,
-            'fonts' : self.fonts,
-            'kbds' : self.keyboards,
             'basedir' : thisdir,
+            'fonts' : fonts,
+            'kbds' : kbds,
             'env' : bld.env
                 }
         def blddir(base, val) :
@@ -212,8 +214,6 @@ class Package(object) :
 
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname
-        kbds = list(self.keyboards)
-        fonts = list(self.fonts)
         def procpkg(p, c) :
             for k in p.keyboards :
                 k.setup_vars(c)
@@ -262,9 +262,11 @@ class Package(object) :
                 res.append((bld.bldnode.abspath(), licensenode.bldpath()))
         except: pass
         for f in self.fonts :
-            res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
+            if not hasattr(f, 'dontship') :
+                res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
         for k in self.keyboards :
-            res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
+            if not hasattr(k, 'dontship') :
+                res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
         if self.docdir :
             y = bld.path.find_or_declare(self.docdir)
             os.path.walk(y.abspath(), lambda a, d, f : res.extend([(a, os.path.relpath(os.path.join(d, x), a)) for x in f if os.path.isfile(os.path.join(d, x))]), bld.path.abspath())
