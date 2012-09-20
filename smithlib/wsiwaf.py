@@ -44,7 +44,7 @@ class process(create) :
             modify(res[0], tgt, res[1], **res[2])
 
 
-class test(create) :
+class test(process) :
 
     def __init__(self, tgt, *cmds, **kw) :
         kw['nochange'] = 1
