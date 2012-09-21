@@ -611,7 +611,9 @@ Section -StartMenu
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
++    if not fn.startswith('.') :
    File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+-
 -
 -
 -
@@ -626,7 +628,9 @@ Section -StartMenu
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) : 
 +  for fn in fs :
++    if not fn.startswith('.') :
    CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
+-
 -
 -
 -
@@ -690,7 +694,7 @@ Section "Uninstall"
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
-+    if fn :
++    if fn and not fn.startswith('.'):
    ;Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
 -
 -
@@ -707,7 +711,9 @@ Section "Uninstall"
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
++    if not fn.startswith('.') :
    Delete "$0\@fn@.lnk"
+-
 -
 -
 -
