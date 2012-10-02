@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+
+build : build-stamp
+build-stamp :
+	dh_testdir
+	./mywaflite
+	@- rm -fr temp ; mkdir temp ; cd temp ; ../smith --version
+	touch build-stamp
+
+clean :
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+install : build
+	dh_testdir
+	dh_testroot
+	dh_prep
+	dh_installdirs
+	x=`ls -td .waf* | head -1` ; for f in `find $$x -not -name \*.pyc` ; do if [ -d $$f ] ; then mkdir debian/smith-common/usr/lib/$${f#.} ; else cp $$f debian/smith-common/usr/lib/$${f#.} ; fi ; done
+	cp smith debian/smith-common/usr/bin
+
+binary-indep : build install
+	dh_testdir
+	dh_testroot
+	dh_pysupport
+	dh_installchangelogs
+	dh_installdocs
+	# x=debian/smith/usr/lib/waf* dh_pysupport ${x#/debian/smith}
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch: build install
+
+binary : binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
+

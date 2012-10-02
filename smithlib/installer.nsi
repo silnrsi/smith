@@ -461,9 +461,6 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
     ${GetParent} "$0" $1
     ExecWait '"$0" /S _?=$1'
 
-    ;ADD YOUR OWN FILES HERE...
-    ;File "${FONT_REG_FILE}"  ; done by InstallTTF
-
   BranchDoit:
 
     SetOutPath "$INSTDIR"
@@ -479,7 +476,6 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
                  "UninstallString" "$INSTDIR\Uninstall.exe"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" \
                  "Version" "${VERSION}"
-    ;MessageBox MB_OK "Creating Uninstaller"
   BranchInstall:
 
 +if len(fonts) :
