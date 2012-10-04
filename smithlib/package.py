@@ -535,7 +535,7 @@ def add_configure() :
             c = ctx.__class__()
             c.top_dir = os.path.join(ctx.srcnode.abspath(), k)
             c.out_dir = os.path.join(ctx.srcnode.abspath(), k, ctx.bldnode.srcpath())
-            Context.g_module = Context.cache_modules[os.path.join(c.top_dir, 'wscript')]
+            Context.g_module = Context.cache_modules[os.path.join(os.path.abspath(c.top_dir), 'wscript')]
             oconfig = getattr(Context.g_module, 'configure', None)
             def lconfig(ctx) :
                 subconfig(ctx)

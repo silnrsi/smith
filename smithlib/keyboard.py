@@ -69,7 +69,7 @@ class Keyboard(object) :
         return get_all_sources(self, ctx, 'source', 'font')
 
     def build(self, bld) :
-        if bld.env['KMCOMP'] :
+        if bld.env['KMCOMP'] and not hasattr(self, 'nokmx') :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
         if hasattr(self, 'kbdfont') : self.build_pdf(bld)

@@ -517,8 +517,10 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     IfErrors NoKeyman
 +if 'KMCOMP' in env:
 + for k in kbds :
++  if not hasattr(k, 'nokmx') :
     File "@bld(k, k.kmx)@"
     Exec "start.exe $OUTDIR\@k.kmx@"
+-
 -
 -
     NoKeyman:
