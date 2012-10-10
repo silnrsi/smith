@@ -2,32 +2,44 @@ Source: smith
 Priority: optional
 Section: utils
 Maintainer: Martin Hosken <martin_hosken@sil.org>
-Build-Depends: debhelper (>= 8.0), python, python-support
-Standards-Version: 3.9.1
-
-Package: smith-common
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
-Description: Core build framework for smith projects
- Core build framework for smith projects
-
-Package: smith-font
-Architecture: all
-Depends: smith-common, libfont-ttf-scripts-perl, fontforge, python-fontforge, texlive-xetex, nsis,
-            python-palaso-font, grcompiler
-Description: Fonts build system
- Provides a build framework for fonts, generating
- builds, test results and packages for various environments
-
-Package: smith-kbd
-Architecture: all
-Depends: smith-common, python-palaso-kbd, nsis, mingw-w64, pdftk, inkscape
-Description: Keyboard building system
- Provides a build framework for keyboards
+Build-Depends: debhelper (>= 8.0), python, python-support, bash-completion 
+Standards-Version: 3.9.2
+Homepage: http://projects.palaso.org/projects/wsiwaf
 
 Package: smith
 Architecture: all
-Depends: smith-font, smith-kbd
-Description: Metapackage for smith fonts and keyboards
- Provides a build framework for writing system implementations
- including fonts and keyboards
+Depends: ${misc:Depends}, ${python:Depends}, libfont-ttf-scripts-perl, libfont-ttf-perl, fontforge, python-fontforge, texlive-xetex, nsis, mingw-w64, pdftk, inkscape
+# python-palaso-font, grcompiler
+# python-palaso-kbd
+Description: build framework for Writing Systems Implementation projects
+ Provides a common build framework to create, test and maintain writing systems
+ implementation components like fonts and keyboards.
+
+
+
+#Package: smith-common
+#Architecture: all
+#Depends: ${python:Depends}, ${misc:Depends}
+#Description: Core build framework for smith projects
+# Core build framework for smith projects
+#
+#Package: smith-font
+#Architecture: all
+#Depends: smith-common, libfont-ttf-scripts-perl, fontforge, python-fontforge, texlive-xetex, nsis,
+#            python-palaso-font, grcompiler
+#Description: Fonts build system
+# Provides a build framework for fonts, generating
+# builds, test results and packages for various environments
+#
+#Package: smith-kbd
+#Architecture: all
+#Depends: smith-common, python-palaso-kbd, nsis, mingw-w64, pdftk, inkscape
+#Description: Keyboard building system
+# Provides a build framework for keyboards
+#
+#Package: smith
+#Architecture: all
+#Depends: smith-font, smith-kbd
+#Description: Metapackage for smith fonts and keyboards
+# Provides a build framework for writing system implementations
+# including fonts and keyboards
