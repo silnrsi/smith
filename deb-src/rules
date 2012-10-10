@@ -1,5 +1,8 @@
 #!/usr/bin/make -f
 
+build-arch: build-stamp
+build-indep: build-stamp
+
 build : build-stamp
 build-stamp :
 	dh_testdir
@@ -11,25 +14,33 @@ clean :
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
+	rm -f smith 
+	find -name "*config.log" -delete
+	find -name "*.pyc" -delete
+	find -name "*.lock-wscript" -delete
+	find -name "*.lock-wafbuildlinux2*" -delete
 
 install : build
 	dh_testdir
 	dh_testroot
 	dh_prep
-	dh_installdirs
-	x=`ls -td .waf* | head -1` ; for f in `find $$x -not -name \*.pyc` ; do if [ -d $$f ] ; then mkdir debian/smith-common/usr/lib/$${f#.} ; else cp $$f debian/smith-common/usr/lib/$${f#.} ; fi ; done
-	cp smith debian/smith-common/usr/bin
+#	dh_installdirs
+	x=`ls -td .waf* | head -1` ; for f in `find $$x -not -name \*.pyc` ; do if [ -d $$f ] ; then mkdir -p debian/smith/usr/lib/$${f#.} ; else cp $$f debian/smith/usr/lib/$${f#.} ; fi ; done
+	mkdir -p debian/smith/usr/bin/
+	cp smith debian/smith/usr/bin/smith
 
 binary-indep : build install
 	dh_testdir
 	dh_testroot
-	dh_pysupport
+	dh_compress
+	dh_bash-completion
 	dh_installchangelogs
 	dh_installdocs
-	# x=debian/smith/usr/lib/waf* dh_pysupport ${x#/debian/smith}
+	dh_pysupport
 	dh_installdeb
 	dh_gencontrol
 	dh_md5sums
+	dh_installman
 	dh_builddeb
 
 binary-arch: build install
