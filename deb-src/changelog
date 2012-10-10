@@ -1,5 +1,5 @@
-smith (0.1) natty; urgency=low
+smith (0.1-1ubuntu1) oneiric; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
 
- -- Martin Hosken <martin_hosken@sil.org>  Tue, 03 May 2011 11:02:37 +0700
+ -- Martin Hosken <martin_hosken@sil.org> Wed, 10 Oct 2012 17:04:44 +0100
