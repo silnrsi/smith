@@ -2,4 +2,5 @@ smith (0.1-1ubuntu1) oneiric; urgency=low
 
   * Initial release. (Closes: #XXXXXX)
 
- -- Martin Hosken <martin_hosken@sil.org> Wed, 10 Oct 2012 17:04:44 +0100
+ -- Martin Hosken <martin_hosken@sil.org>  Wed, 10 Oct 2012 17:04:44 +0100
+
