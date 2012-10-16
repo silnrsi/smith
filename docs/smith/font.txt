@@ -201,6 +201,9 @@ font(target = 'results/myfont.ttf',
      source = 'myfont.ttf')
 ----
 
+resultsdir::
+    This specifies the directory under the build directory into which test results are placed. It can be set globally via TESTRESULTSDIR and defaults to the same directory as testdir.
+
 texts::
     This is a glob string or list of glob strings that describe the text files to use for testing. The default is `*.txt`. For each text file and each font a `.tex` file is created that references the text file, the font, the script and language. In addition tests are run for each smart font technology (`gr` and or `ot`). These files are then generated to pdf.
 
@@ -212,4 +215,70 @@ texs::
 
 test_suffix::
     The way a font is identified as part of a test result filename is based on the target file for that font. If a font has a `test_suffix` attribute then this is used instead for the font identifying name. 
+
+targets::
+    While the test system is designed to have sensible defaults, it is possible to override what happens when a particular test target is specified. This dictionary contains a test object associated with each of the test targets: pdfs, svg, test.  The default test type for each target is pdfs : tex(), svg : svg(), test : tests().
+
+The various test target classes are described here with the various parameters to each.
+
+==== tex ====
+
+This class is used to generate PDF files from input test files. It takes the following parameters:
+
+files::
+    This lists the files, relative to the testsdir, that should be used as sources for this test. The list is held in a dictionary with the value being key value pairs separated by &, as in key=value&key2=value2. These key values are used to set feature values and language and script for the file being tested. Particular keys are:
+
+    lang;;
+        Specifies the language code to pass for rendering.
+
+    script;;
+        Specifies the script code to pass for rendering
+
+==== svg ====
+
+This class is used for the generation of comparative SVG html reports to compare ot and graphite renderings. It takes the following parameters:
+
+files::
+    This dictionary gives all the test files to use and the feature values to use for rendering the text. The values follow the format used in the tex() class.
+
+html::
+    The html file that should be output that contains the links to all the test results.
+
+diff::
+    Specifies whether difference files should be generated. This value is a boolean.
+
+==== tests ====
+
+This class is used for managing regression type tests. In fact it can be used for any kinds of tests, since it allows the user to specify whatever tests they want and the commands involved. The first parameter passed to a tests() class contains a dictionary of test types (subdirectory names under the testsdir), and the cmd() to execute for that test type. For example, the default test list if none is specified, is equivalent to:
+
+----
+{ 'regression' : cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()}
+                        -o ${TGT} ${fileinfo} ${fileinfo} ${SRC[0].bldpath()} 
+                        ${SRC[2].bldpath()}') }
+----
+
+Notice that there are 3 input files available to the command:
+
+* font being tested
+* text file for the test
+* standard base font to compare against
+
+There are also some keywords that get expanded in the command string:
+
+script::
+    The script tag. This is either specified in the files dictionary or comes from the script parameter in the font being tested.
+
+shaper::
+    Is either ot or gr, specifying which type of shaping is to be done in the test.
+
+fileinfo::
+    This is extra information comeing as part of the files dictionary and can be specified as the value to the key 'extra' in the key value pairs.
+
+In addition, a tests() takes the following named parameters:
+
+standards::
+    This directory is where to find the base fonts against which regression comparisons take place
+
+files::
+    As per the tex() files parameter.
 
