@@ -3,7 +3,7 @@ Priority: optional
 Section: utils
 Maintainer: Martin Hosken <martin_hosken@sil.org>
 Build-Depends: debhelper (>= 8.0), python, python-support, bash-completion, asciidoc, doc-base 
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Homepage: http://projects.palaso.org/projects/wsiwaf
 
 Package: smith-common
@@ -28,7 +28,7 @@ Description: Keyboard build system
 
 Package: smith
 Architecture: all
-Depends: ${misc:Depends}, smith-font, smith-kbd
+Depends: ${misc:Depends}, smith-font, smith-keyboard
 Description: Metapackage for smith fonts and keyboards
  Provides a build framework for writing system implementations
  including fonts and keyboards
