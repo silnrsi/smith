@@ -37,7 +37,7 @@ binary-indep : build install
 	dh_bash-completion
 	dh_installchangelogs
 	dh_installdocs
-	dh_pysupport
+	dh_python2
 	dh_installdeb
 	dh_gencontrol
 	dh_installman
