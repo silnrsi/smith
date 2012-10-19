@@ -253,8 +253,8 @@ class Gdl(Internal) :
                     cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                     ind += 1
                 if self.master :
-                    srcs.append(self.master)
                     mnode = bld.path.find_or_declare(self.master)
+                    srcs.append(mnode)
                     snode = bld.bldnode.find_or_declare(self.source)
                     loc = mnode.path_from(snode.parent)
                     cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "

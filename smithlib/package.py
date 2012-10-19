@@ -286,6 +286,7 @@ class cmdContext(Build.BuildContext) :
 
     def pre_build(self) :
         if hasattr(self, 'issub') : return
+        super(cmdContext, self).pre_build()
         if Options.options.debug :
             import pdb; pdb.set_trace()
         self.add_group(self.cmd)
