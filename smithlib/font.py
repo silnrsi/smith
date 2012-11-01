@@ -132,7 +132,7 @@ class Font(object) :
             self.tests.build_tests(bld, self, 'test')
 
     def build_ots(self, bld) :
-        bld(rule="${OTSANITISE} ${SRC} > /dev/null 2>${TGT}", target=self.ots_target, source=[self.target], shell=1)
+        bld(rule="${OTS} ${SRC} > /dev/null 2>${TGT}", target=self.ots_target, source=[self.target], shell=1)
 
 class Legacy(object) :
 

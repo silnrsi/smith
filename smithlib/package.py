@@ -68,7 +68,7 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            ctx.find_program('ot-sanitise', var="OTSANITISE")
+            ctx.find_program('validator_checker', var="OTS")
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
@@ -184,8 +184,8 @@ class Package(object) :
             k.build_test(bld)
 
     def build_ots(self, bld) :
-        if 'OTSANITISE' not in bld.env :
-            Logs.error("ot-sanitise not installed. Can't complete")
+        if 'OTS' not in bld.env :
+            Logs.error("ots not installed. Can't complete")
             return
         self.subrun(bld, lambda p, b: p.build_ots(b))
         for f in self.fonts :
