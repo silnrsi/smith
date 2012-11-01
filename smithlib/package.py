@@ -269,7 +269,7 @@ class Package(object) :
                 res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
         if self.docdir :
             y = bld.path.find_or_declare(self.docdir)
-            os.path.walk(y.abspath(), lambda a, d, f : res.extend([(a, os.path.relpath(os.path.join(d, x), a)) for x in f if os.path.isfile(os.path.join(d, x))]), bld.path.abspath())
+            os.path.walk(y.abspath(), lambda a, d, f : res.extend([(a, os.path.relpath(os.path.join(d, x), a)) for x in f if not d.startswith('.') and os.path.isfile(os.path.join(d, x))]), bld.path.abspath())
         return res
 
 class zipContext(Build.BuildContext) :
