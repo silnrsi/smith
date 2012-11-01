@@ -335,7 +335,7 @@ class srcdistContext(Build.BuildContext) :
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
             tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-            tarname = tarbase + "_srcdist"
+            tarname = tarbase + "-developer"
         else :
             tarbase = tarname
         tar = tarfile.open(tarname + '.tar.gz', 'w:gz')
