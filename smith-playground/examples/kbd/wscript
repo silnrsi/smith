@@ -1,4 +1,15 @@
 #!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
+APPNAME="Tai-KBD"
+VERSION=0.1
+
 
 srcdir = "../../script-test/keyboards/thai"
 
