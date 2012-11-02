@@ -2,7 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Logs
-from wafplus import modify
+from wafplus import modify, ismodified
 from wsiwaf import get_all_sources
 import font_tests, package, keyboard
 import sys, os, re
@@ -65,6 +65,7 @@ class Font(object) :
     def build(self, bld) :
         res = {}
 
+        basepath = bld.srcnode.find_node('wscript').abspath()
         if self.source == self.target :
             Logs.error("Font source may not be the same as the target: '%s'" % self.target)
         # convert from legacy
@@ -81,7 +82,7 @@ class Font(object) :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
                 bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarname)
-                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = bld.srcnode.find_node('wscript').abspath(), before = self.target)
+                modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target)
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
@@ -89,9 +90,9 @@ class Font(object) :
                 ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
                 ttfsetverparms = self.version
-            modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
+            modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = basepath, late = 1)
         if hasattr(self, 'copyright') :
-            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
+            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = basepath, late = 1)
         if hasattr(self, 'license') :
             if hasattr(self.license, 'reserve') :
                 self.package.add_reservedofls(*self.license.reserve)
@@ -104,10 +105,12 @@ class Font(object) :
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
                     bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
-                elif not hasattr(self.ap, 'isGenerated') :
-                    bld(rule="${COPY} ${SRC} ${TGT}", source = apnode.get_src(), target = apnode.get_bld())
+                elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
+                    origap = self.ap
+                    self.ap = self.ap + ".smith"
+                    bld(rule="${COPY} ${SRC} ${TGT}", source = origap, target = self.ap)
             if hasattr(self, 'classes') :
-                modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = bld.srcnode.find_node('wscript').abspath())
+                modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf')) :

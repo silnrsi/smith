@@ -267,9 +267,17 @@ class Package(object) :
         for k in self.keyboards :
             if not hasattr(k, 'dontship') :
                 res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
+        def docwalker(top, dname, fname) :
+            i = 0
+            while i < len(fname) :
+                if fname[i].startswith('.') :
+                    del fname[i]
+                else :
+                    i += 1
+            res.extend([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if os.path.isfile(os.path.join(dname, x))])
         if self.docdir :
             y = bld.path.find_or_declare(self.docdir)
-            os.path.walk(y.abspath(), lambda a, d, f : res.extend([(a, os.path.relpath(os.path.join(d, x), a)) for x in f if not d.startswith('.') and os.path.isfile(os.path.join(d, x))]), bld.path.abspath())
+            os.path.walk(y.abspath(), docwalker, bld.path.abspath())
         return res
 
 class zipContext(Build.BuildContext) :

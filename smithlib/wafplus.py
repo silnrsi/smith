@@ -118,6 +118,11 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
     if not len(inputs) : shell = 1      # workaround assert in Task.py
     modifications[path][inf].append((cmd, inputs, shell, kw))
 
+def ismodified(infile, path = None) :
+    if not path : path = getpath()
+    if path not in modifications : return False
+    return infile in modifications[path]
+
 def rule(cmd, inputs, outputs, shell = 0, path = None, **kw) :
     if not path : path = getpath()
     if path not in rules :

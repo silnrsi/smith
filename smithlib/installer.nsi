@@ -604,7 +604,12 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     WriteUninstaller "$INSTDIR\Uninstall.exe"
 SectionEnd
 
-Section -StartMenu
+;Optional source font - as a compressed archive
+Section "Documentation" SecSrc
+
+  SetOutPath "$INSTDIR"
+  SetOverwrite ifnewer
+  ;ADD YOUR OWN FILES HERE...
   @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :
 + for dp, dn, fs in os.walk(prj.docdir) :
@@ -615,34 +620,6 @@ Section -StartMenu
 -
 -
 -
-  !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
-  SetShellVarContext all
-  CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
-  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
-    SetShellVarContext current
-    CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
- 
-  createIcons:
-+if hasattr(prj, 'docdir') :
-+ for dp, dn, fs in os.walk(prj.docdir) : 
-+  for fn in fs :
-+    if not fn.startswith('.') :
-   CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
--
--
--
--
-    CreateShortCut $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\Uninstall.lnk $INSTDIR\Uninstall.exe
-    WriteRegStr ${MUI_STARTMENUPAGE_REGISTRY_ROOT} "${MUI_STARTMENUPAGE_REGISTRY_KEY}" "Menus" "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}"
-  !insertmacro MUI_STARTMENU_WRITE_END
-SectionEnd
-
-;Optional source font - as a compressed archive
-Section "Documentation" SecSrc
-
-  SetOutPath "$INSTDIR"
-  SetOverwrite ifnewer
-  ;ADD YOUR OWN FILES HERE...
 +d = {}; 
 + for f in getattr(prj, 'extra_dist', '').split(' ') :
 +  if f and not os.path.dirname(f) in d :
@@ -654,6 +631,32 @@ Section "Documentation" SecSrc
   @'File "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
 -
   
+SectionEnd
+
+Section "-StartMenu"
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
+  SetShellVarContext all
+  CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
+  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
+    SetShellVarContext current
+    CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
+ 
+  SectionGetFlags ${SecSrc} $0
+  IntOp $0 $0 | ${SF_SELECTED}
+  IntCmp $0 1 0 createIcons createIcons
++if hasattr(prj, 'docdir') :
++ for dp, dn, fs in os.walk(prj.docdir) : 
++  for fn in fs :
++    if not fn.startswith('.') :
+   CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
+-
+-
+-
+-
+  createIcons:
+    CreateShortCut $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\Uninstall.lnk $INSTDIR\Uninstall.exe
+    WriteRegStr ${MUI_STARTMENUPAGE_REGISTRY_ROOT} "${MUI_STARTMENUPAGE_REGISTRY_KEY}" "Menus" "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}"
+  !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
 
