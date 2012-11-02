@@ -18,6 +18,6 @@ _smith()
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        COMPREPLY=($( compgen -W 'configure build pdfs exe zip srcdist clean distclean svg test makedebian install uninstall' -- $cur ) )
+        COMPREPLY=($( compgen -W 'configure build pdfs exe zip srcdist clean distclean svg test ots' -- $cur ) )
 }
 complete -F _smith $default smith 
