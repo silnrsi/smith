@@ -16,6 +16,7 @@ Description: build framework for Writing Systems Implementation projects
 Package: smith-font
 Architecture: all
 Depends: ${misc:Depends}, smith-common, libfont-ttf-perl, libfont-ttf-scripts-perl, fontforge, python-fontforge, texlive-xetex, nsis, python-palaso-font, grcompiler
+Recommends: graphite-utilities
 Description: Fonts build system
  Provides a build framework for fonts, generating
  builds, test results and packages for various environments
