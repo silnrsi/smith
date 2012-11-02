@@ -1,4 +1,14 @@
 #!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
+APPNAME="Basic"
+VERSION=0.1
 
 font(target = 'Norasi.ttf',
      source = '../../script-test/fonts/thai/font-source/Norasi.ttf')
