@@ -1,7 +1,16 @@
 #!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
+APPNAME="Basic_SFD"
+VERSION=0.1
 
 import os
-
 srcdir=os.path.join("..", "..", "script-test")
 font(target = 'Norasi.ttf',
      source = os.path.join(srcdir, 'fonts', 'thai', 'font-source', 'Norasi.sfd'))
