@@ -612,14 +612,20 @@ Section "Documentation" SecSrc
   ;ADD YOUR OWN FILES HERE...
   @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :
-+ for dp, dn, fs in os.walk(prj.docdir) :
-+  for fn in fs :
-+    if not fn.startswith('.') :
++  for dp, dn, fs in os.walk(prj.docdir) :
++    i = 0;
++    while i < len(dn) :
++      if dn[i].startswith('.') : del dn[i]; i -= 1;
++      i += 1;
+-
+-
+  CreateDirectory $OUTDIR\@dp.replace(prj.docdir, 'docs')@
++    for fn in fs :
    File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
 -
 -
 -
--
+
 +d = {}; 
 + for f in getattr(prj, 'extra_dist', '').split(' ') :
 +  if f and not os.path.dirname(f) in d :
