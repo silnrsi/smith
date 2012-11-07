@@ -643,18 +643,24 @@ Section "-StartMenu"
   !insertmacro MUI_STARTMENU_WRITE_BEGIN "FONT"
   SetShellVarContext all
   CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
-  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createIcons
+  IfFileExists $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE} createLinks
     SetShellVarContext current
     CreateDirectory $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}
  
-  SectionGetFlags ${SecSrc} $0
-  IntOp $0 $0 | ${SF_SELECTED}
-  IntCmp $0 1 0 createIcons createIcons
+  createLinks:
+;  SectionGetFlags ${SecSrc} $0
+;  IntOp $0 $0 | ${SF_SELECTED}
+;  IntCmp $0 1 0 createIcons createIcons
 +if hasattr(prj, 'docdir') :
-+ for dp, dn, fs in os.walk(prj.docdir) : 
-+  for fn in fs :
-+    if not fn.startswith('.') :
-   CreateShortCut $SMPROGRAMS/${MUI_STARTMENUPAGE_FONT_VARIABLE}/@fn@.lnk $OUTDIR/@os.path.join(dp.replace(prj.docdir, 'docs'), fn)@
++  for dp, dn, fs in os.walk(prj.docdir) : 
++    i = 0;
++    while i < len(dn) :
++      if dn[i].startswith('.') : del dn[i]; i -= 1;
++      i += 1;
+-
+-
++    for fn in fs :
+   CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\@fn@.lnk" "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/', '\\')@"
 -
 -
 -
