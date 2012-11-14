@@ -1,0 +1,286 @@
+c Thai Keyboard for Tavultesoft Keyboard Manager 3.0
+
+c Keyboard: Thai language for use with  TIS encoding.
+c
+c MJPH  1.14    13-DEC-2003     Fix Unicode output
+c MJPH  1.13    21-Feb-2001     Add Unicode output
+c GL    1.12    15-Jul-1998     free up backslash key for Shoebox3 and 
+c       revise ~ & ` modifiers to postfix. See Other symbols.  Add quote mechansim
+c       using ` prefix to add any TIS zero width thingy anywhere you want.  Removed
+c       v1.1's "space is a consonant" mechanism as redundant.  Catch the [K-BKSP]
+c       key to retain context (in most cases) on destructive backspace.  Throw out
+c       some old commented out code.
+c GL    1.11    11-Jul-1998     Sync w/THAIUPC0 v1.11 allowing tone over shortner
+c                               *** BECAME THAITIS0.KMN ***
+c MJPH  1.1      3-JUN-1998     Allow two tone marks among other things
+c				And comment out UPC contextualization -GL
+c MJPH  1.02     3-JUN-1998     Commentary change only
+c MJPH  1.01    27-APR-1994     remove many comments, fix Ctall (TONE) 'am
+c                               fix Ctall, BV, TONE problem
+c                               Discover actually only level 1 checking
+c MJPH  1.00    05-FEB-1994     original (THAIWTT1.KMN)
+
+NAME "Thai Kedmanee"
+VERSION 5.0
+c BITMAP TaiTIS01
+HOTKEY  "^+S"
+c LANGUAGE x1e, x02
+c This control file provides a lose TIS encoding keyboard coding and checking.
+
+begin Ansi > use(Main)
+begin Unicode > use(Unicode)
+
+c WTT2 Class 2 - NON
+store(NONK) "Q@#$%*()_+" "W" "XZ3}2MO&q" '"'
+store(NON)  "ğñòóôõö÷øù" '"' ")(-,/?Ïßæ" "."   "ïúû" "€" c d144 d128
+store(NONU) U+0E50 U+0E51 U+0E52 U+0E53 U+0E54 U+0E55 U+0E56 U+0E57 U+0E58 U+0E59 \
+            U+0022 U+0029 U+0028 U+002D U+002C U+002F U+003F U+0E2F U+0E3F U+0E46 \
+            U+002E
+c last five codes are multi-key. Note d144 & d128 are now considered regular C in ThaiUPC0
+
+c tall consonants which move things left
+store(CtallK) "x/a"
+store(Ctall)  "»½¿"
+store(CtallU) U+0E1B U+0E1D U+0E1F
+
+c long consonants which move under things down
+store(ClongK) "PDE{"
+store(Clong)  "­®¯°"
+store(ClongU) U+0E0D U+0E0E U+0E0F U+0E10
+
+c d161-d206  normal consonants
+store(CK) "d-8S'0C=:GR<If95mTo[zr4,pi];LKls>vV" "|"  c "\" v1.12  see Store(CONS)
+store(C)  "¡¢¤¦§¨©ª«¬±²³´µ¶·¸¹º¼¾ÀÁÂÃÅÇÈÉÊËÌÍÎ¥£" c v1.12
+store(CUni) U+0E01 U+0E02 U+0E04 U+0E06 U+0E07 U+0E08 U+0E09 U+0E0A U+0E0B U+0E0C \
+            U+0E11 U+0E12 U+0E13 U+0E14 U+0E15 U+0E16 U+0E17 U+0E18 U+0E19 U+0E1A \
+            U+0E1C U+0E1E \
+            U+0E20 U+0E21 U+0E22 U+0E23 U+0E25 U+0E27 \
+            U+0E28 U+0E29 U+0E2A U+0E2B U+0E2C U+0E2D U+0E2E \
+            U+0E05 U+0E03
+            
+
+c WTT2 Class 3 - CONS       all 44 of them
+c ThaiUPC0 uses the combination £\ for a single backslash for SH fieldmarker but TIS  
+c uses ¢~ for £
+store(CONSK)  outs(CtallK) outs(ClongK) outs(CK)   c "\" c  v1.12 TIS uses ¢~ for £
+c v1.1 Add space as consonant so can type isolated diacritics
+store(CONS)   outs(Ctall)  outs(Clong)  outs(C)   " "
+store(CONSU)  outs(CtallU) outs(ClongU) outs(CUni)
+
+c WTT2 Class 4 - LV         prevowels
+store(LVK)    "gcF.w"
+store(LV)     "àáâãä"       c d224-d228
+store(LVU)    U+0E40 U+0E41 U+0E42 U+0E43 U+0E44
+
+c WTT2 Class 5 - FV1        sara a?, sara aa, sara am
+store(FV1K)   "tke"
+store(FV1)    d208 d210 d211
+store(FV1U)   U+0E30 U+0E32 U+0E33
+
+c WTT2 Class 6 - FV2        lakkhangyao
+store(FV2K)   "1"
+store(FV2)    d229
+store(FV2U)   U+0E45
+
+c WTT2 Class 7 - FV3        ligature vowels
+store(FV3K)   "A?"
+store(FV3)    "ÄÆ"
+store(FV3U)   U+0E24 U+0E26
+
+c WTT2 Class 8 - BV1        sara u?
+store(BV1K)   "6"
+store(BV1)    d216
+store(BV1l)   d252
+store(BV1U)   U+0E38
+
+c WTT2 Class 9 - BV2        sara uu
+store(BV2K)   "^"
+store(BV2)    d217
+store(BV2l)   d253
+store(BV2U)   U+0E39
+
+c WTT2 Class 10 - BD        phintu
+store(BDK)    "B"
+store(BD)     d218
+store(BDl)    d254
+store(BDU)    U+0E3A
+
+c WTT2 Class 11 - TONE
+store(TONEK)  "jhUJ"
+store(TONE)   "‹Œ"       c d139-d142
+store(TONEl)  "†‡ˆ‰"       c d134-d137
+store(TONEu)  "èéêë"       c d232-d235
+store(TONEul) "›œ"       c d155-d158
+store(TONEUn)  U+0E48 U+0E49 U+0E4A u+0E4B
+
+c WTT2 Class 12 - AD1       nikhahit, thanthakhat
+c this lot is never referenced independantly of TONE - see TAD1
+c in this implementation the AD1 group is never referenced
+store(AD1K)   "YN"
+store(AD1)    "í"
+store(AD1l)   "™Š"
+store(AD1u)   "íì"      c no upper nikhahit
+store(AD1ul)  "™Ÿ"
+store(AD1Un)   U+0E4D U+0E4C
+
+c WTT2 Class 13 - AD2       maitaikhu
+store(AD2K)   "H"
+store(AD2)    d231
+store(AD2l)   d154
+store(AD2U)   U+0E47
+
+c WTT2 Class 14 - AD3       yamakkan
+c No key store since a multi-key sequence
+store(AD3)    d238
+store(AD3U)   U+0E4E
+
+c WTT2 Class 15 - AV1       sara i?
+store(AV1K)   "b"
+store(AV1)    d212
+store(AV1l)   d129
+store(AV1U)   U+0E34
+
+c WTT2 Class 16 - AV2       maihanakat, sara ue?
+store(AV2K)   "y7"
+store(AV2)    d209 d214
+store(AV2l)   d152 d131
+store(AV2U)   U+0E31 U+0E36
+
+c WTT2 Class 17 - AV3       sara ii, sara uee
+store(AV3K)   "un"
+store(AV3)    d213 d215
+store(AV3l)   d130 d132
+store(AV3U)   U+0E35 U+0E37
+
+c Some useful combination stores
+c column 3 stores excluding AD2
+store(TAD1K)  outs(TONEK)  outs(AD1K)
+store(TAD1)   outs(TONE)   outs(AD1)
+store(TAD1l)  outs(TONEl)  outs(AD1l)
+store(TAD1u)  outs(TONEu)  outs(AD1u)
+store(TAD1ul) outs(TONEul) outs(AD1ul)
+store(TAD1Un)  outs(TONEUn)  outs(AD1Un)
+
+c column 2 stores
+store(follK)  outs(AV1K) outs(AV2K) outs(AV3K) outs(BV1K) outs(BV2K) outs(BDK)
+store(foll)   outs(AV1)  outs(AV2)  outs(AV3)  outs(BV1)  outs(BV2)  outs(BD)
+store(follU)  outs(AV1U) outs(AV2U) outs(AV3U) outs(BV1U) outs(BV2U) outs(BDU)
+
+c v1.12 Above & Below zero width stuff.
+store(ABK)	outs(follK)	outs(AD2K)	outs(TAD1K)
+store(ABu)	outs(foll)	outs(AD2)	outs(TAD1u)
+store(ABUn)  outs(follU) outs(AD2U)  outs(TAD1Un)
+
+c store(diaK)   outs(follK) outs(TAD1K) outs(AD2K) c v1.12 using ABK instead.
+
+store(backto)	outs(NON) outs(CONS) outs(LV) outs(FV1) outs(FV2) outs(FV3) \
+		outs(ABu) outs(AD3) "`" "~"
+
+group(Main) using keys
+
+c Simple rules - key conversions
+ + any(NONK) > index(NON,1)
+ + any(LVK) > index(LV,1)
+ + any(FV1K) > index(FV1,1)
+ + any(FV2K) > index(FV2,1)
+ + any(FV3K) > index(FV3,1)
+ + any(CONSK) > index(CONS,1)
+
+c v1.12 zero width character quoting and cycling
+'`' + any(ABK) > index(ABu,2)
+c any(ABu) any(ABu) + [K_BKSP] > index(ABu,1)
+c any(CONS) any(ABu) + [K_BKSP] > index(CONS,1)
+any(backto) any(backto) + [K_BKSP] > index(backto,1)
+
+c Consonant Contextualisation
+
+c added to fix 'am problem
+any(TONEu) + "e" > index(TONEu,1) d211
+
+any(CONS)  + any(follK) > context index(foll,2)
+any(CONS)  + any(AD2K)  > context index(AD2,2)
+any(CONS) '~' + '3'    > index(CONS,1) d238        c AD3 covered by this rule
+
+any(CONS)  + any(TAD1K) > context index(TAD1u,2)
+
+c every possible combination must be listed.  Add more if you need them.
+
+any(BV1)   + any(TAD1K) > context index(TAD1u,2)
+any(BV1l)  + any(TAD1K) > context index(TAD1u,2)
+any(AV1)   + any(TAD1K) > context index(TAD1u,2)
+any(AV1l)  + any(TAD1K) > context index(TAD1u,2)
+
+c v1.1  allow multiple tones so long as they display
+c any(TAD1u)  + any(TAD1K) > context index(TAD1u,2)
+
+c v1.1 loosen to allow AD1s in the following contexts instead of TONEK only
+c      i.e. s/TONE/TAD1/. Also remove AD2K rules since don't look like they
+c      will print OK.
+any(BV2)   + any(TAD1K) > context index(TAD1u,2)
+any(BV2l)  + any(TAD1K) > context index(TAD1u,2)
+any(AV2)   + any(TAD1K) > context index(TAD1u,2)
+any(AV2l)  + any(TAD1K) > context index(TAD1u,2)
+any(AV3)   + any(TAD1K) > context index(TAD1u,2)
+c v1.1 any(AV3)   + any(AD2K)  > context index(AD2,2)   c no upper maitaikhu
+any(TAD1u) + any(BDK) >  index(TAD1u,1) index(BD,2)	c v1.11 GL
+any(AD2) + any(BDK) > index(AD2,1) index(BD,2)		c v1.11 GL
+any(BD) + any(TAD1K) >  index(TAD1u,2) index(BD,1)	c v1.11 GL
+any(BD) + any(AD2K) > index(AD2,2) index(BD,1)		c v1.11 GL
+any(AD2) any(BD) + any(TAD1K) > index(AD2,1) index(TAD1u,3) index(BD,2)	c v1.11 GL
+any(TAD1) any(BD) + any(AD2K) > index(AD2,3) index(TAD1u,1) index(BD,2)	c v1.11 GL
+any(CONS) any(TAD1u) + any(AD2K) > index(CONS,1) index(AD2,3) index(TAD1u,2)	c v1.11 GL
+any(CONS) any(TAD1) + any(AD2K) > index(CONS,1) index(AD2,3) index(TAD1u,2)	c v1.11 GL
+any(AD2)  + any(TAD1K) > context index(TAD1u,2)		c v1.11 GL
+
+c Now for tone vowel reordering - just for fun (not part of WTT2) added v1.1
+
+any(CONS) any(TAD1) + any(BV1K) > index(CONS,1) index(BV1,3) index(TAD1,2)
+any(CONS) any(TAD1) + any(AV1K) > index(CONS,1) index(AV1,3) index(TAD1u,2)
+any(CONS) any(TONE) + any(BV2K) > index(CONS,1) index(BV2,3) index(TONE,2)
+any(CONS) any(TONE) + any(AV2K) > index(CONS,1) index(AV2,3) index(TONEu,2)
+any(CONS) any(TONE) + any(AV3K) > index(CONS,1) index(AV3,3) index(TONEu,2)
+any(CONS) any(AD2) + any(AV3K) > index(CONS,1) index(AV3,3) index(AD2,2)
+
+c this is a wonderful catch all rule that beeps if any unrecognised
+c combination (not listed earlier) is typed:
+           + any(ABK)  > beep
+
+c now for that epsilon multi-key sequence.  At least there is only one
+c v1.12 epsilon is now obtained by entering a nikhahit followed by a ~ (e.g. Y~)
+c any(NON) '~' + '3'      > index(NON,1) beep
+c any(LV)  '~' + '3'      > index(LV,1) beep
+c any(FV1) '~' + '3'      > index(FV1,1) beep
+c any(FV2) '~' + '3'      > index(FV2,1) beep
+c any(FV3) '~' + '3'      > index(FV3,1) beep
+
+c Symbols
+  '­' + '~' > '' c  d144      c y-phuuying without subscript tail
+  '°' + '~' > '€' c d128      c th-than without subscript tail
+  '"'      + '`' > d145      c open single quote
+  d145 + '`' > d146      c close single quote
+  '"'      + 'W' > d147      c open double quote
+  d147 + 'W' > d148      c close double quote
+  '..' + '"' > d133     c ellipses
+  d237 + '~'  > d238    c   í~ =  î  d238 epsilon symbol
+c  d153 + '~'  > d238    c   í~ =  î  d238 epsilon symbol
+  d240 + '~'  > 'ï'   c Q~ d239 fish-eye symbol
+  'Ï' + '~' > 'ú' c O~  d250 ending symbol #1
+  'ú' + '~' > 'û' c O~~  d251 ending symbol #2
+  '-' + '~' > '•'   c d149 large solid dot at mid-line
+  '-' + '3' > '–'   c d150 en-dash
+  '–' + '3' > '—'  c d151 em-dash
+c other options
+  '¤' + '~' > '¥' c v1.12
+  '¢' + '~' > '£' c v1.12
+  '£' + '\' > '\'   c v1.12 alternate way to '\' for SH3 if others commented out
+
+group(Unicode) using keys
+ + any(NONK) > index(NONU,1)
+ + any(LVK) > index(LVU,1)
+ + any(FV1K) > index(FV1U,1)
+ + any(FV2K) > index(FV2U,1)
+ + any(FV3K) > index(FV3U,1)
+ + any(CONSK) > index(CONSU,1)
+ + any(ABK) > index(ABUn,1)
+
+'~' + '3'    > U+0E4E        c AD3 covered by this rule
