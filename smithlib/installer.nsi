@@ -619,6 +619,7 @@ Section "Documentation" SecSrc
 +      i += 1;
 -
 -
+-
   CreateDirectory $OUTDIR\@dp.replace(prj.docdir, 'docs')@
 +    for fn in fs :
    File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
