@@ -478,7 +478,7 @@ class graideContext(Build.BuildContext) :
                     makegdl = "make_gdl " + f.graphite.make_params + " -i %i -a %a %f %g"
                 else :
                     makegdl = ''
-                master = os.path.join('..', f.graphite.master) if hasattr(f.graphite, 'master') else ''
+                master = f.graphite.master if hasattr(f.graphite, 'master') else ''
                 fh = file('graide/%s.cfg' % base, "w")
                 fh.write("""[main]
 font = {0}/{1}

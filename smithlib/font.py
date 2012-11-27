@@ -74,14 +74,14 @@ class Font(object) :
 
         # build font
         targetnode = bld.path.find_or_declare(self.target)
+        tarname = None
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = targetnode)
         else :
             srcnode = bld.path.find_or_declare(self.source)
-            tarname = None
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
-                bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode.get_src(), target = tarname)
+                bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode, target = tarname)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target)
             bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
@@ -104,7 +104,7 @@ class Font(object) :
                 apnode = bld.path.find_or_declare(self.ap)
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = self.source, target = apnode)
+                    bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
