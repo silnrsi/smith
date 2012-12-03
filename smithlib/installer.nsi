@@ -550,15 +550,15 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ${Endif}
 -
 
-    LidStart:
+    LidStart_@m.dll@:
     ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
-    StrCmp $0 "" LidDone
+    StrCmp $0 "" LidDone_@m.dll@
         IntOp $R1 $R1 + 0x10000
-        Goto LidStart
+        Goto LidStart_@m.dll@
 
-    LidDone:
+    LidDone_@m.dll@:
     WriteRegStr HKLM $R5 \
         "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
     WriteRegStr HKLM $R5 \
@@ -577,23 +577,23 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ${Endif}
 +  for l in getattr(m, 'lidinstall', []) :
     StrCpy $R2 @l@
-    LidInstall:
+    LidInstall_@m.dll@_@l@:
       ClearErrors
       IntFmt $R5 "%08X" $R2
       ReadRegStr $0 HKCU "Keyboard Layout\Substitutes" $R5
-      Strcmp $0 "" LidInstallDone
+      Strcmp $0 "" LidInstallDone_@m.dll@_@l@
         IntOp $R2 $R2 + 0x10000
-        Goto LidInstall
+        Goto LidInstall_@m.dll@_@l@
 
-    LidInstallDone:
+    LidInstallDone-@m.dll@_@l@:
     IntFmt $R3 "%08X" $R1
     WriteRegStr HKCU "Keyboard Layout\Substitutes" $R5 $R3
     StrCpy $R4 1
-    LidInstallLoop:
+    LidInstallLoop_@m.dll@_@l@:
       ClearErrors
       ReadRegStr $R6 HKCU "Keyboard Layout\Preload" $R4
       IntOp $R4 $R4 + 1
-      IfErrors 0 LidInstallLoop
+      IfErrors 0 LidInstallLoop_@m.dll@_@l@
     IntOp $R4 $R4 - 1
     WriteRegStr HKCU "Keyboard Layout\Preload" $R4 $R5
 -
