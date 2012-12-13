@@ -1,35 +1,47 @@
 .TH SMITH 1 "Oct 10, 2012"
 .SH NAME
-smith \- a Python-based build system for WSI components 
+smith \- a Python-based build system for WSI (Writing Systems Implementation) components 
 .SH SYNOPSIS
 .B smith
 .RI [ options ]
 .SH DESCRIPTION
 This manual page documents briefly the
 .B smith
-commands.
+commands. For more details please refer to the complete smith manual.
 .PP
-\fBsmith\fP is a Python-based framework for building, testing and maintaining WSI components like fonts and keyboards.
+\fBsmith\fP is a Python-based framework for building, testing and maintaining WSI (Writing Systems Implementation) components such as fonts and keyboards.
 it is based on waf. 
+A smith project contains a wscript file (a python script) with the various parameters at the root of the folder.
 .SH OPTIONS
 .TP
-configure
+configure - configure your project and check all the needed dependencies are available
 .TP
-build
+build  - launch the build
 .TP
-pdfs
+pdfs  - generate pdfs
 .TP
-clean
+clean - delete generate files
 .TP
-distclean
+distclean - delete generate folders
 .TP
-zip
+zip  - create a release zip 
 .TP
-exe
+srcdist  - create a release containing more source items (-developer release)
+.TP
+exe  - generate a Windows installer
+.TP
+test  - run the project-specific test suite 
 .PP
-For details of the available options see the complete manual.
+graide - generate a graide (GRAphite Integrated Development Environment) project file 
+.PP
+ots - run the OpenType Sanitiser 
+.PP
+For details of the available options see the complete smith manual.
 .SH AUTHOR
-waf was written by Thomas Nagy <tnagy1024@gmail.com>.
 .PP
 smith was written by Martin Hosken <martin_hosken@sil.org>.
+.TP
+with contributions from Nicolas Spalinger <nicolas_spalinger@sil.org>
+.TP
+SIL Non-Roman Script Initiative - http://scripts.sil.org 
 .PP
