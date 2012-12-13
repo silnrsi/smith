@@ -1,4 +1,14 @@
-For general waf build information, please see the README file.
+Smith 
+
+smith is a Python-based framework for building, testing and maintaining WSI (Writing Systems Implementation) components such as fonts and keyboards.
+it is based on waf. 
+A smith project contains a wscript file (a python script) with the various parameters at the root of the folder.
+
+
+smith was written by Martin Hosken <martin_hosken@sil.org>.
+with contributions from Nicolas Spalinger <nicolas_spalinger@sil.org>
+
+SIL Non-Roman Script Initiative - http://scripts.sil.org 
 
 HOW TO CREATE THE SMITH SCRIPT
 ------------------------------
