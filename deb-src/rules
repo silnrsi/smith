@@ -25,7 +25,7 @@ install : build
 	dh_testdir
 	dh_testroot
 	dh_prep
-#	dh_installdirs
+	dh_installdirs
 	x=`ls -td .waf* | head -1` ; for f in `find $$x -not -name \*.pyc` ; do if [ -d $$f ] ; then mkdir -p debian/smith-common/usr/lib/$${f#.} ; else cp $$f debian/smith-common/usr/lib/$${f#.} ; fi ; done
 	mkdir -p debian/smith-common/usr/bin/
 	cp smith debian/smith-common/usr/bin/smith
