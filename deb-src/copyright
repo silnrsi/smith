@@ -30,3 +30,21 @@ License: BSD-3-Clause
  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
  IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  POSSIBILITY OF SUCH DAMAGE.
+
+
+Files: smith-playground/script-test/font-source/*
+ smith-playground/examples/full_sfd/standards/*
+Copyright: 
+ Copyright (c) 1999, The National Font Project (v.beta).
+ Yannis Haralambous, Virach Sornlertlamvanich and Anutara Tantraporn.
+ Modified under GNU General Public License, with creators' permission, by Thai Linux Working Group (TLWG).
+License: GPL2+ with font exception
+ As a special exception, if you create a document which uses this font, and
+ embed this font or unaltered portions of this font into the document, this font
+ does not by itself cause the resulting document to be covered by the GNU
+ General Public License. This exception does not however invalidate any other
+ reasons why the document might be covered by the GNU General Public License. If
+ you modify this font, you may extend this exception to your version of the
+ font, but you are not obligated to do so. If you do not wish to do so, delete
+ this exception statement from your version.
+
