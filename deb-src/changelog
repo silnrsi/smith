@@ -1,6 +1,6 @@
-smith (0.1-1ubuntu1) oneiric; urgency=low
+smith (0.1-1ubuntu1~precise) precise; urgency=low
 
-  * Initial release. (Closes: #XXXXXX)
+  * Initial release of smith. 
 
- -- Martin Hosken <martin_hosken@sil.org>  Wed, 10 Oct 2012 17:04:44 +0100
+ -- Nicolas Spalinger <nicolas_spalinger@sil.org>  Thu, 13 Dec 2012 12:12:43 +0000
 
