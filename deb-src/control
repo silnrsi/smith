@@ -9,22 +9,26 @@ Homepage: http://projects.palaso.org/projects/wsiwaf
 Package: smith-common
 Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}
-Description: build framework for Writing Systems Implementation projects
- Provides a common build framework to create, test and maintain WSI (Writing Systems
- Implementation) components such as fonts and keyboards.
+Description: framework for Writing Systems Implementation 
+ Provides a common build framework to create, test and maintain WSI (Writing
+ Systems Implementation) components such as fonts and keyboards.
 
 Package: smith-font
 Architecture: all
 Depends: ${misc:Depends}, smith-common, libfont-ttf-perl, libfont-ttf-scripts-perl, fontforge, python-fontforge, texlive-xetex, nsis, python-palaso-font, grcompiler
 Recommends: graphite-utilities
-Description: Fonts build and test system
- Provides a build framework for fonts, including smart font features with OpenType and Graphite, running test suites, generating pdf reports, facilitating releases and creating installers for various platforms.
+Description: Fonts build and test framework 
+ Provides a build framework for fonts, including smart font features with
+ OpenType and Graphite, running test suites, generating pdf reports,
+ facilitating releases and creating installers for various platforms.
 
 Package: smith-keyboard
 Architecture: all
 Depends: ${misc:Depends}, smith-common, python-palaso-kbd, nsis, mingw-w64, pdftk, inkscape
-Description: Keyboards build and test system
- Provides a build framework for keyboards, including runing test suites, generating layouts, facilitating releases and creating installers for various platforms.
+Description: Keyboards build and test framework
+ Provides a build framework for keyboards, including runing test suites,
+ generating layouts, facilitating releases and creating installers for various
+ platforms.
 
 
 Package: smith
@@ -33,3 +37,4 @@ Depends: ${misc:Depends}, smith-font, smith-keyboard
 Description: Metapackage for smith fonts and keyboards tools
  Provides a build framework to create, test and maintain WSI (Writing Systems
  Implementation) components such as fonts and keyboards.
+
