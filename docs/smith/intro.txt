@@ -112,3 +112,5 @@ process()::
 
 test()::
     This function applies a process to its output file with no expected output, so any `cmd()` would only have a `${TGT}` in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.
+    
+

@@ -45,7 +45,7 @@ You will need to install the following programs:
 
 === Perl Modules ===
 
-Many of the tools that smith uses are perl scripts. There are several ways to install these tools. You can unpack the sources anywhere on your system. If you need a suggestion of where to do this unpacking, please read the section Directory Structure.
+Many of the tools that smith uses are perl scripts. There are several ways to install these tools. You can unpack the sources anywhere on your system. If you need a suggestion of where to do this unpacking, please read the section 'Directory Structure'.
 
 ==== Packages ====
 
@@ -110,4 +110,3 @@ make
 sudo make install
 cd ..
 ----
-
