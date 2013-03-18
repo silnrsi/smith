@@ -119,6 +119,7 @@ cmd(cmd, [input files], **options)::
 create()::
     The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function. For exasmple, consider a processing path on an input font:
 +
+[source,python]
 ----
 source = create('xyz.sfd', cmd('myfirstprocess ${SRC} ${TGT}', ['infile.sfd']),
                            cmd('mysecondprocess ${DEP} ${TGT}'))

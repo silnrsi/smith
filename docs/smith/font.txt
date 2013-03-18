@@ -4,6 +4,7 @@ Fonts form the heart of the build system, given that they are the most complex c
 
 The minimum attributes a font object needs are: `target` and `source`. For example, the following `wscript` file is about as simple as one can get:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.ttf')
@@ -56,6 +57,7 @@ package::
 
 There are two ways of adding OpenType information to a font. One is to already have it in the source font. This is the most common approach. We need to indicate to the font builder that we are working with an OpenType font, even if everything is internal to the font. The font builder needs to know for font testing purposes or if the font is generated from a legacy font.
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.sfd',
@@ -66,6 +68,7 @@ This will generate tests pertinent to OpenType testing. See the section on font 
 
 One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a `sfd_master` attribute and the font builder will use `sfdmeld` to integrate the lookups in the master into each font as it is built. There is no need to specify that the font is OpenType in this case, because that is obvious from the context:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.sfd',
@@ -78,6 +81,7 @@ Another approach to adding OpenType tables to a font is to use an external tool 
 
 Notice that while the initial parameter to such objects as `volt` is required, all named parameters are optional.
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.ttf',
@@ -107,6 +111,7 @@ no_make::
 
 Adding Graphite tables to a font is much like adding VOLT information. The relevant files are declared either to the font or a `gdl()` object. For example:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.ttf',
@@ -136,6 +141,7 @@ no_make::
 
 Many fonts are actually built from another font, either legacy encoded or generated from a source font or fonts. This can be achieved by giving a `legacy()` object as the `source` attribute for the font. For example, for a font generated from a legacy font using `ttfbuilder` we might do:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = legacy('myfont_src.ttf',
@@ -173,6 +179,7 @@ Fonts contain both copyright and license information. The `copyright` attribute 
 
 The license object is an object that describes how to generate the specific license for this font. It also allows the collecting of license information for all the fonts in a package. Currently, the only license type supported is the OFL. For example:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.ttf',
@@ -194,6 +201,7 @@ The `woff` object takes these attributes (which could well grow):
 params::
     This string is passed as the command line options to the ttf2woff command.
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      woff = woff('results/myfont.woff'))
@@ -208,6 +216,7 @@ The `fret` object takes these attributes:
 params::
     A parameter list to pass to fret. If not specified, then fret is run with the `-r` command line argument.
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      fret = fret('results/myfont.pdf', params='-r -o i'))
@@ -222,6 +231,7 @@ The `fonttest` object takes these attributes:
 testdir::
     This gives the directory relative to which all test files are to be found in the source tree. If unspecified, the global variable TESTDIR is used to give a default value. If this isn't set then the `tests` dir is used. So if one had tests in a different directory the following would work:
 
+[source,python]
 ----
 TESTDIR = 'test-suite'
 font(target = 'results/myfont.ttf',
@@ -278,6 +288,7 @@ diff::
 
 This class is used for managing regression type tests. In fact it can be used for any kinds of tests, since it allows the user to specify whatever tests they want and the commands involved. The first parameter passed to a tests() class contains a dictionary of test types (subdirectory names under the testsdir), and the cmd() to execute for that test type. For example, the default test list if none is specified, is equivalent to:
 
+[source,python]
 ----
 { 'regression' : cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()}
                         -o ${TGT} ${fileinfo} ${fileinfo} ${SRC[0].bldpath()} 

@@ -56,6 +56,7 @@ mskbd::
 
 An example specification of a keyboard object might be:
 
+[source,python]
 ----
 kbd(source = 'mykbd.kmn',
     fontname = 'My Font',
