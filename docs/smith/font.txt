@@ -185,6 +185,33 @@ font(target = 'results/myfont.ttf',
 
 The first parameter for the `ofl()` object is the list of Reserved Font Names (RFN). There may be more than one RFN. (For more details about the RFN mechanism please refer to the OFL FAQ: http://scripts.sil.org/OFL). These all appear in the license statement as the reserved font names for that particular version of the font project. In this example the name of the font and the name of the company of the author are reserved so that any derivative must be distinct from these two names. This is designed to allow all changes to the font but to prevent collision of fonts with different features but the same names. The goal is to reduce confusion for both font authors and font users. All the reserved font names in all the fonts in a package - various other authors can indicate their own reserved font names - are collected into one list that is then put into the license for the package. The OFL version may be given and defaults to 1.1. The copyright message is put at the start of the license statement. If not specified the global variable COPYRIGHT is used for this. The file where the license ends up may be given but defaults to `OFL.txt`.
 
+=== WOFF ===
+
+The WOFF format is a different file format based on TTF. Smith can generate .woff files. For example:
+
+The `woff` object takes these attributes (which could well grow):
+
+params::
+    This string is passed as the command line options to the ttf2woff command.
+
+----
+font(target = 'results/myfont.ttf',
+     woff = woff('results/myfont.woff'))
+----
+
+=== Fret ===
+
+Fret is a font reporting tool that generates a PDF report from a font file, giving information about all the glyphs in the font.
+
+The `fret` object takes these attributes:
+
+params::
+    A parameter list to pass to fret. If not specified, then fret is run with the `-r` command line argument.
+
+----
+font(target = 'results/myfont.ttf',
+     fret = fret('results/myfont.pdf', params='-r -o i'))
+----
 
 === Tests ===
 

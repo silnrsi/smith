@@ -63,6 +63,12 @@ smith pdfs
 This creates font tests output as pdf.
 
 ----
+smith fret
+----
+
+If the wscript has been set up to generate fret files, this will generate those files.
+
+----
 smith graide
 ----
 
@@ -101,11 +107,22 @@ The basic process of describing a build process is to create writing system comp
 
 The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the `wscript` writer to take more control over the build process. The functions described here should be considered advanced, and the beginning authors should not need to concern themselves with them initially.
 
-cmd()::
-    The `cmd()` function specifies are command to run as a string, then a list of dependent input files that are referenced via `${SRC}` in the command string. The target (which is given by the context of `cmd()` function is accessible via the ${TGT} string.
+cmd(cmd, [input files], **options)::
+    The `cmd()` function specifies are command to run as a string, then a list of dependent input files that are referenced via `${SRC}` in the command string. The target (which is given by the context of `cmd()` function is accessible via the `${TGT}` string. The first parameter to the function is the command string to execute, which is executed from the build directory. There are various options that can be added to a `cmd()`:
+
+    late;;
+        If set to non zero, this says that the command should be executed as late in the sequence of commands to be run on a file as possible.
+
+    targets;;
+        This is a list of extra targets that this command generates. So a single command can create more than one file.
 
 create()::
-    The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function.
+    The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function. For exasmple, consider a processing path on an input font:
++
+----
+source = create('xyz.sfd', cmd('myfirstprocess ${SRC} ${TGT}', ['infile.sfd']),
+                           cmd('mysecondprocess ${DEP} ${TGT}'))
+----
 
 process()::
     This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use `${DEP}`

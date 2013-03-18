@@ -113,7 +113,7 @@ class Font(object) :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
         # add smarts
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff')) :
             if x :
                 x.build(bld, self.target, bgen, self)
 
@@ -246,6 +246,9 @@ class Gdl(Internal) :
         srcs = [self.source]
         if self.master : srcs.append(self.master)
         modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, srcs, path = bld.srcnode.find_node('wscript').abspath())
+        prevars = ""
+        if hasattr(self, 'gdlpp_prefs') :
+            prevars = 'GDLPP_PREFS="' + self.gdlpp_prefs + '" '
         if self.source :
             if not hasattr(self, 'no_make') :
                 srcs = []
@@ -264,9 +267,9 @@ class Gdl(Internal) :
                     cmd += '-i ' + loc + ' '
                     ind += 1
                 bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
+            modify(prevars + "${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", shell = 1)
         elif self.master :
-            modify("${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr")
+            modify(prevars + "${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", shell = 1)
 
 
 class Ofl(object) :
@@ -344,6 +347,24 @@ class Fret(object) :
         args = getattr(self, 'params', '-r')
         bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
+class Woff(object) :
+
+    def __init__(self, tgt = None, **kw) :
+        self.target = tgt
+        for k, v in kw.items() :
+            setattr(self, k, v)
+
+    def get_build_tools(self) :
+        return ['ttf2woff']
+
+    def build(self, bld, tgt, tgen, font) :
+        if self.target is None :
+            output = tgt.replace(".ttf", ".woff")
+        else :
+            output = self.target
+        args = getattr(self, 'params', '')
+        bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
+
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
     
@@ -374,7 +395,7 @@ def onload(ctx) :
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
-            'tests' : font_tests.Tests
+            'tests' : font_tests.Tests, 'woff' : Woff
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
