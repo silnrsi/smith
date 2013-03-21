@@ -26,6 +26,15 @@ def make_tex(mf, font, task) :
 ''' % (font, mf, task.inputs[0].bldpath())
     task.outputs[0].write(texdat)
     return 0
+
+def make_from_htex(mf, font, task) :
+    texdat = r'''
+\def\buildfont{"[%s]%s"}
+\input %s
+\bye
+''' % (font, mf, task.inputs[0].bldpath())
+    task.outputs[0].write(texdat)
+    return 0
     
 def copy_task(task) :
     shutil.copy(task.inputs[0].srcpath(), task.outputs[0].srcpath())
@@ -137,6 +146,7 @@ class TeX(object) :
 
     def __init__(self, *kv, **kw) :
         if 'texs' not in kw : kw['texs'] = '*.tex'
+        if 'htexs' not in kw : kw['htexs'] = '*.htex'
         for k, item in kw.items() :
             setattr(self, k, item)
         self._configured = False
@@ -154,6 +164,7 @@ class TeX(object) :
         if 'XETEX' not in ctx.env : return
         testsdir = test.testdir + os.sep
         self._texfiles = antlist(ctx, testsdir, self.texs)
+        self._htexfiles = antdict(ctx, testsdir, self.htexs)
         fid = getattr(font, 'test_suffix', font.id)
 
         if hasattr(self, 'files') :
@@ -161,11 +172,11 @@ class TeX(object) :
         else :
             txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
         textfiles = []
-        for n in txtfiles.keys() :
+        for n in txtfiles.keys() + self._htexfiles.keys() :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
-                if txtfiles[n] :
+                if txtfiles.get(n, None) :
                     mf += ":" + txtfiles[n].replace('lang=', 'language=').replace('&', ':')
                 elif parts[1] and len(parts[0]) < 5 :
                     lang = parts[0]
@@ -175,7 +186,7 @@ class TeX(object) :
 
                 targfile = test.results_node(n.get_src()).bld_base() + '_' + fid + "_" + m + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
-                ctx(rule = curry_fn(make_tex, mf, font.target), source = n, target = targ)
+                ctx(rule = curry_fn(make_tex if n in txtfiles else make_from_htex, mf, font.target), source = n, target = targ)
                 textfiles.append((targ, n))
 
         for n in self._texfiles :
