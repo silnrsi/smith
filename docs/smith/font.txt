@@ -16,6 +16,7 @@ Notice that an input and an output file may not have the same name. Even if the 
 
 What if the source isn't a `.ttf` file. We can simply change the above example to:
 
+[source,python]
 ----
 font(target = 'results/myfont.ttf',
      source = 'myfont.sfd')
@@ -51,6 +52,9 @@ tests::
 
 package::
     Package object to insert this font into. If not specified the global package is used.
+
+typetuner::
+    Specifies that typetuner should be run on the target and to use the given file as the typetuner configuration xml file.
 
 
 === OpenType ===
@@ -106,6 +110,9 @@ params::
 
 no_make::
     If this attribute is present, make_volt isn't run and the first parameter is assumed to be the specific .vtp for this font.
+
+no_typetuner::
+    The VOLT2TTF program used to compile the volt into opentype, also has the capability to emit an XML control file for typetuner. By default, if the font requests typetuner be run, the volt2ttf options will be set to generate this file. Setting this attribute stops this generation from happening and you will need to create the file some other way.
 
 === Graphite ===
 

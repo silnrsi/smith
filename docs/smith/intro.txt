@@ -116,6 +116,9 @@ cmd(cmd, [input files], **options)::
     targets;;
         This is a list of extra targets that this command generates. So a single command can create more than one file.
 
+    shell;;
+        If set, says that the command should not be broken on spaces into elements to pass to an exec call, but to be passed through the shell for shell processing. Use this if you use file redirection, for example.
+
 create()::
     The `create()` function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a `cmd()` function. For exasmple, consider a processing path on an input font:
 +
@@ -127,6 +130,18 @@ source = create('xyz.sfd', cmd('myfirstprocess ${SRC} ${TGT}', ['infile.sfd']),
 
 process()::
     This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a `cmd()` function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use `${DEP}`
++
+[source,python]
+----
+target = process('outfile.ttf', cmd('ttfautohint ${DEP} ${TGT}'))
+----
++
+It can be tempting to want to use `process()` on a source file, but this causes problems. The underlying framework requires that there not be both a file with a given name and path in the source tree and in the results tree. `process()` creates a copy of the file in the results tree. So must not be used on a source file because any processes referencing that resulting file will use the one in the source tree over the one in the results tree and the `process()` will be to no avail.
++
+Parameters for this function are:
+
+    nochange;;
+        If set, tells the system that there is no need to copy the dependency file before running the task.
 
 test()::
     This function applies a process to its output file with no expected output, so any `cmd()` would only have a `${TGT}` in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.

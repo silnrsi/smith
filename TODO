@@ -4,3 +4,8 @@ Waf 1.6.x
 * fix the remaining bugs
 * provide more extensions
 
+Smith
+
+* Add auto check of all cmd() commands during smith configure
+
+

@@ -119,9 +119,14 @@ class font_test(object) :
             self.modes['gr'] = "/GR"
         if getattr(font, 'sfd_master', None) or getattr(font, 'opentype', None) :
             t = "/ICU"
-            if getattr(font, 'script', None) :
-                t += ":script=" + font.script
-            self.modes['ot'] = t
+            scr = getattr(font, 'script', None)
+            if isinstance(scr, basestring) :
+                self.modes['ot'] = t + ":script=" + scr
+            elif scr :
+                for s in scr :
+                    self.modes['ot_' + s] = t + ':script=' + s
+            else :
+                self.modes['ot'] = t
         self.targets[target].build(ctx, self, font)
 
     def results_node(self, node) :
@@ -183,7 +188,7 @@ class TeX(object) :
             ctx(rule = '${XETEX} --interaction=batchmode --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
-                taskgens = [font.target + "_" + m])
+                taskgens = [font.target + "_" + targ.bldpath()])
 #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
 

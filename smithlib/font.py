@@ -220,9 +220,9 @@ class Volt(Internal) :
                 cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
             bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-        if hasattr(self, 'xml_export') :
+        if hasattr(font, 'typetuner') and not getattr(self, 'no_typetuner', 0) :
             xmlparms = " -x ${TGT[0].bldpath()}"
-            tgts = [target, self.xml_export]
+            tgts = [target, font.typetuner]
             modify("${VOLT2TTF} " + self.params + xmlparms + " -t ${SRC} ${DEP} ${TGT}", tgts, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
         else :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
