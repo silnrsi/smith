@@ -28,7 +28,7 @@ def make_tex(mf, font, task) :
     return 0
     
 def copy_task(task) :
-    shutil.copy(task.inputs[0].bldpath(), task.outputs[0].bldpath())
+    shutil.copy(task.inputs[0].srcpath(), task.outputs[0].srcpath())
     return 0
 
 def curry_fn(fn, *parms, **kw) :

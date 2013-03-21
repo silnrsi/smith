@@ -243,7 +243,7 @@ class Gdl(Internal) :
         return get_all_sources(self, ctx, 'master')
 
     def build(self, bld, target, tgen, font) :
-        srcs = [self.source]
+        srcs = [font.source]
         if self.master : srcs.append(self.master)
         modify("${TTFTABLE} -delete graphite ${DEP} ${TGT}", target, srcs, path = bld.srcnode.find_node('wscript').abspath())
         prevars = ""
