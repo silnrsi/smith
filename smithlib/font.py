@@ -231,7 +231,7 @@ class Volt(Internal) :
 
 class Gdl(Internal) :
 
-    def __init__(self, source, *k, **kw) :
+    def __init__(self, source = None, *k, **kw) :
         self.master = ''
         self.params = ''
         super(Gdl, self).__init__(source, *k, **kw)
@@ -249,7 +249,7 @@ class Gdl(Internal) :
         prevars = ""
         if hasattr(self, 'gdlpp_prefs') :
             prevars = 'GDLPP_PREFS="' + self.gdlpp_prefs + '" '
-        if self.source :
+        if self.source is not None :
             if not hasattr(self, 'no_make') :
                 srcs = []
                 cmd = getattr(self, 'make_params', '') + " "

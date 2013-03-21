@@ -320,11 +320,15 @@ class Tests(object) :
                     tinfo = {}
                 for m in test.modes.keys() :
                     f = os.path.basename(font.target)
+                    shp = m[0:m.find("_")] if "_" in m else m
                     inputs = [font.target, n]
                     inputs.append(os.path.join(self.standards, f))
                     target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + '.log')
-                    gen = t.build(ctx, inputs, target, shaper = m, script = tinfo.get('script', getattr(font, 'script', None)), name = name, fileinfo = tinfo.get('extra', None))
-                    gen.taskgens = [font.target + "_" + m]
+                    scr = getattr(font, 'script', [None])
+                    if isinstance(scr, basestring) : scr = [scr]
+                    for s in scr :
+                        gen = t.build(ctx, inputs, target, shaper = shp, script = tinfo.get('script', s), name = name, fileinfo = tinfo.get('extra', None))
+                        gen.taskgens = [font.target + "_" + m]
 
     def parse_txtfile(self, txt) :
         res = {}
