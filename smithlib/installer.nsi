@@ -79,8 +79,8 @@ FunctionEnd
   !define Index 'Line${__LINE__}'
   
 ; Get the Font's File name
-  ${GetUnixFileName} ${FontFile} $0
-  !define FontFileName $0
+  ${GetUnixFileName} ${FontFile} "$0"
+  !define FontFileName "$0"
 
   SetOutPath ${FONT_DIR}
   IfFileExists "${FONT_DIR}\${FontFileName}" ${Index} "${Index}-New"
@@ -297,8 +297,8 @@ ${Index}:
   !define Index 'Line${__LINE__}'
   
 ; Get the Font's File name
-  ${un.GetFileName} ${FontFile} $0
-  !define FontFileName $0
+  ${un.GetFileName} ${FontFile} "$0"
+  !define FontFileName "$0"
 
 ;  DetailPrint "Testing that $FONT_DIR\${FontFileName} exists"
   IfFileExists "${FONT_DIR}\${FontFileName}" ${Index} "${Index}-End"
@@ -481,7 +481,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 +if len(fonts) :
   IfErrors BranchTestRem
 + for f in fonts :
-    !insertmacro InstallTTF "@bld(f, f.target)@"
+    !insertmacro InstallTTF @f.target@
 -
     
     SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
