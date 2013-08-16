@@ -585,7 +585,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         IntOp $R2 $R2 + 0x10000
         Goto LidInstall_@m.dll@_@l@
 
-    LidInstallDone-@m.dll@_@l@:
+    LidInstallDone_@m.dll@_@l@:
     IntFmt $R3 "%08X" $R1
     WriteRegStr HKCU "Keyboard Layout\Substitutes" $R5 $R3
     StrCpy $R4 1
