@@ -103,7 +103,7 @@ class Keyboard(object) :
             modname = ''
             xml = self.xml
             svg = self.svg
-        infont = bld.bldnode.find_or_declare(self.font)
+        infont = self.font if os.path.isabs(self.font) else bld.bldnode.find_or_declare(self.font)
         bld(rule = '${KMN2XML} ' + args + ' ${SRC} > ${TGT}', shell = 1, source = self.source, target = xml)
         bld(rule = '${CP} ${SRC} ${TGT}', source = infont, target = self.kbdfont)
         bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = xml, target = svg)

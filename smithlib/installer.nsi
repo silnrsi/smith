@@ -526,7 +526,12 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     NoKeyman:
 
     @"\n".join(['File "' + bld(k, k.target) + '"' for k in kbds if hasattr(k, 'target')])@
-    @"\n".join(['File "' + bld(k, k.pdf) + '"' for k in kbds if hasattr(k, 'pdf')])@ 
++for k in kbds :
++ if hasattr(k, 'pdf') :
+    File "@bld(k, k.pdf)@"
+    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\@k.pdf@.lnk" "$INSTDIR\@k.pdf@"
+-
+-
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32

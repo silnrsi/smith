@@ -15,13 +15,14 @@ def global_test() :
 
 def make_tex(mf, font, task) :
     texdat = r'''
-\font\test="[%s]%s" at 12pt
+\font\test="[./%s]%s" at 12pt
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
-\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000
+\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
 \obeylines
+\everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
 \test
-\input %s
+\input ./%s
 \bye
 ''' % (font, mf, task.inputs[0].bldpath())
     task.outputs[0].write(texdat)
@@ -196,7 +197,7 @@ class TeX(object) :
             textfiles.append((targ, n))
         for n in textfiles :
             targ = n[0].get_bld()
-            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=' + targ.bld_dir() + ' ${SRC[0].bldpath()}',
+            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + targ.bld_dir() + ' ./${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
                 taskgens = [font.target + "_" + targ.bldpath()])

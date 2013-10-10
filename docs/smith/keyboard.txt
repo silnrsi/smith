@@ -73,6 +73,9 @@ software during the development cycle. The parameters to mskbd() are:
 lid::
     Language LCID to store this keyboard under. If not specified, defaults to 0xC00.
 
+lidinstall::
+    Specified as a list of language ids to install this keyboard under. E.g. lidinstall=[0x0436].
+
 guid::
     GUID to associate with the keyboard. If not specified a random one is created.
 
