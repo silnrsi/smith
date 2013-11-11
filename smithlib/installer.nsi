@@ -529,7 +529,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 +for k in kbds :
 + if hasattr(k, 'pdf') :
     File "@bld(k, k.pdf)@"
-    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER}\Keyboard Layout.lnk" "$INSTDIR\@k.pdf@"
+    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER}\Keyboard Layout.pdf.lnk" "$INSTDIR\@k.pdf@"
 -
 -
 
