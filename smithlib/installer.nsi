@@ -8,7 +8,7 @@
 !endif
 
 !define PACKNAME "@prj.desc_name or prj.appname.title()@"
-!define SRC_ARCHIVE "fonts-@prj.appname@-${VERSION}.zip"
+!define SRC_ARCHIVE "@"fonts" if len(fonts) else "kbd"@-@prj.appname@-${VERSION}.zip"
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
 -
@@ -388,7 +388,7 @@ ${Index}:
 ;General
 
   ;Name and file
-  Name "${PACKNAME} Font (${VERSION})"
+  Name "${PACKNAME} @"Font" if len(fonts) else "Keyboard"@ (${VERSION})"
   Caption "@prj.desc_short@"
 
   OutFile "@prj.outdir or '.'@/${PACKNAME}-${VERSION}.exe"
@@ -433,7 +433,7 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "SIL International"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.desc_short or ""@"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} Font installer"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} @"Font" if len(fonts) else "Keyboard"@ installer"
   @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.copyright + '"' if prj.copyright else ""@
   VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.version).split('.') + ["0", "0", "0", "0"])[0:4]))@
 
@@ -529,7 +529,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 +for k in kbds :
 + if hasattr(k, 'pdf') :
     File "@bld(k, k.pdf)@"
-    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\@k.pdf@.lnk" "$INSTDIR\@k.pdf@"
+    CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER}\Keyboard Layout.lnk" "$INSTDIR\@k.pdf@"
 -
 -
 
@@ -682,7 +682,7 @@ SectionEnd
 ;Descriptions
 
   ;Language strings
-  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${PACKNAME} font (version ${VERSION}). @prj.desc_short or ""@"
+  LangString DESC_SecFont ${LANG_ENGLISH} "Install the ${PACKNAME} @"font" if len(fonts) else "keyboard"@ (version ${VERSION}). @prj.desc_short or ""@"
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -705,6 +705,7 @@ Section "Uninstall"
   SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
   
   ReadRegStr $0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}" "Menus"
+  RmDir /r "$0"
 +for f in getattr(prj, 'EXTRA_DIST', '').split(' ') :
 + if f:
   ;Delete "$INSTDIR\\@f.replace('/','\\')@"
@@ -731,7 +732,7 @@ Section "Uninstall"
 + for dp, dn, fs in os.walk(prj.docdir) :
 +  for fn in fs :
 +    if not fn.startswith('.') :
-   Delete "$0\@fn@.lnk"
+   ;Delete "$0\@fn@.lnk"
 -
 -
 -

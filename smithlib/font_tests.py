@@ -309,7 +309,7 @@ class Tests(object) :
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
+            tests = {'regression' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
         self.tests = tests
 
     def config(self, ctx) :

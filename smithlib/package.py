@@ -491,7 +491,7 @@ size = 40
 gdlfile = {6}
 usemakegdl = 1
 makegdlfile = {0}/{3}
-pospass = 0
+attpass = 0
 makegdlcmd = {4}
 apronly = 1
 
