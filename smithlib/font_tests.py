@@ -313,14 +313,16 @@ class SVG(object) :
 class Tests(object) :
     def __init__(self, tests = None, *kv, **kw) :
         if 'ext' not in kw : kw['ext'] = '.log'
+        self._extracmds = []
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
+            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
+            self._extracmds += ['cmptxtrender']
         self.tests = tests
 
     def config(self, ctx) :
-        return set()
+        return set(self._extracmds)
 
     def build(self, ctx, test, font) :
         if not hasattr(self, 'standards') :
