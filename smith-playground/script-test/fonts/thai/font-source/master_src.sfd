@@ -75,6 +75,8 @@ Lookup: 4 0 0 "ccmpGlyphCompositionDecompositi"  {"ccmpGlyphCompositionDecomposi
 Lookup: 6 0 0 "ccmpThaiConditionalDescenderRem"  {"ccmpThaiConditionalDescenderRem subtable"  } ['ccmp' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 1 0 0 "Single Substitution lookup 33"  {"Single Substitution lookup 33 subtable"  } []
 Lookup: 1 0 0 "ThaiDescenderRemovalSingleSubst"  {"ThaiDescenderRemovalSingleSubst subtable"  } ['ccmp' ('thai' <'PI  ' 'PLI ' > ) ]
+Lookup: 258 0 0 "'kern' Horizontal Kerning in Latin lookup 3"  {"'kern' Horizontal Kerning in Latin lookup 3 subtable"  } ['kern' ('latn' <'dflt' > ) ]
+Lookup: 258 0 0 "'kern' Horizontal Kerning lookup 4"  {"'kern' Horizontal Kerning lookup 4 subtable"  } ['kern' ('DFLT' <'dflt' > ) ]
 Lookup: 260 0 0 "markThaiBelowBase"  {"markThaiBelowBase subtable"  } ['mark' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 260 0 0 "markThaiAboveBase"  {"markThaiAboveBase subtable"  } ['mark' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 262 0 0 "mkmkThaiAboveMark"  {"mkmkThaiAboveMark subtable"  } ['mkmk' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]

@@ -1,0 +1,5 @@
+fontbase = '../../script-test/fonts/thai/'
+
+for ext in ('', '-Bold') :
+    font(target = 'Norasi' + ext + '.ttf',
+         source = fontbase + 'font-source/Norasi' + ext + '.sfd')
