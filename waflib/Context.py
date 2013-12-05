@@ -213,7 +213,7 @@ class Context(ctx):
 		Execute the command. Redefine this method in subclasses.
 		"""
 		global g_module
-		self.recurse([os.path.dirname(g_module.root_path)])
+		self.recurse([os.path.dirname(g_module.root_path)], fname=os.path.basename(g_module.root_path))
 
 	def pre_recurse(self, node):
 		"""
@@ -239,7 +239,7 @@ class Context(ctx):
 		if self.cur_script:
 			self.path = self.cur_script.parent
 
-	def recurse(self, dirs, name=None, mandatory=True, once=True):
+	def recurse(self, dirs, name=None, mandatory=True, once=True, fname=WSCRIPT_FILE):
 		"""
 		Run user code from the supplied list of directories.
 		The directories can be either absolute, or relative to the directory
@@ -266,8 +266,8 @@ class Context(ctx):
 				# absolute paths only
 				d = os.path.join(self.path.abspath(), d)
 
-			WSCRIPT     = os.path.join(d, WSCRIPT_FILE)
-			WSCRIPT_FUN = WSCRIPT + '_' + (name or self.fun)
+			WSCRIPT     = os.path.join(d, fname)
+			WSCRIPT_FUN = fname + '_' + (name or self.fun)
 
 			node = self.root.find_node(WSCRIPT_FUN)
 			if node and (not once or node not in cache):

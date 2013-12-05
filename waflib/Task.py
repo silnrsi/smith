@@ -994,7 +994,7 @@ def funex(c):
 	exec(c, dc)
 	return dc['f']
 
-reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})", re.M)
+reg_act = re.compile(r"(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>[\w\-.]+)(?P<code>.*?)\})", re.M)
 def compile_fun_shell(line):
 	"""
 	Create a compiled function to execute a process with the shell

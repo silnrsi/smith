@@ -48,6 +48,9 @@ def waf_entry_point(current_directory, version, wafdir):
 				no_climb = True
 				break
 
+	wscript = Context.WSCRIPT_FILE
+	if '-w' in sys.argv :
+		wscript = sys.argv[sys.argv.index('-w') + 1]
 	# try to find a lock file (if the project was configured)
 	# at the same time, store the first wscript file seen
 	cur = current_directory
@@ -88,7 +91,7 @@ def waf_entry_point(current_directory, version, wafdir):
 					break
 
 		if not Context.run_dir:
-			if Context.WSCRIPT_FILE in lst:
+			if wscript in lst:
 				Context.run_dir = cur
                 break       # found it so quit searching
 
@@ -107,7 +110,7 @@ def waf_entry_point(current_directory, version, wafdir):
 			ctx.curdir = current_directory
 			ctx.parse_args()
 			sys.exit(0)
-		Logs.error('Waf: Run from a directory containing a file named %r' % Context.WSCRIPT_FILE)
+		Logs.error('Waf: Run from a directory containing a file named %r' % wscript)
 		sys.exit(1)
 
 	try:
@@ -117,7 +120,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		sys.exit(1)
 
 	try:
-		set_main_module(Context.run_dir + os.sep + Context.WSCRIPT_FILE)
+		set_main_module(Context.run_dir + os.sep + wscript)
 	except Errors.WafError as e:
 		Logs.pprint('RED', e.verbose_msg)
 		Logs.error(str(e))
