@@ -19,7 +19,7 @@ class Keyboard(object) :
             if not 'pdf' in kw : kw['pdf'] = base.replace('.kmn', '.pdf')
             if not 'fontsize' in kw : kw['fontsize'] = 18
             if not 'fontdir' in kw : kw['fontdir'] = 'kbdfonts'
-            if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(kw['font'])[1])
+            if not 'kbdfont' in kw : kw['kbdfont'] = os.path.join(kw['fontdir'], os.path.split(str(kw['font']))[1])
         for k, v in kw.items() : setattr(self, k, v)
         if not hasattr(self, 'package') :
             self.package = package.Package.global_package()
@@ -66,7 +66,9 @@ class Keyboard(object) :
         return res
 
     def get_sources(self, ctx) :
-        return get_all_sources(self, ctx, 'source', 'font')
+        res = get_all_sources(self, ctx, 'source', 'font')
+        res.extend(getattr(self, 'extra_srcs', []))
+        return res
 
     def build(self, bld) :
         if bld.env['KMCOMP'] and not hasattr(self, 'nokmx') :
@@ -103,7 +105,8 @@ class Keyboard(object) :
             modname = ''
             xml = self.xml
             svg = self.svg
-        infont = self.font if os.path.isabs(self.font) else bld.bldnode.find_or_declare(self.font)
+        font = str(self.font)
+        infont = font if os.path.isabs(font) else bld.bldnode.find_or_declare(font)
         bld(rule = '${KMN2XML} ' + args + ' ${SRC} > ${TGT}', shell = 1, source = self.source, target = xml)
         bld(rule = '${CP} ${SRC} ${TGT}', source = infont, target = self.kbdfont)
         bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = xml, target = svg)

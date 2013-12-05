@@ -42,6 +42,9 @@ POST_LAZY = 1
 POST_BOTH = 2
 """Post mode: post the task generators at once, then re-check them for each group"""
 
+scriptname = os.path.basename(sys.argv[0])
+
+
 class BuildContext(Context.Context):
 	'''executes the build'''
 
@@ -177,7 +180,7 @@ class BuildContext(Context.Context):
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
-				raise Errors.WafError('The project was not configured: run "waf configure" first!')
+				raise Errors.WafError('The project was not configured: run "%s configure" first!' % scriptname)
 			else:
 				raise
 
@@ -234,7 +237,7 @@ class BuildContext(Context.Context):
 		* calling :py:meth:`waflib.Build.BuildContext.post_build` to call user build functions
 		"""
 
-		Logs.info("Waf: Entering directory `%s'" % self.variant_dir)
+		Logs.info("%s: Entering directory `%s'" % (scriptname, self.variant_dir))
 		self.recurse([self.run_dir])
 		self.pre_build()
 
@@ -252,7 +255,7 @@ class BuildContext(Context.Context):
 				print('')
 				sys.stdout.flush()
 				sys.stderr.write(Logs.colors.cursor_on)
-			Logs.info("Waf: Leaving directory `%s'" % self.variant_dir)
+			Logs.info("%s: Leaving directory `%s'" % (scriptname, self.variant_dir))
 		self.post_build()
 
 	def restore(self):

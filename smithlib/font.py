@@ -34,6 +34,8 @@ class Font(object) :
         if not hasattr(self, 'ots_target') :
             self.ots_target = self.target[:-4] + "_ots.log"
 
+    def __str__(self) : return self.target
+
     def get_build_tools(self, ctx) :
         res = self.tests.config(ctx)
         if getattr(self, 'source', "").endswith(".sfd") :

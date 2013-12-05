@@ -80,7 +80,7 @@ def get_all_sources(self, ctx, *attrs) :
                 res.extend(a.get_sources(ctx))
             else :
                 n = ctx.path.find_resource(a)
-                if not n.is_child_of(ctx.bldnode) : res.append(a)
+                if n and not n.is_child_of(ctx.bldnode) : res.append(a)
     return res
         
 def init(ctx) :

@@ -89,6 +89,8 @@ class Package(object) :
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
+        for k in self.keyboards :
+            res.extend(k.get_sources(ctx))
         if hasattr(self, 'docdir') :
             for p, n, fs in os.walk(self.docdir) :
                 for f in fs :
@@ -319,6 +321,8 @@ class srcdistContext(Build.BuildContext) :
         self.recurse([self.run_dir], 'srcdist', mandatory = False)
         res = set(['wscript'])
         files = {}
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
         if os.path.exists('debian') :
             files['debian'] = self.srcnode.find_node('debian')
         for p in Package.packages() :
