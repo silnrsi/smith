@@ -162,20 +162,6 @@ class Package(object) :
             if not getattr(self, 'license', None) : self.license = 'OFL.txt'
             bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
-    def build_pdfs(self, bld) :
-        self.subrun(bld, lambda p, b: p.build_pdf(b))
-        for f in self.fonts :
-            f.build_pdf(bld)
-        for k in self.keyboards :
-            k.build_pdf(bld)
-
-    def build_svg(self, bld) :
-        self.subrun(bld, lambda p, b: p.build_svg(b))
-        for f in self.fonts :
-            f.build_svg(bld)
-        for k in self.keyboards :
-            k.build_svg(bld)
-
     def build_test(self, bld, test='test') :
         self.subrun(bld, lambda p, b: p.build_test(b, test=test))
         for f in self.fonts :
@@ -281,6 +267,7 @@ class Package(object) :
         return res
 
 class zipContext(Build.BuildContext) :
+    """Create distribution zip of build results"""
     cmd = 'zip'
 
     def execute_build(self) :
@@ -290,6 +277,7 @@ class zipContext(Build.BuildContext) :
             p.execute_zip(self)
 
 class cmdContext(Build.BuildContext) :
+    """Build Windows installer for packages"""
     cmd = 'exe' # must have a cmd otherwise this class overrides Build.BuildContext
 
     def pre_build(self) :
@@ -305,21 +293,26 @@ class cmdContext(Build.BuildContext) :
                 p.build_test(self, test=self.cmd)
     
 class pdfContext(cmdContext) :
+    """Create pdfs of test texts for fonts and layouts for keyboards"""
     cmd = 'pdfs'
 
     def build(self) :
         pass
 
 class svgContext(cmdContext) :
+    """Create svg test results"""
     cmd = 'svg'
 
 class testContext(cmdContext) :
+    """Run basic, usually regression, tests"""
     cmd = 'test'
 
 class otsContext(cmdContext) :
+    """Test fonts using OpenType Sanitizer. Check <font.target>_ots.log"""
     cmd = 'ots'
 
 class srcdistContext(Build.BuildContext) :
+    """Create source distribution of project"""
     cmd = 'srcdist'
 
     def execute_build(self) :
@@ -353,6 +346,7 @@ class srcdistContext(Build.BuildContext) :
         tar.close()
 
 class makedebianContext(Build.BuildContext) :
+    """Build debian project dir for this project"""
     cmd = 'makedebian'
 
     def execute_build(self) :
@@ -465,6 +459,7 @@ override_dh_auto_install :
             f.close()
 
 class graideContext(Build.BuildContext) :
+    """Create graide .cfg files, one per font in graide/"""
     cmd = 'graide'
 
     def execute_build(self) :

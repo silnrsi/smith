@@ -123,14 +123,6 @@ class Font(object) :
 
         return self
 
-    def build_pdf(self, bld) :
-        if self.tests :
-            self.tests.build_tests(bld, self, 'pdfs')
-
-    def build_svg(self, bld) :
-        if self.tests :
-            self.tests.build_tests(bld, self, 'svg')
-
     def build_test(self, bld, test='test') :
         if self.tests :
             self.tests.build_tests(bld, self, test)

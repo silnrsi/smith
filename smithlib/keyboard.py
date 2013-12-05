@@ -109,7 +109,9 @@ class Keyboard(object) :
         bld(rule = '${KMNXML2SVG} -s ' + str(self.fontsize) + ' -f "' + self.fontname + '" ${SRC} ${TGT}', source = xml, target = svg)
 
     def build_test(self, bld, test='test') :
-        pass
+        if test == 'pdfs' : return self.build_pdf
+        elif test == 'svg' : return self.build_svg
+
     
 class MSKBD(object) :
 

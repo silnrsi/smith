@@ -77,7 +77,7 @@ class font_test(object) :
             setattr(self, k, item)
 
         for t in self.targets.keys() :
-            c = type(t + 'Context', (package.cmdContext,), {'cmd' : t})
+            c = type(t + 'Context', (package.cmdContext,), {'cmd' : t, '__doc__' : "User defined test: " + t})
         self.tests.append(self)
         self._hasinit = False
 
@@ -89,7 +89,7 @@ class font_test(object) :
 
     def get_sources(self, ctx) :
         if not hasattr(self, 'testdir') :
-            self.testdir = 'tests'
+            self.testdir = ctx.env['TESTDIR'] or 'tests'
         testsdir = self.testdir + os.sep
         res = []
         for s in (getattr(self, y, None) for y in ('texts', 'htexts', 'texs')) :
@@ -125,7 +125,6 @@ class font_test(object) :
         
         testsdir = self.testdir + os.sep
         if not self._hasinit : self.build_testfiles(ctx, testsdir)
-        fid = getattr(font, 'test_suffix', font.id)
 
         self.modes = {}
         if getattr(font, 'graphite', None) :
@@ -180,8 +179,11 @@ class TeX(object) :
             for m, mf in test.modes.items() :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
-                if txtfiles.get(n, None) :
-                    mf += ":" + txtfiles[n].replace('lang=', 'language=').replace('&', ':')
+                attrs = txtfiles.get(n, None)
+                if attrs :
+                    if isinstance(attrs, dict) :
+                        attrs = "&".join(map(lambda x,y : x+"="+y, attrs.items()))
+                    mf += ":" + attrs.replace('lang=', 'language=').replace('&', ':')
                 elif parts[1] and len(parts[0]) < 5 :
                     lang = parts[0]
                     mf += ":language=" + lang
@@ -274,7 +276,8 @@ class SVG(object) :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
                 if txtfiles[n] :
-                    lang = txtfiles[n]
+                    if isinstance(txtfiles[n], dict) : lang = "&".join(map(lambda x,y : x+"="+y, txtfiles[n].items()))
+                    else : lang = txtfiles[n]
                 elif parts[1] and len(parts[0]) < 5 :
                     lang = 'lang=' + parts[0]
                 else :
@@ -331,7 +334,8 @@ class Tests(object) :
         for name, t in self.tests.items() :
             for n in txtfiles.keys() :
                 if txtfiles[n] :
-                    tinfo = self.parse_txtfile(txtfiles[n])
+                    if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
+                    else : tinfo = self.parse_txtfile(txtfiles[n])
                 else :
                     tinfo = {}
                 for m in test.modes.keys() :
