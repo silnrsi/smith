@@ -83,7 +83,8 @@ class Font(object) :
                 tarname = self.source + "_"
                 bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode, target = tarname)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target)
-            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
+            bgen = bld(rule = "${FONTFORGE} -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
+            # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
             if len(self.version) and not isinstance(self.version, basestring) :
@@ -130,9 +131,9 @@ class Font(object) :
         if self.tests :
             self.tests.build_tests(bld, self, 'svg')
 
-    def build_test(self, bld) :
+    def build_test(self, bld, test='test') :
         if self.tests :
-            self.tests.build_tests(bld, self, 'test')
+            self.tests.build_tests(bld, self, test)
 
     def build_ots(self, bld) :
         bld(rule="${OTS} ${SRC} > /dev/null 2>${TGT}", target=self.ots_target, source=[self.target], shell=1)
@@ -170,7 +171,8 @@ class Legacy(object) :
                 cmd += " -z ${TGT[1].bldpath()}"
             bld(rule = "${TTFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = trgt)
             if self.target.endswith(".sfd") :
-                bld(rule = "${FONTFORGE} -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
+                bld(rule = "${FONTFORGE} -quiet -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1) # for old fontforge
+                # bld(rule = "${FONTFORGE} -quiet -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
         else :
             bld(rule = "${FFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = self.target)
             if targetap and not hasattr(self, 'noap') :

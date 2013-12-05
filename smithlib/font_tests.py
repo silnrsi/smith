@@ -2,6 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Utils
+import package
 import wsiwaf
 import os, shutil, codecs
 from functools import partial
@@ -75,6 +76,8 @@ class font_test(object) :
         for k, item in kw.items() :
             setattr(self, k, item)
 
+        for t in self.targets.keys() :
+            c = type(t + 'Context', (package.cmdContext,), {'cmd' : t})
         self.tests.append(self)
         self._hasinit = False
 
@@ -159,7 +162,7 @@ class TeX(object) :
             ctx.find_program('xetex')
         except ctx.errors.ConfigurationError :
             pass
-        return []
+        return set()
 
     def build(self, ctx, test, font) :
         if 'XETEX' not in ctx.env : return
@@ -240,7 +243,7 @@ class SVG(object) :
             ctx.find_program('firefox')
         except ctx.errors.ConfigurationError :
             pass
-        return []
+        return set()
 
     def build(self, ctx, test, font) :
         if 'GRSVG' not in ctx.env : return
@@ -306,6 +309,7 @@ class SVG(object) :
 
 class Tests(object) :
     def __init__(self, tests = None, *kv, **kw) :
+        if 'ext' not in kw : kw['ext'] = '.log'
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
@@ -313,7 +317,7 @@ class Tests(object) :
         self.tests = tests
 
     def config(self, ctx) :
-        return []
+        return set()
 
     def build(self, ctx, test, font) :
         if not hasattr(self, 'standards') :
@@ -333,9 +337,10 @@ class Tests(object) :
                 for m in test.modes.keys() :
                     f = os.path.basename(font.target)
                     shp = m[0:m.find("_")] if "_" in m else m
+                    if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
                     inputs = [font.target, n]
                     inputs.append(os.path.join(self.standards, f))
-                    target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + '.log')
+                    target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
                     scr = getattr(font, 'script', [None])
                     if isinstance(scr, basestring) : scr = [scr]
                     for s in scr :

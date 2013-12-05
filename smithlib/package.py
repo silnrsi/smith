@@ -176,12 +176,12 @@ class Package(object) :
         for k in self.keyboards :
             k.build_svg(bld)
 
-    def build_test(self, bld) :
-        self.subrun(bld, lambda p, b: p.build_test(b))
+    def build_test(self, bld, test='test') :
+        self.subrun(bld, lambda p, b: p.build_test(b, test=test))
         for f in self.fonts :
-            f.build_test(bld)
+            f.build_test(bld, test=test)
         for k in self.keyboards :
-            k.build_test(bld)
+            k.build_test(bld, test=test)
 
     def build_ots(self, bld) :
         if 'OTS' not in bld.env :
@@ -299,26 +299,25 @@ class cmdContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         self.add_group(self.cmd)
         for p in Package.packages() :
-            getattr(p, 'build_' + self.cmd)(self)
+            if hasattr(p, 'build_' + self.cmd) :
+                getattr(p, 'build_' + self.cmd)(self)
+            else :
+                p.build_test(self, test=self.cmd)
     
 class pdfContext(cmdContext) :
     cmd = 'pdfs'
-    func = 'pdfs'
 
     def build(self) :
         pass
 
 class svgContext(cmdContext) :
     cmd = 'svg'
-    func = 'svg'
 
 class testContext(cmdContext) :
     cmd = 'test'
-    func = 'test'
 
 class otsContext(cmdContext) :
     cmd = 'ots'
-    func = 'ots'
 
 class srcdistContext(Build.BuildContext) :
     cmd = 'srcdist'
