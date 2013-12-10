@@ -1,3 +1,3 @@
 fontbase = '../../script-test/fonts/thai/'
 font(target = 'Norasi.ttf',
-     source = fontbase + 'font-source/Norasi.sfd')
+     source = fontbase + 'font-source/Norasi.sfd')  

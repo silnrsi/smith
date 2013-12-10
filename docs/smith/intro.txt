@@ -136,12 +136,25 @@ process()::
 target = process('outfile.ttf', cmd('ttfautohint ${DEP} ${TGT}'))
 ----
 +
-It can be tempting to want to use `process()` on a source file, but this causes problems. The underlying framework requires that there not be both a file with a given name and path in the source tree and in the results tree. `process()` creates a copy of the file in the results tree. So must not be used on a source file because any processes referencing that resulting file will use the one in the source tree over the one in the results tree and the `process()` will be to no avail.
+When `process()` is used on a source file, smith has to think a little harder.
+smith works to a strict rule that no files are created or changed in the main
+source tree. This means that smith cannot change a source file in its original
+position. For similar reasons (which file should one read?), smith does not allow
+there to be an identically named file with the same path in the source tree and
+in the build tree. So we can't simply copy the source file into the build tree
+and work on it there. Instead, smith creates a copy of the source file in the
+buildtree by stripping its path component and storing it in the `tmp/`
+directory. It then processes that in place. For the most part authors do not
+have to consider this, and using `process()` on a source file will 'just work'.
+But there are rare situations where knowledge of the underlying actions are
+necessary.
 +
 Parameters for this function are:
 
     nochange;;
-        If set, tells the system that there is no need to copy the dependency file before running the task.
+        If set, tells the system that there is no need to copy the dependency 
+        file before running the task. This is an internal parameter that users
+        are very unlikely to need to use.
 
 test()::
     This function applies a process to its output file with no expected output, so any `cmd()` would only have a `${TGT}` in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.

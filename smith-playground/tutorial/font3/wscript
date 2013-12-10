@@ -1,5 +1,7 @@
+APPNAME = 'norasi'
+VERSION = '0.0.1'
 fontbase = '../../script-test/fonts/thai/'
 
 for ext in ('', '-Bold') :
     font(target = 'Norasi' + ext + '.ttf',
-         source = process(fontbase + 'font-source/Norasi' + ext + '.sfd', cmd("../"+fontbase+"../../bin/rmOverlap ${DEP} ${TGT}")))
+         source = fontbase + 'font-source/Norasi' + ext + '.sfd')

@@ -1,0 +1,223 @@
+== Tutorial ==
+
+In this tutorial we will examine a number of wscript files. The first section is
+the largest and builds up a complex font creation scenario from humble
+beginnings.
+
+=== Font Creation ===
+
+==== font1 ====
+We start with a simple, single font.
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font1/wscript[]
+----
+
+Due to the way the tutorial is structured, we keep the shared source files in a
+different directory tree. Line 1 sets up where that tree is.
+
+In line 2, we create a new font object that we want the system to build. We
+specify the target filename. This file will be created in the build tree
+(`buildlinux2` on linux). Line 3 specifies where to find the source file. Notice
+that the target file is a `.ttf` file while the source is a `.sfd` file. Smith
+will do the necessary commands to convert from one to the other.
+
+With this as our `wscript` file, we can build our font:
+
+----
+smith configure
+----
+
+This is the first step in building any project. This command tells smith to set
+up the build environment and search out all the programs that it may need for
+the various tasks we may ask of smith. If a necessary program is missing smith
+will stop at that point and indicate an error. Some programs are not strictly
+necessary and smith can run with reduced function without them. Such missing
+programs are listed in orange. All other programs that smith searches for and
+finds are listed, along with their locations, in green. So you can see exactly
+which program smith will use for any particular task.
+
+----
+smith build
+----
+
+This command tells smith to go and build all the objects the `wscript` says to
+be built. In this case just the simple `Norasi.ttf` which will appear in
+`buildlinux2`. Not very exciting, but a good start.
+
+==== font2 ====
+
+Most font packages consist of more than one font file and this project is no
+exception. Can we scale our project to handle more than one file?
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font2/wscript[]
+----
+
+This example shows the power of integrating a description with a full
+programming language. `wscript` files are python programs, all be it very
+enhanced ones. So we can use any python type constructs we might need. Usually
+the need is slight, and we show a typical example here.
+
+Line 3 is the start of a loop. The lines below that are indented within the loop
+will be repeated for each value in the list. The first value is nothing (well
+the empty string `''`) and the second is `-Bold`. Each time around the loop, the
+variable `ext` is set to the appropriate string. We will then use that variable
+to help set the appropriate values in the two font objects we are creating.
+
+Each time around the loop, we create a new font object. In line 4 we create a
+new font object whose target font file's name is dependent on the `ext` variable
+which is set to the various strings from the list at the start of the loop. So
+we will end up creating two fonts. One called `Norasi.ttf` as before, and one
+called `Norasi-Bold.ttf`. Line 5 gives the source files for each of these fonts.
+
+It may seem easier just to expand out the loop and have two `font()` object
+commands, but as the complexity of this `font()` grows, we will see the value of
+using a loop. The advantage of adding the loop early is that we can make
+appropriate use of `ext`.
+
+Now when we come to build this project, we will get two fonts:
+
+----
+smith configure
+smith build
+----
+
+==== font3 ====
+
+It's good that we can create multiple fonts, but what do we do with them then?
+There are two typical products that people want from a font project: a `.zip`
+file containing the fonts and a `.exe` Windows installer that allows someone to
+simply run the program to install the fonts. Smith can create these two products
+from a wscript, but it needs just a little more information to do so:
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font3/wscript[]
+----
+
+Line 1 gives the base name of the products that will be created and line 2 gives
+the version of that product. Notice that the version variable is a string and
+does not have to be numeric. Case is important here, these are, in effect, magic
+variables we are setting that smith looks up.
+
+To build this project, we do the same as before, but we can also use two extra
+commands:
+
+----
+smith configure
+smith build
+smith zip
+smith exe
+----
+
+`smith zip` will create `norasi-0.0.1.zip` in the `buildlinux2` subdirectory.
+This zip file contains the two target fonts the build created. `smith exe`
+creates a Windows installer, and in keeping with naming conventions for
+installers, the APPNAME has been title cased to produce `Norasi-0.0.1.exe`.
+We will go into much more detail on packaging in the packaging tutorial section.
+
+==== font4 ====
+
+Before our example gains smart font support and grows in complexity, there is
+one area of control that is worth examining. For the most part, when creating a
+`wscript` one fills in the various 'forms' that create the objects, and smith
+knows what needs to happen to make things turn out right. But while this makes
+for pretty tutorials, real world projects have unique quirks that require the
+ability to add commands into the processing or to create things dynamically. In
+this exercise we will add a process to the source font:
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font4/wscript[]
+----
+
+The interest lies in line 10. Here we use a `process()` function to tell smith
+that we want it to run a command over the source font before converting it to a
+`.ttf`. A `process()` function takes a file which already exists (either in the
+source tree or one that is generated by another process) and then runs the list
+of `cmd()` function results over it in order. In this case the command is to run
+a script that removes overlap from all the glyphs in the font. The command
+string takes some study. The program takes two command line parameters, an input
+font file and an output font file. We represent these in the command string by
+`${DEP}` (the dependent file) as the input and `${TGT}` as the output file.
+smith will fill these in appropriately when it comes to run the command. In
+addition, note the initial `'../'` at the start of the command string. This is
+because all commands in smith are run from the `buildlinux2` directory and so we
+have to go up one level to get back to the project root where the `wscript` file
+is and then from there we can navigate to the actual remove overlap script.
+
+The rest of the new lines in this exercise are simply extra variables being used
+to make the file easier to read, otherwise some of the lines would become
+excessively long and confusing. Notice that all the magic variables in a
+`wscript` that smith considers are all caps. That is if you use a variable name
+with a lowercase letter in it, you are sure to be safe from smith assuming some
+special meaning to that variable.
+
+For the most part we are not very intersted in precisely what smith is doing to
+get the results we want. But sometimes it helps to know, and all that cryptic
+output streaming by isn't much help. But there is a way to get something more
+helpful. First we need to get back to a completely pristine source tree:
+
+----
+smith distclean
+----
+
+Now we can configure and run in a way that has smith tell us what it is doing:
+
+----
+smith configure
+smith build -j1 -v
+----
+
+In my case, here were my results:
+
+----
+$ smith build -j1 -v
+smith: Entering directory `/tutorial/tutorial/font4/buildlinux2'
+[1/6] tmp/Norasi.sfd: ../../script-test/fonts/thai/font-source/Norasi.sfd -> buildlinux2/tmp/Norasi.sfd
+14:42:02 runner ['cp', '../../../script-test/fonts/thai/font-source/Norasi.sfd', 'tmp/Norasi.sfd']
+[2/6] tmp/Norasi-Bold.sfd: ../../script-test/fonts/thai/font-source/Norasi-Bold.sfd -> buildlinux2/tmp/Norasi-Bold.sfd
+14:42:02 runner ['cp', '../../../script-test/fonts/thai/font-source/Norasi-Bold.sfd', 'tmp/Norasi-Bold.sfd']
+[3/6] tmp/Norasi.sfd[1]../../../script-test/bin/rmOverlap: 
+14:42:02 runner /tutorial/tutorial/font4/buildlinux2/tmp/Norasi.sfd-->/tutorial/tutorial/font4/buildlinux2/.tmp/tmp/Norasi.sfd
+14:42:02 runner ' ../../../script-test/bin/rmOverlap .tmp/tmp/Norasi.sfd tmp/Norasi.sfd '
+[4/6] tmp/Norasi-Bold.sfd[0]../../../script-test/bin/rmOverlap: 
+14:42:02 runner /tutorial/tutorial/font4/buildlinux2/tmp/Norasi-Bold.sfd-->/tutorial/tutorial/font4/buildlinux2/.tmp/tmp/Norasi-Bold.sfd
+14:42:02 runner ' ../../../script-test/bin/rmOverlap .tmp/tmp/Norasi-Bold.sfd tmp/Norasi-Bold.sfd '
+[5/6] Norasi-Bold.ttf_sfd: buildlinux2/tmp/Norasi-Bold.sfd -> buildlinux2/Norasi-Bold.ttf
+14:42:03 runner " /usr/bin/fontforge -lang=ff -c 'Open($1); Generate($2)' tmp/Norasi-Bold.sfd Norasi-Bold.ttf "
+Copyright (c) 2000-2012 by George Williams. See AUTHORS for contributors.
+ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ with many parts BSD <http://fontforge.org/license.html>. Please read LICENSE.
+ Executable based on sources from 02:55 UTC  4-Dec-2013-ML-D.
+ Library based on sources from 02:55 UTC  4-Dec-2013.
+ Based on source from git with hash:
+[6/6] Norasi.ttf_sfd: buildlinux2/tmp/Norasi.sfd -> buildlinux2/Norasi.ttf
+14:42:03 runner " /usr/bin/fontforge -lang=ff -c 'Open($1); Generate($2)' tmp/Norasi.sfd Norasi.ttf "
+Copyright (c) 2000-2012 by George Williams. See AUTHORS for contributors.
+ License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+ with many parts BSD <http://fontforge.org/license.html>. Please read LICENSE.
+ Executable based on sources from 02:55 UTC  4-Dec-2013-ML-D.
+ Library based on sources from 02:55 UTC  4-Dec-2013.
+ Based on source from git with hash:
+smith: Leaving directory `/tutorial/tutorial/font4/buildlinux2'
+'build' finished successfully (1.166s)
+----
+
+Thankfully, on a modern terminal, the colourising helps makes more sense of the
+volumenous information. But it is helpful once you learn to read it. The
+timestamped `runner` lines give the precise command lines that are run at each
+stage of the build.
+
+Clearly the key to getting this output is in the command line options to `smith build`.
+The `-v` says to output the extra information. But since smith tries to use multiple
+processors if you have them, to speed up the build (for example without the
+`-j1`, my build runs in 0.589s), it means the output can get interleaved. It is
+therefore wise to restrict smith to a single process while outputting this
+information, and this is done using `-j1`.
+
+
+
