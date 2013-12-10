@@ -142,6 +142,7 @@ class font_test(object) :
         self.targets[target].build(ctx, self, font)
 
     def results_node(self, node) :
+        if node.is_bld() : return node
         path = node.path_from(self.testnode)
         return self.resultsnode.make_node(path)
 
