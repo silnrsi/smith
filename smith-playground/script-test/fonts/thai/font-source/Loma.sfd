@@ -13,13 +13,12 @@ Descent: 410
 LayerCount: 2
 Layer: 0 0 "Back"  1
 Layer: 1 0 "Fore"  0
-NeedsXUIDChange: 1
 FSType: 0
 OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 0
 CreationTime: 1153662374
-ModificationTime: 1288681552
+ModificationTime: 1339752217
 PfmFamily: 33
 TTFWeight: 400
 TTFWidth: 5
@@ -40,6 +39,26 @@ HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
 OS2Vendor: 'PfEd'
+DEI: 91125
+LangName: 1033 "" "" "" "NECTEC UI - Loma" "" "" "" "SLThaiUI is a trademark of the NECTEC." "TLWG" "Mr.Sirichai Lerdvorawut" "" "http://www.opentle.org" "http://www.opentle.org" "This font is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.+AAoACgAA-This font is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.+AAoACgAA-You should have received a copy of the GNU General Public License along with this font; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA+AAoACgAA-As a special exception, if you create a document which uses this font, and embed this font or unaltered portions of this font into the document, this font does not by itself cause the resulting document to be covered by the GNU General Public License. This exception does not however invalidate any other reasons why the document might be covered by the GNU General Public License. If you modify this font, you may extend this exception to your version of the font, but you are not obligated to do so. If you do not wish to do so, delete this exception statement from your version." "http://www.gnu.org/licenses/gpl.html" 
+LangName: 1054 "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "+DicONA4NDg0OOQ4hDjgOSA4HDiMOOQ5JDh4ONA4GDjIOFQ4bDjcOSQ4ZDgIONQ5JDh0OOA5IDhkOQA4lDikODw44" 
+Encoding: UnicodeBmp
+Compacted: 1
+UnicodeInterp: none
+NameList: Adobe Glyph List
+DisplaySize: -36
+AntiAlias: 1
+FitToEm: 1
+WinInfo: 192 12 8
+BeginPrivate: 6
+BlueValues 37 [-11 0 1062 1095 1139 1150 1450 1482]
+OtherBlues 11 [-428 -422]
+StdHW 5 [148]
+StdVW 5 [160]
+StemSnapH 49 [110 116 121 125 130 138 148 160 165 168 173 180]
+StemSnapV 13 [160 180 185]
+EndPrivate
+TeXData: 1 0 0 524288 262144 174762 543744 -1048576 174762 783286 444596 497025 792723 393216 433062 380633 303038 157286 324010 404750 52429 2506097 1059062 262144
 Lookup: 4 0 1 "ligaStandardLigatureslookup0"  {"ligaStandardLigatureslookup0 subtable"  } ['liga' ('latn' <'dflt' > ) ]
 Lookup: 1 0 0 "ThaiSaraUMaiEkReordering"  {"ThaiSaraUMaiEkReordering subtable"  } []
 Lookup: 1 0 0 "ThaiSaraUMaiThoReordering"  {"ThaiSaraUMaiThoReordering subtable"  } []
@@ -74,15 +93,13 @@ Lookup: 1 0 0 "Single Substitution lookup 30"  {"Single Substitution lookup 30 s
 Lookup: 4 0 0 "ccmpGlyphCompositionDecompositi"  {"ccmpGlyphCompositionDecompositi subtable"  } ['ccmp' ('thai' <'dflt' 'KUY ' 'PAL ' 'PI  ' 'PLI ' 'THA ' > 'latn' <'dflt' > 'DFLT' <'dflt' > ) ]
 Lookup: 6 0 0 "ccmpThaiConditionalDescenderRem"  {"ccmpThaiConditionalDescenderRem subtable"  } ['ccmp' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 1 0 0 "Single Substitution lookup 33"  {"Single Substitution lookup 33 subtable"  } []
-Lookup: 1 0 0 "ThaiDescenderRemovalSingleSubst"  {"ThaiDescenderRemovalSingleSubst subtable"  } ['ccmp' ('thai' <'PI  ' 'PLI ' > ) ]
+Lookup: 1 0 0 "ThaiDescenderRemovalSingleSubst"  {"ThaiDescenderRemovalSingleSubst subtable"  } ['ccmp' ('thai' <'PI  ' 'PLI ' 'PAL ' > ) ]
 Lookup: 258 0 0 "'kern' Horizontal Kerning in Latin lookup 3"  {"'kern' Horizontal Kerning in Latin lookup 3 subtable"  } ['kern' ('latn' <'dflt' > ) ]
 Lookup: 258 0 0 "'kern' Horizontal Kerning lookup 4"  {"'kern' Horizontal Kerning lookup 4 subtable"  } ['kern' ('DFLT' <'dflt' > ) ]
 Lookup: 260 0 0 "markThaiBelowBase"  {"markThaiBelowBase subtable"  } ['mark' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 260 0 0 "markThaiAboveBase"  {"markThaiAboveBase subtable"  } ['mark' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 262 0 0 "mkmkThaiAboveMark"  {"mkmkThaiAboveMark subtable"  } ['mkmk' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
 Lookup: 262 0 0 "mkmkThaiBelowMark"  {"mkmkThaiBelowMark subtable"  } ['mkmk' ('thai' <'dflt' 'KUY ' 'PAL ' 'THA ' > 'DFLT' <'dflt' > ) ]
-MarkAttachClasses: 1
-DEI: 91125
 ChainSub2: coverage "ccmpThaiConditionalDescenderRem subtable"  0 0 0 1
  1 0 1
   Coverage: 15 uni0E0D uni0E10
@@ -311,27 +328,8 @@ ChainSub2: glyph "ccmpThaiGeneralComposition contextual 0"  0 0 0 1
   SeqLookup: 0 "ThaiSaraUMaiEkReordering" 
   SeqLookup: 1 "ThaiSaraUMaiEkReordering" 
 EndFPST
-LangName: 1033 "" "" "" "NECTEC UI - Loma" "" "" "" "SLThaiUI is a trademark of the NECTEC." "TLWG" "Mr.Sirichai Lerdvorawut" "" "http://www.opentle.org" "http://www.opentle.org" "This font is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.+AAoACgAA-This font is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.+AAoACgAA-You should have received a copy of the GNU General Public License along with this font; if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA+AAoACgAA-As a special exception, if you create a document which uses this font, and embed this font or unaltered portions of this font into the document, this font does not by itself cause the resulting document to be covered by the GNU General Public License. This exception does not however invalidate any other reasons why the document might be covered by the GNU General Public License. If you modify this font, you may extend this exception to your version of the font, but you are not obligated to do so. If you do not wish to do so, delete this exception statement from your version." "http://www.gnu.org/licenses/gpl.html" 
-LangName: 1054 "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "" "+DicONA4NDg0OOQ4hDjgOSA4HDiMOOQ5JDh4ONA4GDjIOFQ4bDjcOSQ4ZDgIONQ5JDh0OOA5IDhkOQA4lDikODw44" 
-Encoding: UnicodeBmp
-Compacted: 1
-UnicodeInterp: none
-NameList: Adobe Glyph List
-DisplaySize: -36
-AntiAlias: 1
-FitToEm: 1
-WinInfo: 192 12 8
-BeginPrivate: 6
-BlueValues 37 [-11 0 1062 1095 1139 1150 1450 1482]
-OtherBlues 11 [-428 -422]
-StdHW 5 [148]
-StdVW 5 [160]
-StemSnapH 49 [110 116 121 125 130 138 148 160 165 168 173 180]
-StemSnapV 13 [160 180 185]
-EndPrivate
-TeXData: 1 0 0 524288 262144 174762 543744 -1048576 174762 783286 444596 497025 792723 393216 433062 380633 303038 157286 324010 404750 52429 2506097 1059062 262144
 AnchorClass2: "BelowBase"  "markThaiBelowBase subtable" "AboveBase"  "markThaiAboveBase subtable" "AboveMark"  "mkmkThaiAboveMark subtable" "BelowBase_Mark"  "mkmkThaiBelowMark subtable" 
-BeginChars: 65543 289
+BeginChars: 65541 287
 
 StartChar: .notdef
 Encoding: 65536 -1 0
@@ -358,12 +356,9 @@ EndChar
 StartChar: uni0E47.high
 Encoding: 63263 63263 1
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1797.6 158.4<-566.011 -414.998> 1876.8 136.8<-775.394 -665.879> 1917.3 38.7<-525.431 -476.5> 2066.7 47.7<-525.63 -416.96> 2136 106.2<-818.232 -555.876>
 VStem: -998.5 133.2<1947.12 2089.11> -584.5 55.8<1967.53 2064.98> -413.5 83.7<1959.5 2039.54>
-AnchorPoint: "AboveMark" -665 1740 mark 0
-AnchorPoint: "AboveMark" -665 1740 basemark 0
 LayerCount: 2
 Back
 SplineSet
@@ -394,18 +389,21 @@ SplineSet
 EndSplineSet
 Fore
 Refer: 190 3655 N 0.9 0 0 0.9 -67 642 2
+AnchorPoint: "AboveMark" -665 1740 mark 0
+
+AnchorPoint: "AboveMark" -665 1740 basemark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4D.high
 Encoding: 63262 63262 2
 Width: 0
 VWidth: 2561
-GlyphClass: 3
 Flags: W
 HStem: 1726 72<-334.847 -193.034> 1954 73<-332.682 -191.106>
 VStem: -412 69<1807.75 1946.68> -183 70<1807.89 1945.45>
-AnchorPoint: "AboveMark" -262 1740 mark 0
-AnchorPoint: "AboveMark" -262 1740 basemark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -420,28 +418,35 @@ SplineSet
  -312 1954 -343 1917 -343 1875 c 0
  -343 1834 -305 1798 -263 1798 c 0
 EndSplineSet
+AnchorPoint: "AboveMark" -262 1740 mark 0
+
+AnchorPoint: "AboveMark" -262 1740 basemark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni000D
 Encoding: 13 13 3
 Width: 682
-GlyphClass: 1
 Flags: W
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: space
 Encoding: 32 32 4
 Width: 1024
-GlyphClass: 1
 Flags: W
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: exclam
 Encoding: 33 33 5
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: 0 194<206 370> 1430 20G<198 378>
 VStem: 198 180<910.471 1450> 206 164<0 194>
@@ -461,12 +466,13 @@ SplineSet
  206 0 l 1
  206 194 l 1xd0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotedbl
 Encoding: 34 34 6
 Width: 727
-GlyphClass: 1
 Flags: W
 HStem: 1430 20G<106 286 439 619>
 VStem: 106 180<1183.82 1450> 439 180<1182.44 1450>
@@ -488,12 +494,13 @@ SplineSet
  572 947 l 1
  487 947 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: numbersign
 Encoding: 35 35 7
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 21G<87 271.405 546 729.405> 385 180<21 174 384 632 842 1113> 895 180<21 278 488 737 947 1113> 1450 20G<390.595 575 849.595 1034>
 LayerCount: 2
@@ -534,12 +541,13 @@ SplineSet
  458 895 l 1
  384 565 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: dollar
 Encoding: 36 36 8
 Width: 1139
-GlyphClass: 1
 Flags: W
 VStem: 76 179<278.013 417> 106 180<911.631 1172.26> 491 143<-118 -17 123 629 810 1269 1409 1488> 833 175<1050 1186.55> 858 184<237.747 524.811>
 LayerCount: 2
@@ -574,12 +582,13 @@ SplineSet
  634 123 l 5
  755.093 148.827 858 236.646 858 386 c 4x28
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: percent
 Encoding: 37 37 9
 Width: 1821
-GlyphClass: 1
 Flags: W
 HStem: -49.5 123<1278.58 1475.16> 599.5 125<1277.53 1482.95> 717 123<332.079 528.663> 1366 125<331.03 536.449>
 VStem: 119 157<900.834 1307.03> 590 155<901.83 1309.67> 1065.5 157<134.334 540.536> 1536.5 155<135.33 543.168>
@@ -612,12 +621,13 @@ SplineSet
  458 -10 l 1
  1217 1491 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: ampersand
 Encoding: 38 38 10
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: -25 158<409.479 714.335> 1343 148<513.337 739.184>
 VStem: 88 195<264.626 550.536> 272 185<1069.83 1286.72> 793 184<1042.28 1286.5>
@@ -650,12 +660,13 @@ SplineSet
  688 133 797.042 220.454 860 315 c 1
  530 725 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotesingle
 Encoding: 39 39 11
 Width: 391
-GlyphClass: 1
 Flags: W
 HStem: 1446 20G<90 295>
 VStem: 90 205<1185.93 1466>
@@ -670,12 +681,13 @@ SplineSet
  247 947 l 1
  136 947 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: parenleft
 Encoding: 40 40 12
 Width: 682
-GlyphClass: 1
 Flags: W
 VStem: 124 185<190.202 888.53>
 LayerCount: 2
@@ -689,12 +701,13 @@ SplineSet
  309 210 409 -111 608 -431 c 1
  479 -431 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: parenright
 Encoding: 41 41 13
 Width: 682
-GlyphClass: 1
 Flags: W
 VStem: 420 185<190.202 888.53>
 LayerCount: 2
@@ -708,12 +721,13 @@ SplineSet
  420 210 320 -111 121 -431 c 1
  250 -431 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: asterisk
 Encoding: 42 42 14
 Width: 797
-GlyphClass: 1
 Flags: W
 HStem: 867 624<321 528>
 VStem: 321 145<1394.7 1491>
@@ -737,12 +751,13 @@ SplineSet
  220 1047 276 1110 309 1141 c 1
  223 1158 141 1176 64 1197 c 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: plus
 Encoding: 43 43 15
 Width: 1196
-GlyphClass: 1
 Flags: W
 HStem: 639 168<114 513 683 1082>
 VStem: 513 170<237 639 807 1206>
@@ -763,12 +778,13 @@ SplineSet
  683 237 l 1
  513 237 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: comma
 Encoding: 44 44 16
 Width: 569
-GlyphClass: 1
 Flags: W
 VStem: 182 205<0 205> 284 103<-157.622 0>
 LayerCount: 2
@@ -783,12 +799,13 @@ SplineSet
  250.676 -175.845 279.79 -117.423 284 0 c 1x40
  182 0 l 1x80
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: hyphen
 Encoding: 45 45 17
 Width: 682
-GlyphClass: 1
 Flags: W
 HStem: 440 181<65 618>
 LayerCount: 2
@@ -800,12 +817,13 @@ SplineSet
  618 440 l 1
  65 440 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: period
 Encoding: 46 46 18
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: 0 205<186 391>
 VStem: 186 205<0 205>
@@ -818,12 +836,13 @@ SplineSet
  391 0 l 1
  186 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: slash
 Encoding: 47 47 19
 Width: 595
-GlyphClass: 1
 Flags: W
 HStem: -10 21G<-81 109.919> 1450 20G<498.068 688>
 VStem: -81 769<-10 1470>
@@ -836,12 +855,13 @@ SplineSet
  102 -10 l 1
  -81 -10 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: zero
 Encoding: 48 48 20
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 150<425.767 698.88> 1309 150<421.284 698.732>
 VStem: 86 184<362.402 1101.73> 856 184<358.726 1085.23>
@@ -859,12 +879,13 @@ SplineSet
  856 1114 758 1309 561 1309 c 0
  316 1309 270 1032 270 723 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: one
 Encoding: 49 49 21
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<583 763> 1452 20G<557.162 763>
 VStem: 583 180<0 1135>
@@ -880,12 +901,14 @@ SplineSet
  763 1472 l 1
  763 0 l 1
 EndSplineSet
+Kerns2: 21 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: two
 Encoding: 50 50 22
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 173<312 1031> 1333 149<404.848 724.988>
 VStem: 96 185<1039 1205.68> 844 185<905.671 1217.7>
@@ -906,12 +929,13 @@ SplineSet
  492.668 366.357 383.559 297.543 312 173 c 1
  1031 173 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: three
 Encoding: 51 51 23
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 166<391.337 715.429> 1070 21G<104 295.346> 1317 165<393.873 702.437>
 VStem: 86 180<280.938 427> 104 180<1070 1202.73> 789 185<968.563 1231.95> 855 191<293.113 603.922>
@@ -936,12 +960,13 @@ SplineSet
  1046 181.383 832.18 -10 552 -10 c 0
  291.81 -10 89.2383 170.396 86 427 c 1xf2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: four
 Encoding: 52 52 24
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<662 842> 347 175<251 662 842 1040> 1452 20G<648.611 842>
 VStem: 662 180<0 347 522 1117>
@@ -965,12 +990,13 @@ SplineSet
  251 522 l 1
  662 522 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: five
 Encoding: 53 53 25
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 164<398.272 716.116> 817 170<397.312 729.392> 1292 180<423 988>
 VStem: 866 191<307.842 675.898>
@@ -994,12 +1020,13 @@ SplineSet
  1057 224 857.59 -10 556 -10 c 4
  279.82 -10 109.141 158.082 85 415 c 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: six
 Encoding: 54 54 26
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 165<437.308 732.82> 807 170<427.667 730.553> 1305 177<436.085 744.928>
 VStem: 77 194<701 1086.31> 861 184<294.172 668.865>
@@ -1022,12 +1049,13 @@ SplineSet
  861 667.437 760 807 576 807 c 0
  404 807 306 670.145 306 490 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: seven
 Encoding: 55 55 27
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<293 511> 1292 180<97 795>
 VStem: 293 218<0 345.203>
@@ -1045,12 +1073,13 @@ SplineSet
  577 979 680 1151 795 1292 c 1
  97 1292 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: eight
 Encoding: 56 56 28
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 157<406.39 740.896> 699 181<418.377 715.905> 1326 156<414.604 714.489>
 VStem: 83 185<283.759 591.105> 142 184<969.067 1244.03> 804 185<967.733 1239.66> 865 184<274.584 586.62>
@@ -1077,12 +1106,13 @@ SplineSet
  865 612 740 699 562 699 c 0
  388.771 699 268 608.865 268 438 c 0xf2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: nine
 Encoding: 57 57 29
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 177<413.07 724.706> 495 170<429.627 734.618> 1317 165<425.943 718.742>
 VStem: 113 184<808.187 1179.98> 887 194<395.332 771>
@@ -1105,12 +1135,13 @@ SplineSet
  297 804 399.455 665 582 665 c 0
  760 665 855.141 801.882 852 982 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: colon
 Encoding: 58 58 30
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: 0 205<185 390> 857 205<185 390>
 VStem: 185 205<0 205 857 1062>
@@ -1128,12 +1159,13 @@ SplineSet
  390 0 l 1
  185 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: semicolon
 Encoding: 59 59 31
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: 857 205<182 387>
 VStem: 182 205<0 205 857 1062> 284 103<-156.137 0>
@@ -1154,12 +1186,13 @@ SplineSet
  249.748 -177.615 280.807 -109.81 284 0 c 1xa0
  182 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: less
 Encoding: 60 60 32
 Width: 1196
-GlyphClass: 1
 Flags: W
 HStem: 226 993<1083 1083>
 VStem: 112 971<641 1219>
@@ -1175,12 +1208,13 @@ SplineSet
  1083 226 l 1
  112 641 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: equal
 Encoding: 61 61 33
 Width: 1196
-GlyphClass: 1
 Flags: W
 HStem: 417 168<114 1082> 862 168<114 1082>
 LayerCount: 2
@@ -1197,12 +1231,13 @@ SplineSet
  1082 585 l 1
  1082 417 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: greater
 Encoding: 62 62 34
 Width: 1196
-GlyphClass: 1
 Flags: W
 HStem: 226 993<112 112>
 VStem: 112 971<226 641>
@@ -1218,12 +1253,13 @@ SplineSet
  1083 809 l 1
  1083 641 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: question
 Encoding: 63 63 35
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 205<461 666> 1341 163<413.156 731.937>
 VStem: 461 205<0 205> 472 173<361 558.608> 853 187<950.027 1223.98>
@@ -1246,12 +1282,13 @@ SplineSet
  666 0 l 1
  461 0 l 1xe8
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: at
 Encoding: 64 64 36
 Width: 2079
-GlyphClass: 1
 Flags: W
 HStem: -431 157<784.406 1450.83> -33 196<1276.8 1537.39> -3 164<774.291 1036.38> 925 159<882.805 1158.3> 1338 155<813.743 1363.85>
 VStem: 111 158<212.012 774.578> 502 181<263.187 675.035> 1799 157<502.838 943.219>
@@ -1286,12 +1323,13 @@ SplineSet
  1243 881.52 1111.6 925 1024 925 c 0
  795.324 925 683 640.154 683 453 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: A
 Encoding: 65 65 37
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<-2 211.025 1140.46 1368> 471 182<435 903> 1430 20G<551.262 776.276>
 LayerCount: 2
@@ -1311,12 +1349,14 @@ SplineSet
  435 653 l 1
  903 653 l 1
 EndSplineSet
+Kerns2: 93 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  91 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  90 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  61 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  59 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  58 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  56 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: B
 Encoding: 66 66 38
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 173<344 940.594> 669 173<344 911.662> 1277 173<344 904.188>
 VStem: 164 180<173 669 842 1277> 995 191<917.319 1193.66> 1056 201<267.507 571.758>
@@ -1344,12 +1384,13 @@ SplineSet
  344 669 l 1
  344 173 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: C
 Encoding: 67 67 39
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: -10 180<580.263 1005.46> 1297 180<579.415 1010.89>
 VStem: 102 197<493.74 996.01>
@@ -1368,12 +1409,13 @@ SplineSet
  472 1297 298.46 1065.32 299 746 c 0
  299 521.904 396.8 170 788 170 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: D
 Encoding: 68 68 40
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: 0 173<350 908.284> 1277 173<350 908.134>
 VStem: 168 182<173 1277> 1183 197<464.775 1002.12>
@@ -1393,12 +1435,13 @@ SplineSet
  675 173 l 2
  979.8 173 1183 325.288 1183 736 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: E
 Encoding: 69 69 41
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 179<341 1222> 646 180<341 1021> 1268 182<341 1222>
 VStem: 162 179<179 646 826 1268>
@@ -1419,12 +1462,13 @@ SplineSet
  1222 0 l 1
  162 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: F
 Encoding: 70 70 42
 Width: 1251
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<168 347> 641 179<347 1009> 1271 179<347 1157>
 VStem: 168 179<0 641 820 1271>
@@ -1443,12 +1487,14 @@ SplineSet
  347 0 l 1
  168 0 l 1
 EndSplineSet
+Kerns2: 37 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: G
 Encoding: 71 71 43
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: -10 180<581.136 997.986> 504 180<905 1212> 1297 180<578.508 1010.13>
 VStem: 102 197<492.883 1000.32> 1212 192<352.624 504>
@@ -1469,12 +1515,13 @@ SplineSet
  1145.18 1183.94 1031.09 1297 790 1297 c 0
  472 1297 299 1068 299 746 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: H
 Encoding: 72 72 44
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<164 344 1134 1314> 668 180<344 1134> 1430 20G<164 344 1134 1314>
 VStem: 164 180<0 668 848 1450> 1134 180<0 668 848 1450>
@@ -1495,12 +1542,13 @@ SplineSet
  344 0 l 1
  164 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: I
 Encoding: 73 73 45
 Width: 650
-GlyphClass: 1
 Flags: W
 HStem: 0 160<25 235 415 625> 1290 160<25 235 415 625>
 VStem: 235 180<160 1290>
@@ -1521,12 +1569,13 @@ SplineSet
  415 160 l 1
  625 160 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: J
 Encoding: 74 74 46
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: -10 180<322.948 612.416> 1280 170<408 685>
 VStem: 64 180<261.056 455> 685 180<247.773 1280>
@@ -1545,12 +1594,13 @@ SplineSet
  408 1450 l 1
  865 1450 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: K
 Encoding: 75 75 47
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<150 330 1094.07 1346> 1430 20G<150 330 1049.68 1316>
 VStem: 150 180<0 539 785 1450>
@@ -1571,12 +1621,13 @@ SplineSet
  330 0 l 1
  150 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: L
 Encoding: 76 76 48
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 170<330 1060> 1430 20G<150 330>
 VStem: 150 180<170 1450>
@@ -1591,12 +1642,14 @@ SplineSet
  1060 0 l 1
  150 0 l 1
 EndSplineSet
+Kerns2: 93 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  61 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  59 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  58 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  56 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: M
 Encoding: 77 77 49
 Width: 1706
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<152 332 698.241 1003.76 1370 1550> 1430 20G<152 339.882 1362.12 1550>
 VStem: 152 180<0 964> 1370 180<0 964>
@@ -1618,12 +1671,13 @@ SplineSet
  332 0 l 1
  152 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: N
 Encoding: 78 78 50
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<156 336 1117 1311> 1430 20G<156 350.009 1131 1311>
 VStem: 156 180<0 1136> 1131 180<315 1450>
@@ -1642,12 +1696,13 @@ SplineSet
  336 0 l 1
  156 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: O
 Encoding: 79 79 51
 Width: 1593
-GlyphClass: 1
 Flags: W
 HStem: -10 180<576.319 1020.87> 1298 180<571.484 1020.23>
 VStem: 104 200<462.716 998.772> 1296 200<473.839 1001.21>
@@ -1665,12 +1720,13 @@ SplineSet
  1121.99 170 1296 383.664 1296 732 c 0
  1296 1071.82 1126.63 1298 802 1298 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: P
 Encoding: 80 80 52
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<158 338> 580 173<338 958.614> 1277 173<338 970.26>
 VStem: 158 180<0 580 753 1277> 1077 200<864.545 1181.77>
@@ -1692,12 +1748,14 @@ SplineSet
  338 753 l 1
  731 753 l 2
 EndSplineSet
+Kerns2: 37 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -264 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -264 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: Q
 Encoding: 81 81 53
 Width: 1659
-GlyphClass: 1
 Flags: W
 HStem: -14 189<1336.61 1479.07> -10 177<739.75 1026.96> 297 178<789.905 1022.11> 1298 180<572.302 1025.94>
 VStem: 104 200<454.316 999> 1296 200<544.412 1003.01>
@@ -1728,12 +1786,13 @@ SplineSet
  755 169 776 167 803 167 c 0x7c
  923.071 168.559 1014.63 197.057 1050 226 c 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: R
 Encoding: 82 82 54
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<158 338 1092.9 1387> 580 173<338 698> 1277 173<338 966.255>
 VStem: 158 180<0 580 753 1277> 1077 200<861.246 1181>
@@ -1758,12 +1817,14 @@ SplineSet
  338 753 l 1
  731 753 l 2
 EndSplineSet
+Kerns2: 61 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  59 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  58 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  56 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: S
 Encoding: 83 83 55
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: -10 174<483.503 930.852> 1300 171<448.498 872.308>
 VStem: 92 183<359.788 502> 148 187<972.48 1200.51> 1029 186<1019 1177.28> 1072 187<287.656 532.599>
@@ -1786,12 +1847,13 @@ SplineSet
  335 904 559.661 882.553 692 852 c 0
  883.931 807.689 1259 780 1259 429 c 0xd4
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: T
 Encoding: 84 84 56
 Width: 1251
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<538 718> 1280 170<48 538 718 1210>
 VStem: 538 180<0 1280>
@@ -1808,12 +1870,14 @@ SplineSet
  718 0 l 1
  538 0 l 1
 EndSplineSet
+Kerns2: 93 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  91 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  89 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  87 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  86 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  83 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  77 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  73 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  71 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  69 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  51 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  37 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  31 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  30 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  17 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -227 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: U
 Encoding: 85 85 57
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: -10 180<527.481 962.652> 1430 20G<161 341 1134 1314>
 VStem: 161 180<352.477 567 567 1450> 1134 180<342.039 1450>
@@ -1832,12 +1896,13 @@ SplineSet
  341 568 l 2
  341 249.6 536.402 170 737 170 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: V
 Encoding: 86 86 58
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<569.166 783.917> 1430 20G<9 226.822 1143.89 1350>
 LayerCount: 2
@@ -1852,12 +1917,14 @@ SplineSet
  776 0 l 1
  577 0 l 1
 EndSplineSet
+Kerns2: 93 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  89 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  86 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  83 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  77 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  73 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  69 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  37 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  31 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  30 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  17 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: W
 Encoding: 87 87 59
 Width: 1933
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<408.634 617.966 1304.03 1513.37> 1430 20G<25 229.453 827.943 1094.06 1692.55 1897>
 LayerCount: 2
@@ -1878,12 +1945,14 @@ SplineSet
  612 0 l 1
  414 0 l 1
 EndSplineSet
+Kerns2: 93 -18 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  89 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  86 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  83 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  73 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  69 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  37 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  31 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  30 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  17 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: X
 Encoding: 88 88 60
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<9 253.421 1108.58 1353> 1430 20G<76 319.686 1068.33 1313>
 LayerCount: 2
@@ -1903,12 +1972,13 @@ SplineSet
  239 0 l 1
  9 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: Y
 Encoding: 89 89 61
 Width: 1366
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<571 765> 1431 20G<6 250.899 1105.23 1350>
 VStem: 571 194<0 621>
@@ -1926,12 +1996,14 @@ SplineSet
  765 0 l 1
  571 0 l 1
 EndSplineSet
+Kerns2: 90 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  89 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  85 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  84 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  83 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  77 -76 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  73 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  69 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  37 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  31 -133 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  30 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  18 -264 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  17 -188 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -264 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: Z
 Encoding: 90 90 62
 Width: 1251
-GlyphClass: 1
 Flags: W
 HStem: 0 180<325 1200> 1270 180<45 945>
 LayerCount: 2
@@ -1949,12 +2021,13 @@ SplineSet
  1200 0 l 1
  41 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: bracketleft
 Encoding: 91 91 63
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: -407 149<319 536> 1317 149<319 536>
 VStem: 139 180<-258 1317>
@@ -1971,12 +2044,13 @@ SplineSet
  536 -407 l 1
  139 -407 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: backslash
 Encoding: 92 92 64
 Width: 569
-GlyphClass: 1
 Flags: W
 VStem: 0 569<-25 1491>
 LayerCount: 2
@@ -1988,12 +2062,13 @@ SplineSet
  569 -25 l 1
  425 -25 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: bracketright
 Encoding: 93 93 65
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: -407 149<39 256> 1317 149<39 256>
 VStem: 256 180<-258 1317>
@@ -2010,12 +2085,13 @@ SplineSet
  436 1466 l 1
  436 -407 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: asciicircum
 Encoding: 94 94 66
 Width: 961
-GlyphClass: 1
 Flags: W
 HStem: 690 801<239 407>
 VStem: 54 853<690 690>
@@ -2031,12 +2107,13 @@ SplineSet
  479 1287 l 1
  239 690 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: underscore
 Encoding: 95 95 67
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -407 130<-31 1162>
 LayerCount: 2
@@ -2048,12 +2125,13 @@ SplineSet
  1162 -407 l 1
  -31 -407 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: grave
 Encoding: 96 96 68
 Width: 682
-GlyphClass: 1
 Flags: W
 HStem: 1454 20G<89 339.643>
 VStem: 89 376<1194 1474>
@@ -2066,12 +2144,13 @@ SplineSet
  330 1474 l 1
  465 1194 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: a
 Encoding: 97 97 69
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -24 141<326.23 656.382> 937 149<374.267 738.206>
 VStem: 74 192<174.67 389.954> 813 182<371.313 533 674 865.747>
@@ -2100,12 +2179,13 @@ SplineSet
  813 533 l 1
  581.772 436.951 266 500.283 266 285 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: b
 Encoding: 98 98 70
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 159<443.274 737.519> 921 165<457.959 739.787> 1446 20G<134 314>
 VStem: 134 180<300.638 752.364 943 1466> 134 167<0 119> 883 172<312.421 763.391>
@@ -2128,12 +2208,13 @@ SplineSet
  776.87 150.865 883 306.224 883 532 c 0
  883 852.158 706.6 921 589 921 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: c
 Encoding: 99 99 71
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: -10 170<402.641 733.313> 916 170<403.529 720.781>
 VStem: 80 185<314.723 768.273> 828 177<255.949 403 696 809.561>
@@ -2152,12 +2233,13 @@ SplineSet
  365.794 919.796 265 786 265 532 c 0
  265 225 441.801 160 561 160 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: d
 Encoding: 100 100 72
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 154<395.853 669.161> 917 169<390.001 678.899> 1446 20G<812 991>
 VStem: 70 185<300.607 762.478> 812 179<313.028 748.922 958 1466> 824 167<0 122>
@@ -2180,12 +2262,13 @@ SplineSet
  657.849 141.217 817 272.519 817 515 c 0
  817 776 695.709 917 544 917 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: e
 Encoding: 101 101 73
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 162<402.089 755.956> 485 164<271 862> 914 172<406.153 745.508>
 VStem: 75 192<295.922 522>
@@ -2207,12 +2290,13 @@ SplineSet
  403.013 914 280.882 803.154 271 649 c 1
  862 649 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: f
 Encoding: 102 102 74
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<178 357> 922 140<19 178 357 536> 1343 172<394.872 637.405>
 VStem: 178 179<0 922 1062 1306.99>
@@ -2237,12 +2321,14 @@ SplineSet
  640 1316 l 1
  580 1336 539 1343 493 1343 c 0
 EndSplineSet
+Kerns2: 74 -37 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: g
 Encoding: 103 103 75
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -435 167<353.527 693.88> 0 175<379.314 700.734> 917 169<387.35 694.924>
 VStem: 66 185<318.739 769.204> 102 175<-194.602 -74> 819 183<-131.115 139 312.024 771.701> 836 166<974 1062>
@@ -2268,12 +2354,13 @@ SplineSet
  729 175 822 298 822 544 c 0
  822 862.63 652.2 917 539 917 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: h
 Encoding: 104 104 76
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<135 315 820 1000> 882 213<434.352 736.96> 1446 20G<135 315>
 VStem: 135 180<0 747.805 970 1466> 820 180<0 797.552>
@@ -2294,12 +2381,13 @@ SplineSet
  820 624 l 2
  820 796 745 882 596 882 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: i
 Encoding: 105 105 77
 Width: 455
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<136 316> 1042 20G<136 316> 1259 207<136 316>
 VStem: 136 180<0 1062 1259 1466>
@@ -2317,12 +2405,13 @@ SplineSet
  316 0 l 1
  136 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: j
 Encoding: 106 106 78
 Width: 455
-GlyphClass: 1
 Flags: W
 HStem: -428 161<-60.261 99.0161> 1042 20G<134 314> 1257 209<134 314>
 VStem: 134 180<-233.074 1062 1257 1466>
@@ -2344,12 +2433,13 @@ SplineSet
  314 1062 l 1
  314 -58 l 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: k
 Encoding: 107 107 79
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<136 316 781.072 1016> 1042 20G<722.278 975> 1446 20G<136 316>
 VStem: 136 180<0 421 630 1466>
@@ -2370,12 +2460,13 @@ SplineSet
  316 0 l 1
  136 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: l
 Encoding: 108 108 80
 Width: 455
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<131 311> 1446 20G<131 311>
 VStem: 131 180<0 1466>
@@ -2388,12 +2479,13 @@ SplineSet
  311 0 l 1
  131 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: m
 Encoding: 109 109 81
 Width: 1706
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<135 315 766 946 1395 1574> 930 156<435.161 707.761 1068.15 1334.37>
 VStem: 135 161<913 1062> 135 180<0 668.692> 766 180<0 812.072> 1395 179<0 866.615>
@@ -2422,12 +2514,13 @@ SplineSet
  766 0 l 1
  766 690 l 2xec
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: n
 Encoding: 110 110 82
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<135 315 820 1000> 882 213<434.352 736.96>
 VStem: 135 180<0 747.805 970 1064> 820 180<0 797.552>
@@ -2448,12 +2541,13 @@ SplineSet
  820 624 l 2
  820 796 745 882 596 882 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: o
 Encoding: 111 111 83
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -11 158<400.278 729.924> 928 158<401.017 726.071>
 VStem: 68 185<303.339 761.138> 878 185<305.908 758.87>
@@ -2471,12 +2565,13 @@ SplineSet
  774.984 147 878 293.001 878 537 c 0
  878 858.453 690.8 928 566 928 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: p
 Encoding: 112 112 84
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 165<445.302 727.839> 927 159<431.208 726.378>
 VStem: 122 167<957 1076> 122 180<-390 133 325.11 775.269> 871 172<312.658 761.896>
@@ -2499,12 +2594,13 @@ SplineSet
  694.6 155 871 223.727 871 544 c 0
  871 740 784 927 569 927 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: q
 Encoding: 113 113 85
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 165<402.213 684.041> 927 159<403.983 698.726>
 VStem: 87 172<312.61 761.973> 828 180<-390 133 323.636 775.362> 841 167<957 1076>
@@ -2527,12 +2623,13 @@ SplineSet
  348 927 259 744 259 544 c 0
  259 223.842 435.4 155 553 155 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: r
 Encoding: 114 114 86
 Width: 682
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<133 313> 900 177<400.409 622.705>
 VStem: 133 162<947 1062> 133 180<0 798.166>
@@ -2551,12 +2648,14 @@ SplineSet
  648 861 l 1
  604 887 561 900 518 900 c 0xe0
 EndSplineSet
+Kerns2: 18 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: s
 Encoding: 115 115 87
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: -11 162<333.735 688.638> 925 161<330.862 667.263>
 VStem: 63 178<187.719 333.471> 93 186<698.114 876.482> 729 176<764 864.388> 760 185<216.092 397.26>
@@ -2579,12 +2678,13 @@ SplineSet
  279 687 364.805 672.674 517 644 c 0
  728.399 604.051 945 568.18 945 325 c 0xd4
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: t
 Encoding: 116 116 88
 Width: 569
-GlyphClass: 1
 Flags: W
 HStem: -13 166<362.374 506.728> 922 140<18 168 347 497>
 VStem: 168 179<164.227 922 1062 1433>
@@ -2609,12 +2709,13 @@ SplineSet
  347 922 l 1
  347 301 l 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: u
 Encoding: 117 117 89
 Width: 1139
-GlyphClass: 1
 Flags: W
 HStem: -10 211<379.949 700.406> 1065 20G<104 284 789 969>
 VStem: 104 180<301.634 1085> 789 180<0 64 290.897 1085>
@@ -2635,12 +2736,13 @@ SplineSet
  284 1085 l 1
  284 461 l 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: v
 Encoding: 118 118 90
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<421.411 606.552> 1042 20G<26 223.667 802.686 1000>
 VStem: 26 974<1062 1062>
@@ -2656,12 +2758,14 @@ SplineSet
  599 0 l 1
  429 0 l 1
 EndSplineSet
+Kerns2: 18 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: w
 Encoding: 119 119 91
 Width: 1479
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<324.879 524.41 969.415 1168.65> 1042 20G<6 197.686 642.51 837.809 1282.63 1463>
 LayerCount: 2
@@ -2683,12 +2787,14 @@ SplineSet
  519 0 l 1
  331 0 l 1
 EndSplineSet
+Kerns2: 18 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -113 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: x
 Encoding: 120 120 92
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<15 245.983 774.492 1009> 1042 20G<44 281.5 751.489 981>
 VStem: 15 994<0 0>
@@ -2709,12 +2815,13 @@ SplineSet
  233 0 l 1
  15 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: y
 Encoding: 121 121 93
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: -422 168<147.813 360.39> 1042 20G<33 233.922 819.008 1006>
 VStem: 33 973<1062 1062>
@@ -2734,12 +2841,14 @@ SplineSet
  583.245 -181.051 532 -422 239 -422 c 0
  197.48 -422 156.818 -420.782 127 -409 c 1
 EndSplineSet
+Kerns2: 18 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable"  16 -152 "'kern' Horizontal Kerning in Latin lookup 3 subtable" 
+GlyphClass: 1
+
 EndChar
 
 StartChar: z
 Encoding: 122 122 94
 Width: 1024
-GlyphClass: 1
 Flags: W
 HStem: 0 155<262 980> 916 146<60 716>
 LayerCount: 2
@@ -2757,12 +2866,13 @@ SplineSet
  980 0 l 1
  40 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: braceleft
 Encoding: 123 123 95
 Width: 684
-GlyphClass: 1
 Flags: W
 HStem: -431 157<469.541 580 580 636> 1334 157<469.541 636>
 VStem: 264 166<-239.407 366.511 700.191 1302.08>
@@ -2786,12 +2896,13 @@ SplineSet
  264 315 256.792 422.779 57 449 c 5
  57 612 l 5
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: bar
 Encoding: 124 124 96
 Width: 532
-GlyphClass: 1
 Flags: W
 VStem: 188 157<-431 1491>
 LayerCount: 2
@@ -2803,12 +2914,13 @@ SplineSet
  345 -431 l 1
  188 -431 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: braceright
 Encoding: 125 125 97
 Width: 684
-GlyphClass: 1
 Flags: W
 HStem: -431 157<47 213.459> 1334 157<47 213.459>
 VStem: 253 166<-239.407 366.511 700.191 975 975 1302.08>
@@ -2832,12 +2944,13 @@ SplineSet
  419 315 426.207 422.778 626 449 c 1
  626 612 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: asciitilde
 Encoding: 126 126 98
 Width: 1196
-GlyphClass: 1
 Flags: W
 HStem: 559 189<688.965 994.359> 693 189<199.435 520.196>
 VStem: 87 1023<693 748 557 885>
@@ -2854,20 +2967,22 @@ SplineSet
  1025.32 594.232 943.8 559 833 559 c 0xa0
  635.211 559 509.509 693 348 693 c 0x60
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni00A0
 Encoding: 160 160 99
 Width: 569
-GlyphClass: 1
 Flags: W
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: exclamdown
 Encoding: 161 161 100
 Width: 680
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<228 452> 1059 20G<255.481 422.556> 1278 211<238 442>
 VStem: 228 224<0 220.979> 238 204<1278 1489> 256 166<858.021 1079>
@@ -2885,12 +3000,13 @@ SplineSet
  422 1079 l 1xe4
  452 0 l 1xf0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: cent
 Encoding: 162 162 101
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1455 20G<557 671>
 VStem: 114 193<320.326 797.973> 557 114<-361 1 146 971 1116 1475>
@@ -2920,12 +3036,13 @@ SplineSet
  307 209.159 494.626 156.811 557 146 c 1
  557 971 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: sterling
 Encoding: 163 163 102
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 0 171<261 1031> 613 138<130 291 483 847> 1351 167<577.692 865.533>
 VStem: 291 192<367.766 613 751 1243.96>
@@ -2956,12 +3073,13 @@ SplineSet
  483 613 l 1
  483 552 l 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: currency
 Encoding: 164 164 103
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 326 138<439.442 679.559> 858 138<470.37 680.386>
 VStem: 225 143<568.746 784.978> 752 144<570.481 787.252>
@@ -2995,12 +3113,13 @@ SplineSet
  460.361 858 368 774.587 368 661 c 0
  368 549.577 456.502 464 560 464 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: yen
 Encoding: 165 165 104
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<465 653> 440 138<125 465 653 993>
 VStem: 467 184<0 440 578 657>
@@ -3026,12 +3145,13 @@ SplineSet
  858 1489 l 1
  1059 1489 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: brokenbar
 Encoding: 166 166 105
 Width: 783
-GlyphClass: 1
 Flags: W
 VStem: 308 167<-392 406 758 1556>
 LayerCount: 2
@@ -3048,12 +3168,13 @@ SplineSet
  475 406 l 1
  475 -392 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: section
 Encoding: 167 167 106
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: -385 165<278.352 692.275> 1355 164<421.288 767.22>
 VStem: 119 189<445.861 666.522> 148 192<1053.42 1281.39> 776 193<-147.764 83.3835> 810 188<430.123 688.913>
@@ -3092,12 +3213,13 @@ SplineSet
  871.876 231.049 969 158 969 -10 c 0xc8
  969 -160 865.729 -385 490 -385 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: dieresis
 Encoding: 168 168 107
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1304 195<253 454 666 867>
 VStem: 253 201<1304 1499> 666 201<1304 1499>
@@ -3115,12 +3237,13 @@ SplineSet
  454 1499 l 1
  454 1304 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: copyright
 Encoding: 169 169 108
 Width: 1902
-GlyphClass: 1
 Flags: W
 HStem: -210 110<697.445 1205.56> 180 147<833.825 1160.63> 996 147<831.46 1159.13> 1409 110<697.946 1205.06>
 VStem: 86 117<390.494 919.32> 531 185<454.691 870.126> 1701 115<390.494 919.32>
@@ -3159,12 +3282,13 @@ SplineSet
  878 996 716 947.89 716 660 c 0
  716 375.038 878 327 986 327 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: ordfeminine
 Encoding: 170 170 109
 Width: 1010
-GlyphClass: 1
 Flags: W
 HStem: 541 155<326.944 504.848> 1365 154<326.745 663.031>
 VStem: 114 172<736.854 960.643> 708 166<566 657 802 1045 1184 1319.56>
@@ -3192,12 +3316,13 @@ SplineSet
  499.86 1030.48 286 1030.58 286 849 c 0
  286 770.3 322.913 696 461 696 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: guillemotleft
 Encoding: 171 171 110
 Width: 1174
-GlyphClass: 1
 Flags: W
 HStem: 162 980<613 613>
 VStem: 103 940<191 608>
@@ -3221,12 +3346,13 @@ SplineSet
  613 358 l 1
  613 162 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: logicalnot
 Encoding: 172 172 111
 Width: 1490
-GlyphClass: 1
 Flags: W
 HStem: 602 160<157 1152>
 VStem: 1152 171<57 602>
@@ -3241,23 +3367,25 @@ SplineSet
  1323 762 l 1
  1323 57 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni00AD
 Encoding: 173 173 112
 Width: 744
-GlyphClass: 1
 Flags: W
 HStem: 440 181<65 618>
 LayerCount: 2
 Fore
 Refer: 17 45 N 1 0 0 1 0 0 0
+GlyphClass: 1
+
 EndChar
 
 StartChar: registered
 Encoding: 174 174 113
 Width: 1902
-GlyphClass: 1
 Flags: W
 HStem: -210 110<697.445 1205.56> 570 126<815 938> 1005 125<815 1041.99> 1409 110<697.946 1205.06>
 VStem: 86 117<390.494 919.32> 650 165<215 570 696 1005> 1120 182<743.283 969.647> 1701 115<390.494 919.32>
@@ -3300,12 +3428,13 @@ SplineSet
  815 696 l 1
  913 696 l 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: macron
 Encoding: 175 175 114
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1659 130<-16 1134>
 LayerCount: 2
@@ -3317,12 +3446,13 @@ SplineSet
  1134 1789 l 1
  1134 1659 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: degree
 Encoding: 176 176 115
 Width: 964
-GlyphClass: 1
 Flags: W
 HStem: 755 152<349.939 615.24> 1363 152<347.264 615.19>
 VStem: 101 157<999.407 1270.51> 706 157<998.393 1272.09>
@@ -3340,12 +3470,13 @@ SplineSet
  350.628 1363 258 1262.09 258 1135 c 4
  258 999.239 361.651 907 482 907 c 4
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: plusminus
 Encoding: 177 177 116
 Width: 1490
-GlyphClass: 1
 Flags: W
 HStem: 159 158<162 662 828 1328> 739 158<162 662 828 1328>
 VStem: 662 166<317 739 897 1402>
@@ -3370,12 +3501,13 @@ SplineSet
  1328 317 l 1
  1328 159 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni00B2
 Encoding: 178 178 117
 Width: 1010
-GlyphClass: 1
 Flags: W
 HStem: 566 144<373 866> 1371 148<285.899 580.107>
 VStem: 619 185<1079.01 1332.28>
@@ -3398,12 +3530,13 @@ SplineSet
  191 1458 l 1
  268.232 1491.1 376.744 1519 481 1519 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni00B3
 Encoding: 179 179 118
 Width: 1010
-GlyphClass: 1
 Flags: W
 HStem: 542 139<326.683 617.602> 968 139<334 600.126> 1380 139<299.482 606.211>
 VStem: 641 173<1148.75 1344.86> 665 172<727.724 932.398>
@@ -3432,12 +3565,13 @@ SplineSet
  814 1145.4 719.71 1081.57 640 1055 c 1
  640 1047 l 1xf0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: acute
 Encoding: 180 180 119
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1302 374<598 871>
 VStem: 449 422<1302 1676>
@@ -3450,12 +3584,13 @@ SplineSet
  628 1676 l 1
  871 1676 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: mu
 Encoding: 181 181 120
 Width: 1163
-GlyphClass: 1
 Flags: W
 HStem: -17 181<419.676 742.49>
 VStem: 136 188<-412 115 275 1117> 839 188<275 1117> 855 172<0 116>
@@ -3479,12 +3614,13 @@ SplineSet
  324 275 l 1
  388.431 199.063 474.358 164 578 164 c 0xd0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: paragraph
 Encoding: 182 182 121
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1359 130<655 842>
 VStem: 515 140<-363 593> 842 140<-363 1359>
@@ -3503,12 +3639,13 @@ SplineSet
  515 593 l 5
  240.398 599.013 57 775.343 57 1050 c 4
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: periodcentered
 Encoding: 183 183 122
 Width: 724
-GlyphClass: 1
 Flags: W
 HStem: 832 285<243 482>
 VStem: 243 239<832 1117>
@@ -3521,12 +3658,13 @@ SplineSet
  482 1117 l 1
  482 832 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: cedilla
 Encoding: 184 184 123
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: -423 150<380.161 575.469>
 VStem: 614 159<-236.596 20>
@@ -3544,12 +3682,13 @@ SplineSet
  343.392 -258.859 389.585 -273 440 -273 c 0
  561.378 -273 614 -226.636 614 -107 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E01
 Encoding: 3585 3585 124
 Width: 1240
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<188 348 922 1082> 1001 148<438.498 783.005>
 VStem: 188 160<0 555.306> 922 160<0 857.379>
@@ -3572,12 +3711,13 @@ SplineSet
  215 1026 384 1149 624 1149 c 0
  932 1149 1082 968 1082 671 c 2
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E02
 Encoding: 3586 3586 125
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: 0 148<707 1057> 545 113<234.036 382.876> 823 102<313 382.919> 1001 148<347.793 601.675>
 VStem: 96 130<666.026 815.003> 392 104<666.45 816.431> 547 160<148 575 575 697.748> 681 153<783 919.142> 1057 160<148 1139>
@@ -3607,12 +3747,13 @@ SplineSet
  496 616 432 545 298 545 c 0
  165 545 96 636 96 797 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E03
 Encoding: 3587 3587 126
 Width: 1450
-GlyphClass: 1
 Flags: W
 HStem: 0 148<784 1134> 507 116<248.463 388.457> 790 104<304.348 389.869> 1130 20G<274.5 360 636.578 722.5 1134 1294>
 VStem: 106 133<631.597 782.679> 398 104<630.734 783.303> 624 160<148 704.386> 756 156<798 931.969> 1134 160<148 1139>
@@ -3648,12 +3789,13 @@ SplineSet
  316 892 331 894 347 894 c 0
  440 894 502 836 502 727 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E04
 Encoding: 3588 3588 127
 Width: 1370
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<245 473.5 1035 1195> 342 118<664.518 813.2> 625 121<662.944 814.241> 1001 148<486.929 876.134>
 VStem: 163 161<366.933 839.124> 822 98<470.909 617.527> 1035 160<0 840.066>
@@ -3683,12 +3825,13 @@ SplineSet
  689 625 656 596 656 543 c 0
  656 494 686 460 737 460 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E05
 Encoding: 3589 3589 128
 Width: 1370
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<235 463.5 1025 1185> 342 118<654.703 803.692> 625 121<655.351 802.497> 1129 20G<386.5 530.926 814.727 955.5>
 VStem: 153 161<359.384 849.379> 812 98<468.291 616.883> 1025 160<0 851.733>
@@ -3722,12 +3865,13 @@ SplineSet
  679 625 646 586 646 543 c 0
  646 494 678 460 727 460 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E06
 Encoding: 3590 3590 129
 Width: 1520
-GlyphClass: 1
 Flags: W
 HStem: -10 119<550.807 687.134> 328 118<568.661 635> 508 112<254.069 399.199> 789 99<313.19 400.952> 1129 20G<294.5 400.444 647.333 756.5 1205 1365>
 VStem: 113 131<628.014 777.076> 408 110<629.687 780.237> 434 108<110.749 309.276> 635 160<109.438 243 446 710.951> 760 162<814 940.62> 1205 160<166 1139>
@@ -3772,12 +3916,13 @@ SplineSet
  619 109 635 128 635 166 c 2
  635 328 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E07
 Encoding: 3591 3591 130
 Width: 1000
-GlyphClass: 1
 Flags: W
 HStem: -10 149<437.095 665.513> 741 113<550.042 674.1> 1021 129<547.514 693.711>
 VStem: 439 100<862.826 1012.07> 695 160<169.46 770> 703 152<862.825 1012.46>
@@ -3804,12 +3949,13 @@ SplineSet
  573 1021 539 990 539 940 c 0
  539 895 572 854 620 854 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E08
 Encoding: 3592 3592 131
 Width: 1200
-GlyphClass: 1
 Flags: W
 HStem: -10 148<653.365 843.321> 345 110<327.984 451.775> 623 130<327.564 474.708> 1001 148<360.521 741.653>
 VStem: 214 105<461.338 613.736> 469 160<161.889 283 283 373> 483 146<464.021 611.043> 868 160<166.659 874.924>
@@ -3840,16 +3986,16 @@ SplineSet
  353 623 319 592 319 542 c 0
  319 497 348 455 391 455 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E09
 Encoding: 3593 3593 132
 Width: 1395
-GlyphClass: 1
 Flags: W
 HStem: -10 113<1097.03 1187.71> 362 111<259.167 382.854> 641 130<256.803 404.616> 1001 148<434.727 817.565>
 VStem: 146 103<480.57 633.792> 399 160<176 391> 413 146<482.021 629.709> 944 160<446 875.406> 945 150<107.64 227> 1197 108<105.901 304.253>
-AnchorPoint: "AboveBase" 1083 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -3884,12 +4030,15 @@ SplineSet
  283 641 249 614 249 560 c 0
  249 515 280 473 321 473 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 1083 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E0A
 Encoding: 3594 3594 133
 Width: 1390
-GlyphClass: 1
 Flags: W
 HStem: 0 148<742 1048> 545 113<271.036 420.494> 823 102<350 419.919> 1001 148<386.14 623.802>
 VStem: 133 130<666.026 815.259> 429 104<665.179 815.509> 582 160<148 694.44> 1048 160<148 677.745> 1137 166<1051.1 1188>
@@ -3926,12 +4075,13 @@ SplineSet
  296 823 263 800 263 741 c 0
  263 692 289 658 344 658 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E0B
 Encoding: 3595 3595 134
 Width: 1390
-GlyphClass: 1
 Flags: W
 HStem: 0 148<747 1053> 507 116<207.904 356.457> 790 104<272.176 358.907> 1130 20G<245.5 331 605.945 683>
 VStem: 70 129<633.363 776.258> 366 104<630.734 782.375> 587 160<148 694.13> 1053 160<148 684.692> 1141 166<1041.87 1188>
@@ -3973,12 +4123,13 @@ SplineSet
  1053 148 l 1
  1053 581 l 2xff
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E0C
 Encoding: 3596 3596 135
 Width: 1750
-GlyphClass: 1
 Flags: W
 HStem: -11 116<344.394 486.755 839.304 974.777> 273 124<368.252 490.198> 1001 148<437.342 795.961>
 VStem: 191 142<113.69 264.002> 191 160<369 560.709> 497 107<115.493 265.717> 724 108<110.882 312.531> 925 160<112.309 243 446 868.192> 1495 160<176 1139>
@@ -4023,12 +4174,13 @@ SplineSet
  367 273 333 236 333 192 c 0xf780
  333 147 364 105 405 105 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E0D
 Encoding: 3597 3597 136
 Width: 1745
-GlyphClass: 1
 Flags: W
 HStem: -466 117.607<1170.14 1375.76> -143 82<1003.15 1137.52> -11 116<311.96 453.982> 0 148<1053 1463> 273 124<335.041 458.247> 1001 148<405.342 760.823>
 VStem: 159 142<113.69 265.117> 159 160<369 560.709> 465 107<115.687 265.832> 893 160<148 856.737> 900 98<-280.84 -147.868> 1144 88<-282.916 -148.726> 1463 160<148 1139>
@@ -4079,16 +4231,16 @@ SplineSet
 EndSplineSet
 Substitution2: "ThaiDescenderRemovalSingleSubst subtable" uni0E0D.descless
 Substitution2: "Single Substitution lookup 33 subtable" uni0E0D.descless
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E0E
 Encoding: 3598 3598 137
 Width: 1375
-GlyphClass: 3
 Flags: W
 HStem: -413 125<496.572 659.34> -112 104<518.821 689.616> -10 122<191.718 334.158> 280 119<190.637 310.86> 1002 148<586.245 929.143>
 VStem: 76 105<121.056 269.934> 330 160<370 560.555> 339 136<-282.124 -157.965> 345 145<124.898 274.016> 1064 160<-209 857.336>
-AnchorPoint: "BelowBase" 1224 -453 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4130,16 +4282,18 @@ SplineSet
  216 280 181 246 181 199 c 0
  181 154 216 112 253 112 c 0xbcc0
 EndSplineSet
+AnchorPoint: "BelowBase" 1224 -453 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E0F
 Encoding: 3599 3599 138
 Width: 1375
-GlyphClass: 3
 Flags: W
 HStem: -413 125<342.082 518.294> -121 112<372.682 556.236> -10 122<191.86 336.215> 280 120<189.791 310.137> 1002 148<586.419 930.131>
 VStem: 79 104<118.99 271.25> 197 132<-285.292 -165.086> 330 160<370 567.615> 347 143<124.457 273.583> 1064 160<-209 856.932>
-AnchorPoint: "BelowBase" 1224 -453 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4185,12 +4339,15 @@ SplineSet
  217 280 183 252 183 199 c 0
  183 154 208 112 255 112 c 0xbec0
 EndSplineSet
+AnchorPoint: "BelowBase" 1224 -453 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E10
 Encoding: 3600 3600 139
 Width: 1130
-GlyphClass: 1
 Flags: W
 HStem: -532 71<170.085 348.815> -413 129<598.151 730.04> -347 75<172.383 347.346> -276 62<673.648 766.428> -102 68<673.844 782.24> -10 148<541.679 732.135> 290 113<211.744 343.782> 571 126<211.171 360.377> 917 148<776.668 982.411> 1001 148<433.624 771.364>
 VStem: 64 92<-458.66 -366.237> 102 101<409.825 563.511> 357 160<161.889 317 412.021 565.36> 598 74<-212.21 -104.557> 757 160<166.258 603.384> 772 153<-329 -262 -213.19 -129.734>
@@ -4258,12 +4415,13 @@ SplineSet
 EndSplineSet
 Substitution2: "ThaiDescenderRemovalSingleSubst subtable" uni0E10.descless
 Substitution2: "Single Substitution lookup 33 subtable" uni0E10.descless
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E11
 Encoding: 3601 3601 140
 Width: 1700
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<636 848.083 1374 1534> 508 112<254.069 399.199> 789 99<313.19 400.952> 975 174<1263.33 1369.92>
 VStem: 113 131<629.921 777.076> 408 110<629.687 780.237> 636 160<263 587 587 705.392> 758 38<587 796> 1374 160<0 974.055>
@@ -4303,12 +4461,13 @@ SplineSet
  113 945 218 1084 371 1149 c 1
  530 1041 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E12
 Encoding: 3602 3602 141
 Width: 1850
-GlyphClass: 1
 Flags: W
 HStem: -10 113<905.571 1046.5> 357 97<466.646 534.339> 622 123<463.362 611.219> 1129 20G<359.5 507.276 786.172 928.5 1530 1690>
 VStem: 121 162<504.153 858.633> 359 97<462.801 614.773> 620 119<466.106 614.779> 792 108<105.003 316.276> 993 160<103.827 243 446 884.486> 1530 160<160 1139>
@@ -4358,16 +4517,16 @@ SplineSet
  490 622 456 596 456 541 c 0
  456 496 492 454 528 454 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E13
 Encoding: 3603 3603 142
 Width: 1900
-GlyphClass: 1
 Flags: W
 HStem: -11 114<343.71 490.232 1622.09 1705.97> 271 124<373.707 489.203> 1001 148<441.544 799.792>
 VStem: 195 140<111.023 262.374> 195 160<369 562.508> 499 105<114.002 262.147> 928 160<183 865.717> 1460 160<129.527 243 446 1139> 1714 108<111.031 309.86>
-AnchorPoint: "AboveBase" 1599 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4409,12 +4568,15 @@ SplineSet
  369 271 335 236 335 190 c 0xf780
  335 145 357 103 407 103 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 1599 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E14
 Encoding: 3604 3604 143
 Width: 1330
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<222 524 1011 1171> 362 102<480.443 555.826> 632 113<477.613 630.172> 1001 148<462.099 860.349>
 VStem: 140 162<414.604 846.474> 377 94<471.169 624.602> 635 122<472.893 626.34> 1011 160<0 856.294>
@@ -4445,12 +4607,13 @@ SplineSet
  505 632 471 605 471 551 c 0
  471 508 496 464 543 464 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E15
 Encoding: 3605 3605 144
 Width: 1330
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<232 533.5 1021 1181> 357 97<491.768 562.73> 622 123<492.174 642.93> 1129 20G<387.5 535.276 814.172 956.5>
 VStem: 149 163<395.703 863.617> 387 97<460.129 614.411> 648 119<465.252 616.492> 1021 160<0 884.486>
@@ -4486,12 +4649,13 @@ SplineSet
  518 622 484 592 484 541 c 0
  484 496 504 454 556 454 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E16
 Encoding: 3606 3606 145
 Width: 1240
-GlyphClass: 1
 Flags: W
 HStem: -11 116<344.399 490.232> 273 124<370.252 491.936> 1001 148<439.342 794.551>
 VStem: 193 142<113.69 265.303> 193 160<369 560.709> 499 107<115.131 264.528> 927 160<0 856.737>
@@ -4522,12 +4686,13 @@ SplineSet
  369 273 335 243 335 192 c 0xf6
  335 147 360 105 407 105 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E17
 Encoding: 3607 3607 146
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<317 527.105 1054 1214> 743 116<182.21 301.989> 975 174<943.328 1048.87> 1026 124<181.263 331.945>
 VStem: 63 110<866.261 1018.04> 317 160<263 770> 337 140<867.789 1018.72> 1054 160<0 974.055>
@@ -4557,12 +4722,13 @@ SplineSet
  207 1026 173 1000 173 945 c 0
  173 896 197 859 248 859 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E18
 Encoding: 3608 3608 147
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: 0 148<409 863> 909 148<847.457 1024.94> 1000 148<460.22 793.737>
 VStem: 249 160<148 650> 863 161<148 587.202>
@@ -4589,16 +4755,16 @@ SplineSet
  863 148 l 1
  863 480 l 2xb8
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E19
 Encoding: 3609 3609 148
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: -10 21<364 557.272 1088 1210.5> -10 113<1088 1228.91> 741 115<220.823 346.507> 1024 125<219.251 368.741>
 VStem: 109 103<863.061 1016.22> 364 160<174 769> 376 148<865.021 1012.78> 984 160<124.001 243 475 1139> 1237 113<106.244 306.104>
-AnchorPoint: "AboveBase" 1123 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4629,12 +4795,15 @@ SplineSet
  246 1024 212 1000 212 943 c 0
  212 898 236 856 284 856 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 1123 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1A
 Encoding: 3610 3610 149
 Width: 1300
-GlyphClass: 1
 Flags: W
 HStem: 0 148<488 993> 743 112<189.419 308.044> 1023 127<188.624 337.939>
 VStem: 75 106<862.342 1013.88> 328 160<148 770> 345 143<864.021 1012.63> 993 160<148 1139>
@@ -4659,16 +4828,16 @@ SplineSet
  215 1023 181 993 181 942 c 0
  181 897 207 855 253 855 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1B
 Encoding: 3611 3611 150
 Width: 1300
-GlyphClass: 1
 Flags: W
 HStem: 0 148<514 1019> 743 112<215.419 334.044> 1023 127<214.624 363.939>
 VStem: 101 106<862.342 1013.88> 354 160<148 770> 371 143<864.021 1012.63> 1019 160<148 1480>
-AnchorPoint: "AboveBase" 920 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4690,12 +4859,15 @@ SplineSet
  241 1023 207 993 207 942 c 0
  207 897 233 855 279 855 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 920 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1C
 Encoding: 3612 3612 151
 Width: 1200
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<134 308.926 866.059 1040> 741 109<313.884 428.335> 1018 132<285.086 430.197>
 VStem: 134 160<214 770> 134 140<857.266 1005.66> 438 110<860.292 1011.33> 880 160<211 1139>
@@ -4725,16 +4897,16 @@ SplineSet
  316 1018 274 984 274 937 c 0xee
  274 892 308 850 346 850 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1D
 Encoding: 3613 3613 152
 Width: 1200
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<153 327.926 885.059 1059> 741 109<332.884 447.335> 1018 132<304.086 449.197>
 VStem: 153 140<857.266 1005.66> 153 160<214 770> 457 110<860.292 1011.33> 899 160<211 1480>
-AnchorPoint: "AboveBase" 799 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4761,12 +4933,15 @@ SplineSet
  335 1018 293 984 293 937 c 0xf6
  293 892 327 850 365 850 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 799 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1E
 Encoding: 3614 3614 153
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<300 496.296 1009.31 1206> 740 117<164.781 280.207> 1025 124<165.509 310.482>
 VStem: 46 109<864.53 1016.06> 300 160<263 769> 319 141<866.021 1014.54> 1046 160<260 1139>
@@ -4796,16 +4971,16 @@ SplineSet
  189 1025 155 990 155 944 c 0
  155 899 180 857 227 857 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E1F
 Encoding: 3615 3615 154
 Width: 1450
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<381 577.296 1090.31 1287> 740 117<245.781 361.207> 1025 124<246.509 391.482>
 VStem: 127 109<864.53 1016.06> 381 160<263 769> 400 141<866.021 1014.54> 1127 160<260 1480>
-AnchorPoint: "AboveBase" 1031 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -4832,12 +5007,15 @@ SplineSet
  270 1025 236 990 236 944 c 0
  236 899 261 857 308 857 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 1031 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E20
 Encoding: 3616 3616 155
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: -10 122<186.218 329.726> 280 119<182.912 305.373> 1002 148<580.245 925.88>
 VStem: 70 105<120.646 271.136> 324 160<370 560.555> 339 145<124.898 274.016> 1058 160<0 857.336>
@@ -4868,12 +5046,13 @@ SplineSet
  207 280 175 246 175 199 c 0
  175 154 207 112 247 112 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E21
 Encoding: 3617 3617 156
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: -10 123<284.232 418> 328 118<293.882 371> 739 116<234.173 353.741> 1023 127<232.438 381.856>
 VStem: 118 106<863.703 1013.88> 170 108<115.05 315.402> 371 160<132.162 243 446 770> 388 143<864.021 1017.3> 991 160<159 1139>
@@ -4908,12 +5087,13 @@ SplineSet
  258 1023 224 993 224 942 c 0xf980
  224 897 258 855 296 855 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E22
 Encoding: 3618 3618 157
 Width: 1200
-GlyphClass: 1
 Flags: W
 HStem: 0 148<359 867> 505 113<496.558 638> 743 112<379.165 509.507> 1023 126<361.459 510.626>
 VStem: 176 177<663.255 770 762.337 1014.31> 199 160<148 459.906> 518 109<864.843 1015.36> 867 160<148 1139>
@@ -4944,12 +5124,13 @@ SplineSet
  388 1023 354 993 354 942 c 0
  354 897 380 855 426 855 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E23
 Encoding: 3619 3619 158
 Width: 1100
-GlyphClass: 1
 Flags: W
 HStem: -10 119<611.581 753.625> 277 106<605.453 708.527> 915 148<777.718 998.698> 1001 148<415.971 756.487>
 VStem: 490 109<119.389 269.814> 723 160<363 624.719> 763 120<123.894 304>
@@ -4979,12 +5160,13 @@ SplineSet
  630 277 599 249 599 196 c 0
  599 151 636 109 671 109 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E24
 Encoding: 3620 3620 159
 Width: 1240
-GlyphClass: 1
 Flags: W
 HStem: -11 116<342.399 488.232> 273 124<368.252 489.936> 1001 148<437.342 792.551>
 VStem: 191 142<113.69 265.303> 191 160<369 560.709> 497 107<115.131 264.528> 925 160<-380 856.737>
@@ -5015,12 +5197,13 @@ SplineSet
  367 273 333 243 333 192 c 0xf6
  333 147 358 105 405 105 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E25
 Encoding: 3621 3621 160
 Width: 1255
-GlyphClass: 1
 Flags: W
 HStem: -11 115<381.137 527.69> 272 127<402.089 529.57> 604 140<460.507 779.172> 1001 148<403.082 786.016>
 VStem: 221 151<113.159 264.489> 221 160<369 528.584> 536 99<113.013 263.909> 924 160<0 450.547 609 868.395>
@@ -5053,12 +5236,13 @@ SplineSet
  406 272 372 243 372 191 c 0xfb
  372 146 399 104 444 104 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E26
 Encoding: 3622 3622 161
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: -10 122<201.218 344.726> 280 119<197.912 320.373> 1002 148<595.245 940.88>
 VStem: 85 105<120.646 271.136> 339 160<370 560.555> 354 145<124.898 274.016> 1073 160<-380 857.336>
@@ -5089,12 +5273,13 @@ SplineSet
  222 280 190 246 190 199 c 0
  190 154 222 112 262 112 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E27
 Encoding: 3623 3623 162
 Width: 1150
-GlyphClass: 1
 Flags: W
 HStem: -10 123<696.644 838.993> 281 117<692.754 813.991> 1001 148<331.963 732.865>
 VStem: 579 107<119.555 274.109> 834 160<369 900.053> 850 144<122.348 275.719>
@@ -5119,12 +5304,13 @@ SplineSet
  714 281 686 252 686 200 c 0
  686 155 714 113 758 113 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E28
 Encoding: 3624 3624 163
 Width: 1300
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<181 409.5 971 1131> 344 116<599.094 750.004> 625 121<600.482 751.112> 1001 148<432.654 800.088>
 VStem: 99 161<365.082 830.169> 758 98<468.215 616.667> 971 160<0 832.777>
@@ -5158,16 +5344,16 @@ SplineSet
  625 625 592 592 592 543 c 0
  592 494 618 460 673 460 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E29
 Encoding: 3625 3625 164
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: 0 148<455 960> 423 112<864.838 948.463> 698 67<737.692 848.099> 741 113<157.975 281.195> 1022 127<159.586 306.425>
 VStem: 40 108<861.934 1009.29> 295 160<148 769> 312 143<863.021 1014.98> 657 79<590.426 695.747> 850 71<588.825 697.103> 960 160<148 435 654 1138>
-AnchorPoint: "AboveBase" 1099 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5206,12 +5392,15 @@ SplineSet
  189 1022 148 987 148 941 c 0
  148 896 177 854 220 854 c 0xdde0
 EndSplineSet
+AnchorPoint: "AboveBase" 1099 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2A
 Encoding: 3626 3626 165
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: -11 115<347.051 491.321> 272 127<367.089 494.822> 604 140<423.187 741.65> 1001 148<362.918 758.551>
 VStem: 186 151<112.729 262.816> 186 160<369 531.147> 501 99<113.467 262.904> 889 160<0 449.001 609 792.166>
@@ -5248,12 +5437,13 @@ SplineSet
  371 272 337 234 337 191 c 0xfb
  337 146 369 104 409 104 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2B
 Encoding: 3627 3627 166
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<332 577.5 1038 1198> 748 115<210.27 317.224> 1019 125<901.561 1048.36> 1031 118<210.263 358.015>
 VStem: 100 100<871.057 1022.25> 332 160<190 767> 364 128<871.144 1022.86> 775 118<856.857 1009.09> 1038 160<0 677.967> 1057 128<860.87 1011.19>
@@ -5292,16 +5482,16 @@ SplineSet
  924 1019 893 984 893 938 c 0
  893 893 918 851 965 851 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2C
 Encoding: 3628 3628 167
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<317 513.296 1026.31 1223> 740 117<179.779 297.207> 1025 124<178.515 331.32> 1167 108<995.539 1063> 1412 107<993.668 1124.34>
 VStem: 63 109<863.729 1017.74> 317 160<263 769> 336 141<866.021 1020.35> 895 95<1280.8 1408.46> 1063 160<260 1159> 1129 94<1281.5 1405.91> 1359 100<1392.14 1467>
-AnchorPoint: "AboveBase" 875 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5341,12 +5531,15 @@ SplineSet
  1015 1412 990 1388 990 1343 c 0
  990 1301 1019 1275 1060 1275 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" 875 1227 basechar 0
+
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2D
 Encoding: 3629 3629 168
 Width: 1230
-GlyphClass: 1
 Flags: W
 HStem: 0 148<383 890> 340 120<402.616 524.641> 628 120<380.015 524.79> 1001 148<364.494 757.532>
 VStem: 223 147<434 618.102> 223 160<148 366> 534 104<470.752 618.568> 890 160<148 873.387>
@@ -5375,12 +5568,13 @@ SplineSet
  404 628 370 588 370 547 c 0xfb
  370 502 392 460 442 460 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2E
 Encoding: 3630 3630 169
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: 0 148<388 897> 343 117<408.678 526.903> 628 120<378.759 529.644> 764 120<417.012 785.298> 1029 120<382.969 777.832>
 VStem: 228 145<434 617.217> 228 160<148 373> 537 106<468.568 620.27> 897 160<148 788.71>
@@ -5418,12 +5612,13 @@ SplineSet
  396 628 373 604 373 547 c 0xfd80
  373 502 404 460 445 460 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E2F
 Encoding: 3631 3631 170
 Width: 1150
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<865 1025> 684 148<460 662.722> 1034 104<250.605 400.294>
 VStem: 126 117<874.32 1025.57> 407 124<874.868 1026.32> 865 160<0 830 1006.37 1149>
@@ -5447,12 +5642,13 @@ SplineSet
  277 1034 243 1008 243 953 c 0
  243 908 280 866 315 866 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E30
 Encoding: 3632 3632 171
 Width: 1100
-GlyphClass: 1
 Flags: W
 HStem: 62 123<454.541 680.91> 393 92<274.416 407.304> 548 123<454.541 684.717> 879 92<274.695 407.114>
 VStem: 173 97<254.933 388.8 739.777 873.141> 412 93<253.32 387.961 739.32 873.852> 798 116<305.129 479 791.129 965>
@@ -5488,17 +5684,16 @@ SplineSet
  300 879 270 852 270 809 c 0
  270 770 292 734 332 734 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E31
 Encoding: 3633 3633 172
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1214 123<-474.459 -244.482> 1545 92<-654.843 -519.777>
 VStem: -756 97<1405.78 1540.09> -517 93<1405.64 1541.16> -131 116<1456.33 1631>
-AnchorPoint: "AboveMark" -262 1740 basemark 0
-AnchorPoint: "AboveBase" -180 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5517,12 +5712,17 @@ SplineSet
  -629 1545 -659 1528 -659 1475 c 0
  -659 1436 -640 1400 -597 1400 c 0
 EndSplineSet
+AnchorPoint: "AboveMark" -262 1740 basemark 0
+
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E32
 Encoding: 3634 3634 173
 Width: 1150
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<796 956> 1001 148<381.196 698.154>
 VStem: 796 160<0 895.284>
@@ -5539,12 +5739,13 @@ SplineSet
  138 837 l 1
  208 1043 344 1149 546 1149 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E33
 Encoding: 3635 3635 174
 Width: 1150
-GlyphClass: 1
 Flags: W
 HStem: 0 21<796 956> 1001 148<381.196 698.154> 1212 138<-371.464 -218.803> 1521 147<-371.835 -217.455>
 VStem: -527 147<1358.81 1512.36> -207 141<1361.48 1512.12> 796 160<0 895.284>
@@ -5554,17 +5755,16 @@ Refer: 196 3661 N 1 0 0 1 0 0 2
 Refer: 173 3634 N 1 0 0 1 0 0 2
 Substitution2: "ThaiSaraAmLakkhang subtable" uni0E32
 MultipleSubs2: "ThaiSaraAmDecomposition subtable" uni0E4D uni0E32
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E34
 Encoding: 3636 3636 175
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1322 91<-898 -507.572> 1528 116<-821.002 -475.617>
 VStem: -1124 944<1227 1322>
-AnchorPoint: "AboveMark" -272 1740 basemark 0
-AnchorPoint: "AboveBase" -180 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5578,17 +5778,20 @@ SplineSet
  -755 1528 -841 1490 -898 1413 c 1
  -762.932 1413 -407.594 1369.65 -365 1359 c 1
 EndSplineSet
+AnchorPoint: "AboveMark" -272 1740 basemark 0
+
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E35
 Encoding: 3637 3637 176
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1511 131<-819.551 -461.98>
 VStem: -337 150<1525 1735>
-AnchorPoint: "AboveMark" -262 1740 basemark 0
-AnchorPoint: "AboveBase" -180 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5605,17 +5808,20 @@ SplineSet
  -739 1511 -824 1483 -873 1424 c 1
  -724.688 1424 -474.824 1393.13 -379 1370 c 1
 EndSplineSet
+AnchorPoint: "AboveMark" -262 1740 basemark 0
+
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E36
 Encoding: 3638 3638 177
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1321 108<-202 -129.681> 1514 128<-821.762 -463.982> 1568 113<-263.641 -131.378>
 VStem: -124 110<1435.86 1542.81>
-AnchorPoint: "AboveMark" -198 1740 basemark 0
-AnchorPoint: "AboveBase" -180 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5637,17 +5843,20 @@ SplineSet
  -760 1514 -840 1480 -877 1412 c 1
  -719.967 1412 -459.301 1378.59 -374 1358 c 1
 EndSplineSet
+AnchorPoint: "AboveMark" -198 1740 basemark 0
+
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E37
 Encoding: 3639 3639 178
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1505 128<-807.811 -573.663>
 VStem: -566 150<1624 1722> -337 150<1519 1721>
-AnchorPoint: "AboveMark" -376 1740 basemark 0
-AnchorPoint: "AboveBase" -180 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5668,18 +5877,20 @@ SplineSet
  -747 1505 -815 1472 -860 1413 c 1
  -751 1413 -479 1390 -399 1369 c 1
 EndSplineSet
+AnchorPoint: "AboveMark" -376 1740 basemark 0
+
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E38
 Encoding: 3640 3640 179
 Width: 0
-GlyphClass: 3
 Flags: HW
 HStem: -375 67<-391.582 -295.28> -163 78<-391.669 -285.791>
 VStem: -473 77<-305.077 -165.214> -289 131<-534 -360> -281 123<-307.719 -165.192>
-AnchorPoint: "BelowBase_Mark" -158 -619 mark 0
-AnchorPoint: "BelowBase_Mark" -158 -85 basemark 0
-AnchorPoint: "BelowBase" -158 -85 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5697,6 +5908,12 @@ SplineSet
  -296 -308 -281 -284 -281 -237 c 0xe8
  -281 -190 -300 -163 -331 -163 c 0
 EndSplineSet
+AnchorPoint: "BelowBase_Mark" -158 -60 mark 0
+
+AnchorPoint: "BelowBase_Mark" -158 -594 basemark 0
+
+AnchorPoint: "BelowBase" -158 -60 mark 0
+
 Substitution2: "PataniSaraUPhinthuReordering subtable" uni0E3A
 Substitution2: "PataniMacronSaraUReordering subtable" uni0331
 Substitution2: "ThaiSaraUNikhahitReordering subtable" uni0E4D
@@ -5705,18 +5922,16 @@ Substitution2: "ThaiSaraUMaiChattawaReordering subtable" uni0E4B.low
 Substitution2: "ThaiSaraUMaiTriReordering subtable" uni0E4A.low
 Substitution2: "ThaiSaraUMaiThoReordering subtable" uni0E49.low
 Substitution2: "ThaiSaraUMaiEkReordering subtable" uni0E48.low
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E39
 Encoding: 3641 3641 180
 Width: 0
-GlyphClass: 3
 Flags: HW
 HStem: -534 99<-437 -292> -376 69<-672.147 -575.656> -163 78<-668.958 -563.125>
 VStem: -752 77<-305.074 -166.333> -568 131<-435 -360> -560 123<-305.377 -226.035> -292 134<-435 -96>
-AnchorPoint: "BelowBase_Mark" -158 -619 mark 0
-AnchorPoint: "BelowBase_Mark" -158 -85 basemark 0
-AnchorPoint: "BelowBase" -158 -85 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5739,6 +5954,12 @@ SplineSet
  -575 -307 -560 -271 -560 -232 c 0xf6
  -560 -188 -579 -163 -610 -163 c 0
 EndSplineSet
+AnchorPoint: "BelowBase_Mark" -158 -60 mark 0
+
+AnchorPoint: "BelowBase_Mark" -158 -594 basemark 0
+
+AnchorPoint: "BelowBase" -158 -60 mark 0
+
 Substitution2: "PataniSaraUUPhinthuReordering subtable" uni0E3A
 Substitution2: "PataniMacronSaraUUReordering subtable" uni0331
 Substitution2: "ThaiSaraUUNikhahitReordering subtable" uni0E4D
@@ -5747,18 +5968,16 @@ Substitution2: "ThaiSaraUUMaiChattawaReordering subtable" uni0E4B.low
 Substitution2: "ThaiSaraUUMaiTriReordering subtable" uni0E4A.low
 Substitution2: "ThaiSaraUUMaiThoReordering subtable" uni0E49.low
 Substitution2: "ThaiSaraUUMaiEkReordering subtable" uni0E48.low
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E3A
 Encoding: 3642 3642 181
 Width: 0
-GlyphClass: 3
 Flags: HW
 HStem: -330 270<-341.907 -149.569>
 VStem: -380 269<-291.794 -98.2063>
-AnchorPoint: "BelowBase_Mark" -158 -395 mark 0
-AnchorPoint: "BelowBase_Mark" -158 -65 basemark 0
-AnchorPoint: "BelowBase" -158 -65 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -5768,6 +5987,12 @@ SplineSet
  -317 -330 -380 -267 -380 -195 c 0
  -380 -123 -321 -60 -246 -60 c 0
 EndSplineSet
+AnchorPoint: "BelowBase_Mark" -111 -60 mark 0
+
+AnchorPoint: "BelowBase_Mark" -111 -390 basemark 0
+
+AnchorPoint: "BelowBase" -111 -60 mark 0
+
 Substitution2: "PataniSaraUUPhinthuReordering subtable" uni0E39
 Substitution2: "PataniSaraUPhinthuReordering subtable" uni0E38
 Substitution2: "PataniMacronPhinthuReordering subtable" uni0331
@@ -5778,12 +6003,13 @@ Substitution2: "ThaiPhinthuMaiTriReordering subtable" uni0E4A.low
 Substitution2: "ThaiPhinthuMaiThoReordering subtable" uni0E49.low
 Substitution2: "ThaiPhinthuMaiEkReordering subtable" uni0E48.low
 Substitution2: "ThaiPhinthuMaitaikhuReordering subtable" uni0E47
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E3F
 Encoding: 3647 3647 182
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: 2 172<348 541 653 820.655> 719 166<348 541> 1321 168<348 541>
 VStem: 152 196<170 719 885 1321> 541 112<-133 0 174 717 887 1319 1489 1595> 885 207<986.935 1255.01> 954 207<293.195 616.418>
@@ -5823,12 +6049,13 @@ SplineSet
  954 657 842.658 705.619 653 717 c 1
  653 174 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E40
 Encoding: 3648 3648 183
 Width: 700
-GlyphClass: 1
 Flags: W
 HStem: -11 108<329.615 474.863> 304 93<345.86 472.023> 1129 20G<167 327>
 VStem: 167 160<102.564 298.383 369 1149> 485 95<106.489 293.154>
@@ -5849,12 +6076,13 @@ SplineSet
  343 304 321 264 321 196 c 0
  321 131 346 97 395 97 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E41
 Encoding: 3649 3649 184
 Width: 1320
-GlyphClass: 1
 Flags: W
 HStem: -11 108<353.615 499.407 968.615 1113.65> 304 93<370.282 495.76 985.282 1109.54> 1129 20G<191 351 806 966>
 VStem: 191 160<102.564 297.935 369 1149> 509 95<105.363 291.97> 806 160<102.564 297.935 369 1149> 1124 95<107.769 290.375>
@@ -5888,12 +6116,13 @@ SplineSet
  982 304 960 260 960 196 c 0
  960 131 985 97 1034 97 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E42
 Encoding: 3650 3650 185
 Width: 1100
-GlyphClass: 1
 Flags: W
 HStem: -11 108<725.05 866.418> 304 93<741.905 868.071> 1595 148<653.275 1003.46> 1696 148<303.322 599.719>
 VStem: 561 160<104.552 297.563 369 1312.7> 879 96<107.949 293.464>
@@ -5923,12 +6152,13 @@ SplineSet
  741 304 715 264 715 196 c 0
  715 132 740 97 789 97 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E43
 Encoding: 3651 3651 186
 Width: 1000
-GlyphClass: 1
 Flags: W
 HStem: -11 108<699.349 840.238> 304 93<713.288 840.611> 1266 112<221.008 442.826> 1683 156<486 666.809>
 VStem: 66 131<1402.52 1609.06> 534 160<103.469 298.496 369 1120.85> 760 139<1317.51 1600.04> 852 95<106.96 293.929>
@@ -5962,12 +6192,13 @@ SplineSet
  420 1378 470 1424 470 1509 c 0
  470 1585 420 1629 320 1629 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E44
 Encoding: 3652 3652 187
 Width: 1030
-GlyphClass: 1
 Flags: W
 HStem: -11 108<675.364 815.471> 304 93<691.421 816.1> 1326 114<108.311 237.424> 1694 145<420.711 503.022>
 VStem: 511 160<102.691 298.383 369 1692.31> 829 95<108.336 291.771>
@@ -5998,12 +6229,13 @@ SplineSet
  688 304 665 264 665 196 c 0
  665 132 690 97 739 97 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E45
 Encoding: 3653 3653 188
 Width: 1000
-GlyphClass: 1
 Flags: W
 HStem: 1001 148<322.582 623.246>
 VStem: 723 160<-380 896.168>
@@ -6020,12 +6252,13 @@ SplineSet
  65 837 l 1
  77 895 142 1149 449 1149 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E46
 Encoding: 3654 3654 189
 Width: 1100
-GlyphClass: 1
 Flags: W
 HStem: 512 95<281.894 425.941> 808 92<339.421 430.522>
 VStem: 139 130<615.25 799.354> 440 98<617.155 798.511> 788 160<-374 942.334>
@@ -6054,17 +6287,16 @@ SplineSet
  396 1154 449 1118 555 1047 c 1
  699 1155 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E47
 Encoding: 3655 3655 190
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1284 176<-554.457 -386.665> 1372 152<-787.105 -665.421> 1417 43<-509.368 -455> 1583 53<-509.589 -388.845> 1660 118<-834.702 -543.195>
 VStem: -1035 148<1450.14 1607.9> -575 62<1472.81 1581.09> -385 93<1463.88 1552.83>
-AnchorPoint: "AboveBase" -290 1227 mark 0
-AnchorPoint: "AboveMark" -290 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6093,18 +6325,21 @@ SplineSet
  -699 1524 -645 1452 -580 1426 c 0
  -547 1414 -487 1398 -455 1417 c 1x3f
 EndSplineSet
+AnchorPoint: "AboveBase" -290 1227 mark 0
+
+AnchorPoint: "AboveMark" -290 1227 mark 0
+
 Substitution2: "Single Substitution lookup 30 subtable" uni0E47.high
 Substitution2: "ThaiPhinthuMaitaikhuReordering subtable" uni0E3A
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E48
 Encoding: 3656 3656 191
 Width: 0
-GlyphClass: 3
 Flags: W
 VStem: -333 142<1826 2106>
-AnchorPoint: "AboveMark" -262 1740 mark 0
-AnchorPoint: "AboveBase" -262 1740 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6114,22 +6349,25 @@ SplineSet
  -333 1826 l 1
  -333 2106 l 1
 EndSplineSet
+AnchorPoint: "AboveMark" -262 1740 mark 0
+
+AnchorPoint: "AboveBase" -262 1740 mark 0
+
 Substitution2: "Single Substitution lookup 29 subtable" uni0E48.low
-MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E48
 Substitution2: "ThaiPhinthuMaiEkReordering subtable" uni0E3A
 Substitution2: "ThaiSaraUUMaiEkReordering subtable" uni0E39
 Substitution2: "ThaiSaraUMaiEkReordering subtable" uni0E38
+MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E48
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E49
 Encoding: 3657 3657 192
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1882 63<-596.539 -499.223> 2102 68<-595.618 -458.266>
 VStem: -679 73<1954.51 2091.9> -448 99<1955.13 2092.06>
-AnchorPoint: "AboveMark" -286 1740 mark 0
-AnchorPoint: "AboveBase" -286 1740 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6150,22 +6388,25 @@ SplineSet
  -564 2102 -606 2066 -606 2024 c 0
  -606 1982 -570 1945 -525 1945 c 0
 EndSplineSet
+AnchorPoint: "AboveMark" -286 1740 mark 0
+
+AnchorPoint: "AboveBase" -286 1740 mark 0
+
 Substitution2: "Single Substitution lookup 29 subtable" uni0E49.low
-MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E49
 Substitution2: "ThaiPhinthuMaiThoReordering subtable" uni0E3A
 Substitution2: "ThaiSaraUUMaiThoReordering subtable" uni0E39
 Substitution2: "ThaiSaraUMaiThoReordering subtable" uni0E38
+MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E49
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4A
 Encoding: 3658 3658 193
 Width: 0
-GlyphClass: 3
 Flags: MW
 HStem: 1668 68<-694.168 -582.054> 1856 58<-693.496 -581.092> 2020 134<-647 -647 -365 -365>
 VStem: -872 127<1838.15 1981.24> -579 54<1739.92 1852.43> -273 121<1810.35 1975.69>
-AnchorPoint: "AboveMark" -458 1740 mark 0
-AnchorPoint: "AboveBase" -458 1740 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6195,22 +6436,25 @@ SplineSet
  -507 2036 l 1
  -365 2154 l 1
 EndSplineSet
+AnchorPoint: "AboveMark" -458 1740 mark 0
+
+AnchorPoint: "AboveBase" -458 1740 mark 0
+
 Substitution2: "Single Substitution lookup 29 subtable" uni0E4A.low
-MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4A
 Substitution2: "ThaiPhinthuMaiTriReordering subtable" uni0E3A
 Substitution2: "ThaiSaraUUMaiTriReordering subtable" uni0E39
 Substitution2: "ThaiSaraUMaiTriReordering subtable" uni0E38
+MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4A
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4B
 Encoding: 3659 3659 194
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1812 142<-590 -448 -306 -164>
 VStem: -448 142<1670 1812 1954 2096>
-AnchorPoint: "AboveMark" -377 1640 mark 0
-AnchorPoint: "AboveBase" -377 1640 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6228,22 +6472,25 @@ SplineSet
  -164 1954 l 1
  -164 1812 l 1
 EndSplineSet
+AnchorPoint: "AboveMark" -377 1640 mark 0
+
+AnchorPoint: "AboveBase" -377 1640 mark 0
+
 Substitution2: "Single Substitution lookup 29 subtable" uni0E4B.low
-MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4B
 Substitution2: "ThaiPhinthuMaiChattawaReorderin subtable" uni0E3A
 Substitution2: "ThaiSaraUUMaiChattawaReordering subtable" uni0E39
 Substitution2: "ThaiSaraUMaiChattawaReordering subtable" uni0E38
+MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4B
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4C
 Encoding: 3660 3660 195
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1621 84<-487.957 -327.477>
 VStem: -617 113<1722.88 1871.05> -314 105<1717.78 1872.98>
-AnchorPoint: "AboveMark" -389 1740 mark 0
-AnchorPoint: "AboveBase" -389 1740 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6260,23 +6507,25 @@ SplineSet
  -360 1705 -314 1740 -314 1795 c 0
  -314 1856 -356 1885 -409 1885 c 0
 EndSplineSet
+AnchorPoint: "AboveMark" -389 1740 mark 0
+
+AnchorPoint: "AboveBase" -389 1740 mark 0
+
 Substitution2: "Single Substitution lookup 29 subtable" uni0E4C.low
-MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4C
 Substitution2: "ThaiPhinthuThanthakhatReorderin subtable" uni0E3A
 Substitution2: "ThaiSaraUUThanthakhatReordering subtable" uni0E39
 Substitution2: "ThaiSaraUThanthakhatReordering subtable" uni0E38
+MultipleSubs2: "ThaiToneNikhahitAttachment subtable" uni0E4D uni0E4C
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4D
 Encoding: 3661 3661 196
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1212 138<-371.464 -218.803> 1521 147<-371.835 -217.455>
 VStem: -527 147<1358.81 1512.36> -207 141<1361.48 1512.12>
-AnchorPoint: "AboveMark" -262 1740 basemark 0
-AnchorPoint: "AboveBase" -140 1227 mark 0
-AnchorPoint: "AboveMark" -140 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6291,21 +6540,26 @@ SplineSet
  -244 1350 -207 1384 -207 1436 c 0
  -207 1490 -244 1521 -295 1521 c 0
 EndSplineSet
+AnchorPoint: "AboveMark" -262 1740 basemark 0
+
+AnchorPoint: "AboveBase" -140 1227 mark 0
+
+AnchorPoint: "AboveMark" -140 1227 mark 0
+
 Substitution2: "Single Substitution lookup 30 subtable" uni0E4D.high
 Substitution2: "ThaiPhinthuNikhahitReordering subtable" uni0E3A
 Substitution2: "ThaiSaraUUNikhahitReordering subtable" uni0E39
 Substitution2: "ThaiSaraUNikhahitReordering subtable" uni0E38
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4E
 Encoding: 3662 3662 197
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1444 110<-405.336 -219 -219 -135> 1686 112<-389.236 -168> 1925 111<-394.393 -192>
 VStem: -543 123<1580.09 1669.06> -520 123<1813.42 1914.89>
-AnchorPoint: "AboveBase" -140 1227 mark 0
-AnchorPoint: "AboveMark" -140 1227 mark 0
 LayerCount: 2
 Fore
 SplineSet
@@ -6329,12 +6583,17 @@ SplineSet
  -543 1679 -490 1729 -434 1743 c 1
  -491 1772 -520 1815 -520 1872 c 0xe8
 EndSplineSet
+AnchorPoint: "AboveBase" -140 1227 mark 0
+
+AnchorPoint: "AboveMark" -140 1227 mark 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4F
 Encoding: 3663 3663 198
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: -21 121<430.859 803.295> 258 103<505.917 727.144> 658 105<505.648 727.056> 917 123<428.611 804.146>
 VStem: 97 109<324.866 695.572> 363 101<404.952 616.585> 770 100<403.414 617.085> 1029 108<326.696 687.754>
@@ -6366,12 +6625,13 @@ SplineSet
  363 654.545 463.391 763 616 763 c 0
  766.825 763 870 655.85 870 511 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E50
 Encoding: 3664 3664 199
 Width: 1250
-GlyphClass: 1
 Flags: W
 HStem: -10 173<461.991 785.791> 751 173<464.959 793.228>
 VStem: 150 172<299.774 605.262> 939 173<308.294 607.546>
@@ -6389,12 +6649,13 @@ SplineSet
  897 924 1112 720 1112 458 c 0
  1112 207 900.18 -10 622 -10 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E51
 Encoding: 3665 3665 200
 Width: 1300
-GlyphClass: 1
 Flags: W
 HStem: -10 155<369.138 762.862> 203 159<444.84 664.396> 409 76<588.261 658.66> 603 84<587.066 706.654> 765 159<482.348 807.671>
 VStem: 212 178<418.79 671.74> 489 96<487.417 599.976> 709 144<434.902 599.102> 934 173<303.848 641.231>
@@ -6451,12 +6712,13 @@ SplineSet
  709 582 684 603 645 603 c 0
  611 603 585 576 585 545 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E52
 Encoding: 3666 3666 201
 Width: 1350
-GlyphClass: 1
 Flags: W
 HStem: 0 174<476.324 534 534 1041> 343 110<594.796 712.755> 571 108<653 711.966>
 VStem: 456 135<456.674 617> 715 111<455.717 566.681> 1041 173<174 594.183>
@@ -6494,12 +6756,13 @@ SplineSet
  1214 0 l 1
  534 0 l 18
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E53
 Encoding: 3667 3667 202
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: -11 103<316.525 434.785> 210 122<324.279 432.436> 753 171<309.534 518.747 878.344 1073.16>
 VStem: 89 175<385.81 706.912> 436 115<94.5329 206.036> 644 130<216 357.472> 1129 170<156.262 693.606>
@@ -6533,12 +6796,13 @@ SplineSet
  288 -11 238 15 198 94 c 0
  144 200 89 424 89 561 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E54
 Encoding: 3668 3668 203
 Width: 1550
-GlyphClass: 1
 Flags: W
 HStem: -6 164<442.272 737.275> 313 115<1036 1102.83> 580 112<969.758 1102.79> 762 162<442.124 1108.33>
 VStem: 127 176<297.83 625.791> 813 148<436.24 572.911> 1112 115<437.099 572.355> 1278 184<1050.03 1262>
@@ -6570,12 +6834,13 @@ SplineSet
  995 580 961 548 961 502 c 0
  961 462 996 428 1036 428 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E55
 Encoding: 3669 3669 204
 Width: 1550
-GlyphClass: 1
 Flags: W
 HStem: -6 164<445.756 738.326> 313 115<1036 1102.83> 580 112<969.758 1102.2> 762 160<448.045 618 724.176 859.133> 1073 113<729.125 854.738>
 VStem: 127 176<306.305 626.759> 602 115<940.717 1062.99> 813 148<436.24 571.883> 868 115<943.961 1062.32> 1112 115<437.099 571.399> 1278 184<1051.34 1262>
@@ -6615,12 +6880,13 @@ SplineSet
  995 580 961 548 961 502 c 0xff60
  961 462 996 428 1036 428 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E56
 Encoding: 3670 3670 205
 Width: 1300
-GlyphClass: 1
 Flags: W
 HStem: -16 155<586.351 885.575> 215 115<553 620.81> 481 113<488.593 619.459> 760 168<482.964 851.107>
 VStem: 328 149<246.212 471.411> 629 112<337.606 472.518> 1020 176<273.108 603.385>
@@ -6648,12 +6914,13 @@ SplineSet
  512 481 477 445 477 403 c 0
  477 364 514 330 553 330 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E57
 Encoding: 3671 3671 206
 Width: 1540
-GlyphClass: 1
 Flags: W
 HStem: -16 112<326.46 460.507> 0 178<1042 1188.4> 248 114<334.367 460.861> 760 164<346.715 473.756 730.584 859.128>
 VStem: 127 176<251.57 717.701> 469 115<102.916 240.327> 514 174<467 718.709> 899 178<256.4 725.038> 1229 188<220.368 1130>
@@ -6691,12 +6958,13 @@ SplineSet
  352 248 317 217 317 174 c 0
  317 132 348 96 393 96 c 0xbd80
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E58
 Encoding: 3672 3672 207
 Width: 1580
-GlyphClass: 1
 Flags: W
 HStem: -12 21<575 700 1046 1216> 0 170<417.527 532> 283 166<647.061 801.798> 309 115<1134.64 1263.01> 575 113<1134.14 1272.55>
 VStem: 127 176<297.8 635.578> 532 168<170 279.624> 1014 114<431.037 568.693> 1278 184<309.24 558.201 1077.3 1262> 1288 170<197.349 381>
@@ -6730,12 +6998,13 @@ SplineSet
  1162 575 1128 547 1128 498 c 0
  1128 458 1160 424 1204 424 c 0x1f
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E59
 Encoding: 3673 3673 208
 Width: 1500
-GlyphClass: 1
 Flags: W
 HStem: -16 112<326.875 460.595> 248 114<346.979 459.34> 555 166<1053.38 1153.2> 760 164<372.169 536.843 819.299 918.991>
 VStem: 127 176<251.634 673.642> 469 115<103.232 239.803> 1214 185<762.941 1130>
@@ -6768,12 +7037,13 @@ SplineSet
  353 248 317 213 317 174 c 0
  317 132 352 96 393 96 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E5A
 Encoding: 3674 3674 209
 Width: 1400
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<865 1025 1093 1253> 655 148<460 662.722> 1005 104<250.605 400.294>
 VStem: 126 117<845.32 996.57> 407 124<845.868 997.321> 865 160<0 801 977.369 1120> 1093 160<0 1120>
@@ -6802,12 +7072,13 @@ SplineSet
  1253 1120 l 1
  1253 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E5B
 Encoding: 3675 3675 210
 Width: 2370
-GlyphClass: 1
 Flags: W
 HStem: -10 158<447.488 806.082> 218 108<1885.98 2358> 272 158<564.946 743.308> 340 8<1616 1776> 462 88<549.958 630.3> 658 75<526.046 630.367> 812 174<428.159 677.315>
 VStem: 133 154<309.932 666.132> 380 144<471.862 647.951> 632 84<551.007 657.217> 796 165<484.653 745.045>
@@ -6858,20 +7129,22 @@ SplineSet
  524 572 547 550 580 550 c 0
  611 550 632 572 632 605 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: zerowidthspace
 Encoding: 8203 8203 211
 Width: 0
-GlyphClass: 1
 Flags: W
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: zerowidthjoiner
 Encoding: 8205 8205 212
 Width: 0
-GlyphClass: 1
 Flags: W
 LayerCount: 2
 Back
@@ -6893,12 +7166,13 @@ SplineSet
  36 1114 l 1
  36 -275 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: afii299
 Encoding: 8206 8206 213
 Width: 0
-GlyphClass: 1
 Flags: W
 LayerCount: 2
 Back
@@ -6916,12 +7190,13 @@ SplineSet
  213 1413 l 1
  430 1198 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: afii300
 Encoding: 8207 8207 214
 Width: 0
-GlyphClass: 1
 Flags: W
 LayerCount: 2
 Back
@@ -6939,12 +7214,13 @@ SplineSet
  35 1234 l 1
  35 -275 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni2010
 Encoding: 8208 8208 215
 Width: 973
-GlyphClass: 1
 Flags: W
 HStem: 580 165<190 815>
 LayerCount: 2
@@ -6956,12 +7232,13 @@ SplineSet
  190 580 l 1
  190 745 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: endash
 Encoding: 8211 8211 216
 Width: 1125
-GlyphClass: 1
 Flags: W
 HStem: 572 160<-4 1122>
 LayerCount: 2
@@ -6973,12 +7250,13 @@ SplineSet
  1122 732 l 1
  1122 572 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: emdash
 Encoding: 8212 8212 217
 Width: 1886
-GlyphClass: 1
 Flags: W
 HStem: 572 160<-4 1866>
 LayerCount: 2
@@ -6990,12 +7268,13 @@ SplineSet
  1866 732 l 1
  1866 572 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: horizontalbar
 Encoding: 8213 8213 218
 Width: 1862
-GlyphClass: 1
 Flags: W
 HStem: 572 160<110 1752>
 LayerCount: 2
@@ -7007,12 +7286,13 @@ SplineSet
  1752 732 l 1
  1752 572 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: underscoredbl
 Encoding: 8215 8215 219
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: -423 130<-16 1134> -212 130<-16 1134>
 LayerCount: 2
@@ -7029,12 +7309,13 @@ SplineSet
  1134 -293 l 1
  1134 -423 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quoteleft
 Encoding: 8216 8216 220
 Width: 450
-GlyphClass: 1
 Flags: W
 HStem: 997 559<-64 335>
 VStem: -64 399<997 1556>
@@ -7047,12 +7328,13 @@ SplineSet
  178 1556 l 1
  335 997 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quoteright
 Encoding: 8217 8217 221
 Width: 580
-GlyphClass: 1
 Flags: W
 HStem: 997 559<235 496>
 VStem: 97 399<997 1556>
@@ -7065,12 +7347,13 @@ SplineSet
  254 1556 l 1
  496 1556 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotesinglbase
 Encoding: 8218 8218 222
 Width: 432
-GlyphClass: 1
 Flags: W
 HStem: -276 559<125 386>
 VStem: -13 399<-276 283>
@@ -7083,12 +7366,13 @@ SplineSet
  144 283 l 1
  386 283 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotereversed
 Encoding: 8219 8219 223
 Width: 432
-GlyphClass: 1
 Flags: W
 HStem: 997 559<178 335>
 VStem: -64 399<997 1556>
@@ -7101,12 +7385,13 @@ SplineSet
  197 1556 l 1
  335 1556 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotedblleft
 Encoding: 8220 8220 224
 Width: 850
-GlyphClass: 1
 Flags: W
 HStem: 997 559<330 725>
 VStem: -64 789<997 1556>
@@ -7124,12 +7409,13 @@ SplineSet
  174 1556 l 1
  331 997 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotedblright
 Encoding: 8221 8221 225
 Width: 1000
-GlyphClass: 1
 Flags: W
 HStem: 997 559<635 896>
 VStem: 107 789<997 1556>
@@ -7147,12 +7433,13 @@ SplineSet
  264 1556 l 1
  502 1556 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: quotedblbase
 Encoding: 8222 8222 226
 Width: 814
-GlyphClass: 1
 Flags: W
 HStem: -276 559<520 781>
 VStem: -8 789<-276 283>
@@ -7170,12 +7457,13 @@ SplineSet
  149 283 l 1
  387 283 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: dagger
 Encoding: 8224 8224 227
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1034 129<620 983>
 VStem: 498 122<135 1039 1158 1556>
@@ -7196,12 +7484,13 @@ SplineSet
  983 1163 l 1
  983 1034 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: daggerdbl
 Encoding: 8225 8225 228
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 507 129<620 983> 1049 119<135 498 620 983>
 VStem: 498 122<124 512 631 1049 1168 1556>
@@ -7230,12 +7519,13 @@ SplineSet
  983 636 l 1
  983 507 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: bullet
 Encoding: 8226 8226 229
 Width: 950
-GlyphClass: 1
 Flags: W
 LayerCount: 2
 Fore
@@ -7246,12 +7536,13 @@ SplineSet
  270.579 311 114 465.248 114 662 c 0
  114 856.421 268.248 1013 465 1013 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: ellipsis
 Encoding: 8230 8230 230
 Width: 1650
-GlyphClass: 1
 Flags: W
 HStem: 0 223<177 381 735 939 1293 1497>
 VStem: 177 204<0 223> 735 204<0 223> 1293 204<0 223>
@@ -7275,12 +7566,13 @@ SplineSet
  381 223 l 1
  381 0 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: perthousand
 Encoding: 8240 8240 231
 Width: 2848
-GlyphClass: 1
 Flags: W
 HStem: -29 133<1430.43 1657.47 2274.43 2501.47> 634 133<340.427 567.469> 721 133<1431.99 1657.52 2276 2501.52> 1384 133<341.995 567.52>
 VStem: 102 178<831.938 1317.22> 629 178<832.954 1320.89> 1192 178<169.028 652.639> 1719 178<170.197 657.888> 2036 178<169.028 652.639> 2563 178<171.485 656.991>
@@ -7323,12 +7615,13 @@ SplineSet
  2284 721 2214 665.489 2214 412 c 0
  2214 151.039 2284 104 2389 104 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: minute
 Encoding: 8242 8242 232
 Width: 602
-GlyphClass: 1
 Flags: W
 HStem: 870 619<273 571>
 VStem: 137 434<870 1489>
@@ -7341,12 +7634,13 @@ SplineSet
  331 1489 l 1
  571 1489 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: second
 Encoding: 8243 8243 233
 Width: 972
-GlyphClass: 1
 Flags: W
 HStem: 870 619<269 567>
 VStem: 137 824<870 1489>
@@ -7364,12 +7658,13 @@ SplineSet
  725 1489 l 1
  961 1489 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: guilsinglleft
 Encoding: 8249 8249 234
 Width: 784
-GlyphClass: 1
 Flags: W
 HStem: 172 960<633 633>
 VStem: 123 510<172 608>
@@ -7385,12 +7680,13 @@ SplineSet
  633 371 l 1
  633 172 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: guilsinglright
 Encoding: 8250 8250 235
 Width: 784
-GlyphClass: 1
 Flags: W
 HStem: 172 960<151 151>
 VStem: 151 510<172 608>
@@ -7406,12 +7702,13 @@ SplineSet
  661 697 l 1
  661 608 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: exclamdbl
 Encoding: 8252 8252 236
 Width: 1144
-GlyphClass: 1
 Flags: W
 HStem: 0 194<206 370 670 834> 1430 20<198 378 662 842>
 VStem: 198 180<910.471 1450> 206 164<0 194> 662 180<910.471 1450> 670 164<0 194>
@@ -7419,12 +7716,13 @@ LayerCount: 2
 Fore
 Refer: 5 33 N 1 0 0 1 0 0 0
 Refer: 5 33 N 1 0 0 1 464 0 0
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni203E
 Encoding: 8254 8254 237
 Width: 1118
-GlyphClass: 1
 Flags: W
 HStem: 1658 131<-48 1118>
 LayerCount: 2
@@ -7436,12 +7734,13 @@ SplineSet
  1118 1789 l 1
  1118 1658 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: fraction
 Encoding: 8260 8260 238
 Width: 886
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<-29 146.477>
 VStem: -29 945<0 1489>
@@ -7454,12 +7753,13 @@ SplineSet
  751 1489 l 1
  916 1489 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni207F
 Encoding: 8319 8319 239
 Width: 1010
-GlyphClass: 1
 Flags: W
 HStem: 1368 151<503.495 673.146>
 VStem: 125 171<566 1254 1388 1488> 718 172<566 1323.07>
@@ -7480,12 +7780,13 @@ SplineSet
  296 1388 l 1
  442.626 1513.68 528 1519 586 1519 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: dottedcircle
 Encoding: 9676 9676 240
 Width: 1255
-GlyphClass: 1
 Flags: W
 HStem: 7 121<553.134 669.702> 68 121<847.104 963.702> 98 121<288.104 405.074> 234 121<1013.1 1129.7> 249 121<145.134 261.702> 438 121<1088.1 1205.07> 445 121<24.1337 141.071> 679 121<39.1337 155.702 1074.13 1191.07> 868 121<145.104 261.702> 891 121<967.134 1083.7> 1011 121<334.134 451.071> 1034 121<779.104 895.702> 1079 121<560.134 677.071>
 VStem: 22 121<447.213 563.702> 37 121<681.213 797.669> 143 121<251.213 367.669 870.213 987.071> 286 121<100.213 216.933> 332 121<1013.21 1129.7> 551 121<9.21286 125.669> 558 121<1081.21 1197.7> 777 121<1036.21 1153.07> 845 121<70.2129 187.071> 965 121<893.213 1009.67> 1011 121<236.213 353.071> 1072 121<681.213 797.702> 1086 121<440.213 556.933>
@@ -7563,12 +7864,13 @@ SplineSet
  131.999 800 158 772.456 158 739 c 0x0102
  158 703.929 130.911 679 97 679 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E10.descless
 Encoding: 63232 63232 241
 Width: 1130
-GlyphClass: 1
 Flags: W
 HStem: -10 148<541.679 732.135> 290 113<211.744 343.782> 571 126<211.171 360.377> 917 148<776.668 982.411> 1001 148<433.624 771.364>
 VStem: 102 101<409.825 563.511> 357 160<161.889 317 412.021 565.36> 757 160<166.258 603.384>
@@ -7603,123 +7905,131 @@ SplineSet
  237 571 203 544 203 490 c 0
  203 445 226 403 275 403 c 0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E34.left
 Encoding: 63233 63233 242
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1322 91<-1176 -785.572> 1528 116<-1099 -753.617>
 VStem: -1402 944<1227 1322>
 LayerCount: 2
 Fore
 Refer: 175 3636 S 1 0 0 1 -278 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E35.left
 Encoding: 63234 63234 243
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1511 131<-1130.55 -772.98>
 VStem: -648 150<1525 1735>
 LayerCount: 2
 Fore
 Refer: 176 3637 S 1 0 0 1 -311 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E36.left
 Encoding: 63235 63235 244
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1321 108<-599 -526.681> 1514 128<-1218.76 -860.982> 1568 113<-660.641 -528.378>
 VStem: -521 110<1435.86 1542.81>
 LayerCount: 2
 Fore
 Refer: 177 3638 S 1 0 0 1 -397 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E37.left
 Encoding: 63236 63236 245
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1505 128<-1201.81 -967.663>
 VStem: -960 150<1624 1722> -731 150<1519 1721>
 LayerCount: 2
 Fore
 Refer: 178 3639 S 1 0 0 1 -394 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E48.low_left
 Encoding: 63237 63237 246
 Width: 0
-GlyphClass: 1
 Flags: W
 VStem: -618 142<1306 1586>
 LayerCount: 2
 Fore
 Refer: 251 63242 S 1 0 0 1 -308 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E49.low_left
 Encoding: 63238 63238 247
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1428 71<-942.115 -858.383> 1628 82<-942.967 -823.071>
 VStem: -1037 90<1503.3 1622.33> -818 111<1502.28 1623.89>
 LayerCount: 2
 Fore
 Refer: 252 63243 S 1 0 0 1 -216 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4A.low_left
 Encoding: 63239 63239 248
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1242 88<-1181.09 -1064> 1411 78<-1128.98 -1048.16> 1594 134<-1097 -1097 -816 -816>
 VStem: -1323 127<1398.37 1556.35> -1048 72<1331 1410.71> -724 122<1384.3 1552.32>
 LayerCount: 2
 Fore
 Refer: 253 63244 N 1 0 0 1 -503 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4B.low_left
 Encoding: 63240 63240 249
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1370 142<-896 -754 -612 -470>
 VStem: -754 142<1228 1370 1512 1654>
 LayerCount: 2
 Fore
 Refer: 254 63245 S 1 0 0 1 -428 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4C.low_left
 Encoding: 63241 63241 250
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1248 84<-928.337 -764.17>
 VStem: -1054 113<1347.7 1498.08> -751 105<1364.83 1480.97>
 LayerCount: 2
 Fore
 Refer: 255 63246 S 1 0 0 1 -340 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E48.low
 Encoding: 63242 63242 251
 Width: 0
-GlyphClass: 3
 Flags: W
 VStem: -310 142<1306 1586>
-AnchorPoint: "AboveBase" -180 1227 mark 0
-AnchorPoint: "AboveBase" -180 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -7729,17 +8039,20 @@ SplineSet
  -310 1306 l 1
  -310 1586 l 1
 EndSplineSet
+AnchorPoint: "AboveBase" -180 1227 mark 0
+
+AnchorPoint: "AboveBase" -180 1227 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E49.low
 Encoding: 63243 63243 252
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1428 71<-726.115 -642.383> 1628 82<-726.967 -607.071>
 VStem: -821 90<1503.3 1622.33> -602 111<1502.28 1623.89>
-AnchorPoint: "AboveBase" -240 1227 mark 0
-AnchorPoint: "AboveBase" -240 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -7761,17 +8074,20 @@ SplineSet
  -518.875 1710 -491 1601.15 -491 1549 c 0
  -491 1485 -510 1428 -539 1388 c 1
 EndSplineSet
+AnchorPoint: "AboveBase" -240 1227 mark 0
+
+AnchorPoint: "AboveBase" -240 1227 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4A.low
 Encoding: 63244 63244 253
 Width: 0
-GlyphClass: 3
 Flags: MW
 HStem: 1242 88<-678.095 -560.997> 1411 78<-625.979 -545.158> 1594 134<-594 -594 -313 -313>
 VStem: -820 127<1398.37 1556.35> -545 72<1331 1410.71> -221 122<1384.3 1552.32>
-AnchorPoint: "AboveBase" 0 1227 mark 0
-AnchorPoint: "AboveBase" 0 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -7802,17 +8118,20 @@ SplineSet
  -455 1611 l 1
  -313 1728 l 1
 EndSplineSet
+AnchorPoint: "AboveBase" 0 1227 mark 0
+
+AnchorPoint: "AboveBase" 0 1227 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4B.low
 Encoding: 63245 63245 254
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1370 142<-468 -326 -184 -42>
 VStem: -326 142<1228 1370 1512 1654>
-AnchorPoint: "AboveBase" -60 1227 mark 0
-AnchorPoint: "AboveBase" -60 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -7830,17 +8149,20 @@ SplineSet
  -42 1512 l 1
  -42 1370 l 1
 EndSplineSet
+AnchorPoint: "AboveBase" -60 1227 mark 0
+
+AnchorPoint: "AboveBase" -60 1227 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E4C.low
 Encoding: 63246 63246 255
 Width: 0
-GlyphClass: 3
 Flags: W
 HStem: 1248 84<-588.337 -424.17>
 VStem: -714 113<1347.7 1498.08> -411 105<1364.83 1480.97>
-AnchorPoint: "AboveBase" -300 1227 mark 0
-AnchorPoint: "AboveBase" -300 1227 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -7860,12 +8182,17 @@ SplineSet
  -460 1332 -411 1367 -411 1422 c 0
  -411 1474 -444 1512 -506 1512 c 0
 EndSplineSet
+AnchorPoint: "AboveBase" -300 1227 mark 0
+
+AnchorPoint: "AboveBase" -300 1227 basechar 0
+
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E0D.descless
 Encoding: 63247 63247 256
 Width: 1745
-GlyphClass: 1
 Flags: W
 HStem: -11 116<311.96 453.982> 0 148<1053 1463> 273 124<335.041 458.247> 1001 148<405.342 760.823>
 VStem: 159 142<113.69 265.117> 159 160<369 560.709> 465 107<115.687 265.832> 893 160<148 856.737> 1463 160<148 1139>
@@ -7900,144 +8227,156 @@ SplineSet
  335 273 301 242 301 192 c 0
  301 147 328 105 373 105 c 0xbb80
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E31.left
 Encoding: 63248 63248 257
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1214 123<-859.459 -629.482> 1545 92<-1039.84 -904.777>
 VStem: -1141 97<1405.78 1540.09> -902 93<1405.64 1541.16> -516 116<1456.33 1631>
 LayerCount: 2
 Fore
 Refer: 172 3633 N 1 0 0 1 -385 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4D.left
 Encoding: 63249 63249 258
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1212 138<-806.464 -653.803> 1521 147<-806.835 -652.455>
 VStem: -962 147<1358.81 1512.36> -642 141<1361.48 1512.12>
 LayerCount: 2
 Fore
 Refer: 196 3661 S 1 0 0 1 -435 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E47.left
 Encoding: 63250 63250 259
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1284 176<-599.457 -431.665> 1372 152<-832.105 -710.421> 1417 43<-554.368 -500> 1583 53<-554.589 -433.845> 1660 118<-879.702 -588.195>
 VStem: -1080 148<1450.14 1607.9> -620 62<1472.81 1581.09> -430 93<1463.88 1552.83>
 LayerCount: 2
 Fore
 Refer: 190 3655 N 1 0 0 1 -45 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E48.left
 Encoding: 63251 63251 260
 Width: 0
-GlyphClass: 1
 Flags: W
 VStem: -527 142<1826 2106>
 LayerCount: 2
 Fore
 Refer: 191 3656 N 1 0 0 1 -194 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E49.left
 Encoding: 63252 63252 261
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1882 63<-684.539 -587.223> 2102 68<-683.618 -546.266>
 VStem: -767 73<1954.51 2091.9> -536 99<1955.13 2092.06>
 LayerCount: 2
 Fore
 Refer: 192 3657 S 1 0 0 1 -88 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4A.left
 Encoding: 63253 63253 262
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1668 68<-810.168 -698.054> 1856 58<-809.496 -697.092> 2020 134<-763 -763 -481 -481>
 VStem: -988 127<1838.15 1981.24> -695 54<1739.92 1852.43> -389 121<1810.35 1975.69>
 LayerCount: 2
 Fore
 Refer: 193 3658 N 1 0 0 1 -116 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4B.left
 Encoding: 63254 63254 263
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1812 142<-709 -567 -425 -283>
 VStem: -567 142<1670 1812 1954 2096>
 LayerCount: 2
 Fore
 Refer: 194 3659 S 1 0 0 1 -119 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E4C.left
 Encoding: 63255 63255 264
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: 1621 84<-595.957 -435.477>
 VStem: -725 113<1722.88 1871.05> -422 105<1717.78 1872.98>
 LayerCount: 2
 Fore
 Refer: 195 3660 S 1 0 0 1 -108 0 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E38.low
 Encoding: 63256 63256 265
 Width: 0
 VWidth: 1680
-GlyphClass: 1
 Flags: W
 HStem: -743 67<-391.582 -295.28> -531 78<-391.669 -285.791>
 VStem: -473 77<-673.077 -533.214> -289 131<-902 -728> -281 123<-675.719 -533.192>
 LayerCount: 2
 Fore
 Refer: 179 3640 N 1 0 0 1 0 -368 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E39.low
 Encoding: 63257 63257 266
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: -902 99<-437 -292> -744 69<-672.147 -575.656> -531 78<-668.958 -563.125>
 VStem: -752 77<-673.074 -534.333> -568 131<-803 -728> -560 123<-673.377 -594.035> -292 134<-803 -464>
 LayerCount: 2
 Fore
 Refer: 180 3641 N 1 0 0 1 0 -368 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E3A.low
 Encoding: 63258 63258 267
 Width: 0
-GlyphClass: 1
 Flags: W
 HStem: -698 270<-341.907 -149.569>
 VStem: -380 269<-659.794 -466.206>
 LayerCount: 2
 Fore
 Refer: 181 3642 N 1 0 0 1 0 -368 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: uniF71B
 Encoding: 63259 63259 268
 Width: 1000
-GlyphClass: 1
 Flags: W
 HStem: 1065 20G<215 830>
 VStem: 215 615<61 1085>
@@ -8050,12 +8389,13 @@ SplineSet
  215 1085 l 1
  830 1085 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uniF71C
 Encoding: 63260 63260 269
 Width: 700
-GlyphClass: 1
 Flags: W
 VStem: 107 379<-423 -154>
 LayerCount: 2
@@ -8067,12 +8407,13 @@ SplineSet
  245 -423 l 1
  107 -423 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uniF71D
 Encoding: 63261 63261 270
 Width: 800
-GlyphClass: 1
 Flags: W
 HStem: -236 211<182 266 532 616> -127 102<266 532>
 VStem: 182 84<-236 -127> 532 84<-236 -127>
@@ -8089,12 +8430,13 @@ SplineSet
  616 -25 l 1
  616 -236 l 1xb0
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: zerowidthnonjoiner
 Encoding: 8204 8204 271
 Width: 0
-GlyphClass: 1
 Flags: W
 LayerCount: 2
 Back
@@ -8105,30 +8447,33 @@ SplineSet
  -36 1289 l 1
  36 1289 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: enspace
 Encoding: 8194 8194 272
 Width: 1024
-GlyphClass: 1
 Flags: W
 TeX: 78 0
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: emspace
 Encoding: 8195 8195 273
 Width: 2048
-GlyphClass: 1
 Flags: W
 TeX: 78 0
 LayerCount: 2
+GlyphClass: 1
+
 EndChar
 
 StartChar: ff
 Encoding: 64256 64256 274
 Width: 1112
-GlyphClass: 2
 Flags: W
 HStem: 0 21G<178 357 721 900> 922 140<19 178 357 721 900 1079> 1316 172<494.199 640 1037.2 1183> 1343 172<394.815 637.405 937.815 1180.41>
 VStem: 178 179<0 922 1062 1306.99> 721 179<0 922 1062 1306.99>
@@ -8167,12 +8512,13 @@ SplineSet
 EndSplineSet
 Ligature2: "ligaStandardLigatureslookup0 subtable" f f
 LCarets2: 1 0 
+GlyphClass: 2
+
 EndChar
 
 StartChar: fi
 Encoding: 64257 64257 275
 Width: 992
-GlyphClass: 2
 Flags: W
 HStem: 0 21G<178 357 673 853> 922 140<19 178 357 673> 1259 207<673 853> 1343 172<394.601 637.588>
 VStem: 178 179<0 922 1062 1306.29> 673 180<0 922 1259 1466>
@@ -8206,12 +8552,13 @@ SplineSet
 EndSplineSet
 Ligature2: "ligaStandardLigatureslookup0 subtable" f i
 LCarets2: 1 0 
+GlyphClass: 2
+
 EndChar
 
 StartChar: fl
 Encoding: 64258 64258 276
 Width: 994
-GlyphClass: 2
 Flags: W
 HStem: 0 21G<178 357 670 850> 922 140<19 178 357 536> 1343 172<421.525 667.498>
 VStem: 178 179<0 922 1062 1278.03> 670 180<0 1336>
@@ -8240,12 +8587,13 @@ SplineSet
 EndSplineSet
 Ligature2: "ligaStandardLigatureslookup0 subtable" f l
 LCarets2: 1 0 
+GlyphClass: 2
+
 EndChar
 
 StartChar: ffi
 Encoding: 64259 64259 277
 Width: 1535
-GlyphClass: 2
 Flags: W
 HStem: 0 21G<178 357 721 900 1216 1396> 922 140<19 178 357 721 900 1216> 1259 207<1216 1396> 1316 172<502.88 640 1045.88 1183> 1343 172<394.601 637.588 937.601 1180.59>
 VStem: 178 179<0 922 1062 1306.29> 721 179<0 922 1062 1306.29> 1216 180<0 922 1259 1466>
@@ -8292,12 +8640,13 @@ EndSplineSet
 Ligature2: "ligaStandardLigatureslookup0 subtable" f f i
 Ligature2: "ligaStandardLigatureslookup0 subtable" ff i
 LCarets2: 2 0 0 
+GlyphClass: 2
+
 EndChar
 
 StartChar: ffl
 Encoding: 64260 64260 278
 Width: 1537
-GlyphClass: 1
 Flags: W
 HStem: 0 21G<178 357 721 900 1213 1393> 922 140<19 178 357 721 900 1079> 1343 172<394.943 637.68 971.314 1210.61>
 VStem: 178 179<0 922 1062 1306.23> 721 179<0 922 1062 1276.79> 1213 180<0 1336>
@@ -8337,16 +8686,16 @@ SplineSet
  1014 1343 900 1294 900 1160 c 2
 EndSplineSet
 LCarets2: 2 0 0 
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0E21.uline
 Encoding: 65537 -1 279
 Width: 1350
-GlyphClass: 3
 Flags: HW
 HStem: -10 123<284.232 418> 328 118<293.882 371> 739 116<234.173 353.741> 1023 127<232.438 381.856>
 VStem: 118 106<863.703 1013.88> 170 108<115.05 315.402> 371 160<132.162 243 446 770> 388 143<864.021 1017.3> 991 160<159 1139>
-AnchorPoint: "BelowBase" 1151 -280 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -8407,17 +8756,19 @@ SplineSet
 EndSplineSet
 Refer: 216 8211 N 0.917407 0 0 1 121.67 -792 2
 Refer: 216 8211 N 0.917407 0 0 1 121.67 -792 2
+AnchorPoint: "BelowBase" 1151 -280 basechar 0
+
 Ligature2: "ccmpGlyphCompositionDecompositi subtable" uni0E21 uni0331
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E0D.uline
 Encoding: 65538 -1 280
 Width: 1745
-GlyphClass: 3
 Flags: HW
 HStem: -11 116<311.96 453.982> 0 148<1053 1463> 273 124<335.041 458.247> 1001 148<405.342 760.823>
 VStem: 159 142<113.69 265.117> 159 160<369 560.709> 465 107<115.687 265.832> 893 160<148 856.737> 1463 160<148 1139>
-AnchorPoint: "BelowBase" 1623 -280 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -8478,18 +8829,19 @@ SplineSet
 EndSplineSet
 Refer: 216 8211 N 1.36146 0 0 1 95.4458 -792 2
 Refer: 216 8211 N 1.36146 0 0 1 95.4458 -792 2
+AnchorPoint: "BelowBase" 1623 -280 basechar 0
+
 Ligature2: "ccmpGlyphCompositionDecompositi subtable" uni0E0D uni0331
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E19.uline
 Encoding: 65539 -1 281
 Width: 1400
-GlyphClass: 3
 Flags: HW
 HStem: -10 21<364 557.272 1088 1210.5> -10 113<1088 1228.91> 741 115<220.823 346.507> 1024 125<219.251 368.741>
 VStem: 109 103<863.061 1016.22> 364 160<174 769> 376 148<865.021 1012.78> 984 160<124.001 243 475 1139> 1237 113<106.244 306.104>
-AnchorPoint: "AboveBase" 1123 1227 basechar 0
-AnchorPoint: "BelowBase" 1350 -280 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -8548,17 +8900,21 @@ SplineSet
 EndSplineSet
 Refer: 216 8211 N 1.10213 0 0 1 113.409 -792 2
 Refer: 216 8211 N 1.10213 0 0 1 113.409 -792 2
+AnchorPoint: "AboveBase" 1123 1227 basechar 0
+
+AnchorPoint: "BelowBase" 1350 -280 basechar 0
+
 Ligature2: "ccmpGlyphCompositionDecompositi subtable" uni0E19 uni0331
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0E07.uline
 Encoding: 65540 -1 282
 Width: 1000
-GlyphClass: 3
 Flags: HW
 HStem: -10 149<437.095 665.513> 741 113<550.042 674.1> 1021 129<547.514 693.711>
 VStem: 439 100<862.826 1012.07> 695 160<169.46 770> 703 152<862.825 1012.46>
-AnchorPoint: "BelowBase" 855 -280 basechar 0
 LayerCount: 2
 Fore
 SplineSet
@@ -8603,14 +8959,17 @@ SplineSet
 EndSplineSet
 Refer: 216 8211 N 0.630551 0 0 1 147.522 -792 2
 Refer: 216 8211 N 0.630551 0 0 1 147.522 -792 2
+AnchorPoint: "BelowBase" 855 -280 basechar 0
+
 Ligature2: "ccmpGlyphCompositionDecompositi subtable" uni0E07 uni0331
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni0331
 Encoding: 817 817 283
 Width: 0
 VWidth: 0
-GlyphClass: 3
 LayerCount: 2
 Fore
 Refer: 216 8211 N 1 0 0 1 -792 0 2
@@ -8618,12 +8977,13 @@ Refer: 216 8211 N 1 0 0 1 -792 0 2
 Substitution2: "PataniMacronPhinthuReordering subtable" uni0E3A
 Substitution2: "PataniMacronSaraUUReordering subtable" uni0E39
 Substitution2: "PataniMacronSaraUReordering subtable" uni0E38
+GlyphClass: 3
+
 EndChar
 
 StartChar: uni02BC
 Encoding: 700 700 284
 Width: 391
-GlyphClass: 1
 Flags: W
 HStem: 1446 20G<90 295>
 VStem: 90 205<1185.93 1466>
@@ -8638,12 +8998,13 @@ SplineSet
  247 947 l 1
  136 947 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni02D7
 Encoding: 727 727 285
 Width: 682
-GlyphClass: 1
 Flags: W
 HStem: 440 181<65 618>
 LayerCount: 2
@@ -8655,19 +9016,21 @@ SplineSet
  618 440 l 1
  65 440 l 1
 EndSplineSet
+GlyphClass: 1
+
 EndChar
 
 StartChar: uni0303
 Encoding: 771 771 286
 Width: 0
 VWidth: 0
-GlyphClass: 1
 LayerCount: 2
 Fore
 Refer: 98 126 N 0.899316 0 0 1 -1183.24 670 2
 Refer: 98 126 N 0.899316 0 0 1 -1183.24 670 2
-EndChar
+GlyphClass: 1
 
+EndChar
 StartChar: uin0E0D.uline
 Encoding: 65541 -1 287
 Width: 2048

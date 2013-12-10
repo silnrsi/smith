@@ -219,5 +219,13 @@ processors if you have them, to speed up the build (for example without the
 therefore wise to restrict smith to a single process while outputting this
 information, and this is done using `-j1`.
 
+==== font5 ====
 
+In this exercise we grow our description to add opentype and graphite tables and
+also add some tests.
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font5/wscript[]
+----
 

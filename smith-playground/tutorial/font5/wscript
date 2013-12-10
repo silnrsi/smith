@@ -7,7 +7,7 @@ TESTRESULTSDIR = 'tests'
 rmoverlap = prjbase + 'bin/rmOverlap'
 
 for ext in ('', '-Bold') :
-    fbase = 'Norasi' + ext
+    fbase = 'Loma' + ext
     font(target = fbase + '.ttf',
          source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
          opentype = internal(),
