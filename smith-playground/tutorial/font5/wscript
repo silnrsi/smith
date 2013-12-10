@@ -1,0 +1,17 @@
+APPNAME = 'norasi'
+VERSION = '0.0.1'
+prjbase = '../../script-test/'
+fontbase = prjbase + 'fonts/thai/font-source/'
+TESTDIR = prjbase + 'fonts/thai/tests'
+TESTRESULTSDIR = 'tests'
+rmoverlap = prjbase + 'bin/rmOverlap'
+
+for ext in ('', '-Bold') :
+    fbase = 'Norasi' + ext
+    font(target = fbase + '.ttf',
+         source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
+         opentype = internal(),
+         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
+         ap = fbase + '.xml',
+         script = 'thai'
+        )

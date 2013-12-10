@@ -190,7 +190,7 @@ class TeX(object) :
                 else :
                     lang = None
 
-                targfile = test.results_node(n.get_src()).bld_base() + '_' + fid + "_" + m + ".tex"
+                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m + ".tex"
                 targ = ctx.path.find_or_declare(targfile)
                 ctx(rule = curry_fn(make_tex if n in txtfiles else make_from_htex, mf, font.target), source = n, target = targ)
                 textfiles.append((targ, n))
