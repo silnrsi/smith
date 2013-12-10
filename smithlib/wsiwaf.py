@@ -3,6 +3,7 @@
 
 from waflib import Context, Task
 from wafplus import *
+import os
 
 class create(str) :
 
@@ -35,13 +36,24 @@ class create(str) :
 
 class process(create) :
 
+    def __new__(self, tgt, *cmds, **kw) :
+        if not hasattr(tgt, 'len') and os.path.exists(tgt) :
+            return create.__new__(self, os.path.join("tmp", os.path.basename(tgt)), *cmds, **kw)
+        else : return create.__new__(self, tgt, *cmds, **kw)
+
     def __init__(self, tgt, *cmds, **kw) :
-        self.cmds = cmds
-        for c in cmds :
-            res = c(tgt)
-            res[2]['late'] = 1
-            res[2].update(kw)
-            modify(res[0], tgt, res[1], **res[2])
+        # if tgt exists in source tree, then become create(munge(tgt), cmd("${CP} ${SRC} ${TGT}", [tgt]), *cmds, **kw)
+        if os.path.exists(tgt) :
+            cmds = [cmd("cp ${SRC} ${TGT}", [tgt])] + list(cmds)
+            tgt = os.path.join("tmp", os.path.basename(tgt))
+            super(process, self).__init__(tgt, *cmds, **kw)
+        else :
+            self.cmds = cmds
+            for c in cmds :
+                res = c(tgt)
+                res[2]['late'] = 1
+                res[2].update(kw)
+                modify(res[0], tgt, res[1], **res[2])
 
 
 class test(process) :

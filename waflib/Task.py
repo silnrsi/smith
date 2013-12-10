@@ -1015,6 +1015,8 @@ def compile_fun_shell(line):
 	dvars = []
 	app = parm.append
 	for (var, meth) in extr:
+		if re.match(ur'\[\d+\]$', meth) :
+			meth = meth + ".bldpath()"
 		if var == 'SRC':
 			if meth: app('tsk.inputs%s' % meth)
 			else: app('" ".join([a.path_from(bld.bldnode) for a in tsk.inputs])')
@@ -1069,6 +1071,8 @@ def compile_fun_noshell(line):
 		if params[x]:
 			app("lst.extend(%r)" % params[x].split())
 		(var, meth) = extr[x]
+		if re.match(ur'\[\d+\]$', meth) :
+			meth = meth + ".bldpath()"
 		if var == 'SRC':
 			if meth: app('lst.append(tsk.inputs%s)' % meth)
 			else: app("lst.extend([a.path_from(bld.bldnode) for a in tsk.inputs])")
