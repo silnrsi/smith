@@ -318,7 +318,7 @@ class Tests(object) :
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()} -o ${TGT} ${fileinfo} ${SRC[0].bldpath()} ${SRC[2].bldpath()}')}
+            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1]} -o ${TGT} ${fileinfo} ${SRC[0]} ${SRC[2]}')}
             self._extracmds += ['cmptxtrender']
         self.tests = tests
 
@@ -347,7 +347,7 @@ class Tests(object) :
                     if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
                     inputs = [font.target, n]
                     inputs.append(os.path.join(self.standards, f))
-                    target = os.path.join(test.testdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
+                    target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
                     scr = getattr(font, 'script', [None])
                     if isinstance(scr, basestring) : scr = [scr]
                     for s in scr :
