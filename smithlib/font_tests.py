@@ -314,6 +314,7 @@ class SVG(object) :
 class Tests(object) :
     def __init__(self, tests = None, *kv, **kw) :
         if 'ext' not in kw : kw['ext'] = '.log'
+        if 'coverage' not in kw : kw['coverage'] = 'texts'
         self._extracmds = []
         for k, item in kw.items() :
             setattr(self, k, item)
@@ -335,24 +336,49 @@ class Tests(object) :
             txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
 
         for name, t in self.tests.items() :
-            for n in txtfiles.keys() :
-                if txtfiles[n] :
-                    if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
-                    else : tinfo = self.parse_txtfile(txtfiles[n])
-                else :
-                    tinfo = {}
+            if self.coverage == 'fonts' :
+                target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + self.ext)
+                self.dotest(t, ctx, font, None, None, target, name = name)
+            else :
                 for m in test.modes.keys() :
-                    f = os.path.basename(font.target)
                     shp = m[0:m.find("_")] if "_" in m else m
+                    f = os.path.basename(font.target)
                     if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
-                    inputs = [font.target, n]
-                    inputs.append(os.path.join(self.standards, f))
-                    target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
-                    scr = getattr(font, 'script', [None])
-                    if isinstance(scr, basestring) : scr = [scr]
-                    for s in scr :
-                        gen = t.build(ctx, inputs, target, shaper = shp, script = tinfo.get('script', s), name = name, fileinfo = tinfo.get('extra', None))
-                        gen.taskgens = [font.target + "_" + m]
+                    if self.coverage == 'shapers' :
+                        target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + '_' + m + self.ext)
+                        self.dotest(t, ctx, font, None, m, target, shaper = shp, name = name, script = None)
+                    else :
+                        for n in txtfiles.keys() :
+                            if txtfiles[n] :
+                                if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
+                                else : tinfo = self.parse_txtfile(txtfiles[n])
+                            else :
+                                tinfo = {}
+                            target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
+                            self.dotest(t, ctx, font, n, m, target, shaper = shp, script = tinfo.get('script', None), name = name, fileinfo = tinfo.get('extra', None))
+
+    def dotest(self, test, ctx, font, txtname, mode, target, **kws) :
+        f = os.path.basename(font.target)
+        inputs = [font.target]
+        if txtname : inputs.append(txtname)
+        inputs.append(os.path.join(self.standards, f))
+        if mode and mode.startswith("ot") :
+            scr = getattr(font, 'script', [None])
+            if isinstance(scr, basestring) : scr = [scr]
+            for s in scr :
+                if len(scr) > 1 :
+                    dotindex = target.rfind(".")
+                    targ = target[0:dotindex] + "_" + scr + target[dotindex:]
+                else :
+                    targ = target
+                olds = kws['script']
+                if olds is None : kws['script'] = s
+                gen = test.build(ctx, inputs, targ, **kws)
+                gen.taskgens = [font.target + "_" + mode]
+                kws['script'] = olds
+        else :
+            gen = test.build(ctx, inputs, target, **kws)
+            gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
     def parse_txtfile(self, txt) :
         res = {}
