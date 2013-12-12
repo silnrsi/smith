@@ -307,15 +307,92 @@ smith test
 The results end up in the `RESULTSDIR/regression` directory as `.log` files. If
 there are no differences, the files are 0 length.
 
-==== font6 - More Tests ====
+A further target that is useful is the ability to create font reports that show
+all the glyphs in a font. We set this as a font product rather than a kind of
+test, in line 18. The default target filename is the same as the `target` .ttf
+file but with a .pdf extension instead. The file is built as part of `smith
+build`.
 
-Font testing is not limited to just the inbuilt test types. Smith supports the
-integration of other test programs as you the user desires, so long as they are
-command line based and report generators.
+==== font6 - Metadata ====
+
+So far we have concerned ourselves with the mechanics of font creation. But in
+order to release a font package we also need to concern ourselves the the
+metadata that is involved in producing a font release.
 
 [source,python,numbered]
 ----
 include::../../smith-playground/tutorial/font6/wscript[]
 ----
 
+While we have used an existing font: Loma as our base font, we can't really
+release a new version of Loma since that is a font owned by someone else. The
+font has a GPL license and so we are free to develop our own version of Loma
+under that license. It makes sense, therefore, to change the name to something
+more appropriate: `Loma Minority`. We do this in a number of places in the
+wscript: Line 5 changes the installer application name. Line 18 changes both the
+name of the font file generated (and all derived products), but it also
+processes that font file to change the internal name to "Loma Minority", using a
+process() and a name() function that acts like a cmd() that is suited to font
+renaming.
 
+We also enhance the installation package to include a short and long
+description. We also include a license file, on Line 14, for the installer that reflects what
+is in the font. Smith also provides a mechanism to directly support the OFL
+license inside the font and font package, but this is not relevant here.
+
+We also set the version of the font inside the font using a `version` parameter
+on line 20. This means that smith can set the version inside the font if so
+desired. This saves editing source fonts all the time to account for what is a
+build parameter.
+
+The Web Open Font Format is designed particulary for distribution of web fonts
+and smith can generate such files from the target .ttf font file. The default
+parameters for this object take the font target filename as the basis of the
+woff filename, which is sufficient for our needs.
+
+
+==== font7 - More Tests ====
+
+This section is for those interested in doing more advanced types of testing.
+For most projects there is no need to go to this level of complexity and many
+users never need to use these capabilities. So this exercise has been placed
+after the exercise that pretty much completes font creation.
+
+Font testing is not limited to just the inbuilt test types. Smith supports the
+integration of other test programs as you the user desires, so long as they are
+command line based, non interactive and report generators.
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font7/wscript[]
+----
+
+The interesting section is in lines 17-21. These lines create a fonttest object
+that is then referenced within the font at line 34. A fonttest object adds new
+smith commands. This example adds the three smith commands: pdfs, test and
+report. Notice that the `smith pdfs` command is actually implemented using a
+fonttest() object. The `targets` parameter to fonttest uses a python data
+structure called a dictionary. This is indicated by the `{` at the start (and
+`}` at the end). Dictionary elements consist of a string before a `:` and a
+value after it. The value before the `:` is known as the key and the value after
+as the value. So a dictionary is set of key, value pairs. In our case, the keys
+here indicate smith commands and the values are the test objects that get
+executed for the command.
+
+The first two commands use default test objects appropriate to the type of
+command. The `pdfs` command executes a `tex()` object that does all the xetex
+processing of test files. Likewise the `test` command executes a default
+`tests()` object which implements the regression testing.
+
+Our new command `report` also uses a `tests()` object. But in this, we give
+another dictionary of key, value pairs. The key is a subdirectory under the
+TESTRESULTSDIR and the value is a `cmd()` object that gives the command to
+execute. In this case we are running the fontreport program as described by the
+`fontreport` variable which gives a path to the program to run. The reference to
+'${SRC[0]}` says to use the first element from the inputs. The inputs has 3
+elements: the font, the text file to test and the corresponding `standards/`
+font file. We only need the first of these and list indices all start from 0 in
+python. In addition, we use the parameter `coverage` to say that we only want to
+run tests one per font, and not one per test file per shaper per font. The `>
+${TGT}` says that the output that the program produces, which would normally be
+printed on the screen is to be sent to the target log file instead.

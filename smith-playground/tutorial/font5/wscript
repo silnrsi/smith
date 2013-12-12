@@ -14,5 +14,6 @@ for ext in ('', '-Bold') :
          opentype = internal(),
          graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
          ap = fbase + '.xml',
-         script = 'thai'
+         script = 'thai',
+         fret = fret(params = "-r")
         )

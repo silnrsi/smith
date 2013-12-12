@@ -1,6 +1,7 @@
 prjbase = '../../script-test/'
 fontbase = prjbase + 'fonts/thai/font-source/'
-rmoverlap = prjbase + 'bin/rmOverlap'
+rmoverlap = '../' + prjbase + 'bin/rmOverlap'
+fontreport = '../' + prjbase + 'bin/fontreport'
 
 APPNAME = 'loma-minority'
 VERSION = '0.0.1'
@@ -13,15 +14,22 @@ minority languages that use the Thai script. Specifically this
 font supports the following language needs: Patani Malay, So"""
 LICENSE = "GPL.txt"
 
+t = fonttest(targets = {
+    'pdfs' : tex(),
+    'test' : tests(),
+    'report' : tests({'report' : cmd(fontreport + " ${SRC[0]} > ${TGT}")}, coverage = "fonts")
+    })
+
 for ext in ('', '-Bold') :
     fbase = 'Loma' + ext
     font(target = process(fbase + '-Minority.ttf', name("Loma Minority")),
-         source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
+         source = process(fontbase + fbase + '.sfd', cmd(rmoverlap + ' ${DEP} ${TGT}')),
          version = 0.1,
          woff = woff(),
          opentype = internal(),
          graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
          ap = fbase + '.xml',
          script = 'thai',
-         fret = fret(params = "-r")
+         fret = fret(params = '-r'),
+         tests = t
         )

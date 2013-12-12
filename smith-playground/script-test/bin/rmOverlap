@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import fontforge
+import os, sys
+
+f = fontforge.open(os.path.abspath(sys.argv[1]))
+for n in f :
+    f[n].removeOverlap()
+f.save(sys.argv[2])

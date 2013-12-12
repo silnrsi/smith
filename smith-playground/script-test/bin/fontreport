@@ -1,0 +1,161 @@
+#!/usr/bin/env python
+
+'''Fontreport: A simple python FontForge script to show almost all the font metadata to help with diagnostics for release engineering and packaging 
+and to implement open font design best practises in the various internal fields.
+You need a recent version of FontForge with its python module.
+This works on all font formats FontForge supports.'''
+__url__ = 'http://projects.palaso.org/projects/pysilfont'
+__copyright__ = 'Copyright (c) 2013, SIL International  (http://www.sil.org)'
+__license__ = 'Released under the MIT License (http://opensource.org/licenses/MIT)'
+__author__ = 'Nicolas Spalinger. Thanks to Martin Hosken for his help.'
+__version__ = '1.0'
+
+import fontforge, sys
+
+''' version checking to make sure we have a decently recent FontForge '''
+required_version = "20100212"
+if fontforge.version() < required_version:
+    print ("Your version of FontForge is too old - %s or newer is required" % (required_version))
+
+def main ():
+    for f in sys.argv[1:]:
+        font = fontforge.open(f)
+
+    ''' simple usage output '''
+    if (len(sys.argv) < 2):
+        print " "
+        print ("Fontreport (see http://projects.palaso.org/projects/pysilfont):")
+        print ("---------------------------------------------------------------- ")
+        print "Usage: {0} [FILE.ttf|otf|woff|ufo|sfd/...]".format(sys.argv[0])
+        print (" ")
+        sys.exit(1)
+
+    ''' get the names for the sfnt object '''
+    names = {}
+    for n in font.sfnt_names :
+        if n[0] == "English (US)" :
+            names[n[1]] = n[2]
+    print (" ")
+    print ("Fontreport (see http://projects.palaso.org/projects/pysilfont):")
+    print ("---------------------------------------------------------------- ")
+    print (" ")
+    print ("File: " + str(font.path))
+    print (" ")
+    print ("Fontname: " + str(font.fontname))
+    print (" ")
+    print ("Full name: " + str(font.fullname))
+    print (" ")
+    print ("Family name: ")
+    print (str(font.familyname))
+    print (" ")
+    print ("PostScript name: ")
+    print names.get ('PostScriptName')
+    print (" ")
+    print ("Full name: ")
+    print names.get ('Fullname')
+    print (" ")
+    print ("UniqueID: ")
+    print names.get ('UniqueID')
+    print (" ")
+    print ("Subfamily:  ")
+    print names.get ('SubFamily')
+    print (" ")
+    print ("Preferred family: ")
+    print names.get ('Preferred Family')
+    print (" ")
+    print ("Compatible Full: ")
+    print names.get ('Compatible Full')
+    print (" ")
+    print ("Version: " + str(font.version))
+    print (" ")
+    print ("Version (PS) " + str(font.version))
+    print (" ")
+    print ("PostScript Unique ID: ")
+    print (str(font.uniqueid))
+    print (" ")
+    print ("PostScript eXtended Unique ID: " + str(font.xuid))
+    print (" ")
+    print ("OS2 version: ")
+    print (str(font.os2_version))
+    print (" ")
+    print ("Weight: " + str(font.weight))
+    print (" ")
+    print ("Copyright: " + str(font.copyright))
+    print (" ")
+    print ("License: ")
+    print names.get('License')
+    print (" ")
+    print ("License URL: ")
+    print names.get('License URL')
+    print (" ")
+    print ("Designer: ")
+    print names.get('Designer')
+    print (" ")
+    print ("Designer URL: ")
+    print names.get('Designer URL')
+    print (" ")
+    print ("Manufacturer: ")
+    print names.get('Manufacturer')
+    print (" ")
+    print ("Vendor URL: ")
+    print names.get('Vendor URL')
+    print (" ")
+    print ("Trademark: ")
+    print names.get('Trademark')
+    print (" ")
+    print ("Embedding restrictions - open fonts should have 0 - fstype bits: 0:nothing 1:no-embedding 2:embedded-read-only-printable-previewable 3:embeddable-editable 4:editable-document 8:not-subsettable 9:bitmap-only):")
+    print (str(font.os2_fstype))
+    print (" ")
+    print ("Vendor OS2 (Font editor): " + str(font.os2_vendor))
+    print (" ")
+    print ("Description: ")
+    print names.get('Descriptor')
+    print (" ")
+    print (" ")
+    print ("FONTLOG (internal field): ")
+    print (font.fontlog)
+    print (" ")
+    print ("Comment: ")
+    print (font.comment)
+    print (" ")
+    print ("Encoding:")
+    print font.encoding
+    print (" ")
+    print ("Classes:" )
+    print font.markClasses
+    print (" ")
+    print "Family class: " + str(font.os2_family_class)
+    print (" ")
+    print "Panose: " + str(font.os2_panose)
+    print (" ")
+    print ("GSUB:")
+    print font.gsub_lookups
+    for l in range(len(font.gsub_lookups)):
+        name = font.gsub_lookups[l]
+        print str(l) + " " + name
+        li = font.getLookupInfo(name)
+        print name + " " + str(li)
+    print (" ")
+    print ("GPOS:")
+    for l in range(len(font.gpos_lookups)):
+        name = font.gpos_lookups[l]
+        li = font.getLookupInfo(name)
+        print name
+        print name + " " + str(li)
+    print (" ")
+    print ("WOFF metadata:")
+    print (font.woffMetadata)
+    print (" ")
+    print ("WOFF revision:")
+    print (font.woffMajor)
+    print (font.woffMinor)
+    print (" ")
+    print ("Gasp table version: ")
+    print (font.gasp_version)
+    print (" ")
+    print ("SFNT revision: ")
+    print (font.sfntRevision)
+    print (" ")
+
+if __name__ == '__main__':
+    main()
