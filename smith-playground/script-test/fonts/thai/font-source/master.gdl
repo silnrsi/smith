@@ -6,6 +6,10 @@
 ScriptDirection = HORIZONTAL_LEFT_TO_RIGHT;
 Bidi            = false;
 
+table(glyph)
+cGoesLeft = (g0e1b g0e1d g0e1f g0e2c);
+endtable
+
 table(feature)
 
 bclr
@@ -43,6 +47,12 @@ else
 endif;
 
     cBelowBaseDia (g0331, g0e3a) > @3 @1 / _ cBelowBaseDia? _ ;
+endpass;
+
+pass(2)
+cno_left > cleft / cGoesLeft _;
+cno_low > @2 / cAboveBaseDia _;
+cno_low > clow;
 endpass;
 endtable;
 

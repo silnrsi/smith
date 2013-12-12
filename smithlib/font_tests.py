@@ -203,10 +203,12 @@ class TeX(object) :
             textfiles.append((targ, n))
         for n in textfiles :
             targ = n[0].get_bld()
+            mindex = str(n[0]).rindex('.')
+            mode = str(n[0])[mindex-2:mindex]
             ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + targ.bld_dir() + ' ./${SRC[0].bldpath()}',
 #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
-                taskgens = [font.target + "_" + targ.bldpath()])
+                taskgens = [font.target + "_" + mode])
 #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
 
@@ -336,13 +338,13 @@ class Tests(object) :
             txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
 
         for name, t in self.tests.items() :
+            f = os.path.basename(font.target)
             if self.coverage == 'fonts' :
                 target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + self.ext)
                 self.dotest(t, ctx, font, None, None, target, name = name)
             else :
                 for m in test.modes.keys() :
                     shp = m[0:m.find("_")] if "_" in m else m
-                    f = os.path.basename(font.target)
                     if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
                     if self.coverage == 'shapers' :
                         target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + '_' + m + self.ext)
@@ -361,7 +363,8 @@ class Tests(object) :
         f = os.path.basename(font.target)
         inputs = [font.target]
         if txtname : inputs.append(txtname)
-        inputs.append(os.path.join(self.standards, f))
+        std = os.path.join(self.standards, f)
+        if os.path.exists(std) : inputs.append(std)
         if mode and mode.startswith("ot") :
             scr = getattr(font, 'script', [None])
             if isinstance(scr, basestring) : scr = [scr]

@@ -49,7 +49,7 @@ class Font(object) :
             res.add('add_classes')
         if hasattr(self, 'typetuner') :
             res.add('typetuner')
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
             if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools())
         res.update(progset)
@@ -89,10 +89,10 @@ class Font(object) :
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
-            if len(self.version) and not isinstance(self.version, basestring) :
+            if hasattr(self.version, 'len') and not isinstance(self.version, basestring) :
                 ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
-                ttfsetverparms = self.version
+                ttfsetverparms = str(self.version)
             modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = basepath, late = 1)
         if hasattr(self, 'copyright') :
             modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = basepath, late = 1)
@@ -116,7 +116,7 @@ class Font(object) :
                 modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
         # add smarts
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff', 'fret')) :
             if x :
                 x.build(bld, self.target, bgen, self)
 

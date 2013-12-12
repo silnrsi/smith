@@ -324,16 +324,15 @@ This class is used for managing regression type tests. In fact it can be used fo
 
 [source,python]
 ----
-{ 'regression' : cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1].bldpath()}
-                        -o ${TGT} ${fileinfo} ${fileinfo} ${SRC[0].bldpath()} 
-                        ${SRC[2].bldpath()}', shell=1) }
+{ 'regression' : cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1]}
+                      -o ${TGT} ${fileinfo} ${fileinfo} ${SRC[0]} ${SRC[2]}', shell=1) }
 ----
 
 Notice that there are 3 input files available to the command:
 
 * font being tested
-* text file for the test
-* standard base font to compare against
+* text file for the test, if present
+* standard base font to compare against, if it exists
 
 There are also some keywords that get expanded in the command string:
 
@@ -359,4 +358,8 @@ ext::
 
 shapemap::
     This is a function that is called with the +shaper+ expansion and the result is used for that expansion instead.
+
+coverage::
+    This may take the following values: `fonts` indicates that the test is run once per font only.
+    `shapers` indicates that the test is run once per shaper per font. In these cases there is no text file in the inputs.
 

@@ -1,3 +1,5 @@
+= Smith Tutorial -
+
 == Tutorial ==
 
 In this tutorial we will examine a number of wscript files. The first section is
@@ -6,7 +8,7 @@ beginnings.
 
 === Font Creation ===
 
-==== font1 ====
+==== font1 - Simplicity ====
 We start with a simple, single font.
 
 [source,python,numbered]
@@ -46,7 +48,7 @@ This command tells smith to go and build all the objects the `wscript` says to
 be built. In this case just the simple `Loma.ttf` which will appear in
 `buildlinux2`. Not very exciting, but a good start.
 
-==== font2 ====
+==== font2 - Multiple fonts ====
 
 Most font packages consist of more than one font file and this project is no
 exception. Can we scale our project to handle more than one file?
@@ -85,7 +87,7 @@ smith configure
 smith build
 ----
 
-==== font3 ====
+==== font3 - Packaged ====
 
 It's good that we can create multiple fonts, but what do we do with them then?
 There are two typical products that people want from a font project: a `.zip`
@@ -119,7 +121,7 @@ creates a Windows installer, and in keeping with naming conventions for
 installers, the APPNAME has been title cased to produce `Loma-0.0.1.exe`.
 We will go into much more detail on packaging in the packaging tutorial section.
 
-==== font4 ====
+==== font4 - Internal processing ====
 
 Before our example gains smart font support and grows in complexity, there is
 one area of control that is worth examining. For the most part, when creating a
@@ -219,7 +221,7 @@ processors if you have them, to speed up the build (for example without the
 therefore wise to restrict smith to a single process while outputting this
 information, and this is done using `-j1`.
 
-==== font5 ====
+==== font5 - Smarts and Basic Tests ====
 
 In this exercise we grow our description to add opentype and graphite tables and
 also add some tests.
@@ -304,3 +306,16 @@ smith test
 
 The results end up in the `RESULTSDIR/regression` directory as `.log` files. If
 there are no differences, the files are 0 length.
+
+==== font6 - More Tests ====
+
+Font testing is not limited to just the inbuilt test types. Smith supports the
+integration of other test programs as you the user desires, so long as they are
+command line based and report generators.
+
+[source,python,numbered]
+----
+include::../../smith-playground/tutorial/font6/wscript[]
+----
+
+
