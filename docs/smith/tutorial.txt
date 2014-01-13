@@ -1,5 +1,3 @@
-= Smith Tutorial -
-
 == Tutorial ==
 
 In this tutorial we will examine a number of wscript files. The first section is
@@ -313,6 +311,31 @@ test, in line 18. The default target filename is the same as the `target` .ttf
 file but with a .pdf extension instead. The file is built as part of `smith
 build`.
 
+Another feature of smith is its ability to integrate with `graide`. Graide is a
+graphically based IDE for developing GDL Graphite source code. It also
+incorporates a Graphite debugger to help font developers see how their code
+executes.
+
+----
+smith graide
+graide -p graide/Loma.cfg
+----
+
+Running `smith graide` causes smith to create graide configuration files in a
+`graide/` subdirectory. This is one of the few commands that creates files
+outside of the buildlinux2/ tree. The user can then run graide referencing one
+of these configuration files. One file is made per font.
+
+A word of advice. Since, most often, smith does not generate .gdx files when it
+runs grcompiler (.gdx files are grcompiler debug files), it is best to recompile
+the font on loading into graide.
+
+The configuration is designed to restrict graide to just editing GDL. If you
+want to use graide to adjust attachment points or add them, then you will need
+to enable writing to the AP.xml, in the graide configuration, and you are then
+responsible for propagating those changes back from the AP.xml to your source
+font.
+
 ==== font6 - Metadata ====
 
 So far we have concerned ourselves with the mechanics of font creation. But in
@@ -356,7 +379,9 @@ woff filename, which is sufficient for our needs.
 This section is for those interested in doing more advanced types of testing.
 For most projects there is no need to go to this level of complexity and many
 users never need to use these capabilities. So this exercise has been placed
-after the exercise that pretty much completes font creation.
+after the exercise that pretty much completes font creation. We also try to
+introduce as many advanced techniques as we can, even if the results end up
+being a little contrived.
 
 Font testing is not limited to just the inbuilt test types. Smith supports the
 integration of other test programs as you the user desires, so long as they are
@@ -367,8 +392,8 @@ command line based, non interactive and report generators.
 include::../../smith-playground/tutorial/font7/wscript[]
 ----
 
-The interesting section is in lines 17-21. These lines create a fonttest object
-that is then referenced within the font at line 34. A fonttest object adds new
+The interesting section is in lines 16-20. These lines create a fonttest object
+that is then referenced within the font at line 33. A fonttest object adds new
 smith commands. This example adds the three smith commands: pdfs, test and
 report. Notice that the `smith pdfs` command is actually implemented using a
 fonttest() object. The `targets` parameter to fonttest uses a python data
@@ -387,8 +412,7 @@ processing of test files. Likewise the `test` command executes a default
 Our new command `report` also uses a `tests()` object. But in this, we give
 another dictionary of key, value pairs. The key is a subdirectory under the
 TESTRESULTSDIR and the value is a `cmd()` object that gives the command to
-execute. In this case we are running the fontreport program as described by the
-`fontreport` variable which gives a path to the program to run. The reference to
+execute. In this case we are running the fontreport program. The reference to
 '${SRC[0]}` says to use the first element from the inputs. The inputs has 3
 elements: the font, the text file to test and the corresponding `standards/`
 font file. We only need the first of these and list indices all start from 0 in
@@ -396,3 +420,22 @@ python. In addition, we use the parameter `coverage` to say that we only want to
 run tests one per font, and not one per test file per shaper per font. The `>
 ${TGT}` says that the output that the program produces, which would normally be
 printed on the screen is to be sent to the target log file instead.
+
+Another thing we have changed is that rather than hardwiring various of the
+specialist programs into our wscript, we now will get smith to go and search for
+them. At line 36, we introduce another new python concept: the function. Each
+smith command will search for a function in your wscript with the same name as
+the command and will execute it. For more information of what to do then you
+should read the manual for the underlying framework that smith is built on,
+which is waf. The variable passed to us is a waf context that can be used to do
+various things like add commands to the build process, etc. In our case we want
+to have smith search for various programs. `find_program()` is the key that
+tells smith to search for the programs. In the case of `rmOverlap`, that is
+necessary for the build, so if it is missing we want the configuration to fail.
+But in the case of the test script, we only lose the ability of that one test
+type if the script is missing, so we don't want to fail the configuration. This
+is a marginal call, but we do at least get to see the pattern for achieving
+this (lines 40-43). In each case find_program() takes a list of paths to search,
+and it only searches those directories, not directories below those, unless
+explicitly listed.
+

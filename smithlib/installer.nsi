@@ -534,9 +534,12 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 -
 
     ReadRegStr $0 HKLM "Software\ThanLwinSoft.org\Ekaya_x86" ""
+    IfErrors 0 EkayaFound
+    ReadRegStr $0 HKLM "Software\Wow6432Node\ThanLwinSoft.org\Ekaya_x86" ""
     IfErrors NoEkaya32
+    EkayaFound:
 +for k in kbds :
-    CopyFiles "$OUTDIR\@k.target@" "$0\Ekaya\kmfl"
+    CopyFiles "$OUTDIR\@os.path.basename(k.target)@" "$0\Ekaya\kmfl"
 -
     NoEkaya32:
     FileOpen $UninstFile "$INSTDIR\${Uninst}" w

@@ -2,6 +2,7 @@
 :author: Martin Hosken (contributions by Nicolas Spalinger)
 :numbered:
 
+include::tutorial.txt[]
 include::intro.txt[]
 include::directory.txt[]
 include::font.txt[]

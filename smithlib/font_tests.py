@@ -121,6 +121,7 @@ class font_test(object) :
             self.resultsdir = ctx.env['TESTRESULTSDIR']
             self.resultsnode = ctx.bldnode.find_or_declare(self.resultsdir)
         else :
+            self.resultsdir = self.testdir
             self.resultsnode = self.testnode.get_bld()
         
         testsdir = self.testdir + os.sep
