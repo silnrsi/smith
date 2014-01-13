@@ -156,7 +156,7 @@ excessively long and confusing. Notice that all the magic variables in a
 with a lowercase letter in it, you are sure to be safe from smith assuming some
 special meaning to that variable.
 
-For the most part we are not very intersted in precisely what smith is doing to
+For the most part we are not very interested in precisely what smith is doing to
 get the results we want. But sometimes it helps to know, and all that cryptic
 output streaming by isn't much help. But there is a way to get something more
 helpful. First we need to get back to a completely pristine source tree:
@@ -208,7 +208,7 @@ smith: Leaving directory `/tutorial/tutorial/font4/buildlinux2'
 ----
 
 Thankfully, on a modern terminal, the colourising helps makes more sense of the
-volumenous information. But it is helpful once you learn to read it. The
+voluminous information. But it is helpful once you learn to read it. The
 timestamped `runner` lines give the precise command lines that are run at each
 stage of the build.
 
@@ -368,7 +368,7 @@ on line 20. This means that smith can set the version inside the font if so
 desired. This saves editing source fonts all the time to account for what is a
 build parameter.
 
-The Web Open Font Format is designed particulary for distribution of web fonts
+The Web Open Font Format is designed particularly for distribution of web fonts
 and smith can generate such files from the target .ttf font file. The default
 parameters for this object take the font target filename as the basis of the
 woff filename, which is sufficient for our needs.
