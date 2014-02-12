@@ -513,6 +513,7 @@ SectionEnd
 
 Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
 
+    SetRebootFlag false
     ReadRegStr $0 HKCU "Software\Tavultesoft" "Version"
     IfErrors NoKeyman
 +if 'KMCOMP' in env:
@@ -604,6 +605,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
       IfErrors 0 LidInstallLoop_@m.dll@_@l@
     IntOp $R4 $R4 - 1
     WriteRegStr HKCU "Keyboard Layout\Preload" $R4 $R5
+    SetRebootFlag true
 -
 -
 -
@@ -678,6 +680,12 @@ Section "-StartMenu"
     CreateShortCut $SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\Uninstall.lnk $INSTDIR\Uninstall.exe
     WriteRegStr ${MUI_STARTMENUPAGE_REGISTRY_ROOT} "${MUI_STARTMENUPAGE_REGISTRY_KEY}" "Menus" "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}"
   !insertmacro MUI_STARTMENU_WRITE_END
+
+  ;Final things to do in the installer
+;  IfRebootFlag 0 noreboot
+;    MessageBox MB_YESNO|MB_ICONQUESTION "Reboot required. Do you want to reboot now?" IDNO +2
+;      Reboot
+  noreboot:
 SectionEnd
 
 
@@ -701,6 +709,8 @@ Section "Uninstall"
 
   ;FileOpen $UnDebugFile "$INSTDIR\..\Uninstalled.log" w
   ;FileWrite $UnDebugFile "Debugging uninstall$\r$\n"
+
+  SetRebootFlag false
 
 +for f in fonts :
     !insertmacro unRemoveTTF "@f.target@"
@@ -748,6 +758,7 @@ Section "Uninstall"
     loopkbd:
       ClearErrors
       FileRead $UninstFile $R1
+      SetRebootFlag true
       ;FileWrite $UnDebugFile "Read from Uninstall.log: $R1$\r$\n"
       IfErrors donekbdloop
       StrCmp $R1 "" donekbdloop
@@ -824,5 +835,10 @@ Section "Uninstall"
     ;FileWrite $UnDebugFile "Cleared dir $INSTDIR, and key for ${PACKNAME}"
   doneall:
   ;FileClose $UnDebugFile
+  ;Final things to do in the installer
+;  IfRebootFlag 0 noreboot
+;    MessageBox MB_YESNO|MB_ICONQUESTION "Reboot required. Do you want to reboot now?" IDNO +2
+;      Reboot
+  noreboot:
 SectionEnd
 

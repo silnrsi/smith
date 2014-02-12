@@ -316,13 +316,13 @@ class SVG(object) :
 
 class Tests(object) :
     def __init__(self, tests = None, *kv, **kw) :
-        if 'ext' not in kw : kw['ext'] = '.log'
+        if 'ext' not in kw : kw['ext'] = '.html'
         if 'coverage' not in kw : kw['coverage'] = 'texts'
         self._extracmds = []
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1]} -o ${TGT} ${fileinfo} ${SRC[0]} ${SRC[2]}')}
+            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1]} -L test -L standard -o ${TGT} ${fileinfo} ${SRC[0]} ${SRC[2]}')}
             self._extracmds += ['cmptxtrender']
         self.tests = tests
 
@@ -372,7 +372,7 @@ class Tests(object) :
             for s in scr :
                 if len(scr) > 1 :
                     dotindex = target.rfind(".")
-                    targ = target[0:dotindex] + "_" + scr + target[dotindex:]
+                    targ = target[0:dotindex] + "_" + s + target[dotindex:]
                 else :
                     targ = target
                 olds = kws['script']
