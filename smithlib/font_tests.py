@@ -20,6 +20,7 @@ def make_tex(mf, font, task) :
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
+\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
 \obeylines
 \everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
 \test
@@ -322,7 +323,7 @@ class Tests(object) :
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1]} -L test -L standard -o ${TGT} ${fileinfo} ${SRC[0]} ${SRC[2]}')}
+            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -t ${SRC[1]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip ${fileinfo} ${SRC[0]} ${SRC[2]}')}
             self._extracmds += ['cmptxtrender']
         self.tests = tests
 
@@ -352,13 +353,21 @@ class Tests(object) :
                         self.dotest(t, ctx, font, None, m, target, shaper = shp, name = name, script = None)
                     else :
                         for n in txtfiles.keys() :
+                            ns = str(n)
                             if txtfiles[n] :
                                 if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
                                 else : tinfo = self.parse_txtfile(txtfiles[n])
+                            elif "_" in ns[:6] :
+                                tinfo = {"lang" : ns[:ns.find("_")]}
                             else :
                                 tinfo = {}
                             target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
-                            self.dotest(t, ctx, font, n, m, target, shaper = shp, script = tinfo.get('script', None), name = name, fileinfo = tinfo.get('extra', None))
+                            self.dotest(t, ctx, font, n, m, target,
+                                                shaper = shp,
+                                                script = tinfo.get('script', None),
+                                                name = name,
+                                                lang = tinfo.get('lang', None),
+                                                fileinfo = tinfo.get('extra', None))
 
     def dotest(self, test, ctx, font, txtname, mode, target, **kws) :
         f = os.path.basename(font.target)
