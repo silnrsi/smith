@@ -243,9 +243,9 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
         try:
-            licensenode = bld.path.find_or_declare(self.license)
+            licensenode = bld.path.find_or_declare(getattr(self, 'license', 'OFL.txt'))
             if licensenode.is_src() :
-                res.append((bld.path.abspath(), licensnode.srcpath()))
+                res.append((bld.path.abspath(), licensenode.srcpath()))
             else :
                 res.append((bld.bldnode.abspath(), licensenode.bldpath()))
         except: pass
@@ -272,7 +272,7 @@ class zipContext(Build.BuildContext) :
     """Create distribution zip of build results"""
     cmd = 'zip'
 
-    def execute_build(self) :
+    def post_build(self) :
         if Options.options.debug :
             import pdb; pdb.set_trace()
         for p in Package.packages() :

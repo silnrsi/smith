@@ -336,6 +336,10 @@ Notice that there are 3 input files available to the command:
 
 There are also some keywords that get expanded in the command string:
 
+lang::
+    The language tag for the test, whether extracted from the first few characters of the test file or specified as a
+    parameter on the file in the file list.
+
 script::
     The script tag. This is either specified in the files dictionary or comes from the script parameter in the font being tested.
 
