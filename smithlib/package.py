@@ -243,8 +243,10 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
         try:
-            licensenode = bld.path.find_or_declare(getattr(self, 'license', 'OFL.txt'))
-            if licensenode.is_src() :
+            licensenode = bld.path.find_resource(getattr(self, 'license', 'OFL.txt'))
+            if licensenode is None :
+                pass
+            elif licensenode.is_src() :
                 res.append((bld.path.abspath(), licensenode.srcpath()))
             else :
                 res.append((bld.bldnode.abspath(), licensenode.bldpath()))
