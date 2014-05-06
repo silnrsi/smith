@@ -65,6 +65,7 @@ class Package(object) :
         self.subpackages = {}
         self.reldir = ''
         self.order = []
+        self.package = self
 
     def get_build_tools(self, ctx) :
         try :
@@ -197,8 +198,10 @@ class Package(object) :
             'env' : bld.env
                 }
         def blddir(base, val) :
+            #if val == 'OFL.txt' : import pdb; pdb.set_trace()
+            x = bld.bldnode.find_resource(val)
             base = os.path.join(bld.srcnode.abspath(), base.package.reldir, bld.bldnode.srcpath())
-            return os.path.join(base, val)
+            return os.path.join(base, x.bldpath())
 
         # create a taskgen to expand the installer.nsi
         bname = 'installer_' + self.appname

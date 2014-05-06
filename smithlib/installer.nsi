@@ -406,7 +406,7 @@ ${Index}:
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  @'!insertmacro MUI_PAGE_LICENSE "' + prj.license + '"' if prj.license else ''@
+  @'!insertmacro MUI_PAGE_LICENSE "' + bld(prj, prj.license) + '"' if prj.license else ''@
   !insertmacro MUI_PAGE_COMPONENTS
   !insertmacro MUI_PAGE_DIRECTORY
   !insertmacro MUI_PAGE_INSTFILES
@@ -620,7 +620,7 @@ Section "Documentation" SecSrc
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   ;ADD YOUR OWN FILES HERE...
-  @'File "' + prj.license + '"' if prj.license else ''@
+;  @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :
 +  for dp, dn, fs in os.walk(prj.docdir) :
 +    i = 0;
