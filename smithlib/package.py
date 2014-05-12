@@ -274,7 +274,7 @@ class Package(object) :
         return res
 
 class zipContext(Build.BuildContext) :
-    """Create distribution zip of build results"""
+    """Create release zip of build results"""
     cmd = 'zip'
 
     def post_build(self) :
@@ -284,7 +284,7 @@ class zipContext(Build.BuildContext) :
             p.execute_zip(self)
 
 class cmdContext(Build.BuildContext) :
-    """Build Windows installer for packages"""
+    """Build Windows installer"""
     cmd = 'exe' # must have a cmd otherwise this class overrides Build.BuildContext
 
     def pre_build(self) :
@@ -298,7 +298,7 @@ class cmdContext(Build.BuildContext) :
                 getattr(p, 'build_' + self.cmd)(self)
             else :
                 p.build_test(self, test=self.cmd)
-    
+
 class pdfContext(cmdContext) :
     """Create pdfs of test texts for fonts and layouts for keyboards"""
     cmd = 'pdfs'
@@ -311,7 +311,7 @@ class svgContext(cmdContext) :
     cmd = 'svg'
 
 class testContext(cmdContext) :
-    """Run basic, usually regression, tests"""
+    """Run basic tests, usually regression tests"""
     cmd = 'test'
 
 class otsContext(cmdContext) :
@@ -319,7 +319,7 @@ class otsContext(cmdContext) :
     cmd = 'ots'
 
 class srcdistContext(Build.BuildContext) :
-    """Create source distribution of project"""
+    """Create developer release of project"""
     cmd = 'srcdist'
 
     def execute_build(self) :
@@ -355,7 +355,7 @@ class srcdistContext(Build.BuildContext) :
         tar.close()
 
 class makedebianContext(Build.BuildContext) :
-    """Build debian project dir for this project"""
+    """Build debian packaging templates for this project"""
     cmd = 'makedebian'
 
     def execute_build(self) :
@@ -423,7 +423,7 @@ class makedebianContext(Build.BuildContext) :
 Priority: optional
 Section: fonts{1}
 Build-Depends: debhelper (>= 8.0), {2}
-Standards-Version: 3.9.1
+Standards-Version: 3.9.3
 
 '''.format(srcname, maint, ", ".join(bdeps)))
         for p in Package.packages() :
@@ -432,6 +432,7 @@ Standards-Version: 3.9.1
             fcontrol.write('''Package: {0}
 Section: fonts
 Architecture: all
+MultiArch: Foreign
 Depends: ${{misc:Depends}}
 Description: {1}
 {2}
