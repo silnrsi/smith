@@ -479,7 +479,10 @@ class graideContext(Build.BuildContext) :
                 if not hasattr(f, 'graphite') : continue
                 base = os.path.basename(f.target)[:-4]
                 if hasattr(f.graphite, 'make_params') :
-                    makegdl = "make_gdl " + f.graphite.make_params + " -i %i -a %a %f %g"
+                    makegdl = "make_gdl " + f.graphite.make_params + " -i %i -a %a"
+                    if hasattr(f, 'classes') :
+                        makegdl += " -c " + os.path.join('..', f.classes)
+                    makegdl += " %f %g"
                 else :
                     makegdl = ''
                 master = os.path.join('..', f.graphite.master) if hasattr(f.graphite, 'master') else ''

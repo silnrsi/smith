@@ -112,8 +112,8 @@ class Font(object) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
                     bld(rule="${COPY} ${SRC} ${TGT}", source = origap, target = self.ap)
-            if hasattr(self, 'classes') :
-                modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
+            # if hasattr(self, 'classes') :
+            #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff', 'fret')) :
@@ -255,6 +255,10 @@ class Gdl(Internal) :
                     srcs.append(bld.path.find_or_declare(font.ap))
                     cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                     ind += 1
+                if hasattr(font, 'classes') :
+                    srcs.append(bld.path.find_or_declare(font.classes))
+                    cmd += "-c ${SRC[" + str(ind) + "].bldpath()} "
+                    ind += 1
                 if self.master :
                     mnode = bld.path.find_or_declare(self.master)
                     srcs.append(mnode)
@@ -299,12 +303,21 @@ class Ofl(object) :
     def insert_ofl(self, task) :
         bld = task.generator.bld
         fname = make_tempnode(bld)
-        make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
         tempfn = make_tempnode(bld)
-        # ttfname -t 13 -s fname inputs[0] temp
-        # ttfname -t 14 -p "http://scripts.sil.org/OFL" temp outputs[0]
-        task.exec_command([task.env.get_flat("TTFNAME"), "-t", "13", "-s", fname, task.dep.path_from(bld.bldnode), tempfn], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
-        os.unlink(fname)
+
+        def dottfname(*opts) :
+            cmd = [task.env.get_flat("TTFNAME")] + list(opts) + [task.dep.path_from(bld.bldnode), tempfn]
+            task.exec_command(cmd, cwd = getattr(task, 'cwd', None), env = task.env.env or None)
+
+        if hasattr(self, 'short') :
+            licensetxt = u"This Font Software is licensed under the SIL Open Font License, Version 1.1"
+            if len(self.reserve) :
+                licensetxt += u" with Reserved Font Names " + " and ".join(map(lambda x: '"%s"' % x, self.reserve))
+            dottfname("-t", "13", "-n", licensetxt)
+        else :
+            make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
+            dottfname("-t", "13", "-s", fname)
+            os.unlink(fname)
         res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/OFL", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
         os.unlink(tempfn)
         return res
