@@ -91,8 +91,13 @@ def get_all_sources(self, ctx, *attrs) :
             if hasattr(a, 'get_sources') :
                 res.extend(a.get_sources(ctx))
             else :
-                n = ctx.path.find_resource(a)
-                if n and not n.is_child_of(ctx.bldnode) : res.append(a)
+                n = ctx.path.find_node(a)
+                if n and not n.is_child_of(ctx.bldnode) :
+                    pat = n.abspath()
+                    if os.path.isdir(pat) :
+                        res.extend(map(lambda x: x.srcpath(), n.find_nodes()))
+                    else :
+                        res.append(n.srcpath())
     return res
         
 def init(ctx) :

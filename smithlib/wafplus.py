@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors
+from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
 import os, imp, operator, optparse, sys
 from waflib.TaskGen import feature, after
 
@@ -363,6 +363,40 @@ def add_options() :
 
     Options.opt_parser.__init__ = init
 
+def patch_waf() :
+    """ Patch various waflib methods and functions:
+            Node.find_resource
+            Utils.h_file
+    """
+    def find_resource(self, lst) :
+		if isinstance(lst, str):
+			lst = [x for x in Node.split_path(lst) if x and x != '.']
+
+		node = self.get_bld().search(lst)
+		if not node:
+			self = self.get_src()
+			node = self.search(lst)
+			if not node:
+				node = self.find_node(lst)
+		return node
+    Node.Node.find_resource = find_resource
+
+    def h_file(filename) :
+        m = Utils.md5()
+        if os.path.isdir(filename) :
+            for f in os.listdir(filename) :
+                m.update(h_file(os.path.join(filename, f)))
+        else :
+            f = open(filename, 'rb')
+            try :
+                while filename :
+                    filename = f.read(100000)
+                    m.update(filename)
+            finally :
+                f.close()
+        return m.digest()
+    Utils.h_file = h_file
+
 def make_dot(self):
     self.restore()
     if not self.all_envs:
@@ -438,6 +472,7 @@ add_reasons()
 add_intasks(Task.Task)
 add_build_wafplus()
 add_options()
+patch_waf()
 #add_unicode_exec()
 Context.load_module = load_module
 Context.wscript_vars = {}
