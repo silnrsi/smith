@@ -619,6 +619,7 @@ Section "Documentation" SecSrc
 
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
+  @'File "' + bld(prj, prj.license) + '"' if prj.license else ''@
   ;ADD YOUR OWN FILES HERE...
 ;  @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :

@@ -88,6 +88,12 @@ class Package(object) :
         #import pdb; pdb.set_trace()
         res = []
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
+        licenses = [getattr(self, 'license', 'OFL.txt')]
+        if licenses[0] == 'OFL.txt' :
+            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
+        for l in licenses :
+            if os.path.exists(l) :
+                res.append(l)
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         for k in self.keyboards :
@@ -163,7 +169,8 @@ class Package(object) :
 
         if hasattr(self, 'reservedofl') :
             if not getattr(self, 'license', None) : self.license = 'OFL.txt'
-            bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
+            if not os.path.exists(self.license) :
+                bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
     def build_test(self, bld, test='test') :
         self.subrun(bld, lambda p, b: p.build_test(b, test=test))
@@ -245,15 +252,18 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
-        try:
-            licensenode = bld.path.find_resource(getattr(self, 'license', 'OFL.txt'))
-            if licensenode is None :
+        licenses = [getattr(self, 'license', 'OFL.txt')]
+        if licenses[0] == 'OFL.txt' :
+            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
+        for l in licenses :
+            lnode = bld.path.find_resource(l)
+            if lnode is None :
                 pass
-            elif licensenode.is_src() :
-                res.append((bld.path.abspath(), licensenode.srcpath()))
+            elif lnode.is_src() :
+                res.append((bld.path.abspath(), lnode.srcpath()))
             else :
-                res.append((bld.bldnode.abspath(), licensenode.bldpath()))
-        except: pass
+                res.append((bld.bldnode.abspath(), lnode.bldpath()))
+
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
                 res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
