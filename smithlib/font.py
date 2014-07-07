@@ -375,6 +375,24 @@ class Woff(object) :
         args = getattr(self, 'params', '')
         bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
+class Subset(Font) :
+
+    def get_build_tools(self, ctx) :
+        return ['ttfsubset']
+        
+    def build(self, bld) :
+        srcs = []
+        parms = getattr(self, 'params', '')
+        config = getattr(self, 'config', None)
+        count = 0
+        if config is not None :
+            parms += "-g ${SRC[" + str(count) + "].bldpath()} "
+            srcs += [config]
+            count += 1
+        parms += "${SRC[" + str(count) + "].bldpath()} ${TGT}"
+        srcs += [self.source]
+        bld(rule = "${TTFSUBSET} " + parms, target = self.target, source = srcs)
+
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
     
@@ -405,7 +423,7 @@ def onload(ctx) :
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
-            'tests' : font_tests.Tests, 'woff' : Woff
+            'tests' : font_tests.Tests, 'woff' : Woff, 'subset' : Subset
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
