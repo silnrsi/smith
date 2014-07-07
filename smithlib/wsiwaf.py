@@ -3,7 +3,7 @@
 
 from waflib import Context, Task
 from wafplus import *
-import os
+import os, shlex
 
 class create(str) :
 
@@ -24,13 +24,10 @@ class create(str) :
             modify(res[0], tgt, res[1], **res[2])
 
     def get_sources(self, ctx) :
+        #import pdb; pdb.set_trace()
         res = []
         for c in self.cmds :
-            for i in c.inputs :
-                if hasattr(i, 'get_sources') :
-                    res.extend(i.get_sources(ctx))
-                else :
-                    res.append(i)
+            res.extend(c.get_sources(ctx))
         return res
 
 
@@ -71,7 +68,18 @@ class cmd(object) :
     def __call__(self, tgt) :
         return (self.c, self.inputs, self.opts)
 
-    def build(self, ctx, inputs, tgt, **kw) :
+    def get_sources(self, ctx) :
+        res = get_all_sources(self, ctx, 'inputs')
+        c = shlex.split(self.parse(ctx))[0]
+        if not os.path.isabs(c) :
+            n = ctx.bldnode.find_node(c)
+            if n and not n.is_child_of(ctx.bldnode) :
+                pat = n.abspath()
+                res.append(n.srcpath())
+        return res
+
+    def parse(self, ctx, kw = None) :
+        if kw is None : kw = self.opts
         def repl(match) :
             g = match.group
             if g('dollar') : return '$'
@@ -80,8 +88,10 @@ class cmd(object) :
                 if not g('code') and g('var') in kw :
                     return kw[g('var')]
                 else : return '${' + g('var') + g('code') + '}'
-        if kw : c = Task.reg_act.sub(repl, self.c)
-        return ctx(rule = c, source = inputs, target = tgt)
+        return Task.reg_act.sub(repl, self.c)
+
+    def build(self, ctx, inputs, tgt, **kw) :
+        return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
 
 
 def get_all_sources(self, ctx, *attrs) :
