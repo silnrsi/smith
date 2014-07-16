@@ -4,7 +4,7 @@
 from waflib import Context, Build, Errors, Node, Options, Logs
 import wafplus
 import font, templater 
-import os, sys, shutil, time
+import os, sys, shutil, time, ConfigParser
 
 keyfields = ('copyright', 'license', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
@@ -482,8 +482,29 @@ class graideContext(Build.BuildContext) :
     """Create graide .cfg files, one per font in graide/"""
     cmd = 'graide'
 
+    configstruct = {
+        'main' : {
+            'font' : ('{0}/{1}', True),
+            'testsfile' : ('{5}', True),
+            'defaultrtl' : ('0', False),
+            'ap' : ('{0}/{2}', True),
+            'size' : ('40', False)
+        },
+        'build' : {
+            'gdlfile' : ('{6}', True),
+            'usemakegdl' : ('1', True),
+            'makegdlfile' : ('{0}/{3}', True),
+            'attpass' : ('0', False),
+            'makegdlcmd' : ('{4}', True),
+            'apronly' : ('1', True)
+        },
+        'ui' : {
+            'textsize' : ('10', False)
+        }
+    }
     def execute_build(self) :
-        if not os.path.exists('graide') : os.mkdir('graide')
+        graide = getattr(Context.g_module, 'GRAIDE_DIR', 'graide')
+        if not os.path.exists(graide) : os.mkdir(graide)
         for p in Package.packages() :
             for f in p.fonts :
                 if not hasattr(f, 'graphite') : continue
@@ -496,26 +517,29 @@ class graideContext(Build.BuildContext) :
                 else :
                     makegdl = ''
                 master = os.path.join('..', f.graphite.master) if hasattr(f.graphite, 'master') else ''
-                fh = file('graide/%s.cfg' % base, "w")
-                fh.write("""[main]
-font = {0}/{1}
-testsfile = {5}
-defaultrtl = 0
-ap = {0}/{2}
-size = 40
-
-[build]
-gdlfile = {6}
-usemakegdl = 1
-makegdlfile = {0}/{3}
-attpass = 0
-makegdlcmd = {4}
-apronly = 1
-
-[ui]
-textsize = 10
-""".format(os.path.relpath(self.out_dir, 'graide'), f.target, f.ap, f.graphite.source, makegdl, base+"_tests.xml", master))
-                fh.close()
+                fname = os.path.join(graide, '{}.cfg'.format(base))
+                cfg = ConfigParser.RawConfigParser()
+                if os.path.exists(fname) :
+                    cfg.read(fname)
+                changed = False
+                for sect in self.configstruct :
+                    if not cfg.has_section(sect) :
+                        cfg.add_section(sect)
+                        changed = True
+                    for opt, val in self.configstruct[sect].items() :
+                        text = val[0].format(os.path.relpath(self.out_dir, graide),
+                                                f.target,
+                                                f.ap,
+                                                f.graphite.source,
+                                                makegdl,
+                                                base+"_tests.xml",
+                                                master)
+                        if not cfg.has_option(sect, opt) or (val[1] and cfg.get(sect, opt) != text) :
+                            cfg.set(sect, opt, text)
+                            changed = True
+                if changed :
+                    with open(fname, "w") as fh :
+                        cfg.write(fh)
 
 
 def subdir(path) :

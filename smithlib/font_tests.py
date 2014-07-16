@@ -88,7 +88,7 @@ class font_test(object) :
             res.update(t.config(ctx))
         return res
 
-    def get_sources(self, ctx) :
+    def get_sources(self, ctx, font) :
         if not hasattr(self, 'testdir') :
             self.testdir = ctx.env['TESTDIR'] or 'tests'
         testsdir = self.testdir + os.sep
@@ -96,6 +96,8 @@ class font_test(object) :
         for s in (getattr(self, y, None) for y in ('texts', 'htexts', 'texs')) :
             if s :
                 res.extend(antlist(ctx, testsdir, s))
+        for s in self.targets.values() :
+            res.extend(s.get_sources(ctx, font))
         return res
         
     def build_testfiles(self, ctx, testsdir) :
@@ -165,6 +167,9 @@ class TeX(object) :
         except ctx.errors.ConfigurationError :
             pass
         return set()
+
+    def get_sources(self, ctx, font) :
+        return []
 
     def build(self, ctx, test, font) :
         if 'XETEX' not in ctx.env : return
@@ -252,6 +257,9 @@ class SVG(object) :
             pass
         return set()
 
+    def get_sources(self, ctx, font) :
+        return []
+
     def build(self, ctx, test, font) :
         if 'GRSVG' not in ctx.env : return
         svgLinesPerPage = getattr(self, 'lines_per_page', 50)
@@ -329,6 +337,11 @@ class Tests(object) :
 
     def config(self, ctx) :
         return set(self._extracmds)
+
+    def get_sources(self, ctx, font) :
+        std = getattr(self, 'standards', ctx.env['STANDARDS'] or 'standards')
+        f = os.path.basename(font.target)
+        return [os.path.join(std, f)]
 
     def build(self, ctx, test, font) :
         if not hasattr(self, 'standards') :

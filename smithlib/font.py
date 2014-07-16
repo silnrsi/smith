@@ -45,8 +45,8 @@ class Font(object) :
                 res.add('sfd2ap')
         if hasattr(self, 'version') :
             res.add('ttfsetver')
-        if hasattr(self, 'classes') :
-            res.add('add_classes')
+        # if hasattr(self, 'classes') :
+        #     res.add('add_classes')
         if hasattr(self, 'typetuner') :
             res.add('typetuner')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
@@ -56,8 +56,9 @@ class Font(object) :
         return res
 
     def get_sources(self, ctx) :
-        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'tests')
+        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite')
         res.extend(getattr(self, 'extra_srcs', []))
+        res.extend(self.tests.get_sources(ctx, self))
         return res
         
     def get_targets(self, ctx) :
