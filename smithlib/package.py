@@ -4,11 +4,11 @@
 from waflib import Context, Build, Errors, Node, Options, Logs
 import wafplus
 import font, templater 
-import os, sys, shutil, time, ConfigParser
+import os, sys, shutil, time, ConfigParser, subprocess
 
 keyfields = ('copyright', 'license', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
-            'docdir', 'debpkg')
+            'docdir', 'debpkg', 'readme')
 
 def formatdesc(s) :
     res = []
@@ -85,7 +85,6 @@ class Package(object) :
         return res
 
     def get_sources(self, ctx) :
-        #import pdb; pdb.set_trace()
         res = []
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
         licenses = [getattr(self, 'license', 'OFL.txt')]
@@ -205,7 +204,6 @@ class Package(object) :
             'env' : bld.env
                 }
         def blddir(base, val) :
-            #if val == 'OFL.txt' : import pdb; pdb.set_trace()
             x = bld.bldnode.find_resource(val)
             base = os.path.join(bld.srcnode.abspath(), base.package.reldir, bld.bldnode.srcpath())
             return os.path.join(base, x.bldpath())
@@ -238,17 +236,38 @@ class Package(object) :
         import zipfile
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
+        basearc = self.appname + '-' + str(self.version)
 
-        for d, x in self.get_files(bld) :
+        for t in self.get_files(bld) :
+            d, x = t[0], t[1]
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
             y = bld.path.find_or_declare(r)
-            archive_name = self.appname + '-' + str(self.version) + '/' + x
+            if len(t) > 2 :
+                archive_name = os.path.join(basearc, t[2])
+            else :
+                archive_name = os.path.join(basearc, x)
             if os.path.isfile(y.abspath()) :
                zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
         zip.close()
+
+    def _get_arcfile(self, bld, path) :
+        pnode = bld.path.find_resource(path)
+        if pnode is None :
+           return None
+        elif pnode.is_src() :
+            return (bld.path.abspath(), pnode.srcpath())
+        else :
+            return (bld.bldnode.abspath(), pnode.bldpath())
+        
         
     def get_files(self, bld) :
+        """ Returns a list of files to go into the generated zip for this package.
+            Each entry in the list is (x, y, z) where:
+                x is the base path from which the path to y is relative
+                y is the path to the file to include
+                z is optional and is the path to use in the archive
+        """
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
@@ -256,13 +275,12 @@ class Package(object) :
         if licenses[0] == 'OFL.txt' :
             licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         for l in licenses :
-            lnode = bld.path.find_resource(l)
-            if lnode is None :
-                pass
-            elif lnode.is_src() :
-                res.append((bld.path.abspath(), lnode.srcpath()))
-            else :
-                res.append((bld.bldnode.abspath(), lnode.bldpath()))
+            lentry = self._get_arcfile(bld, l)
+            if lentr is not None :
+                res.append(lentry)
+        rentry = self._get_arcfile(getattr(self, 'readme', 'README.txt'))
+        if rentry is not None :
+            res.append(list(rentry) + ['README.txt'])
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
@@ -340,8 +358,33 @@ class srcdistContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         if os.path.exists('debian') :
             files['debian'] = self.srcnode.find_node('debian')
+
+        # hoover up everything under version control
+        vcs = getattr(Context.g_module, "VCS", 'auto')
+        if vcs is not None :
+            for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
+                cmd = None
+                vcsbase = None
+                if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
+                    cmd = ["git", "ls-files"]
+                elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
+                    cmd = ["hg", "locate", "--include", "."]
+                    vcsbase = subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=subprocess.PIPE).communicate()[0].strip()
+                elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
+                    cmd = ["svn", "list", "-R"]
+                if cmd is not None :
+                    filelist = subprocess.Popen(cmd, cwd=d or '.', stdout=subprocess.PIPE).communicate()[0]
+                    flist = [os.path.join(d, x.strip()) for x in filelist.splitlines()]
+                    if vcsbase is not None :
+                        pref = os.path.relpath(d or '.', vcsbase)
+                        flist = [x[len(pref)+1:] if x.startswith(pref) else x for x in flist]
+                    res.update(flist)
+
+        # add in everything the packages say they need, including explicit files
         for p in Package.packages() :
             res.update(set(p.get_sources(self)))
+
+        # process the results into nodes
         for f in res :
             if not f : continue
             if isinstance(f, Node.Node) :
@@ -349,8 +392,9 @@ class srcdistContext(Build.BuildContext) :
             else :
                 n = self.bldnode.find_resource(f)
                 files[f] = n
-        import tarfile
 
+        # now generate the tarball
+        import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
             tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
@@ -543,7 +587,6 @@ class graideContext(Build.BuildContext) :
 
 
 def subdir(path) :
-#    import pdb; pdb.set_trace()
     currpackages = Package.packages()
     currglobal = Package.globalpackage
     Package.initPackages()
