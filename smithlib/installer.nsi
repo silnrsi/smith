@@ -559,25 +559,26 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
     ${Endif}
 -
 
+    StrCpy $R6 0
     LidStart_@m.dll@:
     ClearErrors
     IntFmt $R5 "SYSTEM\CurrentControlSet\Control\Keyboard Layouts\%08X" $R1
     ReadRegStr $0 HKLM $R5 "Layout File"
     StrCmp $0 "" LidDone_@m.dll@
         IntOp $R1 $R1 + 0x10000
+        IntOp $R6 $R6 + 1
         Goto LidStart_@m.dll@
 
     LidDone_@m.dll@:
-    WriteRegStr HKLM $R5 \
-        "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
-    WriteRegStr HKLM $R5 \
-        "Layout File" $R4
-    WriteRegStr HKLM $R5 \
-        "Layout Id" "$R1"
-    WriteRegStr HKLM $R5 \
-        "Layout Product Code" "{@m.guid@}"
-    WriteRegStr HKLM $R5 \
-        "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
+    WriteRegStr HKLM $R5 "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
+    WriteRegStr HKLM $R5 "Layout File" $R4
+    IntCmp $R6 0 skiplid_@m.dll@
+        IntOp $R6 $R6 + 256
+        IntFmt $R7 "%X" $R6
+        WriteRegStr HKLM $R5 "Layout Id" "$R7"
+    skiplid_@m.dll@:
+    WriteRegStr HKLM $R5 "Layout Product Code" "{@m.guid@}"
+    WriteRegStr HKLM $R5 "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
     FileWrite $UninstFile "$R1$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR

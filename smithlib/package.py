@@ -276,11 +276,11 @@ class Package(object) :
             licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         for l in licenses :
             lentry = self._get_arcfile(bld, l)
-            if lentr is not None :
+            if lentry is not None :
                 res.append(lentry)
-        rentry = self._get_arcfile(getattr(self, 'readme', 'README.txt'))
+        rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
         if rentry is not None :
-            res.append(list(rentry) + ['README.txt'])
+            res.append(rentry)
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :

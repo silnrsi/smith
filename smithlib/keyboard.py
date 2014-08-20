@@ -143,7 +143,12 @@ class MSKBD(object) :
     def build(self, bld, parent) :
         self.setup_vars(bld, parent)
         linkermap = bld.bldnode.make_node("linker.script")
-        linkermap.write("SECTIONS { /DISCARD/ : {*(.pdata .xdata)} .data __image_base__ + __section_alignment__ : {*(.data .rdata .text)} }")
+        linkermap.write("""SECTIONS
+{
+    . = 0x10001000 ;
+    /DISCARD/ : {*(.pdata .xdata)}
+    .data : {*(.data) *(.rdata) *(.rdata$*) *(.text)}
+}""")
         kmn2copts = ' '
         if hasattr(self, 'langname') : kmn2copts += " --langname=" + self.langname
         if hasattr(self, 'capslockkeys') : kmn2copts += " -c '" + re.sub(r"([\\'])", r"\\1", self.capslockkeys) + "'"
@@ -152,7 +157,7 @@ class MSKBD(object) :
             if bld.env[(p+'gcc').upper()] :
                 ofile = self.o_file.replace('.', '-'+p[-2:]+'.', 1)        # p[-2:] is 86 or 64, which is a bit sneaky
                 bld(rule = '${' + (p+'windres').upper() + '} ${SRC} ${TGT}', source = self.rc_file, target = ofile)
-                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -fno-exceptions -Wl,--script,linker.script -Wl,${SRC[1]} -Wl,--stack,4000 -Wl,--subsystem,native -Wl,--disable-auto-image-base ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
+                bld(rule = '${' + (p+'gcc').upper() + '} -o ${TGT} -shared -Wl,--dll -Wl,--kill-at -Wl,--disable-stdcall-fixup -Wl,-entry,0 -s -nostdlib -fwritable-relocated-rdata -fno-exceptions -Wl,--script,linker.script -Wl,${SRC[1]} -Wl,--stack,4000 -Wl,--subsystem,native -Wl,--disable-auto-image-base ${SRC[0]}', source = [self.c_file, ofile], target = self.dll.replace('.', '-'+p[-2:]+'.', 1))
 
 def onload(ctx) :
     varmap = { 'kbd' : Keyboard, 'mskbd' : MSKBD }
