@@ -120,7 +120,7 @@ class MSKBD(object) :
 
     arches = ('i686', 'x86_64')
 
-    def __init__(self, *k, **kw) :
+    def __init__(self, *kl, **kw) :
         if not 'lid' in kw : kw['lid'] = 0xC00
         if not 'guid' in kw : kw['guid'] = str(uuid.uuid4())
         for k, v in kw.items() : setattr(self, k, v)
