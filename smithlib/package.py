@@ -9,6 +9,7 @@ import os, sys, shutil, time, ConfigParser, subprocess
 keyfields = ('copyright', 'license', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
             'docdir', 'debpkg', 'readme')
+optkeyfields = ('company', 'instdir')
 
 def formatdesc(s) :
     res = []
@@ -48,6 +49,10 @@ class Package(object) :
             p = Package()
             for k in keyfields :
                 setattr(p, k, getattr(Context.g_module, k.upper(), ''))
+            for k in optkeyfields :
+                v = getattr(Context.g_module, k.upper(), None)
+                if v is not None :
+                    setattr(p, k, v)
         else :
             p = cls.packagestore[cls.globalpackage]
         for k, v in kw.items() :

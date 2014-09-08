@@ -33,6 +33,7 @@ class Font(object) :
             self.tests = font_tests.global_test()
         if not hasattr(self, 'ots_target') :
             self.ots_target = self.target[:-4] + "_ots.log"
+        self._isbuilt = False
 
     def __str__(self) : return self.target
 
@@ -51,7 +52,7 @@ class Font(object) :
             res.add('typetuner')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
             if x and not isinstance(x, basestring) :
-                res.update(x.get_build_tools())
+                res.update(x.get_build_tools(ctx))
         res.update(progset)
         return res
 
@@ -65,8 +66,10 @@ class Font(object) :
         res = [self.target]
         return res
 
-    def build(self, bld) :
+    def build(self, bld, ap=None) :
         res = {}
+        if self._isbuilt : return self
+        else : self._isbuilt = True
 
         basepath = bld.srcnode.find_node('wscript').abspath()
         if self.source == self.target :
@@ -141,7 +144,7 @@ class Legacy(object) :
         for k, v in kw.items() :
             setattr(self, k, v)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         if self.source.lower().endswith(".ttf") :
             res = ["ttfbuilder"]
             if self.target.endswith('.sfd') :
@@ -182,7 +185,7 @@ class Internal(object) :
         for k, v in kw.items() :
             setattr(self, k, v)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return []
 
     def get_sources(self, ctx) :
@@ -197,7 +200,7 @@ class Volt(Internal) :
     def __init__(self, source, *k, **kw) :
         super(Volt, self).__init__(source, *k, **kw)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return ('make_volt', 'volt2ttf')
 
     def get_sources(self, ctx) :
@@ -233,7 +236,7 @@ class Gdl(Internal) :
         self.params = ''
         super(Gdl, self).__init__(source, *k, **kw)
     
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return ("make_gdl", "grcompiler", "ttftable")
 
     def get_sources(self, ctx) :
@@ -278,18 +281,20 @@ class Ofl(object) :
 
     def __init__(self, *reserved, **kw) :
         if not 'version' in kw : kw['version'] = 1.1
-        if not 'copyright' in kw : kw['copyright'] = getattr(Context.g_module, 'COPYRIGHT', '')
+        #if not 'copyright' in kw : kw['copyright'] = getattr(Context.g_module, 'COPYRIGHT', '')
         self.reserve = reserved
         for k, v in kw.items() :
             setattr(self, k, v)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return ["ttfname"]
 
     def get_sources(self, ctx) :
         return []
 
     def build(self, bld, font) :
+        if not hasattr(self, 'copyright') :
+            self.copyright = getattr(font, 'copyright', getattr(font.package, 'copyright', ''))
         modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
         
     def globalofl(self, task) :
@@ -347,7 +352,7 @@ class Fret(object) :
         for k, v in kw.items() :
             setattr(self, k, v)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return ['fret']
 
     def build(self, bld, tgt, tgen, font) :
@@ -365,7 +370,7 @@ class Woff(object) :
         for k, v in kw.items() :
             setattr(self, k, v)
 
-    def get_build_tools(self) :
+    def get_build_tools(self, ctx) :
         return ['ttf2woff']
 
     def build(self, bld, tgt, tgen, font) :
@@ -404,12 +409,17 @@ def make_tempnode(bld) :
 def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
+    if n is None :
+        opts = "-d " + str(kw.get('string', 0)) + ' '
+        def iname(tgt) :
+            return ('${TTFNAME} ' + opts + "${DEP} ${TGT}", [], kw)
+        return iname
     opts = " "
     if 'lang' in kw :
         opts += "-l " + kw['lang'] + " "
         del kw['lang']
     if 'string' in kw :
-        opts += "-t " + kw['string'] + " "
+        opts += "-t " + str(kw['string']) + " "
         del kw['string']
     if 'full' in kw :
         opts += '-f "' + kw['full'] + '" '

@@ -12,7 +12,7 @@
 +for f in fonts :
 !define FONT_@f.id@_FILE "@f.target@"
 -
-!define INSTALL_SUFFIX "SIL\Fonts\@prj.appname.title()@"
+!define INSTALL_SUFFIX "@getattr(prj,'instdir','SIL')@\Fonts\@prj.appname.title()@"
 !define FONT_DIR "$WINDIR\Fonts"
 var UninstFile
 var UnDebugFile
@@ -421,7 +421,7 @@ ${Index}:
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PACKNAME}"
   !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
   !define MUI_STARTMENUPAGE_FONT_VARIABLE $R9
-  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "SIL\Fonts\@prj.appname@"
+  !define MUI_STARTMENUPAGE_FONT_DEFAULTFOLDER "@getattr(prj,'instdir','SIL')@\Fonts\@prj.appname@"
 
 ;--------------------------------
 ;Languages
@@ -431,7 +431,7 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${PACKNAME}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "SIL International"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "@getattr(prj,'company','SIL International')@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.desc_short or ""@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} @"Font" if len(fonts) else "Keyboard"@ installer"
   @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.copyright + '"' if prj.copyright else ""@
