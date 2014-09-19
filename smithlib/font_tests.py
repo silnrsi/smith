@@ -76,7 +76,7 @@ class font_test(object) :
         if 'targets' not in kw : kw['targets'] = {  'pdfs' : TeX(),
                                                     'svg' : SVG(),
                                                     'test' : Tests(),
-                    'xtest' : Tests({'cross' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts ${SRC[0]} ${SRC[0]}')}, coverage='shaperpairs') }
+                    'xtest' : Tests({'cross' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts --strip ${fileinfo} ${SRC[0]} ${SRC[0]}')}, coverage='shaperpairs') }
         for k, item in kw.items() :
             setattr(self, k, item)
 
