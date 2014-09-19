@@ -73,7 +73,10 @@ class font_test(object) :
     def __init__(self, *kv, **kw) :
         if 'htexts' not in kw : kw['htexts'] = '*.htxt'
         if 'texts' not in kw : kw['texts'] = '*.txt'
-        if 'targets' not in kw : kw['targets'] = { 'pdfs' : TeX(), 'svg' : SVG(), 'test' : Tests() }
+        if 'targets' not in kw : kw['targets'] = {  'pdfs' : TeX(),
+                                                    'svg' : SVG(),
+                                                    'test' : Tests(),
+                    'xtest' : Tests({'cross' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts ${SRC[0]} ${SRC[0]}')}, coverage='shaperpairs') }
         for k, item in kw.items() :
             setattr(self, k, item)
 
@@ -326,7 +329,7 @@ class SVG(object) :
 class Tests(object) :
     def __init__(self, tests = None, *kv, **kw) :
         if 'ext' not in kw : kw['ext'] = '.html'
-        if 'coverage' not in kw : kw['coverage'] = 'texts'
+        if 'coverage' not in kw : kw['coverage'] = 'textshaper'
         self._extracmds = []
         for k, item in kw.items() :
             setattr(self, k, item)
@@ -357,30 +360,49 @@ class Tests(object) :
             if self.coverage == 'fonts' :
                 target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + self.ext)
                 self.dotest(t, ctx, font, None, None, target, name = name)
-            else :
+            elif self.coverage == 'shapers' :
                 for m in test.modes.keys() :
                     shp = m[0:m.find("_")] if "_" in m else m
                     if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
-                    if self.coverage == 'shapers' :
-                        target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + '_' + m + self.ext)
-                        self.dotest(t, ctx, font, None, m, target, shaper = shp, name = name, script = None)
+                    target = os.path.join(test.resultsdir, name, os.path.splitext(f)[0] + '_' + m + self.ext)
+                    self.dotest(t, ctx, font, None, m, target, shaper = shp, name = name, script = None)
+            else :
+                for n in txtfiles.keys() :
+                    ns = str(n)
+                    if txtfiles[n] :
+                        if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
+                        else : tinfo = self.parse_txtfile(txtfiles[n])
+                    elif "_" in ns[:6] :
+                        tinfo = {"lang" : ns[:ns.find("_")]}
                     else :
-                        for n in txtfiles.keys() :
-                            ns = str(n)
-                            if txtfiles[n] :
-                                if isinstance(txtfiles[n], dict) : tinfo = txtfiles[n]
-                                else : tinfo = self.parse_txtfile(txtfiles[n])
-                            elif "_" in ns[:6] :
-                                tinfo = {"lang" : ns[:ns.find("_")]}
-                            else :
-                                tinfo = {}
-                            target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m + self.ext)
-                            self.dotest(t, ctx, font, n, m, target,
+                        tinfo = {}
+                    seen = set()
+                    for m in test.modes.keys() :
+                        shp = m[0:m.find("_")] if "_" in m else m
+                        if hasattr(self, 'shapermap') : shp = self.shapermap(shp)
+                        target = os.path.join(test.resultsdir, name, os.path.splitext(os.path.basename(n.bldpath()))[0] + "_" + os.path.splitext(f)[0] + '_' + m)
+                        if self.coverage == 'textshaper' :
+                            self.dotest(t, ctx, font, n, m, target + self.ext,
                                                 shaper = shp,
                                                 script = tinfo.get('script', None),
                                                 name = name,
                                                 lang = tinfo.get('lang', None),
                                                 fileinfo = tinfo.get('extra', None))
+                        elif self.coverage == 'shaperpairs' :
+                            seen.add(m)
+                            for q in test.modes.keys() :
+                                if q in seen : continue
+                                if q.startswith('ot') and m.startswith('ot') : continue
+                                ashp = q[0:q.find("_")] if "_" in q else q
+                                if hasattr(self, 'shapermap') : ashp = self.shapermap(ashp)
+                                self.dotest(t, ctx, font, n, m, target + "_" + q + self.ext,
+                                                shaper = shp,
+                                                script = tinfo.get('script', None) if "_" not in q else q[q.find("_")+1:],
+                                                name = name,
+                                                lang = tinfo.get('lang', None),
+                                                altshaper = ashp,
+                                                fileinfo = tinfo.get('extra', None))
+                                            
 
     def dotest(self, test, ctx, font, txtname, mode, target, **kws) :
         f = os.path.basename(font.target)
@@ -397,8 +419,8 @@ class Tests(object) :
                     targ = target[0:dotindex] + "_" + s + target[dotindex:]
                 else :
                     targ = target
-                olds = kws['script']
-                if olds is None : kws['script'] = s
+                olds = kws.get('script', None)
+                if not olds : kws['script'] = s
                 gen = test.build(ctx, inputs, targ, **kws)
                 gen.taskgens = [font.target + "_" + mode]
                 kws['script'] = olds
