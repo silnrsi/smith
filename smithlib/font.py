@@ -89,7 +89,7 @@ class Font(object) :
                 tarname = self.source + "_"
                 bld(rule = "${COPY} ${SRC} ${TGT}", source = srcnode, target = tarname)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target + "_sfd")
-            bgen = bld(rule = "${FONTFORGE} -quiet -lang=py -c 'f=open(argv[1]); f.generate(argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
+            bgen = bld(rule = "${FONTFORGE} -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
