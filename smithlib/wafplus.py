@@ -112,7 +112,7 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
         inf = infile[0]
         if len(infile) > 1 :
             kw['targets'] = infile[1:]
-    else : inf = infile
+    else : inf = str(infile)
     if not inf in modifications[path] :
         modifications[path][inf] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py

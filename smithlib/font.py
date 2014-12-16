@@ -229,6 +229,54 @@ class Volt(Internal) :
             
 
 
+class Fea(Internal) :
+
+    def __init__(self, source = None, *k, **kw) :
+        self.master = ''
+        self.params = ''
+        super(Fea, self).__init__(source, *k, **kw)
+    
+    def get_build_tools(self, ctx) :
+        return ("make_fea", "fontforge", "ttftable")
+
+    def get_sources(self, ctx) :
+        return get_all_sources(self, ctx, 'master')
+
+    def build(self, bld, target, tgen, font) :
+        def doit(src) :
+            modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
+            modify("${FONTFORGE} -lang=ff -c 'Open($1,32); MergeFeature($2); Generate($3)' ${DEP} ${SRC} ${TGT}", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+
+        srcs = [font.source]
+        if self.master : srcs.append(self.master)
+        depends = getattr(self, 'depends', [])
+        if self.source is not None :
+            if not hasattr(self, 'no_make') :
+                srcs = []
+                cmd = getattr(self, 'make_params', '') + " "
+                ind = 0
+                if hasattr(font, 'ap') :
+                    srcs.append(bld.path.find_or_declare(font.ap))
+                    cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
+                    ind += 1
+                if hasattr(font, 'classes') :
+                    srcs.append(bld.path.find_or_declare(font.classes))
+                    cmd += "-c ${SRC[" + str(ind) + "].bldpath()} "
+                    ind += 1
+                if self.master :
+                    mnode = bld.path.find_or_declare(self.master)
+                    srcs.append(mnode)
+                    snode = bld.bldnode.find_or_declare(self.source)
+                    loc = mnode.path_from(snode.parent)
+#                    cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "
+                    cmd += '-i ' + loc + ' '
+                    ind += 1
+                bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+            doit(self.source)
+        elif self.master :
+            doit(self.master)
+
+
 class Gdl(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
@@ -434,7 +482,7 @@ def name(n, **kw) :
     return iname
 
 def onload(ctx) :
-    varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt,
+    varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
