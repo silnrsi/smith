@@ -1,4 +1,4 @@
-APPNAME = 'norasi'
+APPNAME = 'loma'
 VERSION = '0.0.1'
 fontbase = '../../script-test/fonts/thai/'
 
