@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Context, Build, Errors, Node, Options, Logs
+from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 import wafplus
 import font, templater 
 import os, sys, shutil, time, ConfigParser, subprocess
@@ -351,6 +351,12 @@ class otsContext(cmdContext) :
     """Test fonts using OpenType Sanitizer. Check <font.target>_ots.log"""
     cmd = 'ots'
 
+class crashContext(Context.Context) :
+    """Crash and burn with fire"""
+    cmd = 'crash'
+    def execute(self) :
+        Utils.subprocess.Popen("timeout 20 aafire -driver slang ; reset", shell = 1).wait()
+ 
 class srcdistContext(Build.BuildContext) :
     """Create source release of project"""
     cmd = 'srcdist'

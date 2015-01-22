@@ -10,7 +10,7 @@ To add a tool that does not exist in the folder compat15, pass an absolute path:
 """
 
 
-VERSION="0.2"
+VERSION="0.3"
 APPNAME='smith'
 REVISION=''
 
@@ -358,3 +358,9 @@ def build(bld):
 #	Scripting.g_dist_exts += ['Weak.py'] # shows how to exclude a file from dist
 #	Scripting.Dist(APPNAME, VERSION)
 
+def dist(ctx) :
+    #import pdb; pdb.set_trace()
+    includes = ['demos/', 'docs/', 'playground/', 'README*', 'smithlib/', 'smith-playground/', 'tests/', 'utils/', 'waflib/', 'wscript', 'mywaflite', 'waf-light', 'TODO', 'DEVEL', 'Changelog', 'bash_completion_smith', 'configure', 'Makefile']
+    excludes = ['**/*~', '**/*.sw*', '**/*.pyc', '**/*.pyo', '**/*.bak', '**/.lock-w*', '**/.waf*', '**/buildlinux2/']
+    ctx.files = ctx.path.ant_glob(incl=includes, excl=excludes)
+    ctx.algo = 'tar.gz'

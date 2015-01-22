@@ -8,7 +8,7 @@ Homepage: http://projects.palaso.org/projects/wsiwaf
 
 Package: smith-common
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: ${misc:Depends}, ${python:Depends}, libaa-bin
 Description: framework for Writing Systems Implementation 
  Provides a common build framework to create, test and maintain WSI (Writing
  Systems Implementation) components such as fonts and keyboards.
