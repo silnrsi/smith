@@ -243,12 +243,20 @@ class Fea(Internal) :
         return get_all_sources(self, ctx, 'master')
 
     def build(self, bld, target, tgen, font) :
-        def doit(src) :
+        def aspythonstr(s) :
+            return "'" + re.sub(ur"([\\'])", ur"\\\1", s) + "'"
+        def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
-            modify("${FONTFORGE} -lang=ff -c 'Open($1,32); MergeFeature($2); Generate($3)' ${DEP} ${SRC} ${TGT}", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+            modify("${FONTFORGE} -lang=py -c 'f=open(\"${DEP}\",32); (f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if all(f.getLookupInfo(x)[2][0] not in ["+keeps+"])); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
+        keeps = ''
+        if hasattr(self, 'keep_feats') :
+            if isinstance(self.keep_feats, basestring) :
+                keeps = aspythonstr(self.keep_feats)
+            else :
+                keeps = ", ".join(map(aspythonstr, self.keep_lookups))
         depends = getattr(self, 'depends', [])
         if self.source is not None :
             if not hasattr(self, 'no_make') :
@@ -272,9 +280,9 @@ class Fea(Internal) :
                     cmd += '-i ' + loc + ' '
                     ind += 1
                 bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-            doit(self.source)
+            doit(self.source, keeps)
         elif self.master :
-            doit(self.master)
+            doit(self.master, keeps)
 
 
 class Gdl(Internal) :
@@ -486,7 +494,8 @@ def onload(ctx) :
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
-            'tests' : font_tests.Tests, 'woff' : Woff, 'subset' : Subset
+            'tests' : font_tests.Tests, 'woff' : Woff, 'subset' : Subset,
+            'crossfont' : font_tests.CrossFont
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :

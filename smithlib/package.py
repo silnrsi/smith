@@ -142,6 +142,7 @@ class Package(object) :
             relpath = os.path.relpath(k, bld.top_dir or bld.path.abspath())
             b = bld.__class__(out_dir = os.path.join(os.path.abspath(k), bld.bldnode.srcpath()),
                               top_dir = os.path.abspath(k), run_dir = os.path.abspath(k))
+            b.init_dirs()
             b.issub = True
             if onlyfn :
                 for p in v :

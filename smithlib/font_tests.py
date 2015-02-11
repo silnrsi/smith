@@ -77,6 +77,7 @@ class font_test(object) :
                                                     'svg' : SVG(),
                                                     'test' : Tests(),
                     'xtest' : Tests({'cross' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts --strip ${fileinfo} ${SRC[0]} ${SRC[0]}')}, coverage='shaperpairs') }
+        if 'extras' in kw : kw['targets'].update(kw['extras'])
         for k, item in kw.items() :
             setattr(self, k, item)
 
@@ -220,6 +221,61 @@ class TeX(object) :
                 source = [n[0], font.target], target = targ.change_ext('.pdf'),
                 taskgens = [font.target + "_" + mode])
 #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
+
+class CrossFont(object) :
+
+    def __init__(self, *kv, **kw) :
+        if 'text' not in kw : kw['text'] = ''
+        if 'featstr' not in kw : kw['featstr'] = ''
+        else : kw['featstr'] = ':' + kw['featstr']
+        if 'file' not in kw : kw['file'] = 'CrossFont'
+        if 'size' not in kw : kw['size'] = 12
+        for k, item in kw.items() :
+            setattr(self, k, item)
+        self._configured = False
+        self._tasks = None
+        self._fonts = []
+
+    def config(self, ctx) :
+        if self._configured : return []
+        self._configured = True
+        try :
+            ctx.find_program('xetex')
+        except ctx.errors.ConfigurationError :
+            pass
+        return set()
+
+    def get_sources(self, ctx, font) :
+        return []
+
+    def do_task(self, mf, task) :
+        texdat = ur'''
+\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
+\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
+\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
+\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
+'''
+        for f in self._fonts :
+            texdat += ur'''
+\font\test="[./%s]%s%s" at %d pt
+\noindent\hbox to 2in {\vbox{\hsize=2in\noindent \rm %s}}
+\test %s
+\par
+''' % (f, mf, self.featstr, self.size, f, self.text)
+        texdat += ur'''
+\bye
+'''
+        task.outputs[0].write(texdat.encode('utf-8'))
+        return task.exec_command([task.env['XETEX'], '--interaction=batchmode',
+                                '--output-directory=./' + task.outputs[0].bld_dir(), task.outputs[0].bldpath()])
+
+    def build(self, ctx, test, font) :
+        if 'XETEX' not in ctx.env : return
+        self._fonts.append(font.target)
+        if self._tasks is None :
+            self._tasks = {}
+            for m, mf in test.modes.items() :
+                self._tasks[m] = ctx(rule = curry_fn(self.do_task, mf), target=test.resultsnode.make_node(self.file + '_' + m + '.tex'))
 
 
 def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :

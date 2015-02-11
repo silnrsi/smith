@@ -134,6 +134,11 @@ master::
 make_params::
     Extra parameters to pass to make_fea, the tool that is used to generate the dynamic .fea file.
 
+keep_feats::
+    This tells the feature processor to keep all the lookups associated with a given feature that are already in
+    the font, and not wipe them when merging the feature file. For example, keeping the kern feature lookups, which
+    are often best handled in a font design application rather than in fea files.
+
 no_make::
     If this attribute is present, then make_fea isn't run and the first parameter references a file that already exists rather than one that will be created by fea().
 
@@ -235,6 +240,7 @@ params::
 [source,python]
 ----
 font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
      woff = woff('results/myfont.woff'))
 ----
 
@@ -250,6 +256,7 @@ params::
 [source,python]
 ----
 font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
      fret = fret('results/myfont.pdf', params='-r -o i'))
 ----
 
@@ -290,6 +297,9 @@ htexts::
 targets::
     While the test system is designed to have sensible defaults, it is possible to override what happens when a particular test target is specified. This dictionary contains a test object associated with each of the test targets: pdfs, svg, test.  The default test type for each target is pdfs : tex(), svg : svg(), test : tests().
 
+extras::
+    Often a project will want to add tests to the existing defaults, rather than overriding them. This parameter takes the same structure as a targets parameter but instructs the system to add the tests rather than replace the defaults with these.
+
 In effect, the default behaviour for testing can be written entirely in wscript explicitly:
 
 [source,python]
@@ -328,6 +338,22 @@ texs::
 
 htexs::
     These files are parsed for Unicode expansions before being treated as files in the +texs+ list. Defaults to '*.htex'.
+
+==== crossfont ====
+
+This class creates a single PDF file from all the fonts, with a given string output in the font next to the font file name. It takes the following parameters:
+
+text::
+    The text string to be rendered in the font
+
+file::
+    Filename base (i.e. no extension), including path relative to the testsdir, where the output should be generated. Defaults to CrossFont.
+
+size::
+    This is a number that specifies the font size in points. Defaults to 12.
+
+featstr::
+    Specifies the feature string that should passed to XeTeX after the script information. Each feature is separated from the next by a colon. The language feature is called language, as in language=pal.
 
 ==== svg ====
 
