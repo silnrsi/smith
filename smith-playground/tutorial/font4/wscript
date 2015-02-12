@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
 APPNAME = 'loma'
 VERSION = '0.0.1'
 prjbase = '../../script-test/'

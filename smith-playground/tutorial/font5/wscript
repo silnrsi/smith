@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
 prjbase = '../../script-test/'
 fontbase = prjbase + 'fonts/thai/font-source/'
 rmoverlap = prjbase + 'bin/rmOverlap'
@@ -12,7 +21,7 @@ for ext in ('', '-Bold') :
     font(target = fbase + '.ttf',
          source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
          opentype = internal(),
-#         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
+         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
          ap = fbase + '.xml',
          script = 'thai',
          fret = fret(params = "-r")

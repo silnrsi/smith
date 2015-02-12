@@ -1,3 +1,12 @@
+#!/usr/bin/python
+# this is a smith configuration file 
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+
 fontbase = '../../script-test/fonts/thai/'
 
 for ext in ('', '-Bold') :
