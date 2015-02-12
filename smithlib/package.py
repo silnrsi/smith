@@ -424,8 +424,8 @@ class srcdistContext(Build.BuildContext) :
         tar.close()
 
 class makedebianContext(Build.BuildContext) :
-    """Build debian packaging templates for this project"""
-    cmd = 'makedebian'
+    """Build Debian/Ubuntu packaging templates for this project"""
+    cmd = 'deb-templates'
 
     def execute_build(self) :
         # check we have all the info we need
@@ -447,7 +447,7 @@ class makedebianContext(Build.BuildContext) :
         if not license :
             raise Errors.WafError("The license file doesn't exist, perhaps you need to smith build first")
 
-        # .install and .dirs files
+        # install and dirs files
         os.makedirs('debian/bin')
         shutil.copy(sys.argv[0], 'debian/bin')
         hasfonts = 0
@@ -456,34 +456,42 @@ class makedebianContext(Build.BuildContext) :
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
             fdir = "/usr/share/fonts/opentype/" + pname + "\n"
-            fdirs = file(os.path.join('debian', pname + '.dirs'), 'w')
+            fdirs = file(os.path.join('debian', 'dirs'), 'w')
             if len(p.fonts) :
                 fdirs.write(fdir)
                 hasfonts = hasfonts | 1
             fdirs.close()
-            finstall = file(os.path.join('debian', pname + '.install'), 'w')
+            finstall = file(os.path.join('debian', 'install'), 'w')
             for f in p.fonts :
-                finstall.write("build/" + f.target + "\t" + fdir)
+                finstall.write(getattr(Context.g_module, 'out', 'results') + "/" + f.target + "\t" + fdir)
                 if hasattr(f, 'graphite') : hasfonts = hasfonts | 2
             finstall.close()
 
+        # source format 
+        os.makedirs('debian/source')
+        fformat = file(os.path.join('debian', 'source', 'format'), 'w')
+        fformat.write('''3.0 (quilt)''')
+        fformat.close()
+
+
         # changelog
         fchange = file(os.path.join('debian', 'changelog'), 'w')
-        fchange.write('''{0} ({1}) unstable; urgency=low
+        fchange.write('''{0} ({1}-1) unstable; urgency=low
 
-  * Release
+  * Release of ... under ... 
+  * Describe your significant changes here (use dch to help you fill in the changelog automatically).
 
  -- {2}  {3} {4}
 '''.format(srcname, srcversion, maint, time.strftime("%a, %d %b %Y %H:%M:%S"), formattz(time.altzone)))
         fchange.close()
 
-        # copyright
+        # copyright (needs http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/ machine-readable format)
         shutil.copy(license.abspath(), os.path.join('debian', 'copyright'))
 
-        # control
+        # control  (needs Homepage: field)
         bdeps = []
         if hasfonts & 1 :
-            bdeps.append('libfont-ttf-scripts-perl')
+            bdeps.append('libfont-ttf-scripts-perl, python-palaso, fontforge, grcompiler')
         if hasfonts & 2 :
             bdeps.append('grcompiler')
         if maint : maint = "\nMaintainer: " + maint
@@ -491,8 +499,8 @@ class makedebianContext(Build.BuildContext) :
         fcontrol.write('''Source: {0}
 Priority: optional
 Section: fonts{1}
-Build-Depends: debhelper (>= 8.0), {2}
-Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 9~), {2}
+Standards-Version: 3.9.6
 
 '''.format(srcname, maint, ", ".join(bdeps)))
         for p in Package.packages() :
@@ -501,7 +509,7 @@ Standards-Version: 3.9.3
             fcontrol.write('''Package: {0}
 Section: fonts
 Architecture: all
-MultiArch: Foreign
+Multi-Arch: foreign
 Depends: ${{misc:Depends}}
 Description: {1}
 {2}
@@ -529,13 +537,31 @@ override_dh_auto_clean :
 override_dh_auto_test :
 
 override_dh_auto_install :
+
+override_dh_installchangelogs:
+	dh_installchangelogs -k FONTLOG.txt
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz -Sextreme -z9
+	#dh_builddeb -- -Zxz -z9
 ''',
-            'compat' : '8'}
+            'compat' : '9'}
         for k, v in fileinfo.items() :
             f = file(os.path.join('debian', k), 'w')
             f.write(v + "\n")
             if k == 'rules' : os.fchmod(f.fileno(), 0775)
             f.close()
+
+        # docs file  (probably needs a conditional on web/ and sources/ too)
+        fdocs = file(os.path.join('debian', 'doc'), 'w')
+        fdocs.write('''*.txt
+documentation/''')
+        fdocs.close()
+    
+        # watch file
+        fwatch = file(os.path.join('debian', 'watch'), 'w')
+        fwatch.write('''# access to the tarballs on the release server is not yet automated''')
+        fwatch.close()
 
 class graideContext(Build.BuildContext) :
     """Create graide .cfg files, one per font in graide/"""
@@ -686,5 +712,3 @@ def onload(ctx) :
             ctx.wscript_vars[k] = v
         else :
             setattr(ctx.g_module, k, v)
-
-
