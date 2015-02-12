@@ -377,7 +377,7 @@ class srcdistContext(Build.BuildContext) :
             for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
                 cmd = None
                 vcsbase = None
-                if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
+                if vcs == 'git' or os.path.exists(os.path.join(d, '.git', '.gitignore', 'gitattributes')) :
                     cmd = ["git", "ls-files"]
                 elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
                     cmd = ["hg", "locate", "--include", "."]
