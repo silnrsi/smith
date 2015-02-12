@@ -98,6 +98,9 @@ class Package(object) :
         for l in licenses :
             if os.path.exists(l) :
                 res.append(l)
+        rentry = getattr(self, 'readme', 'README.txt')
+        if os.path.exists(rentry) :
+            res.append(rentry)
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         for k in self.keyboards :
