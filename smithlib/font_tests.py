@@ -14,31 +14,6 @@ def global_test() :
         globaltest = font_test()
     return globaltest
 
-def make_tex(mf, font, task) :
-    texdat = r'''
-\font\test="[./%s]%s" at 12pt
-\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
-\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
-\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-\obeylines
-\everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
-\test
-\input ./%s
-\bye
-''' % (font, mf, task.inputs[0].bldpath())
-    task.outputs[0].write(texdat)
-    return 0
-
-def make_from_htex(mf, font, task) :
-    texdat = r'''
-\def\buildfont{"[%s]%s"}
-\input %s
-\bye
-''' % (font, mf, task.inputs[0].bldpath())
-    task.outputs[0].write(texdat)
-    return 0
-    
 def copy_task(task) :
     shutil.copy(task.inputs[0].srcpath(), task.outputs[0].srcpath())
     return 0
@@ -66,6 +41,14 @@ def antdict(ctx, testdir, globs) :
             res[n] = v
     return res
 
+def initdefaults(self, ctx, **info) :
+    for k, v in info.items() :
+        if not hasattr(self, k) :
+            if v[0] not in ctx.env :
+                setattr(self, k, v[1])
+            else :
+                setattr(self, k, ctx.env[v[0]])
+    
 
 class font_test(object) :
     tests = []
@@ -75,7 +58,9 @@ class font_test(object) :
         if 'texts' not in kw : kw['texts'] = '*.txt'
         if 'targets' not in kw : kw['targets'] = {  'pdfs' : TeX(),
                                                     'svg' : SVG(),
+                                                    'xfont' : CrossFont(),
                                                     'test' : Tests(),
+                                                    'waterfall' : Waterfall(),
                     'xtest' : Tests({'cross' : wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts --strip ${fileinfo} ${SRC[0]} ${SRC[0]}')}, coverage='shaperpairs') }
         if 'extras' in kw : kw['targets'].update(kw['extras'])
         for k, item in kw.items() :
@@ -119,17 +104,19 @@ class font_test(object) :
 
     def build_tests(self, ctx, font, target) :
         if not target in self.targets : return
-        if not hasattr(self, 'testdir') :
-            self.testdir = ctx.env['TESTDIR'] or 'tests'
+        lookups = {
+            'text' : ('TESTSTRING', ''),
+            'size' : ('TESTFONTSIZE', 12),
+            'waterfallsizes' : ('WATERFALLSIZES', [6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 22, 24, 28, 32, 36, 42, 48, 56, 72]),
+            'waterfalldir' : ('WATERFALLDIR', 'waterfall')
+        }
+        initdefaults(self, ctx, testdir = ('TESTDIR', 'tests'), resultsdir = ('TESTRESULTSDIR', None))
         self.testnode = ctx.path.find_node(self.testdir)
-        if hasattr(self, 'resultsdir') :
-            self.resultsnode = ctx.bldnode.find_node(self.resultsdir)
-        elif ctx.env['TESTRESULTSDIR'] :
-            self.resultsdir = ctx.env['TESTRESULTSDIR']
-            self.resultsnode = ctx.bldnode.find_or_declare(self.resultsdir)
-        else :
+        if self.resultsdir is None :
             self.resultsdir = self.testdir
             self.resultsnode = self.testnode.get_bld()
+        else :
+            self.resultsnode = ctx.bldnode.find_or_declare(self.resultsdir)
         
         testsdir = self.testdir + os.sep
         if not self._hasinit : self.build_testfiles(ctx, testsdir)
@@ -175,20 +162,35 @@ class TeX(object) :
     def get_sources(self, ctx, font) :
         return []
 
-    def build(self, ctx, test, font) :
-        if 'XETEX' not in ctx.env : return
-        testsdir = test.testdir + os.sep
-        self._texfiles = antlist(ctx, testsdir, self.texs)
-        self._htexfiles = antdict(ctx, testsdir, self.htexs)
-        fid = getattr(font, 'test_suffix', font.id)
+    def make_tex(self, mf, font, test, task) :
+        texdat = r'''
+\font\test="[./%s]%s" at 12pt
+\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
+\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
+\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
+\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
+\obeylines
+\everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
+\test
+\input ./%s
+\bye
+''' % (font, mf, task.inputs[0].bldpath())
+        task.outputs[0].write(texdat)
+        return 0
 
-        if hasattr(self, 'files') :
-            txtfiles = antdict(ctx, testsdir, self.files)
-        else :
-            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+    def make_from_htex(self, mf, font, test, task) :
+        texdat = r'''
+\def\buildfont{"[%s]%s"}
+\input %s
+\bye
+''' % (font, mf, task.inputs[0].bldpath())
+        task.outputs[0].write(texdat)
+        return 0
+    
+    def build_maketexfiles(self, ctx, test, font, n, fid, fn, txtfiles = dict(), folder='') :
         textfiles = []
-        for n in txtfiles.keys() + self._htexfiles.keys() :
-            for m, mf in test.modes.items() :
+        for m, mf in test.modes.items() :
+            if not isinstance(n, basestring) :
                 nfile = os.path.split(n.bld_base())[1]
                 parts = nfile.partition('_')
                 attrs = txtfiles.get(n, None)
@@ -202,34 +204,102 @@ class TeX(object) :
                 else :
                     lang = None
 
-                targfile = test.results_node(n).bld_base() + '_' + fid + "_" + m + ".tex"
-                targ = ctx.path.find_or_declare(targfile)
-                ctx(rule = curry_fn(make_tex if n in txtfiles else make_from_htex, mf, font.target), source = n, target = targ)
-                textfiles.append((targ, n))
+            if isinstance(n, basestring) :
+                newn = ctx.path.find_or_declare(os.path.join(test.resultsdir, folder, n))
+            else :
+                newn = n
+            targfile = test.results_node(newn).bld_base() + '_' + fid + "_" + m + ".tex"
+            targ = ctx.path.find_or_declare(targfile)
+            if isinstance(n, basestring) :
+                ctx(rule = curry_fn(fn, mf, font.target, test), target = targ)
+            else :
+                ctx(rule = curry_fn(fn, mf, font.target, test), source = n, target = targ)
+            textfiles.append((targ, n))
+        return textfiles
+
+    def build_dotexfiles(self, ctx, font, files) :
+        for n in files :
+            targ = n[0].get_bld()
+            mindex = str(n[0]).rindex('.')
+            mode = str(n[0])[mindex-2:mindex]
+            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + targ.bld_dir() + ' ./${SRC[0].bldpath()}',
+    #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
+                source = [n[0], font.target], target = targ.change_ext('.pdf'),
+                taskgens = [font.target + "_" + mode])
+    #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
+
+    def build(self, ctx, test, font) :
+        if 'XETEX' not in ctx.env : return
+        fid = getattr(font, 'test_suffix', font.id)
+        testsdir = test.testdir + os.sep
+        self._texfiles = antlist(ctx, testsdir, self.texs)
+        self._htexfiles = antdict(ctx, testsdir, self.htexs)
+
+        if hasattr(self, 'files') :
+            txtfiles = antdict(ctx, testsdir, self.files)
+        else :
+            txtfiles = dict.fromkeys(test._txtfiles + test._htxttfiles)
+        textfiles = []
+        for n in txtfiles.keys() :
+            textfiles.extend(self.build_maketexfiles(ctx, test, font, n, fid, self.make_tex, txtfiles))
+        for n in self._htexfiles.keys() :
+            textfiles.extend(self.build_maketexfiles(ctx, test, font, n, fid, self.make_from_htex, txtfiles))
 
         for n in self._texfiles :
             targfile = test.results_node(n).bld_base() + '_' + fid + ".tex"
             targ = ctx.path.find_or_declare(targfile)
             ctx(rule = copy_task, source = n, target = targ)
             textfiles.append((targ, n))
-        for n in textfiles :
-            targ = n[0].get_bld()
-            mindex = str(n[0]).rindex('.')
-            mode = str(n[0])[mindex-2:mindex]
-            ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + targ.bld_dir() + ' ./${SRC[0].bldpath()}',
-#            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
-                source = [n[0], font.target], target = targ.change_ext('.pdf'),
-                taskgens = [font.target + "_" + mode])
-#                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
+        self.build_dotexfiles(ctx, font, textfiles)
+
+class Waterfall(TeX) :
+
+    def __init__(self, *kv, **kw) :
+        if 'featstr' not in kw : kw['featstr'] = ''
+        else : kw['featstr'] = ':' + kw['featstr']
+        if 'name' not in kw : kw['name'] = 'waterfall'
+        for k, item in kw.items() :
+            setattr(self, k, item)
+        self._configured = False
+
+    def make_waterfall(self, mf, font, test, task) :
+        texdat = ur'''
+\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
+\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
+\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
+\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
+'''
+        for s in self.sizes :
+            texdat += r'''
+\font\test="[./%s]%s%s" at %d pt \baselineskip=%d pt
+\noindent\test %s
+\par
+''' % (font, mf, self.featstr, s, s * self.sizefactor, self.text)
+
+        texdat += ur'''
+\bye
+'''
+        task.outputs[0].write(texdat.encode('utf-8'))
+        return 0
+
+    def build(self, ctx, test, font) :
+        if 'XETEX' not in ctx.env : return
+        initdefaults(self, ctx, text = ('TESTSTRING', ''), waterfalldir = ('WATERFALLDIR', 'waterfall'),
+                        sizes = ('WATERFALLSIZES', [6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 22, 24, 28, 32, 36, 42, 48, 56, 72]),
+                        sizefactor = ('TESTLINESPACINGFACTOR', 1.2))
+        fid = getattr(font, 'test_suffix', font.id)
+        testsdir = test.testdir + os.sep
+
+        textfiles = self.build_maketexfiles(ctx, test, font, self.name, fid, self.make_waterfall, folder=self.waterfalldir)
+        self.build_dotexfiles(ctx, font, textfiles)
+
 
 class CrossFont(object) :
 
     def __init__(self, *kv, **kw) :
-        if 'text' not in kw : kw['text'] = ''
         if 'featstr' not in kw : kw['featstr'] = ''
         else : kw['featstr'] = ':' + kw['featstr']
         if 'file' not in kw : kw['file'] = 'CrossFont'
-        if 'size' not in kw : kw['size'] = 12
         for k, item in kw.items() :
             setattr(self, k, item)
         self._configured = False
@@ -271,6 +341,7 @@ class CrossFont(object) :
 
     def build(self, ctx, test, font) :
         if 'XETEX' not in ctx.env : return
+        initdefaults(self, ctx, text = ('TESTSTRING', ''), size = ('TESTFONTSIZE', 12))
         self._fonts.append(font.target)
         if self._tasks is None :
             self._tasks = {}
@@ -458,7 +529,6 @@ class Tests(object) :
                                                 lang = tinfo.get('lang', None),
                                                 altshaper = ashp,
                                                 fileinfo = tinfo.get('extra', None))
-                                            
 
     def dotest(self, test, ctx, font, txtname, mode, target, **kws) :
         f = os.path.basename(font.target)
