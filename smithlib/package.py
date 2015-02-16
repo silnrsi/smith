@@ -6,10 +6,10 @@ import wafplus
 import font, templater 
 import os, sys, shutil, time, ConfigParser, subprocess
 
-keyfields = ('copyright', 'license', 'version', 'appname', 'desc_short',
+keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
-            'docdir', 'debpkg', 'readme')
-optkeyfields = ('company', 'instdir')
+            'docdir', 'debpkg')
+optkeyfields = ('company', 'instdir', 'readme', 'license')
 
 def formatdesc(s) :
     res = []
