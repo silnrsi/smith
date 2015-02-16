@@ -13,11 +13,13 @@ SIL Non-Roman Script Initiative - http://scripts.sil.org
 HOW TO CREATE THE SMITH SCRIPT
 ------------------------------
 
-$ ./mywaflite
+./mywaflite
 
 HOW TO CREATE THE SMITH DOCUMENTATION
 -------------------------------------
 
-$ cd docs/smith/
-$ a2x manual.txt
+cd docs/smith/
+a2x -f pdf -L --dblatex-opts=" -s asciidoc-dblatex.sty" manual.txt
+a2x -f xhtml manual.txt
+
 
