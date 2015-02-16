@@ -1,12 +1,3 @@
-#!/usr/bin/python
-# this is a smith configuration file 
-
-# set the default output folders
-out="results"
-DOCDIR="documentation"
-OUTDIR="installers"
-ZIPDIR="releases"
-
 prjbase = '../../script-test/'
 fontbase = prjbase + 'fonts/thai/font-source/'
 basebin = prjbase + 'bin'
