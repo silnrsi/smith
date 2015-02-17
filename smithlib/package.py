@@ -420,7 +420,9 @@ class srcdistContext(Build.BuildContext) :
             tarname = tarbase + "-source"
         else :
             tarbase = tarname
-        tar = tarfile.open(os.path.join(getattr(Context.g_module, 'out', 'results'), getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz', 'w:gz')
+        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
+        tnode = self.path.find_or_declare(tarfilename)
+        tar = tarfile.open(tnode.abspath(), 'w:gz')
         for f in sorted(files.keys()) :
             if f.startswith('../') : continue
             if files[f] :
