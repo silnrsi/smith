@@ -8,7 +8,7 @@ OUTDIR="installers"
 ZIPDIR="releases"
 
 APPNAME="Basic"
-VERSION=0.1
+VERSION="0.1"
 
 font(target = 'Norasi.ttf',
      source = '../../script-test/fonts/thai/font-source/Norasi.ttf')
