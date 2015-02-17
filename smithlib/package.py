@@ -291,9 +291,13 @@ class Package(object) :
             lentry = self._get_arcfile(bld, l)
             if lentry is not None :
                 res.append(lentry)
+            else: 
+                Logs.error("License file \'" + l + "\' not found.")
         rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
         if rentry is not None :
             res.append(rentry)
+        else:
+            Logs.error("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
