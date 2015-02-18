@@ -355,6 +355,18 @@ size::
 featstr::
     Specifies the feature string that should passed to XeTeX after the script information. Each feature is separated from the next by a colon. The language feature is called language, as in language=pal.
 
+
+[source,python]
+----
+# -*- coding: utf-8- -*-
+
+t = fonttest(targets = {
+    'specimen' : crossfont( text = u'Lorem Ipsum - Unicode pangram - Iñtërnâtiônàlizætiøn ', file = "Specimen", size = 10, featstr = "liga"),
+    })
+
+----
+
+
 ==== svg ====
 
 This class is used for the generation of comparative SVG html reports to compare ot and graphite renderings. It takes the following parameters:
