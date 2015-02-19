@@ -32,7 +32,9 @@ class Font(object) :
         if not hasattr(self, 'tests') :
             self.tests = font_tests.global_test()
         if not hasattr(self, 'ots_target') :
-            self.ots_target = self.target[:-4] + "_ots.log"
+            self.ots_target = self.target[:-4] + "-ots.log"
+        if not hasattr(self, 'fontlint_target') :
+            self.fontlint_target = self.target[:-4] + "-fontlint.log"
         self._isbuilt = False
 
     def __str__(self) : return self.target
@@ -134,7 +136,10 @@ class Font(object) :
             self.tests.build_tests(bld, self, test)
 
     def build_ots(self, bld) :
-        bld(rule="${OTS} ${SRC} > /dev/null 2>${TGT}", target=self.ots_target, source=[self.target], shell=1)
+        bld(rule="${OTS} ${SRC} > /dev/null 2> ${TGT}", target=self.ots_target, source=[self.target], shell=1)
+
+    def build_fontlint(self, bld) :
+        bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1", target=self.fontlint_target, source=[self.target], shell=1)
 
 class Legacy(object) :
 

@@ -75,6 +75,7 @@ class Package(object) :
     def get_build_tools(self, ctx) :
         try :
             ctx.find_program('validator_checker', var="OTS")
+            ctx.find_program('fontlint', var="FONTLINT")
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
@@ -198,6 +199,14 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_ots(b))
         for f in self.fonts :
             f.build_ots(bld)
+
+    def build_fontlint(self, bld) :
+        if 'FONTLINT' not in bld.env :
+            Logs.error("fontlint not installed. Can't complete")
+            return
+        self.subrun(bld, lambda p, b: p.build_fontlint(b))
+        for f in self.fonts :
+            f.build_fontlint(bld)
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
@@ -362,6 +371,10 @@ class testContext(cmdContext) :
 class otsContext(cmdContext) :
     """Test fonts using OpenType Sanitizer. Check <font.target>_ots.log"""
     cmd = 'ots'
+
+class fontlintContext(cmdContext) :
+    """Test fonts using fontlint. Check <font.target>_fontlint.log"""
+    cmd = 'fontlint'
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""
