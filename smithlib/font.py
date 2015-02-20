@@ -252,7 +252,7 @@ class Fea(Internal) :
             return "'" + re.sub(ur"([\\'])", ur"\\\1", s) + "'"
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
-            modify("${FONTFORGE} -lang=py -c 'f=open(\"${DEP}\",32); (f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if all(f.getLookupInfo(x)[2][0] not in ["+keeps+"])); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+            modify("${FONTFORGE} -lang=py -c 'f=open(\"${DEP}\",32); (f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if len(f.getLookupInfo(x)[2]) and f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -500,7 +500,7 @@ def onload(ctx) :
             'internal' : Internal, 'fonttest' : font_tests.font_test,
             'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
             'tests' : font_tests.Tests, 'woff' : Woff, 'subset' : Subset,
-            'crossfont' : font_tests.CrossFont
+            'crossfont' : font_tests.CrossFont, 'waterfall' : font_tests.Waterfall
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
