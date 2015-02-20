@@ -6,6 +6,7 @@ APPNAME = 'loma'
 VERSION = '0.0.1'
 TESTDIR = prjbase + 'fonts/thai/tests'
 TESTRESULTSDIR = 'tests'
+TESTSTRING = u"\u0e01=chicken, \u0e02=egg. Problem solved"
 
 for ext in ('', '-Bold') :
     fbase = 'Loma' + ext

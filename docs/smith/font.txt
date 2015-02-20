@@ -341,13 +341,6 @@ htexs::
 
 ==== crossfont ====
 
-[source,python]
-----
-t = fonttest(extras = {
-    'specimen' : crossfont( text = u'Lorem Ipsum - Unicode pangram - Iñtërnâtiônàlizætiøn ', file = "Specimen", size = 10, featstr = "liga"),
-    })
-----
-
 This class creates a single PDF file from all the fonts, with a given string output in the font next to the font file name. It takes the following parameters:
 
 text::
@@ -361,6 +354,13 @@ size::
 
 featstr::
     Specifies the feature string that should passed to XeTeX after the script information. Each feature is separated from the next by a colon. The language feature is called language, as in language=pal.
+
+[source,python]
+----
+t = fonttest(extras = {
+    'specimen' : crossfont( text = u'Lorem Ipsum - Unicode pangram - Iñtërnâtiônàlizætiøn ', name = "Specimen", size = 10, featstr = "liga"),
+    })
+----
 
 
 ==== waterfall ====

@@ -570,7 +570,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         Goto LidStart_@m.dll@
 
     LidDone_@m.dll@:
-    WriteRegStr HKLM $R5 "Layout Display Name" "@%SystemRoot%/system32/$R4,-1000"
+    WriteRegStr HKLM $R5 "Layout Display Name" "@%SystemRoot%\system32\$R4,-1000"
     WriteRegStr HKLM $R5 "Layout File" $R4
     IntCmp $R6 0 skiplid_@m.dll@
         IntOp $R6 $R6 + 256
@@ -578,7 +578,7 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         WriteRegStr HKLM $R5 "Layout Id" "$R7"
     skiplid_@m.dll@:
     WriteRegStr HKLM $R5 "Layout Product Code" "{@m.guid@}"
-    WriteRegStr HKLM $R5 "Layout Text" "@%SystemRoot%/system32/$R4,-1100"
+    WriteRegStr HKLM $R5 "Layout Text" "@%SystemRoot%\system32\$R4,-1100"
     FileWrite $UninstFile "$R1$\r$\n"
 
     CopyFiles "$OUTDIR\$R4" $SYSDIR

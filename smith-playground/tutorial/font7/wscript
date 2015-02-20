@@ -6,6 +6,7 @@ APPNAME = 'loma-minority'
 VERSION = '0.0.1'
 TESTDIR = prjbase + 'fonts/thai/tests'
 TESTRESULTSDIR = 'tests'
+TESTSTRING = u"\u0e01=chicken, \u0e02=egg. Problem solved"
 DESC_SHORT = "Loma with minority extensions"
 DESC_LONG = """Loma with minority extensions
 These fonts support extra characters and sequences as needed for
