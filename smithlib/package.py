@@ -7,9 +7,8 @@ import font, templater
 import os, sys, shutil, time, ConfigParser, subprocess
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
-            'desc_long', 'outdir', 'zipfile', 'zipdir', 'desc_name',
-            'docdir', 'debpkg')
-optkeyfields = ('company', 'instdir', 'readme', 'license')
+            'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
+optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme', 'license')
 
 def formatdesc(s) :
     res = []
@@ -46,13 +45,14 @@ class Package(object) :
     def global_package(cls, **kw) :
         if cls.globalpackage == None :
             cls.globalpackage = len(cls.packagestore)
-            p = Package()
+            fields = {}
             for k in keyfields :
-                setattr(p, k, getattr(Context.g_module, k.upper(), ''))
+                fields[k] = getattr(Context.g_module, k.upper(), '')
             for k in optkeyfields :
                 v = getattr(Context.g_module, k.upper(), None)
                 if v is not None :
-                    setattr(p, k, v)
+                    fields[k] = v
+            p = Package(**fields)
         else :
             p = cls.packagestore[cls.globalpackage]
         for k, v in kw.items() :
@@ -60,6 +60,11 @@ class Package(object) :
         return p
 
     def __init__(self, **kw) :
+        if 'readme' not in kw : kw['readme'] = 'README.txt'
+        if 'zipdir' not in kw : kw['zipdir'] = 'releases'
+        if 'zipfile' not in kw :
+            kw['zipfile'] = "%s/%s-%s.zip" % (kw['zipdir'], kw['appname'], kw['version'])
+
         for k, v in kw.items() :
             setattr(self, k, v)
         for k in keyfields :
@@ -100,17 +105,16 @@ class Package(object) :
             if os.path.exists(l) :
                 res.append(l)
             else :
-                Logs.error("License file \'" + l + "\' not found.")
-        rentry = getattr(self, 'readme', 'README.txt')
-        if os.path.exists(rentry) :
-            res.append(rentry)
-        else :
-            Logs.error("Readme file \'" + rentry + "\' not found.")
+                Logs.warn("License file \'" + l + "\' not found.")
+        if os.path.exists(self.readme) :
+            res.append(self.readme)
+        #else :
+        #    Logs.error("Readme file \'" + rentry + "\' not found.")
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         for k in self.keyboards :
             res.extend(k.get_sources(ctx))
-        if hasattr(self, 'docdir') :
+        if self.docdir :
             for p, n, fs in os.walk(self.docdir) :
                 for f in fs :
                     res.append(os.path.join(p, f))
@@ -252,9 +256,6 @@ class Package(object) :
         bld(rule='${MAKENSIS} -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def execute_zip(self, bld) :
-        if not self.zipfile :
-            self.zipfile = "%s/%s-%s.zip" % ((self.zipdir or 'releases'), self.appname, self.version)
-
         import zipfile
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
@@ -301,12 +302,12 @@ class Package(object) :
             if lentry is not None :
                 res.append(lentry)
             else: 
-                Logs.error("License file \'" + l + "\' not found.")
+                Logs.warn("License file \'" + l + "\' not found.")
         rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
         if rentry is not None :
             res.append(rentry)
-        else:
-            Logs.error("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
+        #else:
+        #    Logs.error("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
