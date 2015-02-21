@@ -108,8 +108,8 @@ class Package(object) :
                 Logs.warn("License file \'" + l + "\' not found.")
         if os.path.exists(self.readme) :
             res.append(self.readme)
-        #else :
-        #    Logs.error("Readme file \'" + rentry + "\' not found.")
+        else :
+            Logs.warn("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
         for f in self.fonts :
             res.extend(f.get_sources(ctx))
         for k in self.keyboards :
@@ -206,7 +206,7 @@ class Package(object) :
 
     def build_fontlint(self, bld) :
         if 'FONTLINT' not in bld.env :
-            Logs.error("fontlint not installed. Can't complete")
+            Logs.warn("fontlint not installed. Can't complete")
             return
         self.subrun(bld, lambda p, b: p.build_fontlint(b))
         for f in self.fonts :
@@ -282,8 +282,8 @@ class Package(object) :
             return (bld.path.abspath(), pnode.srcpath())
         else :
             return (bld.bldnode.abspath(), pnode.bldpath())
-        
-        
+
+
     def get_files(self, bld) :
         """ Returns a list of files to go into the generated zip for this package.
             Each entry in the list is (x, y, z) where:
@@ -301,13 +301,13 @@ class Package(object) :
             lentry = self._get_arcfile(bld, l)
             if lentry is not None :
                 res.append(lentry)
-            else: 
+            else:
                 Logs.warn("License file \'" + l + "\' not found.")
         rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
         if rentry is not None :
             res.append(rentry)
-        #else:
-        #    Logs.error("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
+        else:
+            Logs.warn("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
