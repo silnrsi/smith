@@ -125,7 +125,7 @@ class font_test(object) :
         if getattr(font, 'graphite', None) :
             self.modes['gr'] = "/GR"
         if getattr(font, 'sfd_master', None) or getattr(font, 'opentype', None) :
-            t = "/ICU"
+            t = "/OT"
             scr = getattr(font, 'script', None)
             if isinstance(scr, basestring) :
                 self.modes['ot'] = t + ":script=" + scr
