@@ -578,13 +578,17 @@ Section "@"" if len(kbds) else "-"@Keyboards" SecKbd
         WriteRegStr HKLM $R5 "Layout Id" "$R7"
     skiplid_@m.dll@:
     WriteRegStr HKLM $R5 "Layout Product Code" "{@m.guid@}"
-    WriteRegStr HKLM $R5 "Layout Text" "@%SystemRoot%\system32\$R4,-1100"
+    WriteRegStr HKLM $R5 "Layout Text" "@m.langname@"
     FileWrite $UninstFile "$R1$\r$\n"
 
-    CopyFiles "$OUTDIR\$R4" $SYSDIR
-    ${If} ${RunningX64}
-        CopyFiles "$OUTDIR\$R2" "$WINDIR\WOW64"
-    ${Endif}
+    ;CopyFiles "$OUTDIR\$R4" $SYSDIR
+    ${DisableX64FSRedirection}
+    CopyFiles "$OUTDIR\$R4" "$WINDIR\System32"
+    ; seems to copy to a file not a directory on Win7+
+    ;${If} ${RunningX64}
+    ;    CopyFiles "$OUTDIR\$R2" "$WINDIR\WOW64"
+    ;${Endif}
+    ${EnableX64FSRedirection}
 +  for l in getattr(m, 'lidinstall', []) :
     StrCpy $R2 @l@
     LidInstall_@m.dll@_@l@:
@@ -808,7 +812,8 @@ Section "Uninstall"
         StrCpy $R4 $R3
       ${Endif}
 -
-      Delete "$SYSDIR\$R4"
+      ;Delete "$SYSDIR\$R4"
+      Delete "$WINDIR\System32\$R4"
       ${If} ${RunningX64}
         Delete "$WINDIR\WOW64\$R2"
       ${Endif}

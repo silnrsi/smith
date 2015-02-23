@@ -150,7 +150,8 @@ class MSKBD(object) :
     .data : {*(.data) *(.rdata) *(.rdata$*) *(.text)}
 }""")
         kmn2copts = ' '
-        if hasattr(self, 'langname') : kmn2copts += " --langname=" + self.langname
+        if hasattr(self, 'langname') : kmn2copts += " --langname='" + self.langname + "'"
+        else : self.langname = "Unknown Language"
         if hasattr(self, 'capslockkeys') : kmn2copts += " -c '" + re.sub(r"([\\'])", r"\\1", self.capslockkeys) + "'"
         bld(rule = '${KMN2C} -o ${TGT[0]}' + kmn2copts + ' ${SRC}', source = self.source, target = [self.c_file, self.rc_file], shell = 1)
         for p in self.arches :
