@@ -515,7 +515,7 @@ class makedebianContext(Build.BuildContext) :
         # control  (needs Homepage: field)
         bdeps = []
         if hasfonts & 1 :
-            bdeps.append('libfont-ttf-scripts-perl, python-palaso, fontforge, grcompiler')
+            bdeps.append('libfont-ttf-scripts-perl, python-palaso, fontforge')
         if hasfonts & 2 :
             bdeps.append('grcompiler')
         if maint : maint = "\nMaintainer: " + maint
