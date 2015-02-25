@@ -6,6 +6,7 @@ import package
 import wsiwaf
 import os, shutil, codecs
 from functools import partial
+import time
 
 globaltest = None
 def global_test() :
@@ -168,13 +169,22 @@ class TeX(object) :
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
+
+Test for %s - %s - %s - XeTeX \XeTeXrevision
+
+Input file: %s
+
+--------------------------------------------------
+
+
+
 \def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
 \obeylines
 \everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
 \test
 \input ./%s
 \bye
-''' % (font, mf, task.inputs[0].bldpath())
+''' % (font, mf, font, mf, time.strftime("%H:%M %a %d %b %Y %Z"), task.inputs[0].bldpath(), task.inputs[0].bldpath())
         task.outputs[0].write(texdat)
         return 0
 
@@ -268,8 +278,17 @@ class Waterfall(TeX) :
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
 \def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-'''
+
+Waterfall for %s - %s %s - %s - XeTeX \XeTeXrevision
+
+--------------------------------------------------
+
+
+
+''' % (font, mf, self.featstr, time.strftime("%H:%M %a %d %b %Y %Z"))
+
         for s in self.sizes :
+            print self.sizes
             texdat += r'''
 \font\test="[./%s]%s%s" at %d pt \baselineskip=%d pt
 \noindent\test %s
@@ -324,7 +343,14 @@ class CrossFont(object) :
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
 \def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-'''
+
+Crossfont specimen - %s %s - %s - XeTeX \XeTeXrevision
+
+--------------------------------------------------
+
+
+''' % (mf, self.featstr, time.strftime("%H:%M %a %d %b %Y %Z"))
+
         for f in self._fonts :
             texdat += ur'''
 \font\test="[./%s]%s%s" at %d pt
