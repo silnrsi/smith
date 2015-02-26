@@ -8,7 +8,7 @@ import os, sys, shutil, time, ConfigParser, subprocess
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
-optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme', 'license')
+optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme', 'license', 'contact', 'url')
 
 def formatdesc(s) :
     res = []
@@ -453,7 +453,11 @@ class makedebianContext(Build.BuildContext) :
 
     def execute_build(self) :
         # check we have all the info we need
-        if os.path.exists('debian') : return
+        if os.path.exists('debian') :
+            Logs.warn("debian/ packaging folder already exists, did not generate new templates")
+            return
+        Logs.warn("debian/ packaging folder templates generated")
+
         globalpackage = Package.packagestore[Package.globalpackage]
         srcname = getattr(globalpackage, 'debpkg', None)
         if not srcname :
@@ -470,6 +474,14 @@ class makedebianContext(Build.BuildContext) :
         license = self.bldnode.find_resource(license)
         if not license :
             raise Errors.WafError("The license file doesn't exist, perhaps you need to smith build first")
+
+        contact = getattr(globalpackage, 'contact', '')
+        if not contact :
+            Logs.warn("Optional contact information not provided.")
+
+        url = getattr(globalpackage, 'url', '')
+        if not url :
+            Logs.warn("Optional upstream URL not provided.")
 
         # install and dirs files
         os.makedirs('debian/bin')
@@ -525,8 +537,10 @@ Priority: optional
 Section: fonts{1}
 Build-Depends: debhelper (>= 9~), {2}
 Standards-Version: 3.9.6
+Homepage: {3}
+X-contact: {4}
 
-'''.format(srcname, maint, ", ".join(bdeps)))
+'''.format(srcname, maint, ", ".join(bdeps), url, contact))
         for p in Package.packages() :
             pname = getattr(p, 'debpkg', None)
             if not pname : continue
