@@ -487,7 +487,7 @@ class Tests(object) :
         for k, item in kw.items() :
             setattr(self, k, item)
         if not tests :
-            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[1]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip ${fileinfo} ${SRC[0]} ${SRC[2]}')}
+            tests = {'regression' : wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[1]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip ${fileinfo} ${SRC[0]} ${SRC[2]}')}
             self._extracmds += ['cmptxtrender']
         self.tests = tests
 
