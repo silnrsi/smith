@@ -252,7 +252,7 @@ class Fea(Internal) :
             return "'" + re.sub(ur"([\\'])", ur"\\\1", s) + "'"
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
-            modify("${FONTFORGE} -lang=py -c 'f=open(\"${DEP}\",32); (f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if len(f.getLookupInfo(x)[2]) and f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+            modify("${FONTFORGE} -lang=py -c 'f=open(\"${DEP}\",32); list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
