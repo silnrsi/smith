@@ -4,7 +4,7 @@
 from waflib import Context, Utils
 import package
 import wsiwaf
-import os, shutil, codecs
+import os, shutil, codecs, re
 from functools import partial
 import time
 
@@ -142,6 +142,9 @@ class font_test(object) :
         path = node.path_from(self.testnode)
         return self.resultsnode.make_node(path)
 
+def texprotect(s) :
+    return re.sub(ur'([_])', ur'\\\1', s)
+
 class TeX(object) :
 
     def __init__(self, *kv, **kw) :
@@ -184,7 +187,7 @@ Input file: %s
 \test
 \input ./%s
 \bye
-''' % (font, mf, font, mf, time.strftime("%H:%M %a %d %b %Y %Z"), task.inputs[0].bldpath(), task.inputs[0].bldpath())
+''' % (font, mf, font, mf, time.strftime("%H:%M %a %d %b %Y %Z"), texprotect(task.inputs[0].bldpath()), task.inputs[0].bldpath())
         task.outputs[0].write(texdat)
         return 0
 

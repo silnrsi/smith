@@ -11,7 +11,8 @@ target::
 The following are attributes specific to generating a sample layout of the keyboard:
 
 font::
-    Font filename to use for rendering the layout (required).
+    Font pathname to use for rendering the layout. This attribute is required if you want to generate keyboard layout documentation. It results
+    in the font being copied into the build tree for this project.
 
 fontname::
     Public font name that is used by the OS to reference the font.
@@ -20,7 +21,8 @@ fontdir::
     Directory containing the font specified in `font`. This defaults to `kbdfonts`.
 
 kbdfont::
-    Full pathname to font file to use for rendering the layout. By default this is built from the `font` and `fontdir` attributes.
+    Full pathname to the local font file copy to use for rendering the layout. By default this is built from the `font` and `fontdir` attributes.
+    This attribute is rarely set. Use `font` instead.
 
 fontsize::
     Font size to render glyphs at in the layout, given in pt (18).
