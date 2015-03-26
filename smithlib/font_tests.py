@@ -173,7 +173,9 @@ class TeX(object) :
 \catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
 
-Test for %s - %s - %s - XeTeX \XeTeXrevision
+Test for %s - %s using
+\ifcase\XeTeXfonttype\test\TeX\or OpenType\or Graphite\fi
+\space- %s - XeTeX \XeTeXrevision
 
 Input file: %s
 
