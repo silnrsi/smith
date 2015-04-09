@@ -1,9 +1,12 @@
-= Smith Manual =
+= Smith Manual v0.3-dev, April 2015 =
 :author: Martin Hosken (contributions by Nicolas Spalinger)
+:subject: Smith manual 
+:keywords: fonts, keyboards, building, writing systems
+
 :numbered:
 
-include::tutorial.txt[]
 include::intro.txt[]
+include::tutorial.txt[]
 include::directory.txt[]
 include::font.txt[]
 include::keyboard.txt[]
