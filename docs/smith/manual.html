@@ -1,0 +1,1018 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Smith Manual v0.3-dev, April 2015</title><link rel="stylesheet" type="text/css" href="docbook-xsl.css" /><meta name="generator" content="DocBook XSL Stylesheets V1.78.1" /></head><body><div xml:lang="en" class="article" lang="en"><div class="titlepage"><div><div><h2 class="title"><a id="idp35981764"></a>Smith Manual v0.3-dev, April 2015</h2></div><div><div class="author"><h3 class="author"><span class="firstname">Martin Hosken (contributions by Nicolas Spalinger)</span></h3></div></div></div><hr /></div><div class="toc"><p><strong>Table of Contents</strong></p><dl class="toc"><dt><span class="section"><a href="#_introduction">1. Introduction</a></span></dt><dd><dl><dt><span class="section"><a href="#_installation">1.1. Installation</a></span></dt><dt><span class="section"><a href="#_execution">1.2. Execution</a></span></dt><dt><span class="section"><a href="#_writing_wscript">1.3. Writing wscript</a></span></dt></dl></dd><dt><span class="section"><a href="#_tutorial">2. Tutorial</a></span></dt><dd><dl><dt><span class="section"><a href="#_font_creation">2.1. Font Creation</a></span></dt></dl></dd><dt><span class="section"><a href="#_directory_structure">3. Directory Structure</a></span></dt><dd><dl><dt><span class="section"><a href="#_create_working_area">3.1. Create Working Area</a></span></dt><dt><span class="section"><a href="#_script_projects">3.2. Script Projects</a></span></dt></dl></dd><dt><span class="section"><a href="#_fonts">4. Fonts</a></span></dt><dd><dl><dt><span class="section"><a href="#_opentype">4.1. OpenType</a></span></dt><dt><span class="section"><a href="#_graphite">4.2. Graphite</a></span></dt><dt><span class="section"><a href="#_legacy_fonts">4.3. Legacy Fonts</a></span></dt><dt><span class="section"><a href="#_licensing_and_copyright">4.4. Licensing and Copyright</a></span></dt><dt><span class="section"><a href="#_woff">4.5. WOFF</a></span></dt><dt><span class="section"><a href="#_fret">4.6. Fret</a></span></dt><dt><span class="section"><a href="#_tests">4.7. Tests</a></span></dt></dl></dd><dt><span class="section"><a href="#_keyboards">5. Keyboards</a></span></dt><dd><dl><dt><span class="section"><a href="#_mskbd">5.1. mskbd</a></span></dt><dt><span class="section"><a href="#_tests_3">5.2. Tests</a></span></dt></dl></dd><dt><span class="section"><a href="#_packages">6. Packages</a></span></dt><dt><span class="section"><a href="#_tools">7. Tools</a></span></dt><dd><dl><dt><span class="section"><a href="#_ubuntu">7.1. Ubuntu</a></span></dt><dt><span class="section"><a href="#_windows">7.2. Windows</a></span></dt><dt><span class="section"><a href="#_perl_modules">7.3. Perl Modules</a></span></dt></dl></dd></dl></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_introduction"></a>1. Introduction</h2></div></div></div><p>Smith is an extension to waf that is designed to create a build environment
+for the creation of Writing System Implementations. Such implementations
+are made up of a number of key elements: fonts, keyboards, sort orders.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_installation"></a>1.1. Installation</h3></div></div></div><p>Installing smith is simple. It consists of copying the smith file to a
+suitable directory, usually the project directory where it can be shared within
+any version control system. In addition a file <code class="literal">wscript</code> needs to be created
+to control the build process. This wscript file is in fact a python program
+but the way it is run is designed to hide that as much from the unsuspecting
+user as possible. Thus only those who want to get into the programming aspects
+need to.</p><p>In terms of necessary tools that smith makes use of, the details are listed
+in the parts of documentation specific to the tools that get used.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_execution"></a>1.2. Execution</h3></div></div></div><p>The heart of the build system is the <code class="literal">wscript</code> file that controls the build
+process. This is done by the python program creating a set of wsi component
+objects. The system then takes these objects and allows the user to run various
+build commands.</p><p>waf, on which smith is built, works by creating a build directory
+into which all the results are stored. This leaves the source directories
+pristine and makes for easy clearing up. The build directory is created using
+the command:</p><pre class="screen">smith configure</pre><p>This process creates the build directory, checks that all the tools that smith
+needs to achieve the build as described in <code class="literal">wscript</code> are available, and sets
+up various internal environment variables. Thus if any changes are made to the
+<code class="literal">wscript</code> that indicate what extra tools are needed, then the <code class="literal">configure</code> command needs
+to be rerun.</p><p>After configuration it is possible to build the system. This is done using:</p><pre class="screen">smith build</pre><p>This creates the final release forms of the various components that are to be
+built. For example, it will create any fonts or keyboards. But it does not
+create any installers, these need another command:</p><pre class="screen">smith exe</pre><p>This creates the installers described by the various package objects. In turn
+it also builds everything as specified by <code class="literal">smith build</code>.</p><pre class="screen">smith pdfs</pre><p>This creates font tests output as pdf.</p><pre class="screen">smith fret</pre><p>If the wscript has been set up to generate fret files, this will generate those files.</p><pre class="screen">smith graide</pre><p>This creates a subdirectory called graide that contains one .cfg file per font for use with graide.
+If the font has no graphite smarts, no configuration file is created (for obvious reasons).</p><pre class="screen">smith svg</pre><p>This creates svg test results for fonts.</p><pre class="screen">smith zip</pre><p>Creates a zip appropriate for a source package.</p><pre class="screen">smith clean</pre><p>Removes the various files created by <code class="literal">smith build</code> in the build directory.</p><pre class="screen">smith distclean</pre><p>Removes the build directory completely.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_writing_wscript"></a>1.3. Writing wscript</h3></div></div></div><p>The <code class="literal">wscript</code> file is a python program, but the internal program environment is set up to minimise the amount of actual programming that needs to be done. There is no setup needed in the file, and object registration is automatic. It is possible to add waf specific extensions to the file and for details of this, users should read the waf manual.</p><p>The basic process of describing a build process is to create writing system component objects. These objects are <code class="literal">font()</code>, <code class="literal">kbd()</code> and <code class="literal">package()</code>. Specific details on what information each of these objects requires is given in the corresponding sections of this document. Likewise examples are given in the sections.</p><p>The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the <code class="literal">wscript</code> writer to take more control over the build process. The functions described here should be considered advanced, and the beginning authors should not need to concern themselves with them initially.</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+cmd(cmd, [input files], **options)
+</span></dt><dd><p class="simpara">
+    The <code class="literal">cmd()</code> function specifies are command to run as a string, then a list of dependent input files that are referenced via <code class="literal">${SRC}</code> in the command string. The target (which is given by the context of <code class="literal">cmd()</code> function is accessible via the <code class="literal">${TGT}</code> string. The first parameter to the function is the command string to execute, which is executed from the build directory. There are various options that can be added to a <code class="literal">cmd()</code>:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+late
+</span></dt><dd>
+        If set to non zero, this says that the command should be executed as late in the sequence of commands to be run on a file as possible.
+</dd><dt><span class="term">
+targets
+</span></dt><dd>
+        This is a list of extra targets that this command generates. So a single command can create more than one file.
+</dd><dt><span class="term">
+shell
+</span></dt><dd>
+        If set, says that the command should not be broken on spaces into elements to pass to an exec call, but to be passed through the shell for shell processing. Use this if you use file redirection, for example.
+</dd></dl></div></dd><dt><span class="term">
+create()
+</span></dt><dd><p class="simpara">
+    The <code class="literal">create()</code> function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a <code class="literal">cmd()</code> function. For exasmple, consider a processing path on an input font:
+</p><pre class="programlisting">source = create('xyz.sfd', cmd('myfirstprocess ${SRC} ${TGT}', ['infile.sfd']),
+                           cmd('mysecondprocess ${DEP} ${TGT}'))</pre></dd><dt><span class="term">
+process()
+</span></dt><dd><p class="simpara">
+    This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a <code class="literal">cmd()</code> function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use <code class="literal">${DEP}</code>
+</p><pre class="programlisting">target = process('outfile.ttf', cmd('ttfautohint ${DEP} ${TGT}'))</pre><p class="simpara">When <code class="literal">process()</code> is used on a source file, smith has to think a little harder.
+smith works to a strict rule that no files are created or changed in the main
+source tree. This means that smith cannot change a source file in its original
+position. For similar reasons (which file should one read?), smith does not allow
+there to be an identically named file with the same path in the source tree and
+in the build tree. So we can’t simply copy the source file into the build tree
+and work on it there. Instead, smith creates a copy of the source file in the
+buildtree by stripping its path component and storing it in the <code class="literal">tmp/</code>
+directory. It then processes that in place. For the most part authors do not
+have to consider this, and using <code class="literal">process()</code> on a source file will <span class="emphasis"><em>just work</em></span>.
+But there are rare situations where knowledge of the underlying actions are
+necessary.</p><p class="simpara">Parameters for this function are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+nochange
+</span></dt><dd>
+        If set, tells the system that there is no need to copy the dependency
+        file before running the task. This is an internal parameter that users
+        are very unlikely to need to use.
+</dd></dl></div></dd><dt><span class="term">
+test()
+</span></dt><dd>
+    This function applies a process to its output file with no expected output, so any <code class="literal">cmd()</code> would only have a <code class="literal">${TGT}</code> in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.
+</dd></dl></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_tutorial"></a>2. Tutorial</h2></div></div></div><p>In this tutorial we will examine a number of wscript files. The first section is
+the largest and builds up a complex font creation scenario from humble
+beginnings.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_font_creation"></a>2.1. Font Creation</h3></div></div></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font1_simplicity"></a>font1 - Simplicity</h4></div></div></div><p>We start with a simple, single font.</p><pre class="programlisting">fontbase = '../../script-test/fonts/thai/'
+font(target = 'Loma.ttf',
+     source = fontbase + 'font-source/Loma.sfd')</pre><p>Due to the way the tutorial is structured, we keep the shared source files in a
+different directory tree. Line 1 sets up where that tree is.</p><p>In line 2, we create a new font object that we want the system to build. We
+specify the target filename. This file will be created in the build tree
+(<code class="literal">buildlinux2</code> on Linux but can be overriden to something like <code class="literal">results</code> by setting
+the out variable). Line 3 specifies where to find the source file. Notice
+that the target file is a <code class="literal">.ttf</code> file while the source is a <code class="literal">.sfd</code> file. Smith
+will use the necessary commands to convert from one to the other.</p><p>With this as our <code class="literal">wscript</code> file, we can build our font:</p><pre class="screen">smith configure</pre><p>This is the first step in building any project. This command tells smith to set
+up the build environment and search out all the programs that it may need for
+the various tasks we may ask of smith. If a necessary program is missing smith
+will stop at that point and indicate an error. Some programs are not strictly
+necessary and smith can run with reduced functionality without them. Such missing
+programs are listed in orange. All other programs that smith searches for and
+finds are listed, along with their locations, in green. So you can see exactly
+which program smith will use for any particular task. This is hepful especially in
+cases where you may have a locally self-compiled version: you can more easily
+see if smith has found the version in /usr/local/ instead of the stock packaged
+version.</p><pre class="screen">smith build</pre><p>This command tells smith to go and build all the objects the <code class="literal">wscript</code> says to
+be built. In this case just the simple <code class="literal">Loma.ttf</code> which will appear in
+<code class="literal">buildlinux2</code>. Not very exciting, but a good start.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font2_multiple_fonts"></a>font2 - Multiple fonts</h4></div></div></div><p>Most font packages consist of more than one font file and this project is no
+exception. Can we scale our project to handle more than one file?</p><pre class="programlisting">fontbase = '../../script-test/fonts/thai/'
+
+for ext in ('', '-Bold') :
+    font(target = 'Loma' + ext + '.ttf',
+         source = fontbase + 'font-source/Loma' + ext + '.sfd')</pre><p>This example shows the power of integrating a description with a full
+programming language. <code class="literal">wscript</code> files are python programs, albeit very
+enhanced ones. So we can use any python type constructs we might need. Usually
+the need is slight, and we show a typical example here.</p><p>Line 3 is the start of a loop. The lines below that are indented within the loop
+will be repeated for each value in the list. The first value is nothing (well
+the empty string <code class="literal">''</code>) and the second is <code class="literal">-Bold</code>. Each time around the loop, the
+variable <code class="literal">ext</code> is set to the appropriate string. We will then use that variable
+to help set the appropriate values in the two font objects we are creating.</p><p>Each time around the loop, we create a new font object. In line 4 we create a
+new font object whose target font file’s name is dependent on the <code class="literal">ext</code> variable
+which is set to the various strings from the list at the start of the loop. So
+we will end up creating two fonts. One called <code class="literal">Loma.ttf</code> as before, and one
+called <code class="literal">Loma-Bold.ttf</code>. Line 5 gives the source files for each of these fonts.</p><p>It may seem easier just to expand out the loop and have two <code class="literal">font()</code> object
+commands, but as the complexity of this <code class="literal">font()</code> grows, we will see the value of
+using a loop. The advantage of adding the loop early is that we can make
+appropriate use of <code class="literal">ext</code>.</p><p>Now when we come to build this project, we will get two fonts:</p><pre class="screen">smith configure
+smith build</pre></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font3_packaged"></a>font3 - Packaged</h4></div></div></div><p>It’s good that we can create multiple fonts, but what do we do with them then?
+There are two typical products that people want from a font project: a <code class="literal">.zip</code>
+file containing the fonts and a <code class="literal">.exe</code> Windows installer that allows someone to
+simply run the program to install the fonts. Smith can create these two products
+from a wscript, but it needs just a little more information to do so:</p><pre class="programlisting">APPNAME = 'loma'
+VERSION = '0.0.1'
+fontbase = '../../script-test/fonts/thai/'
+
+for ext in ('', '-Bold') :
+    font(target = 'Loma' + ext + '.ttf',
+         source = fontbase + 'font-source/Loma' + ext + '.sfd')</pre><p>Line 1 gives the base name of the products that will be created and line 2 gives
+the version of that product. Notice that the version variable is a string and
+does not have to be numeric. Case is important here, these are, in effect, magic
+variables we are setting that smith looks up.</p><p>To build this project, we do the same as before, but we can also use two extra
+commands:</p><pre class="screen">smith configure
+smith build
+smith zip
+smith exe</pre><p><code class="literal">smith zip</code> will create <code class="literal">loma-0.0.1.zip</code> in the <code class="literal">buildlinux2</code> subdirectory.
+This zip file contains the two target fonts the build created. <code class="literal">smith exe</code>
+creates a Windows installer, and in keeping with naming conventions for
+installers, the APPNAME has been title cased to produce <code class="literal">Loma-0.0.1.exe</code>.
+We will go into much more detail on packaging in the packaging tutorial section.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font4_internal_processing"></a>font4 - Internal processing</h4></div></div></div><p>Before our example gains smart font support and grows in complexity, there is
+one area of control that is worth examining. For the most part, when creating a
+<code class="literal">wscript</code> one fills in the various <span class="emphasis"><em>forms</em></span> that create the objects, and smith
+knows what needs to happen to make things turn out right. But while this makes
+for pretty tutorials, real world projects have unique quirks that require the
+ability to add commands into the processing or to create things dynamically. In
+this exercise we will add a process to the source font:</p><pre class="programlisting">APPNAME = 'loma'
+VERSION = '0.0.1'
+prjbase = '../../script-test/'
+fontbase = prjbase + 'fonts/thai/font-source/'
+rmoverlap = prjbase + 'bin/rmOverlap'
+
+for ext in ('', '-Bold') :
+    fbase = 'Loma' + ext
+    font(target = fbase + '.ttf',
+         source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')))</pre><p>The interest lies in line 10. Here we use a <code class="literal">process()</code> function to tell smith
+that we want it to run a command over the source font before converting it to a
+<code class="literal">.ttf</code>. A <code class="literal">process()</code> function takes a file which already exists (either in the
+source tree or one that is generated by another process) and then runs the list
+of <code class="literal">cmd()</code> function results over it in order. In this case the command is to run
+a script that removes overlap from all the glyphs in the font. The command
+string takes some study. The program takes two command line parameters, an input
+font file and an output font file. We represent these in the command string by
+<code class="literal">${DEP}</code> (the dependent file) as the input and <code class="literal">${TGT}</code> as the output file.
+smith will fill these in appropriately when it comes to run the command. In
+addition, note the initial <code class="literal">'../'</code> at the start of the command string. This is
+because all commands in smith are run from the <code class="literal">buildlinux2</code> directory and so we
+have to go up one level to get back to the project root where the <code class="literal">wscript</code> file
+is and then from there we can navigate to the actual remove overlap script.</p><p>The rest of the new lines in this exercise are simply extra variables being used
+to make the file easier to read, otherwise some of the lines would become
+excessively long and confusing. Notice that all the magic variables in a
+<code class="literal">wscript</code> that smith considers are all caps. That is if you use a variable name
+with a lowercase letter in it, you are sure to be safe from smith assuming some
+special meaning to that variable.</p><p>For the most part we are not very interested in precisely what smith is doing to
+get the results we want. But sometimes it helps to know, and all that cryptic
+output streaming by isn’t much help. But there is a way to get something more
+helpful. First we need to get back to a completely pristine source tree:</p><pre class="screen">smith distclean</pre><p>Now we can configure and run in a way that has smith tell us what it is doing:</p><pre class="screen">smith configure
+smith build -j1 -v</pre><p>In my case, here were my results:</p><pre class="screen">$ smith build -j1 -v
+smith: Entering directory `/tutorial/tutorial/font4/buildlinux2'
+[1/6] tmp/Loma.sfd: ../../script-test/fonts/thai/font-source/Loma.sfd -&gt; buildlinux2/tmp/Loma.sfd
+16:56:00 runner ['cp', '../../../script-test/fonts/thai/font-source/Loma.sfd', 'tmp/Loma.sfd']
+[2/6] tmp/Loma-Bold.sfd: ../../script-test/fonts/thai/font-source/Loma-Bold.sfd -&gt; buildlinux2/tmp/Loma-Bold.sfd
+16:56:00 runner ['cp', '../../../script-test/fonts/thai/font-source/Loma-Bold.sfd', 'tmp/Loma-Bold.sfd']
+[3/6] tmp/Loma.sfd[0]../../../script-test/bin/rmOverlap:
+16:56:01 runner /tutorial/tutorial/font4/buildlinux2/tmp/Loma.sfd--&gt;/tutorial/tutorial/font4/buildlinux2/.tmp/tmp/Loma.sfd
+16:56:01 runner ' ../../../script-test/bin/rmOverlap .tmp/tmp/Loma.sfd tmp/Loma.sfd '
+[4/6] tmp/Loma-Bold.sfd[1]../../../script-test/bin/rmOverlap:
+16:56:01 runner /tutorial/tutorial/font4/buildlinux2/tmp/Loma-Bold.sfd--&gt;/tutorial/tutorial/font4/buildlinux2/.tmp/tmp/Loma-Bold.sfd
+16:56:01 runner ' ../../../script-test/bin/rmOverlap .tmp/tmp/Loma-Bold.sfd tmp/Loma-Bold.sfd '
+[5/6] Loma.ttf_sfd: buildlinux2/tmp/Loma.sfd -&gt; buildlinux2/Loma.ttf
+16:56:01 runner " /usr/bin/fontforge -lang=ff -c 'Open($1); Generate($2)' tmp/Loma.sfd Loma.ttf "
+Copyright (c) 2000-2012 by George Williams. See AUTHORS for contributors.
+ License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
+ with many parts BSD &lt;http://fontforge.org/license.html&gt;. Please read LICENSE.
+ Executable based on sources from 02:55 UTC  4-Dec-2013-ML-D.
+ Library based on sources from 02:55 UTC  4-Dec-2013.
+ Based on source from git with hash:
+[6/6] Loma-Bold.ttf_sfd: buildlinux2/tmp/Loma-Bold.sfd -&gt; buildlinux2/Loma-Bold.ttf
+16:56:01 runner " /usr/bin/fontforge -lang=ff -c 'Open($1); Generate($2)' tmp/Loma-Bold.sfd Loma-Bold.ttf "
+Copyright (c) 2000-2012 by George Williams. See AUTHORS for contributors.
+ License GPLv3+: GNU GPL version 3 or later &lt;http://gnu.org/licenses/gpl.html&gt;
+ with many parts BSD &lt;http://fontforge.org/license.html&gt;. Please read LICENSE.
+ Executable based on sources from 02:55 UTC  4-Dec-2013-ML-D.
+ Library based on sources from 02:55 UTC  4-Dec-2013.
+ Based on source from git with hash:
+smith: Leaving directory `/tutorial/tutorial/font4/buildlinux2'
+'build' finished successfully (0.919s)</pre><p>Thankfully, on a modern terminal, the colourising helps makes more sense of the
+voluminous information. But it is helpful once you learn to read it. The
+timestamped <code class="literal">runner</code> lines give the precise command lines that are run at each
+stage of the build.</p><p>Clearly the key to getting this output is in the command-line options to <code class="literal">smith build</code>.
+The <code class="literal">-v</code> says to output the extra information. But since smith tries to use multiple
+processors if you have them, to speed up the build (for example without the
+<code class="literal">-j1</code>, my build runs in 0.479s), it means the output can get interleaved. It is
+therefore wise to restrict smith to a single process while outputting this
+information, and this is done using <code class="literal">-j1</code>.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font5_smarts_and_basic_tests"></a>font5 - Smarts and Basic Tests</h4></div></div></div><p>In this exercise we grow our description to add OpenType and Graphite tables and
+also add some tests.</p><pre class="programlisting">prjbase = '../../script-test/'
+fontbase = prjbase + 'fonts/thai/font-source/'
+rmoverlap = prjbase + 'bin/rmOverlap'
+
+APPNAME = 'loma'
+VERSION = '0.0.1'
+TESTDIR = prjbase + 'fonts/thai/tests'
+TESTRESULTSDIR = 'tests'
+TESTSTRING = u"\u0e01=chicken, \u0e02=egg. Problem solved"
+
+for ext in ('', '-Bold') :
+    fbase = 'Loma' + ext
+    font(target = fbase + '.ttf',
+         source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
+         opentype = internal(),
+         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
+         ap = fbase + '.xml',
+         script = 'thai',
+         fret = fret(params = "-r")
+        )</pre><p>Line 15 tells smith how the OpenType tables will be generated for this font. It
+is possible to compile in VOLT tables, or, as here to use the internal
+description already in the font. The <code class="literal">internal()</code> does very little, but it does
+indicate to smith that the font has OpenType tables and that they should be
+tested.</p><p>Line 16 tells smith how the Graphite tables are to be added. There is currently
+only one form for Graphite source, and that is GDL. The <code class="literal">gdl()</code> object tells
+smith how to generate and bring together the various files that typically make
+up a Graphite description. A typical Graphite project has an autogenerated
+component (which is the first parameter to the gdl() (<code class="literal">fbase+'.gdl'</code>) and a
+common core gdl file that is hand authored (the <code class="literal">master</code> parameter). Smith then
+does the work to generate the files and compile them into the font.</p><p>Line 17 talks about an attachment point database. This file holds information
+about glyphs in the font that cannot be held by TTF. Most importantly this file
+holds the positions of anchor points on the glyphs, and these positions are used
+when autogenerating smart code, either for volt() or gdl() or whatever.
+Depending on the source file format, the file may be autogenerated or be
+required as part of the source files.</p><p>These three lines are all it takes to add a sophisticated smart font build
+system to the font creation. The rest of this section will look at basic font
+testing.</p><p>The basic principle of font testing in smith is that there is a test directory
+containing test data. This data is then applied to the various fonts and results
+are generated in the build tree. Test data can be of various formats, but the
+easiest to work with is simple <code class="literal">.txt</code> files that are treated as one paragraph
+per line files.</p><p>Line 7 gives the directory where the test files may be found. Since it is
+outside the project tree rooted in the directory containing the wscript, we have
+to specify where in the buildtree we want the test results to be put. Line 8
+specifies that subdirectory.</p><p>Smith allows for user defined tests, but there are some defaults built in, which
+we will examine here.</p><pre class="screen">smith pdfs</pre><p>This tells smith to generate pdfs of each test file for each font for each smart
+font technology. That’s quite a few for each, but it means that you can look
+at any particular font and its smart rendering technology for each test. The
+files end up in <code class="literal">buildlinux2/tests</code> based on the value of <code class="literal">TESTRESULTSDIR</code>.</p><p>So for example, the test file riwordsu-short.txt will generate 4 pdf files:
+for the regular font: riwordsu-short_loma_ot.pdf, riwordsu-short_loma_gr.pdf and
+for the bold font: riwordsu-short_loma-bold_ot.pdf and
+riwordsu-short_loma-bold_gr.pdf. The <code class="literal">_ot</code> extension is used for OpenType
+rendered texts and <code class="literal">_gr</code> for the graphite rendered texts. The texts are rendered
+using XeTeX.</p><p>The other file in the tests directory is <code class="literal">patani-malay.htxt</code>. The <code class="literal">h</code> in htxt
+tells smith to preprocess the file to convert strings of the form \uxxxx into
+the corresponding Unicode character before rendering. This makes it easier to
+create test files.</p><p>Line 18 is an important line for OpenType testing since it specifies which
+script to use when running the OpenType shaping engine.</p><p>Another aspect of testing is regression testing. Can we find out what has
+changed between this font and a known good version? The way this works is that
+we store known good versions of the fonts and then have smith run tests against
+both fonts and compare the results. The default directory to keep the font files
+in is <code class="literal">standards/</code>.</p><pre class="screen">smith test</pre><p>The results end up in the <code class="literal">RESULTSDIR/regression</code> directory as <code class="literal">.log</code> files. If
+there are no differences, the files are 0 length.</p><p>A further target that is useful is the ability to create font reports that show
+all the glyphs in a font. We set this as a font product rather than a kind of
+test, in line 19. The default target filename is the same as the <code class="literal">target</code> .ttf
+file but with a .pdf extension instead. The file is built as part of <code class="literal">smith
+build</code>.</p><p>There are two other targets that this wscript enables:</p><pre class="screen">smith waterfall
+smith xfont</pre><p>Line 8 specifies a string that will be used in creating the waterfall files and also the cross font
+summary files. <code class="literal">smith waterfall</code> creates one file per font and technology and stores it in
+the <code class="literal">waterfalls</code> sub directory of the <code class="literal">TESTRESULTSDIR</code>, prefixing each font and technology with
+<code class="literal">Waterfall</code>. <code class="literal">smith xfont</code> creates one file per technology in the <code class="literal">TESTRESULTSDIR</code> called <code class="literal">Crossfont_ot.pdf</code>
+or <code class="literal">Crossfont_gr.pdf</code> that contains the test string output with the font name, one per line.</p><p>Another feature of smith is its ability to integrate with <code class="literal">graide</code>. Graide is a
+graphically based IDE for developing GDL Graphite source code. It also
+incorporates a Graphite debugger to help font developers see how their code
+executes.</p><pre class="screen">smith graide
+graide -p graide/Loma.cfg</pre><p>Running <code class="literal">smith graide</code> causes smith to create graide configuration files in a
+<code class="literal">graide/</code> subdirectory. This is one of the few commands that creates files
+outside of the buildlinux2/ tree. The user can then run graide referencing one
+of these configuration files. One file is made per font.</p><p>A word of advice. Since, most often, smith does not generate .gdx files when it
+runs grcompiler (.gdx files are grcompiler debug files), it is best to recompile
+the font on loading into graide.</p><p>The configuration is designed to restrict graide to just editing GDL. If you
+want to use graide to adjust attachment points or add them, then you will need
+to enable writing to the AP.xml, in the graide configuration, and you are then
+responsible for propagating those changes back from the AP.xml to your source
+font.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font6_metadata"></a>font6 - Metadata</h4></div></div></div><p>So far we have concerned ourselves with the mechanics of font creation. But in
+order to release a font package we also need to concern ourselves with the
+metadata that is involved in producing a font release.</p><pre class="programlisting">prjbase = '../../script-test/'
+fontbase = prjbase + 'fonts/thai/font-source/'
+rmoverlap = prjbase + 'bin/rmOverlap'
+
+APPNAME = 'loma-minority'
+VERSION = '0.0.1'
+TESTDIR = prjbase + 'fonts/thai/tests'
+TESTRESULTSDIR = 'tests'
+TESTSTRING = u"\u0e01=chicken, \u0e02=egg. Problem solved"
+DESC_SHORT = "Loma with minority extensions"
+DESC_LONG = """Loma with minority extensions
+These fonts support extra characters and sequences as needed for
+minority languages that use the Thai script. Specifically this
+font supports the following language needs: Patani Malay, So"""
+LICENSE = "GPL.txt"
+
+for ext in ('', '-Bold') :
+    fbase = 'Loma' + ext
+    font(target = process(fbase + '-Minority.ttf', name("Loma Minority")),
+         source = process(fontbase + fbase + '.sfd', cmd('../' + rmoverlap + ' ${DEP} ${TGT}')),
+         version = 0.1,
+         woff = woff(),
+         opentype = internal(),
+         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
+         ap = fbase + '.xml',
+         script = 'thai',
+         fret = fret(params = "-r")
+        )</pre><p>While we have used an existing font: Loma as our base font, we can’t really
+release a new version of Loma since that is a font owned by someone else. The
+font has a GPL license and so we are free to develop our own version of Loma
+under that license. It makes sense, therefore, to change the name to something
+more appropriate: <code class="literal">Loma Minority</code>. We do this in a number of places in the
+wscript: Line 5 changes the installer application name. Line 19 changes both the
+name of the font file generated (and all derived products), but it also
+processes that font file to change the internal name to "Loma Minority", using a
+process() and a name() function that acts like a cmd() that is suited to font
+renaming.</p><p>We also enhance the installation package to include a short and long
+description. We also include a license file, on Line 15, for the installer that reflects what
+is in the font. Smith also provides a mechanism to directly support the OFL
+license inside the font and font package, but this is not relevant here.</p><p>We also set the version of the font inside the font using a <code class="literal">version</code> parameter
+on line 21. This means that smith can set the version inside the font if so
+desired. This saves editing source fonts all the time to account for what is a
+build parameter.</p><p>The Web Open Font Format (WOFF) is designed particularly for distribution of web fonts
+and smith can generate such files from the target .ttf font file. The default
+parameters for this object take the font target filename as the basis of the
+woff filename, which is sufficient for our needs.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_font7_more_tests"></a>font7 - More Tests</h4></div></div></div><p>This section is for those interested in doing more advanced types of testing.
+For most projects there is no need to go to this level of complexity and many
+users never need to use these capabilities. So this exercise has been placed
+after the exercise that pretty much completes font creation. We also try to
+introduce as many advanced techniques as we can, even if the results end up
+being a little contrived.</p><p>Font testing is not limited to just the inbuilt test types. Smith supports the
+integration of other test programs as you the user desires, so long as they are
+command line based, non interactive and report generators.</p><pre class="programlisting">prjbase = '../../script-test/'
+fontbase = prjbase + 'fonts/thai/font-source/'
+basebin = prjbase + 'bin'
+
+APPNAME = 'loma-minority'
+VERSION = '0.0.1'
+TESTDIR = prjbase + 'fonts/thai/tests'
+TESTRESULTSDIR = 'tests'
+TESTSTRING = u"\u0e01=chicken, \u0e02=egg. Problem solved"
+DESC_SHORT = "Loma with minority extensions"
+DESC_LONG = """Loma with minority extensions
+These fonts support extra characters and sequences as needed for
+minority languages that use the Thai script. Specifically this
+font supports the following language needs: Patani Malay, So"""
+LICENSE = "GPL.txt"
+
+t = fonttest(targets = {
+    'pdfs' : tex(),
+    'test' : tests(),
+    'report' : tests({'report' : cmd("${FONTREPORT} ${SRC[0]} &gt; ${TGT}")}, coverage = "fonts")
+    })
+
+for ext in ('', '-Bold') :
+    fbase = 'Loma' + ext
+    font(target = process(fbase + '-Minority.ttf', name("Loma Minority")),
+         source = process(fontbase + fbase + '.sfd', cmd('${RMOVERLAP} ${DEP} ${TGT}')),
+         version = 0.1,
+         woff = woff(),
+         opentype = internal(),
+         graphite = gdl(fbase + '.gdl', master = fontbase + 'master.gdl'),
+         ap = fbase + '.xml',
+         script = 'thai',
+         fret = fret(params = '-r'),
+         tests = t
+        )
+
+def configure(conf) :
+    import os
+    basepath = os.environ['PATH'].split(os.pathsep) + [os.path.abspath(basebin)]
+    conf.find_program('rmOverlap', path_list = basepath)
+    try :
+        conf.find_program('fontreport', path_list = basepath)
+    except conf.errors.ConfigurationError :
+        pass</pre><p>The interesting section is in lines 17-21. These lines create a fonttest object
+that is then referenced within the font at line 34. A fonttest object adds new
+smith commands. This example adds the three smith commands: pdfs, test and
+report. Notice that the <code class="literal">smith pdfs</code> command is actually implemented using a
+fonttest() object. The <code class="literal">targets</code> parameter to fonttest uses a python data
+structure called a dictionary. This is indicated by the <code class="literal">{</code> at the start (and
+<code class="literal">}</code> at the end). Dictionary elements consist of a string before a <code class="literal">:</code> and a
+value after it. The value before the <code class="literal">:</code> is known as the key and the value after
+as the value. So a dictionary is set of key, value pairs. In our case, the keys
+here indicate smith commands and the values are the test objects that get
+executed for the command.</p><p>The first two commands use default test objects appropriate to the type of
+command. The <code class="literal">pdfs</code> command executes a <code class="literal">tex()</code> object that does all the xetex
+processing of test files. Likewise the <code class="literal">test</code> command executes a default
+<code class="literal">tests()</code> object which implements the regression testing.</p><p>Our new command <code class="literal">report</code> also uses a <code class="literal">tests()</code> object. But in this, we give
+another dictionary of key, value pairs. The key is a subdirectory under the
+TESTRESULTSDIR and the value is a <code class="literal">cmd()</code> object that gives the command to
+execute. In this case we are running the fontreport program. The reference to
+'${SRC[0]}` says to use the first element from the inputs. The inputs has 3
+elements: the font, the text file to test and the corresponding <code class="literal">standards/</code>
+font file. We only need the first of these and list indices all start from 0 in
+python. In addition, we use the parameter <code class="literal">coverage</code> to say that we only want to
+run tests one per font, and not one per test file per shaper per font. The <code class="literal">&gt;
+${TGT}</code> says that the output that the program produces, which would normally be
+printed on the screen is to be sent to the target log file instead.</p><p>Another thing we have changed is that rather than hardwiring various of the
+specialist programs into our wscript, we now will get smith to go and search for
+them. At line 37, we introduce another new python concept: the function. Each
+smith command will search for a function in your wscript with the same name as
+the command and will execute it. For more information of what to do then you
+should read the manual for the underlying framework that smith is built on,
+which is waf. The variable passed to us is a waf context that can be used to do
+various things like add commands to the build process, etc. In our case we want
+to have smith search for various programs. <code class="literal">find_program()</code> is the key that
+tells smith to search for the programs. In the case of <code class="literal">rmOverlap</code>, that is
+necessary for the build, so if it is missing we want the configuration to fail.
+But in the case of the test script, we only lose the ability of that one test
+type if the script is missing, so we don’t want to fail the configuration. This
+is a marginal call, but we do at least get to see the pattern for achieving
+this (lines 41-44). In each case find_program() takes a list of paths to search,
+and it only searches those directories, not directories below those, unless
+explicitly listed.</p></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_directory_structure"></a>3. Directory Structure</h2></div></div></div><p>Having a good layout for all the different files in a script project is very helpful.</p><p>A reference template structure is in preparation, for now the following structure description is provided:</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_create_working_area"></a>3.1. Create Working Area</h3></div></div></div><p>If you need a suggestion of where to place all the needed files, the following directory structure is suggested.</p><p>Create a directory to work in. We will use the directory <code class="literal">projects\</code>. You can call this directory whatever you want and put it wherever you like, just remember to adjust the following instructions accordingly. Your home folder is a good place for this directory.</p><p>In <code class="literal">projects</code> create a directory called <code class="literal">script</code>. In <code class="literal">fontwork</code> place Perl sources (either from CPAN tarballs or subversion repositories) and other miscellaneous files. In <code class="literal">script</code> there should be one directory for each script. The directory name should be the ISO 15924 four-letter code for the script you are working with. For example <code class="literal">deva</code> for Devanagari, <code class="literal">latn</code> for Latin (or Roman) script.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_script_projects"></a>3.2. Script Projects</h3></div></div></div><p>These projects are named for the ISO 15924 four letter codes mentioned above. While it isn’t necessary to follow the script project directory structure when using the font template build system, it is a useful directory structure.</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+fonts/
+</span></dt><dd>
+    Contains one directory per font project in this script
+</dd><dt><span class="term">
+keyboards/
+</span></dt><dd>
+    Contains one directory per keyboard layout collection
+</dd><dt><span class="term">
+mappings/
+</span></dt><dd>
+    Contains one directory per legacy encoding. Inside that is any mapping tables and a sample font in that encoding.
+</dd><dt><span class="term">
+wsis/
+</span></dt><dd><p class="simpara">
+    Each directory under here corresponds to a particular language that uses script. The directory name is the RFC4646bis code for the language. Each language directory in its turn contains other directories:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+words/
+</span></dt><dd>
+    This directory contains Unicode encoded wordlist files
+</dd><dt><span class="term">
+cldr/
+</span></dt><dd>
+    This directory contains any LDML files for this language in this writing system
+</dd><dt><span class="term">
+toolbox/
+</span></dt><dd>
+    This directory contains any Toolbox <code class="literal">.lng</code> files for this language and script in Unicode. Non-Unicode files are stored under a corresponding directory in the appropriate <code class="literal">mappings</code> directory.
+</dd><dt><span class="term">
+texts/
+</span></dt><dd>
+    Contains sample texts in the language, including <code class="literal">.pdf</code> to show how the text should be rendered.
+</dd></dl></div></dd></dl></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_fonts"></a>4. Fonts</h2></div></div></div><p>Fonts form the heart of the build system, given that they are the most complex component type to create and work with.</p><p>The minimum attributes a font object needs are: <code class="literal">target</code> and <code class="literal">source</code>. For example, the following <code class="literal">wscript</code> file is about as simple as one can get:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf')</pre><p>This short file does more than might be expected. First of all it copies the input file <code class="literal">myfont.ttf</code> to an output file <code class="literal">build/results/myfont.ttf`footnote:[We will use unix style `/</code> for path separators]. This copy may seem redundant, but it is necessary for the rest of the system to work, and not all source fonts are unmodified <code class="literal">.ttf</code> files. It will also add this font to the default package, allowing a Windows installer to be created. If there are tests <code class="literal">.txt</code> files in a directory called <code class="literal">tests</code> then these can be run against this font.</p><p>Notice that an input and an output file may not have the same name. Even if the output file ends up in <code class="literal">build/</code> it still corresponds to a real input file that may or may not be in <code class="literal">build/</code>. So file paths must be unique if the files are unique.</p><p>What if the source isn’t a <code class="literal">.ttf</code> file. We can simply change the above example to:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.sfd')</pre><p>and the system will automatically convert the FontForge source font to TrueType as it is copied into the <code class="literal">build</code> results directory tree. Here we wouldn’t actually need the <code class="literal">results/</code> prefix to the target because the filename isn’t the same as the <code class="literal">source</code> attribute.</p><p>The complete list of core attributes to a font are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+target
+</span></dt><dd>
+    Output file for the generated font within <code class="literal">build</code>.
+</dd><dt><span class="term">
+source
+</span></dt><dd>
+    Basic design file used to generate the initial form of the output font.
+</dd><dt><span class="term">
+version
+</span></dt><dd>
+    This takes a version number in the form <span class="emphasis"><em>x</em></span>.<span class="emphasis"><em>y</em></span> (a floating point number) and sets the output font to have that version. It may also be a tuple of the form (x.y, "text") where the text will be appended to the version string inside the font.
+</dd><dt><span class="term">
+sfd_master
+</span></dt><dd>
+    This attribute specifies a FontForge file that should be merged with the source FontForge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.
+</dd><dt><span class="term">
+ap
+</span></dt><dd>
+    Attachment point database associated with the source font.
+</dd><dt><span class="term">
+classes
+</span></dt><dd>
+    Classes .xml file that adds class information to the attachment point database before conversion into smart font source code.
+</dd><dt><span class="term">
+copyright
+</span></dt><dd>
+    Copyright string to insert into the font.
+</dd><dt><span class="term">
+tests
+</span></dt><dd>
+    Test object to use for test generation. If not specified, the global font test object is used.
+</dd><dt><span class="term">
+package
+</span></dt><dd>
+    Package object to insert this font into. If not specified the global package is used.
+</dd><dt><span class="term">
+typetuner
+</span></dt><dd>
+    Specifies that typetuner should be run on the target and to use the given file as the typetuner configuration xml file.
+</dd></dl></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_opentype"></a>4.1. OpenType</h3></div></div></div><p>There are two ways of adding OpenType information to a font. One is to already have it in the source font. This is the most common approach. We need to indicate to the font builder that we are working with an OpenType font, even if everything is internal to the font. The font builder needs to know for font testing purposes or if the font is generated from a legacy font.</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.sfd',
+     opentype = internal())</pre><p>This will generate tests pertinent to OpenType testing. See the section on font tests.</p><p>One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a <code class="literal">sfd_master</code> attribute and the font builder will use <code class="literal">sfdmeld</code> to integrate the lookups in the master into each font as it is built. There is no need to specify that the font is OpenType in this case, because that is obvious from the context:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.sfd',
+     sfd_master = 'mymaster.sfd')</pre><p>Obviously, if the <code class="literal">sfd_master</code> attribute is the same as the <code class="literal">source</code> file then no merge occurs. This is an alternative way of specifying that the font is OpenType.</p><p>Another approach to adding OpenType tables to a font is to use an external tool to create the lookups in and then to have that compile them into the font. Currently, the only external tool supported by the system is Microsoft’s VOLT (Visual OpenType Layout Tool). This uses a command line VOLT compiler to integrate the <code class="literal">.vtp</code> source into the font. In addition, the <code class="literal">.vtp</code> source is autogenerated from a source and any other elements that go to make the final integrated source. For example we show a maximal <code class="literal">volt()</code> integration to show all the components and then discuss them.</p><p>Notice that while the initial parameter to such objects as <code class="literal">volt</code> is required, all named parameters are optional.</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     opentype = volt('myfont.vtp',
+                     master = 'mymaster.vtp'),
+     ap = 'myfont.xml',
+     classes = 'project_classes.xml')</pre><p>We define the <code class="literal">.vtp</code> file to create for this font which will then be compiled into the font using <code class="literal">volt2ttf</code> as <code class="literal">myfont.vtp</code>. We also declare a shared master volt project that is shared between all the fonts (well at least this one!). In building a largely automated volt project, a program <code class="literal">make_volt</code> is used that can take attachment point information from an xml database <code class="literal">myfont.xml</code>. This may be augmented with class information using <code class="literal">project_classes.xml</code>. These two file references are within the font rather than the volt details because they are shared with other smart font technologies particularly graphite.</p><p>The complete list of attributes to Volt() are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+master
+</span></dt><dd>
+    The volt source that is processed against the font to generate the font specific volt to be compiled into the font.
+</dd><dt><span class="term">
+make_params
+</span></dt><dd>
+    These parameters are passed to the make_volt process. The value is a string of parameters.
+</dd><dt><span class="term">
+params
+</span></dt><dd>
+    These parameters are passed to volt2ttf to modify the compiling of the volt source into OpenType tables.
+</dd><dt><span class="term">
+no_make
+</span></dt><dd>
+    If this attribute is present, make_volt isn’t run and the first parameter is assumed to be the specific .vtp for this font.
+</dd><dt><span class="term">
+no_typetuner
+</span></dt><dd>
+    The VOLT2TTF program used to compile the volt into opentype, also has the capability to emit an XML control file for typetuner. By default, if the font requests typetuner be run, the volt2ttf options will be set to generate this file. Setting this attribute stops this generation from happening and you will need to create the file some other way.
+</dd></dl></div><p>More recently a textual representation of OpenType has been developed by Adobe. The Adobe Font Development Kit for OpenType (AFDKO) has a textual syntax for OpenType lookups, called a feature file. smith can work with these .fea files. It works by creating a font specific .fea file containing key classes and also attachment lookups for all the attachment points in the font. These can then be referenced in the appropriate features. It is unlikely that anyone will not use a master fea file.</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     opentype = fea('myfont.fea',
+                    master = 'mymaster.fea'),
+     ap = 'myfont.xml',
+     classes = 'project_classes.xml')</pre><p>The complete list of attributes to fea() follow those of other classes:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+master
+</span></dt><dd>
+    The fea source that will be included at the end of the autogenerated .fea file.
+</dd><dt><span class="term">
+make_params
+</span></dt><dd>
+    Extra parameters to pass to make_fea, the tool that is used to generate the dynamic .fea file.
+</dd><dt><span class="term">
+keep_feats
+</span></dt><dd>
+    This tells the feature processor to keep all the lookups associated with a given feature that are already in
+    the font, and not wipe them when merging the feature file. For example, keeping the kern feature lookups, which
+    are often best handled in a font design application rather than in fea files.
+</dd><dt><span class="term">
+no_make
+</span></dt><dd>
+    If this attribute is present, then make_fea isn’t run and the first parameter references a file that already exists rather than one that will be created by fea().
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_graphite"></a>4.2. Graphite</h3></div></div></div><p>Adding Graphite tables to a font is much like adding VOLT information. The relevant files are declared either to the font or a <code class="literal">gdl()</code> object. For example:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     graphite = gdl('myfont.gdl',
+                     master = 'mymaster.gdl'),
+     ap = 'myfont.xml',
+     classes = 'project_classes.xml')</pre><p>Notice that the <code class="literal">ap</code> and <code class="literal">classes</code> attributes have the same values and meaning as for OpenType tables. This is because the information is used in the creation of both sets of tables. The <code class="literal">myfont.gdl</code> is created by the <code class="literal">make_gdl</code> process and it pulls in <code class="literal">mymaster.gdl</code> during compilation.</p><p>The complete list of attributes to a gdl() object are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+master
+</span></dt><dd>
+    Non-font specific GDL that is #included into the font specific GDL.
+</dd><dt><span class="term">
+make_params
+</span></dt><dd>
+    Parameters passed to <code class="literal">make_gdl</code>.
+</dd><dt><span class="term">
+params
+</span></dt><dd>
+    Parameters to pass to <code class="literal">grcompiler</code> to control the compilation of Graphite source to Graphite tables in the font.
+</dd><dt><span class="term">
+no_make
+</span></dt><dd>
+    If this attribute is present, make_gdl is not run and the first parameter is assumed to be the gdl for the specific font.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_legacy_fonts"></a>4.3. Legacy Fonts</h3></div></div></div><p>Many fonts are actually built from another font, either legacy encoded or generated from a source font or fonts. This can be achieved by giving a <code class="literal">legacy()</code> object as the <code class="literal">source</code> attribute for the font. For example, for a font generated from a legacy font using <code class="literal">ttfbuilder</code> we might do:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = legacy('myfont_src.ttf',
+                     source = 'my_legacyfont.ttf',
+                     xml = 'legacy_encoding.xml',
+                     params = '-f ../roman_font.ttf',
+                     ap = 'my_legacyfont.xml'))</pre><p>The legacy object creates the source font that is then copied to the output and perhaps smarts are added too.</p><p>The complete set of attributes to a <code class="literal">legacy()</code> object is:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+source
+</span></dt><dd>
+    The legacy source font (<code class="literal">.ttf</code>) to use to convert to the Unicode source font.
+</dd><dt><span class="term">
+xml
+</span></dt><dd>
+    ttfbuilder configuration xml file to use for the conversion
+</dd><dt><span class="term">
+params
+</span></dt><dd>
+    Command line arguments to ttfbuilder. Note that files specified here need <code class="literal">../</code> prepended to them.
+</dd><dt><span class="term">
+ap
+</span></dt><dd>
+    Attachment point database of the legacy font that will be converted to the font.ap attribute file.
+</dd><dt><span class="term">
+noap
+</span></dt><dd>
+    Instructs the legacy converter not to create the ap database specified in the font. This would
+    get used when another process, after legacy conversion, modifies the font and then you want the
+    build system to autogenerate the ap database from that modified font rather than from the
+    legacy font conversion process.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_licensing_and_copyright"></a>4.4. Licensing and Copyright</h3></div></div></div><p>Fonts contain both copyright and license information. The <code class="literal">copyright</code> attribute is the copyright string for the font and if present that string will be inserted into the font as the copyright statement.</p><p>The license object is an object that describes how to generate the specific license for this font. It also allows the collecting of license information for all the fonts in a package. Currently, the only license type supported is the OFL. For example:</p><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     copyright = 'Copyright 2012, Acme &lt;email|URL&gt;',
+     license = ofl('myfont', 'Acme',
+                    version = 1.1,
+                    copyright = 'Copyright 2012, Acme Labs &lt;email|URL&gt;',
+                    file = "OFL.txt'))</pre><p>The first parameter for the <code class="literal">ofl()</code> object is the list of Reserved Font Names (RFN). There may be more than one RFN. (For more details about the RFN mechanism please refer to the OFL FAQ: <a class="ulink" href="http://scripts.sil.org/OFL" target="_top">http://scripts.sil.org/OFL</a>). These all appear in the license statement as the reserved font names for that particular version of the font project. In this example the name of the font and the name of the company of the author are reserved so that any derivative must be distinct from these two names. This is designed to allow all changes to the font but to prevent collision of fonts with different features but the same names. The goal is to reduce confusion for both font authors and font users. All the reserved font names in all the fonts in a package - various other authors can indicate their own reserved font names - are collected into one list that is then put into the license for the package. The OFL version may be given and defaults to 1.1. The copyright message is put at the start of the license statement. If not specified the global variable COPYRIGHT is used for this. The file where the license ends up may be given but defaults to <code class="literal">OFL.txt</code>.</p></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_woff"></a>4.5. WOFF</h3></div></div></div><p>The WOFF format is a different file format based on TTF. Smith can generate .woff files. For example:</p><p>The <code class="literal">woff</code> object takes these attributes (which could well grow):</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+params
+</span></dt><dd>
+    This string is passed as the command line options to the ttf2woff command.
+</dd></dl></div><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     woff = woff('results/myfont.woff'))</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_fret"></a>4.6. Fret</h3></div></div></div><p>Fret is a font reporting tool that generates a PDF report from a font file, giving information about all the glyphs in the font.</p><p>The <code class="literal">fret</code> object takes these attributes:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+params
+</span></dt><dd>
+    A parameter list to pass to fret. If not specified, then fret is run with the <code class="literal">-r</code> command line argument.
+</dd></dl></div><pre class="programlisting">font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     fret = fret('results/myfont.pdf', params='-r -o i'))</pre></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_tests"></a>4.7. Tests</h3></div></div></div><p>smith includes a powerful system for testing with the potential to add different types of font tests. Currently there is only one font test type and also by default a single font test object is created that is used by all fonts for which no tests attribute is given.</p><p>There are two attributes associated with a font declaration that are to do with testing:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+test_suffix
+</span></dt><dd>
+    The way a font is identified as part of a test result filename is based on the target file for that font. If a font has a <code class="literal">test_suffix</code> attribute then this is used instead for the font identifying name.
+</dd><dt><span class="term">
+tests
+</span></dt><dd>
+    This is a fonttest object that describes the testing targets available for this font. If none is specified then a global shared default fonttest object. This default is described later.
+</dd></dl></div><p>The <code class="literal">fonttest</code> object takes these attributes:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+testdir
+</span></dt><dd>
+    This gives the directory relative to which all test files are to be found in the source tree. If unspecified, the global variable TESTDIR is used to give a default value. If this isn’t set then the <code class="literal">tests</code> dir is used. So if one had tests in a different directory the following would work:
+</dd></dl></div><pre class="programlisting">TESTDIR = 'test-suite'
+font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf')</pre><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+resultsdir
+</span></dt><dd>
+    This specifies the directory under the build directory into which test results are placed. It can be set globally via TESTRESULTSDIR and defaults to the same directory as testdir.
+</dd><dt><span class="term">
+texts
+</span></dt><dd>
+    This is a glob string or list of glob strings that describe the text files to use for testing. The default is <code class="literal">*.txt</code>. For each text file and each font a <code class="literal">.tex</code> file is created that references the text file, the font, the script and language. In addition tests are run for each smart font technology (<code class="literal">gr</code> and or <code class="literal">ot</code>). These files are then generated to pdf.
+</dd><dt><span class="term">
+htexts
+</span></dt><dd>
+    Creating text files for complex scripts when there is no keyboard and at the start of a development project, can be problematic. One approach is to simplify the entry of unicode codepoints through the use of a string in the text file of the form <code class="literal">\u</code><span class="emphasis"><em>xxxx</em></span> which is a unicode scalar identifier (including support for supplementary plane data). Such files (defaulting to <code class="literal">*.htxt</code> are preprocessed into the corresponding <code class="literal">*.txt</code> and added to the list of <code class="literal">texts</code> test files.
+</dd><dt><span class="term">
+targets
+</span></dt><dd>
+    While the test system is designed to have sensible defaults, it is possible to override what happens when a particular test target is specified. This dictionary contains a test object associated with each of the test targets: pdfs, svg, test.  The default test type for each target is pdfs : tex(), svg : svg(), test : tests().
+</dd><dt><span class="term">
+extras
+</span></dt><dd>
+    Often a project will want to add tests to the existing defaults, rather than overriding them. This parameter takes the same structure as a targets parameter but instructs the system to add the tests rather than replace the defaults with these.
+</dd></dl></div><p>In effect, the default behaviour for testing can be written entirely in wscript explicitly:</p><pre class="programlisting">TESTDIR = 'test'
+TESTRESULTSDIR = TESTDIR
+globaltest = fonttest(targets = { 'pdfs' : tex(), 'svg' : svg(), 'test' : tests()},
+                      texts = '*.txt',  # all these are defaults and can be omitted
+                      htexts = '*.htxt'
+                      testdir = TESTDIR,
+                      resultsdir = TESTRESULTSDIR)
+font(target = 'results/myfont.ttf',
+     source = 'myfont.ttf',
+     test_suffix = 'myfont',    # derived default
+     tests = globaltest)</pre><p>The various test target classes are described here with the various parameters to each.</p><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_tex"></a>tex</h4></div></div></div><p>This class is used to generate PDF files from input test files. It takes the following parameters:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+files
+</span></dt><dd><p class="simpara">
+    This lists the files, relative to the testsdir, that should be used as sources for this test. The list is held in a dictionary with the value being key value pairs either stored as a dict or as a string with the pairs separated by &amp;, as in key=value&amp;key2=value2. These key values are used to set feature values and language and script for the file being tested. Any keys and values my be included. Particular keys are:
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+lang
+</span></dt><dd>
+        Specifies the language code to pass for rendering.
+</dd><dt><span class="term">
+script
+</span></dt><dd>
+        Specifies the script code to pass for rendering
+</dd></dl></div></dd><dt><span class="term">
+texs
+</span></dt><dd>
+    The difference with these <code class="literal">.tex</code> files (defaulting to <code class="literal">*.tex</code>) is that they are treated as simply TeX files to be run through XeTeX for test purposes. This gives the user greater control over complex text runs than a simple text file can give.
+</dd><dt><span class="term">
+htexs
+</span></dt><dd>
+    These files are parsed for Unicode expansions before being treated as files in the <code class="literal">texs</code> list. Defaults to <span class="emphasis"><em>*.htex</em></span>.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_crossfont"></a>crossfont</h4></div></div></div><p>This class creates a single PDF file from all the fonts, with a given string output in the font next to the font file name. It takes the following parameters:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+text
+</span></dt><dd>
+    The text string to be rendered in the font. If not included, it is taken from the global TESTSTRING, and failing that, is empty.
+</dd><dt><span class="term">
+file
+</span></dt><dd>
+    Filename base (i.e. no extension), including path relative to the testsdir, where the output should be generated. Defaults to CrossFont.
+</dd><dt><span class="term">
+size
+</span></dt><dd>
+    This is a number that specifies the font size in points. Defaults to the global TESTFONTSIZE (in points) and failing that to 12pt.
+</dd><dt><span class="term">
+featstr
+</span></dt><dd>
+    Specifies the feature string that should passed to XeTeX after the script information. Each feature is separated from the next by a colon. The language feature is called language, as in language=pal.
+</dd></dl></div><pre class="programlisting">t = fonttest(extras = {
+    'specimen' : crossfont( text = u'Lorem Ipsum - Unicode pangram - Iñtërnâtiônàlizætiøn ', name = "Specimen", size = 10, featstr = "liga"),
+    })</pre></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_waterfall"></a>waterfall</h4></div></div></div><p>This class creates a PDF file for each font and technology consisting of a waterfall of a string at various point sizes. It takes the following parameters:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+text
+</span></dt><dd>
+    The text string to be rendered in the font. If not included, it is taken from the global TESTSTRING, and failing that, is empty.
+</dd><dt><span class="term">
+waterfalldir
+</span></dt><dd>
+    Subdirectory under the test results directory into which to put the .tex and resulting .pdf files. If not present, uses the global WATERFALLDIR.
+</dd><dt><span class="term">
+waterfallsizes
+</span></dt><dd>
+    This is a number that specifies the font size in points. Defaults to the global TESTFONTSIZE (in points) and failing that to 12pt.
+</dd><dt><span class="term">
+sizefactor
+</span></dt><dd>
+    This specifies a factor to multiply each size by to get the linespacing. It default to the global TESTLINESPACINGFACTOR and defaults to 1.2
+</dd><dt><span class="term">
+featstr
+</span></dt><dd>
+    Specifies the feature string that should passed to XeTeX after the script information. Each feature is separated from the next by a colon. The language feature is called language, as in language=pal.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_svg"></a>svg</h4></div></div></div><p>This class is used for the generation of comparative SVG html reports to compare ot and graphite renderings. It takes the following parameters:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+files
+</span></dt><dd>
+    This dictionary gives all the test files to use and the feature values to use for rendering the text. The values follow the format used in the tex() class.
+</dd><dt><span class="term">
+html
+</span></dt><dd>
+    The html file that should be output that contains the links to all the test results.
+</dd><dt><span class="term">
+diff
+</span></dt><dd>
+    Specifies whether difference files should be generated. This value is a boolean.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_tests_2"></a>tests</h4></div></div></div><p>This class is used for managing regression type tests. In fact it can be used for any kinds of tests, since it allows the user to specify whatever tests they want and the commands involved. The first parameter passed to a tests() class contains a dictionary of test types (subdirectory names under the testsdir), and the cmd() to execute for that test type. For example, the default test list if none is specified, is equivalent to:</p><pre class="programlisting">{ 'regression' : cmd('cmptxtrender -k -e ${shaper} -s "${script}" -t ${SRC[1]}
+                      -o ${TGT} ${fileinfo} ${fileinfo} ${SRC[0]} ${SRC[2]}', shell=1) }</pre><p>There are also some keywords that get expanded in the command string:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+lang
+</span></dt><dd>
+    The language tag for the test, whether extracted from the first few characters of the test file or specified as a
+    parameter on the file in the file list.
+</dd><dt><span class="term">
+script
+</span></dt><dd>
+    The script tag. This is either specified in the files dictionary or comes from the script parameter in the font being tested.
+</dd><dt><span class="term">
+shaper
+</span></dt><dd>
+    Is either <code class="literal">ot</code> or <code class="literal">gr</code>, specifying which type of shaping is to be done in the test.
+</dd><dt><span class="term">
+fileinfo
+</span></dt><dd>
+    This is the value of the <code class="literal">extra</code> key in the <code class="literal">files</code> parameter dictionary for the particular file being processed.
+</dd></dl></div><p>In addition, a tests() takes the following named parameters:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+standards
+</span></dt><dd>
+    This directory is where to find the base fonts against which regression comparisons take place
+</dd><dt><span class="term">
+files
+</span></dt><dd>
+    As per the tex() files parameter.
+</dd><dt><span class="term">
+ext
+</span></dt><dd>
+    The default file extension for the <code class="literal">${TGT}</code> is <code class="literal">.log</code>, this can be changed using this parameter. For example: <code class="literal">ext='.pdf'</code>
+</dd><dt><span class="term">
+shapemap
+</span></dt><dd>
+    This is a function that is called with the <code class="literal">shaper</code> expansion and the result is used for that expansion instead.
+</dd><dt><span class="term">
+coverage
+</span></dt><dd>
+    This may take the following values: <code class="literal">fonts</code> indicates that the test is run once per font only.
+    <code class="literal">shapers</code> indicates that the test is run once per shaper per font. In these cases there is no text file in the inputs.
+</dd></dl></div></div></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_keyboards"></a>5. Keyboards</h2></div></div></div><p>Keyboard objects (<code class="literal">kbd()</code>) are much simpler than fonts. There are a number of attributes associated with a keyboard and they are listed here along with their default values:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+source
+</span></dt><dd>
+    The source file is a Keyman keyboard source file with extension <code class="literal">.kmn</code>. (Required)
+</dd><dt><span class="term">
+target
+</span></dt><dd>
+    The target file is the compiled Keyman keyboard and defaults to the source <code class="literal">.kmn</code> file with kmn replaced as <code class="literal">.kmx</code>
+</dd></dl></div><p>The following are attributes specific to generating a sample layout of the keyboard:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+font
+</span></dt><dd>
+    Font pathname to use for rendering the layout. This attribute is required if you want to generate keyboard layout documentation. It results
+    in the font being copied into the build tree for this project.
+</dd><dt><span class="term">
+fontname
+</span></dt><dd>
+    Public font name that is used by the OS to reference the font.
+</dd><dt><span class="term">
+fontdir
+</span></dt><dd>
+    Directory containing the font specified in <code class="literal">font</code>. This defaults to <code class="literal">kbdfonts</code>.
+</dd><dt><span class="term">
+kbdfont
+</span></dt><dd>
+    Full pathname to the local font file copy to use for rendering the layout. By default this is built from the <code class="literal">font</code> and <code class="literal">fontdir</code> attributes.
+    This attribute is rarely set. Use <code class="literal">font</code> instead.
+</dd><dt><span class="term">
+fontsize
+</span></dt><dd>
+    Font size to render glyphs at in the layout, given in pt (18).
+</dd><dt><span class="term">
+modifiers
+</span></dt><dd><p class="simpara">
+    A list of strings which can take a sequence of the following strings, for example <span class="emphasis"><em>Ctrl RAlt</em></span>
+</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+''
+</span></dt><dd>
+            The empty string to indicate no modifier
+</dd><dt><span class="term">
+Ctrl
+</span></dt><dd>
+            Can be modified by L or R as well, as in LCtrl, RCtrl, Ctrl
+</dd><dt><span class="term">
+Alt
+</span></dt><dd>
+            Can be further modified by L or R or Gr, as in Alt, LAlt, RAlt, AltGr (equivalent to RAlt)
+</dd><dt><span class="term">
+key
+</span></dt><dd>
+            This specifies a key that is to be considered pressed before the keytop. This is used
+            to document keyboard layouts following a deadkey. For example <span class="emphasis"><em>[K_BKSLASH]</em></span> or <span class="emphasis"><em>\\</em></span> which
+            are equivalent.
+</dd></dl></div></dd><dt><span class="term">
+pdf
+</span></dt><dd>
+    Filename to put keyboard layout pdf in (<span class="emphasis"><em>source</em></span>.pdf)
+</dd><dt><span class="term">
+svg
+</span></dt><dd>
+    Intermediate svg format of keyboard layout (<span class="emphasis"><em>source</em></span>.svg)
+</dd><dt><span class="term">
+xml
+</span></dt><dd>
+    Intermediate xml that represents the basic keystrokes of the keyboard (<span class="emphasis"><em>source</em></span>.xml)
+</dd><dt><span class="term">
+mskbd
+</span></dt><dd>
+    An object that describes how to create an MS keyboard from the .kmn file.
+</dd></dl></div><p>An example specification of a keyboard object might be:</p><pre class="programlisting">kbd(source = 'mykbd.kmn',
+    fontname = 'My Font',
+    font = 'results/myfont.ttf')</pre><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_mskbd"></a>5.1. mskbd</h3></div></div></div><p>The mskbd object can be used for the mskbd parameter of a keyboard. It automatically generates
+a normal MS Keyboard from the .kmn file and compiles it. The dependencies are pretty stiff, but
+it does mean that a complete MS solution can be generated without needing to run special GUI
+software during the development cycle. The parameters to mskbd() are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+lid
+</span></dt><dd>
+    Language LCID to store this keyboard under. If not specified, defaults to 0xC00.
+</dd><dt><span class="term">
+lidinstall
+</span></dt><dd>
+    Specified as a list of language ids to install this keyboard under. E.g. lidinstall=[0x0436].
+</dd><dt><span class="term">
+guid
+</span></dt><dd>
+    GUID to associate with the keyboard. If not specified a random one is created.
+</dd><dt><span class="term">
+capslockkeys
+</span></dt><dd>
+    A list of keytops that should have capslock enabled for them. That is capslock will have
+    a shift action (and shift will unshift). The keytop characters are:
+    abcdefghijklmnopqrstuvwxyz0123456789-=[];',./\`
+</dd></dl></div><p>The following are internal attributes that may be set:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+arches
+</span></dt><dd>
+    List of architectures that may be built for. Currently i586 and amd64. This is unlikely to be set by a user.
+</dd><dt><span class="term">
+source
+</span></dt><dd>
+    .kmn source file, defaults to keyboard .source attribute
+</dd><dt><span class="term">
+c_file
+</span></dt><dd>
+    .c file to generate (same as source but with .c extension)
+</dd><dt><span class="term">
+rc_file
+</span></dt><dd>
+    .rc file to generate (same as source but with .rc extension)
+</dd><dt><span class="term">
+o_file
+</span></dt><dd>
+    .o file to generate from .c file (same as source but with .o extension)
+</dd><dt><span class="term">
+dll
+</span></dt><dd>
+    .dll file to create (same as source but with .dll extension)
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_tests_3"></a>5.2. Tests</h3></div></div></div><p>There are currently no automated tests for keyboards, although the generation of the layout can be considered a test.</p></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_packages"></a>6. Packages</h2></div></div></div><p>Once a set of writing system components have been created, there is the need to package them for distribution. smith works to make that as simple but as powerful as appropriate. Each writing system component (<code class="literal">font</code>, <code class="literal">kbd</code>) has an optional <code class="literal">package</code> attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition a global package object is created into which go all the components for which no <code class="literal">package</code> attribute has been set.</p><p>The global package can take its parameters from the wscript file as global variables with the same name as the attribute, but with the name uppercased.</p><p>The attributes to package are:</p><div class="variablelist"><dl class="variablelist"><dt><span class="term">
+appname
+</span></dt><dd>
+    Base application name to use for the installer in lower case. This is required.
+</dd><dt><span class="term">
+version
+</span></dt><dd>
+    Version number of the installer. This is required.
+</dd><dt><span class="term">
+desc_short
+</span></dt><dd>
+    One line description of the package.
+</dd><dt><span class="term">
+desc_long
+</span></dt><dd>
+    Multi-line description of the package.
+</dd><dt><span class="term">
+desc_name
+</span></dt><dd>
+    Multi-case name to use for the Windows installer generated.
+</dd><dt><span class="term">
+outdir
+</span></dt><dd>
+    Where to store the generated Windows installer relative to the build directory.
+</dd><dt><span class="term">
+docdir
+</span></dt><dd>
+    Directory tree to walk pulling in all the files as source files. Used for identifying documentation files. Also used in adding documentation files to installers.
+</dd><dt><span class="term">
+license
+</span></dt><dd>
+    License file to use within the package.
+</dd><dt><span class="term">
+reservedofl
+</span></dt><dd>
+    If set, uses the OFL and assembles a list of reserved font names from the constituent fonts for use within it.
+</dd><dt><span class="term">
+zipfile
+</span></dt><dd>
+    Name of zip file to use when creating smith zip. Is auto-generated if not set, based on appname and version.
+</dd><dt><span class="term">
+zipdir
+</span></dt><dd>
+    Directory to store generated zip file in, relative to build directory.
+</dd><dt><span class="term">
+debpkg
+</span></dt><dd>
+    debian package name for this package.
+</dd></dl></div></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="_tools"></a>7. Tools</h2></div></div></div><p>Here we install a number of pre-requisite programs that we will need later on. Unless otherwise stated, installers are assumed to take their default installation properties. With care you can change them if you want.</p><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_ubuntu"></a>7.1. Ubuntu</h3></div></div></div><p>Before installing packages, you should have <code class="literal">http://packages.sil.org/ubuntu</code> added as software source. Needed packages are:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+fontforge
+</li><li class="listitem">
+python-fontforge
+</li><li class="listitem">
+texlive-xetex
+</li><li class="listitem">
+grcompiler
+</li><li class="listitem">
+graphite-utilities
+</li><li class="listitem">
+nsis
+</li><li class="listitem">
+mercurial
+</li><li class="listitem">
+subversion
+</li><li class="listitem">
+libalgorithm-diff-perl
+</li></ul></div><p>Optional but very useful packages include:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+meld
+</li><li class="listitem">
+kdiff3
+</li><li class="listitem">
+tortoisehg
+</li><li class="listitem">
+tortoisehg-nautilus
+</li><li class="listitem">
+subversion-tools
+</li></ul></div><p>The following packages are needed, and should already be installed on an Ubuntu system.</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+perl
+</li><li class="listitem">
+python
+</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_windows"></a>7.2. Windows</h3></div></div></div><p>You will need to install the following programs:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+FontForge
+</li><li class="listitem">
+XeTeX - Paratext 7.x comes with XeTeX.
+</li><li class="listitem">
+Graphite compiler
+</li><li class="listitem">
+Graphite utilities
+</li><li class="listitem">
+NSIS
+</li><li class="listitem">
+TortoiseHg
+</li><li class="listitem">
+TortoiseSVN
+</li><li class="listitem">
+ActivePerl - Comes with Lib-AlgorithmDiff.
+</li><li class="listitem">
+ActivePython
+</li></ul></div></div><div class="section"><div class="titlepage"><div><div><h3 class="title"><a id="_perl_modules"></a>7.3. Perl Modules</h3></div></div></div><p>Many of the tools that smith uses are perl scripts. There are several ways to install these tools. You can unpack the sources anywhere on your system. If you need a suggestion of where to do this unpacking, please read the section <span class="emphasis"><em>Directory Structure</em></span>.</p><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_packages_2"></a>Packages</h4></div></div></div><p>If you are running Ubuntu, installed the following packages</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+libfont-ttf-scripts-perl
+</li><li class="listitem">
+libfont-ttf-perl
+</li></ul></div><p>If you are running Windows you can get tarballs (<code class="literal">.tar.gz</code>) from CPAN for the following packages.</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+Font-TTF-0.46.tar.gz
+</li><li class="listitem">
+Text-PDF-0.30.tar.gz
+</li><li class="listitem">
+Font-TTF-Scripts-0.13.tar.gz
+</li></ul></div><p>The versions will probably be newer by now. Extract the tarballs and follow the steps for installing from subversion repositories. You can use a program such a <code class="literal">7-zip</code> to extract the tarballs.</p></div><div class="section"><div class="titlepage"><div><div><h4 class="title"><a id="_subversion_repositories"></a>Subversion Repositories</h4></div></div></div><p>Here we install various Perl modules from source. The reason for doing this is so that we can update any software that we might encounter problems with. The basic procedure for installing a perl module is:</p><div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+run <code class="literal">perl Makefile.PL</code> to create a Makefile
+</li><li class="listitem">
+run <code class="literal">make</code> to create the local installation copy
+</li><li class="listitem">
+run <code class="literal">make install</code> to install the local copy to the main perl installation
+</li></ul></div><p>First you need to create three local repositories. You will only need to do this once. Run the commands</p><pre class="screen">svn co http://scripts.sil.org/svn-public/utilities/Font-TTF/trunk Font-TTF
+svn co http://scripts.sil.org/svn-public/utilities/Text-PDF/trunk Text-PDF
+svn co http://scripts.sil.org/svn-public/utilities/Font-TTF-scripts/trunk Font-TTF-scripts</pre><p>Every time you wish to update and install the perl tools run the following commands. On Windows you will need to replace <code class="literal">make</code> with
+<code class="literal">make DFSEP=/</code> due to the vagueries of GNU make. You should also change the command <code class="literal">sudo make install</code> to <code class="literal">make install</code>.</p><p>To install Font-TTF:</p><pre class="screen">cd Font-TTF
+perl Makefile.PL
+make
+sudo make install
+cd ..</pre><p>To install Text-PDF:</p><pre class="screen">cd Text-PDF
+perl Makefile.PL
+make
+sudo make install
+cd ..</pre><p>To install Font-TTF-Scripts:</p><pre class="screen">cd Font-TTF-scripts
+perl Makefile.PL
+make
+sudo make install
+cd ..</pre></div></div></div></div></body></html>
