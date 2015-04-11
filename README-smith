@@ -21,7 +21,7 @@ HOW TO CREATE THE SMITH DOCUMENTATION
 sudo apt-get install asciidoc dblatex 
 
 cd docs/smith/
-a2x -f pdf -L --dblatex-opts=" -s asciidoc-dblatex.sty" "-P latex.output.revhistory=0" manual.txt
-a2x -f xhtml manual.txt
+./build-docs.sh
 
-
+xdg-open manual.pdf  
+xdg-open manual.html
