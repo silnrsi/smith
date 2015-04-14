@@ -306,7 +306,7 @@ in is `standards/`.
 smith test
 ----
 
-The results end up in the `RESULTSDIR/regression` directory as `.log` files. If
+The results end up in the `TESTRESULTSDIR/regression` directory as `.html` files. If
 there are no differences, the files are 0 length.
 
 A further target that is useful is the ability to create font reports that show
@@ -322,10 +322,10 @@ smith waterfall
 smith xfont
 ----
 
-Line 8 specifies a string that will be used in creating the waterfall files and also the cross font
+Line 9 specifies a string that will be used in creating the waterfall files and also the cross font
 summary files. `smith waterfall` creates one file per font and technology and stores it in
-the `waterfalls` sub directory of the `TESTRESULTSDIR`, prefixing each font and technology with
-`Waterfall`. `smith xfont` creates one file per technology in the `TESTRESULTSDIR` called `Crossfont_ot.pdf`
+the `waterfall` sub directory of the `TESTRESULTSDIR`, prefixing each font and technology with
+`waterfall`. `smith xfont` creates one file per technology in the `TESTRESULTSDIR` called `Crossfont_ot.pdf`
 or `Crossfont_gr.pdf` that contains the test string output with the font name, one per line.
 
 Another feature of smith is its ability to integrate with `graide`. Graide is a
@@ -387,7 +387,7 @@ build parameter.
 
 The Web Open Font Format (WOFF) is designed particularly for distribution of web fonts
 and smith can generate such files from the target .ttf font file. The default
-parameters for this object take the font target filename as the basis of the
+parameters for this object, on line 22, take the font target filename as the basis of the
 woff filename, which is sufficient for our needs.
 
 
