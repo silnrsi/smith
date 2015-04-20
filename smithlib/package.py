@@ -98,7 +98,13 @@ class Package(object) :
     def get_sources(self, ctx) :
         res = []
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
-        licenses = [getattr(self, 'license', 'OFL.txt')]
+
+        licenses = []
+        if self.fonts :
+            licenses.extend([getattr(self, 'license', 'OFL.txt')])
+        if self.keyboards :
+            licenses.extend([getattr(self, 'license', 'MIT.txt')])
+
         if licenses[0] == 'OFL.txt' :
             licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         for l in licenses :
@@ -293,8 +299,12 @@ class Package(object) :
         """
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
+        licenses = []
+        if self.fonts :
+            licenses.extend([getattr(self, 'license', 'OFL.txt')])
+        if self.keyboards :
+            licenses.extend([getattr(self, 'license', 'MIT.txt')])
 
-        licenses = [getattr(self, 'license', 'OFL.txt')]
         if licenses[0] == 'OFL.txt' :
             licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         for l in licenses :
