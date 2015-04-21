@@ -475,11 +475,17 @@ class srcdistContext(Build.BuildContext) :
         tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
         tnode = self.path.find_or_declare(tarfilename)
         tar = tarfile.open(tnode.abspath(), 'w:gz')
+        incomplete = False
         for f in sorted(files.keys()) :
-            if f.startswith('../') : continue
+            if f.startswith('../') :
+                Logs.warn('Sources will not include file: ' + f)
+                incomplete = True
+                continue
             if files[f] :
                 tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
         tar.close()
+        if incomplete :
+            Logs.error("Not all the sources for the project have been included in the tarball so the wscript in it will not build.")
 
 class makedebianContext(Build.BuildContext) :
     """Build Debian/Ubuntu packaging templates for this project"""
