@@ -12,6 +12,7 @@ class Keyboard(object) :
         base = os.path.basename(kw['source'])
         if not 'target' in kw : kw['target'] = os.path.join('keyboards', base)
         if not 'kmx' in kw : kw['kmx'] = base.replace('.kmn', '.kmx')
+        if not 'kmfl' in kw : kw['kmfl'] = kw['target'].replace('.kmn', '.kmfl')
         if not 'xml' in kw : kw['xml'] = base.replace('.kmn', '.xml')
 #        if not 'fontname' in kw : kw['fontname'] = Popen(r"ttfeval -e 'print scalar $f->{q/name/}->read->find_name(2)' " + kw['font'], shell = True, stdout=PIPE).communicate()[0]
         if 'font' in kw :
@@ -37,6 +38,9 @@ class Keyboard(object) :
         except:
             path = os.path.join(os.getenv('HOME'), '.wine', 'drive_c', 'Program Files', 'Tavultesoft', 'Keyman Developer', 'kmcomp.exe')
             if os.path.exists(path) : ctx.env['KMCOMP'] = 'wine "' + path + '"'
+        try: ctx.find_program('kmflcomp', var = 'KMFLCOMP')
+        except:
+            pass
         self.ensure_fontdir(ctx)
         return res
 
@@ -58,7 +62,7 @@ class Keyboard(object) :
 
     def get_targets(self, ctx) :
         res = []
-        for k in ('target', 'kmx', 'pdf') :
+        for k in ('target', 'kmx', 'pdf', 'kmfl') :
             try :
                 res.append(getattr(self, k))
             except :
@@ -74,6 +78,8 @@ class Keyboard(object) :
         if bld.env['KMCOMP'] and not hasattr(self, 'nokmx') :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
+        if bld.env['KMFLCOMP'] and not hasattr(self, 'nokmfl') :
+            bld(rule = '${KMFLCOMP} ${SRC}', source = self.target, target = self.kmfl)
         if hasattr(self, 'kbdfont') : self.build_pdf(bld)
         if hasattr(self, 'mskbd') : self.mskbd.build(bld, self)
 
