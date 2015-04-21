@@ -487,6 +487,33 @@ class srcdistContext(Build.BuildContext) :
         if incomplete :
             Logs.error("Not all the sources for the project have been included in the tarball so the wscript in it will not build.")
 
+class srcdistcheckContext(srcdistContext) :
+    """checks if the project compiles (tarball from 'srcdist')"""
+    cmd = 'srcdistcheck'
+
+    def execute_build(self) :
+        import tarfile
+        tarname = getattr(Context.g_module, 'SRCDIST', None)
+        if not tarname :
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarname = tarbase + "-source"
+        else :
+            tarbase = tarname
+        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
+        tnode = self.path.find_or_declare(tarfilename)
+        try :
+            tar = tarfile.open(tnode.abspath(), 'r:gz')
+            tar.extractall()
+            tar.close()
+        except :
+            Logs.error("Tarball not found. Run smith srcdist first.")
+        # tarbase is directory to configure and build
+        ret = Utils.subprocess.Popen([sys.argv[0], 'configure', 'build'], cwd=tarbase).wait()
+	if ret:
+            raise Errors.WafError('srcdistcheck failed with code %i' % ret)
+
+        shutil.rmtree(tarbase)
+
 class makedebianContext(Build.BuildContext) :
     """Build Debian/Ubuntu packaging templates for this project"""
     cmd = 'deb-templates'
