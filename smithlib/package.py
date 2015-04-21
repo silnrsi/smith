@@ -228,6 +228,29 @@ class Package(object) :
         thisdir = os.path.dirname(__file__)
         fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
         kbds = [x for x in self.keyboards if not hasattr(x, 'dontship')]
+        if not getattr(self, 'license', None) :
+            if fonts and kbds :
+                # make new file and copy OFL.txt and MIT.txt into it
+                self.license = 'LICENSE'
+                font_license = bld.bldnode.find_resource('OFL.txt')
+                if not font_license :
+                    raise Errors.WafError("The font license file OFL.txt doesn't exist so cannot build exe")
+                kb_license = bld.bldnode.find_resource('MIT.txt')
+                if not kb_license :
+                    raise Errors.WafError("The keyboard license file MIT.txt doesn't exist so cannot build exe")
+                f = open("LICENSE", "w")
+                for tempfile in kb_license, font_license:
+                    f.write(tempfile.read())
+                    f.write("\n")
+                f.close()
+            elif kbds :
+                self.license = 'MIT.txt'
+            else :
+                self.license = 'OFL.txt'
+        if not bld.bldnode.find_resource(self.license):
+            raise Errors.WafError("The license file " + self.license + " does not exist so cannot build exe.")
+
+   
         env =   {
             'project' : self,
             'basedir' : thisdir,
