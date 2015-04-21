@@ -98,11 +98,12 @@ class Package(object) :
     def get_sources(self, ctx) :
         res = []
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
-
+        fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
+        keyboards = [x for x in self.keyboards if not hasattr(x, 'dontship')]
         licenses = []
-        if self.fonts :
+        if fonts :
             licenses.extend([getattr(self, 'license', 'OFL.txt')])
-        if self.keyboards :
+        if keyboards and not getattr(self, 'license', None) :
             licenses.extend([getattr(self, 'license', 'MIT.txt')])
 
         if licenses[0] == 'OFL.txt' :
@@ -116,9 +117,9 @@ class Package(object) :
             res.append(self.readme)
         else :
             Logs.warn("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
-        for f in self.fonts :
+        for f in fonts :
             res.extend(f.get_sources(ctx))
-        for k in self.keyboards :
+        for k in keyboards :
             res.extend(k.get_sources(ctx))
         if self.docdir :
             for p, n, fs in os.walk(self.docdir) :
