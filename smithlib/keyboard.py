@@ -3,6 +3,7 @@
 
 from subprocess import Popen, PIPE
 from wsiwaf import get_all_sources
+from waflib import Errors
 import os, uuid, re
 import package
 
@@ -77,6 +78,9 @@ class Keyboard(object) :
     def build(self, bld) :
         if bld.env['KMCOMP'] and not hasattr(self, 'nokmx') :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
+        if self.target == self.kmx :
+            raise Errors.WafError("The target must not be the kmx file. The target is where you want to copy the source file.")
+       
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
         if bld.env['KMFLCOMP'] and not hasattr(self, 'nokmfl') :
             bld(rule = '${KMFLCOMP} ${SRC}', source = self.target, target = self.kmfl)
