@@ -78,8 +78,8 @@ class Keyboard(object) :
     def build(self, bld) :
         if bld.env['KMCOMP'] and not hasattr(self, 'nokmx') :
             bld(rule = '${KMCOMP} ${SRC} ${TGT}', source = self.source, target = self.kmx)
-        if self.target == self.kmx :
-            raise Errors.WafError("The target must not be the kmx file. The target is where you want to copy the source file.")
+        if self.target[-4:] != '.kmn' :
+            raise Errors.WafError("The target is where you want to copy the source file. You have declared it to be %s which is not a .kmn file" % self.target)
        
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
         if bld.env['KMFLCOMP'] and not hasattr(self, 'nokmfl') :
