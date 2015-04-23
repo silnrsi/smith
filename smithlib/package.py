@@ -326,8 +326,9 @@ class Package(object) :
         licenses = []
         if self.fonts :
             licenses.extend([getattr(self, 'license', 'OFL.txt')])
-        if self.keyboards  and not getattr(self, 'license', None) :
-            licenses.extend([getattr(self, 'license', 'MIT.txt')])
+        if self.keyboards :
+            if not self.fonts or not getattr(self, 'license', None) :
+                licenses.extend([getattr(self, 'license', 'MIT.txt')])
 
         if licenses[0] == 'OFL.txt' :
             licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
