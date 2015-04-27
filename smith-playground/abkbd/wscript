@@ -9,7 +9,7 @@ ZIPDIR="releases"
 
 
 APPNAME="a2btest"
-VERSION=0.1
+VERSION="0.1"
 
 kbd (source = 'demo-a2b.kmn',
      kmx = 'demo-a2b.kmx',

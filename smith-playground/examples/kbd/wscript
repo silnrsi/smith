@@ -8,7 +8,7 @@ OUTDIR="installers"
 ZIPDIR="releases"
 
 APPNAME="Tai-KBD"
-VERSION=0.1
+VERSION="0.1"
 
 
 srcdir = "../../script-test/keyboards/thai"
