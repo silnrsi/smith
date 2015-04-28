@@ -1,4 +1,4 @@
-= Smith Manual v0.3-dev, April 2015 =
+= Smith Manual v0.3-1, April 2015 =
 :author: Martin Hosken (contributions by Nicolas Spalinger)
 :subject: Smith manual 
 :keywords: fonts, keyboards, building, writing systems
