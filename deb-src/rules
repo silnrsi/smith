@@ -19,7 +19,7 @@ clean :
 	find -name "*.pyc" -delete
 	find -name "*.lock-wscript" -delete
 	find -name "*.lock-wafbuildlinux2*" -delete
-	rm -rf docs/smith/*
+	rm -rf docs/smith/*.pdf
 
 install : build
 	dh_testdir
@@ -50,3 +50,4 @@ binary-arch: build install
 
 binary : binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install
+
