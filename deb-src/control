@@ -2,8 +2,9 @@ Source: smith
 Priority: optional
 Section: utils
 Maintainer: Martin Hosken <martin_hosken@sil.org>
-Build-Depends: debhelper (>= 8.0), python, python-support, bash-completion, asciidoc, dblatex, doc-base 
-Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 8.0), python, python-support, bash-completion, doc-base 
+Build-Depends-Indep: asciidoc, dblatex, doxygen, docbook-xsl, latex-xcolor, libxml2-utils
+Standards-Version: 3.9.3
 Homepage: http://projects.palaso.org/projects/wsiwaf
 
 Package: smith-common
