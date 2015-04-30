@@ -12,7 +12,9 @@ Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, libaa-bin
 Description: framework for Writing Systems Implementation 
  Provides a common build framework to create, test and maintain WSI (Writing
- Systems Implementation) components such as fonts and keyboards.
+ Systems Implementation) components such as fonts and keyboards. This includes
+ a series of integrated tools to facilitate standards-based open workflows.
+ 
 
 Package: smith-font
 Architecture: all

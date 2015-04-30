@@ -20,7 +20,8 @@ clean :
 	find -name "*.lock-wscript" -delete
 	find -name "*.lock-wafbuildlinux2*" -delete
 	rm -rf .waf-*
-	#rm -rf docs/smith/*.pdf
+	rm -rf docs/smith/*.pdf
+	rm -rf docs/smith/*.html
 	dh_clean
 
 install : build
@@ -32,8 +33,9 @@ install : build
 	mkdir -p debian/smith-common/usr/bin/
 	cp smith debian/smith-common/usr/bin/smith
 	cp debian/smith.bash-completion debian/smith-common/etc/bash_completion.d/smith
-	#a2x -f pdf -L --dblatex-opts=" -s asciidoc-dblatex.sty" docs/smith/manual.txt
-	#a2x -f xhtml docs/smith/manual.txt
+	a2x -f pdf -L --dblatex-opts=" -s docs/smith/asciidoc-dblatex.sty" docs/smith/manual.txt 
+	a2x -f xhtml docs/smith/manual.txt
+	chmod -R 755 debian/smith-common/usr/lib/waf-*
 
 binary-indep : build install
 	dh_testdir
@@ -45,8 +47,8 @@ binary-indep : build install
 	dh_gencontrol
 	dh_installman
 	dh_compress
-	dh_builddeb
 	dh_md5sums
+	dh_builddeb
 
 binary-arch: build install
 
