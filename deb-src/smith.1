@@ -1,6 +1,6 @@
 .TH SMITH 1 "Oct 10, 2012"
 .SH NAME
-smith \- a Python-based build system for WSI (Writing Systems Implementation) components 
+smith \- a Python\-based build system for WSI (Writing Systems Implementation) components 
 .SH SYNOPSIS
 .B smith
 .RI [ options ]
@@ -9,39 +9,42 @@ This manual page documents briefly the
 .B smith
 commands. For more details please refer to the complete smith manual.
 .PP
-\fBsmith\fP is a Python-based framework for building, testing and maintaining WSI (Writing Systems Implementation) components such as fonts and keyboards.
-it is based on waf. 
-A smith project contains a wscript file (a python script) with the various parameters at the root of the folder.
+\fBSmith\fPis a Python\-based framework for building, testing and maintaining WSI (Writing Systems Implementation) components such as fonts and keyboards.
+It is based on waf. A smith project contains a wscript file (a python script) with the various parameters at the root of the folder containing the font sources.
 .SH OPTIONS
 .TP
-configure - configure your project and check all the needed dependencies are available
+configure \- configure your project and check all the needed dependencies are available
 .TP
-build  - launch the build
+build  \- launch the build
 .TP
-pdfs  - generate pdfs
+pdfs  \- generate pdfs (proofs for review including test of the smart features)
 .TP
-clean - delete generated files
+clean \- delete generated files
 .TP
-distclean - delete generated folders
+distclean \- delete generated folders
 .TP
-zip  - create a release zip 
+zip  \- create a versioned release zip 
 .TP
-srcdist  - create a release containing more source items (-developer release)
+srcdist  \- create a versioned release containing more source items (\-source release)
 .TP
-exe  - generate a Windows installer
+exe  \- generate a Windows .exe installer
 .TP
-test  - run the project-specific test suite 
+test  \- run the project\-specific test suite 
 .PP
-graide - generate a graide (GRAphite Integrated Development Environment) project file 
+graide \- generate a graide (GRAphite Integrated Development Environment) project file 
 .PP
-ots - run the OpenType Sanitiser 
+ots \- run the OpenType Sanitiser 
+.PP
+font \- run the fontlint checker 
 .PP
 For details of the available options see the complete smith manual.
+
 .SH AUTHOR
 .PP
 smith was written by Martin Hosken <martin_hosken@sil.org>.
 .TP
-with contributions from Nicolas Spalinger <nicolas_spalinger@sil.org>
+with contributions from Nicolas Spalinger <nicolas_spalinger@sil.org> and others.
 .TP
-SIL Non-Roman Script Initiative - http://scripts.sil.org 
+SIL Non\-Roman Script Initiative \- http://scripts.sil.org 
+SIL International \- http://www.sil.org 
 .PP
