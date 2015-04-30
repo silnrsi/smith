@@ -4,7 +4,7 @@ Section: utils
 Maintainer: Martin Hosken <martin_hosken@sil.org>
 Build-Depends: debhelper (>= 8.0), python, python-support, bash-completion, doc-base 
 Build-Depends-Indep: asciidoc, dblatex, doxygen, docbook-xsl, latex-xcolor, libxml2-utils
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 Homepage: http://projects.palaso.org/projects/wsiwaf
 
 Package: smith-common
@@ -19,23 +19,22 @@ Architecture: all
 Depends: ${misc:Depends}, smith-common, libfont-ttf-perl, libfont-ttf-scripts-perl, fontforge, python-fontforge, texlive-xetex, nsis, python-palaso-font, grcompiler
 Recommends: graphite-utilities
 Description: Fonts build and test framework 
- Provides a build framework for fonts, including smart font features with
- OpenType and Graphite, running test suites, generating pdf reports,
- facilitating releases and creating installers for various platforms.
+ This metapackage provides a build framework for fonts, including smart font
+ features with OpenType and Graphite, running test suites, generating pdf
+ reports, facilitating releases and creating installers for various platforms.
 
 Package: smith-keyboard
 Architecture: all
 Depends: ${misc:Depends}, smith-common, python-palaso-kbd, nsis, mingw-w64, pdftk, inkscape
 Description: Keyboards build and test framework
- Provides a build framework for keyboards, including runing test suites,
- generating layouts, facilitating releases and creating installers for various
- platforms.
-
+ This metapackage provides a build framework for keyboards, including running
+ test suites, generating layouts, facilitating releases and creating installers
+ for various platforms.
 
 Package: smith
 Architecture: all
 Depends: ${misc:Depends}, smith-font, smith-keyboard
-Description: Metapackage for smith fonts and keyboards tools
- Provides a build framework to create, test and maintain WSI (Writing Systems
- Implementation) components such as fonts and keyboards.
+Description: Fonts and keyboards build and test framework
+ This metapackage provides a build framework to create, test and maintain WSI
+ (Writing Systems Implementation) components such as fonts and keyboards.
 

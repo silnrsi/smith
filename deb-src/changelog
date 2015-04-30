@@ -1,3 +1,12 @@
+smith (0.3.1-1ubuntu3) trusty; urgency=medium
+
+  * Added bash-completion to smith-font and smith-keyboard too
+  * Standards-version to 3.9.5 (checked)
+  * Added better clean target
+  * Fixed descriptions to indicate metapackages
+
+ -- Nicolas Spalinger <nicolas.spalinger@sil.org>  Thu, 30 Apr 2015 11:50:56 +0100
+
 smith (0.3.1-1ubuntu2) trusty; urgency=medium
 
   * New upstream release 

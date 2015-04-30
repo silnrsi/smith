@@ -19,7 +19,9 @@ clean :
 	find -name "*.pyc" -delete
 	find -name "*.lock-wscript" -delete
 	find -name "*.lock-wafbuildlinux2*" -delete
-	rm -rf docs/smith/*.pdf
+	rm -rf .waf-*
+	#rm -rf docs/smith/*.pdf
+	dh_clean
 
 install : build
 	dh_testdir
@@ -29,13 +31,13 @@ install : build
 	x=`ls -td .waf* | head -1` ; for f in `find $$x -not -name \*.pyc` ; do if [ -d $$f ] ; then mkdir -p debian/smith-common/usr/lib/$${f#.} ; else cp $$f debian/smith-common/usr/lib/$${f#.} ; fi ; done
 	mkdir -p debian/smith-common/usr/bin/
 	cp smith debian/smith-common/usr/bin/smith
-	a2x -f pdf -L --dblatex-opts=" -s asciidoc-dblatex.sty" docs/smith/manual.txt
-	a2x -f xhtml docs/smith/manual.txt
+	cp debian/smith.bash-completion debian/smith-common/etc/bash_completion.d/smith
+	#a2x -f pdf -L --dblatex-opts=" -s asciidoc-dblatex.sty" docs/smith/manual.txt
+	#a2x -f xhtml docs/smith/manual.txt
 
 binary-indep : build install
 	dh_testdir
 	dh_testroot
-	dh_bash-completion
 	dh_installchangelogs
 	dh_installdocs
 	dh_python2
