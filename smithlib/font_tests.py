@@ -226,7 +226,8 @@ Input file: %s
             targfile = test.results_node(newn).bld_base() + '_' + fid + "_" + m + ".tex"
             targ = ctx.path.find_or_declare(targfile)
             if isinstance(n, basestring) :
-                ctx(rule = curry_fn(fn, mf, font.target, test), target = targ)
+                dep = ctx.srcnode.find_node('wscript')
+                ctx(rule = curry_fn(fn, mf, font.target, test), target = targ, source=[dep])
             else :
                 ctx(rule = curry_fn(fn, mf, font.target, test), source = n, target = targ)
             textfiles.append((targ, n))
@@ -374,10 +375,11 @@ Crossfont specimen - %s %s - %s - XeTeX \XeTeXrevision
         if 'XETEX' not in ctx.env : return
         initdefaults(self, ctx, text = ('TESTSTRING', ''), size = ('TESTFONTSIZE', 12))
         self._fonts.append(font.target)
+        dep = ctx.srcnode.find_node('wscript')
         if self._tasks is None :
             self._tasks = {}
             for m, mf in test.modes.items() :
-                self._tasks[m] = ctx(rule = curry_fn(self.do_task, mf), target=test.resultsnode.make_node(self.file + '_' + m + '.tex'))
+                self._tasks[m] = ctx(rule = curry_fn(self.do_task, mf), target=test.resultsnode.make_node(self.file + '_' + m + '.tex'), source=[dep])
 
 
 def make_diffHtml(targfile, svgDiffXsl, svgLinesPerPage, fid, tsk) :

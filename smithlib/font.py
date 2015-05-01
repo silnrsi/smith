@@ -248,6 +248,7 @@ class Fea(Internal) :
         return get_all_sources(self, ctx, 'master')
 
     def build(self, bld, target, tgen, font) :
+        depends = getattr(self, 'depends', [])
         def aspythonstr(s) :
             return '"' + re.sub(ur"([\\'])", ur"\\\1", s) + '"'
         def doit(src, keeps) :
