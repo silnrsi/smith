@@ -1,39 +1,71 @@
 == Tools ==
 
-This is a reminder of how to install smith from the Ubuntu repositories directly.
-On Ubuntu directly or in an Ubuntu VM hosted on another OS.
+=== Installing smith and friends (fontforge, etc) ===
+
+This is a reminder of how to install smith from the Ubuntu repositories directly using the packages.
+This is for Ubuntu directly or in an Ubuntu VM hosted on another OS.
 
 
 The repositories (or PPA: Private Package Repositories) to add are:
 
-
+[source,sh]
+----
 sudo add-apt-repository ppa:smith-dev/smith
+----
+
+[source,sh]
+----
 sudo add-apt-repository ppa:fontforge/fontforge
+----
 
+
+Make sure all the repositories catalogs are up-to-date:
+[source,sh]
+----
 sudo apt-get update
+----
+
+Make sure the entire system is up-to-date:
+[source,sh]
+----
 sudo apt-get upgrade
+----
 
+Install smith and fontforge along with their dependencies:
+[source,sh]
+----
 sudo apt-get install smith fontforge
+----
 
 
-Other utilities are: 
+Install other useful utilities to collaborate with version control: 
 
-sudo apt-get install mercurial git gitg tortoisehg
+[source,sh]
+----
+sudo apt-get install mercurial git gitg tortoisehg meld tortoisehg-nautilus 
+----
 
-Optional but very useful packages include:
+Install other useful utilities to make working with smith projects easier:
 
-sudo apt-get install meld tortoisehg-nautilus subversion-tools nautilus-open-terminal 
-
+[source,sh]
+----
+sudo apt-get install nautilus-open-terminal unity-tweak-tool tree gedit-plugins geany  
+----
 
 Other SIL software is available from the main SIL repository for Ubuntu:
 
+[source,sh]
+----
 wget http://packages.sil.org/sil.gpg
+
 sudo apt-key add sil.gpg
+
 sudo add-apt-repository "deb http://packages.sil.org/ubuntu trusty main"
+----
 
 
 
-= Steps on installing all the other components from source =
+== Installing all the other components from source ==
 
-<To be completed>
+To be completed.
 
