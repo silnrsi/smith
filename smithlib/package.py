@@ -193,7 +193,7 @@ class Package(object) :
             return self.make_ofl_license(tsk, base)
 
         if hasattr(self, 'reservedofl') :
-            if not getattr(self, 'license', None) : self.license = 'OFL.txt'
+            if not hasattr(self, 'license') : self.license = 'OFL.txt'
             if not os.path.exists(self.license) :
                 bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
@@ -230,7 +230,7 @@ class Package(object) :
         thisdir = os.path.dirname(__file__)
         fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
         kbds = [x for x in self.keyboards if not hasattr(x, 'dontship')]
-        if not getattr(self, 'license', None) :
+        if not hasattr(self, 'license') :
             if fonts and kbds :
                 # make new file and copy OFL.txt and MIT.txt into it
                 self.license = 'LICENSE'
@@ -249,7 +249,7 @@ class Package(object) :
                 self.license = 'MIT.txt'
             else :
                 self.license = 'OFL.txt'
-        if not bld.bldnode.find_resource(self.license):
+        if self.license is not None and not bld.bldnode.find_resource(self.license):
             raise Errors.WafError("The license file " + self.license + " does not exist so cannot build exe.")
 
    
@@ -306,6 +306,7 @@ class Package(object) :
         zip.close()
 
     def _get_arcfile(self, bld, path) :
+        if path is None : return None
         pnode = bld.path.find_resource(path)
         if pnode is None :
            return None
@@ -337,7 +338,7 @@ class Package(object) :
             lentry = self._get_arcfile(bld, l)
             if lentry is not None :
                 res.append(lentry)
-            else:
+            elif l is not None:
                 Logs.warn("License file \'" + l + "\' not found.")
         rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
         if rentry is not None :

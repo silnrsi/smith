@@ -472,7 +472,7 @@ def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
     if n is None :
-        opts = "-d " + str(kw.get('string', 0)) + ' '
+        opts = "-r " + str(kw.get('string', 0)) + ' '
         def iname(tgt) :
             return ('${TTFNAME} ' + opts + "${DEP} ${TGT}", [], kw)
         return iname
