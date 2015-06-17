@@ -28,7 +28,10 @@ class Font(object) :
         if not hasattr(self, 'package') :
             self.package = package.Package.global_package()
         if self.package is not None :
-            self.package.add_font(self)
+            if hasattr(self.package, '__iter__') :
+                for p in self.package : p.add_font(self)
+            else :
+                self.package.add_font(self)
         if not hasattr(self, 'tests') :
             self.tests = font_tests.global_test()
         if not hasattr(self, 'ots_target') :
@@ -84,7 +87,7 @@ class Font(object) :
         targetnode = bld.path.find_or_declare(self.target)
         tarname = None
         if self.source.endswith(".ttf") :
-            bgen = bld(rule = "${COPY} ${SRC} ${TGT}", source = self.source, target = targetnode)
+            bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True)
         else :
             srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
@@ -113,11 +116,11 @@ class Font(object) :
                 apnode = bld.path.find_or_declare(self.ap)
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${SFD2AP} " + apopts + " ${SRC} ${TGT}", source = tarname or self.source, target = apnode)
+                    bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
-                    bld(rule="${COPY} ${SRC} ${TGT}", source = origap, target = self.ap)
+                    bld(rule="${COPY} '${SRC}' '${TGT}'", source = origap, target = self.ap)
             # if hasattr(self, 'classes') :
             #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
@@ -319,11 +322,11 @@ class Gdl(Internal) :
                 ind = 0
                 if hasattr(font, 'ap') :
                     srcs.append(bld.path.find_or_declare(font.ap))
-                    cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
+                    cmd += "-a '${SRC[" + str(ind) + "].bldpath()}' "
                     ind += 1
                 if hasattr(font, 'classes') :
                     srcs.append(bld.path.find_or_declare(font.classes))
-                    cmd += "-c ${SRC[" + str(ind) + "].bldpath()} "
+                    cmd += "-c '${SRC[" + str(ind) + "].bldpath()}' "
                     ind += 1
                 if self.master :
                     mnode = bld.path.find_or_declare(self.master)
