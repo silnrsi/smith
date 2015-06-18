@@ -41,7 +41,7 @@ class process(create) :
     def __init__(self, tgt, *cmds, **kw) :
         # if tgt exists in source tree, then become create(munge(tgt), cmd("${CP} ${SRC} ${TGT}", [tgt]), *cmds, **kw)
         if os.path.exists(tgt) :
-            cmds = [cmd("cp '${SRC}' '${TGT}'", [tgt])] + list(cmds)
+            cmds = [cmd("cp ${SRC} ${TGT}", [tgt])] + list(cmds)
             tgt = os.path.join("tmp", os.path.basename(tgt))
             super(process, self).__init__(tgt, *cmds, **kw)
         else :
