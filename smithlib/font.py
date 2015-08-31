@@ -170,17 +170,17 @@ class Legacy(object) :
         if self.source.lower().endswith(".ttf") :
             if hasattr(self, 'ap') :
                 srcs.append(self.ap)
-                cmd += " -x ${SRC[2].bldpath()}"
+                cmd += " -x '${SRC[2].bldpath()}'"
             trgt = [re.sub(r'\..*', '.ttf', self.target)]
             if targetap and not hasattr(self, 'noap') :
                 trgt.append(targetap)
-                cmd += " -z ${TGT[1].bldpath()}"
-            bld(rule = "${TTFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = trgt)
+                cmd += " -z '${TGT[1].bldpath()}'"
+            bld(rule = "${TTFBUILDER} -c '${SRC[1].bldpath()}'" + cmd + " '${SRC[0].bldpath()}' '${TGT[0].bldpath()}'", source = srcs, target = trgt)
             if self.target.endswith(".sfd") :
-                bld(rule = "${FONTFORGE} -nosplash -quiet -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1) # for old fontforge
+                bld(rule = "${FONTFORGE} -nosplash -quiet -lang=ff -c 'Open($1); Save($2)' '${SRC}' '${TGT}'", source = trgt[0], target = self.target, shell = 1) # for old fontforge
                 # bld(rule = "${FONTFORGE} -quiet -nosplash -lang=ff -c 'Open($1); Save($2)' ${SRC} ${TGT}", source = trgt[0], target = self.target, shell = 1)
         else :
-            bld(rule = "${FFBUILDER} -c ${SRC[1].bldpath()}" + cmd + " ${SRC[0].bldpath()} ${TGT[0].bldpath()}", source = srcs, target = self.target)
+            bld(rule = "${FFBUILDER} -c '${SRC[1].bldpath()}'" + cmd + " '${SRC[0].bldpath()}' '${TGT[0].bldpath()}'", source = srcs, target = self.target)
             if targetap and not hasattr(self, 'noap') :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
@@ -364,7 +364,8 @@ class Ofl(object) :
         
     def globalofl(self, task) :
         bld = task.generator.bld
-        make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright, template = getattr(self, 'template', None))
+        if bld.srcnode.find_node(self.file) is None :
+            make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright, template = getattr(self, 'template', None))
         return True
 
     def build_global(self, bld) :
@@ -373,22 +374,29 @@ class Ofl(object) :
 
     def insert_ofl(self, task) :
         bld = task.generator.bld
-        fname = make_tempnode(bld)
         tempfn = make_tempnode(bld)
 
         def dottfname(*opts) :
             cmd = [task.env.get_flat("TTFNAME")] + list(opts) + [task.dep.path_from(bld.bldnode), tempfn]
             task.exec_command(cmd, cwd = getattr(task, 'cwd', None), env = task.env.env or None)
 
-        if hasattr(self, 'short') :
+        if hasattr(self, 'file') :
+            f = bld.srcnode.find_node(self.file)
+        else :
+            f = None
+        if f is not None :
+            dottfname("-t", "13", "-s", f.abspath())
+        elif hasattr(self, 'short') :
             licensetxt = u"This Font Software is licensed under the SIL Open Font License, Version 1.1"
             if len(self.reserve) :
                 licensetxt += u" with Reserved Font Names " + " and ".join(map(lambda x: '"%s"' % x, self.reserve))
             dottfname("-t", "13", "-n", licensetxt)
         else :
+            fname = make_tempnode(bld)
             make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
             dottfname("-t", "13", "-s", fname)
             os.unlink(fname)
+
         res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/OFL", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
         os.unlink(tempfn)
         return res

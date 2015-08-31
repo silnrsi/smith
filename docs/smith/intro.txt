@@ -159,4 +159,19 @@ Parameters for this function are:
 test()::
     This function applies a process to its output file with no expected output, so any `cmd()` would only have a `${TGT}` in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.
     
+getgit(format)::
+    [TODO]
+    This function assumes that the project is being managed by git. If not, then it returns an empty string. The function queries the git repository
+    for the current commit revision sha. This is then formatted according to format (see python str.format) as the first parameter.
+    In addition, the repository is queried to see if the current commit has been tagged, and therefore is probably
+    a release version. If so, then the function returns the empty string. In addition if the command line option --release or -r is used after
+    the smith subcommand, then this function will also return the empty string. 
+    The resulting string is returned.
+
+    Parameters for this function are:
+
+        tagregexp;;
+            Specifies the regexp to use to test if a particular tag on a commit is the kind of tag we consider a release.
+            The default value is r'[vV]?[\d.]+'. If the regexp does not match or the match results in an empty string, then the tag is ignored.
+
 
