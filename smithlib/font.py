@@ -305,7 +305,7 @@ class Gdl(Internal) :
         return ("make_gdl", "grcompiler", "ttftable")
 
     def get_sources(self, ctx) :
-        return get_all_sources(self, ctx, 'master')
+        return get_all_sources(self, ctx, 'master', 'depends')
 
     def build(self, bld, target, tgen, font) :
         srcs = [font.source]

@@ -93,6 +93,20 @@ class cmd(object) :
     def build(self, ctx, inputs, tgt, **kw) :
         return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
 
+def isList(l) :
+    return (not hasattr(l, 'strip') and
+                hasattr(l, '__getitem__') and
+                hasattr(l, '__iter__'))
+
+def _get_source(self, ctx, a) :
+    n = ctx.path.find_node(a)
+    if n and not n.is_child_of(ctx.bldnode) :
+        pat = n.abspath()
+        if os.path.isdir(pat) :
+            return map(lambda x: x.srcpath(), n.find_nodes())
+        else :
+            return [n.srcpath()]
+    return []
 
 def get_all_sources(self, ctx, *attrs) :
     res = []
@@ -100,14 +114,11 @@ def get_all_sources(self, ctx, *attrs) :
         if a :
             if hasattr(a, 'get_sources') :
                 res.extend(a.get_sources(ctx))
+            elif isList(a) :
+                for t in a :
+                    res.extend(_get_source(self, ctx, t))
             else :
-                n = ctx.path.find_node(a)
-                if n and not n.is_child_of(ctx.bldnode) :
-                    pat = n.abspath()
-                    if os.path.isdir(pat) :
-                        res.extend(map(lambda x: x.srcpath(), n.find_nodes()))
-                    else :
-                        res.append(n.srcpath())
+                res.extend(_get_source(self, ctx, a))
     return res
         
 def init(ctx) :

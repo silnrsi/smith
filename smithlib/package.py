@@ -464,7 +464,7 @@ class srcdistContext(Build.BuildContext) :
             if isinstance(f, Node.Node) :
                 files[f.srcpath()] = f
             else :
-                n = self.bldnode.find_resource(f)
+                n = self.srcnode.find_resource(f)
                 files[f] = n
 
         # now generate the tarball
