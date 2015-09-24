@@ -152,7 +152,8 @@ Adding Graphite tables to a font is much like adding VOLT information. The relev
 font(target = 'results/myfont.ttf',
      source = 'myfont.ttf',
      graphite = gdl('myfont.gdl',
-                     master = 'mymaster.gdl'),
+                     master = 'mymaster.gdl',
+                     make_params = '-o "R C"'),
      ap = 'myfont.xml',
      classes = 'project_classes.xml')
 ----
