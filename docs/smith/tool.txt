@@ -5,7 +5,6 @@
 This is a reminder of how to install smith from the Ubuntu repositories directly using the packages.
 This is for Ubuntu directly or in an Ubuntu VM hosted on another OS.
 
-
 The repositories (or PPA: Private Package Repositories) to add are:
 
 [source,sh]
@@ -17,7 +16,6 @@ sudo add-apt-repository ppa:smith-dev/smith
 ----
 sudo add-apt-repository ppa:fontforge/fontforge
 ----
-
 
 Make sure all the repositories catalogs are up-to-date:
 [source,sh]
@@ -36,7 +34,6 @@ Install smith and fontforge along with their dependencies:
 ----
 sudo apt-get install smith fontforge
 ----
-
 
 Install other useful utilities to collaborate with version control: 
 
@@ -63,9 +60,47 @@ sudo apt-key add sil.gpg
 sudo add-apt-repository "deb http://packages.sil.org/ubuntu trusty main"
 ----
 
+=== Installing all the other components from source ===
 
+You will need a directory to store all the source repositories in.
+This manual will use ~/builds as an example.
+Therefore, the first step is to create this directory.
 
-== Installing all the other components from source ==
+[source,sh]
+----
+mkdir ~/builds
+----
 
-To be completed.
+Before running the commands for each piece of software, your current working directory should be ~/builds.
 
+[source,sh]
+----
+cd ~/builds
+----
+
+You will need to create the source repositories before building the software.
+The first line in the instructions for each piece of software is how to create each source repository.
+You only need to create each repository once, therefore,
+the first line in each set of directions should only be run once.
+
+font-ttf
+[source,sh]
+----
+git clone https://github.com/silnrsi/font-ttf.git
+cd font-ttf
+git pull
+perl Makefile.PL
+make
+sudo make install
+----
+
+font-ttf-scripts
+[source,sh]
+----
+git clone https://github.com/silnrsi/font-ttf-scripts.git font-ttf-scripts
+cd font-ttf-scripts
+git pull
+perl Makefile.PL
+make
+sudo make install
+----
