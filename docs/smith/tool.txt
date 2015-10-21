@@ -90,6 +90,7 @@ You will need to create the source repositories and possibly install needed depe
 The first block of instructions after each piece of software is how to do this initial setup.
 You only need to do this initial setup once, therefore,
 the first block of instructions after each piece of software should only be run once.
+Install the software listed below in the same order as in this document.
 
 font-ttf
 [source,sh]
@@ -138,4 +139,39 @@ cmake ..
 make
 sudo make install
 sudo ldconfig
+----
+
+Graide
+[source,sh]
+----
+sudo apt-get install gtk2-engines-pixbuf
+git https://github.com/silnrsi/graide.git
+----
+
+[source,sh]
+----
+cd graide
+git pull
+python setup.py build
+sudo python setup.py install
+----
+
+Smith
+[source,sh]
+----
+sudo apt-get remove smith-font smith-common
+cd
+mkdir bin
+cd bin
+ln -s ../builds/smith/smith smith
+cd ~/builds
+git clone https://github.com/silnrsi/smith.git
+----
+
+[source,sh]
+----
+cd smith
+git pull
+./mywaflite
+sudo cp bash_completion_smith /etc/bash_completion.d/smith
 ----
