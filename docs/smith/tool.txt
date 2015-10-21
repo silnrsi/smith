@@ -9,7 +9,7 @@ The repositories (or PPA: Private Package Repositories) to add are:
 
 [source,sh]
 ----
-sudo add-apt-repository ppa:smith-dev/smith
+sudo add-apt-repository ppa:silnrsi/smith
 ----
 
 [source,sh]
