@@ -79,7 +79,8 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            ctx.find_program('validator_checker', var="OTS")
+            #ctx.find_program('validator-checker', var="OTS")
+            ctx.find_program('ot-sanitise', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
         except ctx.errors.ConfigurationError :
             pass
