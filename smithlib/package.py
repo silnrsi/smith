@@ -471,8 +471,8 @@ class startContext(Context.Context) :
                 if not os.path.exists(f):
                     os.mkdir(f)
             shutil.copy(os.path.join(thisdir,'wscript'), 'wscript')
-            shutil.copy(os.path.join(thisdir,'.gitattributes'), '.gitattributes')
-            shutil.copy(os.path.join(thisdir,'.gitignore'), '.gitignore')
+            shutil.copy(os.path.join(thisdir,'dot.gitattributes'), '.gitattributes')
+            shutil.copy(os.path.join(thisdir,'dot.gitignore'), '.gitignore')
             Logs.warn('This project has been smith-ified. Now you can edit the templates and then run "smith configure"')
         else:
             Logs.warn('This project is already smith-ified.')
