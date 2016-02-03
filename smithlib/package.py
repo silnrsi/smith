@@ -451,6 +451,15 @@ class crashContext(Context.Context) :
     def execute(self) :
         Utils.subprocess.Popen("timeout 20 aafire -driver slang ; reset", shell = 1).wait()
 
+class versionContext(Context.Context) :
+    """Find out which version of smith you have. (as well as the underlying waf version)"""
+    cmd = 'version'
+    def execute(self) :
+        Logs.warn('Version of smith currently installed (as a package):')
+        Utils.subprocess.Popen("apt show smith | grep Version", shell = 1).wait()
+        Logs.warn('Version of waf currently installed:')
+        Utils.subprocess.Popen("smith --version", shell = 1).wait()
+
 class srcdistContext(Build.BuildContext) :
     """Create source release of project"""
     cmd = 'srcdist'
