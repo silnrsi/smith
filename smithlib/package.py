@@ -82,6 +82,7 @@ class Package(object) :
             ctx.find_program('ot-sanitise', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
             ctx.find_program('fontval', var="FONTVALIDATOR")
+            ctx.find_program('pyfontaine', var="PYFONTAINE")
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
@@ -228,6 +229,14 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_fontvalidator(b))
         for f in self.fonts :
             f.build_fontvalidator(bld)
+
+    def build_pyfontaine(self, bld) :
+        if 'PYFONTAINE' not in bld.env :
+            Logs.warn("pyfontaine not installed. Can't complete. See http://github.com/davelab6/pyfontaine")
+            return
+        self.subrun(bld, lambda p, b: p.build_pyfontaine(b))
+        for f in self.fonts :
+            f.build_pyfontaine(bld)
 
     def build_start(self, bld) :
         self.subrun(bld, lambda p, b: p.build_start(b))
@@ -431,6 +440,10 @@ class fontlintContext(cmdContext) :
 class fontvalidatorContext(cmdContext) :
     """Test fonts using FontValidator. Check html (and xml) reports."""
     cmd = 'validate'
+
+class pyfontaineContext(cmdContext) :
+    """Report coverage using pyfontaine. Check the test reports."""
+    cmd = 'pyfontaine'
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""

@@ -38,6 +38,8 @@ class Font(object) :
             self.ots_target = self.target[:-4] + "-ots.log"
         if not hasattr(self, 'fontlint_target') :
             self.fontlint_target = self.target[:-4] + "-fontlint.log"
+        if not hasattr(self, 'pyfontaine_target') :
+            self.pyfontaine_target = self.target[:-4] + "-pyfontaine.log"
         self._isbuilt = False
 
     def __str__(self) : return self.target
@@ -146,6 +148,9 @@ class Font(object) :
 
     def build_fontvalidator(self, bld) :
         bld(rule="${FONTVALIDATOR} ${SRC} ${TGT} 2>&1", source=self.target, shell=0)
+
+    def build_pyfontaine(self, bld) :
+        bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
 
 class Legacy(object) :
 
