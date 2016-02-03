@@ -18,6 +18,7 @@ _smith()
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        COMPREPLY=($( compgen -W 'configure build pdfs exe zip srcdist deb-templates clean distclean ots graide' -- $cur ) )
+        COMPREPLY=($( compgen -W 'start configure build pdfs test xtest exe zip srcdist deb-templates clean distclean ots graide fontlint validate woff srcdistcheck version fret' -- $cur ) )
 }
 complete -F _smith $default smith 
+
