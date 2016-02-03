@@ -79,9 +79,9 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            #ctx.find_program('validator-checker', var="OTS")
             ctx.find_program('ot-sanitise', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
+            ctx.find_program('fontval', var="FONTVALIDATOR")
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
@@ -220,6 +220,19 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_fontlint(b))
         for f in self.fonts :
             f.build_fontlint(bld)
+
+    def build_validate(self, bld) :
+        if 'FONTVALIDATOR' not in bld.env :
+            Logs.warn("FontValidator (via fontval script) not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
+            return
+        self.subrun(bld, lambda p, b: p.build_fontvalidator(b))
+        for f in self.fonts :
+            f.build_fontvalidator(bld)
+
+    def build_start(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_start(b))
+        for f in self.fonts :
+            f.build_start(bld)
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
@@ -414,6 +427,10 @@ class otsContext(cmdContext) :
 class fontlintContext(cmdContext) :
     """Test fonts using fontlint. Check <font.target>_fontlint.log"""
     cmd = 'fontlint'
+
+class fontvalidatorContext(cmdContext) :
+    """Test fonts using FontValidator. Check html (and xml) reports."""
+    cmd = 'validate'
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""

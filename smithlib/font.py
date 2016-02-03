@@ -144,6 +144,9 @@ class Font(object) :
     def build_fontlint(self, bld) :
         bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1", target=self.fontlint_target, source=[self.target], shell=1)
 
+    def build_fontvalidator(self, bld) :
+        bld(rule="${FONTVALIDATOR} ${SRC} ${TGT} 2>&1", source=self.target, shell=0)
+
 class Legacy(object) :
 
     def __init__(self, src, *k, **kw) :
