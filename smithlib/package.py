@@ -208,7 +208,7 @@ class Package(object) :
 
     def build_ots(self, bld) :
         if 'OTS' not in bld.env :
-            Logs.error("ots not installed. Can't complete")
+            Logs.warn("ots not installed. Can't complete. See http://github.com/khaledhosny/ots")
             return
         self.subrun(bld, lambda p, b: p.build_ots(b))
         for f in self.fonts :
@@ -216,7 +216,7 @@ class Package(object) :
 
     def build_fontlint(self, bld) :
         if 'FONTLINT' not in bld.env :
-            Logs.warn("fontlint not installed. Can't complete")
+            Logs.warn("fontlint not installed. Can't complete. See http://fontforge.github.io and fontforge package")
             return
         self.subrun(bld, lambda p, b: p.build_fontlint(b))
         for f in self.fonts :
@@ -245,7 +245,7 @@ class Package(object) :
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
-            Logs.error("makensis not installed. Can't complete")
+            Logs.error("makensis not installed. Can't complete. See http://nsis.sourceforge.net and nsis package")
             return
         for t in ('appname', 'version') :
             if not hasattr(self, t) :
