@@ -1,0 +1,74 @@
+#!/usr/bin/python
+# encoding: utf-8
+# this is a smith configuration file
+# please adjust this template to your needs
+
+# set the default output folders
+out="results"
+DOCDIR="documentation"
+OUTDIR="installers"
+ZIPDIR="releases"
+TESTDIR='tests'
+TESTRESULTSDIR = 'results/tests'
+STANDARDS = 'tests/reference'
+
+# set the version control system
+VCS='git'
+
+# set the font name, version, licensing and description
+APPNAME = 'Foo'
+VERSION = '1.123'
+TTF_VERSION='1.123'
+RESERVEDOFL="RFN1 and RFN2"
+COPYRIGHT="Copyright (c) 2016, Acme Inc (http://www.acme.com) with Reserved Font Names RFN1 and RFN2"
+LICENSE = "OFL.txt"
+
+DESC_SHORT = "This is a short description"
+DESC_LONG = """This is a much longer description
+on multiple lines.
+Font sources are published in the repository and a smith open workflow is
+used for building, testing and releasing.
+"""
+
+# packaging
+DESC_NAME = "Foo"
+DEBPKG = 'fonts-acme-foo'
+
+
+# script information
+finfo = {
+	"Example.txt" : "script=DFLT",
+	"Example-roman.txt" : "script=latn"
+	}
+
+# set the build and test parameters
+TESTSTRING=u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
+t = fonttest(targets = {
+    'pdfs' : tex(),
+    'test' : tests(),
+    'water1' : waterfall(text="Hello", name="hello"),
+    'cross1' : crossfont(text="Hello", name="CrossHello")
+})
+
+for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic') :
+    font(target = process(APPNAME + '.ttf', name("APPNAME + 'DEVEL' ")),
+         source = process(APPNAME + '.ufo', cmd("../tools/examplescript.py ${SRC} ${TGT}")),
+         version = VERSION,
+         copyright = COPYRIGHT,
+         license = ofl('RFN1','RFN2'),
+         woff = woff(),
+         graphite = gdl('source/' + APPNAME + '.gdl',
+                        master = ['source/' + APPNAME + 'master.gdl'],
+                        make_params=("-m _R -z 8"),
+                        params = '-d' '-w3521 -w3530 -q -d -v2', 
+                        depends = ['source/myfeatures.gdl']),
+         sfd_master = 'source/master.sfd',
+         ap = 'source/' + APPNAME + '.xml',
+         classes = 'source/classes.xml',
+         opentype = fea('source/' + APPNAME + '.fea',
+                         master = 'source/' + APPNAME + '_ext.fea',
+                         make_params="-m _R -z 8"),
+         script = ['latn'],
+         fret = fret(params = '-r'),
+         tests = t
+        )

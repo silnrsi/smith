@@ -460,6 +460,24 @@ class versionContext(Context.Context) :
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
+class startContext(Context.Context) : 
+    """start: create project template folder structure"""
+    cmd = 'start'
+    def execute(self) :
+        thisdir = os.path.dirname(__file__)
+        folders =  ('source', 'documentation', 'tools', 'web', 'tests', 'config', 'build', 'subsets')
+        if not os.path.exists('wscript'):
+            for f in folders:
+                if not os.path.exists(f):
+                    os.mkdir(f)
+            shutil.copy(os.path.join(thisdir,'wscript'), 'wscript')
+            shutil.copy(os.path.join(thisdir,'.gitattributes'), '.gitattributes')
+            shutil.copy(os.path.join(thisdir,'.gitignore'), '.gitignore')
+            Logs.warn('This project has been smith-ified. Now you can edit the templates and then run "smith configure"')
+        else:
+            Logs.warn('This project is already smith-ified.')
+
+
 class srcdistContext(Build.BuildContext) :
     """Create source release of project"""
     cmd = 'srcdist'

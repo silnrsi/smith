@@ -37,6 +37,12 @@ def waf_entry_point(current_directory, version, wafdir):
 		ctx.parse_args()
 		sys.exit(0)
 
+	if 'start' in sys.argv:
+		ctx = Context.create_context('start')
+		ctx.curdir = current_directory
+		ctx.execute()
+		sys.exit(0)
+
 	if 'version' in sys.argv:
 		ctx = Context.create_context('version')
 		ctx.curdir = current_directory
