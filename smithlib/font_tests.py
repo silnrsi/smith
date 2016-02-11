@@ -238,9 +238,15 @@ Input file: %s
             targ = n[0].get_bld()
             mindex = str(n[0]).rindex('.')
             mode = str(n[0])[mindex-2:mindex]
+            if mode == 'ot' :
+                deps = font.opentype.get_sources(ctx)
+            elif mode == 'gr' :
+                deps = font.graphite.get_sources(ctx)
+            else :
+                deps = []
             ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + targ.bld_dir() + ' ./${SRC[0].bldpath()}',
     #            ctx(rule = '${XETEX} --no-pdf --output-directory=' + targ.bld_dir() + ' ${SRC}',
-                source = [n[0], font.target], target = targ.change_ext('.pdf'),
+                source = [n[0], font.target], target = targ.change_ext('.pdf'), deps = deps,
                 taskgens = [font.target + "_" + mode])
     #                ctx(rule = '${XDVIPDFMX} -o ${TGT} ${SRC}', source = targ.change_ext('.xdv'), target = targ.change_ext('.pdf'))
 
