@@ -28,3 +28,11 @@ text eol=lf
 *.png binary
 *.jpg binary
 *.vfb binary
+
+# other document formats
+*.pdf  diff=astextplain
+*.PDF diff=astextplain
+*.doc diff=astextplain
+*.DOC diff=astextplain
+*.docx diff=astextplain
+*.DOCX diff=astextplain

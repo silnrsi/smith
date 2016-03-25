@@ -11,6 +11,9 @@ bin/**
 # general backup files
 *~
 *.swp
+*.autosave
+*(Autosaved)*
+
 
 # OS X
 *.DS_STORE
@@ -20,9 +23,16 @@ bin/**
 .Trashes
 .fseventsd
 .VolumeIcon.icns
+.AppleDouble
+.LSOverride
+Icon?
 
 # Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+*.lnk
+
 
 # AFDKO
 current.fpr
@@ -30,6 +40,16 @@ current.fpr
 # Editors
 *.bak
 *.vfbak
+
+# Shares
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+$RECYCLE.BIN/
+.Spotlight-V100
+.Trashes
 
 # Fontforge temporary backups
 *.sfd-*
@@ -42,8 +62,27 @@ current.fpr
 # generated releases
 *.zip
 *.tar.gz
+*.tar.xz
+*.tar.bz2
 
 # installers
 *.exe
 *.deb
 *.pkg
+*.cab
+*.msi
+*.msm
+*.msp
+
+# VM stuff 
+.vagrant/
+
+# Other
+.sass-cache/
+.jekyll-metadata
+
+# Byte-compiled / optimized files
+*.py[co]
+*$py.class
+__pycache__/
+
