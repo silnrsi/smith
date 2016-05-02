@@ -349,14 +349,12 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
         licenses = []
-        if self.fonts :
-            licenses.extend([getattr(self, 'license', 'OFL.txt')])
+        if self.fonts and not hasattr(self, 'license'):
+            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         if self.keyboards :
             if not self.fonts or not getattr(self, 'license', None) :
                 licenses.extend([getattr(self, 'license', 'MIT.txt')])
 
-        if licenses[0] == 'OFL.txt' :
-            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
         for l in licenses :
             lentry = self._get_arcfile(bld, l)
             if lentry is not None :
@@ -802,6 +800,7 @@ def subdir(path) :
         return os.path.join(os.path.abspath(path), p)
 
     mpath = os.path.join(os.path.abspath(path), 'wscript')
+    oldsrc = Context.wscript_vars.get('src', None)
     Context.wscript_vars['src'] = src
     #fcode = self.root.find_node(mpath).read('rU')
     #exec_dict = dict(Context.wscript_vars)
@@ -811,6 +810,7 @@ def subdir(path) :
     respackages = Package.packages()
     Package.packdict[path] = respackages
     Package.initPackages(currpackages, currglobal)
+    Context.wscript_vars['src'] = oldsrc
     return respackages
 
 def add_configure() :

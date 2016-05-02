@@ -317,7 +317,7 @@ def add_build_wafplus() :
     def pre_recurse(bld, node) :
         old_prerecurse(bld, node)
         build_rules(bld)
-        super(Build.BuildContext, bld).pre_recurse(node)
+#        super(Build.BuildContext, bld).pre_recurse(node)
 
     def pre_build(bld) :
         old_prebuild(bld)
