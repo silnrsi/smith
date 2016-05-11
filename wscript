@@ -360,7 +360,7 @@ def build(bld):
 
 def dist(ctx) :
     #import pdb; pdb.set_trace()
-    includes = ['demos/', 'docs/', 'playground/', 'README*', 'smithlib/', 'smith-playground/', 'tests/', 'utils/', 'waflib/', 'wscript', 'mywaflite', 'waf-light', 'TODO', 'DEVEL', 'Changelog', 'bash_completion_smith', 'configure', 'Makefile']
+    includes = ['docs/smith/', 'README*', 'smithlib/', 'smith-playground/', 'waflib/', 'wscript', 'mywaflite', 'waf-light', 'TODO', 'Changelog', 'bash_completion_smith']
     excludes = ['**/*~', '**/*.sw*', '**/*.pyc', '**/*.pyo', '**/*.bak', '**/.lock-w*', '**/.waf*', '**/buildlinux2/']
     ctx.files = ctx.path.ant_glob(incl=includes, excl=excludes)
     ctx.algo = 'tar.gz'
