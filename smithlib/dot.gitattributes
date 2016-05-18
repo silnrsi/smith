@@ -6,19 +6,25 @@
 * text=auto
 
 # Set the default behavior, we expect Windows users to use a VM for now 
-text eol=lf
+[attr]text eol=lf
 
 # Explicitly declare text files to always be normalized and converted
 # to native line endings on checkout.
+*.cfg text
 *.gdl text
 *.gdh text
-*.vtp text
 *.htxt text
+*.sile text
 *.srctext text 
+*.tex text
+*.txt text
+*.TXT text
+*.vtp text
 *.xdvtxt text
 *.xsl text
-*.tex text
-*.sile text
+*.xml text
+
+wscript text
 
 # Declare text files that will stay in LF (i.e. not expected to be used on Windows)
 *.sh eol=lf
@@ -28,6 +34,9 @@ text eol=lf
 *.png binary
 *.jpg binary
 *.vfb binary
+*.ttf binary
+*.pdf binary
+*.PDF binary
 
 # other document formats
 *.pdf  diff=astextplain
