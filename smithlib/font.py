@@ -32,8 +32,6 @@ class Font(object) :
                 for p in self.package : p.add_font(self)
             else :
                 self.package.add_font(self)
-        if not hasattr(self, 'tests') :
-            self.tests = font_tests.global_test()
         if not hasattr(self, 'ots_target') :
             self.ots_target = self.target[:-4] + "-ots.log"
         if not hasattr(self, 'fontlint_target') :
@@ -45,7 +43,7 @@ class Font(object) :
     def __str__(self) : return self.target
 
     def get_build_tools(self, ctx) :
-        res = self.tests.config(ctx)
+        res = set()
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
             res.add('fontforge')
             res.add('sfdmeld')
@@ -66,7 +64,6 @@ class Font(object) :
     def get_sources(self, ctx) :
         res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite')
         res.extend(getattr(self, 'extra_srcs', []))
-        res.extend(self.tests.get_sources(ctx, self))
         return res
         
     def get_targets(self, ctx) :
@@ -135,10 +132,6 @@ class Font(object) :
             modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, [self.typetuner])
 
         return self
-
-    def build_test(self, bld, test='test') :
-        if self.tests :
-            self.tests.build_tests(bld, self, test)
 
     def build_ots(self, bld) :
         bld(rule="${OTS} ${SRC} > /dev/null 2> ${TGT}", target=self.ots_target, source=[self.target], shell=1)
@@ -524,10 +517,7 @@ def name(n, **kw) :
 def onload(ctx) :
     varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
-            'internal' : Internal, 'fonttest' : font_tests.font_test,
-            'tex' : font_tests.TeX, 'svg' : font_tests.SVG,
-            'tests' : font_tests.Tests, 'woff' : Woff, 'subset' : Subset,
-            'crossfont' : font_tests.CrossFont, 'waterfall' : font_tests.Waterfall
+            'internal' : Internal
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :

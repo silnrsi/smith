@@ -2,7 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-import wafplus
+import wafplus, font_tests
 import font, templater 
 import os, sys, shutil, time, ConfigParser, subprocess
 
@@ -76,6 +76,7 @@ class Package(object) :
         self.reldir = ''
         self.order = []
         self.package = self
+        self.fontTests = font_tests.FontTests()
 
     def get_build_tools(self, ctx) :
         try :
@@ -124,6 +125,7 @@ class Package(object) :
             res.extend(f.get_sources(ctx))
         for k in keyboards :
             res.extend(k.get_sources(ctx))
+        res.extend(self.fontTests.get_sources(ctx))
         if self.docdir :
             for p, n, fs in os.walk(self.docdir) :
                 for f in fs :
@@ -201,8 +203,7 @@ class Package(object) :
 
     def build_test(self, bld, test='test') :
         self.subrun(bld, lambda p, b: p.build_test(b, test=test))
-        for f in self.fonts :
-            f.build_test(bld, test=test)
+        self._fontTests.build_tests(bld, test)
         for k in self.keyboards :
             k.build_test(bld, test=test)
 
