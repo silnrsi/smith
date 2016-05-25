@@ -81,7 +81,7 @@ class FontTests(object) :
         self.addTestCmd('waterfall', type='Waterfall')
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2,
-                cmd=wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[1]} -o ${TGT} --copy=fonts --strip ${SRC[0]} ${SRC[0]}'))
+                cmd=wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${font}" "${font}"'))
 
     def addTestCmd(self, _cmd, **kw) :
         testtype = kw.pop('type', 'test')
@@ -148,6 +148,7 @@ class Test(object) :
         if 'script' in kw and kw['script'] is not None : self.fid += "_" + kw['script']
         if 'altshaper' in kw : self.fid += "_" + kw['altshaper'] + "_" + kw['altscript']
         self.kw = kw
+        self.kw['font'] = font.target
 
     def setSrcs(self, srcs) :
         self._srcs = srcs
@@ -191,7 +192,6 @@ class TestCommand(object) :
         return fg
 
     def addFont(self, font) :
-        #import pdb; pdb.set_trace()
         fmode = fontmodes[getattr(self, 'fontmode', 'all')]
         if fmode == 1 : font = None
         if self.shapers == 0 :
@@ -225,7 +225,7 @@ class TestCommand(object) :
                     scripts.extend(font.script)
             for c in combinations(scripts, 2) :
                 s1 = 'ot' if c[0] is not None else 'gr'
-                s2 = 'ot' if c[0] is not None else 'gr'
+                s2 = 'ot' if c[1] is not None else 'gr'
                 oldfont = font
                 if fmode == 2 : font = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font)
                 elif not fmode or not filter(lambda x: x._font == font and x.shaper==s1 and x.altshaper==s2 and x.script==c[0] and x.altscript==c[1], self._tests) :
@@ -299,6 +299,9 @@ class TestCommand(object) :
                 for t in allkeys :
                     res += "<td>"
                     if i in v[t] :
+# It would be nice if we could flag a link (or hide it) if the size of the targetted file is zero. But
+# we can't do that at this point since the commands to create the targets haven't run yet, only been
+# scheduled. So may need some javascript for this.
                         res += '<a href="{}">Results</a>'.format(v[t][i].abspath())
                     res += "</td>"
                 res += "</tr>\n"
@@ -325,8 +328,9 @@ class TestCommand(object) :
         return results
 
     def do_build(self, ctx, srcnode, test, targetdir) :
-        t = str(srcnode) + "_" + test.fid + self.ext
-        target = ctx.path.find_or_declare(os.path.join(targetdir, t))
+        s = str(srcnode).partition(".")[0]
+        t = s + "_" + test.fid + self.ext
+        target = ctx.path.find_or_declare(os.path.join(targetdir.bldpath(), t))
         gen = self.cmd.build(ctx, [srcnode], target, **test.kw)
         return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
@@ -414,7 +418,6 @@ Input file: %s
         return targ
 
     def do_build(self, ctx, srcnode, test, targetdir, deps = None) :
-        #import pdb; pdb.set_trace()
         if deps is None : deps = []
         if test._font :
             fonts = test._font if isinstance(test._font, FontGroup) else [test._font]
