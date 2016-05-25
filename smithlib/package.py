@@ -96,6 +96,7 @@ class Package(object) :
             res.update(f.get_build_tools(ctx))
         for k in self.keyboards :
             res.update(k.get_build_tools(ctx))
+        res.update(self.fontTests.get_build_tools(ctx))
         return res
 
     def get_sources(self, ctx) :
@@ -142,6 +143,10 @@ class Package(object) :
 
     def add_font(self, font) :
         self.fonts.append(font)
+        self.global_package().add_font_to_test(font)
+
+    def add_font_to_test(self, font) :
+        self.fontTests.addFont(font)
 
     def add_kbd(self, kbd) :
         self.keyboards.append(kbd)
@@ -203,7 +208,7 @@ class Package(object) :
 
     def build_test(self, bld, test='test') :
         self.subrun(bld, lambda p, b: p.build_test(b, test=test))
-        self._fontTests.build_tests(bld, test)
+        self.fontTests.build_tests(bld, test)
         for k in self.keyboards :
             k.build_test(bld, test=test)
 
