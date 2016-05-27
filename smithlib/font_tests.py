@@ -2,7 +2,7 @@
 # Martin Hosken 2011
 
 from waflib import Context, Utils, Node
-import package
+import package, templates
 import wsiwaf
 import os, shutil, codecs, re
 from functools import partial
@@ -53,11 +53,20 @@ def texprotect(s) :
 
 
 class FontGroup(list) :
+    """ An attributed list with such interesting elements as: graphite, opentype, script, name
+        We want the ordered nature of the list """
 
     def __init__(self, name) :
         super(FontGroup, self).__init__(self)
         self.name = name
+        self.script = set()
 
+    def append(self, font) :
+        """Add font if not present and analyse to set fontgroup flags and lists"""
+        if hasattr(font, 'graphite') : self.graphite = True
+        if hasattr(font, 'opentype') : self.opentype = True
+        if hasattr(font, 'script') : self.script.update(font.script)
+        super(FontGroup, self).append(font)
 
 class FontTests(object) :
     testMap = {}
@@ -66,13 +75,15 @@ class FontTests(object) :
     def aTestCommand(this, cls) :
         this.testMap[cls._type] = cls
 
-    def addFontToGroup(self, font, name) :
+    def addFontToGroup(self, font, name, once = False) :
+        """Adds a font to the given group by name"""
         if name not in self._allFontGroups :
             fg = FontGroup(name)
         else :
             fg = self._allFontGroups[name]
-        if font not in fg :
+        if font is not None and (not once or font not in fg) :
             fg.append(font)
+        return fg
 
     def __init__(self) :
         self._allFontGroups = {}
@@ -82,6 +93,7 @@ class FontTests(object) :
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2,
                 cmd=wsiwaf.cmd('cmptxtrender -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${font}" "${font}"'))
+        self.addTestCmd('ftml', type='FTML')
 
     def addTestCmd(self, _cmd, **kw) :
         testtype = kw.pop('type', 'test')
@@ -99,14 +111,19 @@ class FontTests(object) :
             for t in ts :
                 t.addFont(font)
 
+    def addFtmlTest(self, path, **kw) :
+        cmd = kw.pop('cmd', 'ftml')
+        for t in self._allTests.get(cmd, []) :
+            t.addXsl(path, **kw)
+
     def build_tests(self, ctx, _cmd) :
         resultsdir = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
         iname = _cmd + "_index.html"
         resultsnode = ctx.bldnode.find_or_declare(os.path.join(resultsdir, iname))
-        res = "<html><head></head><body>\n"
+        res = templates.FontTests['index_head']
         for t in self._allTests.get(_cmd, []) :
             res += t.build(ctx)
-        res += "</body></html>\n"
+        res += templates.FontTests['index_tail']
         resultsnode.write(res)
 
     def get_build_tools(self, ctx) :
@@ -169,7 +186,7 @@ class TestCommand(object) :
     def __init__(self, _cmd, fontTests, **kw) :
         self._subcmd = _cmd
         self.notestfiles = False
-        self.shapers = 1
+        if not hasattr(self, 'shapers') : self.shapers = 1
         self.ext = '.html'
         self.testparms = {}
         if 'coverage' in kw :
@@ -187,22 +204,24 @@ class TestCommand(object) :
         self._srcsSet = False
         self._fontTests = fontTests
 
-    def getFontGroup(self, name, font) :
-        fg = self._fontTests.addFontToGroup(font, name)
+    def getFontGroup(self, name, font, once = False) :
+        fg = self._fontTests.addFontToGroup(font, name, once)
         return fg
 
     def addFont(self, font) :
+        if font in self._fonts : return
+        self._fonts.append(font)
         fmode = fontmodes[getattr(self, 'fontmode', 'all')]
         if fmode == 1 : font = None
         if self.shapers == 0 :
             if fmode == 2 : font = self.getFontGroup('_allFonts', font)
-            elif not fmode or not len(self._tests) :
-                self._tests.append(Test(font, self.label, **self.testparms))
+            elif fmode == 0 or not len(self._tests) :
+                self.addTest(font, self.label, **self.testparms)
         elif self.shapers == 1 :
             if hasattr(font, 'graphite') :
-                if fmode == 2 : font = self.getFontGroup('_allFonts_gr', font)
-                elif not fmode or not filter(lambda x: x._font == font and x.shaper=='gr', self._tests) :
-                    self._tests.append(Test(font, self.label + "_gr", shaper = 'gr', **self.testparms))
+                if fmode == 2 : font = self.getFontGroup('_allFonts_gr', font, once = True)
+                elif fmode == 0 or not filter(lambda x: x._font == font and x.shaper=='gr', self._tests) :
+                    self.addTest(font, self.label + "_gr", shaper = 'gr', **self.testparms)
             if hasattr(font, 'opentype') :
                 if hasattr(font, 'script') :
                     scripts = [font.script] if isinstance(font.script, basestring) else font.script
@@ -210,9 +229,9 @@ class TestCommand(object) :
                     scripts = [None]
                 for s in scripts :
                     oldfont = font
-                    if fmode == 2 : font = self.getFontGroup('_allFonts_' + x.shaper + x.script, font)
-                    elif not fmode or not filter(lambda x: x._font == font and x.shaper=='ot' and x.script==s, self._tests) :
-                        self._tests.append(Test(font, self.label + "_ot", shaper='ot', script=s, **self.testparms))
+                    if fmode == 2 : font = self.getFontGroup('_allFonts_ot_' + s, font, once = True)
+                    elif fmode == 0 or not filter(lambda x: x._font == font and x.shaper=='ot' and x.script==s, self._tests) :
+                        self.addTest(font, self.label + "_ot", shaper='ot', script=s, **self.testparms)
                     font = oldfont
         elif self.shapers == 2 :
             scripts = []
@@ -227,10 +246,15 @@ class TestCommand(object) :
                 s1 = 'ot' if c[0] is not None else 'gr'
                 s2 = 'ot' if c[1] is not None else 'gr'
                 oldfont = font
-                if fmode == 2 : font = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font)
-                elif not fmode or not filter(lambda x: x._font == font and x.shaper==s1 and x.altshaper==s2 and x.script==c[0] and x.altscript==c[1], self._tests) :
-                    self._tests.append(Test(font, self.label+"_"+s1+s2, shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.testparms))
-            
+                if fmode == 2 : font = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True)
+                elif fmode == 0 or not filter(lambda x: x._font == font and x.shaper==s1 and x.altshaper==s2 and x.script==c[0] and x.altscript==c[1], self._tests) :
+                    self.addTest(font, self.label+"_"+s1+s2, shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.testparms)
+
+    def addTest(self, font, label, **kw) :
+        """ Creates and adds a test from adding a font """
+        t = Test(font, label, **kw)
+        self._tests.append(t)
+
     def _setFiles(self, ctx) :
         if self._filesLoaded : return
         self._filesLoaded = True
@@ -248,15 +272,19 @@ class TestCommand(object) :
         for f in self.files :
             f.setCtx(ctx)
 
+    def get_resultsnode(self, ctx) :
+        resultsroot = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
+        resultsdir = os.path.join(resultsroot, getattr(self, 'resultsdir', self._subcmd))
+        resultsnode = ctx.bldnode.find_or_declare(resultsdir)
+        return resultsnode
+
     def build(self, ctx) :
+        """ Main entry point to the test system """
         for k, v in self._defaults.items() :
             if not hasattr(self, k) :
                 setattr(self, k, ctx.env[v[0]] or  v[1])
         fmode = fontmodes[getattr(self, 'fontmode', 'all')]
-        testsdir = getattr(self, 'testdir', ctx.env['TESTDIR'] or 'tests')
-        resultsroot = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
-        resultsdir = os.path.join(resultsroot, getattr(self, 'resultsdir', self._subcmd))
-        resultsnode = ctx.bldnode.find_or_declare(resultsdir)
+        resultsnode = self.get_resultsnode(ctx)
         if not self._srcsSet :
             self._setFiles(ctx)
             self._srcsSet = True
@@ -286,29 +314,32 @@ class TestCommand(object) :
         for t in self._tests :
             perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode).items()}
         res = ""
+        temps = templates.TestCommand
         for f, v in perfont.items() :
             allrows = set()
-            res += "<h2>{}</h2>\n<table><tr>\n<th>{}</th>".format((f.id if f is not None else ""), "TestFile")
+            res += temps['init_head'].format((f.id if f is not None else ""), "TestFile")
             allkeys = sorted(v.keys(), key=lambda x: x.label)
             for t in allkeys :
-                res += "<th>{}</th>".format(t.label)
+                res += temps['head_row'].format(t.label)
                 allrows.update(v[t].keys())
-            res += "</tr>\n"
+            res += temps['head_row_end']
             for i in sorted(allrows) :
-                res += "<tr><th>{}</th>".format(str(i))
+                res += temps['row_head'].format(str(i))
                 for t in allkeys :
-                    res += "<td>"
+                    res += temps['cell_head']
                     if i in v[t] :
 # It would be nice if we could flag a link (or hide it) if the size of the targetted file is zero. But
 # we can't do that at this point since the commands to create the targets haven't run yet, only been
 # scheduled. So may need some javascript for this.
-                        res += '<a href="{}">Results</a>'.format(v[t][i].abspath())
-                    res += "</td>"
+                        res += temps['cell_content'].format(v[t][i])
+                    res += temps['cell_tail']
                 res += "</tr>\n"
             res += "</table>\n\n"
         return res
 
     def build_intermediate(self, ctx, f, test, resultsnode) :
+        """ Converts .htxt files to .txt, returns node for .txt files, all others return None.
+            This method is intended to be subclassed """
         if f is not None and str(f.node).endswith('.htxt') :
             targ = f.node.change_ext('.txt')
             ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = f.node, target = targ)
@@ -319,6 +350,7 @@ class TestCommand(object) :
             return None
 
     def build_test(self, ctx, test, targetdir) :
+        """ High level driver to run all the tests. See do_build for the subclassable method """
         results = {}
         if test._srcs is None :
             results[None] = self.do_build(ctx, None, test, targetdir)
@@ -328,11 +360,12 @@ class TestCommand(object) :
         return results
 
     def do_build(self, ctx, srcnode, test, targetdir) :
+        """ Does the actual taskgen creation for running a particular test. This method is intended to be subclassed """
         s = str(srcnode).partition(".")[0]
         t = s + "_" + test.fid + self.ext
         target = ctx.path.find_or_declare(os.path.join(targetdir.bldpath(), t))
         gen = self.cmd.build(ctx, [srcnode], target, **test.kw)
-        return target
+        return target.abspath()
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
     def get_sources(self, ctx) :
@@ -340,8 +373,128 @@ class TestCommand(object) :
         return map(str, self.files)
 
     def get_build_tools(self, ctx) :
-        return []
+        return ["cp", "ttftable"]
 
+@FontTests.aTestCommand
+class FtmlTestCommand(TestCommand) :
+
+    _type="FTML"
+
+    def __init__(self, _cmd, fontTests, **kw) :
+        self.shapers = 0
+        super(FtmlTestCommand, self).__init__(_cmd, fontTests, **kw)
+        self._xsls = []
+
+    def _make_ftml(self, task) :
+        temps = templates.FtmlTestCommand
+        ftmldat = temps['head']
+        testf = codecs.open(task.inputs[0].abspath(), encoding='utf-8')
+        count = 1
+        for l in testf.readlines() :
+            ftmldat += temps['content'].format(count, l.strip())
+            count += 1
+        testf.close()
+        ftmldat += temps['tail']
+        ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
+        ftest.write(ftmldat)
+        ftest.close()
+        return 0
+
+    def build(self, ctx) :
+        self.fmap = {}
+        resultsnode = self.get_resultsnode(ctx)
+        fontresults = resultsnode.find_or_declare('fonts')
+        # need to copy displayftml.html into tests/ftml to get security working
+        targdisp = resultsnode.find_or_declare('displayftml.html')
+        if not os.path.exists(targdisp.abspath()) :
+            shutil.copy(os.path.join(os.path.dirname(__file__), "displayftml.html"), targdisp.abspath())
+        # go through fonts setting up cp or ttftable type contexts to get copies into the tests/ftml tree
+        for f in self._fonts :
+            fname = str(f.target)
+            if self.shapers == 0 :
+                target = fontresults.find_or_declare(fname)
+                ctx(rule="${CP} ${SRC} ${TGT}", source = f.target, target = target)
+                self.fmap[str(f.target)] = target
+            elif self.shapers == 1 :
+                if hasattr(f, 'graphite') :
+                    target = fontresults.find_or_declare(fname.replace(".", "_gr.", 1))
+                    ctx(rule="${TTFTABLE} -d opentype ${SRC} ${TGT}", source = f.target, target = target)
+                    if fname not in fmap : fmap[fname] = {}
+                    self.fmap[fname]['gr'] = target
+                if hasattr(f, 'opentype') :
+                    if hasattr(f, 'script') :
+                        scripts = [f.script] if isinstance(f.script, basestring) else f.script
+                    else :
+                        scripts = [None]
+                    for s in scripts :
+                        target = fontresults.find_or_declare(fname.replace(".", "_ot" + ("_"+s if s else "") + ".", 1))
+                        rem = ",".join(filter(lambda x:x != s, scripts))
+                        ctx(rule="${TTFTABLE} -d graphite {} ${SRC} {$TGT}".format(rem if rem else ""), source=f.target, target=target)
+                        self.fmap[fname][s] = target
+        # go through copying all the xsl files as well, sigh
+        xslresults = resultsnode.find_or_declare('xsl')
+        self.xslmap = {}
+        for x in self._xsls :
+            ofile = xslresults.find_or_declare(x[0])
+            ifile = ctx.srcnode.find_resource(x[0])
+            self.xslmap[x[0]] = ofile
+            if not os.path.exists(ofile.abspath()) :
+                shutil.copy(ifile.abspath(), ofile.abspath())
+        return super(FtmlTestCommand, self).build(ctx)
+
+    def build_intermediate(self, ctx, f, test, resultsnode) :
+        src = super(FtmlTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
+        if src is None and not (str(src).endswith(".ftml") or str(src).endswith(".xml")) :
+            return None
+        targname = src.name.replace('.txt', '.ftml')
+        targ = resultsnode.find_or_declare(targname)
+        ctx(rule = self._make_ftml, target = targ, source = src)
+        return targ
+
+    def do_build(self, ctx, srcnode, test, targetdir) :
+        resultsroot = ctx.bldnode.find_resource(getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests'))
+        d = targetdir.find_resource('displayftml.html')
+        res = "{}?xml={}&xsl={}".format(d.path_from(resultsroot), srcnode.path_from(targetdir), self.xslmap[test.kw['xsl']].path_from(targetdir))
+        if ('multiplefonts' in test.kw and test.kw['multiplefonts']) or isinstance(test._font, FontGroup) :
+            for f in test._font :
+                res += "&fontsrc[]={}".format(self.fmap[str(f.target)].abspath())
+        else :
+            res += "&fontsrc={}".format(self.fmap[str(test._font.target)].path_from(targetdir))
+        return res
+
+    def addXsl(self, xsl, **kw) :
+        if 'name' not in kw : kw['name'] = os.path.splitext(os.path.basename(xsl))[0]
+        kw['xsl'] = xsl
+        self._xsls.append((xsl, kw))
+        fmode = fontmodes[kw.get('fontmode', 'all')]
+        if fmode == 0 :         # all
+            fonts = self._fonts
+        elif fmode == 1 :
+            fonts = [kw['fonts']]   # the group passed in
+        elif fmode == 2 :
+            fonts = [self.getFontGroup('_allFonts', None)]
+
+        # add the tests directly so we don't multiply them
+        for f in fonts :
+            if self.shapers == 0 :
+                self._tests.append(Test(f, kw['name'], **kw))
+            elif self.shapers == 1 :
+                if hasattr(f, 'graphite') :
+                    self._tests.append(Test(f, kw['name'] + "_gr", **kw))
+                if hasattr(f, 'opentype') :
+                    if hasattr(f, 'script') :
+                        scripts = [f.script] if isinstance(f.script, basestring) else f.script
+                    else :
+                        scripts = [None]
+                    for s in scripts :
+                        self._tests.append(Test(f, "{}_ot{}".format(kw['name'], ("_"+script if script else "")), script = s, **kw))
+
+    def addTest(self, font, label, **kw) :
+        for x in self._xsls :
+            tkw = x[1]
+            tkw.update(kw)
+            label += "_" + tkw['name']
+            self._tests.append(Test(font, label, **tkw))
 
 @FontTests.aTestCommand
 class TexTestCommand(TestCommand) :
@@ -356,39 +509,14 @@ class TexTestCommand(TestCommand) :
         super(TexTestCommand, self).__init__(_cmd, fontTests, **kw)
 
     def _make_tex(self, mf, font, task) :
-        texdat = r'''
-\font\test="[./%s]%s" at 12pt
-\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
-\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
-
-Test for %s - %s using
-\ifcase\XeTeXfonttype\test\TeX\or OpenType\or Graphite\fi
-\space- %s - XeTeX \XeTeXrevision
-
-Input file: %s
-
---------------------------------------------------
-
-
-
-\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-\obeylines
-\everypar{\global\advance\count0by1\llap{\tt\the\count0\quad}}
-\test
-\input ./%s
-\bye
-''' % (font.target, mf, texprotect(font.target), texprotect(mf), time.strftime("%H:%M %a %d %b %Y %Z"),
-            texprotect(task.inputs[0].bldpath()), task.inputs[0].bldpath())
+        texdat = templates.TexTestCommand['txt'].format(font.target, mf, texprotect(font.target),
+                    texprotect(mf), time.strftime("%H:%M %a %d %b %Y %Z"),
+                    texprotect(task.inputs[0].bldpath()), task.inputs[0].bldpath())
         task.outputs[0].write(texdat)
         return 0
 
     def _make_from_htex(self, mf, font, task) :
-        texdat = r'''
-\def\buildfont{"[%s]%s"}
-\input %s
-\bye
-''' % (font, mf, task.inputs[0].bldpath())
+        texdat = templates.TexTestCommand['htex'].format(font, mf, task.inputs[0].bldpath())
         task.outputs[0].write(texdat)
         return 0
 
@@ -460,31 +588,13 @@ class Waterfall(TexTestCommand) :
         super(Waterfall, self).__init__(_cmd, fontTests, **kw)
 
     def _make_tex(self, mf, font, task) :
-        texdat = ur'''
-\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
-\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
-\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-
-Waterfall for %s - %s %s - %s - XeTeX \XeTeXrevision
-
---------------------------------------------------
-
-
-
-''' % (texprotect(font.target), mf, self.featstr, time.strftime("%H:%M %a %d %b %Y %Z"))
+        temps = templates.Waterfall
+        texdat = temps['head'].format(texprotect(font.target), texprotect(mf), texprotect(self.featstr), time.strftime("%H:%M %a %d %b %Y %Z"))
 
         for s in self.sizes :
             print self.sizes
-            texdat += r'''
-\font\test="[./%s]%s%s" at %d pt \baselineskip=%d pt
-\noindent\test %s
-\par
-''' % (font.target, mf, self.featstr, s, s * self.sizefactor, self.text)
-
-        texdat += ur'''
-\bye
-'''
+            texdat += temps['content'].format(font.target, mf, self.featstr, s, s * self.sizefactor, self.text) 
+        texdat += temps['tail']
         task.outputs[0].write(texdat.encode('utf-8'))
         return 0
 
@@ -513,29 +623,12 @@ class CrossFont(Waterfall) :
         return []
 
     def _make_tex(self, mf, font, task) :
-        texdat = ur'''
-\hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
-\catcode"200B=\active \def^^^^200b{\hskip0pt\relax}
-\emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
-\def\plainoutput{\shipout\vbox{\makeheadline\pagebody\makefootline}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}
-
-Crossfont specimen - %s %s - %s - XeTeX \XeTeXrevision
-
---------------------------------------------------
-
-
-''' % (mf, self.featstr, time.strftime("%H:%M %a %d %b %Y %Z"))
+        temps = templates.CrossFont
+        texdat = temps['head'].format(texprotect(mf), texprotect(self.featstr), time.strftime("%H:%M %a %d %b %Y %Z"))
 
         for f in fonts :
-            texdat += ur'''
-\font\test="[./%s]%s%s" at %d pt
-\noindent\hbox to 2in {\vbox{\hsize=2in\noindent \rm %s}}
-\test %s
-\par
-''' % (f.target, mf, self.featstr, self.size, f, self.text)
-        texdat += ur'''
-\bye
-'''
+            texdat += temps['content'].format(f.target, mf, self.featstr, self.size, f, self.text)
+        texdat += temps['tail']
         task.outputs[0].write(texdat.encode('utf-8'))
         return 0
 
