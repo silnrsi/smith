@@ -820,9 +820,12 @@ def subdir(path) :
     return respackages
 
 def ftmlTest(path, **kw) :
-    #import pdb; pdb.set_trace()
     gpackage = Package.global_package()
     gpackage.fontTests.addFtmlTest(path, **kw)
+
+def testCommand(cmd, **kw) :
+    gpackage = Package.global_package()
+    gpackage.fontTests.addTestCmd(cmd, **kw)
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
@@ -884,7 +887,7 @@ def init(ctx) :
 
 def onload(ctx) :
     varmap = { 'package' : Package, 'subdir' : subdir,
-        'ftmlTest' : ftmlTest }
+        'ftmlTest' : ftmlTest, 'testCommand' : testCommand }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v

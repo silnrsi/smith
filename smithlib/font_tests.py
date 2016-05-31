@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # Martin Hosken 2011
 
-from waflib import Context, Utils, Node
+from waflib import Context, Utils, Node, Errors, Logs
 import package, templates
 import wsiwaf
 import os, shutil, codecs, re
@@ -81,6 +81,7 @@ class FontTests(object) :
         """Adds a font to the given group by name"""
         if name not in self._allFontGroups :
             fg = FontGroup(name)
+            self._allFontGroups[name] = fg
         else :
             fg = self._allFontGroups[name]
         if font is not None and (not once or font not in fg) :
@@ -95,21 +96,24 @@ class FontTests(object) :
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2, extracmds=['cmptxtrender'],
                 cmd=wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"'))
-        self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'],
+        self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'], shapers=1,
                 cmd=wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[0]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"'))
         self.addTestCmd('ftml', type='FTML')
         c = type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
         testtype = kw.pop('type', 'test')
-        if _cmd not in self._allTests :
-            self._allTests[_cmd] = []
-        elif 'label' not in kw :
-            kw['label'] = _cmd + " " + len(self._allTests[_cmd])
+        if 'label' not in kw :
+            i = len(self._allTests.get(_cmd, []))
+            kw['label'] = _cmd + (" " + str(i) if i else "")
         builder = self.testMap.get(testtype, TestCommand)
         test = builder(_cmd, self, **kw)
-        c = type(_cmd + '_Context', (package.cmdContext,), {'cmd' : _cmd, '__doc__' : "User defined test: " + _cmd})
-        self._allTests[_cmd].append(test)
+        if kw.pop('replace', False) :
+            self._allTests[_cmd] = [test]
+        else :
+            if _cmd not in self._allTests : self._allTests[_cmd] = []
+            c = type(_cmd + '_Context', (package.cmdContext,), {'cmd' : _cmd, '__doc__' : "User defined test: " + _cmd})
+            self._allTests[_cmd].append(test)
 
     def addFont(self, font) :
         for ts in self._allTests.values() :
@@ -118,7 +122,10 @@ class FontTests(object) :
 
     def addFtmlTest(self, path, **kw) :
         cmd = kw.pop('cmd', 'ftml')
-        for t in self._allTests.get(cmd, []) :
+        fontmode = 'none' if 'fonts' in kw and not 'fontmode' in kw else 'all'
+        if cmd not in self._allTests :
+            self.addTestCmd(cmd, type='FTML', fontmode=fontmode)
+        for t in self._allTests[cmd] :
             t.addXsl(path, **kw)
 
     def build_tests(self, ctx, _cmd) :
@@ -225,25 +232,23 @@ class TestCommand(object) :
         fmode = fontmodes[self.kw.get('fontmode', 'all')]
         if fmode == 1 : font = None
         if self.shapers == 0 :
-            if fmode == 2 : font = self.getFontGroup('_allFonts', font, once = True)
-            elif fmode == 0 or not len(self._tests) :
-                self.addTest(font, self.label, **self.kw)
+            f = self.getFontGroup('_allFonts', font, once = True) if fmode == 2 else font
+            if fmode == 0 or not len(self._tests) :
+                self.addTest(f, self.label, **self.kw)
         elif self.shapers == 1 :
             if hasattr(font, 'graphite') :
-                if fmode == 2 : font = self.getFontGroup('_allFonts_gr', font, once = True)
-                if fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')=='gr', self._tests)) :
-                    self.addTest(font, self.label + "_gr", shaper = 'gr', **self.kw)
+                f = self.getFontGroup('_allFonts_gr', font, once = True) if fmode == 2 else font
+                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='gr', self._tests)) :
+                    self.addTest(f, self.label + "_gr", shaper = 'gr', **self.kw)
             if hasattr(font, 'opentype') :
                 if hasattr(font, 'script') :
                     scripts = [font.script] if isinstance(font.script, basestring) else font.script
                 else :
                     scripts = [None]
                 for s in scripts :
-                    oldfont = font
-                    if fmode == 2 : font = self.getFontGroup('_allFonts_ot_' + s, font, once = True)
-                    if fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')=='ot' and x.kw.get('script', '')==s, self._tests)) :
-                        self.addTest(font, self.label + "_ot_" + s, shaper='ot', script=s, **self.kw)
-                    font = oldfont
+                    f = self.getFontGroup('_allFonts_ot' + s, font, once = True) if fmode == 2 else font
+                    if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='ot' and x.kw.get('script', '')==s, self._tests)) :
+                        self.addTest(f, self.label + "_ot_" + s, shaper='ot', script=s, **self.kw)
         elif self.shapers == 2 :
             scripts = []
             if hasattr(font, "graphite") :
@@ -256,10 +261,9 @@ class TestCommand(object) :
             for c in combinations(scripts, 2) :
                 s1 = 'ot' if c[0] != "" else 'gr'
                 s2 = 'ot' if c[1] != "" else 'gr'
-                oldfont = font
-                if fmode == 2 : font = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True)
-                elif fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2 and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
-                    self.addTest(font, self.label+"_"+s1+s2+c[0]+c[1], shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.kw)
+                f = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True) if fmode == 2 else font
+                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2 and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
+                    self.addTest(f, self.label+"_"+s1+s2+c[0]+c[1], shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.kw)
 
     def addTest(self, font, label, **kw) :
         """ Creates and adds a test from adding a font """
@@ -392,7 +396,11 @@ class TestCommand(object) :
         if test.kw.get('usestandards', False) :
             stddir = test.kw.get('standards', ctx.env['STANDARDS'] or 'references')
             for f in fonts :
-                srcs.append(ctx.path.find_resource(os.path.join(stddir, str(f.target))))
+                t = ctx.path.find_resource(os.path.join(stddir, str(f.target)))
+                if t is None :
+                    Logs.error("Cannot find corresponding reference to {} in references dir {}/".format(f.target, stddir))
+                    raise Errors.BuildError()
+                srcs.append(t)
         gen = self.cmd.build(ctx, srcs, target, **test.kw)
         return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
@@ -509,14 +517,14 @@ class FtmlTestCommand(TestCommand) :
         if fmode == 0 :         # all
             fonts = self._fonts
         elif fmode == 1 :
-            fonts = [kw['fonts']]   # the group passed in
+            fonts = kw['fonts']   # the group passed in
         elif fmode == 2 :
-            fonts = [self.getFontGroup('_allFonts', None)]
+            fonts = self.getFontGroup('_allFonts', None)
 
         # add the tests directly so we don't multiply them
         for f in fonts :
             allf = f
-            if 'multiplefonts' in kw or 'fonts' in kw :
+            if kw.get('multiplefonts', False) or 'fonts' in kw :
                 allf = kw.get('fonts', [])
                 allf.insert(kw.get('addfontindex', 0), f)
             if self.shapers == 0 :
@@ -639,21 +647,19 @@ class Waterfall(TexTestCommand) :
             print self.sizes
             texdat += temps['content'].format(font.target, mf, self.kw.get('featstr', ''), s, s * self.sizefactor, self.text) 
         texdat += temps['tail']
-        task.outputs[0].write(texdat.encode('utf-8'))
+        ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
+        ftest.write(texdat)
+        ftest.close()
         return 0
 
     def build(self, ctx, resultsroot) :
         """ Main entry point to the test system """
-        for k, v in self._defaults.items() :
-            if not hasattr(self, k) :
-                setattr(self, k, ctx.env[v[0]] or  v[1])
+        self._build_intermediates(ctx)
         if self.text == "" : return
         return super(Waterfall, self).build(ctx, resultsroot)
 
     def has_work(self, ctx) :
-        for k, v in self._defaults.items() :
-            if not hasattr(self, k) :
-                setattr(self, k, ctx.env[v[0]] or  v[1])
+        self._build_intermediates(ctx)
         if self.text == "" : return False
         return super(Waterfall, self).has_work(ctx)
 
@@ -685,6 +691,8 @@ class CrossFont(Waterfall) :
         for f in font :
             texdat += temps['content'].format(f.target, mf, featstr, self.size, texprotect(f.target), self.text)
         texdat += temps['tail']
-        task.outputs[0].write(texdat.encode('utf-8'))
+        ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
+        ftest.write(texdat)
+        ftest.close()
         return 0
 
