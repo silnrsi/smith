@@ -124,6 +124,7 @@ class FontTests(object) :
     def build_tests(self, ctx, _cmd) :
         cmds = sorted(self._allTests.keys()) if _cmd == 'alltests' else [_cmd]
         resultsdir = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
+        resultsroot = ctx.bldnode.find_or_declare(resultsdir)
         for c in cmds :
             iname = c + "_index.html"
             tests = self._allTests.get(c, [])
@@ -131,7 +132,7 @@ class FontTests(object) :
             resultsnode = ctx.bldnode.find_or_declare(os.path.join(resultsdir, iname))
             res = templates.FontTests['index_head']
             for t in tests :
-                res += t.build(ctx)
+                res += t.build(ctx, resultsroot)
             res += templates.FontTests['index_tail']
             resultsnode.write(res)
 
@@ -230,7 +231,7 @@ class TestCommand(object) :
         elif self.shapers == 1 :
             if hasattr(font, 'graphite') :
                 if fmode == 2 : font = self.getFontGroup('_allFonts_gr', font, once = True)
-                if fmode == 0 or not any(map(lambda x: x._font == font and x.shaper=='gr', self._tests)) :
+                if fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')=='gr', self._tests)) :
                     self.addTest(font, self.label + "_gr", shaper = 'gr', **self.kw)
             if hasattr(font, 'opentype') :
                 if hasattr(font, 'script') :
@@ -240,7 +241,7 @@ class TestCommand(object) :
                 for s in scripts :
                     oldfont = font
                     if fmode == 2 : font = self.getFontGroup('_allFonts_ot_' + s, font, once = True)
-                    if fmode == 0 or not any(map(lambda x: x._font == font and x.shaper=='ot' and x.script==s, self._tests)) :
+                    if fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')=='ot' and x.kw.get('script', '')==s, self._tests)) :
                         self.addTest(font, self.label + "_ot_" + s, shaper='ot', script=s, **self.kw)
                     font = oldfont
         elif self.shapers == 2 :
@@ -257,7 +258,7 @@ class TestCommand(object) :
                 s2 = 'ot' if c[1] != "" else 'gr'
                 oldfont = font
                 if fmode == 2 : font = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True)
-                elif fmode == 0 or not any(map(lambda x: x._font == font and x.shaper==s1 and x.altshaper==s2 and x.script==c[0] and x.altscript==c[1], self._tests)) :
+                elif fmode == 0 or not any(map(lambda x: x._font == font and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2 and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
                     self.addTest(font, self.label+"_"+s1+s2+c[0]+c[1], shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.kw)
 
     def addTest(self, font, label, **kw) :
@@ -288,7 +289,7 @@ class TestCommand(object) :
         resultsnode = ctx.bldnode.find_or_declare(resultsdir)
         return resultsnode
 
-    def build(self, ctx) :
+    def _build_intermediates(self, ctx) :
         """ Main entry point to the test system """
         for k, v in self._defaults.items() :
             if not hasattr(self, k) :
@@ -317,12 +318,15 @@ class TestCommand(object) :
                         srcs.append(s)
                 for t in self._tests :
                     t.setSrcs(srcs)
+        return (fmode, resultsnode)
 
+    def build(self, ctx, resultsroot) :
+        (fmode, resultsnode) = self._build_intermediates(ctx)
         perfont = {}    # dict of tests against rows of results for each font
         for t in self._tests :
             if t._font not in perfont : perfont[t._font] = {}
         for t in self._tests :
-            perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode).items()}
+            perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot).items()}
         res = ""
         temps = templates.TestCommand
         for f, v in perfont.items() :
@@ -359,37 +363,43 @@ class TestCommand(object) :
         else :
             return None
 
-    def build_test(self, ctx, test, targetdir) :
+    def build_test(self, ctx, test, targetdir, resultsroot) :
         """ High level driver to run all the tests. See do_build for the subclassable method """
+        def tostr(x) :
+            if isinstance(x, basestring) :
+                return x
+            else :
+                return x.path_from(resultsroot)
+
         results = {}
         if test._srcs is None :
-            results[None] = self.do_build(ctx, None, test, targetdir)
+            results[None] = tostr(self.do_build(ctx, None, test, targetdir))
         else :
             for s in test._srcs :
-                results[s] = self.do_build(ctx, s, test, targetdir)
+                results[s] = tostr(self.do_build(ctx, s, test, targetdir))
         return results
 
     def do_build(self, ctx, srcnode, test, targetdir) :
         """ Does the actual taskgen creation for running a particular test. This method is intended to be subclassed """
-        # import pdb; pdb.set_trace()
         s = str(srcnode).partition(".")[0]
         t = s + "_" + test.fid + self.ext
         target = ctx.path.find_or_declare(os.path.join(targetdir.bldpath(), t))
-        fonts = test.kw.get('font')
         srcs = [srcnode]
+        fonts = test.kw.get('font', [])
         fonts = fonts if test.kw.get('multifonts', False) or isinstance(fonts, list) else [fonts]
         for f in fonts :
-            srcs.append(ctx.bldnode.find_resource(str(f)))
+            srcs.append(ctx.bldnode.find_resource(str(f.target)))
         if test.kw.get('usestandards', False) :
-            stddir = test.kw.get('standards', ctx.env['STANDARDS'] or 'standards')
+            stddir = test.kw.get('standards', ctx.env['STANDARDS'] or 'references')
             for f in fonts :
-                srcs.append(ctx.path.find_resource(os.path.join(stddir, str(f))))
+                srcs.append(ctx.path.find_resource(os.path.join(stddir, str(f.target))))
         gen = self.cmd.build(ctx, srcs, target, **test.kw)
-        return target.abspath()
+        return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
     def has_work(self, ctx) :
         """Returns True if there will be meaningful output from this test"""
+        self._build_intermediates(ctx)
         for t in self._tests :
             if t.kw.get('notestfiles', False) or len(t._srcs) : return True
         return False
@@ -427,7 +437,7 @@ class FtmlTestCommand(TestCommand) :
         ftest.close()
         return 0
 
-    def build(self, ctx) :
+    def build(self, ctx, resultsroot) :
         self.fmap = {}
         resultsnode = self.get_resultsnode(ctx)
         fontresults = resultsnode.find_or_declare('fonts')
@@ -467,7 +477,7 @@ class FtmlTestCommand(TestCommand) :
             self.xslmap[x[0]] = ofile
             if not os.path.exists(ofile.abspath()) :
                 shutil.copy(ifile.abspath(), ofile.abspath())
-        return super(FtmlTestCommand, self).build(ctx)
+        return super(FtmlTestCommand, self).build(ctx, resultsroot)
 
     def build_intermediate(self, ctx, f, test, resultsnode) :
         src = super(FtmlTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
@@ -595,7 +605,7 @@ class TexTestCommand(TestCommand) :
         ctx(rule = '${XETEX} --interaction=batchmode --output-directory=./' + srcnode.bld_dir() + ' ./${SRC[0].bldpath()}',
                 source = [srcnode], target = target, deps = deps,
                 taskgens = [test.fid])
-        return target.abspath()
+        return target
 
     def get_build_tools(self, ctx) :
         if self._configured : return []
@@ -632,13 +642,13 @@ class Waterfall(TexTestCommand) :
         task.outputs[0].write(texdat.encode('utf-8'))
         return 0
 
-    def build(self, ctx) :
+    def build(self, ctx, resultsroot) :
         """ Main entry point to the test system """
         for k, v in self._defaults.items() :
             if not hasattr(self, k) :
                 setattr(self, k, ctx.env[v[0]] or  v[1])
         if self.text == "" : return
-        return super(Waterfall, self).build(ctx)
+        return super(Waterfall, self).build(ctx, resultsroot)
 
     def has_work(self, ctx) :
         for k, v in self._defaults.items() :
