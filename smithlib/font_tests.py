@@ -293,11 +293,13 @@ class TestCommand(object) :
         resultsnode = ctx.bldnode.find_or_declare(resultsdir)
         return resultsnode
 
-    def _build_intermediates(self, ctx) :
-        """ Main entry point to the test system """
+    def _set_defaults(self, ctx) :
         for k, v in self._defaults.items() :
             if not hasattr(self, k) :
                 setattr(self, k, ctx.env[v[0]] or  v[1])
+
+    def _build_intermediates(self, ctx) :
+        self._set_defaults(ctx)
         fmode = fontmodes[getattr(self, 'fontmode', 'all')]
         resultsnode = self.get_resultsnode(ctx)
         if not self._srcsSet :
@@ -325,6 +327,7 @@ class TestCommand(object) :
         return (fmode, resultsnode)
 
     def build(self, ctx, resultsroot) :
+        """ Main entry point to the test system """
         (fmode, resultsnode) = self._build_intermediates(ctx)
         perfont = {}    # dict of tests against rows of results for each font
         for t in self._tests :
@@ -644,7 +647,6 @@ class Waterfall(TexTestCommand) :
         texdat = temps['head'].format(texprotect(font.target), texprotect(mf), texprotect(self.kw.get('featstr', '')), time.strftime("%H:%M %a %d %b %Y %Z"))
 
         for s in self.sizes :
-            print self.sizes
             texdat += temps['content'].format(font.target, mf, self.kw.get('featstr', ''), s, s * self.sizefactor, self.text) 
         texdat += temps['tail']
         ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
@@ -654,12 +656,12 @@ class Waterfall(TexTestCommand) :
 
     def build(self, ctx, resultsroot) :
         """ Main entry point to the test system """
-        self._build_intermediates(ctx)
+        self._set_defaults(ctx)
         if self.text == "" : return
         return super(Waterfall, self).build(ctx, resultsroot)
 
     def has_work(self, ctx) :
-        self._build_intermediates(ctx)
+        self._set_defaults(ctx)
         if self.text == "" : return False
         return super(Waterfall, self).has_work(ctx)
 
