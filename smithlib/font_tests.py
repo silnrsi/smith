@@ -147,6 +147,7 @@ class FontTests(object) :
             for t in tests :
                 temp = t.build(ctx, resultsroot, optional=optional)
                 if temp == "" : break
+                res += temp
             if temp == "" : continue
             res += templates.FontTests['index_tail']
             resultsnode.write(res)
