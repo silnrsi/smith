@@ -129,7 +129,12 @@ class FontTests(object) :
             t.addXsl(path, **kw)
 
     def build_tests(self, ctx, _cmd) :
-        cmds = sorted(self._allTests.keys()) if _cmd == 'alltests' else [_cmd]
+        if _cmd == 'alltests' :
+            cmds = sorted(self._allTests.keys())
+            optional = True
+        else :
+            cmds = [_cmd]
+            optional = False
         resultsdir = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
         resultsroot = ctx.bldnode.make_node(resultsdir)
         for c in cmds :
@@ -138,8 +143,11 @@ class FontTests(object) :
             if not len(tests) or not any(map(lambda x: x.has_work(ctx), tests)) : continue
             resultsnode = ctx.bldnode.find_or_declare(os.path.join(resultsdir, iname))
             res = templates.FontTests['index_head']
+            temp = ""
             for t in tests :
-                res += t.build(ctx, resultsroot)
+                temp = t.build(ctx, resultsroot, optional=optional)
+                if temp == "" : break
+            if temp == "" : continue
             res += templates.FontTests['index_tail']
             resultsnode.write(res)
 
@@ -326,14 +334,14 @@ class TestCommand(object) :
                     t.setSrcs(srcs)
         return (fmode, resultsnode)
 
-    def build(self, ctx, resultsroot) :
+    def build(self, ctx, resultsroot, optional=False) :
         """ Main entry point to the test system """
         (fmode, resultsnode) = self._build_intermediates(ctx)
         perfont = {}    # dict of tests against rows of results for each font
         for t in self._tests :
             if t._font not in perfont : perfont[t._font] = {}
         for t in self._tests :
-            perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot).items()}
+            perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot, optional=optional).items()}
         res = ""
         temps = templates.TestCommand
         for f, v in perfont.items() :
@@ -370,7 +378,7 @@ class TestCommand(object) :
         else :
             return None
 
-    def build_test(self, ctx, test, targetdir, resultsroot) :
+    def build_test(self, ctx, test, targetdir, resultsroot, optional=False) :
         """ High level driver to run all the tests. See do_build for the subclassable method """
         def tostr(x) :
             if isinstance(x, basestring) :
@@ -379,14 +387,14 @@ class TestCommand(object) :
                 return x.path_from(resultsroot)
 
         results = {}
-        if test._srcs is None :
-            results[None] = tostr(self.do_build(ctx, None, test, targetdir))
-        else :
-            for s in test._srcs :
-                results[s] = tostr(self.do_build(ctx, s, test, targetdir))
+        srcs = test._srcs if test._srcs is not None else [None]
+        for s in srcs :
+            res = self.do_build(ctx, s, test, targetdir, optional=optional)
+            if res is not None :
+                results[s] = tostr(res)
         return results
 
-    def do_build(self, ctx, srcnode, test, targetdir) :
+    def do_build(self, ctx, srcnode, test, targetdir, optional=False) :
         """ Does the actual taskgen creation for running a particular test. This method is intended to be subclassed """
         s = str(srcnode).partition(".")[0]
         t = s + "_" + test.fid + self.ext
@@ -401,6 +409,7 @@ class TestCommand(object) :
             for f in fonts :
                 t = ctx.path.find_resource(os.path.join(stddir, str(f.target)))
                 if t is None :
+                    if optional : return None
                     Logs.error("Cannot find corresponding reference to {} in references dir {}/".format(f.target, stddir))
                     raise Errors.BuildError()
                 srcs.append(t)
@@ -499,7 +508,7 @@ class FtmlTestCommand(TestCommand) :
         ctx(rule = self._make_ftml, target = targ, source = src)
         return targ
 
-    def do_build(self, ctx, srcnode, test, targetdir) :
+    def do_build(self, ctx, srcnode, test, targetdir, optional=False) :
         resultsroot = ctx.bldnode.find_resource(getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests'))
         d = targetdir.find_resource('displayftml.html')
         res = "{}?xml={}&xsl={}".format(d.path_from(resultsroot), srcnode.path_from(targetdir), self.xslmap[test.kw['xsl']].path_from(targetdir))
@@ -600,7 +609,7 @@ class TexTestCommand(TestCommand) :
         ctx(rule = curry_fn(fn, attrs, test._font), target = targ, source = src)
         return targ
 
-    def do_build(self, ctx, srcnode, test, targetdir, deps = None) :
+    def do_build(self, ctx, srcnode, test, targetdir, deps = None, optional=False) :
         if deps is None : deps = []
         if test._font :
             fonts = test._font if isinstance(test._font, FontGroup) else [test._font]
