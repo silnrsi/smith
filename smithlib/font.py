@@ -140,7 +140,8 @@ class Font(object) :
         bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1", target=self.fontlint_target, source=[self.target], shell=1)
 
     def build_fontvalidator(self, bld) :
-        bld(rule="${FONTVALIDATOR} ${SRC} ${TGT} 2>&1", source=self.target, shell=0)
+        target = str(self.target) + ".report.xml"
+        bld(rule="${FONTVALIDATOR} -file ${SRC} -report-in-font-dir", source=self.target, target=bld.path.find_or_declare(target), shell=0)
 
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)

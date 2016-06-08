@@ -481,7 +481,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 +if len(fonts) :
   IfErrors BranchTestRem
 + for f in fonts :
-    !insertmacro InstallTTF @f.target@
+    !insertmacro InstallTTF @f.path@
 -
     
     SendMessage ${HWND_BROADCAST} ${WM_FONTCHANGE} 0 0 /TIMEOUT=5000
@@ -490,7 +490,7 @@ Section "@"!" if len(fonts) else "-"@${PACKNAME} Font" SecFont
 
   BranchTestRem:
 + for f in fonts:
-    IfFileExists "$WINDIR/Fonts/@f.target@" 0 BranchNoExist
+    IfFileExists "$WINDIR/Fonts/@os.path.basename(f.target)@" 0 BranchNoExist
 -
     MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to overwrite existing ${PACKNAME} fonts?" /SD IDYES IDYES BranchOverwrite ; skipped if file doesn't exist
 

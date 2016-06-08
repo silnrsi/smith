@@ -82,7 +82,7 @@ class Package(object) :
         try :
             ctx.find_program('ot-sanitise', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
-            ctx.find_program('fontval', var="FONTVALIDATOR")
+            ctx.find_program('FontValidator.exe', var="FONTVALIDATOR")
             ctx.find_program('pyfontaine', var="PYFONTAINE")
         except ctx.errors.ConfigurationError :
             pass
@@ -258,6 +258,7 @@ class Package(object) :
                 raise Errors.WafError("Package '%r' needs '%s' attribute" % (self, t))
         thisdir = os.path.dirname(__file__)
         fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
+        for f in fonts: f.path = f.target
         kbds = [x for x in self.keyboards if not hasattr(x, 'dontship')]
         if not hasattr(self, 'license') :
             if fonts and kbds :
@@ -301,6 +302,8 @@ class Package(object) :
                 k.setup_vars(c)
             kbds.extend(p.keyboards)
             fonts.extend(p.fonts)
+            for f in p.fonts :
+                f.path = c.bldnode.find_or_declare(f.target).path_from(bld.bldnode)
 
         self.subrun(bld, procpkg, onlyfn = True)
         task = templater.Copier(prj = self, fonts = fonts, kbds = kbds, basedir = thisdir, env = bld.env, bld = blddir)
@@ -356,7 +359,7 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
         licenses = []
         if self.fonts and not hasattr(self, 'license'):
-            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
+            licenses.extend(['OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt'])
         if self.keyboards :
             if not self.fonts or not getattr(self, 'license', None) :
                 licenses.extend([getattr(self, 'license', 'MIT.txt')])

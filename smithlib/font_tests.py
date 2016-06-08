@@ -131,7 +131,7 @@ class FontTests(object) :
     def build_tests(self, ctx, _cmd) :
         cmds = sorted(self._allTests.keys()) if _cmd == 'alltests' else [_cmd]
         resultsdir = getattr(self, 'testresultsdir', ctx.env['TESTRESULTSDIR'] or 'tests')
-        resultsroot = ctx.bldnode.find_or_declare(resultsdir)
+        resultsroot = ctx.bldnode.make_node(resultsdir)
         for c in cmds :
             iname = c + "_index.html"
             tests = self._allTests.get(c, [])
@@ -244,7 +244,7 @@ class TestCommand(object) :
                 if hasattr(font, 'script') :
                     scripts = [font.script] if isinstance(font.script, basestring) else font.script
                 else :
-                    scripts = [None]
+                    scripts = [""]
                 for s in scripts :
                     f = self.getFontGroup('_allFonts_ot' + s, font, once = True) if fmode == 2 else font
                     if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='ot' and x.kw.get('script', '')==s, self._tests)) :
