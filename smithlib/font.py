@@ -518,7 +518,7 @@ def name(n, **kw) :
 def onload(ctx) :
     varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
-            'internal' : Internal
+            'woff' : Woff, 'internal' : Internal
              }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
