@@ -1,0 +1,24 @@
+= Smith Manual v0.3-1 {revdate} =
+:author: Martin Hosken (contributions by Nicolas Spalinger)
+:subject: Smith manual 
+:keywords: fonts, keyboards, building, writing systems
+
+:numbered:
+
+include::intro.asc[]
+
+include::tutorial.asc[]
+
+include::directory.asc[]
+
+include::font.asc[]
+
+include::test.asc[]
+
+include::keyboard.asc[]
+
+include::package.asc[]
+
+include::global.asc[]
+
+include::tool.asc[]
