@@ -95,9 +95,9 @@ class FontTests(object) :
         self.addTestCmd('waterfall', type='Waterfall')
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2, extracmds=['cmptxtrender'],
-                cmd=wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"'))
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"')
         self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'], shapers=1,
-                cmd=wsiwaf.cmd('${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[0]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"'))
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[0]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
         self.addTestCmd('ftml', type='FTML')
         c = type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
@@ -214,7 +214,7 @@ class TestCommand(object) :
         if not hasattr(self, 'shapers') : self.shapers = 1
         self.ext = '.html'
         self.kw = {}
-        self.supports = ['.txt']
+        self.supports = ['.txt', '.ftml', '.xml']
         if 'coverage' in kw :
             if kw['coverage'] == 'fonts' : kw['notestfiles'] = True
             elif kw['coverage'] == 'shapers' : kw['shapers'] = 1; kw['notestfiles'] = True
@@ -222,6 +222,7 @@ class TestCommand(object) :
             elif kw['coverage'] == 'shaperpairs' : kw['shapers'] = 2
             del kw['coverage']
         if 'label' not in kw : kw['label'] = _cmd
+        if 'cmd' in kw : kw['cmd'] = wsiwaf.cmd(kw['cmd'])
         self.files = None
         for x in ('cmd', 'ext', 'files', 'label', 'shapers', 'supports') :     # magic attributes
             if x in kw : setattr(self, x, kw.pop(x))
@@ -533,14 +534,14 @@ class FtmlTestCommand(TestCommand) :
         if fmode == 0 :         # all
             fonts = self._fonts
         elif fmode == 1 :
-            fonts = kw['fonts']   # the group passed in
+            fonts = [kw['fonts']]   # the group passed in
         elif fmode == 2 :
-            fonts = self.getFontGroup('_allFonts', None)
+            fonts = [self.getFontGroup('_allFonts', None)]
 
         # add the tests directly so we don't multiply them
         for f in fonts :
             allf = f
-            if kw.get('multiplefonts', False) or 'fonts' in kw :
+            if fmode != 1 and (kw.get('multiplefonts', False) or 'fonts' in kw) :
                 allf = kw.get('fonts', [])
                 allf.insert(kw.get('addfontindex', 0), f)
             if self.shapers == 0 :
