@@ -214,6 +214,7 @@ class TestCommand(object) :
         if not hasattr(self, 'shapers') : self.shapers = 1
         self.ext = '.html'
         self.kw = {}
+        self.supports = ['.txt']
         if 'coverage' in kw :
             if kw['coverage'] == 'fonts' : kw['notestfiles'] = True
             elif kw['coverage'] == 'shapers' : kw['shapers'] = 1; kw['notestfiles'] = True
@@ -222,7 +223,7 @@ class TestCommand(object) :
             del kw['coverage']
         if 'label' not in kw : kw['label'] = _cmd
         self.files = None
-        for x in ('cmd', 'files', 'label', 'shapers') :     # magic attributes
+        for x in ('cmd', 'ext', 'files', 'label', 'shapers', 'supports') :     # magic attributes
             if x in kw : setattr(self, x, kw.pop(x))
         for k, v in kw.items() : self.kw[k] = v     # setattr(self, k, v)
         self._tests = []
@@ -370,11 +371,13 @@ class TestCommand(object) :
     def build_intermediate(self, ctx, f, test, resultsnode) :
         """ Converts .htxt files to .txt, returns node for .txt files, all others return None.
             This method is intended to be subclassed """
-        if f is not None and str(f.node).endswith('.htxt') :
+        if f is None : return None
+        (_, ext) = os.path.splitext(str(f.node))
+        if ext == '.htxt' :
             targ = f.node.change_ext('.txt')
             ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = f.node, target = targ)
             return targ
-        elif f is not None and str(f.node).endswith('.txt') :
+        elif ext in self.supports :
             return f.node
         else :
             return None

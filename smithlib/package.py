@@ -826,9 +826,9 @@ def ftmlTest(path, **kw) :
     gpackage = Package.global_package()
     gpackage.fontTests.addFtmlTest(path, **kw)
 
-def testCommand(cmd, **kw) :
+def testCommand(_cmd, **kw) :
     gpackage = Package.global_package()
-    gpackage.fontTests.addTestCmd(cmd, **kw)
+    gpackage.fontTests.addTestCmd(_cmd, **kw)
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
