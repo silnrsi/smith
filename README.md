@@ -10,3 +10,4 @@ cycles very manageable. In addition, by making the build and test processes
 for a set of fonts repeatable, the whole process can be shared with others simply.
 This allows for fonts to truly be open software.
 
+The manual is [here:](docs/smith/manual.asc)
