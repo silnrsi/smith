@@ -97,7 +97,7 @@ class Font(object) :
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
-            if hasattr(self.version, 'len') and not isinstance(self.version, basestring) :
+            if isinstance(self.version, (list, tuple)) :
                 ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
                 ttfsetverparms = str(self.version)
