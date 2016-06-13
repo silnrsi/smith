@@ -360,6 +360,7 @@ def add_options() :
         self.add_option_group(gr)
         gr.add_option('--dot', action = 'store_true', help = 'create wscript.dot of build tasks for this command')
         gr.add_option('--debug', action = 'store_true', help = 'break out into the debugger')
+        gr.add_option('-r','--release', action = 'store_true', help = 'Build for release, no special version numbers')
 
     Options.opt_parser.__init__ = init
 

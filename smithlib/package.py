@@ -830,6 +830,45 @@ def testCommand(_cmd, **kw) :
     gpackage = Package.global_package()
     gpackage.fontTests.addTestCmd(_cmd, **kw)
 
+def _findvcs(cwd) :
+    if cwd == os.path.sep or cwd == '' : return None
+    if os.path.exists(os.path.join(cwd, '.git')) :
+        return 'git'
+    elif os.path.exists(os.path.join(cwd, '.hg')) :
+        return 'hg'
+    ind = cwd[:-1].find(os.path.sep)
+    if ind == -1 : return None
+    return _findcvs(cwd[:ind])
+
+def getversion(s = "{vcssha:.6}{vcsmodified}") :
+    curdir = os.path.abspath(os.curdir)
+    results = {}
+    vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
+    if '-r' in sys.argv or '--release' in sys.argv :
+        vcssha = ''
+        results['vcsmodified'] = ''
+    elif vcssha != '' :       # in team city, so no vcs dirs available
+        results['vcsmodified'] = ''
+    else:
+        results['vcstype'] = 'svn' if os.path.exists(os.path.join(curdir, '.svn')) else _findvcs(curdir)
+
+        if results['vcstype'] == 'git' :
+            vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+            results['vcsmodified'] = 'M' if Utils.subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) else ""
+        elif results['vcstype'] == 'hg' :
+            results['vcssha'] = Utils.subprocess.check_output(['hg', 'identify', '--id'])
+            if results['vcssha'].endswith('+') :
+                vcssha = vcssha[:-1]
+                results['vcsmodified'] = 'M'
+            else :
+                results['vcsmodified'] = ''
+        elif results['vcstype'] == 'svn' :
+            vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
+            results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
+    results['vcssha'] = vcssha.strip()
+    results['cibuildnumber'] = os.environ.get('BUILD_NUMBER', '')
+    return s.format(**results)
+
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
 
@@ -890,7 +929,8 @@ def init(ctx) :
 
 def onload(ctx) :
     varmap = { 'package' : Package, 'subdir' : subdir,
-        'ftmlTest' : ftmlTest, 'testCommand' : testCommand }
+        'ftmlTest' : ftmlTest, 'testCommand' : testCommand,
+        'getversion' : getversion }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v
