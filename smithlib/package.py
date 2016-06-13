@@ -866,7 +866,7 @@ def getversion(s = "{vcssha:.6}{vcsmodified}") :
             vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
     results['vcssha'] = vcssha.strip()
-    results['cibuildnumber'] = os.environ.get('BUILD_NUMBER', '')
+    results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
     return s.format(**results)
 
 def add_configure() :
