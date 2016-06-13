@@ -100,7 +100,11 @@ class Font(object) :
             if isinstance(self.version, (list, tuple)) :
                 ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
             else :
-                ttfsetverparms = str(self.version)
+                gotver = package.getversion()
+                if gotver != '' :
+                    ttfsetverparms = "-d 'dev {1}' {0}".format(str(self.version), gotver)
+                else :
+                    ttfsetverparms = str(self.version)
             modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = basepath, late = 1)
         if hasattr(self, 'copyright') :
             modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = basepath, late = 1)
