@@ -836,19 +836,18 @@ def _findvcs(cwd) :
         return 'git'
     elif os.path.exists(os.path.join(cwd, '.hg')) :
         return 'hg'
-    ind = cwd[:-1].find(os.path.sep)
+    ind = cwd[:-1].rfind(os.path.sep)
     if ind == -1 : return None
     return _findvcs(cwd[:ind])
 
 def getversion(s = "{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
-    results = {}
+    results = {'vcsmodified' : ''}
     vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
     if '-r' in sys.argv or '--release' in sys.argv :
         vcssha = ''
-        results['vcsmodified'] = ''
     elif vcssha != '' :       # in team city, so no vcs dirs available
-        results['vcsmodified'] = ''
+        pass
     else:
         results['vcstype'] = 'svn' if os.path.exists(os.path.join(curdir, '.svn')) else _findvcs(curdir)
 
@@ -856,12 +855,10 @@ def getversion(s = "{vcssha:.6}{vcsmodified}") :
             vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD'])
             results['vcsmodified'] = 'M' if Utils.subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) else ""
         elif results['vcstype'] == 'hg' :
-            results['vcssha'] = Utils.subprocess.check_output(['hg', 'identify', '--id'])
-            if results['vcssha'].endswith('+') :
+            vcssha = Utils.subprocess.check_output(['hg', 'identify', '--id']).strip()
+            if vcssha.endswith('+') :
                 vcssha = vcssha[:-1]
                 results['vcsmodified'] = 'M'
-            else :
-                results['vcsmodified'] = ''
         elif results['vcstype'] == 'svn' :
             vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
