@@ -838,7 +838,7 @@ def _findvcs(cwd) :
         return 'hg'
     ind = cwd[:-1].find(os.path.sep)
     if ind == -1 : return None
-    return _findcvs(cwd[:ind])
+    return _findvcs(cwd[:ind])
 
 def getversion(s = "{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
