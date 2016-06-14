@@ -152,6 +152,13 @@ class FontTests(object) :
             res += templates.FontTests['index_tail']
             resultsnode.write(res)
 
+    def get_sources(self, ctx) :
+        res = set()
+        for ts in self._allTests.values() :
+            for t in ts :
+                res.update(t.get_sources(ctx))
+        return res
+
     def get_build_tools(self, ctx) :
         res = set()
         for ts in self._allTests.values() :
@@ -430,7 +437,7 @@ class TestCommand(object) :
         return False
 
     def get_sources(self, ctx) :
-        self.setFiles(ctx)
+        self._setFiles(ctx)
         return map(str, self.files)
 
     def get_build_tools(self, ctx) :
@@ -679,7 +686,7 @@ class Waterfall(TexTestCommand) :
         if self.text == "" : return False
         return super(Waterfall, self).has_work(ctx)
 
-    def get_sources(self, ctx, font) :
+    def get_sources(self, ctx) :
         return []
 
 
@@ -696,7 +703,7 @@ class CrossFont(Waterfall) :
         kw['fontmode'] = 'collect'
         super(CrossFont, self).__init__(_cmd, fontTests, **kw)
 
-    def get_sources(self, ctx, font) :
+    def get_sources(self, ctx) :
         return []
 
     def _make_tex(self, mf, font, task) :
