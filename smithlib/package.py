@@ -4,7 +4,7 @@
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 import wafplus, font_tests
 import font, templater 
-import os, sys, shutil, time, ConfigParser, subprocess
+import os, sys, shutil, time, ConfigParser
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
@@ -508,11 +508,11 @@ class srcdistContext(Build.BuildContext) :
                     cmd = ["git", "ls-files"]
                 elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
                     cmd = ["hg", "locate", "--include", "."]
-                    vcsbase = subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=subprocess.PIPE).communicate()[0].strip()
+                    vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
                 elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
                     cmd = ["svn", "list", "-R"]
                 if cmd is not None :
-                    filelist = subprocess.Popen(cmd, cwd=d or '.', stdout=subprocess.PIPE).communicate()[0]
+                    filelist = Utils.subprocess.Popen(cmd, cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0]
                     flist = [os.path.join(d, x.strip()) for x in filelist.splitlines()]
                     if vcsbase is not None :
                         pref = os.path.relpath(d or '.', vcsbase)
@@ -860,7 +860,8 @@ def getversion(s = "{vcssha:.6}{vcsmodified}") :
                 vcssha = vcssha[:-1]
                 results['vcsmodified'] = 'M'
         elif results['vcstype'] == 'svn' :
-            vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
+            # (only in svn 1.9 and above) vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
+            vcssha = Utils.re.search(ur'Revision: (\d+)', Utils.subprocess.check_output(['svn', 'info'])).group(1)
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
     results['vcssha'] = vcssha.strip()
     results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
