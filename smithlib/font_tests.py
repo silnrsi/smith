@@ -176,7 +176,7 @@ class TestFile(object) :
         # parse filename
         if 'lang' not in kw :
             (lang, sep, tail) = name.partition('_')
-            if sep == '_' :
+            if sep == '_' and 2 < len(lang) < 5 :
                 self.lang = lang
 
     def __str__(self) :
@@ -408,7 +408,7 @@ class TestCommand(object) :
 
     def do_build(self, ctx, srcnode, test, targetdir, optional=False) :
         """ Does the actual taskgen creation for running a particular test. This method is intended to be subclassed """
-        s = str(srcnode).partition(".")[0]
+        s = str(srcnode).rpartition(".")[0]
         t = s + "_" + test.fid + self.ext
         target = ctx.path.find_or_declare(os.path.join(targetdir.bldpath(), t))
         srcs = [srcnode]
@@ -577,11 +577,11 @@ class TexTestCommand(TestCommand) :
 
     _type = 'TeX'
     _intermediatesPerTest = True
-    _nohtex = False
 
     def __init__(self, _cmd, fontTests, **kw) :
         kw['shapers'] = 1
         self._configured = False
+        if 'supports' not in kw : kw['supports'] = ['.txt', '.htex']
         super(TexTestCommand, self).__init__(_cmd, fontTests, **kw)
 
     def _make_tex(self, mf, font, task) :
@@ -603,15 +603,15 @@ class TexTestCommand(TestCommand) :
             src = [ctx.srcnode.find_node('wscript')]
         else :
             src = super(TexTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
-            if src is None and (self._nohtex or not str(f.node).endswith('.htex')) :
+            if src is None :
                 return None
-            targname = src.name.replace('.txt', '_' + test.label + '_' + test.fid + ".tex")
+            targname = src.name.rpartition('.')[0] + '_' + test.label + '_' + test.fid + ".tex"
             fn = self._make_from_htex if str(src).endswith('.htex') else self._make_tex
         attrs = ""
         s = test.kw.get('shaper', None)
         if s : attrs = "/" + s.upper()
         mf = ['language='+f.lang] if hasattr(f, 'lang') else []
-        if 'script' in test.kw : mf.append('script='+test.kw['script'])
+        if 'script' in test.kw and test.kw['script'] != '' : mf.append('script='+test.kw['script'])
         if hasattr(f, 'features') :
             for k, v in f.features.items() :
                 mf.append(k+'='+v)

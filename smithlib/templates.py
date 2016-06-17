@@ -55,7 +55,7 @@ Input file: {5}
 \input ./{6}
 \bye
 ''',
-        'htex' : ur'''\def\buildfont{{"[{0}]{1}"}}
+        'htex' : ur'''\def\buildfont{{"[./{0}]{1}"}}
 \input {2}
 \bye
 '''
