@@ -358,11 +358,13 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
         licenses = []
-        if self.fonts and not hasattr(self, 'license'):
-            licenses.extend(['OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt'])
+        if self.fonts :
+            licenses.extend([getattr(self, 'license', 'OFL.txt')])
         if self.keyboards :
             if not self.fonts or not getattr(self, 'license', None) :
                 licenses.extend([getattr(self, 'license', 'MIT.txt')])
+        if licenses[0] == 'OFL.txt' :
+            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
 
         for l in licenses :
             lentry = self._get_arcfile(bld, l)
