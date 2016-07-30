@@ -846,7 +846,8 @@ def getversion(s = "{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
     results = {'vcsmodified' : ''}
     vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
-    if '-r' in sys.argv or '--release' in sys.argv :
+    #if '-r' in sys.argv or '--release' in sys.argv :
+    if Options.options.release :
         vcssha = ''
     elif vcssha != '' :       # in team city, so no vcs dirs available
         pass

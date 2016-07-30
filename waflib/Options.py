@@ -11,7 +11,7 @@ as well as custom ones, used by the ``options`` wscript function.
 
 """
 
-import os, tempfile, optparse, sys, re
+import os, tempfile, optparse, sys, re, shlex
 from waflib import Logs, Utils, Context
 
 cmds = 'distclean configure build install clean uninstall check dist distcheck'.split()
@@ -231,6 +231,9 @@ class OptionsContext(Context.Context):
 		:type _args: list of strings
 		"""
 		global options, commands
+		extraargs = os.getenv('SMITHARGS')
+		if extraargs is not None :
+			_args = (_args if _args is not None else sys.argv[1:]) + shlex.split(extraargs)
 		(options, leftover_args) = self.parser.parse_args(args=_args)
 		commands = leftover_args
 
