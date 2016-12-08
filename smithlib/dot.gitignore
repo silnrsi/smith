@@ -26,11 +26,18 @@ bin/**
 .AppleDouble
 .LSOverride
 Icon?
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
 
 # Windows
 Thumbs.db
-ehthumbs.db
 Desktop.ini
+$RECYCLE.BIN/
+Thumbs.db
+ehthumbs.db
 *.lnk
 
 
@@ -40,6 +47,7 @@ current.fpr
 # Editors
 *.bak
 *.vfbak
+*.~tt
 
 # Shares
 .AppleDB
@@ -62,8 +70,10 @@ $RECYCLE.BIN/
 # generated releases
 *.zip
 *.tar.gz
-*.tar.xz
 *.tar.bz2
+*.tar.xz
+*.tgz
+*.tgx
 
 # installers
 *.exe
@@ -74,8 +84,10 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
-# VM stuff 
+# VM helpers
 .vagrant/
+.docker/
+*.log
 
 # Other
 .sass-cache/
