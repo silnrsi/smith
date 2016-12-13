@@ -103,19 +103,6 @@ git clone https://github.com/robofab-developers/robofab.git
 cd robofab
 python setup.py install
 
-
-# fontMath
-echo " "
-echo " "
-echo "Installing fontMath from source"
-echo " "
-echo " "
-cd /usr/local/builds
-git clone https://github.com/typesupply/fontMath.git
-cd fontMath
-python setup.py install
-
-
 # fontmake
 echo " "
 echo " "
@@ -187,6 +174,10 @@ cp bin/*.xsl /usr/local/bin/
 
 # sile and fontproof
 apt-get install sile -y -q
+
+
+# python-odf for ftml2odt
+apt-get install python-odf python-odf-tools -y -q
 
 
 # smith itself 
