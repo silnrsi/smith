@@ -70,6 +70,17 @@ class FontGroup(list) :
         if hasattr(font, 'script') : self.script.update(font.script)
         super(FontGroup, self).append(font)
 
+def strsToDicts(aDict) :
+    if aDict is None : return None
+    for k, v in aDict.items() :
+        if isinstance(v, basestring) :
+            newv = {}
+            for s in v.split(';') :
+                sk, sv = s.split('=', 1)
+                newv[sk.trim()] = sv.trim()
+            aDict[k] = v
+    return aDict
+
 class FontTests(object) :
     testMap = {}
 
@@ -88,9 +99,10 @@ class FontTests(object) :
             fg.append(font)
         return fg
 
-    def __init__(self) :
+    def __init__(self, testfiles = None) :
         self._allFontGroups = {}
         self._allTests = {}
+        self._testfiles = strsToDicts(testfiles)
         self.addTestCmd('pdfs', type='TeX')
         self.addTestCmd('waterfall', type='Waterfall')
         self.addTestCmd('xfont', type='CrossFont')
@@ -140,12 +152,12 @@ class FontTests(object) :
         for c in cmds :
             iname = c + "_index.html"
             tests = self._allTests.get(c, [])
-            if not len(tests) or not any(map(lambda x: x.has_work(ctx), tests)) : continue
+            if not len(tests) or not any(map(lambda x: x.has_work(ctx, self._testfiles), tests)) : continue
             resultsnode = ctx.bldnode.find_or_declare(os.path.join(resultsdir, iname))
             res = templates.FontTests['index_head']
             temp = ""
             for t in tests :
-                temp = t.build(ctx, resultsroot, optional=optional)
+                temp = t.build(ctx, resultsroot, optional=optional, testfiles=self._testfiles)
                 if temp == "" : break
                 res += temp
             if temp == "" : continue
@@ -288,7 +300,7 @@ class TestCommand(object) :
         t = Test(font, label, **kw)
         self._tests.append(t)
 
-    def _setFiles(self, ctx) :
+    def _setFiles(self, ctx, testfiles) :
         if self._filesLoaded : return
         self._filesLoaded = True
         if self.kw.get('notestfiles', False) : return
@@ -301,7 +313,11 @@ class TestCommand(object) :
             for f in filelist :
                 if f not in testset :
                     testset.add(f)
-                    self.files.append(TestFile(f))
+                    if testfiles is not None and f in testfiles :
+                        tf = TestFile(f, **testfiles[f])
+                    else :
+                        tf = TestFile(f)
+                    self.files.append(tf)
         for f in self.files :
             f.setCtx(ctx)
 
@@ -316,12 +332,12 @@ class TestCommand(object) :
             if not hasattr(self, k) :
                 setattr(self, k, ctx.env[v[0]] or  v[1])
 
-    def _build_intermediates(self, ctx) :
+    def _build_intermediates(self, ctx, testfiles) :
         self._set_defaults(ctx)
         fmode = fontmodes[getattr(self, 'fontmode', 'all')]
         resultsnode = self.get_resultsnode(ctx)
         if not self._srcsSet :
-            self._setFiles(ctx)
+            self._setFiles(ctx, testfiles)
             self._srcsSet = True
             files = self.files if not self.kw.get('notestfiles', False) else [None]
             if self._intermediatesPerTest :
@@ -344,9 +360,9 @@ class TestCommand(object) :
                     t.setSrcs(srcs)
         return (fmode, resultsnode)
 
-    def build(self, ctx, resultsroot, optional=False) :
+    def build(self, ctx, resultsroot, optional=False, testfiles=None) :
         """ Main entry point to the test system """
-        (fmode, resultsnode) = self._build_intermediates(ctx)
+        (fmode, resultsnode) = self._build_intermediates(ctx, testfiles=testfiles)
         perfont = {}    # dict of tests against rows of results for each font
         for t in self._tests :
             if t._font not in perfont : perfont[t._font] = {}
@@ -429,16 +445,19 @@ class TestCommand(object) :
         return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
-    def has_work(self, ctx) :
+    def has_work(self, ctx, testfiles) :
         """Returns True if there will be meaningful output from this test"""
-        self._build_intermediates(ctx)
+        self._build_intermediates(ctx, testfiles)
         for t in self._tests :
             if t.kw.get('notestfiles', False) or len(t._srcs) : return True
         return False
 
     def get_sources(self, ctx) :
-        self._setFiles(ctx)
-        return map(str, self.files)
+        self._setFiles(ctx, None)
+        res = map(str, self.files)
+        self.files = None
+        self._filesLoaded = False
+        return res
 
     def get_build_tools(self, ctx) :
         res = ["cp", "ttftable"]
@@ -469,7 +488,7 @@ class FtmlTestCommand(TestCommand) :
         ftest.close()
         return 0
 
-    def build(self, ctx, resultsroot) :
+    def build(self, ctx, resultsroot, optional=False, testfiles=None) :
         self.fmap = {}
         resultsnode = self.get_resultsnode(ctx)
         fontresults = resultsnode.find_or_declare('fonts')
@@ -509,7 +528,7 @@ class FtmlTestCommand(TestCommand) :
             self.xslmap[x[0]] = ofile
             if not os.path.exists(ofile.abspath()) :
                 shutil.copy(ifile.abspath(), ofile.abspath())
-        return super(FtmlTestCommand, self).build(ctx, resultsroot)
+        return super(FtmlTestCommand, self).build(ctx, resultsroot, testfiles=testfiles)
 
     def build_intermediate(self, ctx, f, test, resultsnode) :
         src = super(FtmlTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
@@ -675,16 +694,16 @@ class Waterfall(TexTestCommand) :
         ftest.close()
         return 0
 
-    def build(self, ctx, resultsroot) :
+    def build(self, ctx, resultsroot, optional=False, testfiles=None) :
         """ Main entry point to the test system """
         self._set_defaults(ctx)
         if self.text == "" : return
-        return super(Waterfall, self).build(ctx, resultsroot)
+        return super(Waterfall, self).build(ctx, resultsroot, optional=optional, testfiles=testfiles)
 
-    def has_work(self, ctx) :
+    def has_work(self, ctx, testfiles) :
         self._set_defaults(ctx)
         if self.text == "" : return False
-        return super(Waterfall, self).has_work(ctx)
+        return super(Waterfall, self).has_work(ctx, testfiles)
 
     def get_sources(self, ctx) :
         return []

@@ -88,6 +88,12 @@ def process_taskgens(tg) :
             if og in tg.bld.get_group(None) :
                 t.set_run_after(ot)
 
+    if hasattr(tg, 'deps') :
+        for d in getattr(tg, 'deps', []) :
+            n = tg.bld.path.find_resource(d)
+            tg.tasks[0].dep_nodes.append(n)
+        tg.deps = []
+
 modifications = {}
 rules = {}
 
@@ -415,16 +421,33 @@ def make_dot(self):
     ofh.write("digraph tasks { rankdir=BT;\n")
     tmap = {}
     count = 0
-    for l in tasks :
+    for t in tasks :
         nname = "n" + str(count)
-        tmap[id(l)] = nname
+        tmap[id(t)] = nname
         count += 1
-        name = getattr(l, 'name', str(type(l)))
+        name = getattr(t, 'name', str(type(t)))
         ofh.write("    " + nname + ' [label="' + name + '"];\n')
-    for l in tasks :
-        for d in l.run_after :
-#                print "    " + tmap[d.name] + " -> " + tmap[l.name]
-            ofh.write("    " + tmap[id(l)] + " -> " + tmap[id(d)] + ";\n")
+        for a in ('inputs', 'outputs', 'dep_nodes') :
+            l = getattr(t, a, [])
+            if not len(l) : continue
+            for n in l :
+                if id(n) not in tmap :
+                    nname = "f" + str(count)
+                    count += 1
+                    tmap[id(n)] = nname
+                    name = os.path.relpath(repr(n))
+                    ofh.write("    " + nname + ' [label="' + name + '",shape=box];\n')
+    for t in tasks :
+        for d in t.run_after :
+            ofh.write("    " + tmap[id(t)] + " -> " + tmap[id(d)] + "[style=dashed];\n")
+        for a in ('inputs', 'dep_nodes', 'outputs') :
+            l = getattr(t, a, [])
+            if not len(l) : continue
+            for n in l :
+                if a == 'outputs' :
+                    ofh.write("    " + tmap[id(n)] + " -> " + tmap[id(t)] + ";\n")
+                else :
+                    ofh.write("    " + tmap[id(t)] + " -> " + tmap[id(n)] + ";\n")
     ofh.write("}\n")
 
     g = []
@@ -432,7 +455,7 @@ def make_dot(self):
     self.groups = [g]       # delete all the tasks except ours
     self.set_group(0)
 #        self(cmd='echo Create wscript.dot', target='wscript.dot', shell = 1)
-    self(rule='dot -Tps -o ${TGT} ${SRC}', source='wscript.dot', target='wscript.ps', shell=True)
+    self(rule='/usr/bin/dot -Tps -o ${TGT} ${SRC}', source=['wscript.dot'], target='wscript.ps', shell=True)
 
     self.compile()
 

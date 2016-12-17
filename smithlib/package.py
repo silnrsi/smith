@@ -8,7 +8,8 @@ import os, sys, shutil, time, ConfigParser
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
-optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme', 'license', 'contact', 'url')
+optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
+            'license', 'contact', 'url', 'testfiles')
 
 def formatdesc(s) :
     res = []
@@ -76,7 +77,7 @@ class Package(object) :
         self.reldir = ''
         self.order = []
         self.package = self
-        self.fontTests = font_tests.FontTests()
+        self.fontTests = font_tests.FontTests(getattr(self, 'testfiles', None))
 
     def get_build_tools(self, ctx) :
         try :
@@ -846,8 +847,8 @@ def getversion(s = "{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
     results = {'vcsmodified' : ''}
     vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
-    #if '-r' in sys.argv or '--release' in sys.argv :
-    if Options.options.release :
+    if '-r' in sys.argv or '--release' in sys.argv :
+    #if Options.options.release :   # Can't use this in wscript since Options.parse_args() not run yet
         vcssha = ''
     elif vcssha != '' :       # in team city, so no vcs dirs available
         pass
