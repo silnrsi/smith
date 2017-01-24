@@ -539,8 +539,8 @@ class srcdistContext(Build.BuildContext) :
         import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-            tarname = tarbase + "-source"
+            tarbase = getattr(Context.g_module, 'DEBPKG', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarname = tarbase
         else :
             tarbase = tarname
         tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
@@ -566,8 +566,8 @@ class srcdistcheckContext(srcdistContext) :
         import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-            tarname = tarbase + "-source"
+            tarbase = getattr(Context.g_module, 'DEBPKG', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarname = tarbase
         else :
             tarbase = tarname
         tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
