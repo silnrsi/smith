@@ -162,11 +162,11 @@ apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-c
 cd /usr/local/builds
 git clone https://github.com/HinTak/Font-Validator.git fontval
 cd fontval
-# make
-# make gendoc
-# cp bin/*.exe /usr/local/bin/
-# cp bin/*.dll* /usr/local/bin/
-# cp bin/*.xsl /usr/local/bin/
+make
+make gendoc
+cp bin/*.exe /usr/local/bin/
+cp bin/*.dll* /usr/local/bin/
+cp bin/*.xsl /usr/local/bin/
 
 
 
