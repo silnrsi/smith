@@ -86,8 +86,8 @@ cd /usr/local/builds
 git clone https://github.com/khaledhosny/ots.git
 cd ots
 ./autogen.sh
-./configure
-make CXXFLAGS=-DOTS_DEBUG
+./configure --enable-debug
+make
 make install 
 
 
