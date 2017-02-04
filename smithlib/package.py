@@ -81,7 +81,7 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            ctx.find_program('ots-sanitise', var="OTS")
+            ctx.find_program('ots-sanitize', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
             ctx.find_program('FontValidator.exe', var="FONTVALIDATOR")
             ctx.find_program('pyfontaine', var="PYFONTAINE")
