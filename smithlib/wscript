@@ -43,12 +43,6 @@ finfo = {
 
 # set the build and test parameters
 TESTSTRING=u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
-t = fonttest(targets = {
-    'pdfs' : tex(),
-    'test' : tests(),
-    'water1' : waterfall(text="Hello", name="hello"),
-    'cross1' : crossfont(text="Hello", name="CrossHello")
-})
 
 for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic') :
     font(target = process(APPNAME + '.ttf', name("APPNAME + 'DEVEL' ")),
@@ -56,7 +50,6 @@ for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic') :
          version = VERSION,
          copyright = COPYRIGHT,
          license = ofl('RFN1','RFN2'),
-         woff = woff(),
          graphite = gdl('source/' + APPNAME + '.gdl',
                         master = ['source/' + APPNAME + 'master.gdl'],
                         make_params=("-m _R -z 8"),
@@ -69,6 +62,11 @@ for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic') :
                          master = 'source/' + APPNAME + '_ext.fea',
                          make_params="-m _R -z 8"),
          script = ['latn'],
-         fret = fret(params = '-r'),
-         tests = t
+         fret = fret(params = '-r -b'), 
+         # woff = woff(params = '-v ' + VERSION + ' -m ../source/AwamiNastaliq-WOFF-metadata.xml'),
         )
+
+
+def configure(ctx) :
+    ctx.env['FOO'] = 'foo'
+    ctx.env['BAR'] = '../tools/bar.py'
