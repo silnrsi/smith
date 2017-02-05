@@ -413,10 +413,6 @@ class pdfContext(cmdContext) :
     def build(self) :
         pass
 
-class svgContext(cmdContext) :
-    """Create svg test results"""
-    cmd = 'svg'
-
 class testContext(cmdContext) :
     """Run basic tests, usually regression tests"""
     cmd = 'test'
