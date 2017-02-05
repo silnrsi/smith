@@ -390,6 +390,17 @@ class zipContext(Build.BuildContext) :
         for p in Package.packages() :
             p.execute_zip(self)
 
+class releaseContext(Build.BuildContext) :
+    """Create release zip and tarball of build results"""
+    cmd = 'release'
+
+    def post_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
+        for p in Package.packages() :
+            p.execute_zip(self)
+
+
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
     cmd = 'exe' # must have a cmd otherwise this class overrides Build.BuildContext
