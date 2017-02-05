@@ -61,7 +61,6 @@ class Package(object) :
         return p
 
     def __init__(self, **kw) :
-        if 'readme' not in kw : kw['readme'] = 'README.txt'
         if 'zipdir' not in kw : kw['zipdir'] = 'releases'
         if 'zipfile' not in kw :
             kw['zipfile'] = "%s/%s-%s.zip" % (kw['zipdir'], kw['appname'], kw['version'])
@@ -105,24 +104,9 @@ class Package(object) :
         self.subrun(ctx, lambda p, c: res.extend(p.get_sources(c)), onlyfn = True)
         fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
         keyboards = [x for x in self.keyboards if not hasattr(x, 'dontship')]
-        licenses = []
-        if fonts :
-            licenses.extend([getattr(self, 'license', 'OFL.txt')])
-        if keyboards :
-            if not fonts or not getattr(self, 'license', None) :
-                licenses.extend([getattr(self, 'license', 'MIT.txt')])
 
-        if licenses[0] == 'OFL.txt' :
-            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
-        for l in licenses :
-            if os.path.exists(l) :
-                res.append(l)
-            else :
-                Logs.warn("License file \'" + l + "\' not found.")
-        if os.path.exists(self.readme) :
-            res.append(self.readme)
-        else :
-            Logs.warn("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
+        res.extend(self.best_practise_files(fonts, keyboards))
+
         for f in fonts :
             res.extend(f.get_sources(ctx))
         for k in keyboards :
@@ -133,6 +117,22 @@ class Package(object) :
                 for f in fs :
                     res.append(os.path.join(p, f))
         return res
+
+    def best_practise_files(self,fonts,keyboards):
+        licenses = []
+        if fonts :
+            licenses.extend([getattr(self, 'license', 'OFL.txt')])
+        if 'OFL.txt' in licenses:
+            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
+        if keyboards :
+            if not fonts or not getattr(self, 'license', None) :
+                licenses.extend([getattr(self, 'license', 'MIT.txt')])
+
+        files = licenses + ['README.txt', 'README.md']
+        missing = [p for p in files if not os.path.exists(p)]
+        if missing:
+            Logs.warn("These files are required but missing: \n" + '\n'.join(missing))
+        return(set(files) - set(missing))
 
     def add_package(self, package, path) :
         if path not in self.subpackages :
@@ -358,26 +358,8 @@ class Package(object) :
         """
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
-        licenses = []
-        if self.fonts :
-            licenses.extend([getattr(self, 'license', 'OFL.txt')])
-        if self.keyboards :
-            if not self.fonts or not getattr(self, 'license', None) :
-                licenses.extend([getattr(self, 'license', 'MIT.txt')])
-        if licenses[0] == 'OFL.txt' :
-            licenses.extend(['OFL-FAQ.txt', 'FONTLOG.txt'])
 
-        for l in licenses :
-            lentry = self._get_arcfile(bld, l)
-            if lentry is not None :
-                res.append(lentry)
-            elif l is not None:
-                Logs.warn("License file \'" + l + "\' not found.")
-        rentry = self._get_arcfile(bld, getattr(self, 'readme', 'README.txt'))
-        if rentry is not None :
-            res.append(rentry)
-        else:
-            Logs.warn("Readme file \'" + getattr(self, 'readme', 'README.txt') + "\' not found.")
+        res.extend(self.best_practise_files(self.fonts, self.keyboards))
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
