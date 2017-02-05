@@ -11,6 +11,8 @@ and is released under _the BSD license_.
 ### Documentation
 
 The manual (including a step-by-step tutorial) is in [docs/smith](docs/smith/manual.asc).
+(to regenerate:  cd docs/smith/ && ./build-docs.sh)
+
 
 ### Installation
 
