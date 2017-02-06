@@ -389,17 +389,24 @@ class zipContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
+            Logs.warn('Zip release generated.')
 
 class releaseContext(Build.BuildContext) :
-    """Create release zip and tarball of build results"""
+    """Create release zip and tarball (source release) of build results"""
     cmd = 'release'
+
+    def post_execute_build(self) :
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
+        for p in Package.packages() :
+            p.execute_srcdist(self)
 
     def post_build(self) :
         if Options.options.debug :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
-
+            Logs.warn('Zip release and tarball (source release) generated.')
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
@@ -414,6 +421,7 @@ class cmdContext(Build.BuildContext) :
         for p in Package.packages() :
             if hasattr(p, 'build_' + self.cmd) :
                 getattr(p, 'build_' + self.cmd)(self)
+                Logs.warn('Exe Windows installer generated.')
             else :
                 p.build_test(self, test=self.cmd)
 
@@ -536,6 +544,7 @@ class srcdistContext(Build.BuildContext) :
         tnode = self.path.find_or_declare(tarfilename)
         tar = tarfile.open(tnode.abspath(), 'w:gz')
         incomplete = False
+        Logs.warn('Tarball (source release) generated.')
         for f in sorted(files.keys()) :
             if f.startswith('../') :
                 Logs.warn('Sources will not include file: ' + f)
