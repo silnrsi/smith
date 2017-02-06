@@ -305,9 +305,13 @@ class Package(object) :
             fonts.extend(p.fonts)
             for f in p.fonts :
                 f.path = c.bldnode.find_or_declare(f.target).path_from(bld.bldnode)
+        if Options.options.debug:
+            import pdb; pdb.set_trace()
 
         self.subrun(bld, procpkg, onlyfn = True)
-        task = templater.Copier(prj = self, fonts = fonts, kbds = kbds, basedir = thisdir, env = bld.env, bld = blddir)
+        if Options.options.debug:
+            import pdb; pdb.set_trace()
+        task = templater.Copier(prj=self, fonts=fonts, kbds=kbds, basedir=thisdir, env=bld.env, bld=blddir)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
         for d, x in self.get_files(bld) :
             if not x : continue
@@ -359,7 +363,7 @@ class Package(object) :
         res = []
         self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
 
-        res.extend(self.best_practise_files(self.fonts, self.keyboards))
+        res.extend(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
 
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
