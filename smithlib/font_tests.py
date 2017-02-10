@@ -532,11 +532,17 @@ class FtmlTestCommand(TestCommand) :
 
     def build_intermediate(self, ctx, f, test, resultsnode) :
         src = super(FtmlTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
-        if src is None and not (str(src).endswith(".ftml") or str(src).endswith(".xml")) :
+        if src is None :
             return None
-        targname = src.name.replace('.txt', '.ftml')
-        targ = resultsnode.find_or_declare(targname)
-        ctx(rule = self._make_ftml, target = targ, source = src)
+        elif str(src).endswith(".ftml") :
+            targ = resultsnode.find_or_declare(src.name)
+            ctx(rule="${CP}${SRC} ${TGT}", source=src, target=targ)
+        elif str(src).endswith(".txt") :
+            targname = src.name.replace('.txt', '.ftml')
+            targ = resultsnode.find_or_declare(targname)
+            ctx(rule = self._make_ftml, target = targ, source = src)
+        else :
+            return None
         return targ
 
     def do_build(self, ctx, srcnode, test, targetdir, optional=False) :
