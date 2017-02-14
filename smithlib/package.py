@@ -481,12 +481,16 @@ class startContext(Context.Context) :
             for f in folders:
                 if not os.path.exists(f):
                     os.mkdir(f)
-            shutil.copy(os.path.join(thisdir,'wscript'), 'wscript')
-            shutil.copy(os.path.join(thisdir,'dot.gitattributes'), '.gitattributes')
-            shutil.copy(os.path.join(thisdir,'dot.gitignore'), '.gitignore')
-            Logs.warn('This project has been smith-ified. Now you can edit the templates and then run "smith configure"')
+            shutil.copy(os.path.join(thisdir, 'wscript'), 'wscript')
+            shutil.copy(os.path.join(thisdir, 'dot.gitattributes'), '.gitattributes')
+            shutil.copy(os.path.join(thisdir, 'dot.gitignore'), '.gitignore')
+            shutil.copy(os.path.join(thisdir, 'OFL.txt'), 'OFL.txt')
+            shutil.copy(os.path.join(thisdir, 'OFL-FAQ.txt'), 'OFL-FAQ.txt')
+            shutil.copy(os.path.join(thisdir, 'FONTLOG.txt'), 'FONTLOG.txt')
+            shutil.copy(os.path.join(thisdir, 'README.md'), 'README.md')
+            Logs.warn('This project has been smith-ified: template files and standard folders have been added to this folder.\nYou can now personalize the templates and run "smith configure"')
         else:
-            Logs.warn('This project is already smith-ified.')
+            Logs.warn('This project is already smith-ified. No files have been changed.')
 
 
 class srcdistContext(Build.BuildContext) :
