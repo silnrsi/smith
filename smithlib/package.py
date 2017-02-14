@@ -494,7 +494,7 @@ class startContext(Context.Context) :
 
 
 class srcdistContext(Build.BuildContext) :
-    """Create source release of project"""
+    """Create source release tarball of project .tar.gz (including orig tarball for Debian)"""
     cmd = 'srcdist'
 
     def execute_build(self) :
@@ -544,7 +544,7 @@ class srcdistContext(Build.BuildContext) :
         import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'DEBPKG', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
             tarname = tarbase
         else :
             tarbase = tarname
@@ -552,7 +552,21 @@ class srcdistContext(Build.BuildContext) :
         tnode = self.path.find_or_declare(tarfilename)
         tar = tarfile.open(tnode.abspath(), 'w:gz')
         incomplete = False
-        Logs.warn('Tarball (source release) generated.')
+        Logs.warn('Tarball .tar.gz (source release) generated.')
+
+        # also generate the orig tarball for Debian
+        origname = getattr(Context.g_module, 'SRCDIST', None)
+        if not origname :
+            origbase = getattr(Context.g_module, 'APPNAME', 'noname') + "_" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            origname = origbase
+        else :
+            origbase = origname
+        origfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), origbase) + '.orig' + '.tar.gz'
+        orignode = self.path.find_or_declare(origfilename)
+        tar = tarfile.open(orignode.abspath(), 'w:gz')
+        incomplete = False
+        Logs.warn('Tarball .orig.tar.gz (source release) file for Debian generated.')
+
         for f in sorted(files.keys()) :
             if f.startswith('../') :
                 Logs.warn('Sources will not include file: ' + f)
@@ -560,6 +574,7 @@ class srcdistContext(Build.BuildContext) :
                 continue
             if files[f] :
                 tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
+                tar.add(files[f].abspath(), arcname = os.path.join(origbase, f))
         tar.close()
         if incomplete :
             Logs.error("Not all the sources for the project have been included in the tarball so the wscript in it will not build.")
@@ -572,7 +587,7 @@ class srcdistcheckContext(srcdistContext) :
         import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'DEBPKG', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
             tarname = tarbase
         else :
             tarbase = tarname
@@ -739,7 +754,7 @@ override_dh_builddeb:
         fdocs.write('''*.txt
 documentation/''')
         fdocs.close()
-    
+
         # watch file
         fwatch = file(os.path.join('debian', 'watch'), 'w')
         fwatch.write('''# access to the tarballs on the release server is not yet automated''')
