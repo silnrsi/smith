@@ -231,7 +231,7 @@ class Package(object) :
 
     def build_validate(self, bld) :
         if 'FONTVALIDATOR' not in bld.env :
-            Logs.warn("FontValidator (via fontval script) not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
+            Logs.warn("FontValidator not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
             return
         self.subrun(bld, lambda p, b: p.build_fontvalidator(b))
         for f in self.fonts :
