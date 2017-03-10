@@ -548,12 +548,10 @@ class srcdistContext(Build.BuildContext) :
             tarname = tarbase
         else :
             tarbase = tarname
-        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
+        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
         tnode = self.path.find_or_declare(tarfilename)
-        tar = tarfile.open(tnode.abspath(), 'w:gz')
+        tar = tarfile.open(tnode.abspath(), 'w')
         incomplete = False
-        Logs.warn('Tarball .tar.gz (source release) generated.')
-
 
         for f in sorted(files.keys()) :
             if f.startswith('../') :
@@ -563,15 +561,20 @@ class srcdistContext(Build.BuildContext) :
             if files[f] :
                 tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
         tar.close()
+        xzfilename = tarfilename + '.xz'
+        xznode = self.path.find_or_declare(xzfilename)
+        cmd = ["xz", tnode.abspath()]
+        Utils.subprocess.call(cmd)
+        Logs.warn('Tarball .tar.xz (source release) generated.')
         if incomplete :
             Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
 
         # also generate the orig tarball for Debian/Ubuntu (simply copying the tarball and changing - to _)
         origbase = getattr(Context.g_module, 'APPNAME', 'noname') + "_" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-        origfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), origbase) + '.orig' + '.tar.gz'
+        origfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), origbase) + '.orig' + '.tar.xz'
         onode = self.path.find_or_declare(origfilename)
-        shutil.copyfile(tnode.abspath(), onode.abspath())
-        Logs.warn('Tarball .orig.tar.gz (source release) file for Debian/Ubuntu generated.')
+        shutil.copyfile(xznode.abspath(), onode.abspath())
+        Logs.warn('Tarball .orig.tar.xz (source release) file for Debian/Ubuntu generated.')
 
 class srcdistcheckContext(srcdistContext) :
     """checks if the project compiles (tarball from 'srcdist')"""
