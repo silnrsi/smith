@@ -493,7 +493,7 @@ class startContext(Context.Context) :
 
 
 class srcdistContext(Build.BuildContext) :
-    """Create source release tarball of project .tar.gz (including orig tarball for Debian)"""
+    """Create source release tarball of project (.tar.xz)"""
     cmd = 'srcdist'
 
     def execute_build(self) :
@@ -504,6 +504,9 @@ class srcdistContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         if os.path.exists('debian') :
             files['debian'] = self.srcnode.find_node('debian')
+
+        if os.path.exists('web') :
+            files['web'] = self.srcnode.find_node('web')
 
         # hoover up everything under version control
         vcs = getattr(Context.g_module, "VCS", 'auto')
@@ -568,13 +571,6 @@ class srcdistContext(Build.BuildContext) :
         if incomplete :
             Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
 
-        # also generate the orig tarball for Debian/Ubuntu (simply copying the tarball and changing - to _)
-        origbase = getattr(Context.g_module, 'APPNAME', 'noname') + "_" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-        origfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), origbase) + '.orig' + '.tar.xz'
-        onode = self.path.find_or_declare(origfilename)
-        shutil.copyfile(xznode.abspath(), onode.abspath())
-        Logs.warn('Tarball .orig.tar.xz (source release) file for Debian/Ubuntu generated.')
-
 class srcdistcheckContext(srcdistContext) :
     """checks if the project compiles (tarball from 'srcdist')"""
     cmd = 'srcdistcheck'
@@ -603,7 +599,7 @@ class srcdistcheckContext(srcdistContext) :
         shutil.rmtree(tarbase)
 
 class makedebianContext(Build.BuildContext) :
-    """Build Debian/Ubuntu packaging templates for this project"""
+    """Build Debian/Ubuntu packaging templates for this project. Along with orig tarball"""
     cmd = 'deb-templates'
 
     def execute_build(self) :
@@ -611,7 +607,72 @@ class makedebianContext(Build.BuildContext) :
         if os.path.exists('debian') :
             Logs.warn("debian/ packaging folder already exists, did not generate new templates")
             return
-        Logs.warn("debian/ packaging folder templates generated")
+        Logs.warn("debian/ packaging folder templates generated. Including the orig.tar.xz tarball in the parent folder.")
+
+        # generate the orig tarball for Debian/Ubuntu (simply copying the tarball and changing - to _)
+
+        res = set(['wscript'])
+        files = {}
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
+
+        if os.path.exists('web') :
+            files['web'] = self.srcnode.find_node('web')
+
+        # hoover up everything under version control
+        vcs = getattr(Context.g_module, "VCS", 'auto')
+        if vcs is not None :
+            for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
+                cmd = None
+                vcsbase = None
+                if vcs == 'git' or os.path.exists(os.path.join(d, '.git', '.gitignore', 'gitattributes')) :
+                    cmd = ["git", "ls-files"]
+                elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
+                    cmd = ["hg", "locate", "--include", "."]
+                    vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
+                elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
+                    cmd = ["svn", "list", "-R"]
+                if cmd is not None :
+                    filelist = Utils.subprocess.Popen(cmd, cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0]
+                    flist = [os.path.join(d, x.strip()) for x in filelist.splitlines()]
+                    if vcsbase is not None :
+                        pref = os.path.relpath(d or '.', vcsbase)
+                        flist = [x[len(pref)+1:] if x.startswith(pref) else x for x in flist]
+                    res.update(flist)
+
+        # add in everything the packages say they need, including explicit files
+        for p in Package.packages() :
+            res.update(set(p.get_sources(self)))
+
+        # process the results into nodes
+        for f in res :
+            if not f : continue
+            if isinstance(f, Node.Node) :
+                files[f.srcpath()] = f
+            else :
+                n = self.srcnode.find_resource(f)
+                files[f] = n
+
+        # now generate the tarball
+        import tarfile
+        tarname = getattr(Context.g_module, 'SRCDIST', None)
+        if not tarname :
+            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarname = tarbase
+        else :
+            tarbase = tarname
+        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
+        tnode = self.path.find_or_declare(tarfilename)
+        incomplete = False
+
+        xzfilename = tarfilename + '.xz'
+        xznode = self.path.find_or_declare(xzfilename)
+
+        origbase = getattr(Context.g_module, 'DEBPKG', 'noname') + "_" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+        origfilename = os.path.join('../../', origbase) + '.orig' + '.tar.xz'
+        onode = self.path.find_or_declare(origfilename)
+        shutil.copyfile(xznode.abspath(), onode.abspath())
+        Logs.warn('Tarball .orig.tar.xz (source release) file for Debian/Ubuntu generated.')
 
         globalpackage = Package.packagestore[Package.globalpackage]
         srcname = getattr(globalpackage, 'debpkg', None)
