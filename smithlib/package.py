@@ -425,7 +425,6 @@ class cmdContext(Build.BuildContext) :
         for p in Package.packages() :
             if hasattr(p, 'build_' + self.cmd) :
                 getattr(p, 'build_' + self.cmd)(self)
-                Logs.warn('Exe Windows installer generated.')
             else :
                 p.build_test(self, test=self.cmd)
 
