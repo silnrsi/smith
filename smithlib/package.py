@@ -607,7 +607,7 @@ class makedebianContext(Build.BuildContext) :
         if os.path.exists('debian') :
             Logs.warn("debian/ packaging folder already exists, did not generate new templates")
             return
-        Logs.warn("debian/ packaging folder templates generated. Including the orig.tar.xz tarball in the parent folder.")
+        Logs.warn("debian/ packaging folder templates generated.")
 
         # generate the orig tarball for Debian/Ubuntu (simply copying the tarball and changing - to _)
 
@@ -672,7 +672,7 @@ class makedebianContext(Build.BuildContext) :
         origfilename = os.path.join('../../', origbase) + '.orig' + '.tar.xz'
         onode = self.path.find_or_declare(origfilename)
         shutil.copyfile(xznode.abspath(), onode.abspath())
-        Logs.warn('Tarball .orig.tar.xz (source release) file for Debian/Ubuntu generated.')
+        Logs.warn('Tarball .orig.tar.xz (source release) file for Debian/Ubuntu generated in the parent folder.')
 
         globalpackage = Package.packagestore[Package.globalpackage]
         srcname = getattr(globalpackage, 'debpkg', None)
