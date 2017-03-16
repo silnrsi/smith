@@ -435,7 +435,7 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.desc_short or ""@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} @"Font" if len(fonts) else "Keyboard"@ installer"
   @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.copyright + '"' if prj.copyright else ""@
-  VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((str(prj.version).split('.') + ["0", "0", "0", "0"])[0:4]))@
+  VIProductVersion @getattr(prj, 'WINDOWS_VERSION', ".".join((map(lambda x:re.sub('\D.*$','',x), str(prj.version).split('.')) + ["0", "0", "0", "0"])[0:4]))@
 
 ;--------------------------------
 ;Installer Sections

@@ -71,7 +71,7 @@ class Copier(Task.Task):
 
     def run(self) :
         self.locals['_bl'] = [t + "\n" for t in self.inputs[0].read().split('\n')]
-        self.globals = { 'gen' : self.generator, 'ctx' : self.generator.bld, 'task' : self, 'os' : os }
+        self.globals = { 'gen' : self.generator, 'ctx' : self.generator.bld, 'task' : self, 'os' : os, 're' : re }
         for k, v in self.vars.items() : self.globals[k] = v
         self.outf = open(self.outputs[0].abspath(), "w")
 #        import pdb; pdb.set_trace()
