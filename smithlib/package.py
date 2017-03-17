@@ -28,6 +28,12 @@ def formattz(tzsec) :
     if tzmin < 0 : tzmin = -tzmin
     return "{0:+03d}{1:02d}".format(tzhr, tzmin)
 
+def ascrlf(fname) :
+    res = ""
+    with open(fname, "r") as f :
+        res = "\r\n".join([x.rstrip("\n") for x in f.readlines()])
+    return res
+
 class Package(object) :
 
     packagestore = []
@@ -344,10 +350,16 @@ class Package(object) :
             else :
                 archive_name = os.path.join(basearc, x)
             if os.path.isfile(y.abspath()) :
-                zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
                 if self.isTextFile(r) :
+                    s = ascrlf(y.abspath())
+                    zip.writestr(archive_name, s, zipfile.ZIP_DEFLATED)
                     inf = zip.getinfo(archive_name)
                     inf.internal_attr = 1
+                else :
+                    zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
+                    inf = zip.getinfo(archive_name)
+                inf.external_attr = 0
+                inf.create_system = 0   # pretend we are windows
         zip.close()
 
     def _get_arcfile(self, bld, path) :
