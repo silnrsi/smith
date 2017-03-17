@@ -2,9 +2,10 @@
 # Martin Hosken 2011
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
+from wsiwaf import isList
 import wafplus, font_tests
 import font, templater 
-import os, sys, shutil, time, ConfigParser
+import os, sys, shutil, time, ConfigParser, fnmatch
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
@@ -32,6 +33,7 @@ class Package(object) :
     packagestore = []
     packdict = {}
     globalpackage = None
+    default_bintypes = ["*.doc*", "*.jp*", "*.mp*", "*.od*", "*.pdf", "*.png", "*.pp*", "*.ttf", "*.woff"]
 
     @classmethod
     def initPackages(cls, ps = None, g = None) :
@@ -114,9 +116,10 @@ class Package(object) :
             res.extend(k.get_sources(ctx))
         res.extend(self.fontTests.get_sources(ctx))
         if self.docdir :
-            for p, n, fs in os.walk(self.docdir) :
-                for f in fs :
-                    res.append(os.path.join(p, f))
+            for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
+                for p, n, fs in os.walk(docdir) :
+                    for f in fs :
+                        res.append(os.path.join(p, f))
         return res
 
     def best_practise_files(self,fonts,keyboards):
@@ -290,7 +293,7 @@ class Package(object) :
             'basedir' : thisdir,
             'fonts' : fonts,
             'kbds' : kbds,
-            'env' : bld.env
+            'env' : bld.env,
                 }
         def blddir(base, val) :
             x = bld.bldnode.find_resource(val)
@@ -312,7 +315,8 @@ class Package(object) :
         self.subrun(bld, procpkg, onlyfn = True)
         if Options.options.debug:
             import pdb; pdb.set_trace()
-        task = templater.Copier(prj=self, fonts=fonts, kbds=kbds, basedir=thisdir, env=bld.env, bld=blddir)
+        task = templater.Copier(prj=self, fonts=fonts, kbds=kbds, basedir=thisdir, env=bld.env, bld=blddir,
+                                isList=isList, isTextFile=self.isTextFile)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
         for d, x in self.get_files(bld) :
             if not x : continue
@@ -340,7 +344,10 @@ class Package(object) :
             else :
                 archive_name = os.path.join(basearc, x)
             if os.path.isfile(y.abspath()) :
-               zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
+                zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
+                if self.isTextFile(r) :
+                    inf = zip.getinfo(archive_name)
+                    inf.internal_attr = 1
         zip.close()
 
     def _get_arcfile(self, bld, path) :
@@ -374,16 +381,22 @@ class Package(object) :
                 res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
         def docwalker(top, dname, fname) :
             i = 0
-            while i < len(fname) :
-                if fname[i].startswith('.') :
-                    del fname[i]
-                else :
-                    i += 1
-            res.extend([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if os.path.isfile(os.path.join(dname, x))])
+            if dname[i].startswith(".") :
+                del dname[i]
+            else :
+                i += 1
+            res.extend([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
         if self.docdir :
-            y = bld.path.find_or_declare(self.docdir)
-            os.path.walk(y.abspath(), docwalker, bld.path.abspath())
+            for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
+                y = bld.path.find_or_declare(docdir)
+                os.path.walk(y.abspath(), docwalker, bld.path.abspath())
         return res
+
+    def isTextFile(self, f) :
+        for p in self.default_bintypes + getattr(self, 'binarytypes', []) :
+            if fnmatch.fnmatch(f, p) :
+                return False
+        return True
 
 class zipContext(Build.BuildContext) :
     """Create release zip of build results"""

@@ -67,6 +67,63 @@ Function GetUnixFileName
     Exch $0
 FunctionEnd
 
+Function unix2dos
+    ; strips all CRs
+    ; and then converts all LFs into CRLFs
+    ; (this is roughly equivalent to "cat file | dos2unix | unix2dos")
+    ;
+    ; usage:
+    ;    Push "infile"
+    ;    Push "outfile"
+    ;    Call unix2dos
+    ;
+    ; beware that this function destroys $0 $1 $2
+
+    ClearErrors
+
+    Pop $2
+    FileOpen $1 $2 w 
+
+    Pop $2
+    FileOpen $0 $2 r
+
+    Push $2 ; save name for deleting
+
+    IfErrors unix2dos_done
+
+    ; $0 = file input (opened for reading)
+    ; $1 = file output (opened for writing)
+
+unix2dos_loop:
+    ; read a byte (stored in $2)
+    FileReadByte $0 $2
+    IfErrors unix2dos_done ; EOL
+    ; skip CR
+    StrCmp $2 13 unix2dos_loop
+    ; if LF write an extra CR
+    StrCmp $2 10 unix2dos_cr unix2dos_write
+
+unix2dos_cr:
+    FileWriteByte $1 13
+
+unix2dos_write:
+    ; write byte
+    FileWriteByte $1 $2
+    ; read next byte
+    Goto unix2dos_loop
+
+unix2dos_done:
+
+    ; close files
+    FileClose $0
+    FileClose $1
+
+    ; delete original
+    Pop $0
+    Delete $0
+
+FunctionEnd
+
 ### End Code From ###
 
 !macro InstallTTF FontFile
@@ -628,17 +685,28 @@ Section "Documentation" SecSrc
   ;ADD YOUR OWN FILES HERE...
 ;  @'File "' + prj.license + '"' if prj.license else ''@
 +if hasattr(prj, 'docdir') :
-+  for dp, dn, fs in os.walk(prj.docdir) :
-+    i = 0;
-+    while i < len(dn) :
-+      if dn[i].startswith('.') : del dn[i]; i -= 1;
-+      i += 1;
++  for docdir in prj.docdir if isList(prj.docdir) else [prj.docdir] :
++    for dp, dn, fs in os.walk(docdir) :
++      i = 0;
++      while i < len(dn) :
++        if dn[i].startswith('.') : del dn[i]; i -= 1;
++        i += 1;
 -
 -
 -
-  CreateDirectory $OUTDIR\@dp.replace(prj.docdir, 'docs')@
-+    for fn in fs :
-   File "/ONAME=$OUTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+  CreateDirectory $OUTDIR\@dp@
++      for fn in fs :
++        if isTextFile(os.path.join(dp, fn)) :
+   GetTempFileName $0
+   File /ONAME=$0 "@os.path.join('..', dp, fn)@"
+   push $0
+   push "$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@"
+   call unix2dos
+-
++        if not isTextFile(os.path.join(dp, fn)) :
+   File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+-
+-
 -
 -
 -
@@ -669,15 +737,17 @@ Section "-StartMenu"
 ;  IntOp $0 $0 | ${SF_SELECTED}
 ;  IntCmp $0 1 0 createIcons createIcons
 +if hasattr(prj, 'docdir') :
-+  for dp, dn, fs in os.walk(prj.docdir) : 
-+    i = 0;
-+    while i < len(dn) :
-+      if dn[i].startswith('.') : del dn[i]; i -= 1;
-+      i += 1;
++  for docdir in prj.docdir if isList(prj.docdir) else [prj.docdir] :
++    for dp, dn, fs in os.walk(docdir) : 
++      i = 0;
++      while i < len(dn) :
++        if dn[i].startswith('.') : del dn[i]; i -= 1;
++        i += 1;
 -
 -
-+    for fn in fs :
-   CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\@fn@.lnk" "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/', '\\')@"
++      for fn in fs :
+   CreateShortCut "$SMPROGRAMS\${MUI_STARTMENUPAGE_FONT_VARIABLE}\@fn@.lnk" "$INSTDIR\@os.path.join(dp, fn).replace('/', '\\')@"
+-
 -
 -
 -
@@ -731,10 +801,12 @@ Section "Uninstall"
 -
 -
 +if hasattr(prj, 'docdir') :
-+ for dp, dn, fs in os.walk(prj.docdir) :
-+  for fn in fs :
-+    if fn and not fn.startswith('.'):
-   ;Delete "$INSTDIR\@os.path.join(dp.replace(prj.docdir, 'docs'), fn).replace('/','\\')@"
++  for docdir in prj.docdir if isList(prj.docdir) else [prj.docdir] :
++    for dp, dn, fs in os.walk(docdir) :
++      for fn in fs :
++        if fn and not fn.startswith('.'):
+   ;Delete "$INSTDIR\@os.path.join(dp, fn).replace('/','\\')@"
+-
 -
 -
 -
@@ -748,10 +820,12 @@ Section "Uninstall"
 -
 
 +if hasattr(prj, 'docdir') :
-+ for dp, dn, fs in os.walk(prj.docdir) :
-+  for fn in fs :
-+    if not fn.startswith('.') :
++  for docdir in prj.docdir if isList(prj.docdir) else [prj.docdir] :
++    for dp, dn, fs in os.walk(docdir) :
++      for fn in fs :
++        if not fn.startswith('.') :
    ;Delete "$0\@fn@.lnk"
+-
 -
 -
 -
