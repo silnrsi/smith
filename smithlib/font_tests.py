@@ -536,7 +536,7 @@ class FtmlTestCommand(TestCommand) :
             return None
         elif str(src).endswith(".ftml") :
             targ = resultsnode.find_or_declare(src.name)
-            ctx(rule="${CP}${SRC} ${TGT}", source=src, target=targ)
+            ctx(rule="${CP} ${SRC} ${TGT}", source=src, target=targ)
         elif str(src).endswith(".txt") :
             targname = src.name.replace('.txt', '.ftml')
             targ = resultsnode.find_or_declare(targname)
