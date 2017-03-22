@@ -400,8 +400,12 @@ class Package(object) :
             res.extend([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
         if self.docdir :
             for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
-                y = bld.path.find_or_declare(docdir)
-                os.path.walk(y.abspath(), docwalker, bld.path.abspath())
+                y = bld.bldnode.search(docdir)
+                if y is not None :
+                    os.path.walk(y.abspath(), docwalker, bld.bldnode.abspath())
+                y = bld.srcnode.find_node(docdir)
+                if y is not None :
+                    os.path.walk(y.abspath(), docwalker, bld.srcnode.abspath())
         return res
 
     def isTextFile(self, f) :
