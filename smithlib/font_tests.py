@@ -454,7 +454,7 @@ class TestCommand(object) :
 
     def get_sources(self, ctx) :
         self._setFiles(ctx, None)
-        res = map(str, self.files)
+        res = map(lambda x:x.node.path_from(ctx.srcnode), self.files)
         self.files = None
         self._filesLoaded = False
         return res
