@@ -613,10 +613,14 @@ class srcdistcheckContext(srcdistContext) :
             tarname = tarbase
         else :
             tarbase = tarname
-        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.gz'
+        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
+        xzfilename = tarfilename + '.xz'
         tnode = self.path.find_or_declare(tarfilename)
+        xznode = self.path.find_or_declare(xzfilename)
+        cmd = ["unxz", "--keep", xznode.abspath()]
+        Utils.subprocess.call(cmd)
         try :
-            tar = tarfile.open(tnode.abspath(), 'r:gz')
+            tar = tarfile.open(tnode.abspath(), 'r')
             tar.extractall()
             tar.close()
         except :
@@ -627,6 +631,7 @@ class srcdistcheckContext(srcdistContext) :
             raise Errors.WafError('srcdistcheck failed with code %i' % ret)
 
         shutil.rmtree(tarbase)
+        os.remove(tnode.abspath())
 
 class makedebianContext(Build.BuildContext) :
     """Build Debian/Ubuntu packaging templates for this project. Along with orig tarball"""
