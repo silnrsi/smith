@@ -681,9 +681,13 @@ Section "Documentation" SecSrc
 
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  @'File "' + bld(prj, prj.license) + '"' if prj.license else ''@
-  ;ADD YOUR OWN FILES HERE...
-;  @'File "' + prj.license + '"' if prj.license else ''@
++for f in prj.best_practise_files(prj.fonts, prj.keyboards) :
+  File "/ONAME=$OUTDIR\__temp.txt" "@os.path.join('..', f)@"
+  push "$OUTDIR\__temp.txt"
+  push "@f@"
+  call unix2dos
+-
+
 +if hasattr(prj, 'docdir') :
 +  for docdir in prj.docdir if isList(prj.docdir) else [prj.docdir] :
 +    for dp, dn, fs in os.walk(docdir) :
@@ -697,14 +701,14 @@ Section "Documentation" SecSrc
   CreateDirectory $OUTDIR\@dp@
 +      for fn in fs :
 +        if isTextFile(os.path.join(dp, fn)) :
-   GetTempFileName $0
-   File /ONAME=$0 "@os.path.join('..', dp, fn)@"
-   push $0
+   File "/ONAME=$OUTDIR\__temp.txt" "@os.path.join('..', dp, fn)@"
+   push "$OUTDIR\__temp.txt"
    push "$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@"
    call unix2dos
 -
 +        if not isTextFile(os.path.join(dp, fn)) :
    File "/ONAME=$OUTDIR\@os.path.join(dp, fn).replace('/','\\')@" "@os.path.join('..', dp, fn)@"
+-
 -
 -
 -
@@ -721,7 +725,15 @@ Section "Documentation" SecSrc
 +for f in getattr(prj, 'extra_dist', '').split(' ') :
   @'File "/ONAME=$OUTDIR\\' + f.replace('/','\\') + '" "' + f.replace('/', '\\') + '"' if f else ""@
 -
-  
+
++for f in fonts :
++  if hasattr(f, 'woff') :
++    w = f.woff.target or f.target.replace('.ttf', '.woff');
+-
+  File "/ONAME=$OUTDIR\@w.replace('/','\\')@" "@bld(prj, w)@"
+-
+-
+
 SectionEnd
 
 Section "-StartMenu"
@@ -743,6 +755,7 @@ Section "-StartMenu"
 +      while i < len(dn) :
 +        if dn[i].startswith('.') : del dn[i]; i -= 1;
 +        i += 1;
+-
 -
 -
 +      for fn in fs :
