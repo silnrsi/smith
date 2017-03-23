@@ -68,6 +68,11 @@ class Font(object) :
         
     def get_targets(self, ctx) :
         res = [self.target]
+        if hasattr(self, 'woff') :
+            woff = self.woff.target
+            if woff is None :
+                woff = str(self.target).replace('.ttf', '.woff')
+            res.append(woff)
         return res
 
     def build(self, bld, ap=None) :

@@ -292,7 +292,6 @@ class Package(object) :
                 self.license = 'OFL.txt'
         if self.license is not None and not bld.bldnode.find_resource(self.license):
             raise Errors.WafError("The license file " + self.license + " does not exist so cannot build exe.")
-
    
         env =   {
             'project' : self,
@@ -340,7 +339,7 @@ class Package(object) :
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
         basearc = self.appname + '-' + str(self.version)
 
-        for t in self.get_files(bld) :
+        for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
             d, x = t[0], t[1]
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
@@ -372,6 +371,16 @@ class Package(object) :
         else :
             return (bld.bldnode.abspath(), pnode.bldpath())
 
+    def get_built_files(self, bld) :
+        res = []
+        self.subrun(bld, lambda p, c: res.extend(p.get_built_files(c)), onlyfn = True)
+        for f in self.fonts :
+            if not hasattr(f, 'dontship') :
+                res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
+        for k in self.keyboards :
+            if not hasattr(k, 'dontship') :
+                res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
+        return res
 
     def get_files(self, bld) :
         """ Returns a list of files to go into the generated zip for this package.
@@ -380,24 +389,19 @@ class Package(object) :
                 y is the path to the file to include
                 z is optional and is the path to use in the archive
         """
-        res = []
-        self.subrun(bld, lambda p, c: res.extend(p.get_files(c)), onlyfn = True)
+        res = set()
+        self.subrun(bld, lambda p, c: res.update(p.get_files(c)), onlyfn = True)
 
-        res.extend(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
+        res.update(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
+        res.update(self.get_built_files(bld))
 
-        for f in self.fonts :
-            if not hasattr(f, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
-        for k in self.keyboards :
-            if not hasattr(k, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
         def docwalker(top, dname, fname) :
             i = 0
             if dname[i].startswith(".") :
                 del dname[i]
             else :
                 i += 1
-            res.extend([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
+            res.update([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
         if self.docdir :
             for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
                 y = bld.bldnode.search(docdir)
@@ -413,6 +417,89 @@ class Package(object) :
             if fnmatch.fnmatch(f, p) :
                 return False
         return True
+
+
+def make_srcdist(self) :
+    res = set(['wscript'])
+    files = {}
+    if Options.options.debug :
+        import pdb; pdb.set_trace()
+    if os.path.exists('debian') :
+        files['debian'] = self.srcnode.find_node('debian')
+
+    # hoover up everything under version control
+    vcs = getattr(Context.g_module, "VCS", 'auto')
+    if vcs is not None :
+        for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
+            cmd = None
+            vcsbase = None
+            if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
+                cmd = ["git", "ls-files"]
+            elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
+                cmd = ["hg", "locate", "--include", "."]
+                vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
+            elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
+                cmd = ["svn", "list", "-R"]
+            if cmd is not None :
+                filelist = Utils.subprocess.Popen(cmd, cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0]
+                flist = [os.path.join(d, x.strip()) for x in filelist.splitlines()]
+                if vcsbase is not None :
+                    pref = os.path.relpath(d or '.', vcsbase)
+                    flist = [x[len(pref)+1:] if x.startswith(pref) else x for x in flist]
+                res.update(flist)
+
+    # add in everything the packages say they need, including explicit files
+    for p in Package.packages() :
+        res.update(set(p.get_sources(self)))
+
+    # process the results into nodes
+    for f in res :
+        if not f : continue
+        if isinstance(f, Node.Node) :
+            files[f.srcpath()] = f
+        else :
+            n = self.srcnode.find_resource(f)
+            files[f] = n
+
+    # pull in all the built components from the packages
+    for p in Package.packages() :
+        for t in p.get_built_files(self) :
+            d, x = t[0], t[1]
+            if not x : continue
+            r = os.path.relpath(os.path.join(d, x), self.bldnode.abspath())
+            y = self.path.find_or_declare(r)
+            archive_name = os.path.join(self.bldnode.path_from(self.srcnode), t[2] if len(t) > 2 else x)
+            files[archive_name] = y
+
+    # now generate the tarball
+    import tarfile
+    tarname = getattr(Context.g_module, 'SRCDIST', None)
+    if not tarname :
+        tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+        tarname = tarbase
+    else :
+        tarbase = tarname
+    tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
+    tnode = self.path.find_or_declare(tarfilename)
+    tar = tarfile.open(tnode.abspath(), 'w')
+    incomplete = False
+
+    for f in sorted(files.keys()) :
+        if f.startswith('../') :
+            Logs.warn('Sources will not include file: ' + f)
+            incomplete = True
+            continue
+        if files[f] :
+            tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
+    tar.close()
+    xzfilename = tarfilename + '.xz'
+    xznode = self.path.find_or_declare(xzfilename)
+    cmd = ["xz", "-f", tnode.abspath()]
+    Utils.subprocess.call(cmd)
+    Logs.warn('Tarball .tar.xz (source release) generated.')
+    if incomplete :
+        Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
+
 
 class zipContext(Build.BuildContext) :
     """Create release zip of build results"""
@@ -526,80 +613,9 @@ class srcdistContext(Build.BuildContext) :
     """Create source release tarball of project (.tar.xz)"""
     cmd = 'srcdist'
 
-    def execute_build(self) :
+    def post_build(self) :
         self.recurse([self.run_dir], 'srcdist', mandatory = False)
-        res = set(['wscript'])
-        files = {}
-        if Options.options.debug :
-            import pdb; pdb.set_trace()
-        if os.path.exists('debian') :
-            files['debian'] = self.srcnode.find_node('debian')
-
-        if os.path.exists('web') :
-            files['web'] = self.srcnode.find_node('web')
-
-        # hoover up everything under version control
-        vcs = getattr(Context.g_module, "VCS", 'auto')
-        if vcs is not None :
-            for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
-                cmd = None
-                vcsbase = None
-                if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
-                    cmd = ["git", "ls-files"]
-                elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
-                    cmd = ["hg", "locate", "--include", "."]
-                    vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
-                elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
-                    cmd = ["svn", "list", "-R"]
-                if cmd is not None :
-                    filelist = Utils.subprocess.Popen(cmd, cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0]
-                    flist = [os.path.join(d, x.strip()) for x in filelist.splitlines()]
-                    if vcsbase is not None :
-                        pref = os.path.relpath(d or '.', vcsbase)
-                        flist = [x[len(pref)+1:] if x.startswith(pref) else x for x in flist]
-                    res.update(flist)
-
-        # add in everything the packages say they need, including explicit files
-        for p in Package.packages() :
-            res.update(set(p.get_sources(self)))
-
-        # process the results into nodes
-        for f in res :
-            if not f : continue
-            if isinstance(f, Node.Node) :
-                files[f.srcpath()] = f
-            else :
-                n = self.srcnode.find_resource(f)
-                files[f] = n
-
-        # now generate the tarball
-        import tarfile
-        tarname = getattr(Context.g_module, 'SRCDIST', None)
-        if not tarname :
-            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
-            tarname = tarbase
-        else :
-            tarbase = tarname
-        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
-        tnode = self.path.find_or_declare(tarfilename)
-        tar = tarfile.open(tnode.abspath(), 'w')
-        incomplete = False
-
-        for f in sorted(files.keys()) :
-            if f.startswith('../') :
-                Logs.warn('Sources will not include file: ' + f)
-                incomplete = True
-                continue
-            if files[f] :
-                tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
-        tar.close()
-        xzfilename = tarfilename + '.xz'
-        xznode = self.path.find_or_declare(xzfilename)
-        cmd = ["xz", tnode.abspath()]
-        Utils.subprocess.call(cmd)
-        Logs.warn('Tarball .tar.xz (source release) generated.')
-        if incomplete :
-            Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
+        make_srcdist(self)
 
 class srcdistcheckContext(srcdistContext) :
     """checks if the project compiles (tarball from 'srcdist')"""
