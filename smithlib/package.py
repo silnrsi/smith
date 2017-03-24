@@ -31,7 +31,7 @@ def formattz(tzsec) :
 def ascrlf(fname) :
     res = ""
     with open(fname, "r") as f :
-        res = "\r\n".join([x.rstrip("\n") for x in f.readlines()])
+        res = "\r\n".join([x.rstrip("\n") for x in f.readlines()]) + "\r\n"
     return res
 
 class Package(object) :
