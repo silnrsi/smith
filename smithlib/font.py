@@ -146,7 +146,7 @@ class Font(object) :
         bld(rule="${OTS} ${SRC} > /dev/null 2> ${TGT}", target=self.ots_target, source=[self.target], shell=1)
 
     def build_fontlint(self, bld) :
-        bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1", target=self.fontlint_target, source=[self.target], shell=1)
+        bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1; exit 0", target=self.fontlint_target, source=[self.target], shell=1)
 
     def build_fontvalidator(self, bld) :
         target = str(self.target) + ".report.xml"
