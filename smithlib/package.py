@@ -605,7 +605,7 @@ class startContext(Context.Context) :
             shutil.copy(os.path.join(thisdir, 'FONTLOG.txt'), 'FONTLOG.txt')
             shutil.copy(os.path.join(thisdir, 'README.md'), 'README.md')
             shutil.copy(os.path.join(thisdir, 'README.txt'), 'README.txt')
-            Logs.warn('This project has been smith-ified: template files and standard folders have been added to this folder.\nYou can now personalize the templates and run "smith configure."')
+            Logs.warn('This project has been smith-ified: template files and standard folders have been added to this folder.\nYou can now personalize the templates and run "smith configure".')
         else:
             Logs.warn('This project is already smith-ified. No files have been changed.')
 
