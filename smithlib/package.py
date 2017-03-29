@@ -592,7 +592,7 @@ class startContext(Context.Context) :
     cmd = 'start'
     def execute(self) :
         thisdir = os.path.dirname(__file__)
-        folders =  ('source', 'documentation', 'tools', 'web', 'tests', 'config', 'build', 'subsets')
+        folders =  ('documentation', 'tools', 'tests', 'web')
         if not os.path.exists('wscript'):
             for f in folders:
                 if not os.path.exists(f):
