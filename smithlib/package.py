@@ -433,9 +433,9 @@ def make_srcdist(self) :
         for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
             cmd = None
             vcsbase = None
-            if vcs == 'git' or os.path.exists(os.path.join(d, '.git*')) :
+            if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
                 cmd = ["git", "ls-files"]
-            elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg*')) :
+            elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
                 cmd = ["hg", "locate", "--include", "."]
                 vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
             elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
@@ -677,9 +677,9 @@ class makedebianContext(Build.BuildContext) :
             for d in [''] + getattr(Context.g_module, 'SUBMODULES', []) :
                 cmd = None
                 vcsbase = None
-                if vcs == 'git' or os.path.exists(os.path.join(d, '.git*')) :
+                if vcs == 'git' or os.path.exists(os.path.join(d, '.git')) :
                     cmd = ["git", "ls-files"]
-                elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg*')) :
+                elif vcs == 'hg' or os.path.exists(os.path.join(d, '.hg')) :
                     cmd = ["hg", "locate", "--include", "."]
                     vcsbase = Utils.subprocess.Popen(["hg", "root"], cwd=d or '.', stdout=Utils.subprocess.PIPE).communicate()[0].strip()
                 elif vcs == 'svn' or os.path.exists(os.path.join(d, '.svn')) :
