@@ -361,9 +361,9 @@ class Package(object) :
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
             y = bld.path.find_or_declare(r)
-            archive_name = os.path.join(bld.bldnode.path_from(bld.srcnode), t[2] if len(t) > 2 else x)
+            archive_name = os.path.join(basearc, t[2] if len(t) > 2 else x)
             if not archive_name.startswith('..') :
-                tar.add(y.abspath(), arcname = os.path.join(basearc, archive_name))
+                tar.add(y.abspath(), arcname = archive_name)
         tar.close()
         cmd = ["xz", "-f", tnode.abspath()]
         Utils.subprocess.call(cmd)
