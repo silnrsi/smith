@@ -10,7 +10,7 @@ import os, sys, shutil, time, ConfigParser, fnmatch
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
-            'license', 'contact', 'url', 'testfiles')
+            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat')
 
 def formatdesc(s) :
     res = []
@@ -70,8 +70,15 @@ class Package(object) :
 
     def __init__(self, **kw) :
         if 'zipdir' not in kw : kw['zipdir'] = 'releases'
-        if 'zipfile' not in kw :
-            kw['zipfile'] = "%s/%s-%s.zip" % (kw['zipdir'], kw['appname'], kw['version'])
+        if 'buildversion' not in kw :
+            if 'buildformat' not in kw :
+                bv = getversion()
+            else :
+                bv = getversion(kw['buildformat'])
+            if 'buildlabel' in kw and bv != '':
+                bv = kw['buildlabel'] + " " + bv
+            kw['buildversion'] = bv
+        bv = kw['buildversion'].replace(" ", "-")
 
         for k, v in kw.items() :
             setattr(self, k, v)
@@ -333,11 +340,40 @@ class Package(object) :
         bld.add_to_group(task)
         bld(rule='${MAKENSIS} -V4 -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
+    def get_basearc(self) :
+        if self.buildversion != '' :
+            return "{0.appname}-{0.version}-{1}".format(self, self.buildversion.replace(" ", "-"))
+        else :
+            return "{0.appname}-{0.version}".format(self)
+
+    def set_zip(self) :
+        if not hasattr(self, 'zipfile') :
+            self.zipfile = "{}/{}.zip".format(self.zipdir, self.get_basearc())
+
+    def execute_tar(self, bld) :
+        import tarfile
+        self.set_zip()
+        tnode = bld.path.find_or_declare(self.zipfile.replace(".zip", ".tar"))
+        tar = tarfile.open(tnode.abspath(), "w")
+        basearc = self.get_basearc()
+        for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
+            d, x = t[0], t[1]
+            if not x : continue
+            r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
+            y = bld.path.find_or_declare(r)
+            archive_name = os.path.join(bld.bldnode.path_from(bld.srcnode), t[2] if len(t) > 2 else x)
+            if not archive_name.startswith('..') :
+                tar.add(y.abspath(), arcname = os.path.join(basearc, archive_name))
+        tar.close()
+        cmd = ["xz", "-f", tnode.abspath()]
+        Utils.subprocess.call(cmd)
+
     def execute_zip(self, bld) :
         import zipfile
+        self.set_zip()
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
-        basearc = self.appname + '-' + str(self.version)
+        basearc = self.get_basearc()
 
         for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
             d, x = t[0], t[1]
@@ -389,6 +425,7 @@ class Package(object) :
                 y is the path to the file to include
                 z is optional and is the path to use in the archive
         """
+        # This should be refactored to minimise boilerplate in callers
         res = set()
         self.subrun(bld, lambda p, c: res.update(p.get_files(c)), onlyfn = True)
 
@@ -510,24 +547,35 @@ class zipContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
-            Logs.warn('Zip release generated.')
 
-class releaseContext(Build.BuildContext) :
-    """Create release zip and tarball (source release) of build results"""
-    cmd = 'release'
+class tarContext(Build.BuildContext) :
+    """Create release tarball of build results"""
+    cmd = 'tarball'
 
-    def post_execute_build(self) :
+    def post_build(self) :
         if Options.options.debug :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
-            p.execute_srcdist(self)
+            p.execute_tar(self)
+
+class releaseContext(Build.BuildContext) :
+    """Create release zip and tarball of build results"""
+    cmd = 'release'
+
+    def pre_recurse(self, node) :
+        super(releaseContext, self).pre_recurse(node)
+        sys.argv.append('-r')
+        if Options.options.debug :
+            import pdb; pdb.set_trace()
+        for p in Package.packages() :
+            p.buildversion = ''
 
     def post_build(self) :
         if Options.options.debug :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
-            Logs.warn('Zip release and tarball (source release) generated.')
+            p.execute_tar(self)
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
@@ -973,13 +1021,13 @@ def _findvcs(cwd) :
     if ind == -1 : return None
     return _findvcs(cwd[:ind])
 
-def getversion(s = "{vcssha:.6}{vcsmodified}") :
+def getversion(s = "dev-{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
     results = {'vcsmodified' : ''}
     vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
     if '-r' in sys.argv or '--release' in sys.argv :
     #if Options.options.release :   # Can't use this in wscript since Options.parse_args() not run yet
-        vcssha = ''
+        return ''
     elif vcssha != '' :       # in team city, so no vcs dirs available
         pass
     else:
