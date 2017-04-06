@@ -100,13 +100,19 @@ def isList(l) :
 
 def _get_source(self, ctx, a) :
     n = ctx.path.find_node(a)
-    if n and not n.is_child_of(ctx.bldnode) :
-        pat = n.abspath()
-        if os.path.isdir(pat) :
-            return map(lambda x: x.srcpath(), n.find_nodes())
+    if not hasattr(ctx, 'bldnode') : # then we are a simple context
+        if not n :
+            return []
+        elif os.path.isdir(n.abspath()) :
+            return map(lambda x: x.path_from(ctx.path), n.find_nodes())
         else :
-            return [n.srcpath()]
-    return []
+            return [n.path_from(ctx.path)]
+    elif not n :
+        return []
+    elif os.path.isdir(n.abspath()) :
+        return map(lambda x: x.srcpath(), n.find_nodes())
+    else :
+        return [n.srcpath()]
 
 def get_all_sources(self, ctx, *attrs) :
     res = []

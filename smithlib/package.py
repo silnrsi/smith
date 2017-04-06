@@ -340,11 +340,11 @@ class Package(object) :
         bld.add_to_group(task)
         bld(rule='${MAKENSIS} -V4 -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
-    def get_basearc(self) :
+    def get_basearc(self, extras="") :
         if self.buildversion != '' :
-            return "{0.appname}-{0.version}-{1}".format(self, self.buildversion.replace(" ", "-"))
+            return "{0.appname}{1}-{0.version}-{2}".format(self, extras, self.buildversion.replace(" ", "-"))
         else :
-            return "{0.appname}-{0.version}".format(self)
+            return "{0.appname}{1}-{0.version}".format(self, extras)
 
     def set_zip(self) :
         if not hasattr(self, 'zipfile') :
@@ -498,21 +498,11 @@ def make_srcdist(self) :
             n = self.srcnode.find_resource(f)
             files[f] = n
 
-    # pull in all the built components from the packages
-    for p in Package.packages() :
-        for t in p.get_built_files(self) :
-            d, x = t[0], t[1]
-            if not x : continue
-            r = os.path.relpath(os.path.join(d, x), self.bldnode.abspath())
-            y = self.path.find_or_declare(r)
-            archive_name = os.path.join(self.bldnode.path_from(self.srcnode), t[2] if len(t) > 2 else x)
-            files[archive_name] = y
-
     # now generate the tarball
     import tarfile
     tarname = getattr(Context.g_module, 'SRCDIST', None)
     if not tarname :
-        tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+        tarbase = Package.global_package().get_basearc(extras="-src")
         tarname = tarbase
     else :
         tarbase = tarname
@@ -666,7 +656,7 @@ class srcdistContext(Build.BuildContext) :
         self.recurse([self.run_dir], 'srcdist', mandatory = False)
         make_srcdist(self)
 
-class srcdistcheckContext(srcdistContext) :
+class srcdistcheckContext(Build.BuildContext) :
     """checks if the project compiles (tarball from 'srcdist')"""
     cmd = 'srcdistcheck'
 
@@ -674,7 +664,7 @@ class srcdistcheckContext(srcdistContext) :
         import tarfile
         tarname = getattr(Context.g_module, 'SRCDIST', None)
         if not tarname :
-            tarbase = getattr(Context.g_module, 'APPNAME', 'noname') + "-" + str(getattr(Context.g_module, 'VERSION', "0.0"))
+            tarbase = Package.global_package().get_basearc(extras="-src")
             tarname = tarbase
         else :
             tarbase = tarname
