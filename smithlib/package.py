@@ -523,7 +523,7 @@ def make_srcdist(self) :
     xznode = self.path.find_or_declare(xzfilename)
     cmd = ["xz", "-f", tnode.abspath()]
     Utils.subprocess.call(cmd)
-    Logs.warn('Tarball .tar.xz (source release) generated.')
+    Logs.warn('Tarball .tar.xz (-src- source release) generated.')
     if incomplete :
         Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
 
@@ -537,6 +537,7 @@ class zipContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
+            Logs.warn('.zip with build results generated (CR+LF line-endings).')
 
 class tarContext(Build.BuildContext) :
     """Create release tarball of build results"""
@@ -547,6 +548,7 @@ class tarContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_tar(self)
+            Logs.warn('.tar.xz with build results generated (LF line-endings).')
 
 class releaseContext(Build.BuildContext) :
     """Create release zip and tarball of build results"""
@@ -559,6 +561,7 @@ class releaseContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.buildversion = ''
+            Logs.warn('.zip release with build results generated (CR+LF line-endings).')
 
     def post_build(self) :
         if Options.options.debug :
@@ -566,6 +569,7 @@ class releaseContext(Build.BuildContext) :
         for p in Package.packages() :
             p.execute_zip(self)
             p.execute_tar(self)
+            Logs.warn('.tar.xz release with build results generated (LF line-endings).')
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
