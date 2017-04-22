@@ -3,7 +3,7 @@
 Foo is a open font for...   
 Named after...   it is intended to...
 
-## Project status [![Build Status](http://build.palaso.org/app/rest/builds/buildType:Fonts_Foo/statusIcon)](http://build.palaso.org/viewType.html?buildTypeId=Fonts_Foo&guest=1)  
+## Project status [![Build Status](http://build.example.org/app/rest/builds/buildType:Fonts_Foo/statusIcon)](http://build.examaple.org/viewType.html?buildTypeId=Fonts_Foo&guest=1)  
 
 NOTE: This is an **unreleased development font. It is not yet ready for wider use or distribution to end-users. **   
 Font sources are published in a public repository and a smith open workflow is used for building, testing and releasing.  
