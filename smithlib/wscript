@@ -5,10 +5,10 @@
 
 # set the default output folders
 out = "results"
-DOCDIR = "documentation"
+DOCDIR = ["documentation", "web"]
 OUTDIR = "installers"
 ZIPDIR = "releases"
-TESTDIR = 'tests'
+TESTDIR = "tests"
 TESTRESULTSDIR = 'results/tests'
 STANDARDS = 'tests/reference'
 
@@ -19,6 +19,7 @@ VCS = 'git'
 APPNAME = 'Foo'
 VERSION = '1.123'
 TTF_VERSION = '1.123'
+BUILDLABEL = "alpha1"
 COPYRIGHT = "Copyright (c) 2016, Acme Inc (http://www.acme.com) with Reserved Font Names RFN1 and RFN2"
 LICENSE = "OFL.txt"
 RESERVEDOFL = "RFN1 and RFN2"
@@ -47,22 +48,23 @@ TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
 for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic'):
     font(target=process(APPNAME + '.ttf', name("APPNAME + 'DEVEL' ")),
          source=process(APPNAME + '.ufo', cmd("../tools/examplescript.py ${SRC} ${TGT}")),
-         version=VERSION,
+         version=VERSION_TTF,
          copyright=COPYRIGHT,
          license=ofl('RFN1', 'RFN2'),
-         graphite=gdl('source/' + APPNAME + '.gdl',
-                      master=['source/' + APPNAME + 'master.gdl'],
+         graphite=gdl('source/' + 'graphite/' + APPNAME + '.gdl',
+                      master=['source/' + 'graphite/' + APPNAME + 'master.gdl'],
                       make_params=("-m _R -z 8"),
                       params='-d' '-w3521 -w3530 -q -d -v2',
-                      depends=['source/myfeatures.gdl']),
+                      depends=['source/' + 'graphite/' + 'myfeatures.gdl']),
          ap='source/' + APPNAME + '.xml',
          classes='source/classes.xml',
-         opentype=fea('source/' + APPNAME + '.fea',
-                      master='source/' + APPNAME + '_ext.fea',
+         opentype=fea('source/' + 'opentype/' + APPNAME + '.fea',
+                      master='source/' + 'opentype/' + APPNAME + '_ext.fea',
                       make_params="-m _R -z 8"),
          script=['latn'],
          fret=fret(params='-r -b'),
          woff=woff(params='-v ' + VERSION + ' -m ../source/foo-WOFF-metadata.xml'),
+         typetuner='source/typetuner/feat_all.xml',
         )
 
 
