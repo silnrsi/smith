@@ -635,21 +635,14 @@ class startContext(Context.Context) :
     def execute(self) :
         thisdir = os.path.dirname(__file__)
         folders =  ('documentation', 'tools', 'tests', 'web')
-        if not os.path.exists('wscript'):
-            for f in folders:
-                if not os.path.exists(f):
-                    os.mkdir(f)
-            shutil.copy(os.path.join(thisdir, 'wscript'), 'wscript')
-            shutil.copy(os.path.join(thisdir, 'dot.gitattributes'), '.gitattributes')
-            shutil.copy(os.path.join(thisdir, 'dot.gitignore'), '.gitignore')
-            shutil.copy(os.path.join(thisdir, 'OFL.txt'), 'OFL.txt')
-            shutil.copy(os.path.join(thisdir, 'OFL-FAQ.txt'), 'OFL-FAQ.txt')
-            shutil.copy(os.path.join(thisdir, 'FONTLOG.txt'), 'FONTLOG.txt')
-            shutil.copy(os.path.join(thisdir, 'README.md'), 'README.md')
-            shutil.copy(os.path.join(thisdir, 'README.txt'), 'README.txt')
-            Logs.warn('This project has been smith-ified: template files and standard folders have been added to this folder.\nYou can now personalize the templates and run "smith configure".')
-        else:
-            Logs.warn('This project is already smith-ified. No files have been changed.')
+        for f in folders :
+            if not os.path.exists(f):
+                os.mkdir(f)
+        files = dict([(x, x) for x in ('wscript', 'OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt', 'README.md', 'README.txt')])
+        files.update([('dot.gitattributes', '.gitattributes'), ('dot.gitignore', '.gitignore')])
+        for f,o in files.items() :
+            if not os.path.exists(o):
+                shutil.copy(os.path.join(thisdir, f), o)
 
 
 class srcdistContext(Build.BuildContext) :
