@@ -87,6 +87,7 @@ class FontTests(object) :
     @classmethod
     def aTestCommand(this, cls) :
         this.testMap[cls._type] = cls
+        return cls
 
     def addFontToGroup(self, font, name, once = False) :
         """Adds a font to the given group by name"""
