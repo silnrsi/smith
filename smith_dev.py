@@ -8,6 +8,7 @@
 # This script should run exactly as smith is run.
 # E.g. From a folder with a wscript, run:
 #  "python <smith repo path>/smith_dev.py configure"
+# Launching tested under Linux and Win10
 
 smith_ver = '1.6.8' # !! MUST match WAFVERSION value in waflib/Context.py !!
 
@@ -19,16 +20,18 @@ cwd = os.getcwd()
 #print("cwd = %s\nsmith_repo = %s\n" % (cwd, smith_repo))
 
 #smithlib and waflib should be under the folder where this script is launched
-# normally this script should be at the root of the smith repo
-# both lib folders must contain an __init.py__ for the below imports to work
-#  smithlib/__init.py__ is not required by the usual smith script because 
-#  its content is copied to waflib/extras
-# TODO: add smithlib to the Python path if __init.py__ is missing
+# smithlib/__init.py__ is not required by the usual smith script
+# because smithlib content is copied to waflib/extras
 try:
-    from smithlib import wsiwaf
+    from smithlib import wsiwaf #works with local smithlib/__init.py__ file
 except:
-    print("This script requires an __init.py__ file in smithlib\n")
-    sys.exit(0)
+    # add smithlib to the Python path (though it's not a package)
+    sys.path.insert(1, os.path.join(smith_repo_dir, 'smithlib'))
+    try:
+        import wsiwaf
+    except:
+        print("smithlib is required on the Python path")
+        sys.exit(0)
 from waflib import Scripting
 
 Scripting.waf_entry_point(cwd, smith_ver, smith_repo_dir)
