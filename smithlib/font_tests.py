@@ -535,7 +535,7 @@ class FtmlTestCommand(TestCommand) :
         src = super(FtmlTestCommand, self).build_intermediate(ctx, f, test, resultsnode)
         if src is None :
             return None
-        elif str(src).endswith(".ftml") :
+        elif str(src).endswith(".ftml") or str(src).endswith('.xml') :
             targ = resultsnode.find_or_declare(src.name)
             ctx(rule="${CP} ${SRC} ${TGT}", source=src, target=targ)
         elif str(src).endswith(".txt") :
