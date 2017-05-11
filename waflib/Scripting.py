@@ -13,7 +13,7 @@ no_climb_commands = ['configure']
 
 default_cmd = "build"
 
-def waf_entry_point(current_directory, version=Context.WAFVERSION, wafdir=None):
+def waf_entry_point(current_directory, version, wafdir):
 	"""
 	This is the main entry point, all Waf execution starts here.
 
