@@ -6,4 +6,5 @@ build
 *.pyc
 c4che
 config.log
-
+dist
+smith.egg-info
