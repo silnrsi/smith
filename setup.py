@@ -17,7 +17,7 @@ setup(
     description = 'smith build tool',
     long_description = 'a build tool for fonts',
     py_modules = ['smith'],
-    packages = ["waflib", "smithlib"], 
+    packages = ["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
     entry_points = {
         'console_scripts' : [
             'smith=smith:main',
