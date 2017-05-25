@@ -97,7 +97,7 @@ echo " "
 echo "Installing robofab from source"
 echo " "
 echo " "
-apt-get install python-setuptools python3-setuptools -y -q
+apt-get install python-setuptools -y -q
 cd /usr/local/builds
 git clone https://github.com/robofab-developers/robofab.git
 cd robofab
@@ -110,16 +110,12 @@ echo "Installing fontmake from source"
 echo " "
 echo " "
 apt-get install python-pip -y -q
-apt-get install python3-pip -y -q
 cd /usr/local/builds
 git clone --recursive https://github.com/googlei18n/fontmake.git
 cd fontmake 
-pip install --upgrade pip 
-pip3 install --upgrade pip 
-pip install -r requirements.txt
-pip3 install -r requirements.txt
-python setup.py install
-python3 setup.py install
+pip2 install --upgrade pip
+pip2 install -r requirements.txt
+python2 setup.py install
 
 
 # pyfontaine
