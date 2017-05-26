@@ -380,10 +380,7 @@ class Package(object) :
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
             y = bld.path.find_or_declare(r)
-            if len(t) > 2 :
-                archive_name = os.path.join(basearc, t[2])
-            else :
-                archive_name = os.path.join(basearc, x)
+            archive_name = os.path.join(basearc, t[2] if len(t) > 2 else x)
             if os.path.isfile(y.abspath()) :
                 if self.isTextFile(r) :
                     s = ascrlf(y.abspath())
@@ -430,6 +427,7 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.update(p.get_files(c)), onlyfn = True)
 
         res.update(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
+        res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
 
         def docwalker(top, dname, fname) :
