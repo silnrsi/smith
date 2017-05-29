@@ -636,7 +636,7 @@ class startContext(Context.Context) :
         for f in folders :
             if not os.path.exists(f):
                 os.mkdir(f)
-                print "Updating missing template folders: %s" % (f)
+                print "Updating missing template folder: %s" % (f)
         files = dict([(x, x) for x in ('wscript', 'OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt', 'README.md', 'README.txt')])
         files.update([('dot.gitattributes', '.gitattributes'), ('dot.gitignore', '.gitignore')])
         for f,o in files.items() :
@@ -647,7 +647,7 @@ class startContext(Context.Context) :
                     print "Error, could not copy/update %s %s" % (f, o)
                 else:
                     print "Updating missing template file: %s"  % (f)
-        Logs.warn('This project has been smith-ified: standard folders and template files are present in this folder.\nPersonalize the templates and run "smith configure".')
+        Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
 
 class srcdistContext(Build.BuildContext) :
