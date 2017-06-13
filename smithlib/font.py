@@ -44,7 +44,7 @@ class Font(object) :
 
     def get_build_tools(self, ctx) :
         res = set()
-        if getattr(self, 'source', "").lower().endswith(".ufo") :
+        if getattr(self, 'source', "").lower().endswith(".ufo") and not hasattr(self, "buildusingfontforge") :
             res.add('ufo2ttf')
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
             res.add('fontforge')
@@ -258,7 +258,7 @@ class Fea(Internal) :
         super(Fea, self).__init__(source, *k, **kw)
     
     def get_build_tools(self, ctx) :
-        return ("make_fea", "fontforge", "ttftable")
+        return ("make_fea", "ttftable", "fonttools")
 
     def get_sources(self, ctx) :
         return get_all_sources(self, ctx, 'master')
