@@ -44,6 +44,8 @@ class Font(object) :
 
     def get_build_tools(self, ctx) :
         res = set()
+        if getattr(self, 'source', "").lower().endswith(".ufo") :
+            res.add('ufo2ttf')
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
             res.add('fontforge')
             res.add('sfdmeld')
@@ -92,6 +94,8 @@ class Font(object) :
         tarname = None
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True)
+        elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
+            bgen = bld(rule = "${UFO2TTF} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True) 
         else :
             srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
@@ -265,7 +269,10 @@ class Fea(Internal) :
             return '"' + re.sub(ur"([\\'])", ur"\\\1", s) + '"'
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
-            modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+            if hasattr(font, 'buildusingfontforge') :
+                modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+            else :
+                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), deps = depends, shell = 1) 
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
