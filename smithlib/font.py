@@ -45,7 +45,7 @@ class Font(object) :
     def get_build_tools(self, ctx) :
         res = set()
         if getattr(self, 'source', "").lower().endswith(".ufo") and not hasattr(self, "buildusingfontforge") :
-            res.add('ufo2ttf')
+            res.add('psfufo2ttf')
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
             res.add('fontforge')
             res.add('sfdmeld')
