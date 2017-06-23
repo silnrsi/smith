@@ -6,7 +6,7 @@
 * text=auto
 
 # Set the default behavior, we expect Windows users to use a VM for now 
-[attr]text eol=lf
+*.* text eol=lf
 
 # Explicitly declare text files to always be normalized and converted
 # to native line endings on checkout.
@@ -32,7 +32,7 @@ wscript text
 *.sh eol=lf
 *.sfd text eol=lf
 
-# Keep these as Linux because vfb2ufo generates Linux line-endings, even on Windows:
+# Keep these as LF because vfb2ufo generates LF, even on Windows:
 *.glif text eol=lf
 *.plist text eol=lf
 
