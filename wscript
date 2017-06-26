@@ -10,7 +10,7 @@ To add a tool that does not exist in the folder compat15, pass an absolute path:
 """
 
 
-VERSION="0.3.1"
+VERSION="0.3.3"
 APPNAME='smith'
 REVISION=''
 
