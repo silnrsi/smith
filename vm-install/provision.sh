@@ -90,48 +90,6 @@ cd ots
 make
 make install 
 
-
-# robofab 
-echo " "
-echo " "
-echo "Installing robofab from source"
-echo " "
-echo " "
-apt-get install python-setuptools -y -q
-cd /usr/local/builds
-git clone https://github.com/robofab-developers/robofab.git
-cd robofab
-python setup.py install
-
-# fontmake
-echo " "
-echo " "
-echo "Installing fontmake from source"
-echo " "
-echo " "
-apt-get install python-pip -y -q
-cd /usr/local/builds
-git clone --recursive https://github.com/googlei18n/fontmake.git
-cd fontmake 
-pip2 install --upgrade pip
-pip2 install -r requirements.txt
-python2 setup.py install
-
-
-# pyfontaine
-echo " "
-echo " "
-echo "Installing pyfontaine from source"
-echo " "
-echo " "
-apt-get install libxslt1-dev libxml2-dev python-all-dev -y -q
-cd /usr/local/builds
-git clone --recursive https://github.com/davelab6/pyfontaine.git
-cd pyfontaine
-python setup.py install 
-pyfontaine --update-data 1
-
-
 # ttfautohint
 echo " "
 echo " "
@@ -202,6 +160,7 @@ echo "To go to the shared folder to run smith commands on your project, type:"
 echo " "
 echo "vagrant ssh"
 echo "cd /smith"
+echo "cd <folder of my project>"
 echo "smith distclean"
 echo "smith configure"
 echo "smith build"
