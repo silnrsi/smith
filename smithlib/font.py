@@ -57,6 +57,8 @@ class Font(object) :
         #     res.add('add_classes')
         if hasattr(self, 'typetuner') :
             res.add('typetuner')
+        if hasattr(self, 'buildusingfontforge') :
+            res.add('fontforge')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
             if x and not isinstance(x, basestring) :
                 res.update(x.get_build_tools(ctx))
