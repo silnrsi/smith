@@ -5,9 +5,6 @@
 # Set the default behavior, in case people don't have core.autocrlf set.
 * text=auto
 
-# Set the default behavior, we expect Windows users to use a VM for now 
-*.* text eol=lf
-
 # Explicitly declare text files to always be normalized and converted
 # to native line endings on checkout.
 *.cfg text
