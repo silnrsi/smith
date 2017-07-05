@@ -8,9 +8,12 @@
 # Explicitly declare text files to always be normalized and converted
 # to native line endings on checkout.
 *.cfg text
+*.css text
+*.fea text
 *.ftml text
 *.gdl text
 *.gdh text
+*.html text
 *.htxt text
 *.md text
 *.sile text
@@ -23,6 +26,7 @@
 *.xsl text
 *.xml text
 
+preflight text
 wscript text
 
 # Declare text files that will stay in LF (i.e. not expected to be used on Windows)
