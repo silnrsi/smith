@@ -100,6 +100,8 @@ class Package(object) :
             ctx.find_program('FontValidator.exe', var="FONTVALIDATOR")
             ctx.find_program('mono', var="MONO")
             ctx.find_program('pyfontaine', var="PYFONTAINE")
+            ctx.find_program('sha512sum', var="CHECKSUMS")
+            ctx.find_program('gpg', var="GPG")
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
@@ -266,6 +268,22 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_start(b))
         for f in self.fonts :
             f.build_start(bld)
+
+    def build_checksums(self, bld) :
+        if 'CHECKSUMS' not in bld.env :
+            Logs.warn("sha512sum not installed. Can't complete.")
+            return
+        self.subrun(bld, lambda p, b: p.build_checksums(b))
+        for f in self.fonts :
+            f.build_checksums(bld)
+
+    def build_sign(self, bld) :
+        if 'GPG' not in bld.env :
+            Logs.warn("gpg not installed. Can't complete.")
+            return
+        self.subrun(bld, lambda p, b: p.build_sign(b))
+        for f in self.fonts :
+            f.build_sign(bld)
 
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
@@ -568,6 +586,28 @@ class releaseContext(Build.BuildContext) :
             p.execute_zip(self)
             p.execute_tar(self)
             Logs.warn('.tar.xz release with build results generated (LF line-endings).')
+
+class checksumsContext(Build.BuildContext) :
+    """Provide checksum files for all available artifacts"""
+    cmd = 'checksums'
+    def execute(self) :
+        checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
+        os.chdir(checkpath)
+        Utils.subprocess.call("sha512sum *.zip *.xz > SHA512SUMS.txt",  shell = 1)
+        Logs.warn('Checksums file SHA512SUMS.txt generated for all available artifacts.')
+
+class signContext(Build.BuildContext) :
+    """Provide PGP/GPG signatures files for artifacts"""
+    cmd = 'sign'
+    def execute(self) :
+        checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
+        os.chdir(checkpath)
+        Utils.subprocess.call("gpg --armor --detach-sign SHA512SUMS.txt",  shell = 1)
+        for file in os.listdir(checkpath) :
+            if not file.endswith('.asc') :
+                    cmd = ["gpg", "--verbose", "--armor", "--detach-sign", file]
+                    Utils.subprocess.call(cmd)
+        Logs.warn('Detached signature .asc files (PGP/GPG) generated for all available artifacts.')
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
