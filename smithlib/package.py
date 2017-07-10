@@ -97,7 +97,7 @@ class Package(object) :
         try :
             ctx.find_program('ots-sanitize', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
-            ctx.find_program('FontValidator.exe', var="FONTVALIDATOR")
+            ctx.find_program('/usr/local/bin/FontValidator.exe', var="FONTVALIDATOR")
             ctx.find_program('mono', var="MONO")
             ctx.find_program('pyfontaine', var="PYFONTAINE")
             ctx.find_program('sha512sum', var="CHECKSUMS")
