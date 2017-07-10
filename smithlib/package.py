@@ -97,7 +97,7 @@ class Package(object) :
         try :
             ctx.find_program('ots-sanitize', var="OTS")
             ctx.find_program('fontlint', var="FONTLINT")
-            ctx.find_program('/usr/local/bin/FontValidator.exe', var="FONTVALIDATOR")
+            ctx.find_program('fontval', var="FONTVALIDATOR")
             ctx.find_program('mono', var="MONO")
             ctx.find_program('pyfontaine', var="PYFONTAINE")
             ctx.find_program('sha512sum', var="CHECKSUMS")
@@ -249,6 +249,9 @@ class Package(object) :
             f.build_fontlint(bld)
 
     def build_validate(self, bld) :
+        if 'FONTVALIDATOR' not in bld.env :
+            Logs.warn("FontValidator (via fontval script) not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
+            return
         self.subrun(bld, lambda p, b: p.build_fontvalidator(b))
         for f in self.fonts :
             f.build_fontvalidator(bld)
