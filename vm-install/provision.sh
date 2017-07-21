@@ -23,6 +23,9 @@ add-apt-repository -s -y ppa:fontforge/fontforge
 # the TexLive 2016 backports PPA
 add-apt-repository ppa:jonathonf/texlive-2016
 
+# Newer git client
+add-apt-repository ppa:git-core/ppa
+
 apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"
 
