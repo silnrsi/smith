@@ -85,10 +85,10 @@ echo " "
 echo " "
 apt-get install zlib1g-dev -y -q
 cd /usr/local/builds
-git clone https://github.com/khaledhosny/ots.git
+git clone --recursive https://github.com/khaledhosny/ots.git
 cd ots
 ./autogen.sh
-./configure --enable-debug
+./configure --enable-debug --enable-graphite
 make
 make install 
 
