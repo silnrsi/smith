@@ -48,7 +48,7 @@ TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
 for ext in ('-Regular', '-Italic', '-Bold', '-Bold-Italic'):
     font(target=process(APPNAME + '.ttf', name("APPNAME + 'DEVEL' ")),
          source=process(APPNAME + '.ufo', cmd("../tools/examplescript.py ${SRC} ${TGT}")),
-         version=VERSION_TTF,
+         version=TTF_VERSION,
          copyright=COPYRIGHT,
          license=ofl('RFN1', 'RFN2'),
          graphite=gdl('source/' + 'graphite/' + APPNAME + '.gdl',
