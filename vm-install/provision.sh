@@ -70,7 +70,7 @@ apt-get install libgirepository1.0-dev python-gi -y -q
 cd /usr/local/builds
 git clone https://github.com/behdad/harfbuzz.git
 cd harfbuzz
-./autogen.sh --with-graphite2 --with-gobject --enable-introspection
+./autogen.sh --with-graphite2 --with-gobject --enable-introspection --with-ucdn=no
 make
 make install
 cp ./src/*.typelib /usr/lib/`uname -i`-linux-gnu/girepository-1.0/
