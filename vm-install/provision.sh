@@ -27,7 +27,7 @@ add-apt-repository -s -y ppa:jonathonf/texlive-2017
 add-apt-repository -s -y ppa:git-core/ppa
 
 apt-get update -y -q
-apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -v --with-new-pkgs
+apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
 # toolchain components currently built from source
 
