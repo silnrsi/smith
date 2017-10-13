@@ -135,7 +135,8 @@ apt-get install sile -y -q
 # python-odf for ftml2odt
 apt-get install python-odf python-odf-tools -y -q
 
-
+# json perl
+apt-get install libjson-perl -y -q
 
 # smith options
 
