@@ -97,7 +97,7 @@ class Font(object) :
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${UFO2TTF} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True) 
         else :
             srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
