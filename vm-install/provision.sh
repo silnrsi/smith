@@ -2,9 +2,9 @@
 # A provisioning script for Vagrant to make it easier to get the latest smith & friends from the PPAs and/or source.
 # This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
 
-
-export DEBIAN_FRONTEND=noninteractive
-set -e -o pipefail
+# configure things for non-interactive and sdtin
+ex +"%s@DPkg@//DPkg" -cwq /etc/apt/apt.conf.d/70debconf
+dpkg-reconfigure debconf -f noninteractive -p critical
 
 
 echo " "
