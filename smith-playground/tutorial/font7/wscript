@@ -14,12 +14,6 @@ minority languages that use the Thai script. Specifically this
 font supports the following language needs: Patani Malay, So"""
 LICENSE = "GPL.txt"
 
-t = fonttest(targets = {
-    'pdfs' : tex(),
-    'test' : tests(),
-    'report' : tests({'report' : cmd("${FONTREPORT} ${SRC[0]} > ${TGT}")}, coverage = "fonts")
-    })
-
 for ext in ('', '-Bold') :
     fbase = 'Loma' + ext
     font(target = process(fbase + '-Minority.ttf', name("Loma Minority")),
@@ -31,7 +25,7 @@ for ext in ('', '-Bold') :
          ap = fbase + '.xml',
          script = 'thai',
          fret = fret(params = '-r'),
-         tests = t
+         tests = test
         )
 
 def configure(conf) :
