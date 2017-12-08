@@ -1,25 +1,28 @@
-#!/usr/bin/env python
+#!/usr/bin/python2
 'Setuptools installation file'
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2017 SIL International (http://www.sil.org)'
-__version__ = '0.3.2'
+__version__ = '0.3.5'
 
 try:
+    import sys
     from setuptools import setup
-except ImportError :
-    print "smith packaging & installation requires setuptools"
+except ImportError:
+    print("smith packaging & installation requires setuptools")
     sys.exit(1)
 
 setup(
-    name = 'smith',
-    version = __version__, 
-    url = __url__, 
-    description = 'smith build tool',
-    long_description = 'a build tool for fonts',
-    py_modules = ['smith'],
-    packages = ["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
-    entry_points = {
-        'console_scripts' : [
+    name='smith',
+    version=__version__,
+    url=__url__,
+    description='smith build tool',
+    long_description='''smith is a Python-based framework for building, testing
+    and maintaining WSI (Writing Systems Implementation) components such as
+    fonts and keyboards. ''',
+    py_modules=['smith'],
+    packages=["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
+    entry_points={
+        'console_scripts': [
             'smith=smith:main',
         ],
     }
