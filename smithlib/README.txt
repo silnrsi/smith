@@ -2,20 +2,26 @@
 Thank you for your interest in the Foo font.
 We hope you find it useful!
 
-Foo is a Unicode font that provides glyphs in
+Foo is a Unicode font that provides support for ...
+It includes ... and ...
 
 Foo is released under the SIL Open Font License.
-	
 See the OFL and OFL-FAQ for details of the SIL Open Font License.
 See the FONTLOG for information on this and previous releases.
 
+To contribute to this font projects we ask that you ...
+These formats are preferred for contributions: ... and ... 
+
+For further information about this font, including Unicode ranges
+supported, Graphite and OpenType font features and how to use them, 
+and licensing, please see the documentation on the website 
+(... ) or in the documentation/ subfolder.
 
 TIPS
 ====
-/
-We cannot afford to offer no-cost technical support.
 
-The font has been tested and shown to work on ...
+We cannot afford to offer no-cost technical support.
+But the font has been tested and shown to work on ...
 
 If you do find a problem, please do report it to ... . We can't 
 guarantee any direct response, but will try to fix reported bugs in future 
@@ -48,5 +54,4 @@ adequate level of support for Graphite or OpenType.
 PROJECT WEBSITE
 ===============
 
-....
-
+For more information, including contact information, visit the Foo project website on ...
