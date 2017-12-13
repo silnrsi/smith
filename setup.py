@@ -21,6 +21,13 @@ setup(
     fonts and keyboards. ''',
     py_modules=['smith'],
     packages=["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
+    include_package_data=True,
+    package_data={
+        'smithlib': [
+            'smithlib/*.txt', 'smithlib/dot.*', 'smithlib/*.md',
+            'smithlib/wscript', 'smithlib/*.html', 'smithlib/*.nsi'
+        ]
+    },
     entry_points={
         'console_scripts': [
             'smith=smith:main',
