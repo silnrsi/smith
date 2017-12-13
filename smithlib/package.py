@@ -1,5 +1,9 @@
-#!/usr/bin/python
-# Martin Hosken 2011
+#!/usr/bin/python2
+''' wsiwaf module '''
+__url__ = 'http://github.com/silnrsi/smith'
+__copyright__ = 'Copyright (c) 2011 SIL International (http://www.sil.org)'
+__author__ = 'Martin Hosken'
+__license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 from wsiwaf import isList

@@ -1,5 +1,11 @@
-#!/usr/bin/python
-# Martin Hosken 2011
+#!/usr/bin/python2
+''' wafplus module '''
+__url__ = 'http://github.com/silnrsi/smith'
+__copyright__ = 'Copyright (c) 2011 SIL International (http://www.sil.org)'
+__author__ = 'Martin Hosken'
+__license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
+
+
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
 import os, imp, operator, optparse, sys

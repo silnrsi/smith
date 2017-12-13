@@ -1,5 +1,11 @@
-#!/usr/bin/python
-# Martin Hosken 2011
+#!/usr/bin/python2
+''' keyboard module '''
+__url__ = 'http://github.com/silnrsi/smith'
+__copyright__ = 'Copyright (c) 2011 SIL International (http://www.sil.org)'
+__author__ = 'Martin Hosken'
+__license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
+
+
 
 from subprocess import Popen, PIPE
 from wsiwaf import get_all_sources
