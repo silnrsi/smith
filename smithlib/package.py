@@ -594,7 +594,7 @@ class checksumsContext(Build.BuildContext) :
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
         os.chdir(checkpath)
         Utils.subprocess.call("sha512sum *.zip *.xz > SHA512SUMS.txt",  shell = 1)
-        Logs.warn('Checksums file SHA512SUMS.txt generated for all available artifacts.')
+        Logs.warn('Checksums file SHA512SUMS.txt generated for all available artifacts. You can manually remove unnecessary lines.')
 
 class signContext(Build.BuildContext) :
     """Provide PGP/GPG signatures files for artifacts"""
@@ -664,6 +664,7 @@ class versionContext(Context.Context) :
     def execute(self) :
         Logs.warn('Version of smith currently installed (as a package):')
         Utils.subprocess.Popen("apt-cache show smith | grep Version", shell = 1).wait()
+        Utils.subprocess.Popen("apt-cache show python-smith | grep Version", shell = 1).wait()
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
