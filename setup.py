@@ -17,7 +17,6 @@ setup(
     name='smith',
     version=__version__,
     url=__url__,
-    copyright=__copyright__,
     license=__license__,
     author=__author__,
     description='smith build tool',
@@ -38,5 +37,12 @@ setup(
             'smith=smith:main',
         ],
     },
-    platforms=["Any"]
+    platforms=["Any"],
+    classifiers=[
+        "Environment :: Console",
+        "Programming Language :: Python :: 2.7",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Topic :: Text Processing :: Fonts"
+        ],
 )
