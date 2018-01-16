@@ -455,6 +455,7 @@ def make_dot(self):
                 else :
                     ofh.write("    " + tmap[id(t)] + " -> " + tmap[id(n)] + ";\n")
     ofh.write("}\n")
+    ofh.close()
 
     g = []
     self.group_names['dot'] = g

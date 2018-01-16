@@ -55,7 +55,10 @@ class Font(object) :
             res.add('fontforge')
             res.add('sfdmeld')
             if hasattr(self, 'ap') :
-                res.add('sfd2ap')
+                if self.source.endswith('.sfd'):
+                    res.add('sfd2ap')
+                elif self.source.endswith('.ufo'):
+                    res.add('psfexportanchors')
         if hasattr(self, 'version') :
             res.add('ttfsetver')
         # if hasattr(self, 'classes') :
@@ -99,12 +102,12 @@ class Font(object) :
         # build font
         targetnode = bld.path.find_or_declare(self.target)
         tarname = None
+        srcnode = bld.path.find_or_declare(self.source)
         if self.source.endswith(".ttf") :
-            bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True)
+            bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} '${SRC}' '${TGT}'", source = [self.source], target = targetnode, shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
         else :
-            srcnode = bld.path.find_or_declare(self.source)
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
                 bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, shell=True)
@@ -134,6 +137,9 @@ class Font(object) :
                 if self.source.endswith(".sfd") and not os.path.exists(apnode.get_src().abspath()) :
                     apopts = getattr(self, 'ap_params', "")
                     bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
+                elif self.source.endswith(".ufo") and not os.path.exists(apnode.get_src().abspath()):
+                    apopts = getattr(self, 'ap_params', "")
+                    bld(rule = "${PSFEXPORTANCHORS} -g " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
@@ -265,7 +271,12 @@ class Fea(Internal) :
         super(Fea, self).__init__(source, *k, **kw)
     
     def get_build_tools(self, ctx) :
-        return ("make_fea", "ttftable", "fonttools")
+        res = ["ttftable", "fonttools"]
+        if hasattr(self, 'old_make_fea'):
+            res.append("make_fea")
+        else:
+            res.append("psfmakefea")
+        return res
 
     def get_sources(self, ctx) :
         return get_all_sources(self, ctx, 'master')
@@ -290,15 +301,21 @@ class Fea(Internal) :
             else :
                 keeps = ", ".join(map(aspythonstr, self.keep_lookups))
         depends = getattr(self, 'depends', [])
+        use_legacy = bool(getattr(self, 'old_make_fea', False))
+        if not use_legacy:
+            srctarget = font.source
         if self.source is not None :
             if not hasattr(self, 'no_make') :
                 srcs = []
                 cmd = getattr(self, 'make_params', '') + " "
                 ind = 0
                 if hasattr(font, 'ap') :
-                    srcs.append(bld.path.find_or_declare(font.ap))
-                    cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
-                    ind += 1
+                    if use_legacy:
+                        srcs.append(bld.path.find_or_declare(font.ap))
+                        cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
+                        ind += 1
+                    else:
+                        srctarget = font.ap
                 if hasattr(font, 'classes') :
                     srcs.append(bld.path.find_or_declare(font.classes))
                     cmd += "-c ${SRC[" + str(ind) + "].bldpath()} "
@@ -311,14 +328,17 @@ class Fea(Internal) :
 #                    cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "
                     cmd += '-i ' + loc + ' '
                     ind += 1
-                if hasattr(self, 'preinclude') :
+                if hasattr(self, 'preinclude') and use_legacy:
                     mnode = bld.path.find_or_declare(self.preinclude)
                     srcs.append(mnode)
                     snode = bld.bldnode.find_or_declare(self.source)
                     loc = mnode.path_from(snode.parent)
                     cmd += '--preinclude=' + loc + ' '
                     ind += 1
-                bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+                if use_legacy:
+                    bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+                else:
+                    bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source)
             doit(self.source, keeps)
         elif self.master :
             doit(self.master, keeps)
