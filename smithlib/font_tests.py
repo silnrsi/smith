@@ -72,7 +72,7 @@ class FontGroup(list) :
     def append(self, font) :
         """Add font if not present and analyse to set fontgroup flags and lists"""
         if hasattr(font, 'graphite') : self.graphite = True
-        if hasattr(font, 'opentype') : self.opentype = True
+        if hasattr(font, 'opentype') and not getattr(font.opentype, 'no_test', False) : self.opentype = True
         if hasattr(font, 'script') : self.script.update(font.script)
         super(FontGroup, self).append(font)
 
@@ -277,7 +277,7 @@ class TestCommand(object) :
                 f = self.getFontGroup('_allFonts_gr', font, once = True) if fmode == 2 else font
                 if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='gr', self._tests)) :
                     self.addTest(f, self.label + "_gr", shaper = 'gr', **self.kw)
-            if hasattr(font, 'opentype') :
+            if hasattr(font, 'opentype') and not getattr(font.opentype, 'no_test', False):
                 if hasattr(font, 'script') :
                     scripts = [font.script] if isinstance(font.script, basestring) else font.script
                 else :
@@ -516,7 +516,7 @@ class FtmlTestCommand(TestCommand) :
                     ctx(rule="${TTFTABLE} -d opentype ${SRC} ${TGT}", source = f.target, target = target)
                     if fname not in self.fmap : self.fmap[fname] = {}
                     self.fmap[fname]['gr'] = target
-                if hasattr(f, 'opentype') :
+                if hasattr(f, 'opentype') and not getattr(f.opentype, 'no_test', False) :
                     if hasattr(f, 'script') :
                         scripts = [f.script] if isinstance(f.script, basestring) else f.script
                     else :
@@ -588,7 +588,7 @@ class FtmlTestCommand(TestCommand) :
             elif self.shapers == 1 :
                 if hasattr(f, 'graphite') :
                     self._tests.append(Test(allf, kw['name'] + "_gr", shaper='gr', **kw))
-                if hasattr(f, 'opentype') :
+                if hasattr(f, 'opentype') and not getattr(f.opentype, 'no_test', False):
                     if hasattr(f, 'script') :
                         scripts = [f.script] if isinstance(f.script, basestring) else f.script
                     else :
