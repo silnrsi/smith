@@ -172,7 +172,7 @@ echo "Installing smith (downloading the dependencies will take a few minutes)"
 echo " "
 echo " "
 
-apt-get install smith -y -q
+apt-get install smith-font -y -q
 
 echo " "
 echo "Done!"
