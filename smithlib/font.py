@@ -339,6 +339,8 @@ class Fea(Internal) :
                     bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
                 else:
                     bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source)
+                if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
+                    bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
         elif self.master :
             doit(self.master, keeps)
