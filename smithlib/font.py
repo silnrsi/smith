@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 from waflib import Context, Logs
 from wafplus import modify, ismodified
-from wsiwaf import get_all_sources
+from wsiwaf import get_all_sources, initobj, initval, defer
 import font_tests, package, keyboard
 import sys, os, re
 from random import randint
@@ -24,8 +24,7 @@ class Font(object) :
         self.volt_params = ""
         self.gdl_params = ""
 
-        for k, item in kw.items() :
-            setattr(self, k, item)
+        initobj(self, kw)
         if not isinstance(self.source, basestring) :
             self.legacy = self.source
             self.source = self.legacy.target
@@ -170,13 +169,13 @@ class Font(object) :
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
 
+
 class Legacy(object) :
 
     def __init__(self, src, *k, **kw) :
         self.target = src
         self.params = ''
-        for k, v in kw.items() :
-            setattr(self, k, v)
+        initobj(self, kw)
 
     def get_build_tools(self, ctx) :
         if self.source.lower().endswith(".ttf") :
@@ -211,13 +210,13 @@ class Legacy(object) :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
 
+@defer
 class Internal(object) :
 
     def __init__(self, src = None, *k, **kw) :
-        self.source = src
+        self.source = initval(src)
         self.params = ''
-        for k, v in kw.items() :
-            setattr(self, k, v)
+        initobj(self, kw)
 
     def get_build_tools(self, ctx) :
         return []
@@ -228,7 +227,7 @@ class Internal(object) :
     def build(self, bld, target, tgen, font) :
         pass
 
-
+@defer
 class Volt(Internal) :
 
     def __init__(self, source, *k, **kw) :
@@ -262,7 +261,7 @@ class Volt(Internal) :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
             
 
-
+@defer
 class Fea(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
@@ -346,6 +345,7 @@ class Fea(Internal) :
             doit(self.master, keeps)
 
 
+@defer
 class Gdl(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
@@ -400,8 +400,7 @@ class Ofl(object) :
         if not 'version' in kw : kw['version'] = 1.1
         #if not 'copyright' in kw : kw['copyright'] = getattr(Context.g_module, 'COPYRIGHT', '')
         self.reserve = reserved
-        for k, v in kw.items() :
-            setattr(self, k, v)
+        initobj(self, kw)
 
     def get_build_tools(self, ctx) :
         return ["ttfname"]
@@ -470,12 +469,12 @@ def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh.close()
     return fname
 
+@defer
 class Fret(object) :
 
     def __init__(self, tgt = None, **kw) :
-        self.target = tgt
-        for k, v in kw.items() :
-            setattr(self, k, v)
+        self.target = initval(tgt)
+        initobj(self, kw)
 
     def get_build_tools(self, ctx) :
         return ['fret']
@@ -488,12 +487,12 @@ class Fret(object) :
         args = getattr(self, 'params', '-r')
         bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
+@defer
 class Woff(object) :
 
     def __init__(self, tgt = None, **kw) :
-        self.target = tgt
-        for k, v in kw.items() :
-            setattr(self, k, v)
+        self.target = initval(tgt)
+        initobj(self, kw)
 
     def get_build_tools(self, ctx) :
         return ['ttf2woff']
@@ -506,6 +505,7 @@ class Woff(object) :
         args = getattr(self, 'params', '')
         bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
+@defer
 class Subset(Font) :
 
     def get_build_tools(self, ctx) :

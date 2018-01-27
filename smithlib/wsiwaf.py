@@ -8,17 +8,53 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 from waflib import Context, Task
 from wafplus import *
-import os, shlex
+import os, shlex, re
 
+def format(s, kw):
+    if kw is None:
+        return s
+    elif type(s) == 'deferred_class':
+        return s(kw)
+
+    def cvt(m):
+        return kw.get(m.group(1), '${' + m.group(1) + '}')
+    return re.sub('${([a-zA-Z]*)}', cvt, s)
+
+class deferred_class(object):
+
+    def __init__(self, c, a, kw):
+        self.c = c
+        self.a = a
+        self.kw = kw
+
+    def __call__(self, kw=None):
+        a = map(format, self.a)
+        kw = dict((k, format(v)) for k,v in self.kw.items())
+        return self.c(*a, **kw)
+
+def defer(c):
+    def g(*a, **kw):
+        return deferred_class(c, a, kw)
+    return g
+
+def initval(v):
+    return v() if type(v) == 'deferred_class' else v
+
+def initobj(self, kw):
+    for k, v in kw.items():
+        setattr(self, k, initval(v))
+
+@defer
 class create(str) :
 
     isGenerated = 1
     def __new__(self, tgt, *cmds, **kw) :
         if hasattr(tgt, 'len') : tgt = tgt[0]
-        return str.__new__(self, tgt)
+        return str.__new__(self, initval(tgt))
 
     def __init__(self, tgt, *cmds, **kw) :
-        self.cmds = cmds
+        tgt = initval(tgt)
+        self.cmds = map(initval, cmds)
         if len(cmds) > 0 :
             res = cmds[0](tgt)
             res[2].update(kw)
@@ -35,7 +71,7 @@ class create(str) :
             res.extend(c.get_sources(ctx))
         return res
 
-
+@defer
 class process(create) :
 
     def __new__(self, tgt, *cmds, **kw) :
@@ -44,13 +80,14 @@ class process(create) :
         else : return create.__new__(self, tgt, *cmds, **kw)
 
     def __init__(self, tgt, *cmds, **kw) :
+        tgt = initval(tgt)
         # if tgt exists in source tree, then become create(munge(tgt), cmd("${CP} ${SRC} ${TGT}", [tgt]), *cmds, **kw)
         if os.path.exists(tgt) :
             cmds = [cmd("cp ${SRC} ${TGT}", [tgt])] + list(cmds)
             tgt = os.path.join("tmp", os.path.basename(tgt))
             super(process, self).__init__(tgt, *cmds, **kw)
         else :
-            self.cmds = cmds
+            self.cmds = map(initval, cmds)
             for c in cmds :
                 res = c(tgt)
                 res[2]['late'] = 1
@@ -64,11 +101,13 @@ class test(process) :
         kw['nochange'] = 1
         super(test, self).__init__(tgt, *cmds, **kw)
 
+
+@defer
 class cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
-        self.c = c
-        self.inputs = inputs
-        self.opts = kw
+        self.c = initval(c)
+        self.inputs = map(initval, inputs)
+        self.opts = dict((k, initval(v)) for k, v in kw.items())
 
     def __call__(self, tgt) :
         return (self.c, self.inputs, self.opts)
