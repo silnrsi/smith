@@ -9,7 +9,7 @@ from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 from wsiwaf import isList
 import wafplus, font_tests
 import font, templater 
-import os, sys, shutil, time, ConfigParser, fnmatch
+import os, sys, shutil, time, ConfigParser, fnmatch, subprocess
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
@@ -592,13 +592,19 @@ class releaseContext(Build.BuildContext) :
             Logs.warn('.tar.xz release with build results generated (LF line-endings).')
 
 class checksumsContext(Build.BuildContext) :
-    """Provide checksum files for all available artifacts"""
+    """Provide separate checksum file SHA512SUMS.txt for all released artifacts"""
     cmd = 'checksums'
+
+    @staticmethod
+    def _excluded(n) :
+        return '-dev' in n or n.endswith('.txt')
+
     def execute(self) :
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
         os.chdir(checkpath)
-        Utils.subprocess.call("sha512sum *.zip *.xz > SHA512SUMS.txt",  shell = 1)
-        Logs.warn('Checksums file SHA512SUMS.txt generated for all available artifacts. You can manually remove unnecessary lines.')
+        names = [n for n in os.listdir(checkpath) if not self._excluded(n)] 
+        subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
+        Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
 
 class signContext(Build.BuildContext) :
     """Provide PGP/GPG signatures files for artifacts"""
