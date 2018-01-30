@@ -24,12 +24,7 @@ COPYRIGHT = "Copyright (c) 2016, Acme Inc (http://www.acme.com) with Reserved Fo
 LICENSE = "OFL.txt"
 RESERVEDOFL = "RFN1 and RFN2"
 
-DESC_SHORT = "This is a short description"
-DESC_LONG = """This is a much longer description
-on multiple lines.
-Font sources are published in the repository and a smith open workflow is
-used for building, testing and releasing.
-"""
+DESC_SHORT = "This is a short one line description: max 72 char"
 
 # packaging
 DESC_NAME = "Foo"
