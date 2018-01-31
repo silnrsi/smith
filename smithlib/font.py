@@ -152,7 +152,7 @@ class Font(object) :
                 x.build(bld, self.target, bgen, self)
 
         if hasattr(self, 'typetuner') :
-            modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, [self.typetuner])
+            modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, inputs = [self.typetuner])
 
         return self
 

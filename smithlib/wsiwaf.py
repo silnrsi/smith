@@ -90,7 +90,10 @@ class process(create) :
             self.cmds = map(initval, cmds)
             for c in cmds :
                 res = c(tgt)
-                res[2]['late'] = 1
+                if 'late' not in res[2]:
+                    res[2]['late'] = 1
+                elif not res[2]['late']:
+                    del res[2]['late']
                 res[2].update(kw)
                 modify(res[0], tgt, res[1], **res[2])
 
@@ -106,6 +109,8 @@ class test(process) :
 class cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
         self.c = initval(c)
+        if not isinstance(inputs, list):
+            inputs = [inputs]
         self.inputs = map(initval, inputs)
         self.opts = dict((k, initval(v)) for k, v in kw.items())
 
