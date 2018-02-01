@@ -179,6 +179,11 @@ class FontTests(object) :
         return res
 
     def get_build_tools(self, ctx) :
+        ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
+        ctx.find_program('fontlint', var="FONTLINT", mandatory=False)
+        ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
+        ctx.find_program('mono', var="MONO", mandatory=False)
+        ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
         res = set()
         for ts in self._allTests.values() :
             for t in ts :
