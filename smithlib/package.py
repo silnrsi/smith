@@ -98,16 +98,13 @@ class Package(object) :
         self.fontTests = font_tests.FontTests(getattr(self, 'testfiles', None))
 
     def get_build_tools(self, ctx) :
-        try :
-            ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
-            ctx.find_program('fontlint', var="FONTLINT", mandatory=False)
-            ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
-            ctx.find_program('mono', var="MONO", mandatory=False)
-            ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
-            ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
-            ctx.find_program('gpg', var="GPG", mandatory=False)
-        except ctx.errors.ConfigurationError :
-            pass
+        ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
+        ctx.find_program('fontlint', var="FONTLINT", mandatory=False)
+        ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
+        ctx.find_program('mono', var="MONO", mandatory=False)
+        ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
+        ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
+        ctx.find_program('gpg', var="GPG", mandatory=False)
         for p in ('makensis', ) :
             try :
                 ctx.find_program(p)

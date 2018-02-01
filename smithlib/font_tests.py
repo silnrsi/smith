@@ -674,10 +674,7 @@ class TexTestCommand(TestCommand) :
     def get_build_tools(self, ctx) :
         if self._configured : return []
         self._configured = True
-        try :
-            ctx.find_program('xetex')
-        except ctx.errors.ConfigurationError :
-            pass
+        ctx.find_program('xetex', mandatory=False)
         return set()
 
 
