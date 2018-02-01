@@ -99,13 +99,13 @@ class Package(object) :
 
     def get_build_tools(self, ctx) :
         try :
-            ctx.find_program('ots-sanitize', var="OTS")
-            ctx.find_program('fontlint', var="FONTLINT")
-            ctx.find_program('fontval', var="FONTVALIDATOR")
-            ctx.find_program('mono', var="MONO")
-            ctx.find_program('pyfontaine', var="PYFONTAINE")
-            ctx.find_program('sha512sum', var="CHECKSUMS")
-            ctx.find_program('gpg', var="GPG")
+            ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
+            ctx.find_program('fontlint', var="FONTLINT", mandatory=False)
+            ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
+            ctx.find_program('mono', var="MONO", mandatory=False)
+            ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
+            ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
+            ctx.find_program('gpg', var="GPG", mandatory=False)
         except ctx.errors.ConfigurationError :
             pass
         for p in ('makensis', ) :
