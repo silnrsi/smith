@@ -138,7 +138,7 @@ class Font(object) :
                     bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif self.source.endswith(".ufo") and not os.path.exists(apnode.get_src().abspath()):
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${PSFEXPORTANCHORS} -g " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
+                    bld(rule = "${PSFEXPORTANCHORS} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
@@ -322,8 +322,11 @@ class Fea(Internal) :
                 if self.master :
                     mnode = bld.path.find_or_declare(self.master)
                     srcs.append(mnode)
-                    snode = bld.bldnode.find_or_declare(self.source)
-                    loc = mnode.path_from(snode.parent)
+                    if use_legacy:
+                        snode = bld.bldnode.find_or_declare(self.source)
+                        loc = mnode.path_from(snode.parent)
+                    else:
+                        loc = mnode.bldpath()
 #                    cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "
                     cmd += '-i ' + loc + ' '
                     ind += 1
