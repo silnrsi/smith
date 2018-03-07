@@ -547,6 +547,7 @@ class FtmlTestCommand(TestCommand) :
         if src is None :
             return None
         elif str(src).endswith(".ftml") or str(src).endswith('.xml') :
+            return f.node
             targ = resultsnode.find_or_declare(src.name)
             ctx(rule="${CP} ${SRC} ${TGT}", source=src, target=targ)
         elif str(src).endswith(".txt") :
@@ -608,6 +609,7 @@ class FtmlTestCommand(TestCommand) :
             tkw.update(kw)
             label += "_" + tkw['name']
             self._tests.append(Test(font, label, **tkw))
+
 
 @FontTests.aTestCommand
 class TexTestCommand(TestCommand) :

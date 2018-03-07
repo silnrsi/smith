@@ -64,6 +64,8 @@ class Font(object) :
         #     res.add('add_classes')
         if hasattr(self, 'typetuner') :
             res.add('typetuner')
+        if hasattr(self, 'ttfautohint'):
+            res.add('ttfautohint')
         if hasattr(self, 'buildusingfontforge') :
             res.add('fontforge')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
@@ -150,6 +152,9 @@ class Font(object) :
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff', 'fret')) :
             if x :
                 x.build(bld, self.target, bgen, self)
+
+        if hasattr(self, 'ttfautohint'):
+            modify("${TTFAUTOHINT} " + self.ttfautohint + " ${DEP} ${TGT}", self.target)
 
         if hasattr(self, 'typetuner') :
             modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, inputs = [self.typetuner])
