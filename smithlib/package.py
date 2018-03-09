@@ -9,7 +9,8 @@ from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 from wsiwaf import isList
 import wafplus, font_tests
 import font, templater 
-import os, sys, shutil, time, ConfigParser, fnmatch, subprocess
+import os, sys, shutil, time, ConfigParser, fnmatch, subprocess, re
+from xml.etree import ElementTree as et
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
@@ -78,7 +79,7 @@ class Package(object) :
             if 'buildformat' not in kw :
                 bv = getversion()
             else :
-                bv = getversion(kw['buildformat'])
+                bv = getversion(buildformat=kw['buildformat'])
             if 'buildlabel' in kw and bv != '':
                 bv = kw['buildlabel'] + " " + bv
             kw['buildversion'] = bv
@@ -1056,7 +1057,7 @@ def _findvcs(cwd) :
     if ind == -1 : return None
     return _findvcs(cwd[:ind])
 
-def getversion(s = "dev-{vcssha:.6}{vcsmodified}") :
+def getversion(buildformat="dev-{vcssha:.6}{vcsmodified}") :
     curdir = os.path.abspath(os.curdir)
     results = {'vcsmodified' : ''}
     vcssha = os.environ.get('BUILD_VCS_NUMBER', '')
@@ -1082,7 +1083,29 @@ def getversion(s = "dev-{vcssha:.6}{vcsmodified}") :
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
     results['vcssha'] = vcssha.strip()
     results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
-    return s.format(**results)
+    return buildformat.format(**results)
+
+def getufoinfo(ufosrc):
+    root = et.parse(os.path.join(ufosrc, "fontinfo.plist"))
+    d = root.getroot()[0]
+    info = dict((x[0].text, x[1].text) for x in zip(d[::2], d[1::2]))
+    majver = 0
+    minver = 0
+    extra = ""
+    m = re.match(ur'^version (\d+)\.(\d{3})\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
+    if m is not None:
+        majver = int(m.group(1))
+        minver = int(m.group(2))
+        if m.group(3) is not None:
+            extra = re.sub(ur'\s*dev-.*?\s*', '', m.group(3), flags=re.I)
+    if 'versionMajor' in info:
+        majver = int(info['versionMajor'])
+    if 'versionMinor' in info:
+        minver = int(info['versionMinor'])
+    import inspect
+    caller = inspect.stack()[1]
+    caller[0].f_locals.update({'VERSION': "{:d}.{:03d}".format(majver, minver),
+                               'BUILDLABEL': extra})
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
@@ -1145,7 +1168,7 @@ def init(ctx) :
 def onload(ctx) :
     varmap = { 'package' : Package, 'subdir' : subdir,
         'ftmlTest' : ftmlTest, 'testCommand' : testCommand,
-        'getversion' : getversion }
+        'getversion' : getversion, 'getufoinfo': getufoinfo }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v
