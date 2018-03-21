@@ -584,6 +584,13 @@ class releaseContext(Build.BuildContext) :
             p.execute_tar(self)
             Logs.warn('.tar.xz release with build results generated (LF line-endings).')
 
+        # checksums are also created as part of the release target
+        checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
+        os.chdir(checkpath)
+        names = [n for n in os.listdir(checkpath) if not fnmatch.fnmatch(n, '*.txt') if not fnmatch.fnmatch(n, '*-dev*')]
+        subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
+        Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
+
 class checksumsContext(Build.BuildContext) :
     """Provide separate checksum file SHA512SUMS.txt for all released artifacts"""
     cmd = 'checksums'
