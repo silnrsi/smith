@@ -1099,7 +1099,7 @@ def getufoinfo(ufosrc):
     majver = 0
     minver = 0
     extra = ""
-    m = re.match(ur'^version (\d+)\.(\d{3})\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
+    m = re.match(ur'^version (\d+)\.(\d{3});?\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
     if m is not None:
         majver = int(m.group(1))
         minver = int(m.group(2))
