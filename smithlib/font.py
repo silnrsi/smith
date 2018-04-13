@@ -215,7 +215,6 @@ class Legacy(object) :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
 
-@defer
 class Internal(object) :
 
     def __init__(self, src = None, *k, **kw) :
@@ -232,7 +231,6 @@ class Internal(object) :
     def build(self, bld, target, tgen, font) :
         pass
 
-@defer
 class Volt(Internal) :
 
     def __init__(self, source, *k, **kw) :
@@ -266,7 +264,6 @@ class Volt(Internal) :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
             
 
-@defer
 class Fea(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
@@ -353,7 +350,6 @@ class Fea(Internal) :
             doit(self.master, keeps)
 
 
-@defer
 class Gdl(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
@@ -477,7 +473,6 @@ def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh.close()
     return fname
 
-@defer
 class Fret(object) :
 
     def __init__(self, tgt = None, **kw) :
@@ -495,7 +490,6 @@ class Fret(object) :
         args = getattr(self, 'params', '-r')
         bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
-@defer
 class Woff(object) :
 
     def __init__(self, tgt = None, **kw) :
@@ -513,7 +507,6 @@ class Woff(object) :
         args = getattr(self, 'params', '')
         bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
-@defer
 class Subset(Font) :
 
     def get_build_tools(self, ctx) :
@@ -535,6 +528,20 @@ class Subset(Font) :
         parms += "${SRC[" + str(count) + "].bldpath()} ${TGT}"
         srcs += [self.source]
         bld(rule = "${TTFSUBSET} " + parms, target = self.target, source = srcs)
+
+# apply defer() after subclasses declared
+# The wscript that builds waf (or smith) handles decorators in a special way
+#  (see process_decorators()) by removing the decorator from the code and
+#  applying the decorator function at the end of the file without reassigning
+#  the name to the object returned by the decorator function.
+#  This works for waf's decorators but not for defer().
+Internal = defer(Internal)
+Volt = defer(Volt)
+Fea = defer(Fea)
+Gdl = defer(Gdl)
+Fret = defer(Fret)
+Woff = defer(Woff)
+Subset = defer(Subset)
 
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))

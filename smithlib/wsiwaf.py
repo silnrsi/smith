@@ -44,7 +44,6 @@ def initobj(self, kw):
     for k, v in kw.items():
         setattr(self, k, initval(v))
 
-@defer
 class create(str) :
 
     isGenerated = 1
@@ -71,7 +70,6 @@ class create(str) :
             res.extend(c.get_sources(ctx))
         return res
 
-@defer
 class process(create) :
 
     def __new__(self, tgt, *cmds, **kw) :
@@ -105,7 +103,6 @@ class test(process) :
         super(test, self).__init__(tgt, *cmds, **kw)
 
 
-@defer
 class cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
         self.c = initval(c)
@@ -141,6 +138,16 @@ class cmd(object) :
 
     def build(self, ctx, inputs, tgt, **kw) :
         return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
+
+# apply defer() after subclasses declared
+# The wscript that builds waf (or smith) handles decorators in a special way
+#  (see process_decorators()) by removing the decorator from the code and
+#  applying the decorator function at the end of the file without reassigning
+#  the name to the object returned by the decorator function.
+#  This works for waf's decorators but not for defer().
+create = defer(create)
+process = defer(process)
+cmd = defer(cmd)
 
 def isList(l) :
     return (not hasattr(l, 'strip') and
