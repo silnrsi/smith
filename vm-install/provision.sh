@@ -147,6 +147,9 @@ apt-get install python-odf python-odf-tools -y -q
 apt-get install libjson-perl libtext-csv-perl -y -q
 
 # smith options
+# downgrade glyphsLib 
+sudo apt install python-glyphslib=2.2.1-1ubuntu1
+
 
 echo " "
 echo " "
@@ -172,7 +175,7 @@ echo "Installing smith (downloading the dependencies will take a few minutes)"
 echo " "
 echo " "
 
-apt-get install smith-font -y -q
+apt-get install smith-font --no-install-recommends -y -q
 
 echo " "
 echo "Done!"
@@ -201,12 +204,11 @@ echo "smith distclean"
 echo "smith configure"
 echo "smith build"
 echo "smith alltests"
-echo "smith pdf"
 echo "smith zip"
 echo "smith tarball"
 echo "smith release"
 echo "for more details type: man smith"
-echo "or refer to the smith manual"
+echo "or refer to the smith manual in /usr/share/doc/python-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
 echo " "
 
 
