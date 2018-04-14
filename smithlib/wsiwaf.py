@@ -10,15 +10,21 @@ from waflib import Context, Task
 from wafplus import *
 import os, shlex, re
 
-def format(s, kw):
-    if kw is None:
-        return s
-    elif type(s) == 'deferred_class':
+def formatvars(s, kw=None):
+    if isinstance(s, deferred_class):
         return s(kw)
+    elif kw is None or not s:
+        return s
 
     def cvt(m):
         return kw.get(m.group(1), '${' + m.group(1) + '}')
-    return re.sub('${([a-zA-Z]*)}', cvt, s)
+    if isinstance(s, basestring):
+        return re.sub(ur'\${([a-zA-Z]*)}', cvt, s)
+    if hasattr(s, 'items'):
+        return dict((k, formatvars(v, kw)) for k,v in s.items())
+    elif hasattr(s, '__len__'):
+        return [formatvars(x, kw) for x in s]
+    return s
 
 class deferred_class(object):
 
@@ -28,14 +34,21 @@ class deferred_class(object):
         self.kw = kw
 
     def __call__(self, kw=None):
-        a = map(format, self.a)
-        kw = dict((k, format(v)) for k,v in self.kw.items())
-        return self.c(*a, **kw)
+        a = [formatvars(x, kw) for x in self.a]
+        kwr = dict((k, formatvars(v, kw)) for k,v in self.kw.items())
+        return self.c(*a, **kwr)
 
 def defer(c):
     def g(*a, **kw):
         return deferred_class(c, a, kw)
     return g
+
+def undeffered(c):
+    def undeffer(*a, **kw):
+        newa = map(formatvars, a)
+        newkw = dict((k, formatvars(v)) for k,v in kw.items())
+        return c(*newa, **newkw)
+    return undeffer
 
 def initval(v):
     return v() if type(v) == 'deferred_class' else v
@@ -44,7 +57,7 @@ def initobj(self, kw):
     for k, v in kw.items():
         setattr(self, k, initval(v))
 
-class create(str) :
+class _create(str) :
 
     isGenerated = 1
     def __new__(self, tgt, *cmds, **kw) :
@@ -70,12 +83,14 @@ class create(str) :
             res.extend(c.get_sources(ctx))
         return res
 
-class process(create) :
+create = defer(_create)
+
+class _process(_create) :
 
     def __new__(self, tgt, *cmds, **kw) :
         if not hasattr(tgt, 'len') and os.path.exists(tgt) :
-            return create.__new__(self, os.path.join("tmp", os.path.basename(tgt)), *cmds, **kw)
-        else : return create.__new__(self, tgt, *cmds, **kw)
+            return super(_process, self).__new__(self, os.path.join("tmp", os.path.basename(tgt)), *cmds, **kw)
+        else : return super(_process, self).__new__(self, tgt, *cmds, **kw)
 
     def __init__(self, tgt, *cmds, **kw) :
         tgt = initval(tgt)
@@ -83,7 +98,7 @@ class process(create) :
         if os.path.exists(tgt) :
             cmds = [cmd("cp ${SRC} ${TGT}", [tgt])] + list(cmds)
             tgt = os.path.join("tmp", os.path.basename(tgt))
-            super(process, self).__init__(tgt, *cmds, **kw)
+            super(_process, self).__init__(tgt, *cmds, **kw)
         else :
             self.cmds = map(initval, cmds)
             for c in cmds :
@@ -95,15 +110,16 @@ class process(create) :
                 res[2].update(kw)
                 modify(res[0], tgt, res[1], **res[2])
 
+process = defer(_process)
 
-class test(process) :
+class test(_process) :
 
     def __init__(self, tgt, *cmds, **kw) :
         kw['nochange'] = 1
         super(test, self).__init__(tgt, *cmds, **kw)
 
 
-class cmd(object) :
+class _cmd(object) :
     def __init__(self, c, inputs = [], **kw) :
         self.c = initval(c)
         if not isinstance(inputs, list):
@@ -139,15 +155,7 @@ class cmd(object) :
     def build(self, ctx, inputs, tgt, **kw) :
         return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
 
-# apply defer() after subclasses declared
-# The wscript that builds waf (or smith) handles decorators in a special way
-#  (see process_decorators()) by removing the decorator from the code and
-#  applying the decorator function at the end of the file without reassigning
-#  the name to the object returned by the decorator function.
-#  This works for waf's decorators but not for defer().
-create = defer(create)
-process = defer(process)
-cmd = defer(cmd)
+cmd = defer(_cmd)
 
 def isList(l) :
     return (not hasattr(l, 'strip') and

@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 from waflib import Context, Logs
 from wafplus import modify, ismodified
-from wsiwaf import get_all_sources, initobj, initval, defer
+from wsiwaf import get_all_sources, initobj, initval, defer, undeffered
 import font_tests, package, keyboard
 import sys, os, re
 from random import randint
@@ -174,8 +174,25 @@ class Font(object) :
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
 
+class DesignInstance(object):
 
-class Legacy(object) :
+    noap = True
+    def __init__(self, src, name, dspace, *k, **kw):
+        self.target = src
+        self.name = name
+        self.dspace = dspace
+        initobj(self, kw)
+
+    def get_build_tools(self, ctx):
+        return ["psfcreateinstances"]
+
+    def get_sources(self, ctx):
+        return get_all_sources(self, ctx, 'dspace')
+
+    def build(self, bld, targetap):
+        bld(rule="psfcreateinstances -q -i '{}' ${{SRC}}".format(self.name), source=self.dspace, target=self.target) 
+
+class _Legacy(object) :
 
     def __init__(self, src, *k, **kw) :
         self.target = src
@@ -214,6 +231,7 @@ class Legacy(object) :
             if targetap and not hasattr(self, 'noap') :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
 
+Legacy = defer(_Legacy)
 
 class Internal(object) :
 
@@ -231,10 +249,10 @@ class Internal(object) :
     def build(self, bld, target, tgen, font) :
         pass
 
-class Volt(Internal) :
+class _Volt(Internal) :
 
     def __init__(self, source, *k, **kw) :
-        super(Volt, self).__init__(source, *k, **kw)
+        super(_Volt, self).__init__(source, *k, **kw)
 
     def get_build_tools(self, ctx) :
         return ('make_volt', 'volt2ttf')
@@ -263,13 +281,14 @@ class Volt(Internal) :
         else :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
             
+Volt = defer(_Volt)
 
-class Fea(Internal) :
+class _Fea(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
         self.master = ''
         self.params = ''
-        super(Fea, self).__init__(source, *k, **kw)
+        super(_Fea, self).__init__(source, *k, **kw)
     
     def get_build_tools(self, ctx) :
         res = ["ttftable", "fonttools"]
@@ -349,13 +368,14 @@ class Fea(Internal) :
         elif self.master :
             doit(self.master, keeps)
 
+Fea = defer(_Fea)
 
-class Gdl(Internal) :
+class _Gdl(Internal) :
 
     def __init__(self, source = None, *k, **kw) :
         self.master = ''
         self.params = ''
-        super(Gdl, self).__init__(source, *k, **kw)
+        super(_Gdl, self).__init__(source, *k, **kw)
     
     def get_build_tools(self, ctx) :
         return ("make_gdl", "grcompiler", "ttftable")
@@ -397,8 +417,9 @@ class Gdl(Internal) :
         elif self.master :
             modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, shell = 1)
 
+Gdl = defer(_Gdl)
 
-class Ofl(object) :
+class _Ofl(object) :
 
     def __init__(self, *reserved, **kw) :
         if not 'version' in kw : kw['version'] = 1.1
@@ -456,6 +477,8 @@ class Ofl(object) :
         os.unlink(tempfn)
         return res
 
+Ofl = defer(_Ofl)
+
 def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh = file(fname, "w+")
     # if copyright : oflh.write(copyright + "  (" + os.getenv('DEBEMAIL') + "), \n")
@@ -473,8 +496,7 @@ def make_ofl(fname, names, version, copyright = None, template = None) :
     oflh.close()
     return fname
 
-class Fret(object) :
-
+class _Fret(object) :
     def __init__(self, tgt = None, **kw) :
         self.target = initval(tgt)
         initobj(self, kw)
@@ -490,8 +512,9 @@ class Fret(object) :
         args = getattr(self, 'params', '-r')
         bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
-class Woff(object) :
+Fret = defer(_Fret)
 
+class _Woff(object) :
     def __init__(self, tgt = None, **kw) :
         self.target = initval(tgt)
         initobj(self, kw)
@@ -507,7 +530,9 @@ class Woff(object) :
         args = getattr(self, 'params', '')
         bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
 
-class Subset(Font) :
+Woff = defer(_Woff)
+
+class _Subset(Font) :
 
     def get_build_tools(self, ctx) :
         return ['ttfsubset']
@@ -529,19 +554,7 @@ class Subset(Font) :
         srcs += [self.source]
         bld(rule = "${TTFSUBSET} " + parms, target = self.target, source = srcs)
 
-# apply defer() after subclasses declared
-# The wscript that builds waf (or smith) handles decorators in a special way
-#  (see process_decorators()) by removing the decorator from the code and
-#  applying the decorator function at the end of the file without reassigning
-#  the name to the object returned by the decorator function.
-#  This works for waf's decorators but not for defer().
-Internal = defer(Internal)
-Volt = defer(Volt)
-Fea = defer(Fea)
-Gdl = defer(Gdl)
-Fret = defer(Fret)
-Woff = defer(Woff)
-Subset = defer(Subset)
+Subset = defer(_Subset)
 
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
@@ -574,7 +587,7 @@ def name(n, **kw) :
     return iname
 
 def onload(ctx) :
-    varmap = { 'font' : Font, 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
+    varmap = { 'font' : undeffered(Font), 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
             'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
             'woff' : Woff, 'internal' : Internal
              }
