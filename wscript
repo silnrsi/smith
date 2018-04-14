@@ -218,7 +218,7 @@ def sfilter(path):
 
 	f.close()
 	if path.endswith('.py') :
-		cnt = process_decorators(cnt)
+		# cnt = process_decorators(cnt)
 
 		if cnt.find('set(') > -1:
 			cnt = 'import sys\nif sys.hexversion < 0x020400f0: from sets import Set as set\n' + cnt

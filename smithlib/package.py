@@ -6,7 +6,7 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from wsiwaf import isList
+from wsiwaf import isList, formatvars
 import wafplus, font_tests
 import font, templater 
 import os, sys, shutil, time, ConfigParser, fnmatch, subprocess, re
@@ -468,6 +468,31 @@ class Package(object) :
                 return False
         return True
 
+class DesignSpace(object):
+    _instancemap = {'filename': 'FILENAME', 'name': 'NAME', 'stylename': 'STYLE', 'familyname': 'FAMILY'}
+
+    def __init__(self, dspace, *k, **kw):
+        self.dspace = dspace
+        self.kw = kw
+        self.makefonts()
+
+    def makefonts(self):
+        self.doc = et.parse(self.dspace)
+        for inst in self.doc.getroot().find('instances'):
+            self._makefont(inst, True)
+
+    def _makefont(self, inst, isInstance):
+        base = os.path.dirname(self.dspace)
+        specialvars = dict((t, inst.get(k, "")) for k,t in self._instancemap.items())
+        specialvars['FILE'] = os.path.join(base, specialvars['FILENAME'])
+        newkw = dict((k, formatvars(v, specialvars)) for k,v in self.kw.items())
+        # we can insert all kinds of useful defaults in here
+        if 'source' not in newkw:
+            if isInstance:
+                newkw['source'] = font.DesignInstance(specialvars['FILE'], specialvars['NAME'], self.dspace)
+            else:
+                newkw['source'] = specialvars['FILENAME']
+        font.Font(**newkw)
 
 def make_srcdist(self) :
     res = set(['wscript'])
@@ -1173,9 +1198,10 @@ def init(ctx) :
     add_build()
 
 def onload(ctx) :
-    varmap = { 'package' : Package, 'subdir' : subdir,
-        'ftmlTest' : ftmlTest, 'testCommand' : testCommand,
-        'getversion' : getversion, 'getufoinfo': getufoinfo }
+    varmap = { 'package': Package, 'subdir': subdir,
+        'ftmlTest': ftmlTest, 'testCommand': testCommand,
+        'getversion': getversion, 'getufoinfo': getufoinfo,
+        'designspace': DesignSpace }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v
