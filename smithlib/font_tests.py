@@ -253,7 +253,11 @@ class TestCommand(object) :
             elif kw['coverage'] == 'shaperpairs' : kw['shapers'] = 2
             del kw['coverage']
         if 'label' not in kw : kw['label'] = _cmd
-        if 'cmd' in kw : kw['cmd'] = wsiwaf.cmd(kw['cmd'])
+        if 'cmd' in kw :
+            if isinstance(kw['cmd'], basestring):
+                kw['cmd'] = wsiwaf.undeffered(wsiwaf.cmd)(kw['cmd'])()
+            else:
+                kw['cmd'] = kw['cmd']()
         self.files = None
         for x in ('cmd', 'ext', 'files', 'label', 'shapers', 'supports') :     # magic attributes
             if x in kw : setattr(self, x, kw.pop(x))
