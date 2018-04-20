@@ -27,7 +27,6 @@ def formatvars(s, kw=None):
     return s
 
 class deferred_class(object):
-
     def __init__(self, c, a, kw):
         self.c = c
         self.a = a
