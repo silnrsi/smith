@@ -599,13 +599,13 @@ class releaseContext(Build.BuildContext) :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.buildversion = ''
-            Logs.warn('.zip release with build results generated (CR+LF line-endings).')
 
     def post_build(self) :
         if Options.options.debug :
             import pdb; pdb.set_trace()
         for p in Package.packages() :
             p.execute_zip(self)
+            Logs.warn('.zip release with build results generated (CR+LF line-endings).')
             p.execute_tar(self)
             Logs.warn('.tar.xz release with build results generated (LF line-endings).')
 
