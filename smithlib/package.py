@@ -613,8 +613,9 @@ class releaseContext(Build.BuildContext) :
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
         os.chdir(checkpath)
         names = [n for n in os.listdir(checkpath) if not fnmatch.fnmatch(n, '*.txt') if not fnmatch.fnmatch(n, '*-dev*')]
-        subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
-        Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
+        if len(names) > 0:
+            subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
+            Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
 
 class checksumsContext(Build.BuildContext) :
     """Provide separate checksum file SHA512SUMS.txt for all released artifacts"""
@@ -628,8 +629,9 @@ class checksumsContext(Build.BuildContext) :
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
         os.chdir(checkpath)
         names = [n for n in os.listdir(checkpath) if not self._excluded(n)] 
-        subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
-        Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
+        if len(names) > 0:
+            subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
+            Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
 
 class signContext(Build.BuildContext) :
     """Provide PGP/GPG signatures files for artifacts"""
