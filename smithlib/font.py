@@ -140,7 +140,7 @@ class Font(object) :
                     bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif self.source.endswith(".ufo") and not os.path.exists(apnode.get_src().abspath()):
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${PSFEXPORTANCHORS} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
+                    bld(rule = "${PSFEXPORTANCHORS} -l '${TGT[0].bld_dir()}' " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
@@ -190,7 +190,7 @@ class DesignInstance(object):
         return get_all_sources(self, ctx, 'dspace')
 
     def build(self, bld, targetap):
-        bld(rule="psfcreateinstances -q -i '{}' ${{SRC}}".format(self.name), source=self.dspace, target=self.target) 
+        bld(rule="psfcreateinstances -q -l . -i '{}' ${{SRC}}".format(self.name), source=self.dspace, target=self.target) 
 
 class _Legacy(object) :
 
