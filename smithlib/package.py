@@ -612,7 +612,7 @@ class releaseContext(Build.BuildContext) :
         # checksums are also created as part of the release target
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
         os.chdir(checkpath)
-        names = [n for n in os.listdir(checkpath) if not fnmatch.fnmatch(n, '*.txt') if not fnmatch.fnmatch(n, '*-dev*')]
+        names = [n for n in os.listdir(checkpath) if not fnmatch.fnmatch(n, '*.txt') if not fnmatch.fnmatch(n, '*-dev-*')]
         if len(names) > 0:
             subprocess.call(['sha512sum'] + names, stdout=open("SHA512SUMS.txt","w"))
             Logs.warn('Checksums file SHA512SUMS.txt generated for all released artifacts.')
@@ -623,7 +623,7 @@ class checksumsContext(Build.BuildContext) :
 
     @staticmethod
     def _excluded(n) :
-        return '-dev' in n or n.endswith('.txt')
+        return '-dev-' in n or n.endswith('.txt')
 
     def execute(self) :
         checkpath = os.path.join(self.out_dir + '/' + (getattr(Context.g_module, 'ZIPDIR', 'releases')))
