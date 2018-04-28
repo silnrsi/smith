@@ -489,7 +489,8 @@ class DesignSpace(object):
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                newkw['source'] = font.DesignInstance(specialvars['FILE'], specialvars['NAME'], self.dspace)
+                newkw['source'] = font.DesignInstance(specialvars['FILE'], specialvars['NAME'],\
+                        self.dspace, params=newkw.get('params', ''))
             else:
                 newkw['source'] = specialvars['FILENAME']
         font.Font(**newkw)
