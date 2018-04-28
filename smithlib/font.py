@@ -181,6 +181,8 @@ class DesignInstance(object):
         self.target = src
         self.name = name
         self.dspace = dspace
+        if 'params' not in kw:
+            kw['params'] = ''
         initobj(self, kw)
 
     def get_build_tools(self, ctx):
@@ -190,7 +192,7 @@ class DesignInstance(object):
         return get_all_sources(self, ctx, 'dspace')
 
     def build(self, bld, targetap):
-        bld(rule="psfcreateinstances -q -l . -i '{}' ${{SRC}}".format(self.name), source=self.dspace, target=self.target) 
+        bld(rule="psfcreateinstances -q -l . -i '{}' {} ${{SRC}}".format(self.name, self.params), source=self.dspace, target=self.target) 
 
 class _Legacy(object) :
 
