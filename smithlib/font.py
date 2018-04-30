@@ -192,7 +192,7 @@ class DesignInstance(object):
         return get_all_sources(self, ctx, 'dspace')
 
     def build(self, bld, targetap):
-        bld(rule="psfcreateinstances -q -l . -i '{}' {} ${{SRC}}".format(self.name, self.params), source=self.dspace, target=self.target) 
+        bld(rule="psfcreateinstances -q -l . -o '{}' -i '{}' {} ${{SRC}}".format('.tmp', self.name, self.params), source=self.dspace, target=self.target) 
 
 class _Legacy(object) :
 
