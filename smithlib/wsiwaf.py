@@ -49,6 +49,9 @@ def undeffered(c):
         return c(*newa, **newkw)
     return undeffer
 
+def isdeferred(c):
+    return isinstance(c, deferred_class)
+
 def initval(v):
     return v() if type(v) == 'deferred_class' else v
 
@@ -67,19 +70,18 @@ class _create(str) :
         tgt = initval(tgt)
         self.cmds = map(initval, cmds)
         if len(cmds) > 0 :
-            res = cmds[0](tgt)
+            res = cmds[0]()(tgt) if isdeferred(cmds[0]) else cmds[0](tgt)
             res[2].update(kw)
             rule(res[0], res[1], tgt, **res[2])
         for c in cmds[1:] :
-            res = c(tgt)
+            res = c()(tgt) if isdeferred(c) else c(tgt)
             res[2].update(kw)
             modify(res[0], tgt, res[1], **res[2])
 
     def get_sources(self, ctx) :
-        #import pdb; pdb.set_trace()
         res = []
         for c in self.cmds :
-            res.extend(c.get_sources(ctx))
+            res.extend(c().get_sources(ctx) if isdeferred(c) else c.get_sources(ctx))
         return res
 
 create = defer(_create)
