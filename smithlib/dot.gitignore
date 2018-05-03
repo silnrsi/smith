@@ -4,6 +4,7 @@
 
 # smith
 .waf-*
+.smithpickle-*
 .lock-*
 results/**
 buildlinux2/**
