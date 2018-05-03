@@ -11,10 +11,10 @@ from waflib import Utils, Errors, Logs
 import waflib.Node
 
 # the following 3 constants are updated on each new release (do not touch)
-HEXVERSION=0x1060800
+HEXVERSION=0x1020000
 """Constant updated on new releases"""
 
-WAFVERSION="1.6.8"
+WAFVERSION="1.2.0"
 """Constant updated on new releases"""
 
 WAFREVISION="11517"
@@ -23,7 +23,7 @@ WAFREVISION="11517"
 ABI = 98
 """Version of the build data cache file format (used in :py:const:`waflib.Context.DBFILE`)"""
 
-DBFILE = '.wafpickle-%d' % ABI
+DBFILE = '.smithpickle-%d' % ABI
 """Name of the pickle file for storing the build data"""
 
 APPNAME = 'APPNAME'

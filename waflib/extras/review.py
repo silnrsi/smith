@@ -150,7 +150,7 @@ class ReviewContext(Context.Context):
 		if not out:
 			out = getattr(Context.g_module, Context.OUT, None)
 		if not out:
-			out = Options.lockfile.replace('.lock-waf', '')
+			out = Options.lockfile.replace('.lock-smith', '')
 		self.build_path = (os.path.isabs(out) and self.root or self.path).make_node(out).abspath()
 		"""Path to the build directory"""
 
