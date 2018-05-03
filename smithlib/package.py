@@ -469,7 +469,8 @@ class Package(object) :
         return True
 
 class DesignSpace(object):
-    _instancemap = {'filename': 'FILENAME', 'name': 'NAME', 'stylename': 'STYLE', 'familyname': 'FAMILY'}
+    _modifiermap = {'DASH': lambda x: x.replace(' ', '-'),
+                    'BASE': lambda x: os.path.splitext(os.path.basename(x))[0]}
 
     def __init__(self, dspace, *k, **kw):
         self.dspace = dspace
@@ -483,16 +484,18 @@ class DesignSpace(object):
 
     def _makefont(self, inst, isInstance):
         base = os.path.dirname(self.dspace)
-        specialvars = dict((t, inst.get(k, "")) for k,t in self._instancemap.items())
-        specialvars['FILE'] = os.path.join(base, specialvars['FILENAME'])
+        specialvars = dict(("DS:"+k.upper(), v) for k,v in inst.attrib.items())
+        specialvars.update((k+"_"+mk, mv(v)) for k,v in specialvars.items() for mk, mv in self._modifiermap.items())
+        specialvars.update(("DS:AXIS_"+e.get("name", "").upper(), e.get("xvalue", "")) for e in inst.findall('location/dimension'))
+        specialvars['DS:FILE'] = os.path.join(base, specialvars['DS:FILENAME'])
         newkw = dict((k, formatvars(v, specialvars)) for k,v in self.kw.items())
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                newkw['source'] = font.DesignInstance(specialvars['FILE'], specialvars['NAME'],\
+                newkw['source'] = font.DesignInstance(specialvars['DS:FILE'], specialvars['DS:NAME'],\
                         self.dspace, params=newkw.get('params', ''))
             else:
-                newkw['source'] = specialvars['FILENAME']
+                newkw['source'] = specialvars['DS:FILENAME']
         font.Font(**newkw)
 
 def make_srcdist(self) :

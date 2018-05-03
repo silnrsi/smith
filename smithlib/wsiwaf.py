@@ -194,10 +194,14 @@ def init(ctx) :
     for m in (font, package, keyboard) :
         if hasattr(m, 'init') :
             m.init(ctx)
-        
+
+@defer
+def str_replace(s, i, r):
+    return s.replace(i, r)
+
 def onload(ctx) :
     varmap = { 'process' : process, 'create' : create, 'test' : test,
-                'cmd' : cmd, 'init' : init
+                'cmd' : cmd, 'init' : init, 'str_replace' : str_replace
              }
     for k, v in varmap.items() :
         if hasattr(Context, 'wscript_vars') :
