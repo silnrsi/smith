@@ -19,7 +19,7 @@ def formatvars(s, kw=None):
     def cvt(m):
         return kw.get(m.group(1), '${' + m.group(1) + '}')
     if isinstance(s, basestring):
-        return re.sub(ur'\${([a-zA-Z]*)}', cvt, s)
+        return re.sub(ur'\${([a-zA-Z:_/]*)}', cvt, s)
     if hasattr(s, 'items'):
         return dict((k, formatvars(v, kw)) for k,v in s.items())
     elif hasattr(s, '__len__'):
