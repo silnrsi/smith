@@ -1,4 +1,9 @@
 #!/usr/bin/python2
+''' development runner '''
+__url__ = 'http://github.com/silnrsi/smith'
+__copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
+__author__ = 'Alan Ward, Martin Hosken'
+__license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
 
 # Launch smith from its source repo.
 # The main use is for smith development.
