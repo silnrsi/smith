@@ -180,7 +180,7 @@ class BuildContext(Context.Context):
 			lst = Utils.listdir(self.cache_dir)
 		except OSError as e:
 			if e.errno == errno.ENOENT:
-				raise Errors.WafError('The project was not configured: run "%s configure" first!' % scriptname)
+				raise Errors.WafError('The project was not configured: run configure first.' % scriptname)
 			else:
 				raise
 
@@ -211,7 +211,7 @@ class BuildContext(Context.Context):
 		"""
 
 		if not (os.path.isabs(self.top_dir) and os.path.isabs(self.out_dir)):
-			raise Errors.WafError('The project was not configured: run "waf configure" first!')
+			raise Errors.WafError('The project was not configured: run configure first.')
 
 		self.path = self.srcnode = self.root.find_dir(self.top_dir)
 		self.bldnode = self.root.make_node(self.variant_dir)
