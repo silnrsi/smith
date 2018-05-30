@@ -322,11 +322,16 @@ class TestCommand(object) :
         if self.kw.get('notestfiles', False) : return
         testsdir = self.kw.get('testdir', ctx.env['TESTDIR'] or 'tests')
         if self.files is None :
-            self.files = map(TestFile, antlist(ctx, testsdir, '**/*'))
+            self.files = [TestFile(x) for x in antlist(ctx, testsdir, '**/*') if os.path.splitext(str(x))[1] in self.supports]
         if getattr(self, 'addAllTestFiles', False) :
             filelist = antlist(ctx, testsdir, '**/*')
             testset = set(map(str, self.files))
             for f in filelist :
+                if f in testset:
+                    continue
+                (_, ext) = os.path.splitext(f)
+                if len(self.supports) and ext not in self.supports:
+                    continue
                 if f not in testset :
                     testset.add(f)
                     if testfiles is not None and f in testfiles :
