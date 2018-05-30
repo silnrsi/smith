@@ -714,7 +714,7 @@ class Node(object):
 
 		node = self.get_bld().search(lst)
 		if node:
-			if not os.path.isfile(node.abspath()):
+			if False and not os.path.isfile(node.abspath()):
 				node.sig = None
 				try:
 					node.parent.mkdir()
@@ -724,7 +724,7 @@ class Node(object):
 		self = self.get_src()
 		node = self.find_node(lst)
 		if node:
-			if not os.path.isfile(node.abspath()):
+			if False and not os.path.isfile(node.abspath()):
 				node.sig = None
 				try:
 					node.parent.mkdir()

@@ -397,8 +397,11 @@ def patch_waf() :
     def h_file(filename) :
         m = Utils.md5()
         if os.path.isdir(filename) :
-            for f in os.listdir(filename) :
-                m.update(h_file(os.path.join(filename, f)))
+            for (dp, ds, fs) in os.walk(filename) :
+                st = os.stat(dp)
+                m.update(str(st.st_mtime))
+                m.update(str(st.st_size))
+                m.update(dp)
         else :
             f = open(filename, 'rb')
             try :
