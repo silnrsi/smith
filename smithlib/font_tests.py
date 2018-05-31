@@ -629,7 +629,7 @@ class TexTestCommand(TestCommand) :
     def __init__(self, _cmd, fontTests, **kw) :
         kw['shapers'] = 1
         self._configured = False
-        if 'supports' not in kw : kw['supports'] = ['.txt', '.htex']
+        if 'supports' not in kw : kw['supports'] = ['.txt', '.htex', '.htxt']
         super(TexTestCommand, self).__init__(_cmd, fontTests, **kw)
 
     def _make_tex(self, mf, font, task) :
