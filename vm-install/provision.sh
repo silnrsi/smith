@@ -22,8 +22,8 @@ add-apt-repository -s -y ppa:silnrsi/smith
 # the official fontforge PPA
 add-apt-repository -s -y ppa:fontforge/fontforge
 
-# the TexLive 2017 backports PPA
-add-apt-repository -s -y ppa:jonathonf/texlive-2017
+# the TexLive 2018 backports PPA
+add-apt-repository -s -y ppa:jonathonf/texlive-2018
 
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
@@ -148,7 +148,7 @@ apt-get install libjson-perl libtext-csv-perl -y -q
 
 # smith options
 # downgrade glyphsLib 
-sudo apt install python-glyphslib=2.2.1-1ubuntu1
+sudo apt-get install python-glyphslib=2.2.1-1ubuntu1
 
 
 echo " "
@@ -198,8 +198,8 @@ echo " "
 echo "To go to the shared folder to run smith commands on your project(s), type:" 
 echo " "
 echo "vagrant ssh"
-echo "cd /smith"
-echo "cd <folder of my project(s)>"
+echo "cd mysmithprojects"
+echo "cd <folder of my project>"
 echo "smith distclean"
 echo "smith configure"
 echo "smith build"
