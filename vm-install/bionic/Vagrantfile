@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
-  config.vm.box_check_update = false
+  config.vm.box_check_update = true
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -37,26 +37,27 @@ Vagrant.configure(2) do |config|
   # your network.
   # config.vm.network "public_network"
 
-  # set the hostname
-  config.vm.hostname = "smith"
-
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
+  # the path on the guest to mount the folder. In this case it will create a folder in the VM's user directory and your projects will be underneath. No need to go to a root level folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder ".", "/smith", type: "virtualbox"
+  config.vm.synced_folder ".", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
 
   # If you want you can also map the parent folder of all your local font working copies:
   # for macOS users:
-  # config.vm.synced_folder "/Users/username/work/fonts/", "/smith", type: "virtualbox"
+  # config.vm.synced_folder "/Users/username/work/fonts/", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
   # for Ubuntu users:
-  # config.vm.synced_folder "/home/username/work/fonts/", "/smith", type: "virtualbox"
+  # config.vm.synced_folder "/home/username/work/fonts/", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
+
+  # set up a distinguishable hostname
+  config.vm.hostname = "smith-bionic"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
+    vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
 
     # Do not display the VirtualBox GUI when booting the machine
     vb.gui = false 
@@ -87,13 +88,11 @@ Vagrant.configure(2) do |config|
 
     lsb_release -d
 
-    cat /etc/apt/sources.list
-
     sudo dpkg-reconfigure locales -f noninteractive -p critical
 
     sudo apt-get update -q -y
 
-    sudo apt-get install -q -y less vim-nox htop tree git mercurial subversion pydf wget curl bash-completion software-properties-common
+    sudo apt-get install --no-install-recommends -q -y less vim-nox htop tree git mercurial subversion pydf wget curl bash-completion software-properties-common
 
     SHELL
 

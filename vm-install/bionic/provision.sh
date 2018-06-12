@@ -5,10 +5,6 @@
 # This is for Ubuntu bionic/18.04 LTS
 
 
-# this is still needed to expand the partition because of https://bugs.launchpad.net/cloud-images/+bug/1726818 : 
-resize2fs -p /dev/sda1
-
-
 # configure things for non-interactive and sdtin
 ex +"%s@DPkg@//DPkg" -cwq /etc/apt/apt.conf.d/70debconf
 dpkg-reconfigure debconf -f noninteractive -p critical
@@ -23,6 +19,12 @@ echo " "
 
 # the official smith PPA
 add-apt-repository -s -y ppa:silnrsi/smith
+
+# the TexLive 2018 backports PPA
+add-apt-repository -s -y ppa:jonathonf/texlive-2018
+
+# the current git PPA
+add-apt-repository -s -y ppa:git-core/ppa
 
 apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
@@ -129,7 +131,7 @@ chmod 755 /usr/local/bin/fontval
 
 
 # toolchain components installed from packages (both main repositories and PPAs)
-
+apt install libharfbuzz-bin
 
 
 # smith itself  (only the font part for now)
@@ -162,8 +164,8 @@ echo " "
 echo "To go to the shared folder to run smith commands on your project(s), type:" 
 echo " "
 echo "vagrant ssh"
-echo "cd /smith"
-echo "cd <folder of my project(s)>"
+echo "cd mysmithprojects (shared folder)"
+echo "cd <folder of my project>"
 echo "smith distclean"
 echo "smith configure"
 echo "smith build"
