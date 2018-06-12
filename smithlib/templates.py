@@ -45,13 +45,15 @@ TexTestCommand = {
 \catcode"200B=\active \def^^^^200b{{\hskip0pt\relax}}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
 
-Test for {2} - {3} using
-\ifcase\XeTeXfonttype\test\TeX\or AAT\or OpenType\or Graphite\fi
-\space- {4} - XeTeX \XeTeXrevision
+Test for {2}
+
+{4}
 
 Input file: {5}
 
---------------------------------------------------
+(XeTeX \XeTeXrevision \space with {3} \ifcase\XeTeXfonttype\test\TeX\or AAT\or OpenType\or Graphite\fi \space support - smith automated font testing)
+
+-------------------------------------------------
 
 
 
