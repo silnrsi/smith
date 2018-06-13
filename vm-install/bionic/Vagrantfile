@@ -39,15 +39,15 @@ Vagrant.configure(2) do |config|
 
   # Share an additional folder to the guest VM. The first argument is
   # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. In this case it will create a folder in the VM's user directory and your projects will be underneath. No need to go to a root level folder. And the optional third
+  # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder ".", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
-
+  config.vm.synced_folder ".", "/smith", type: "virtualbox"
+  
   # If you want you can also map the parent folder of all your local font working copies:
   # for macOS users:
-  # config.vm.synced_folder "/Users/username/work/fonts/", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
+  # config.vm.synced_folder "/Users/username/work/fonts/", "/smith", type: "virtualbox"
   # for Ubuntu users:
-  # config.vm.synced_folder "/home/username/work/fonts/", "/home/vagrant/mysmithprojects", type: "virtualbox", create: true
+  # config.vm.synced_folder "/home/username/work/fonts/", "/smith", type: "virtualbox"
 
   # set up a distinguishable hostname
   config.vm.hostname = "smith-bionic"
