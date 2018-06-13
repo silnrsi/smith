@@ -100,22 +100,6 @@ cd ots
 make
 make install 
 
-# ttfautohint
-echo " "
-echo " "
-echo "Installing ttfautohint from source"
-echo " "
-echo " "
-apt-get install build-essential bison flex libfreetype6-dev -y -q
-cd /usr/local/builds
-git clone --recursive http://repo.or.cz/ttfautohint.git
-cd ttfautohint 
-./bootstrap
-./configure --with-doc=no --with-qt=no
-make 
-make install 
-
-
 # fontvalidator
 echo " "
 echo " "
