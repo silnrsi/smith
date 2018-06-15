@@ -7,19 +7,72 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 FontTests = {
-    'index_head' : u"<html><head></head><body>\n",
+    'index_head' : u"""
+    <!DOCTYPE html>
+    <html><head>
+    <meta charset="utf-8">
+    <meta name="Description" lang="en" content="Index for generated tests (smith automated font testing)">
+    <meta name="author" content="smith">
+
+    <style>
+    body {
+       background-color: linen;
+       font-size: 12px;
+       padding: 25;
+       margin: 25;
+       margin-left: 25px;
+       margin-right: 25px;
+       font-family: 'Fira Sans', 'Noto Sans', 'Source Sans',  sans-serif;
+    }
+    h1 {
+       color: black;
+    }
+    h2 {
+       color: black;
+    }
+    p {
+       color: black;
+       text-align: left;
+       font-size: 13px;
+    }
+    table, th, td {
+       border-collapse: collapse;
+       border-spacing: 7px;
+       padding: 7px;
+       text-align: left;
+       border: 1px solid black;
+       border-bottom: 1px solid #ddd;
+    }
+    th {
+       height: 20px;
+       font-size: 14px;
+       background-color: lightgrey;
+    }
+    td:hover {
+       background-color: #f5f5f5;
+    }
+
+    </style>
+    </head>
+    <body>
+    <h1> Index for generated tests (smith automated font testing)</h1>
+    <br>
+    <br>
+
+    """,
     'index_tail' : u'</body></html>\n'
 }
 
 TestCommand = {
     'init_head' : u"<h2>{}</h2>\n<table><tr>\n<th>{}</th>",
-    'init_tail' : u"</table>\n",
+    'init_tail' : u"</table> <br> \n",
     'head_row' : u"  <th>{}</th>",
     'head_row_end' : u"</tr>\n",
     'row_head' : u"  <tr><th>{}</th>",
     'row_tail' : u"</tr>\n",
     'cell_head' : u"<td>",
-    'cell_content' : u'<a href="{}">Results</a>',
+    'cell_filename' : u'{} ',
+    'cell_content' : u'<a href="{}" target="_blank">open results</a>',
     'cell_tail' : u"</td>"
 }
 

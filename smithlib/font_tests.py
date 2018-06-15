@@ -393,7 +393,7 @@ class TestCommand(object) :
         temps = templates.TestCommand
         for f, v in perfont.items() :
             allrows = set()
-            res += temps['init_head'].format((f.id if f is not None else ""), "TestFile")
+            res += temps['init_head'].format((f.id if f is not None else ""), "Input file:")
             allkeys = sorted(v.keys(), key=lambda x: x.label)
             for t in allkeys :
                 res += temps['head_row'].format(t.label)
@@ -407,6 +407,7 @@ class TestCommand(object) :
 # It would be nice if we could flag a link (or hide it) if the size of the targetted file is zero. But
 # we can't do that at this point since the commands to create the targets haven't run yet, only been
 # scheduled. So may need some javascript for this.
+                        res += temps['cell_filename'].format(v[t][i])
                         res += temps['cell_content'].format(v[t][i])
                     res += temps['cell_tail']
                 res += temps['row_tail']
