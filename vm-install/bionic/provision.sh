@@ -30,134 +30,130 @@ apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
 # toolchain components currently built from source
+# these are now commented out as the corresponding items are available as packages or on the CI
+# if you need certain features you can uncomment them and reprovision. 
 
 
 # checking if we already have local checkouts 
-if [ -d /usr/local/builds/ ]
-then
-    echo " "
-    echo "You already have previous builds, it's easier to delete them and start afresh. "
-    echo " "
-    echo "Deleting /usr/local/builds... "
-    echo " "
-    rm -rf /usr/local/builds
-fi
-
-mkdir -p /usr/local/builds
-
-chmod -R 766 /usr/local/builds 
-
-# graphite
-echo " "
-echo " "
-echo "Installing graphite from source"
-echo " "
-echo " "
-
-
-apt-get install build-essential cmake gcc g++ automake libtool pkg-config -y -q
-cd /usr/local/builds
-git clone --depth 1 https://github.com/silnrsi/graphite.git
-cd graphite
-mkdir build
-cd build
-cmake -G "Unix Makefiles" --build .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF
-make
-make install
-ldconfig 
-
-
-echo " "
-echo " "
-echo "Installing Graphite-enabled HarfBuzz from source"
-echo " "
-apt-get install build-essential cmake gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev automake libtool pkg-config ragel gtk-doc-tools -y -q
-cd /usr/local/builds
-git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
-cd harfbuzz
-./autogen.sh --with-graphite2 
-make
-make install
-ldconfig 
-
-
-# ots
-echo " "
-echo " "
-echo "Installing ots from source"
-echo " "
-echo " "
-apt-get install build-essential autoconf automake pkg-config zlib1g-dev -y -q
-cd /usr/local/builds
-git clone --depth 1 --recursive https://github.com/khaledhosny/ots.git
-cd ots
-./autogen.sh
-./configure --enable-debug --enable-graphite
-make
-make install 
-
-# fontvalidator
-echo " "
-echo " "
-echo "Installing fontvalidator from source"
-echo " "
-echo " "
-apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
-cd /usr/local/builds
-git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
-cd fontval
-make
-make gendoc
-cp bin/*.exe /usr/local/bin/
-cp bin/*.dll* /usr/local/bin/
-cp bin/*.xsl /usr/local/bin/
-
-echo " "
-echo " "
-echo "Installing fontval script"
-echo " "
-echo " "
-cat > /usr/local/bin/fontval <<'EOF'
-#!/bin/bash
-
-# running the validator from the usr/local/bin directory  
-mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
-
-exit 0 
-
-EOF
-
-chmod 755 /usr/local/bin/fontval 
+# if [ -d /usr/local/builds/ ]
+# then
+#     echo " "
+#     echo "You already have previous builds, it's easier to delete them and start afresh. "
+#     echo " "
+#     echo "Deleting /usr/local/builds... "
+#     echo " "
+#     rm -rf /usr/local/builds
+# fi
+# 
+# mkdir -p /usr/local/builds
+# 
+# chmod -R 766 /usr/local/builds 
+# 
+# # graphite
+# echo " "
+# echo " "
+# echo "Installing graphite from source"
+# echo " "
+# echo " "
+# 
+# 
+# apt-get install build-essential cmake gcc g++ automake libtool pkg-config -y -q
+# cd /usr/local/builds
+# git clone --depth 1 https://github.com/silnrsi/graphite.git
+# cd graphite
+# mkdir build
+# cd build
+# cmake -G "Unix Makefiles" --build .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF
+# make
+# make install
+# ldconfig 
+# 
+# 
+# echo " "
+# echo " "
+# echo "Installing Graphite-enabled HarfBuzz from source"
+# echo " "
+# apt-get install build-essential cmake gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev automake libtool pkg-config ragel gtk-doc-tools -y -q
+# cd /usr/local/builds
+# git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
+# cd harfbuzz
+# ./autogen.sh --with-graphite2 
+# make
+# make install
+# ldconfig 
+# 
+# 
+# # ots
+# echo " "
+# echo " "
+# echo "Installing ots from source"
+# echo " "
+# echo " "
+# apt-get install build-essential autoconf automake pkg-config zlib1g-dev -y -q
+# cd /usr/local/builds
+# git clone --depth 1 --recursive https://github.com/khaledhosny/ots.git
+# cd ots
+# ./autogen.sh
+# ./configure --enable-debug --enable-graphite
+# make
+# make install 
+# 
+# # fontvalidator
+# echo " "
+# echo " "
+# echo "Installing fontvalidator from source"
+# echo " "
+# echo " "
+# apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
+# cd /usr/local/builds
+# git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
+# cd fontval
+# make
+# make gendoc
+# cp bin/*.exe /usr/local/bin/
+# cp bin/*.dll* /usr/local/bin/
+# cp bin/*.xsl /usr/local/bin/
+# 
+# echo " "
+# echo " "
+# echo "Installing fontval script"
+# echo " "
+# echo " "
+# cat > /usr/local/bin/fontval <<'EOF'
+# #!/bin/bash
+# 
+# # running the validator from the usr/local/bin directory  
+# mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
+# 
+# exit 0 
+# 
+# EOF
+# 
+# chmod 755 /usr/local/bin/fontval 
 
 
 # toolchain components installed from packages (both main repositories and PPAs)
-apt install libharfbuzz-bin
+apt-get install libharfbuzz-bin
 
 
-# smith itself  (only the font part for now)
+# smith itself  (only the font side of things)
 echo " "
 echo " "
-echo "Installing smith (downloading the dependencies will take a few minutes)"
+echo "Installing smith (downloading/updating the dependencies might take a few minutes)"
 echo " "
 echo " "
 
 apt-get install smith-font --no-install-recommends -y -q
 
 echo " "
+echo " "
 echo "Done!"
+echo " "
+echo " "
 echo "smith & friends are now ready to use:"
 echo " "
-echo "version of core components:"
-echo " "
-echo "Smith: "
+echo "Smith version: "
 apt-cache show python-smith | grep Version: | grep snapshot
-
-echo "with fontforge version : "
-apt-cache show fontforge | grep Version: 
-echo "with fontttols version : "
-apt-cache show fonttools | grep Version: 
-hb-view --version
-xetex --version | grep Live 
 echo " "
 echo " "
 
