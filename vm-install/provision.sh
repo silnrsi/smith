@@ -150,35 +150,29 @@ apt-get install libjson-perl libtext-csv-perl -y -q
 apt-get install libharfbuzz-bin  -y -q
 
 # smith options
-# downgrade glyphsLib 
+# target specific version for (or downgrade) glyphsLib
 sudo apt-get install python-glyphslib=2.2.1-1ubuntu1
 
 
 
-# smith itself 
+# smith itself  (only the font side of things)
 echo " "
 echo " "
-echo "Installing smith (downloading the dependencies will take a few minutes)"
+echo "Installing smith (downloading/updating the dependencies might take a few minutes)"
 echo " "
 echo " "
 
 apt-get install smith-font --no-install-recommends -y -q
 
 echo " "
+echo " "
 echo "Done!"
+echo " "
+echo " "
 echo "smith & friends are now ready to use:"
 echo " "
-echo "version of core components:"
-echo " "
-echo "Smith: "
+echo "Smith version: "
 apt-cache show smith | grep Version: | grep snapshot
-
-echo "with fontforge version : "
-apt-cache show fontforge | grep Version: 
-echo "with fontttols version : "
-apt-cache show fonttools | grep Version: 
-hb-view --version
-xetex --version | grep Live 
 echo " "
 echo " "
 
