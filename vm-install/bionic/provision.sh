@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# A provisioning script for Vagrant to make it easier to get the latest smith & friends from the PPAs and/or source.
+# A provisioning script for Vagrant to make it easier to get the latest smith and its dependencies from the PPAs and/or source.
 # This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
 
 # This is for Ubuntu bionic/18.04 LTS
-
 
 # configure things for non-interactive and sdtin
 ex +"%s@DPkg@//DPkg" -cwq /etc/apt/apt.conf.d/70debconf
@@ -12,7 +11,7 @@ dpkg-reconfigure debconf -f noninteractive -p critical
 
 echo " "
 echo " "
-echo "Installing smith & friends"
+echo "Installing smith and its dependencies"
 echo " "
 echo " "
 
@@ -114,6 +113,7 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # cp bin/*.dll* /usr/local/bin/
 # cp bin/*.xsl /usr/local/bin/
 # 
+# FontValidator shell script
 # echo " "
 # echo " "
 # echo "Installing fontval script"
@@ -131,9 +131,16 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # 
 # chmod 755 /usr/local/bin/fontval 
 
+# python-odf for ftml2odt
+apt-get install python-odf python-odf-tools -y -q
 
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin
+
+# smith options
+# target specific version for (or downgrade) glyphsLib
+sudo apt-get install python-glyphslib=2.2.1-1ubuntu1
+
 
 
 # smith itself  (only the font side of things)
@@ -150,10 +157,10 @@ echo " "
 echo "Done!"
 echo " "
 echo " "
-echo "smith & friends are now ready to use:"
+echo "smith is now ready to use:"
 echo " "
 echo "Smith version: "
-apt-cache show python-smith | grep Version: | grep snapshot
+apt-cache show smith | grep Version: | grep snapshot
 echo " "
 echo " "
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# A provisioning script for Vagrant to make it easier to get the latest smith & friends from the PPAs and/or source.
+# A provisioning script for Vagrant to make it easier to get the latest smith and its dependencies from the PPAs and/or source.
 # This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
 
 # This is for Ubuntu xenial/16.04 LTS
@@ -11,7 +11,7 @@ dpkg-reconfigure debconf -f noninteractive -p critical
 
 echo " "
 echo " "
-echo "Installing smith & friends"
+echo "Installing smith and its dependencies"
 echo " "
 echo " "
 
@@ -169,7 +169,7 @@ echo " "
 echo "Done!"
 echo " "
 echo " "
-echo "smith & friends are now ready to use:"
+echo "smith is now ready to use:"
 echo " "
 echo "Smith version: "
 apt-cache show smith | grep Version: | grep snapshot
