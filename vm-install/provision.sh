@@ -149,11 +149,6 @@ apt-get install python-odf python-odf-tools -y -q
 apt-get install libjson-perl libtext-csv-perl -y -q
 apt-get install libharfbuzz-bin  -y -q
 
-# smith options
-# target specific version for (or downgrade) glyphsLib
-sudo apt-get install python-glyphslib=2.2.1-1ubuntu1
-
-
 
 # smith itself  (only the font side of things)
 echo " "
@@ -163,6 +158,13 @@ echo " "
 echo " "
 
 apt-get install smith-font --no-install-recommends -y -q
+
+# smith options
+# target specific version for (or downgrade) glyphsLib
+apt-get install python-glyphslib=2.2.1-1ubuntu1
+
+# target specific version for (or downgrade) defcon
+apt-get install python-defcon=0.3.4-1+git-snapshot-0~201806292301~ubuntu16.04.1
 
 echo " "
 echo " "
