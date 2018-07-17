@@ -161,13 +161,13 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
 # target specific version for (or downgrade) glyphsLib
-apt-get install python-glyphslib=2.2.1-1ubuntu1 -y -q
+apt-get install python-glyphslib=2.4.0-1ubuntu1 -y -q
 
 # target specific version for (or downgrade) defcon
 apt-get install python-defcon=0.3.4-1+git-snapshot-0~201806292301~ubuntu16.04.1 -y -q
 
 # target specific version for (or downgrade) ufolib
-apt-get install python-ufolib=2.2.5-snapshot-0~201807101908~ubuntu16.04.1 -y -q 
+apt-get install python-ufolib=2.2.5-snapshot-0~201807161308~ubuntu16.04.1 -y -q 
 
 echo " "
 echo " "
