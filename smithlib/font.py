@@ -508,7 +508,7 @@ class _Fret(object) :
 
     def build(self, bld, tgt, tgen, font) :
         if self.target is None :
-            output = tgt.replace(".ttf", ".pdf")
+            output = tgt.replace(".ttf", "-fret-report.pdf")
         else :
             output = self.target
         args = getattr(self, 'params', '-r')
