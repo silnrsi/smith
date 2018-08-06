@@ -712,7 +712,7 @@ class startContext(Context.Context) :
     """start: create project template folder structure"""
     cmd = 'start'
     def execute(self) :
-        thisdir = os.path.dirname(__file__)
+        thisdir = os.path.join(os.path.dirname(__file__), 'templates')
         folders =  ('documentation', 'tools', 'tests', 'web')
         for f in folders :
             if not os.path.exists(f):

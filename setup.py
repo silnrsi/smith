@@ -28,8 +28,7 @@ setup(
     include_package_data=True,
     package_data={
         'smithlib': [
-            'smithlib/*.txt', 'smithlib/dot.*', 'smithlib/*.md',
-            'smithlib/wscript', 'smithlib/*.html', 'smithlib/*.nsi'
+            'smithlib/*.*', 'smithlib/templates/'
         ]
     },
     entry_points={
