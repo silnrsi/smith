@@ -179,6 +179,7 @@ class FontTests(object) :
         return res
 
     def get_build_tools(self, ctx) :
+        ctx.find_program('xetex', var="XETEX", mandatory=False)
         ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
         ctx.find_program('fontlint', var="FONTLINT", mandatory=False)
         ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
@@ -687,13 +688,6 @@ class TexTestCommand(TestCommand) :
                 source = [srcnode], target = target, deps = deps,
                 taskgens = [test.fid])
         return target
-
-    def get_build_tools(self, ctx) :
-        if self._configured : return []
-        self._configured = True
-        ctx.find_program('xetex', mandatory=False)
-        return set()
-
 
 @FontTests.aTestCommand
 class Waterfall(TexTestCommand) :
