@@ -101,6 +101,7 @@ class Package(object) :
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
+        ctx.find_program('pipenv', var="PIPENV", mandatory=False)
         for p in ('makensis', ) :
             try :
                 ctx.find_program(p)
@@ -265,6 +266,15 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_start(b))
         for f in self.fonts :
             f.build_start(bld)
+
+    def build_pipenv(self, bld) :
+        if 'PIPENV' not in bld.env :
+            Logs.warn("pipenv not installed. Can't complete.")
+            return
+        self.subrun(bld, lambda p, b: p.build_pipenv(b))
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        for f in self.fonts :
+            f.build_pipenv(bld)
 
     def build_checksums(self, bld) :
         if 'CHECKSUMS' not in bld.env :
@@ -692,6 +702,46 @@ class fontvalidatorContext(cmdContext) :
 class pyfontaineContext(cmdContext) :
     """Report coverage using pyfontaine. Check the test reports."""
     cmd = 'pyfontaine'
+
+class pipenvfreezeContext(cmdContext) :
+    """Freeze python dependencies"""
+    cmd = 'vfreeze'
+    def execute_build(self) :
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        Utils.subprocess.Popen("pipenv lock", shell = 1).wait()
+        Logs.warn('Freeze the current python dependencies into Pipfile.lock based on Pipfile.')
+
+class pipenvcreateContext(cmdContext) :
+    """Create a virtual environment (inside the project folder)"""
+    cmd = 'vcreate'
+    def execute_build(self) :
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        Logs.warn('Create a virtual environment from the current Pipfile.lock (inside the project folder).')
+        Utils.subprocess.Popen("pipenv sync", shell = 1).wait()
+
+class pipenvcleanContext(cmdContext) :
+    """Clean/remove the virtual environment (inside the project folder)"""
+    cmd = 'vclean'
+    def execute_build(self) :
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        Logs.warn('Clean/remove the virtual environment (inside the project folder).')
+        Utils.subprocess.Popen("pipenv --rm", shell = 1).wait()
+
+class pipenvdepsContext(cmdContext) :
+    """Show which python dependencies are currently set"""
+    cmd = 'vdeps'
+    def execute_build(self) :
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        Logs.warn('Show which python dependencies are currently set from Pipfile.lock.')
+        Utils.subprocess.Popen("pipenv --where; pipenv graph", shell = 1).wait()
+
+class pipenvbuildContext(cmdContext) :
+    """Run a full build/test/release using frozen python dependencies from the virtual environment"""
+    cmd = 'vbuild'
+    def execute_build(self) :
+	os.environ["PIPENV_VENV_IN_PROJECT"] = "1"
+        Logs.warn('Run a full build/test/release with frozen python dependencies from the virtual environment.')
+        Utils.subprocess.Popen("pipenv run smith distclean configure build alltests zip tarball release;", shell = 1).wait()
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""
