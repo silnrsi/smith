@@ -475,6 +475,7 @@ class DesignSpace(object):
     def __init__(self, dspace, *k, **kw):
         self.dspace = dspace
         self.kw = kw
+        self.fonts = []
         self.makefonts()
 
     def makefonts(self):
@@ -496,7 +497,7 @@ class DesignSpace(object):
                         self.dspace, params=newkw.get('params', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
-        font.Font(**newkw)
+        self.fonts.append(font.Font(**newkw))
 
 def make_srcdist(self) :
     res = set(['wscript'])
