@@ -114,9 +114,9 @@ class FontTests(object) :
         self.addTestCmd('waterfall', type='Waterfall')
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2, extracmds=['cmptxtrender'],
-                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t ${SRC[0]} -o ${TGT} --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"')
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t "${SRC[0]}" -o "${TGT}" --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"')
         self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'], shapers=1,
-                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t ${SRC[0]} -L test -L standard -o ${TGT} --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L test -L standard -o "${TGT}" --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
         self.addTestCmd('ftml', type='FTML')
         c = type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
