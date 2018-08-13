@@ -364,6 +364,8 @@ class TestCommand(object) :
             files = self.files if not self.kw.get('notestfiles', False) else [None]
             if self._intermediatesPerTest :
                 for t in self._tests :
+                    if getattr(t._font, 'no_test', False):
+                        continue
                     srcs = []
                     for f in files :
                         s = self.build_intermediate(ctx, f, t, resultsnode)
@@ -387,9 +389,9 @@ class TestCommand(object) :
         (fmode, resultsnode) = self._build_intermediates(ctx, testfiles=testfiles)
         perfont = {}    # dict of tests against rows of results for each font
         for t in self._tests :
-            if t._font not in perfont : perfont[t._font] = {}
-        for t in self._tests :
-            perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot, optional=optional).items()}
+            if not getattr(t._font, 'no_test', False):
+                if t._font not in perfont : perfont[t._font] = {}
+                perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot, optional=optional).items()}
         res = ""
         temps = templates.TestCommand
         for f, v in perfont.items() :
@@ -520,7 +522,7 @@ class FtmlTestCommand(TestCommand) :
         if not os.path.exists(targdisp.abspath()) :
             shutil.copy(os.path.join(os.path.dirname(__file__), "displayftml.html"), targdisp.abspath())
         # go through fonts setting up cp or ttftable type contexts to get copies into the tests/ftml tree
-        for f in self._fonts :
+        for f in [x for x in self._fonts if not getattr(x, 'no_test', False)] :
             fname = str(f.target)
             if self.shapers == 0 :
                 target = fontresults.find_or_declare(fname)
@@ -588,7 +590,7 @@ class FtmlTestCommand(TestCommand) :
         self._xsls.append((xsl, kw))
         fmode = fontmodes[kw.get('fontmode', 'all')]
         if fmode == 0 :         # all
-            fonts = self._fonts
+            fonts = [x for x in self._fonts if not getattr(x, 'no_test', False)]
         elif fmode == 1 :
             fonts = [kw['fonts']]   # the group passed in
         elif fmode == 2 :
