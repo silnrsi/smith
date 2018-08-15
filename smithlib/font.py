@@ -336,7 +336,7 @@ class _Fea(Internal) :
                         srcs.append(bld.path.find_or_declare(font.ap))
                         cmd += "-a ${SRC[" + str(ind) + "].bldpath()} "
                         ind += 1
-                    else:
+                    elif not srctarget.lower().endswith(".ufo"):
                         srctarget = font.ap
                 if hasattr(font, 'classes') :
                     srcs.append(bld.path.find_or_declare(font.classes))
