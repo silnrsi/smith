@@ -466,7 +466,7 @@ class TestCommand(object) :
                     Logs.error("Cannot find corresponding reference to {} in references dir {}/".format(f.target, stddir))
                     raise Errors.BuildError()
                 srcs.append(t)
-        gen = self.cmd.build(ctx, srcs, target, **test.kw)
+        gen = self.cmd.build(ctx, srcs, target, dep = fonts, **test.kw)
         return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
@@ -533,7 +533,7 @@ class FtmlTestCommand(TestCommand) :
                     target = fontresults.find_or_declare(fname.replace(".", "_gr.", 1))
                     ctx(rule="${TTFTABLE} -d opentype ${SRC} ${TGT}", source = f.target, target = target)
                     if fname not in self.fmap : self.fmap[fname] = {}
-                    self.fmap[fname]['gr'] = target
+                    self.fmap.setdefault(fname, {})['gr'] = target
                 if hasattr(f, 'opentype') and not getattr(f.opentype, 'no_test', False) :
                     if hasattr(f, 'script') :
                         scripts = [f.script] if isinstance(f.script, basestring) else f.script
@@ -543,7 +543,7 @@ class FtmlTestCommand(TestCommand) :
                         target = fontresults.find_or_declare(fname.replace(".", "_ot" + ("_"+s if s else "") + ".", 1))
                         rem = ",".join(filter(lambda x:x != s, scripts))
                         ctx(rule="${{TTFTABLE}} -d graphite {} ${{SRC}} ${{TGT}}".format("-s " + rem if rem else ""), source=f.target, target=target)
-                        self.fmap[fname]['ot'+s] = target
+                        self.fmap.setdefault(fname, {})['ot'+(s or "")] = target
         # go through copying all the xsl files as well, sigh
         xslresults = resultsnode.find_or_declare('xsl')
         self.xslmap = {}

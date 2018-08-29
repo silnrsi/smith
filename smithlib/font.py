@@ -169,7 +169,7 @@ class Font(object) :
 
     def build_fontvalidator(self, bld) :
         target = str(self.target) + ".report.xml"
-        bld(rule="${FONTVALIDATOR} ${SRC}; exit 0", source=self.target, target=bld.path.find_or_declare(target), shell=1)
+        bld(rule="${FONTVALIDATOR} -report-in-font-dir -file ${SRC}; exit 0", source=self.target, target=bld.path.find_or_declare(target), shell=1)
 
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
@@ -310,11 +310,11 @@ class _Fea(Internal) :
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
             if hasattr(font, 'buildusingfontforge') :
-                modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", deps = depends, shell = 1)
+                modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", shell = 1)
             elif hasattr(self, 'buildusingsilfont'):
-                modify("${PSFBUILDFEA} " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), deps = depends, shell = 1)
+                modify("${PSFBUILDFEA} " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
             else :
-                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), deps = depends, shell = 1) 
+                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -363,9 +363,9 @@ class _Fea(Internal) :
                     cmd += '--preinclude=' + loc + ' '
                     ind += 1
                 if use_legacy:
-                    bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+                    bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends)
                 else:
-                    bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source)
+                    bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends)
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
