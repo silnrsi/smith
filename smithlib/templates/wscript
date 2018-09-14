@@ -1,67 +1,59 @@
 #!/usr/bin/python2
 # encoding: utf-8
-# this is a smith configuration file
+# this is a smith configuration file - http://scripts.sil.org/smith
 # please adjust this template to your needs
 
-# set the default output folders
-out = "results"
+# set some default output folders (most are already set by default)
 DOCDIR = ["documentation", "web"]
-OUTDIR = "installers"
-ZIPDIR = "releases"
-TESTDIR = "tests"
-TESTRESULTSDIR = 'results/tests'
 STANDARDS = 'tests/reference'
 
-# set the version control system
+# set the version control system for srcdist
 VCS = 'git'
 
-# set the font name, version, licensing and description
+# set the font name and description
 APPNAME = 'Foo'
-VERSION = '1.123'
-BUILDLABEL = "alpha1"
-COPYRIGHT = "Copyright (c) 2016, Acme Inc (http://www.acme.com) with Reserved Font Names RFN1 and RFN2"
-LICENSE = "OFL.txt"
-RESERVEDOFL = "RFN1 and RFN2"
-
+FAMILY = APPNAME
 DESC_SHORT = "This is a short one line description: max 72 char"
 
-# packaging
-DESC_NAME = "Foo"
-DEBPKG = 'fonts-acme-foo'
+# Get version and authorship information from Regular UFO (canonical metadata); must be first function call:
+getufoinfo('source/' + FAMILY + '-Regular' + '.ufo')
+BUILDLABEL = "alpha"
 
+# Set up the FTML tests
+ftmlTest('tests/ftml.xsl', fonts=['../reference/Foo-Regular-1_001.ttf'], addfontindex=1, fontmode='collect')
 
-# script information
-finfo = {
-    "Example.txt" : "script=DFLT",
-    "Example-roman.txt" : "script=latn"
-    }
+# set up the sile tests (using fontproof)
+testCommand('sile', cmd='${SILE} -debug versions -o "${TGT}" "${SRC[0].abspath()}" -f "${SRC[1]}"', extracmds=['sile'],
+            shapers=0, supports=['.sil'], ext='.pdf')
 
 # set the build and test parameters
 TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
 
-for style in ('-Regular', '-Italic', '-Bold', '-Bold-Italic'):
-    font(target=process(APPNAME + style + '.ttf', name("APPNAME + 'DEVEL' ")),
-         source=process(APPNAME + style + '.ufo', cmd("../tools/examplescript.py ${SRC} ${TGT}")),
-         version=VERSION,
-         copyright=COPYRIGHT,
-         license=ofl('RFN1', 'RFN2'),
-         graphite=gdl('generated/' + APPNAME + style + '.gdl',
-                      master=['source/' + 'graphite/' + APPNAME + 'master.gdl'],
-                      make_params=("-m _R -z 8"),
-                      params='-d' '-w3521 -w3530 -q -d -v2',
-                      depends=['source/' + 'graphite/' + 'myfeatures.gdl']),
-         ap='generated/' + APPNAME + style + '.xml',
-         classes='source/classes.xml',
-         opentype=fea('generated/' + APPNAME + style + '.fea',
-                      master='source/' + 'opentype/' + APPNAME + '.fea',
-                      make_params="-m _R -z 8"),
-         script=['latn'],
-         fret=fret(params='-r -b'),
-         woff=woff(params='-v ' + VERSION + ' -m ../source/foo-WOFF-metadata.xml'),
-         typetuner='source/typetuner/feat_all.xml',
-        )
+# set up the build parameters from the designspace file(s)
+for dspace in ('Roman', 'Italic'):
+    designspace('source/' + FAMILY + dspace + '.designspace',
+                target="${DS:FILENAME_BASE}.ttf",
+                opentype=fea("source/opentype/${DS:FILENAME_BASE}.fea",
+                             master="source/opentype/" + FAMILY + ".feax",
+                             ap='source/${DS:FILENAME_BASE}_ap.xml',
+                             make_params="--omitaps='_R'",
+                             params='-m source/${DS:FILENAME_BASE}.map',
+                             depends='source/opentype/' + 'myfoofeatures.fea'),
+                graphite=gdl("source/${DS:FILENAME_BASE}.gdl",
+                             master=['source/' + 'graphite/' + FAMILY + 'master.gdl'],
+                             make_params="-m _R -z 8",
+                             params='-d -w3521 -w3530 -q -v2-e gdlerr-${DS:FILENAME_BASE}.txt ',
+                             depends=['source/graphite/' + 'myfeatures.gdl']),
+                script=['foo', 'DFLT'],
+                ap='generated/' + '${DS:FILENAME_BASE}.xml',
+                classes='source/' + 'classes.xml',
+                fret=fret(params='-r -b'),
+                woff=woff(params='-v ' + VERSION + ' -m ../source/foo-WOFF-metadata.xml'),
+                typetuner='source/typetuner/feat_all.xml',
+    )
 
 
+# declare other local variables or utilities
 def configure(ctx):
     ctx.env['FOO'] = 'foo'
-    ctx.env['BAR'] = '../tools/bar.py'
+    ctx.find_program('foobar')
