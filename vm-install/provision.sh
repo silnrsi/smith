@@ -191,7 +191,8 @@ echo "smith zip"
 echo "smith tarball"
 echo "smith release"
 echo "for more details type: man smith"
-echo "or refer to the smith manual in /usr/share/doc/python-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
+echo "or refer to the smith manual on https://github.com/silnrsi/smith/tree/master/docs/smith"
+echo "or in /usr/share/doc/smith-common/"
 echo " "
 
 
