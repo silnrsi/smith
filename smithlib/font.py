@@ -311,10 +311,10 @@ class _Fea(Internal) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
             if hasattr(font, 'buildusingfontforge') :
                 modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", shell = 1)
-            elif hasattr(self, 'buildusingsilfont'):
-                modify("${PSFBUILDFEA} " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
-            else :
+            elif not getattr(self, 'buildusingsilfont', 'True'):
                 modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
+            else :
+                modify("${PSFBUILDFEA} " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
