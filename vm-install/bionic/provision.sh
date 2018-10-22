@@ -135,7 +135,7 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 apt-get install python-odf python-odf-tools -y -q
 
 # toolchain components installed from packages (both main repositories and PPAs)
-apt-get install libharfbuzz-bin
+apt-get install libharfbuzz-bin -y -q
 
 # smith itself  (only the font side of things)
 echo " "
@@ -148,10 +148,7 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
 # target specific version for (or downgrade) glyphsLib
-apt-get install python-glyphslib=2.2.1-1ubuntu1
-
-# target specific version for (or downgrade) defcon
-apt-get install python-defcon=0.3.4-1+git-snapshot-0~201806292301~ubuntu18.04.1
+apt-get install python-glyphslib=3.1.1-1ubuntu2 -y -q
 
 echo " "
 echo " "
