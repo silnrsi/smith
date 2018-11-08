@@ -8,3 +8,9 @@ c4che
 config.log
 dist
 smith.egg-info
+.*.sw?
+**/results/*
+*.pdf
+*.epub
+dev/
+*.code-workspace

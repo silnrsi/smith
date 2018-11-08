@@ -6,7 +6,7 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from wsiwaf import isList, formatvars
+from wsiwaf import isList, formatvars, create
 import wafplus, font_tests
 import font, templater 
 import os, sys, shutil, time, ConfigParser, fnmatch, subprocess, re
@@ -1085,6 +1085,11 @@ def testCommand(_cmd, **kw) :
     gpackage = Package.global_package()
     gpackage.fontTests.addTestCmd(_cmd, **kw)
 
+def testFile(tgt, *cmds, **kws):
+    c = create(tgt, *cmds, **kws)
+    gpackage = Package.global_package()
+    gpackage.fontTests.addTestFile(c)
+
 def _findvcs(cwd) :
     if cwd == os.path.sep or cwd == '' : return None
     if os.path.exists(os.path.join(cwd, '.git')) :
@@ -1207,7 +1212,7 @@ def onload(ctx) :
     varmap = { 'package': Package, 'subdir': subdir,
         'ftmlTest': ftmlTest, 'testCommand': testCommand,
         'getversion': getversion, 'getufoinfo': getufoinfo,
-        'designspace': DesignSpace }
+        'designspace': DesignSpace, 'testFile' : testFile }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v

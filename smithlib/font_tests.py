@@ -84,7 +84,7 @@ def strsToDicts(aDict) :
             for s in v.split(';') :
                 sk, sv = s.split('=', 1)
                 newv[sk.trim()] = sv.trim()
-            aDict[k] = v
+            aDict[k] = newv
     return aDict
 
 class FontTests(object) :
@@ -110,15 +110,18 @@ class FontTests(object) :
         self._allFontGroups = {}
         self._allTests = {}
         self._testfiles = strsToDicts(testfiles)
+        self.extraFiles = []
         self.addTestCmd('pdfs', type='TeX')
         self.addTestCmd('waterfall', type='Waterfall')
         self.addTestCmd('xfont', type='CrossFont')
         self.addTestCmd('xtest', shapers=2, extracmds=['cmptxtrender'],
-                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper} -t "${SRC[0]}" -o "${TGT}" --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"')
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -L ${shaper} -L ${altshaper}'
+                    ' -t "${SRC[0]}" -o "${TGT}" --copy=fonts --strip "${SRC[1]}" "${SRC[1]}"')
         self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'], shapers=1,
-                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L test -L standard -o "${TGT}" --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L test'
+                    ' -L standard -o "${TGT}" --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
         self.addTestCmd('ftml', type='FTML')
-        c = type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
+        type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
         testtype = kw.pop('type', 'test')
@@ -133,6 +136,9 @@ class FontTests(object) :
             if _cmd not in self._allTests : self._allTests[_cmd] = []
             c = type(_cmd + '_Context', (package.cmdContext,), {'cmd' : _cmd, '__doc__' : "User defined test: " + _cmd})
             self._allTests[_cmd].append(test)
+
+    def addTestFile(self, f):
+        self.extraFiles.append(f)
 
     def addFont(self, font) :
         for ts in self._allTests.values() :
@@ -294,7 +300,8 @@ class TestCommand(object) :
                     scripts = [""]
                 for s in scripts :
                     f = self.getFontGroup('_allFonts_ot' + s, font, once = True) if fmode == 2 else font
-                    if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='ot' and x.kw.get('script', '')==s, self._tests)) :
+                    if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='ot'
+                                                           and x.kw.get('script', '')==s, self._tests)) :
                         self.addTest(f, self.label + "_ot_" + s, shaper='ot', script=s, **self.kw)
         elif self.shapers == 2 :
             scripts = []
@@ -309,7 +316,8 @@ class TestCommand(object) :
                 s1 = 'ot' if c[0] != "" else 'gr'
                 s2 = 'ot' if c[1] != "" else 'gr'
                 f = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True) if fmode == 2 else font
-                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2 and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
+                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2
+                                                       and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
                     self.addTest(f, self.label+"_"+s1+s2+c[0]+c[1], shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.kw)
 
     def addTest(self, font, label, **kw) :
@@ -323,7 +331,14 @@ class TestCommand(object) :
         if self.kw.get('notestfiles', False) : return
         testsdir = self.kw.get('testdir', ctx.env['TESTDIR'] or 'tests')
         if self.files is None :
-            self.files = [TestFile(x) for x in antlist(ctx, testsdir, '**/*') if os.path.splitext(str(x))[1] in self.supports]
+            somefiles = [x for x in antlist(ctx, testsdir, '**/*') if os.path.splitext(str(x))[1] in self.supports]
+            if len(self._fontTests.extraFiles):
+                somefiles.extend(ctx.bldnode.find_or_declare(x) for x in self.fontTest.extraFiles)
+            if somefiles is not None:
+                if testfiles is not None:
+                    self.files = [TestFile(x, **testfiles[x]) if x in testfiles else TestFile(x) for x in somefiles]
+                else:
+                    self.files = [TestFile(x) for x in somefiles]
         if getattr(self, 'addAllTestFiles', False) :
             filelist = antlist(ctx, testsdir, '**/*')
             testset = set(map(str, self.files))
@@ -391,7 +406,8 @@ class TestCommand(object) :
         for t in self._tests :
             if not getattr(t._font, 'no_test', False):
                 if t._font not in perfont : perfont[t._font] = {}
-                perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot, optional=optional).items()}
+                perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot,
+                                                                              optional=optional).items()}
         res = ""
         temps = templates.TestCommand
         for f, v in perfont.items() :
@@ -424,7 +440,8 @@ class TestCommand(object) :
         (_, ext) = os.path.splitext(str(f.node))
         if ext == '.htxt' :
             targ = f.node.change_ext('.txt')
-            ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}", shell = 1, source = f.node, target = targ)
+            ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}",
+                shell = 1, source = f.node, target = targ)
             return targ
         elif ext in self.supports :
             return f.node
