@@ -473,6 +473,29 @@ class Package(object) :
                 return False
         return True
 
+class _DSSource(object):
+    def __init__(self, **kw):
+        for k,v in kw.items():
+            setattr(self, k, v)
+        self.locations = {}
+
+    def addLocation(self, name, values):
+        self.locations[name] = values
+
+    def same(self, other):
+        if len(self.locations) != len(other.locations):
+            return False
+        if self.name != other.name:
+            return False
+        if self.familyname != other.familyname:
+            return False
+        if self.stylename != other.stylename:
+            return False
+        for k, v in self.locations.items():
+            if other.locations[k] != v:
+                return False
+        return True
+
 class DesignSpace(object):
     _modifiermap = {'DASH': lambda x: x.replace(' ', '-'),
                     'BASE': lambda x: os.path.splitext(os.path.basename(x))[0]}
@@ -482,10 +505,17 @@ class DesignSpace(object):
         self.kw = kw
         self.fonts = []
         self.makefonts()
+        self.isbuilt = False
 
     def makefonts(self):
         self.doc = et.parse(self.dspace)
-        for inst in self.doc.getroot().find('instances'):
+        self.srcs = {}
+        for src in self.doc.getroot().findall('.//sources/source'):
+            sfont = _DSSource(**src.attrib)
+            for d in src.findall('./location/dimension'):
+                sfont.addLocation(d.get('name'), [int(d.get('xvalue',"0")), int(d.get("yvalue","0"))])
+            self.srcs[sfont.name] = sfont
+        for inst in self.doc.getroot().findall('instances/instance'):
             self._makefont(inst, True)
 
     def _makefont(self, inst, isInstance):
@@ -498,8 +528,17 @@ class DesignSpace(object):
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                newkw['source'] = font.DesignInstance(specialvars['DS:FILE'], specialvars['DS:NAME'],\
-                        self.dspace, params=newkw.get('params', ''))
+                if 'name' in inst.attrib:
+                    fsrc = _DSSource(**inst.attrib)
+                    for d in inst.findall("./location/dimension"):
+                        fsrc.addLocation(d.get('name'), [int(d.get('xvalue',"0")), int(d.get("yvalue","0"))])
+                    if self.srcs[inst.get('name')].same(fsrc) \
+                            and (inst.find('kern') is None or not len(inst.find('kern'))) \
+                            and (inst.find('info') is None or not len(inst.find('info'))):
+                        newkw['source'] = os.path.join(base, self.srcs[inst.get('name')].filename)
+                if 'source' not in newkw:
+                    newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
+                                                          self.dspace, params=newkw.get('params', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
         self.fonts.append(font.Font(**newkw))

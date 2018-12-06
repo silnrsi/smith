@@ -177,7 +177,8 @@ class Font(object) :
 class DesignInstance(object):
 
     noap = True
-    def __init__(self, src, name, dspace, *k, **kw):
+    def __init__(self, design, src, name, dspace, *k, **kw):
+        self.design = design
         self.target = src
         self.name = name
         self.dspace = dspace
