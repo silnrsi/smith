@@ -532,9 +532,13 @@ class DesignSpace(object):
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
                         fsrc.addLocation(d.get('name'), [int(d.get('xvalue',"0")), int(d.get("yvalue","0"))])
-                    if self.srcs[inst.get('name')].same(fsrc) \
-                            and (inst.find('kern') is None or not len(inst.find('kern'))) \
-                            and (inst.find('info') is None or not len(inst.find('info'))):
+                    mightbeSame = True
+                    for sub in ('kern', 'glyphs', 'info', 'lib', 'stylemapfamilyname',
+                                'stylemapstylename', 'familyname', 'stylename'):
+                        if inst.find(sub) is not None and len(inst.find(sub)) > 0:
+                            mightbeSame = False
+                            break
+                    if mightbeSame and self.srcs[inst.get('name')].same(fsrc):
                         newkw['source'] = os.path.join(base, self.srcs[inst.get('name')].filename)
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
