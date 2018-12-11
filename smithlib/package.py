@@ -513,7 +513,7 @@ class DesignSpace(object):
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
-                sfont.addLocation(d.get('name'), [int(d.get('xvalue',"0")), int(d.get("yvalue","0"))])
+                sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
             self.srcs[sfont.name] = sfont
         for inst in self.doc.getroot().findall('instances/instance'):
             self._makefont(inst, True)
@@ -531,14 +531,15 @@ class DesignSpace(object):
                 if 'name' in inst.attrib:
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
-                        fsrc.addLocation(d.get('name'), [int(d.get('xvalue',"0")), int(d.get("yvalue","0"))])
+                        fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
                     mightbeSame = True
                     for sub in ('kern', 'glyphs', 'info', 'lib', 'stylemapfamilyname',
                                 'stylemapstylename', 'familyname', 'stylename'):
                         if inst.find(sub) is not None and len(inst.find(sub)) > 0:
                             mightbeSame = False
                             break
-                    if mightbeSame and self.srcs[inst.get('name')].same(fsrc):
+                    srcinst = self.srcs.get(inst.get('name'), None)
+                    if mightbeSame and srcinst is not None and srcinst.same(fsrc):
                         newkw['source'] = os.path.join(base, self.srcs[inst.get('name')].filename)
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
