@@ -23,6 +23,7 @@
 *.cfg text eol=lf
 *.css text eol=lf
 *.fea text eol=lf
+*.feax text eol=lf
 *.ftml text eol=lf
 *.gdl text eol=lf
 *.gdh text eol=lf
