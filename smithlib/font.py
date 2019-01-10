@@ -104,16 +104,17 @@ class Font(object) :
         targetnode = bld.path.find_or_declare(self.target)
         tarname = None
         srcnode = bld.path.find_or_declare(self.source)
+        parms = getattr(self, 'params', "")
         if self.source.endswith(".ttf") :
-            bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
+            bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
                 bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, shell=True)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target + "_sfd")
-            bgen = bld(rule = "${FONTFORGE} -nosplash -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.encoding=\"Original\"; f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
+            bgen = bld(rule = "${FONTFORGE} " + parms + " -nosplash -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.encoding=\"Original\"; f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
