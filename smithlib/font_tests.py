@@ -1,15 +1,16 @@
-#!/usr/bin/python2
+#!/usr/bin/python
 ''' font test module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
 __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
 
-
+try: unicode
+except NameError:
+    unicode = str
 
 from waflib import Context, Utils, Node, Errors, Logs
-import package, templates
-import wsiwaf
+from smithlib import templates
 import os, shutil, codecs, re
 from functools import partial
 from itertools import combinations
@@ -25,19 +26,19 @@ def curry_fn(fn, *parms, **kw) :
     return res
 
 def antlist(ctx, testdir, globs) :
-    if isinstance(globs, basestring) :
+    if isinstance(globs, str) :
         globs = [globs]
     found = ctx.path.find_node(testdir)
     if found : return found.ant_glob(globs)
     return []
 
 def antdict(ctx, testdir, globs) :
-    if isinstance(globs, basestring) :
+    if isinstance(globs, str) :
         globs = {globs : None}
     elif isinstance(globs, list) or isinstance(globs, tuple) :
         globs = dict.fromkeys(globs)
     res = {}
-    for f, v in globs.items() :
+    for f, v in list(globs.items()) :
         for n in ctx.path.ant_glob(testdir + f) :
             res[n] = v
     return res
@@ -55,7 +56,7 @@ def initdefaults(self, ctx, **info) :
             setattr(self, k, ctx.env[v[0]] or v[1])
 
 def texprotect(s) :
-    return re.sub(ur'([_&])', ur'\\\1', s)
+    return re.sub(r'([_&])', r'\\\1', s)
 
 
 class FontGroup(list) :
@@ -79,7 +80,7 @@ class FontGroup(list) :
 def strsToDicts(aDict) :
     if aDict is None : return None
     for k, v in aDict.items() :
-        if isinstance(v, basestring) :
+        if isinstance(v, str) :
             newv = {}
             for s in v.split(';') :
                 sk, sv = s.split('=', 1)
@@ -107,6 +108,7 @@ class FontTests(object) :
         return fg
 
     def __init__(self, testfiles = None) :
+        from smithlib import package
         self._allFontGroups = {}
         self._allTests = {}
         self._testfiles = strsToDicts(testfiles)
@@ -126,6 +128,7 @@ class FontTests(object) :
         type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
+        from smithlib import package
         testtype = kw.pop('type', 'test')
         if 'label' not in kw :
             i = len(self._allTests.get(_cmd, []))
@@ -167,7 +170,7 @@ class FontTests(object) :
         for c in cmds :
             iname = c + "_index.html"
             tests = self._allTests.get(c, [])
-            if not len(tests) or not any(map(lambda x: x.has_work(ctx, self._testfiles), tests)) : continue
+            if not len(tests) or not any(x.has_work(ctx, self._testfiles) for x in tests) : continue
             resultsnode = ctx.bldnode.find_or_declare(os.path.join(resultsdir, iname))
             res = templates.FontTests['index_head']
             temp = ""
@@ -194,7 +197,7 @@ class FontTests(object) :
         ctx.find_program('mono', var="MONO", mandatory=False)
         ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
         res = set()
-        for ts in self._allTests.values() :
+        for ts in list(self._allTests.values()) :
             for t in ts :
                 res.update(t.get_build_tools(ctx))
         return res
@@ -204,7 +207,7 @@ class TestFile(object) :
 
     def __init__(self, node, **kw) :
         self.node = node
-        name = node if isinstance(node, basestring) else node.name
+        name = node if isinstance(node, str) else node.name
         for k, v in kw.items() : setattr(self, k, v)
         # parse filename
         if 'lang' not in kw :
@@ -250,6 +253,7 @@ class TestCommand(object) :
     _defaults = {}
 
     def __init__(self, _cmd, fontTests, **kw) :
+        from smithlib import wsiwaf
         self._subcmd = _cmd
         if not hasattr(self, 'shapers') : self.shapers = 1
         self.ext = '.html'
@@ -263,7 +267,7 @@ class TestCommand(object) :
             del kw['coverage']
         if 'label' not in kw : kw['label'] = _cmd
         if 'cmd' in kw :
-            if isinstance(kw['cmd'], basestring):
+            if isinstance(kw['cmd'], str):
                 kw['cmd'] = wsiwaf.undeffered(wsiwaf.cmd)(kw['cmd'])()
             else:
                 kw['cmd'] = kw['cmd']()
@@ -293,24 +297,24 @@ class TestCommand(object) :
         elif self.shapers == 1 :
             if hasattr(font, 'graphite') :
                 f = self.getFontGroup('_allFonts_gr', font, once = True) if fmode == 2 else font
-                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='gr', self._tests)) :
+                if fmode == 0 or not any(x._font == f and x.kw.get('shaper', '')=='gr' for x in self._tests) :
                     self.addTest(f, self.label + "_gr", shaper = 'gr', **self.kw)
             if hasattr(font, 'opentype') and not getattr(font.opentype, 'no_test', False):
                 if hasattr(font, 'script') :
-                    scripts = [font.script] if isinstance(font.script, basestring) else font.script
+                    scripts = [font.script] if isinstance(font.script, str) else font.script
                 else :
                     scripts = [""]
                 for s in scripts :
                     f = self.getFontGroup('_allFonts_ot' + s, font, once = True) if fmode == 2 else font
-                    if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')=='ot'
-                                                           and x.kw.get('script', '')==s, self._tests)) :
+                    if fmode == 0 or not any(x._font == f and x.kw.get('shaper', '')=='ot'
+                                                          and x.kw.get('script', '')==s for x in self._tests) :
                         self.addTest(f, self.label + "_ot_" + s, shaper='ot', script=s, **self.kw)
         elif self.shapers == 2 :
             scripts = []
             if hasattr(font, "graphite") :
                 scripts.append("")
             if hasattr(font, "opentype") and hasattr(font, "script") :
-                if isinstance(font.script, basestring) :
+                if isinstance(font.script, str) :
                     scripts.append(font.script)
                 else :
                     scripts.extend(font.script)
@@ -318,8 +322,8 @@ class TestCommand(object) :
                 s1 = 'ot' if c[0] != "" else 'gr'
                 s2 = 'ot' if c[1] != "" else 'gr'
                 f = self.getFontGroup('_allFonts_' + s1+s2+c[0]+c[1], font, once = True) if fmode == 2 else font
-                if fmode == 0 or not any(map(lambda x: x._font == f and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2
-                                                       and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1], self._tests)) :
+                if fmode == 0 or not any(x._font == f and x.kw.get('shaper', '')==s1 and x.kw.get('altshaper', '')==s2
+                                                      and x.kw.get('script', '')==c[0] and x.kw.get('altscript', '')==c[1] for x in self._tests) :
                     self.addTest(f, self.label+"_"+s1+s2+c[0]+c[1], shaper=s1, altshaper=s2, script=c[0], altscript=c[1], **self.kw)
 
     def addTest(self, font, label, **kw) :
@@ -418,9 +422,9 @@ class TestCommand(object) :
             allkeys = sorted(v.keys(), key=lambda x: x.label)
             for t in allkeys :
                 res += temps['head_row'].format(t.label)
-                allrows.update(v[t].keys())
+                allrows.update(list(v[t].keys()))
             res += temps['head_row_end']
-            for i in sorted(allrows) :
+            for i in sorted(allrows, key=str) :
                 res += temps['row_head'].format(str(i))
                 for t in allkeys :
                     res += temps['cell_head']
@@ -453,7 +457,7 @@ class TestCommand(object) :
     def build_test(self, ctx, test, targetdir, resultsroot, optional=False) :
         """ High level driver to run all the tests. See do_build for the subclassable method """
         def tostr(x) :
-            if isinstance(x, basestring) :
+            if isinstance(x, str) :
                 return x
             else :
                 return x.path_from(resultsroot)
@@ -498,7 +502,7 @@ class TestCommand(object) :
 
     def get_sources(self, ctx) :
         self._setFiles(ctx, None)
-        res = map(lambda x:x.node.path_from(ctx.srcnode), self.files)
+        res = [x.node.path_from(ctx.srcnode) for x in self.files]
         self.files = None
         self._filesLoaded = False
         return res
@@ -519,11 +523,11 @@ class FtmlTestCommand(TestCommand) :
 
     def _make_ftml(self, task) :
         temps = templates.FtmlTestCommand
-        ftmldat = temps['head']
+        ftmldat = unicode(temps['head'])
         testf = codecs.open(task.inputs[0].abspath(), encoding='utf-8')
         count = 1
         for l in testf.readlines() :
-            ftmldat += temps['content'].format(count, l.strip())
+            ftmldat += unicode(temps['content']).format(count, l.strip())
             count += 1
         testf.close()
         ftmldat += temps['tail']
@@ -555,12 +559,12 @@ class FtmlTestCommand(TestCommand) :
                     self.fmap.setdefault(fname, {})['gr'] = target
                 if hasattr(f, 'opentype') and not getattr(f.opentype, 'no_test', False) :
                     if hasattr(f, 'script') :
-                        scripts = [f.script] if isinstance(f.script, basestring) else f.script
+                        scripts = [f.script] if isinstance(f.script, str) else f.script
                     else :
                         scripts = [None]
                     for s in scripts :
                         target = fontresults.find_or_declare(fname.replace(".", "_ot" + ("_"+s if s else "") + ".", 1))
-                        rem = ",".join(filter(lambda x:x != s, scripts))
+                        rem = ",".join(x for x in scripts if x != s)
                         ctx(rule="${{TTFTABLE}} -d graphite {} ${{SRC}} ${{TGT}}".format("-s " + rem if rem else ""), source=f.target, target=target)
                         self.fmap.setdefault(fname, {})['ot'+(s or "")] = target
         # go through copying all the xsl files as well, sigh
@@ -628,7 +632,7 @@ class FtmlTestCommand(TestCommand) :
                     self._tests.append(Test(allf, kw['name'] + "_gr", shaper='gr', **kw))
                 if hasattr(f, 'opentype') and not getattr(f.opentype, 'no_test', False):
                     if hasattr(f, 'script') :
-                        scripts = [f.script] if isinstance(f.script, basestring) else f.script
+                        scripts = [f.script] if isinstance(f.script, str) else f.script
                     else :
                         scripts = [""]
                     for s in scripts :

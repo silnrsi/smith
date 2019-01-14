@@ -105,7 +105,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		if not Context.run_dir:
 			if wscript in lst:
 				Context.run_dir = cur
-                break       # found it so quit searching
+				break       # found it so quit searching
 
 		next = os.path.dirname(cur)
 		if next == cur:

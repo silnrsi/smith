@@ -313,16 +313,10 @@ class BuildContext(Context.Context):
 		try:
 			waflib.Node.pickle_lock.acquire()
 			waflib.Node.Nod3 = self.node_class
-
-			f = None
-			try:
-				f = open(db + '.tmp', 'wb')
-				cPickle.dump(data, f)
-			finally:
-				if f:
-					f.close()
+			x = cPickle.dumps(data)
 		finally:
 			waflib.Node.pickle_lock.release()
+		Utils.writef(db + '.tmp', x, m="wb")
 
 		try:
 			st = os.stat(db)

@@ -140,6 +140,31 @@ def readf(fname, m='r'):
 		f.close()
 	return txt
 
+def writef(fname, data, m='w', encoding='latin-1'):
+	"""
+	Writes an entire file from a string.
+	See also :py:meth:`waflib.Node.Node.writef`::
+
+		def build(ctx):
+			from waflib import Utils
+			txt = Utils.writef(self.path.make_node('i_like_kittens').abspath(), 'some data')
+			self.path.make_node('i_like_kittens').write('some data')
+
+	:type  fname: string
+	:param fname: Path to file
+	:type   data: string
+	:param  data: The contents to write to the file
+	:type  m: string
+	:param m: Open mode
+	:type encoding: string
+	:param encoding: encoding value, only used for python 3
+	"""
+	if sys.hexversion > 0x3000000 and not 'b' in m:
+		data = data.encode(encoding)
+		m += 'b'
+	with open(fname, m) as f:
+		f.write(data)
+
 def h_file(filename):
 	"""
 	Compute a hash value for a file by using md5. This method may be replaced by

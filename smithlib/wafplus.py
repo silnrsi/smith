@@ -145,7 +145,7 @@ def make_tempnode(n, bld) :
     path = ".tmp" + os.sep + n.get_bld().bld_dir()
     tdir = bld.bldnode.abspath() + os.sep + path
     if not os.path.exists(tdir) :
-        os.makedirs(tdir, 0771)
+        os.makedirs(tdir, 0o771)
     res = bld.bldnode.find_or_declare(path + os.sep + n.name)
     return res
 
@@ -163,14 +163,14 @@ def build_modifys(bld) :
             else :
                 return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
-        for i in sorted(range(len(item)), cmp=local_cmp) :
+        for i in sorted(range(len(item)), key=lambda x:('late' in item[x][3], x)):
             tmpnode = make_tempnode(outnode, bld)
             if 'nochange' in item[i][3] :
                 kw = {}
             else :
                 kw = {'tempcopy' : [tmpnode, outnode]}
             temp = dict(kw)
-            if isinstance(item[i][0], basestring) :
+            if isinstance(item[i][0], str) :
                 cmd = item[i][0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
                 if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             else :
@@ -248,8 +248,8 @@ def add_sort_tasks(base) :
                         roots.append(a)
         for t in tasks :
             if icntmap.get(id(t), 0) :
-                print "Circular dependency: " + str(t)
-                print "   comes after: " + str(t.run_after)
+                print("Circular dependency: " + str(t))
+                print("   comes after: " + str(t.run_after))
                 res.append(t)
         Logs.debug("order: " + "\n".join(map(repr,res)))
         for r in res :
@@ -355,7 +355,7 @@ def add_unicode_exec() :
         if isinstance(cmd, str) :
             cmd = cmd.decode('utf_8')
         elif isinstance(cmd, list) :
-            cmd = map (operator.methodcaller('decode', 'utf_8'), cmd)
+            cmd = list(map (operator.methodcaller('decode', 'utf_8'), cmd))
         old_exec(self, cmd, **kw)
 
     Context.Context.exec_command = unicode_exec_command
@@ -381,17 +381,17 @@ def patch_waf() :
             Node.find_resource
             Utils.h_file
     """
-    def find_resource(self, lst) :
-		if isinstance(lst, str):
-			lst = [x for x in Node.split_path(lst) if x and x != '.']
+    def find_resource(self, lst):
+        if isinstance(lst, str):
+            lst = [x for x in Node.split_path(lst) if x and x != '.']
 
-		node = self.get_bld().search(lst)
-		if not node:
-			self = self.get_src()
-			node = self.search(lst)
-			if not node:
-				node = self.find_node(lst)
-		return node
+        node = self.get_bld().search(lst)
+        if not node:
+            self = self.get_src()
+            node = self.search(lst)
+            if not node:
+                node = self.find_node(lst)
+        return node
     Node.Node.find_resource = find_resource
 
     def h_file(filename) :
@@ -399,9 +399,9 @@ def patch_waf() :
         if os.path.isdir(filename) :
             for (dp, ds, fs) in os.walk(filename) :
                 st = os.stat(dp)
-                m.update(str(st.st_mtime))
-                m.update(str(st.st_size))
-                m.update(dp)
+                m.update(str(st.st_mtime).encode("utf-8"))
+                m.update(str(st.st_size).encode("utf-8"))
+                m.update(dp.encode("utf-8"))
         else :
             f = open(filename, 'rb')
             try :
