@@ -450,21 +450,22 @@ class Package(object) :
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
 
-        def docwalker(top, dname, fname) :
-            i = 0
-            if dname[i].startswith(".") :
-                del dname[i]
-            else :
-                i += 1
-            res.update([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
+        def docwalker(top, dpath, dname, fname) :
+            if len(dname):
+                while dname[0].startswith("."):
+                    dname.pop(0)
+            res.update([(top, os.path.relpath(os.path.join(dpath, x), top)) for x in fname
+                        if not x.startswith(".") and os.path.isfile(os.path.join(dpath, x))])
         if self.docdir :
             for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
                 y = bld.bldnode.search(docdir)
                 if y is not None :
-                    os.path.walk(y.abspath(), docwalker, bld.bldnode.abspath())
+                    for x in os.walk(y.abspath(), topdown=True):
+                        docwalker(bld.bldnode.abspath(), *x)
                 y = bld.srcnode.find_node(docdir)
                 if y is not None :
-                    os.path.walk(y.abspath(), docwalker, bld.srcnode.abspath())
+                    for x in os.walk(y.abspath(), topdown=True):
+                        docwalker(bld.srcnode.abspath(), *x)
         return res
 
     def isTextFile(self, f) :
