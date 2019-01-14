@@ -522,7 +522,8 @@ class DesignSpace(object):
     def _makefont(self, inst, isInstance):
         base = os.path.dirname(self.dspace)
         specialvars = dict(("DS:"+k.upper(), v) for k,v in inst.attrib.items())
-        specialvars.update((k+"_"+mk, mv(v)) for k,v in specialvars.items() for mk, mv in self._modifiermap.items())
+        copyvars = specialvars.copy()
+        specialvars.update((k+"_"+mk, mv(v)) for k,v in copyvars.items() for mk, mv in self._modifiermap.items())
         specialvars.update(("DS:AXIS_"+e.get("name", "").upper(), e.get("xvalue", "")) for e in inst.findall('location/dimension'))
         specialvars['DS:FILE'] = os.path.join(base, specialvars['DS:FILENAME'])
         newkw = dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items()))
