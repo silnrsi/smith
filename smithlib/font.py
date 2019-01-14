@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+#!/usr/bin/python
+from __future__ import absolute_import, print_function
 ''' font module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -7,9 +8,9 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Context, Logs
-from wafplus import modify, ismodified
-from wsiwaf import get_all_sources, initobj, initval, defer, undeffered
-import font_tests, package, keyboard
+from smithlib.wafplus import modify, ismodified
+from smithlib.wsiwaf import get_all_sources, initobj, initval, defer, undeffered
+import smithlib.font_tests as font_tests
 import sys, os, re
 from random import randint
 
@@ -19,13 +20,14 @@ class Font(object) :
     fonts = []
 
     def __init__(self, *k, **kw) :
+        from smithlib import package
         if not 'id' in kw :
             kw['id'] = kw['test_suffix'] if 'test_suffix' in kw else kw['target'].lower().replace('.ttf','')
         self.volt_params = ""
         self.gdl_params = ""
 
         initobj(self, kw)
-        if not isinstance(self.source, basestring) :
+        if not isinstance(self.source, str) :
             self.legacy = self.source
             self.source = self.legacy.target
         self.fonts.append(self)
@@ -69,7 +71,7 @@ class Font(object) :
         if hasattr(self, 'buildusingfontforge') :
             res.add('fontforge')
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
-            if x and not isinstance(x, basestring) :
+            if x and not isinstance(x, str) :
                 res.update(x.get_build_tools(ctx))
         res.update(progset)
         return res
@@ -306,7 +308,7 @@ class _Fea(Internal) :
     def build(self, bld, target, tgen, font) :
         depends = getattr(self, 'depends', [])
         def aspythonstr(s) :
-            return '"' + re.sub(ur"([\\'])", ur"\\\1", s) + '"'
+            return '"' + re.sub(r"([\\'])", r"\\\1", s) + '"'
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
             if hasattr(font, 'buildusingfontforge') :
@@ -320,7 +322,7 @@ class _Fea(Internal) :
         if self.master : srcs.append(self.master)
         keeps = ''
         if hasattr(self, 'keep_feats') :
-            if isinstance(self.keep_feats, basestring) :
+            if isinstance(self.keep_feats, str) :
                 keeps = aspythonstr(self.keep_feats)
             else :
                 keeps = ", ".join(map(aspythonstr, self.keep_lookups))
@@ -467,9 +469,9 @@ class _Ofl(object) :
         if f is not None :
             dottfname("-t", "13", "-s", f.abspath())
         elif hasattr(self, 'short') :
-            licensetxt = u"This Font Software is licensed under the SIL Open Font License, Version 1.1"
+            licensetxt = "This Font Software is licensed under the SIL Open Font License, Version 1.1"
             if len(self.reserve) :
-                licensetxt += u" with Reserved Font Names " + " and ".join(map(lambda x: '"%s"' % x, self.reserve))
+                licensetxt += " with Reserved Font Names " + " and ".join(['"%s"' % x for x in self.reserve])
             dottfname("-t", "13", "-n", licensetxt)
         else :
             fname = make_tempnode(bld)
@@ -484,17 +486,17 @@ class _Ofl(object) :
 Ofl = defer(_Ofl)
 
 def make_ofl(fname, names, version, copyright = None, template = None) :
-    oflh = file(fname, "w+")
+    oflh = open(fname, "w+")
     # if copyright : oflh.write(copyright + "  (" + os.getenv('DEBEMAIL') + "), \n")
     # if copyright : oflh.write(copyright +"  (<URL|email>), \n")
     if copyright : oflh.write(copyright + "\n") # URL/email is not required and often doesn't exist. Find a better way to handle it if given.
     if names :
-        oflh.write("with Reserved Font Name " + " and ".join(map(lambda x: '"%s"' % x, names)) + ".\n")
+        oflh.write("with Reserved Font Name " + " and ".join(['"%s"' % x for x in names]) + ".\n")
     if not template :
         oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
         thisdir = os.path.dirname(__file__)
         template = os.path.join(thisdir, oflbasefn)
-    oflbaseh = file(template, "r")
+    oflbaseh = open(template, "r")
     for l in oflbaseh.readlines() : oflh.write(l)
     oflbaseh.close()
     oflh.close()

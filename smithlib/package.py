@@ -1,4 +1,5 @@
 #!/usr/bin/python2
+from __future__ import absolute_import, print_function
 ''' package module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -6,10 +7,9 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from wsiwaf import isList, formatvars, create
-import wafplus, font_tests
-import font, templater 
-import os, sys, shutil, time, ConfigParser, fnmatch, subprocess, re
+from smithlib.wsiwaf import isList, formatvars, create
+from smithlib import wafplus, font_tests, font, templater
+import os, sys, shutil, time, configparser, fnmatch, subprocess, re
 from xml.etree import ElementTree as et
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
@@ -424,10 +424,10 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.extend(p.get_built_files(c)), onlyfn = True)
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
+                res.extend((bld.out_dir, x) for x in f.get_targets(bld))
         for k in self.keyboards :
             if not hasattr(k, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
+                res.extend((bld.out_dir, x) for x in k.get_targets(bld))
         return res
 
     def get_files(self, bld) :
@@ -441,7 +441,7 @@ class Package(object) :
         res = set()
         self.subrun(bld, lambda p, c: res.update(p.get_files(c)), onlyfn = True)
 
-        res.update(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
+        res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
 
@@ -489,7 +489,7 @@ class DesignSpace(object):
         specialvars.update((k+"_"+mk, mv(v)) for k,v in specialvars.items() for mk, mv in self._modifiermap.items())
         specialvars.update(("DS:AXIS_"+e.get("name", "").upper(), e.get("xvalue", "")) for e in inst.findall('location/dimension'))
         specialvars['DS:FILE'] = os.path.join(base, specialvars['DS:FILENAME'])
-        newkw = dict((k, formatvars(v, specialvars)) for k,v in self.kw.items())
+        newkw = dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items()))
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
@@ -709,26 +709,26 @@ class versionContext(Context.Context) :
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
-class startContext(Context.Context) : 
+class startContext(Context.Context): 
     """start: create project template folder structure"""
     cmd = 'start'
-    def execute(self) :
+    def execute(self):
         thisdir = os.path.join(os.path.dirname(__file__), 'templates')
-        folders =  ('documentation', 'tools', 'tests', 'web')
-        for f in folders :
+        folders = ('documentation', 'tools', 'tests', 'web')
+        for f in folders:
             if not os.path.exists(f):
                 os.mkdir(f)
-                print "Updating missing template folder: %s" % (f)
+                print("Updating missing template folder: {}".format(f))
         files = dict([(x, x) for x in ('wscript', 'OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt', 'README.md', 'README.txt')])
         files.update([('dot.gitattributes', '.gitattributes'), ('dot.gitignore', '.gitignore')])
-        for f,o in files.items() :
+        for f,o in list(files.items()) :
             if not os.path.exists(o):
                 try:
                     shutil.copy(os.path.join(thisdir, f), o)
                 except EnvironmentError:
-                    print "Error, could not copy/update %s %s" % (f, o)
+                    print("Error, could not copy/update %s %s" % (f, o))
                 else:
-                    print "Updating missing template file: %s"  % (f)
+                    print("Updating missing template file: %s"  % (f))
         Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
 
@@ -766,7 +766,7 @@ class srcdistcheckContext(Build.BuildContext) :
             Logs.error("Tarball not found. Run smith srcdist first.")
         # tarbase is directory to configure and build
         ret = Utils.subprocess.Popen([sys.argv[0], 'configure', 'build'], cwd=tarbase).wait()
-	if ret:
+        if ret:
             raise Errors.WafError('srcdistcheck failed with code %i' % ret)
 
         shutil.rmtree(tarbase)
@@ -977,7 +977,7 @@ override_dh_builddeb:
         for k, v in fileinfo.items() :
             f = file(os.path.join('debian', k), 'w')
             f.write(v + "\n")
-            if k == 'rules' : os.fchmod(f.fileno(), 0775)
+            if k == 'rules' : os.fchmod(f.fileno(), 0o775)
             f.close()
 
         # docs file  (probably needs a conditional on web/ and sources/ too)
@@ -1031,7 +1031,7 @@ class graideContext(Build.BuildContext) :
                     makegdl = ''
                 master = os.path.join('..', f.graphite.master) if hasattr(f.graphite, 'master') else ''
                 fname = os.path.join(graide, '{}.cfg'.format(base))
-                cfg = ConfigParser.RawConfigParser()
+                cfg = configparser.RawConfigParser()
                 if os.path.exists(fname) :
                     cfg.read(fname)
                 changed = False
@@ -1113,16 +1113,16 @@ def getversion(buildformat="dev-{vcssha:.6}{vcsmodified}") :
         results['vcstype'] = 'svn' if os.path.exists(os.path.join(curdir, '.svn')) else _findvcs(curdir)
 
         if results['vcstype'] == 'git' :
-            vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+            vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode("ascii")
             results['vcsmodified'] = 'M' if Utils.subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) else ""
         elif results['vcstype'] == 'hg' :
-            vcssha = Utils.subprocess.check_output(['hg', 'identify', '--id']).strip()
+            vcssha = Utils.subprocess.check_output(['hg', 'identify', '--id']).decode("ascii").strip()
             if vcssha.endswith('+') :
                 vcssha = vcssha[:-1]
                 results['vcsmodified'] = 'M'
         elif results['vcstype'] == 'svn' :
             # (only in svn 1.9 and above) vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
-            vcssha = Utils.re.search(ur'Revision: (\d+)', Utils.subprocess.check_output(['svn', 'info'])).group(1)
+            vcssha = Utils.re.search(r'Revision: (\d+)', Utils.subprocess.check_output(['svn', 'info'])).group(1).decode("ascii")
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
     results['vcssha'] = vcssha.strip()
     results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
@@ -1135,12 +1135,12 @@ def getufoinfo(ufosrc):
     majver = 0
     minver = 0
     extra = ""
-    m = re.match(ur'^version (\d+)\.(\d{3});?\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
+    m = re.match(r'^version (\d+)\.(\d{3});?\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
     if m is not None:
         majver = int(m.group(1))
         minver = int(m.group(2))
         if m.group(3) is not None:
-            extra = re.sub(ur'\s*dev-.*?\s*', '', m.group(3), flags=re.I)
+            extra = re.sub(r'\s*dev-.*?\s*', '', m.group(3), flags=re.I)
     if 'versionMajor' in info:
         majver = int(info['versionMajor'])
     if 'versionMinor' in info:
@@ -1167,7 +1167,7 @@ def add_configure() :
         currpackages = Package.packages()
         gm = Context.g_module
         rdir = Context.run_dir
-        for k, v in Package.packdict.items() :
+        for k, v in list(Package.packdict.items()) :
             Package.initPackages(v, None)
             c = ctx.__class__()
             c.top_dir = os.path.join(ctx.srcnode.abspath(), k)
