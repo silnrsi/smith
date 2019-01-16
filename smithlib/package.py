@@ -705,7 +705,7 @@ class versionContext(Context.Context) :
     cmd = 'version'
     def execute(self) :
         Logs.warn('Version of smith currently installed (as a package):')
-        Utils.subprocess.Popen("apt-cache show smith", shell = 1).wait()
+        Utils.subprocess.Popen("apt-cache policy smith-font | grep Installed", shell = 1).wait()
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
