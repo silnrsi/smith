@@ -123,6 +123,8 @@ class FontTests(object) :
                 cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L test'
                     ' -L standard -o "${TGT}" --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
         self.addTestCmd('ftml', type='FTML')
+        self.addTestCmd('sile', cmd='${SILE} -o "${TGT}" "${SRC[0].abspath()}" -f "${SRC[1]}"', extracmds=['sile'],
+                shapers=0, supports=['.sil'], ext='.pdf')
         type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
