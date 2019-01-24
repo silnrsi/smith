@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 from __future__ import absolute_import, print_function
 ''' package module '''
 __url__ = 'http://github.com/silnrsi/smith'
