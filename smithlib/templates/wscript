@@ -7,9 +7,6 @@
 DOCDIR = ["documentation", "web"]
 STANDARDS = 'tests/reference'
 
-# set the version control system for srcdist
-VCS = 'git'
-
 # set the font name and description
 APPNAME = 'Foo'
 FAMILY = APPNAME
@@ -22,10 +19,6 @@ BUILDLABEL = "alpha"
 # Set up the FTML tests
 ftmlTest('tests/ftml.xsl', fonts=['../reference/Foo-Regular-1_001.ttf'], addfontindex=1, fontmode='collect')
 
-# set up the sile tests (using fontproof)
-testCommand('sile', cmd='${SILE} -debug versions -o "${TGT}" "${SRC[0].abspath()}" -f "${SRC[1]}"', extracmds=['sile'],
-            shapers=0, supports=['.sil'], ext='.pdf')
-
 # set the build and test parameters
 TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
 
@@ -33,13 +26,13 @@ TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
 for dspace in ('Roman', 'Italic'):
     designspace('source/' + FAMILY + dspace + '.designspace',
                 target="${DS:FILENAME_BASE}.ttf",
-                opentype=fea("source/opentype/${DS:FILENAME_BASE}.fea",
+                opentype=fea("generated/${DS:FILENAME_BASE}.fea",
                              master="source/opentype/" + FAMILY + ".feax",
                              ap='source/${DS:FILENAME_BASE}_ap.xml',
                              make_params="--omitaps='_R'",
                              params='-m source/${DS:FILENAME_BASE}.map',
                              depends='source/opentype/' + 'myfoofeatures.fea'),
-                graphite=gdl("source/${DS:FILENAME_BASE}.gdl",
+                graphite=gdl("generated/${DS:FILENAME_BASE}.gdl",
                              master=['source/graphite/' + FAMILY + 'master.gdl'],
                              make_params="-m _R -z 8",
                              params='-d -w3521 -w3530 -q -v2-e gdlerr-${DS:FILENAME_BASE}.txt ',
