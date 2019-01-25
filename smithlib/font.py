@@ -109,7 +109,7 @@ class Font(object) :
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} -q '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
@@ -142,7 +142,7 @@ class Font(object) :
                     bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif self.source.endswith(".ufo") and not os.path.exists(apnode.get_src().abspath()):
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${PSFEXPORTANCHORS} -l '${TGT[0].bld_dir()}' " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
+                    bld(rule = "${PSFEXPORTANCHORS} -q -l '${TGT[0].bld_dir()}' " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
@@ -316,7 +316,7 @@ class _Fea(Internal) :
             elif not getattr(self, 'buildusingsilfont', 'True'):
                 modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
             else :
-                modify("${PSFBUILDFEA} " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
+                modify("${PSFBUILDFEA} -q " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -367,7 +367,7 @@ class _Fea(Internal) :
                 if use_legacy:
                     bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends)
                 else:
-                    bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends)
+                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends)
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
