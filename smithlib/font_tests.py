@@ -412,7 +412,7 @@ class TestCommand(object) :
         for t in self._tests :
             if not getattr(t._font, 'no_test', False):
                 if t._font not in perfont : perfont[t._font] = {}
-                perfont[t._font][t] = {k.origin: v for k,v in self.build_test(ctx, t, resultsnode, resultsroot,
+                perfont[t._font][t] = {(k.origin if k is not None else ""): v for k,v in self.build_test(ctx, t, resultsnode, resultsroot,
                                                                               optional=optional).items()}
         res = ""
         temps = templates.TestCommand
@@ -463,7 +463,7 @@ class TestCommand(object) :
                 return x.path_from(resultsroot)
 
         results = {}
-        srcs = test._srcs if test._srcs is not None else [None]
+        srcs = test._srcs if len(test._srcs) else [None]
         for s in srcs :
             res = self.do_build(ctx, s, test, targetdir, optional=optional)
             if res is not None :
@@ -472,10 +472,14 @@ class TestCommand(object) :
 
     def do_build(self, ctx, srcnode, test, targetdir, optional=False) :
         """ Does the actual taskgen creation for running a particular test. This method is intended to be subclassed """
-        s = str(srcnode).rpartition(".")[0]
-        t = s + "_" + test.fid + self.ext
+        if srcnode is None:
+            t = test.fid + self.ext
+            srcs = []
+        else:
+            s = str(srcnode).rpartition(".")[0]
+            t = s + "_" + test.fid + self.ext
+            srcs = [srcnode]
         target = ctx.path.find_or_declare(os.path.join(targetdir.bldpath(), t))
-        srcs = [srcnode]
         fonts = test.kw.get('font', [])
         fonts = fonts if test.kw.get('multifonts', False) or isinstance(fonts, list) else [fonts]
         for f in fonts :
