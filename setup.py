@@ -24,7 +24,7 @@ setup(
     and maintaining WSI (Writing Systems Implementation) components such as
     fonts and keyboards. ''',
     py_modules=['smith'],
-    packages=["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
+    packages=["waflib", "waflib.Tools", "waflib", "smithlib"],
     include_package_data=True,
     package_data={
         'smithlib': [
