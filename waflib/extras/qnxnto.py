@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # encoding: utf-8
 # Jérôme Carretero 2011 (zougloub)
 # QNX neutrino compatibility functions
@@ -34,9 +34,9 @@ class Popen(object):
 			else:
 				if Popen.verbose:
 					print("Emulating")
-		except Exception, e:
+		except Exception as e:
 			if Popen.verbose:
-				print("Exception: %s" % e)
+				print(("Exception: %s" % e))
 			raise
 
 	def __getattr__(self, name):
@@ -59,7 +59,7 @@ class Popen(object):
 
 	def emu_wait(self):
 		if Popen.verbose:
-			print("emulated wait (%r kw=%r)" % (self.prog, self.kw))
+			print(("emulated wait (%r kw=%r)" % (self.prog, self.kw)))
 		if isinstance(self.prog, str):
 			cmd = self.prog
 		else:

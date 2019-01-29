@@ -65,7 +65,7 @@ _active = []
 
 def _cleanup():
     for inst in _active[:]:
-        if inst.poll(_deadstate=sys.maxint) >= 0:
+        if inst.poll(_deadstate=sys.maxsize) >= 0:
             try:
                 _active.remove(inst)
             except ValueError:
@@ -132,7 +132,7 @@ class Popen(object):
         _cleanup()
 
         self._child_created = False
-        if not isinstance(bufsize, (int, long)):
+        if not isinstance(bufsize, int):
             raise TypeError("bufsize must be an integer")
 
         if mswindows:
@@ -198,7 +198,7 @@ class Popen(object):
     def __del__(self, sys=sys):
         if not self._child_created:
             return
-        self.poll(_deadstate=sys.maxint)
+        self.poll(_deadstate=sys.maxsize)
         if self.returncode is None and _active is not None:
             _active.append(self)
 
@@ -295,7 +295,7 @@ class Popen(object):
                            c2pread, c2pwrite,
                            errread, errwrite):
 
-            if not isinstance(args, types.StringTypes):
+            if not isinstance(args, (str,)):
                 args = list2cmdline(args)
 
             if startupinfo is None:
@@ -311,7 +311,7 @@ class Popen(object):
                 startupinfo.wShowWindow = SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
                 args = comspec + " /c " + args
-                if (GetVersion() >= 0x80000000L or
+                if (GetVersion() >= 0x80000000 or
                         os.path.basename(comspec).lower() == "command.com"):
                     w9xpopen = self._find_w9xpopen()
                     args = '"%s" %s' % (w9xpopen, args)
@@ -319,7 +319,7 @@ class Popen(object):
 
             try:
                 hp, ht, pid, tid = CreateProcess(executable, args, None, None, 1, creationflags, env, cwd, startupinfo)
-            except pywintypes.error, e:
+            except pywintypes.error as e:
                 raise WindowsError(*e.args)
 
             self._child_created = True
@@ -437,7 +437,7 @@ class Popen(object):
             fcntl.fcntl(fd, fcntl.F_SETFD, old | cloexec_flag)
 
         def _close_fds(self, but):
-            for i in xrange(3, MAXFD):
+            for i in range(3, MAXFD):
                 if i == but:
                     continue
                 try:
@@ -449,7 +449,7 @@ class Popen(object):
                            cwd, env, universal_newlines, startupinfo, creationflags, shell,
                            p2cread, p2cwrite, c2pread, c2pwrite, errread, errwrite):
 
-            if isinstance(args, types.StringTypes):
+            if isinstance(args, (str,)):
                 args = [args]
             else:
                 args = list(args)
