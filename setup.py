@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 'Setuptools installation file'
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2017 SIL International (http://www.sil.org)'
@@ -39,7 +39,7 @@ setup(
     platforms=["Any"],
     classifiers=[
         "Environment :: Console",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Topic :: Text Processing :: Fonts"
