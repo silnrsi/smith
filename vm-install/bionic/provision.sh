@@ -17,7 +17,7 @@ echo " "
 
 
 # the official smith PPA
-add-apt-repository -s -y ppa:silnrsi/smith
+add-apt-repository -s -y ppa:silnrsi/smith-py3
 
 # the TexLive 2018 backports PPA
 add-apt-repository -s -y ppa:jonathonf/texlive-2018
@@ -82,57 +82,6 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # ldconfig 
 # 
 # 
-# # ots
-# echo " "
-# echo " "
-# echo "Installing ots from source"
-# echo " "
-# echo " "
-# apt-get install build-essential autoconf automake pkg-config zlib1g-dev -y -q
-# cd /usr/local/builds
-# git clone --depth 1 --recursive https://github.com/khaledhosny/ots.git
-# cd ots
-# ./autogen.sh
-# ./configure --enable-debug --enable-graphite
-# make
-# make install 
-# 
-# # fontvalidator
-# echo " "
-# echo " "
-# echo "Installing fontvalidator from source"
-# echo " "
-# echo " "
-# apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
-# cd /usr/local/builds
-# git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
-# cd fontval
-# make
-# make gendoc
-# cp bin/*.exe /usr/local/bin/
-# cp bin/*.dll* /usr/local/bin/
-# cp bin/*.xsl /usr/local/bin/
-# 
-# FontValidator shell script
-# echo " "
-# echo " "
-# echo "Installing fontval script"
-# echo " "
-# echo " "
-# cat > /usr/local/bin/fontval <<'EOF'
-# #!/bin/bash
-# 
-# # running the validator from the usr/local/bin directory  
-# mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
-# 
-# exit 0 
-# 
-# EOF
-# 
-# chmod 755 /usr/local/bin/fontval 
-
-# python-odf for ftml2odt
-apt-get install python-odf python-odf-tools -y -q
 
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin -y -q
@@ -148,7 +97,7 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
 # target specific version for (or downgrade) glyphsLib
-apt-get install python-glyphslib=3.1.1-1ubuntu2 -y -q
+# apt-get install python-glyphslib=3.1.1-1ubuntu2 -y -q
 
 echo " "
 echo " "
@@ -175,7 +124,7 @@ echo "smith zip"
 echo "smith tarball"
 echo "smith release"
 echo "for more details type: man smith"
-echo "or refer to the smith manual in /usr/share/doc/python-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
+echo "or refer to the smith manual in /usr/share/doc/python3-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
 echo " "
 
 
