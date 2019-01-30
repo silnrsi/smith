@@ -483,7 +483,8 @@ class TestCommand(object) :
         fonts = test.kw.get('font', [])
         fonts = fonts if test.kw.get('multifonts', False) or isinstance(fonts, list) else [fonts]
         for f in fonts :
-            srcs.append(ctx.bldnode.find_resource(str(f.target)))
+            if f is not None:
+                srcs.append(ctx.bldnode.find_resource(str(f.target)))
         if test.kw.get('usestandards', False) :
             stddir = test.kw.get('standards', ctx.env['STANDARDS'] or 'references')
             for f in fonts :
