@@ -9,7 +9,7 @@ try: unicode
 except NameError:
     unicode = str
 
-from waflib import Context, Utils, Node, Errors, Logs
+from waflib import Context, Utils, Node, Errors, Logs, Options
 from smithlib import templates
 import os, shutil, codecs, re
 from functools import partial
@@ -486,7 +486,7 @@ class TestCommand(object) :
             if f is not None:
                 srcs.append(ctx.bldnode.find_resource(str(f.target)))
         if test.kw.get('usestandards', False) :
-            stddir = test.kw.get('standards', ctx.env['STANDARDS'] or 'references')
+            stddir = test.kw.get('standards', Options.options.standards or ctx.env['STANDARDS'] or 'references')
             for f in fonts :
                 t = ctx.path.find_resource(os.path.join(stddir, str(f.target)))
                 if t is None :
