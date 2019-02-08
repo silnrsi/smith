@@ -282,6 +282,11 @@ class Package(object) :
         for f in self.fonts :
             f.build_sign(bld)
 
+    def build_buildinfo(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_buildinfo(b))
+        for f in self.fonts :
+            f.build_buildinfo(bld)
+
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
             Logs.error("makensis not installed. Can't complete. See http://nsis.sourceforge.net and nsis package")
@@ -650,6 +655,17 @@ class signContext(Build.BuildContext) :
                     cmd = ["gpg", "--verbose", "--armor", "--detach-sign", file]
                     Utils.subprocess.call(cmd)
         Logs.warn('Detached signature .asc files (PGP/GPG) generated for all available artifacts.')
+
+class buildinfoContext(Build.BuildContext) :
+    """Provide BUILDINFO.txt for toolchain component versions"""
+    cmd = 'buildinfo'
+
+    def execute(self) :
+        checkpath = os.path.join(self.out_dir + '/')
+        os.chdir(checkpath)
+        subprocess.call(["dpkg-query -W -f '${binary:Package}:\t${Version}\t(${Architecture})\tdependencies: ${Depends}\t${binary:Summary}\t${Homepage}\n\n'"], shell = 1, stdout=open("BUILDINFO.txt","w"))
+        Logs.warn('Toolchain component versions file BUILDINFO.txt generated.')
+
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
