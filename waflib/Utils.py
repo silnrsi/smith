@@ -133,10 +133,7 @@ def readf(fname, m='r'):
 	:rtype: string
 	:return: Content of the file
 	"""
-	if sys.version_info.major > 2:
-		f = open(fname, m, encoding="utf-8")
-	else:
-		f = open(fname, m)
+    f = open(fname, m)
 	try:
 		txt = f.read()
 	finally:
