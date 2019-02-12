@@ -133,7 +133,7 @@ def readf(fname, m='r'):
 	:rtype: string
 	:return: Content of the file
 	"""
-    f = open(fname, m)
+	f = open(fname, m)
 	try:
 		txt = f.read()
 	finally:
