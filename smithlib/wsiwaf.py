@@ -13,13 +13,16 @@ import os, shlex, re
 def formatvars(s, kw=None):
     if isinstance(s, deferred_class):
         return s(kw)
-    elif kw is None or not s:
+    elif not s:
         return s
 
     def cvt(m):
         return kw.get(m.group(1), '${' + m.group(1) + '}')
     if isinstance(s, str):
-        return re.sub(r'\${([a-zA-Z:_/]*)}', cvt, s)
+        if kw is None:
+            return s
+        else:
+            return re.sub(r'\${([a-zA-Z:_/]*)}', cvt, s)
     if hasattr(s, 'items'):
         return dict((k, formatvars(v, kw)) for k,v in s.items())
     elif hasattr(s, '__len__'):
