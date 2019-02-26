@@ -657,6 +657,9 @@ class TexTestCommand(TestCommand) :
 
     _type = 'TeX'
     _intermediatesPerTest = True
+    _defaults = {
+        'size': ('TEXTSIZE', 12)
+    }
 
     def __init__(self, _cmd, fontTests, **kw) :
         kw['shapers'] = 1
@@ -667,7 +670,7 @@ class TexTestCommand(TestCommand) :
     def _make_tex(self, mf, font, task) :
         texdat = templates.TexTestCommand['txt'].format(font.target, mf, texprotect(font.target),
                     texprotect(mf), time.strftime("%H:%M %a %d %b %Y %Z"),
-                    texprotect(task.inputs[0].bldpath()), task.inputs[0].bldpath())
+                    texprotect(task.inputs[0].bldpath()), task.inputs[0].bldpath(), self.size)
         task.outputs[0].write(texdat)
         return 0
 

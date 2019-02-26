@@ -93,7 +93,7 @@ FtmlTestCommand = {
 }
 
 TexTestCommand = {
-    'txt' : r'''\font\test="[./{0}]{1}" at 12pt
+    'txt' : r'''\font\test="[./{0}]{1}" at {7}pt
 \hoffset=-.2in \voffset=-.2in \nopagenumbers \vsize=10in
 \catcode"200B=\active \def^^^^200b{{\hskip0pt\relax}}
 \emergencystretch=3in \rightskip=0pt plus 1in \tolerance=10000 \count0=0
@@ -111,6 +111,7 @@ Input file: {5}
 
 
 \def\plainoutput{{\shipout\vbox{{\makeheadline\pagebody\makefootline}}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}}
+\XeTeXlinebreaklocale "G"
 \obeylines
 \everypar{{\global\advance\count0by1\llap{{\tt\the\count0\quad}}}}
 \test
