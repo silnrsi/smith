@@ -9,8 +9,13 @@ __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/l
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
 from smithlib.wsiwaf import isList, formatvars, create
 from smithlib import wafplus, font_tests, font, templater
-import os, sys, shutil, time, configparser, fnmatch, subprocess, re
+import os, sys, shutil, time, fnmatch, subprocess, re
 from xml.etree import ElementTree as et
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
