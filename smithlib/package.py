@@ -49,7 +49,7 @@ class Package(object) :
     packagestore = []
     packdict = {}
     globalpackage = None
-    default_bintypes = ["*.doc*", "*.jp*", "*.mp*", "*.od*", "*.pdf", "*.png", "*.pp*", "*.ttf", "*.woff"]
+    default_bintypes = ["*.doc*", "*.idml", "*.indd", "*.jp*", "*.mp*", "*.od*", "*.pdf", "*.png", "*.pp*", "*.ttf", "*.woff", "*.xls*"]
 
     @classmethod
     def initPackages(cls, ps = None, g = None) :
