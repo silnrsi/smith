@@ -535,7 +535,7 @@ class DesignSpace(object):
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                if 'name' in inst.attrib:
+                if newkw.get('shortcircuit', False) and 'name' in inst.attrib:
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
                         fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
