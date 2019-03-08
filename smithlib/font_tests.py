@@ -738,10 +738,10 @@ class Waterfall(TexTestCommand) :
 
     def _make_tex(self, mf, font, task) :
         temps = templates.Waterfall
-        texdat = temps['head'].format(texprotect(font.target), texprotect(mf), texprotect(self.kw.get('featstr', '')), time.strftime("%H:%M %a %d %b %Y %Z"))
+        texdat = unicode(temps['head']).format(texprotect(font.target), texprotect(mf), texprotect(self.kw.get('featstr', '')), time.strftime("%H:%M %a %d %b %Y %Z"))
 
         for s in self.sizes :
-            texdat += temps['content'].format(font.target, mf, self.kw.get('featstr', ''), s, s * self.sizefactor, self.text) 
+            texdat += unicode(temps['content']).format(font.target, mf, self.kw.get('featstr', ''), s, s * self.sizefactor, self.text)
         texdat += temps['tail']
         ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
         ftest.write(texdat)
@@ -782,10 +782,10 @@ class CrossFont(Waterfall) :
     def _make_tex(self, mf, font, task) :
         temps = templates.CrossFont
         featstr = self.kw.get('featstr', '')
-        texdat = temps['head'].format(texprotect(mf), texprotect(featstr), time.strftime("%H:%M %a %d %b %Y %Z"))
+        texdat = unicode(temps['head']).format(texprotect(mf), texprotect(featstr), time.strftime("%H:%M %a %d %b %Y %Z"))
 
         for f in font :
-            texdat += temps['content'].format(f.target, mf, featstr, self.size, texprotect(f.target), self.text)
+            texdat += unicode(temps['content']).format(f.target, mf, featstr, self.size, texprotect(f.target), self.text)
         texdat += temps['tail']
         ftest = codecs.open(task.outputs[0].abspath(), "w", encoding="utf-8")
         ftest.write(texdat)
