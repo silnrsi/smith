@@ -516,11 +516,16 @@ class DesignSpace(object):
     def makefonts(self):
         self.doc = et.parse(self.dspace)
         self.srcs = {}
-        for src in self.doc.getroot().findall('.//sources/source'):
-            sfont = _DSSource(**src.attrib)
-            for d in src.findall('./location/dimension'):
-                sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
-            self.srcs[sfont.name] = sfont
+        if self.doc.getroot().find('.//rules') is None:
+            # No rules element present; therefore we can consider building from sources
+            for src in self.doc.getroot().findall('.//sources/source'):
+                sfont = _DSSource(**src.attrib)
+                if hasattr(sfont,'layer'):
+                    # Can't shortcircuit to this master since it has a layer attribute
+                    continue
+                for d in src.findall('./location/dimension'):
+                    sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
+                self.srcs[sfont.name] = sfont
         for inst in self.doc.getroot().findall('instances/instance'):
             self._makefont(inst, True)
 
@@ -540,7 +545,7 @@ class DesignSpace(object):
                     for d in inst.findall("./location/dimension"):
                         fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
                     mightbeSame = True
-                    for sub in ('kern', 'glyphs', 'info', 'lib', 'stylemapfamilyname',
+                    for sub in ('kerning', 'glyphs', 'info', 'lib', 'stylemapfamilyname',
                                 'stylemapstylename', 'familyname', 'stylename'):
                         if inst.find(sub) is not None and len(inst.find(sub)) > 0:
                             mightbeSame = False
