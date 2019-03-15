@@ -154,14 +154,6 @@ def build_modifys(bld) :
     if path not in modifications : return
     count = 0
     for key, item in modifications[path].items() :
-        def local_cmp(a, b) :
-            if 'late' in item[a][3] :
-                if 'late' in item[b][3] : return cmp(a, b)
-                return 1
-            elif 'late' in item[b][3] :
-                return -1
-            else :
-                return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
         for i in sorted(range(len(item)), key=lambda x:('late' in item[x][3], x)):
             tmpnode = make_tempnode(outnode, bld)
