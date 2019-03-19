@@ -111,7 +111,7 @@ Input file: {5}
 
 
 \def\plainoutput{{\shipout\vbox{{\makeheadline\pagebody\makefootline}}\ifnum\outputpenalty>-2000 \else\dosupereject\fi}}
-\XeTeXlinebreaklocale "G"
+%\XeTeXlinebreaklocale "G"
 \obeylines
 \everypar{{\global\advance\count0by1\llap{{\tt\the\count0\quad}}}}
 \test
