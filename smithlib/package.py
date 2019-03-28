@@ -547,7 +547,7 @@ class DesignSpace(object):
                     fsrc = _DSSource(**inst.attrib)
                     srcinst = self.srcs.get(inst.get('name'), None)
                     if srcinst is not None:
-                        fname = os.path.join(base, srcinst.filename)
+                        fname = os.path.join(base, self.srcs[inst.get('name')].filename)
                         for d in inst.findall("./location/dimension"):
                             fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
                         mightbeSame = True
@@ -564,7 +564,7 @@ class DesignSpace(object):
                             if v is not None and v.text != att:
                                 mightbeSame = False
                                 break
-                        if mightbeSame and srcinst is not None and srcinst.same(fsrc):
+                        if mightbeSame and srcinst.same(fsrc):
                             newkw['source'] = fname
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
