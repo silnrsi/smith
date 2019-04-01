@@ -544,28 +544,29 @@ class DesignSpace(object):
         if 'source' not in newkw:
             if isInstance:
                 if newkw.get('shortcircuit', False) and 'name' in inst.attrib:
-                    fsrc = _DSSource(**inst.attrib)
                     srcinst = self.srcs.get(inst.get('name'), None)
                     if srcinst is not None:
-                        fname = os.path.join(base, self.srcs[inst.get('name')].filename)
+                        masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
+                        fsrc = _DSSource(**inst.attrib)
                         for d in inst.findall("./location/dimension"):
                             fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
-                        mightbeSame = True
+                        mightbeSame = srcinst.same(fsrc)
                         for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
                             if inst.find(sub) is not None and len(inst.find(sub)) > 0:
                                 mightbeSame = False
                                 break
-                        fplist = read_plist(os.path.join(fname, 'fontinfo.plist'))
-                        for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
-                            att = inst.get(sub.lower(), "")
-                            if not len(att):
-                                continue
-                            v = fplist.get(sub, None)
-                            if v is not None and v.text != att:
-                                mightbeSame = False
-                                break
-                        if mightbeSame and srcinst.same(fsrc):
-                            newkw['source'] = fname
+                        if mightbeSame:
+                            fplist = read_plist(os.path.join(masterFName, 'fontinfo.plist'))
+                            for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
+                                att = inst.get(sub.lower(), "")
+                                if not len(att):
+                                    continue
+                                v = fplist.get(sub, None)
+                                if v is not None and v.text != att:
+                                    mightbeSame = False
+                                    break
+                        if mightbeSame:
+                            newkw['source'] = masterFName
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
                                                           self.dspace, params=newkw.get('params', ''))

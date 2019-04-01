@@ -64,9 +64,11 @@ def process_tempcopy(tgen) :
                 os.remove(tmpnode.abspath())
             Logs.debug("runner: " + outnode.abspath() + "-->" + tmpnode.abspath())
             if outnode.is_bld() and os.path.exists(outnode.abspath()) :
+                Logs.debug("runner: moving")
                 shutil.move(outnode.abspath(), tmpnode.abspath())
             else :
                 sourcenode = outnode.get_src()
+                Logs.debug("runner: Can't copy built, copying " + str(sourcenode.abspath()))
                 shutil.copy2(sourcenode.abspath(), tmpnode.abspath())
                 t.outputs.append(outnode.get_bld())
             ret = fn(self)
@@ -294,10 +296,10 @@ def add_sort_tasks(base) :
     def wrap_biter(self) :
         for b in old_biter(self) :
             inject_modifiers(b)
-#            print self.group_names[self.cur - 1]
-#            tlist = top_sort(b)
-#            yield tlist
-            yield b
+#            print(b)
+            tlist = top_sort(b)
+            yield tlist
+#            yield b
 
     base.get_build_iterator = wrap_biter
     Task.TaskBase.runs_after = runs_after

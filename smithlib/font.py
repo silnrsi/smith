@@ -110,11 +110,11 @@ class Font(object) :
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True) 
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
-                bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, shell=True)
+                bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, name=self.target+"_ttf", shell=True)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target + "_sfd")
             bgen = bld(rule = "${FONTFORGE} " + parms + " -nosplash -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.encoding=\"Original\"; f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
@@ -152,15 +152,15 @@ class Font(object) :
             #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
         # add smarts
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'woff', 'fret')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'fret', 'typetuner')) :
             if x :
                 x.build(bld, self.target, bgen, self)
 
+        if hasattr(self, 'woff'):
+            self.woff.build(bld, self.target, bgen, self)
+
         if hasattr(self, 'ttfautohint'):
             modify("${TTFAUTOHINT} " + self.ttfautohint + " ${DEP} ${TGT}", self.target)
-
-        if hasattr(self, 'typetuner') :
-            modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", self.target, inputs = [self.typetuner])
 
         return self
 
@@ -294,6 +294,7 @@ class _Fea(Internal) :
     def __init__(self, source = None, *k, **kw) :
         self.master = ''
         self.params = ''
+        self.mapfile = None
         super(_Fea, self).__init__(source, *k, **kw)
     
     def get_build_tools(self, ctx) :
@@ -318,7 +319,10 @@ class _Fea(Internal) :
             elif not getattr(self, 'buildusingsilfont', 'True'):
                 modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
             else :
-                modify("${PSFBUILDFEA} -q " + self.params + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), shell = 1)
+                mapparams = ""
+                if self.mapfile is not None:
+                    mapparams = " -m {}".format(self.mapfile)
+                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_makefea"], shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -369,7 +373,7 @@ class _Fea(Internal) :
                 if use_legacy:
                     bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends)
                 else:
-                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends)
+                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_makefea")
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
@@ -426,6 +430,31 @@ class _Gdl(Internal) :
             modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, shell = 1)
 
 Gdl = defer(_Gdl)
+
+
+class _TypeTuner(Internal):
+    def get_sources(self, ctx) :
+        return get_all_sources(self, ctx)
+
+    def get_build_tools(self, ctx) :
+        return ("psftuneraliases", "typetuner")
+
+    def get_sources(self, ctx) :
+        return get_all_sources(self, ctx) #, 'master', 'depends')
+
+    def build(self, bld, target, tgen, font) :
+        if hasattr(font, 'opentype') and hasattr(font.opentype, 'mapfile'):
+            suffindex = self.source.rindex(".")
+            tgt = getattr(self, "target", self.source[:suffindex] + "_aliased" + self.source[suffindex:])
+            modify("${PSFTUNERALIASES} -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
+                [target, tgt], [self.source, font.opentype.mapfile], name=font.target + "_typetuner", nochange=True, taskgens=[font.target + "_fea"])
+            src = tgt
+        else:
+            src = self.source
+        modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", target, [src])
+
+TypeTuner = defer(_TypeTuner)
+
 
 class _Ofl(object) :
 
@@ -596,7 +625,7 @@ def name(n, **kw) :
 
 def onload(ctx) :
     varmap = { 'font' : undeffered(Font), 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
-            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret,
+            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret, 'typetuner' : TypeTuner,
             'woff' : Woff, 'internal' : Internal
              }
     for k, v in varmap.items() :

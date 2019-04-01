@@ -157,7 +157,7 @@ class _cmd(object) :
         return Task.reg_act.sub(repl, self.c)
 
     def build(self, ctx, inputs, tgt, **kw) :
-        return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
+        return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt, **kw)
 
 cmd = defer(_cmd)
 
