@@ -70,14 +70,14 @@ class Font(object) :
             res.add('ttfautohint')
         if hasattr(self, 'buildusingfontforge') :
             res.add('fontforge')
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff', 'typetuner')) :
             if x and not isinstance(x, str) :
                 res.update(x.get_build_tools(ctx))
         res.update(progset)
         return res
 
     def get_sources(self, ctx) :
-        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite')
+        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'typetuner')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
@@ -320,9 +320,11 @@ class _Fea(Internal) :
                 modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
             else :
                 mapparams = ""
+                targets = [target]
                 if self.mapfile is not None:
-                    mapparams = " -m {}".format(self.mapfile)
-                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_makefea"], shell = 1)
+                    mapparams = " -m ${TGT[1]}"
+                    targets.append(self.mapfile)
+                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT[0]}' '${SRC}' '${DEP}'", targets, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_makefea"], shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -445,13 +447,13 @@ class _TypeTuner(Internal):
     def build(self, bld, target, tgen, font) :
         if hasattr(font, 'opentype') and hasattr(font.opentype, 'mapfile'):
             suffindex = self.source.rindex(".")
-            tgt = getattr(self, "target", self.source[:suffindex] + "_aliased" + self.source[suffindex:])
-            modify("${PSFTUNERALIASES} -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
+            tgt = getattr(self, "target", self.source[:suffindex] + "_aliased_" + font.target + self.source[suffindex:])
+            modify("${PSFTUNERALIASES} -q -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
                 [target, tgt], [self.source, font.opentype.mapfile], name=font.target + "_typetuner", nochange=True, taskgens=[font.target + "_fea"])
             src = tgt
         else:
             src = self.source
-        modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", target, [src])
+        modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", target, [src], name = font.target+"_tune")
 
 TypeTuner = defer(_TypeTuner)
 

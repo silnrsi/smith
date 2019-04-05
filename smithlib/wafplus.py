@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
-import os, imp, operator, optparse, sys
+import os, imp, operator, optparse, sys, re
 from waflib.TaskGen import feature, after
 
 def preprocess_args(*opts) :
@@ -119,7 +119,7 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
         have other inputs ${SRC}.
     """
     # can't create taskgens here because we have no bld context
-    if not path : path = getpath()
+    if not path : path = os.path.abspath(getpath())
     if path not in modifications :
         modifications[path] = {}
     if isinstance(infile, list) :
@@ -130,6 +130,7 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
     if not inf in modifications[path] :
         modifications[path][inf] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py
+    # print(path, inf, cmd, inputs, kw)
     modifications[path][inf].append((cmd, inputs, shell, kw))
 
 def ismodified(infile, path = None) :
@@ -165,7 +166,9 @@ def build_modifys(bld) :
             else :
                 return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
+        # print(key, len(item))
         for i in sorted(range(len(item)), key=lambda x:('late' in item[x][3], x)):
+            # print(i, item[i])
             tmpnode = make_tempnode(outnode, bld)
             if 'nochange' in item[i][3] :
                 kw = {}
@@ -174,6 +177,7 @@ def build_modifys(bld) :
             temp = dict(kw)
             if isinstance(item[i][0], str) :
                 cmd = item[i][0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
+                cmd = re.sub(r'\${TGT\[([0-9])\]([^}]*)}', lambda m: "${TGT["+str(int(m.group(1))-1)+"]"+m.group(2)+"}" if m.group(1) != "0" else outnode.get_bld().bldpath(), cmd)
                 if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             else :
                 temp['dep'] = tmpnode
@@ -181,8 +185,12 @@ def build_modifys(bld) :
                 if not 'name' in temp : temp['name'] = '%s[%d]' % (key, count)
             temp.update(item[i][3])
             if 'targets' in temp :
-                temp['target'] = temp['targets']
-                del temp['targets']
+                if len(temp['targets']) > 1:
+                    temp['target'] = temp['targets'][0]
+                    temp['targets'] = temp['target'][1:]
+                else:
+                    temp['target'] = temp['targets']
+                    del temp['targets']
             bld(rule = cmd, source = item[i][1], shell = item[i][2], **temp)
             count += 1
     del modifications[path]
