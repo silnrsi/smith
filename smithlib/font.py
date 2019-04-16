@@ -196,7 +196,8 @@ class DesignInstance(object):
         return get_all_sources(self, ctx, 'dspace')
 
     def build(self, bld, targetap):
-        bld(rule="psfcreateinstances -q -l . -o '{}' -i '{}' {} ${{SRC}}".format('.tmp', self.name, self.params), source=self.dspace, target=self.target) 
+        # -o .tmp is a dummy so that the ../source in the base path to the designspace file removes the ..
+        bld(rule="psfcreateinstances -q -l '{0}_createinstance.log' -o .tmp -i '{0}' {1} ${{SRC}}".format(self.name, self.params), source=self.dspace, target=self.target) 
 
 class _Legacy(object) :
 
