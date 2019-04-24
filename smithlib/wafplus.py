@@ -93,8 +93,8 @@ def process_taskgens(tg) :
             ot = og.tasks[-1]
             try: t.intasks.append(ot)
             except AttributeError : t.intasks = [ot]
-            if og in tg.bld.get_group(None) :
-                t.set_run_after(ot)
+            #if og in tg.bld.get_group(None) :
+            t.set_run_after(ot)
 
     if hasattr(tg, 'deps') :
         for d in getattr(tg, 'deps', []) :
@@ -167,7 +167,7 @@ def build_modifys(bld) :
                 return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
         # print(key, len(item))
-        for i in sorted(range(len(item)), key=lambda x:('late' in item[x][3], x)):
+        for i in sorted(range(len(item)), key=lambda x:(item[x][3].get('late', 0), x)):
             # print(i, item[i])
             tmpnode = make_tempnode(outnode, bld)
             if 'nochange' in item[i][3] :
@@ -257,9 +257,10 @@ def add_sort_tasks(base) :
                     if icntmap[id(a)] == 0 :
                         roots.append(a)
         for t in tasks :
-            if icntmap.get(id(t), 0) :
-                print("Circular dependency: " + str(t))
-                print("   comes after: " + str(t.run_after))
+            if icntmap.get(id(t), 0):
+                if any(icntmap.get(id(x), 0) for x in t.run_after):
+                    print("Circular dependency: " + str(t))
+                    print("   comes after: " + str(t.run_after))
                 res.append(t)
         Logs.debug("order: " + "\n".join(map(repr,res)))
         for r in res :
@@ -480,6 +481,8 @@ def make_dot(self):
 
     self.compile()
 
+def nulltask(task):
+    return 0
 
 def load_module(file_path) :
     """ Add global pushing to WSCRIPT when it loads """

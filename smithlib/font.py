@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Context, Logs
-from smithlib.wafplus import modify, ismodified
+from smithlib.wafplus import modify, ismodified, nulltask
 from smithlib.wsiwaf import get_all_sources, initobj, initval, defer, undeffered
 import smithlib.font_tests as font_tests
 import sys, os, re
@@ -108,15 +108,15 @@ class Font(object) :
         srcnode = bld.path.find_or_declare(self.source)
         parms = getattr(self, 'params', "")
         if self.source.endswith(".ttf") :
-            bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, shell=True)
+            bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
             bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True) 
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
-                bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, name=self.target+"_ttf", shell=True)
+                bld(rule = "${COPY} '${SRC}' '${TGT}'", source = srcnode, target = tarname, shell=True)
                 modify("${SFDMELD} ${SRC} ${DEP} ${TGT}", tarname, [self.sfd_master], path = basepath, before = self.target + "_sfd")
-            bgen = bld(rule = "${FONTFORGE} " + parms + " -nosplash -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.encoding=\"Original\"; f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd") # for old fontforges
+            bgen = bld(rule = "${FONTFORGE} " + parms + " -nosplash -quiet -lang=py -c 'import sys; f=open(sys.argv[1]); f.encoding=\"Original\"; f.generate(sys.argv[2])' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_ttf") # for old fontforges
             # bgen = bld(rule = "${FONTFORGE} -quiet -lang=ff -c 'Open($1); Generate($2)' ${SRC} ${TGT}", source = tarname or srcnode, target = self.target, name = self.target + "_sfd")
 
         if hasattr(self, 'version') :
@@ -151,16 +151,22 @@ class Font(object) :
             # if hasattr(self, 'classes') :
             #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
         
+        tgens = [self.target+"_ttf"]
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'fret', 'typetuner')) :
             if x :
-                x.build(bld, self.target, bgen, self)
+                last = x.build(bld, self.target, bgen, self)
+                if last is not None:
+                    tgens.append(last)
+
+        if hasattr(self, 'ttfautohint'):
+            modify("${TTFAUTOHINT} " + self.ttfautohint + " ${DEP} ${TGT}", self.target, name = self.target+"_hint")
+            tgens.append(self.target + "_hint")
+
+        modify(nulltask, self.target, name=self.target+"_final", last = 100, nochange = 1, taskgens=tgens)
 
         if hasattr(self, 'woff'):
             self.woff.build(bld, self.target, bgen, self)
-
-        if hasattr(self, 'ttfautohint'):
-            modify("${TTFAUTOHINT} " + self.ttfautohint + " ${DEP} ${TGT}", self.target)
 
         return self
 
@@ -237,6 +243,7 @@ class _Legacy(object) :
             bld(rule = "${FFBUILDER} -c '${SRC[1].bldpath()}'" + cmd + " '${SRC[0].bldpath()}' '${TGT[0].bldpath()}'", source = srcs, target = self.target)
             if targetap and not hasattr(self, 'noap') :
                 bld(rule = "${SFD2AP} ${SRC} ${TGT}", source = self.target, target = targetap)
+        return None
 
 Legacy = defer(_Legacy)
 
@@ -254,7 +261,7 @@ class Internal(object) :
         return []
 
     def build(self, bld, target, tgen, font) :
-        pass
+        return None
 
 class _Volt(Internal) :
 
@@ -280,13 +287,14 @@ class _Volt(Internal) :
                 srcs.append(self.master)
                 cmd += "-i ${SRC[" + str(ind) + "].bldpath()} "
                 ind += 1
-            bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source)
+            bld(rule = "${MAKE_VOLT} " + cmd + "-t " + bld.path.find_or_declare(target).bldpath() + " > ${TGT}", shell = 1, source = srcs + [target], target = self.source, name = font.target + "_volt")
         if hasattr(font, 'typetuner') and not getattr(self, 'no_typetuner', 0) :
             xmlparms = " -x ${TGT[0].bldpath()}"
             tgts = [target, font.typetuner]
             modify("${VOLT2TTF} " + self.params + xmlparms + " -t ${SRC} ${DEP} ${TGT}", tgts, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
         else :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
+        return font.target + "_ot"
             
 Volt = defer(_Volt)
 
@@ -316,16 +324,16 @@ class _Fea(Internal) :
         def doit(src, keeps) :
             modify("${TTFTABLE} -d opentype ${DEP} ${TGT}", target)
             if hasattr(font, 'buildusingfontforge') :
-                modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_fea", shell = 1)
+                modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot", shell = 1)
             elif not getattr(self, 'buildusingsilfont', 'True'):
-                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_fea", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
+                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_ot", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
             else :
                 mapparams = ""
                 targets = [target]
                 if self.mapfile is not None:
                     mapparams = " -m ${TGT[1]}"
                     targets.append(self.mapfile)
-                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT[0]}' '${SRC}' '${DEP}'", targets, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_makefea"], shell = 1)
+                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT[0]}' '${SRC}' '${DEP}'", targets, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_ot"], shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -374,14 +382,15 @@ class _Fea(Internal) :
                     cmd += '--preinclude=' + loc + ' '
                     ind += 1
                 if use_legacy:
-                    bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends)
+                    bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends, name = font.target + "_fea")
                 else:
-                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_makefea")
+                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_fea")
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
         elif self.master :
             doit(self.master, keeps)
+        return font.target + "_ot"
 
 Fea = defer(_Fea)
 
@@ -427,10 +436,11 @@ class _Gdl(Internal) :
 #                    cmd += '-i ${SRC[' + str(ind) + "].bldpath()} "
                     cmd += '-i ' + loc + ' '
                     ind += 1
-                bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source)
-            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, shell = 1)
+                bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, name = font.target + "_gdl")
+            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
         elif self.master :
-            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, shell = 1)
+            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
+        return font.target + "_gr"
 
 Gdl = defer(_Gdl)
 
@@ -446,15 +456,19 @@ class _TypeTuner(Internal):
         return get_all_sources(self, ctx) #, 'master', 'depends')
 
     def build(self, bld, target, tgen, font) :
-        if hasattr(font, 'opentype') and hasattr(font.opentype, 'mapfile'):
+        if not getattr(font.opentype, 'mapfile', None):
+            Logs.error("Missing opentype mapfile, needed for typetuner in " + font.target)
+            return None
+        if hasattr(font, 'opentype'):
             suffindex = self.source.rindex(".")
             tgt = getattr(self, "target", self.source[:suffindex] + "_aliased_" + font.target + self.source[suffindex:])
             modify("${PSFTUNERALIASES} -q -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
-                [target, tgt], [self.source, font.opentype.mapfile], name=font.target + "_typetuner", nochange=True, taskgens=[font.target + "_fea"])
+                [target, tgt], [self.source, font.opentype.mapfile], name=font.target + "_typetuner", nochange=True, taskgens=[font.target + "_fea", font.target + "_gr"])
             src = tgt
         else:
             src = self.source
         modify("${TYPETUNER} -o ${TGT} add ${SRC} ${DEP}", target, [src], name = font.target+"_tune")
+        return font.target + "_tune"
 
 TypeTuner = defer(_TypeTuner)
 
@@ -476,7 +490,8 @@ class _Ofl(object) :
     def build(self, bld, font) :
         if not hasattr(self, 'copyright') :
             self.copyright = getattr(font, 'copyright', getattr(font.package, 'copyright', ''))
-        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath(), late = 1)
+        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ofl", late = 1)
+        return font.target + "_ofl"
         
     def globalofl(self, task) :
         bld = task.generator.bld
@@ -550,7 +565,8 @@ class _Fret(object) :
         else :
             output = self.target
         args = getattr(self, 'params', '-r')
-        bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
+        bld(rule = "${FRET} " + args + " ${SRC} ${TGT}", target = output, name = font.target+"_fret", source = [tgt])
+        return font.target+"_fret"
 
 Fret = defer(_Fret)
 
@@ -568,7 +584,8 @@ class _Woff(object) :
         else :
             output = self.target
         args = getattr(self, 'params', '')
-        bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, source = [tgt])
+        bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, name = font.target+"_woff", source = [tgt])
+        return font.target+"_woff"
 
 Woff = defer(_Woff)
 

@@ -494,7 +494,9 @@ class TestCommand(object) :
                     Logs.error("Cannot find corresponding reference to {} in references dir {}/".format(f.target, stddir))
                     raise Errors.BuildError()
                 srcs.append(t)
-        gen = self.cmd.build(ctx, srcs, target, dep = fonts, **test.kw)
+        gen = self.cmd.build(ctx, srcs, target, dep = fonts,
+                             taskgens = [x.target+"_final" for x in fonts if hasattr(x, 'target')],
+                             **test.kw)
         return target
 #        gen.taskgens = [font.target + "_" + mode] if mode else [font.target]
 
