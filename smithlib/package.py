@@ -543,7 +543,7 @@ class DesignSpace(object):
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                if newkw.get('shortcircuit', False) and 'name' in inst.attrib:
+                if newkw.get('shortcircuit', True) and 'name' in inst.attrib:
                     srcinst = self.srcs.get(inst.get('name'), None)
                     if srcinst is not None:
                         masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
