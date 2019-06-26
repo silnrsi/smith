@@ -19,8 +19,8 @@ echo " "
 # the official smith PPA
 add-apt-repository -s -y ppa:silnrsi/smith-py3
 
-# the TexLive 2018 backports PPA
-add-apt-repository -s -y ppa:jonathonf/texlive-2018
+# the TexLive 2019 backports PPA
+add-apt-repository -s -y ppa:jonathonf/texlive-2019
 
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
