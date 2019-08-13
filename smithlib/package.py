@@ -20,7 +20,8 @@ except ImportError:
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
-            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat')
+            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
+            'package_files')
 
 def formatdesc(s) :
     res = []
@@ -471,6 +472,36 @@ class Package(object) :
                 if y is not None :
                     for x in os.walk(y.abspath(), topdown=True):
                         docwalker(bld.srcnode.abspath(), *x)
+        if hasattr(self, 'package_files'):
+            extras = []
+            for k, v in self.package_files.items():
+                files = [(bld.srcnode.abspath(), os.path.relpath(x.abspath(), bld.srcnode.abspath())) for x in bld.srcnode.ant_glob(k)]
+                files.extend((bld.bldnode.abspath(), os.path.relpath(x.abspath(), bld.bldnode.abspath())) for x in bld.bldnode.ant_glob(k))
+                pathbits = k.split("/")
+                for i, p in enumerate(pathbits):
+                    if '*' in p:
+                        break
+                else:
+                    i = len(pathbits) - 1
+                numpath = i
+                for p, f in files:
+                    if v is None:
+                        r = f
+                    elif '*.' in v:
+                        r = v.replace('*.', os.path.splitext(os.path.basename(f))[0])
+                    elif '*' in v:
+                        r = v.replace('*', os.path.basename(f))
+                    elif v[-1] == '/':
+                        bits = f.split("/")[numpath:]
+                        r = os.path.join(v[:-1], *bits)
+                    else:
+                        r = v
+                    for t in res:
+                        if t[1] == f:
+                            res.remove(t)
+                            break
+                    extras.append((p, f, r))
+            res.update(extras)
         return res
 
     def isTextFile(self, f) :
