@@ -84,7 +84,7 @@ def strsToDicts(aDict) :
             newv = {}
             for s in v.split(';') :
                 sk, sv = s.split('=', 1)
-                newv[sk.trim()] = sv.trim()
+                newv[sk.strip()] = sv.strip()
             aDict[k] = newv
     return aDict
 
@@ -342,7 +342,9 @@ class TestCommand(object) :
                 somefiles.extend(ctx.bldnode.find_or_declare(x) for x in self.fontTest.extraFiles)
             if somefiles is not None:
                 if testfiles is not None:
-                    self.files = [TestFile(x, **testfiles[x]) if x in testfiles else TestFile(x) for x in somefiles]
+                    tpath = os.path.join(ctx.path.abspath(), testsdir)
+                    self.files = [TestFile(x[0], **testfiles[x[1]]) if x[1] in testfiles else \
+                                  TestFile(x[0]) for x in ((y, os.path.relpath(y.abspath(), tpath)) for y in somefiles)]
                 else:
                     self.files = [TestFile(x) for x in somefiles]
         if getattr(self, 'addAllTestFiles', False) :
