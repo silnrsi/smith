@@ -88,6 +88,8 @@ Vagrant.configure(2) do |config|
 
     sudo dpkg-reconfigure locales -f noninteractive -p critical
 
+    sudo update-locale LANG=en_US.UTF-8 
+
     sudo apt-get update -q -y
 
     sudo apt-get install --no-install-recommends -q -y less vim-nox htop tree git wget curl bash-completion python3-software-properties
