@@ -33,6 +33,11 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # if you need certain features you can uncomment them and reprovision. 
 
 
+# install pip3 and fontbakery 
+apt-get install python3-pip -y 
+pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
+
+
 # checking if we already have local checkouts 
 # if [ -d /usr/local/builds/ ]
 # then
@@ -86,7 +91,7 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin -y -q
 
-# smith itself  (only the font side of things)
+# smith itself (only the font side of things)
 echo " "
 echo " "
 echo "Installing smith (downloading/updating the dependencies might take a few minutes)"
@@ -96,8 +101,7 @@ echo " "
 apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
-# target specific version for (or downgrade) glyphsLib
-# apt-get install python-glyphslib=3.1.1-1ubuntu2 -y -q
+# none for now
 
 echo " "
 echo " "
