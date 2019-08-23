@@ -76,22 +76,22 @@ Vagrant.configure(2) do |config|
     # export VAGRANT_NO_COLOR="true"
     
     # turning off some automated apt-related stuff 
-    sudo systemctl stop apt-daily.service # disable run when system boot
-    sudo systemctl disable apt-daily.service # disable run when system boot
-    sudo systemctl stop apt-daily.timer   # disable timer run 
-    sudo systemctl disable apt-daily.timer   # disable timer run 
+    systemctl stop apt-daily.service # disable run when system boot
+    systemctl disable apt-daily.service # disable run when system boot
+    systemctl stop apt-daily.timer   # disable timer run 
+    systemctl disable apt-daily.timer   # disable timer run 
 
     sleep 5 
 
     lsb_release -d
 
-    sudo dpkg-reconfigure locales -f noninteractive -p critical
+    locale-gen en_US.UTF-8
+    update-locale LANG=en_US.UTF-8
+    sed -i -E 's/^(\s*AcceptEnv\b)/#\1/' /etc/ssh/sshd_config
 
-    sudo update-locale LANG=en_US.UTF-8 
+    apt-get update -q -y
 
-    sudo apt-get update -q -y
-
-    sudo apt-get install --no-install-recommends -q -y less vim-nox htop tree git wget curl bash-completion python3-software-properties
+    apt-get install --no-install-recommends -q -y less vim-nox htop tree git wget curl bash-completion python3-software-properties
 
     touch "/home/vagrant/.hushlogin"
 
