@@ -21,7 +21,7 @@ keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
             'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
-            'package_files')
+            'package_files', 'buildversion')
 
 def formatdesc(s) :
     res = []
@@ -600,7 +600,7 @@ class DesignSpace(object):
                             newkw['source'] = masterFName
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
-                                                          self.dspace, params=newkw.get('params', ''))
+                                                          self.dspace, params=newkw.get('instanceparams', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
         self.fonts.append(font.Font(**newkw))
