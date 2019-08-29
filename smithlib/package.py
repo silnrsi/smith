@@ -597,6 +597,13 @@ class DesignSpace(object):
                                     mightbeSame = False
                                     break
                         if mightbeSame:
+                            parmvar = newkw.get('instanceparms', '')
+                            if '-W' in parmvar or '--fixweight' in parmvar:
+                                wt = int(fplist.get('openTypeOS2WeightClass', "0"))
+                                st = fplist.get('styleMapStyleName', fplist.get('styleName', '')).lower()
+                                if (st.startswith('bold') and wt != 700) or wt != 400:
+                                    mightbeSame = False
+                        if mightbeSame:
                             newkw['source'] = masterFName
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
