@@ -17,36 +17,42 @@ getufoinfo('source/' + FAMILY + '-Regular' + '.ufo')
 BUILDLABEL = "alpha"
 
 # Set up the FTML tests
-ftmlTest('tests/ftml.xsl', fonts=['../reference/Foo-Regular-1_001.ttf'], addfontindex=1, fontmode='collect')
+ftmlTest('tests/ftml.xsl', fonts=['../reference/Foo-Regular.ttf'], addfontindex=1, fontmode='collect')
 
 # set the build and test parameters
 TESTSTRING = u'\u0E07\u0331 \u0E0D\u0331 \u0E19\u0331 \u0E21\u0331'
+OMITAPS = '--omitaps="_R,R"'
+generated = 'generated/'
 
 # set up the build parameters from the designspace file(s)
 for dspace in ('Roman', 'Italic'):
     designspace('source/' + FAMILY + dspace + '.designspace',
-                target="${DS:FILENAME_BASE}.ttf",
-                opentype=fea("generated/${DS:FILENAME_BASE}.fea",
-                             master="source/opentype/" + FAMILY + ".feax",
-                             ap='source/${DS:FILENAME_BASE}_ap.xml',
-                             make_params="--omitaps='_R'",
-                             params='-m source/${DS:FILENAME_BASE}.map',
-                             depends='source/opentype/' + 'myfoofeatures.fea'),
+                target=process("${DS:FILENAME_BASE}.ttf",
+                    cmd('${PSFCHANGETTFGLYPHNAMES} ${SRC} ${DEP} ${TGT}', ['source/${DS:FILENAME_BASE}.ufo']),
+                ),
+                opentype=fea(generated + "${DS:FILENAME_BASE}.fea",
+                             master="source/opentype/master.feax",
+                             make_params=OMITAPS,
+                             mapfile=generated + '${DS:FILENAME_BASE}.map',
+                             params='',
+                             depends=['source/opentype/' + 'myfoofeatures.fea'],
+                             ),
                 graphite=gdl("generated/${DS:FILENAME_BASE}.gdl",
-                             master=['source/graphite/' + FAMILY + 'master.gdl'],
-                             make_params="-m _R -z 8",
-                             params='-d -w3521 -w3530 -q -v2-e gdlerr-${DS:FILENAME_BASE}.txt ',
-                             depends=['source/graphite/myfeatures.gdl']),
-                script=['foo', 'DFLT'],
-                ap='generated/' + '${DS:FILENAME_BASE}.xml',
+                             master='source/graphite/master.gdl',
+                             make_params=OMITAPS,
+                             params='-d -e ${DS:FILENAME_BASE}_gdlerr.txt ',
+                             ap=generated + '${DS:FILENAME_BASE}.xml',
+                             depends=['source/graphite/myfeatures.gdl'],
+                             ),
                 classes='source/' + 'classes.xml',
-                fret=fret(params='-r -b'),
-                woff=woff(params='-v ' + VERSION + ' -m ../source/foo-WOFF-metadata.xml'),
+                woff=woff(params='-v ' + VERSION + ' -m ../source/${DS:FAMILYNAME}-WOFF-metadata.xml'),
                 typetuner='source/typetuner/feat_all.xml',
-    )
+                script=['foo', 'DFLT'],
+                fret=fret(params='-r -oi'),
+                )
 
 
 # declare other local variables or utilities
 def configure(ctx):
     ctx.env['FOO'] = 'foo'
-    ctx.find_program('foobar')
+    ctx.find_program('psfchangettfglyphnames')
