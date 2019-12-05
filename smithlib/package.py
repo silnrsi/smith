@@ -597,7 +597,7 @@ class DesignSpace(object):
                                     mightbeSame = False
                                     break
                         if mightbeSame:
-                            parmvar = newkw.get('instanceparms', '')
+                            parmvar = newkw.get('instanceparams', '')
                             if '-W' in parmvar or '--fixweight' in parmvar:
                                 wt = int(fplist.get('openTypeOS2WeightClass', "0"))
                                 st = fplist.get('styleMapStyleName', fplist.get('styleName', '')).lower()
