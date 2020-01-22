@@ -33,9 +33,14 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # if you need certain features you can uncomment them and reprovision. 
 
 
-# install pip3 and fontbakery 
+# install pip3 
 apt-get install python3-pip -y 
+
+# install python components (tracking master) and their dependencies directly via pip3  
+
 pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
+
+pip3 install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
 
 
 # checking if we already have local checkouts 
