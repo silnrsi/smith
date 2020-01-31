@@ -8,20 +8,36 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
-import os, imp, operator, optparse, sys, re
+import os, imp, operator, optparse, sys, re, shlex
 from waflib.TaskGen import feature, after
+
+def _parsearg(a, o, res):
+    if a.startswith(o['opt']) :
+        if '=' in a :
+            key, val = a.split('=')
+            res[key.strip()] = val.strip()
+        else :
+            res[a.strip()] = 1
+        return True
+    return False
 
 def preprocess_args(*opts) :
     res = {}
+    oldenvstr = os.getenv("SMITHARGS")
+    envargs = shlex.split(oldenvstr) if oldenvstr is not None else []
     for o in opts:
-        for a in sys.argv :
-            if a.startswith(o['opt']) :
-                if '=' in a :
-                    key, val = a.split('=')
-                    res[key.strip()] = val.strip()
-                else :
-                    res[a.strip()] = 1
+        for a in sys.argv:
+            if _parsearg(a, o, res):
                 sys.argv.remove(a)
+        for a in envargs:
+            if _parsearg(a, o, res):
+                envargs.remove(a)
+    envstr = " ".join(envargs)
+    if oldenvstr != "":
+        if envstr == "":
+            del os.environ["SMITHARGS"]
+        else:
+            os.environ["SMITHARGS"] = envstr
     return res
 
 def add_intasks(base) :
