@@ -33,7 +33,7 @@ def preprocess_args(*opts) :
             if _parsearg(a, o, res):
                 envargs.remove(a)
     envstr = " ".join(envargs)
-    if oldenvstr != "":
+    if oldenvstr is not None and oldenvstr != "":
         if envstr == "":
             del os.environ["SMITHARGS"]
         else:
