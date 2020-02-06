@@ -25,6 +25,10 @@ add-apt-repository -s -y ppa:jonathonf/texlive-2019
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
 
+# the official SILE PPA
+add-apt-repository -s -y ppa:sile-typesetter/sile
+
+
 apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
@@ -107,6 +111,13 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
 # none for now
+
+# install sile extensions: fontproof
+
+echo "removing older versions of the fontproof SILE extension if any" 
+rm -rf /usr/share/sile/packagemanager/fontproof/
+sile -e 'installPackage("fontproof");os.exit()'
+
 
 echo " "
 echo " "
