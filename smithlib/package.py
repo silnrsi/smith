@@ -561,7 +561,8 @@ class DesignSpace(object):
                 sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
             self.srcs[sfont.name] = sfont
         for inst in self.doc.getroot().findall('instances/instance'):
-            self._makefont(inst, True)
+            if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
+                self._makefont(inst, True)
 
     def _makefont(self, inst, isInstance):
         base = os.path.dirname(self.dspace)
