@@ -33,7 +33,7 @@ apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
 # toolchain components currently built from source
-# these are now commented out as the corresponding items are available as packages or on the CI
+# most of these are now commented out as the corresponding items are available as packages or on the CI
 # if you need certain features you can uncomment them and reprovision. 
 
 
@@ -45,6 +45,10 @@ apt-get install python3-pip -y
 pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
 
 pip3 install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
+
+pip3 install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
+
+pip3 install --upgrade opentype-sanitizer
 
 
 # checking if we already have local checkouts 
@@ -94,8 +98,43 @@ pip3 install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#e
 # make
 # make install
 # ldconfig 
-# 
-# 
+
+
+# fontvalidator
+echo " "
+echo " "
+echo "Installing fontvalidator from source"
+echo " "
+echo " "
+apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
+cd /usr/local/builds
+git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
+cd fontval
+make
+make gendoc
+cp bin/*.exe /usr/local/bin/
+cp bin/*.dll* /usr/local/bin/
+cp bin/*.xsl /usr/local/bin/
+
+# FontValidator shell script
+echo " "
+echo " "
+echo "Installing fontval script"
+echo " "
+echo " "
+cat > /usr/local/bin/fontval <<'EOF'
+#!/bin/bash
+
+# running the validator from the usr/local/bin directory  
+mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
+
+exit 0 
+
+EOF
+
+chmod 755 /usr/local/bin/fontval 
+
+
 
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin -y -q
