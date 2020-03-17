@@ -40,6 +40,9 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # install pip3 
 apt-get install python3-pip -y 
 
+# generic toolchain
+apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -q
+
 # install python components (tracking master) and their dependencies directly via pip3  
 
 pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
@@ -52,20 +55,22 @@ pip3 install --upgrade opentype-sanitizer
 
 
 # checking if we already have local checkouts 
-# if [ -d /usr/local/builds/ ]
-# then
-#     echo " "
-#     echo "You already have previous builds, it's easier to delete them and start afresh. "
-#     echo " "
-#     echo "Deleting /usr/local/builds... "
-#     echo " "
-#     rm -rf /usr/local/builds
-# fi
-# 
-# mkdir -p /usr/local/builds
-# 
-# chmod -R 766 /usr/local/builds 
-# 
+ if [ -d /usr/local/builds/ ]
+then
+    echo " "
+    echo "You already have previous builds, it's easier to delete them and start afresh. "
+    echo " "
+    echo "Deleting /usr/local/builds... "
+    echo " "
+    rm -rf /usr/local/builds
+fi
+
+mkdir -p /usr/local/builds
+
+chmod -R 766 /usr/local/builds 
+ 
+
+
 # # graphite
 # echo " "
 # echo " "
@@ -150,6 +155,10 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
 # none for now
+
+# extra packages needed for fontproof
+apt-get install wamerican wbritish -y 
+
 
 # install sile extensions: fontproof
 
