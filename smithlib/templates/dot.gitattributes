@@ -6,8 +6,7 @@
 # see http://git-scm.com/book/en/Customizing-Git-Git-Attributes
 
 # Windows users should use consider setting "core.autocrlf" to "input" and 
-# "core.eol" to "lf" 
-# to catch files that are not explicitly declared below.
+# "core.eol" to "lf" to catch files that are not explicitly declared below.
 # See http://git-scm.com/docs/git-config
 
 # This causes git to auto detect text files
@@ -29,7 +28,9 @@
 *.gdh text eol=lf
 *.html text eol=lf
 *.htxt text eol=lf
+*.json text eol=lf
 *.md text eol=lf
+*.py text eol=lf
 *.sil text eol=lf
 *.srctext text eol=lf
 *.tex text eol=lf
@@ -40,12 +41,13 @@
 *.xsl text eol=lf
 *.xml text eol=lf
 
+# Declare text files that will stay in LF (i.e. not expected to be used on Windows)
 preflight text eol=lf
 preflightg text eol=lf
+preflightff text eol=lf
 preglyphs text eol=lf
 wscript text eol=lf
 
-# Declare text files that will stay in LF (i.e. not expected to be used on Windows)
 *.sh text eol=lf
 *.sfd text eol=lf
 
