@@ -21,7 +21,7 @@ keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
             'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
-            'package_files', 'buildversion')
+            'package_files', 'buildversion', 'sile_path', 'sile_scale')
 
 def formatdesc(s) :
     res = []
@@ -90,11 +90,13 @@ class Package(object) :
                 bv = kw['buildlabel'] + " " + bv
             kw['buildversion'] = bv
         bv = kw['buildversion'].replace(" ", "-")
+        if 'sile_path' not in kw:
+            kw['sile_path'] = os.path.dirname(__file__)
+        for k in keyfields :
+            if k not in kw: kw[k] = ""
 
         for k, v in kw.items() :
             setattr(self, k, v)
-        for k in keyfields :
-            if not hasattr(self, k) : setattr(self, k, '')
         self.packagestore.append(self)
         self.fonts = []
         self.keyboards = []
@@ -102,7 +104,7 @@ class Package(object) :
         self.reldir = ''
         self.order = []
         self.package = self
-        self.fontTests = font_tests.FontTests(getattr(self, 'testfiles', None))
+        self.fontTests = font_tests.FontTests(**kw)
 
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)

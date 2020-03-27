@@ -107,11 +107,11 @@ class FontTests(object) :
             fg.append(font)
         return fg
 
-    def __init__(self, testfiles = None) :
+    def __init__(self, **kw) :
         from smithlib import package
         self._allFontGroups = {}
         self._allTests = {}
-        self._testfiles = strsToDicts(testfiles)
+        self._testfiles = strsToDicts(kw.get('testfiles', None))
         self.extraFiles = []
         self.addTestCmd('pdfs', type='TeX')
         self.addTestCmd('waterfall', type='Waterfall')
@@ -124,7 +124,11 @@ class FontTests(object) :
                     ' -L standard -o "${TGT}" --copy fonts_${shaper} --strip "${SRC[1]}" "${SRC[2]}"')
         self.addTestCmd('ftml', type='FTML')
         self.addTestCmd('sile', cmd='${SILE} -o "${TGT}" "${SRC[0].abspath()}" -e \'fontfile = "${SRC[1]}"\'', extracmds=['sile'],
-                shapers=0, supports=['.sil'], ext='.pdf')
+                shapers=0, supports=['.sil'], ext='.pdf', shell=1)
+        silescale = str(kw.get('sile_scale', ""))
+        if silescale != "":
+            silescale = '-s %s' % (silescale)
+        self.addTestCmd('sile', cmd='SILE_PATH=\"%s\" ${SILE} -o "${TGT}" -e \'SILE.scratch.ftmlfontlist={"${SRC[1]}"}\' -I ftml.sil "${SRC[0].abspath()}" %s #; test -e "${TGT}"' % (kw['sile_path'], silescale), extracmds=['sile'], shapers=0, supports=['.ftml'], ext='.pdf', shell=1)
         type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
@@ -446,7 +450,7 @@ class TestCommand(object) :
             This method is intended to be subclassed """
         if f is None : return None
         (_, ext) = os.path.splitext(str(f.node))
-        if ext == '.htxt' :
+        if ext == '.htxt' and '.txt' in self.supports :
             targ = f.node.change_ext('.txt')
             ctx(rule=r"perl -CSD -pe 's{\\[uU]([0-9A-Fa-f]+)}{pack(qq/U/, hex($1))}oge' ${SRC} > ${TGT}",
                 shell = 1, source = f.node, target = targ)
@@ -465,7 +469,8 @@ class TestCommand(object) :
                 return x.path_from(resultsroot)
 
         results = {}
-        srcs = test._srcs if len(test._srcs) else [None]
+        # srcs = test._srcs if len(test._srcs) else [None]
+        srcs = test._srcs if len(test._srcs) else []
         for s in srcs :
             res = self.do_build(ctx, s, test, targetdir, optional=optional)
             if res is not None :
