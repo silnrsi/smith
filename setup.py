@@ -28,7 +28,7 @@ setup(
     include_package_data=True,
     package_data={
         'smithlib': [
-            'smithlib/*.*', 'smithlib/templates/'
+            'smithlib/*.*', 'smithlib/templates/', 'smithlib/classes/'
         ]
     },
     entry_points={
