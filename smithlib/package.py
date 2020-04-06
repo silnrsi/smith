@@ -269,14 +269,6 @@ class Package(object) :
         for f in self.fonts :
             f.build_pyfontaine(bld)
 
-    def build_fontbakery(self, bld) :
-        if 'FONTBAKERY' not in bld.env :
-            Logs.warn("fontbakery not installed. Can't complete. See http://github.com/googlefonts/fontbakery")
-            return
-        self.subrun(bld, lambda p, b: p.build_fontbakery(b))
-        for f in self.fonts :
-            f.build_fontbakery(bld)
-
     def build_start(self, bld) :
         self.subrun(bld, lambda p, b: p.build_start(b))
         for f in self.fonts :
@@ -829,9 +821,22 @@ class pyfontaineContext(cmdContext) :
     """Report coverage using pyfontaine. Check the test reports."""
     cmd = 'pyfontaine'
 
-class fontbakeryContext(cmdContext) :
-    """Test fonts using FontBakery. Check <font.targe>-fontbakery.log"""
-    cmd = 'fontbakery'
+class ttfcheckContext(Context.Context) :
+    """Run fontbakery checks (TTF) using the silfont profile by default."""
+    cmd = 'ttfcheck'
+    def execute(self) :
+        outputpath = getattr(Context.g_module, 'out', 'results')
+        Utils.subprocess.Popen("psfrunfbprofile " + outputpath + "/*.ttf --html " + outputpath + "/ttfcheck-report.html", shell = 1).wait()
+        Logs.warn('You can adjust your testsuite via a project-specific fbttfchecks.py.')
+
+class ufocheckContext(Context.Context) :
+    """Run fontbakery checks (UFO) using the silfont profile by default."""
+    cmd = 'ufocheck'
+    def execute(self) :
+        outputpath = getattr(Context.g_module, 'out', 'results')
+        ufopath = getattr(Context.g_module, 'top', '.' + "/" + "source")
+        Utils.subprocess.Popen("psfrunfbprofile " + ufopath + "/*.ufo --html " + outputpath + "/ufocheck-report.html", shell = 1).wait()
+        Logs.warn('You can adjust your testsuite via a project-specific ufottfchecks.py.')
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""

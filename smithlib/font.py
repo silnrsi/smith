@@ -44,8 +44,6 @@ class Font(object) :
             self.fontlint_target = self.target[:-4] + "-fontlint.log"
         if not hasattr(self, 'pyfontaine_target') :
             self.pyfontaine_target = self.target[:-4] + "-pyfontaine.log"
-        if not hasattr(self, 'fontbakery_target') :
-            self.pyfontaine_target = self.target[:-4] + "-fontbakery.log"
         self._isbuilt = False
 
     def __str__(self) : return self.target
@@ -184,9 +182,6 @@ class Font(object) :
 
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
-
-    def build_fontbakery(self, bld) :
-        bld(rule="${FONTBAKERY} check-silfonts --no-colors ${SRC} > ${TGT}; exit 0 ", target=self.fontbakery_target, source=[self.target], shell=1)
 
 class DesignInstance(object):
 
