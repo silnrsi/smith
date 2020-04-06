@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 ''' wafplus module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -8,20 +8,36 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
-import os, imp, operator, optparse, sys
+import os, imp, operator, optparse, sys, re, shlex
 from waflib.TaskGen import feature, after
+
+def _parsearg(a, o, res):
+    if a.startswith(o['opt']) :
+        if '=' in a :
+            key, val = a.split('=')
+            res[key.strip()] = val.strip()
+        else :
+            res[a.strip()] = 1
+        return True
+    return False
 
 def preprocess_args(*opts) :
     res = {}
+    oldenvstr = os.getenv("SMITHARGS")
+    envargs = shlex.split(oldenvstr) if oldenvstr is not None else []
     for o in opts:
-        for a in sys.argv :
-            if a.startswith(o['opt']) :
-                if '=' in a :
-                    key, val = a.split('=')
-                    res[key.strip()] = val.strip()
-                else :
-                    res[a.strip()] = 1
+        for a in sys.argv:
+            if _parsearg(a, o, res):
                 sys.argv.remove(a)
+        for a in envargs:
+            if _parsearg(a, o, res):
+                envargs.remove(a)
+    envstr = " ".join(envargs)
+    if oldenvstr is not None and oldenvstr != "":
+        if envstr == "":
+            del os.environ["SMITHARGS"]
+        else:
+            os.environ["SMITHARGS"] = envstr
     return res
 
 def add_intasks(base) :
@@ -64,9 +80,11 @@ def process_tempcopy(tgen) :
                 os.remove(tmpnode.abspath())
             Logs.debug("runner: " + outnode.abspath() + "-->" + tmpnode.abspath())
             if outnode.is_bld() and os.path.exists(outnode.abspath()) :
+                Logs.debug("runner: moving")
                 shutil.move(outnode.abspath(), tmpnode.abspath())
             else :
                 sourcenode = outnode.get_src()
+                Logs.debug("runner: Can't copy built, copying " + str(sourcenode.abspath()))
                 shutil.copy2(sourcenode.abspath(), tmpnode.abspath())
                 t.outputs.append(outnode.get_bld())
             ret = fn(self)
@@ -91,8 +109,8 @@ def process_taskgens(tg) :
             ot = og.tasks[-1]
             try: t.intasks.append(ot)
             except AttributeError : t.intasks = [ot]
-            if og in tg.bld.get_group(None) :
-                t.set_run_after(ot)
+            #if og in tg.bld.get_group(None) :
+            t.set_run_after(ot)
 
     if hasattr(tg, 'deps') :
         for d in getattr(tg, 'deps', []) :
@@ -117,7 +135,7 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
         have other inputs ${SRC}.
     """
     # can't create taskgens here because we have no bld context
-    if not path : path = getpath()
+    if not path : path = os.path.abspath(getpath())
     if path not in modifications :
         modifications[path] = {}
     if isinstance(infile, list) :
@@ -128,6 +146,7 @@ def modify(cmd, infile, inputs = [], shell = 0, path = None, **kw) :
     if not inf in modifications[path] :
         modifications[path][inf] = []
     if not len(inputs) : shell = 1      # workaround assert in Task.py
+    # print(path, inf, cmd, inputs, kw)
     modifications[path][inf].append((cmd, inputs, shell, kw))
 
 def ismodified(infile, path = None) :
@@ -145,7 +164,7 @@ def make_tempnode(n, bld) :
     path = ".tmp" + os.sep + n.get_bld().bld_dir()
     tdir = bld.bldnode.abspath() + os.sep + path
     if not os.path.exists(tdir) :
-        os.makedirs(tdir, 0771)
+        os.makedirs(tdir, 0o771)
     res = bld.bldnode.find_or_declare(path + os.sep + n.name)
     return res
 
@@ -163,15 +182,18 @@ def build_modifys(bld) :
             else :
                 return cmp(a, b)
         outnode = bld.path.find_or_declare(key)
-        for i in sorted(range(len(item)), cmp=local_cmp) :
+        # print(key, len(item))
+        for i in sorted(range(len(item)), key=lambda x:(item[x][3].get('late', 0), x)):
+            # print(i, item[i])
             tmpnode = make_tempnode(outnode, bld)
             if 'nochange' in item[i][3] :
                 kw = {}
             else :
                 kw = {'tempcopy' : [tmpnode, outnode]}
             temp = dict(kw)
-            if isinstance(item[i][0], basestring) :
+            if isinstance(item[i][0], str) :
                 cmd = item[i][0].replace('${DEP}', tmpnode.bldpath()).replace('${TGT}', outnode.get_bld().bldpath())
+                cmd = re.sub(r'\${TGT\[([0-9])\]([^}]*)}', lambda m: "${TGT["+str(int(m.group(1))-1)+"]"+m.group(2)+"}" if m.group(1) != "0" else outnode.get_bld().bldpath(), cmd)
                 if not 'name' in temp : temp['name'] = '%s[%d]%s' % (key, count, cmd.split(' ')[0])
             else :
                 temp['dep'] = tmpnode
@@ -179,8 +201,12 @@ def build_modifys(bld) :
                 if not 'name' in temp : temp['name'] = '%s[%d]' % (key, count)
             temp.update(item[i][3])
             if 'targets' in temp :
-                temp['target'] = temp['targets']
-                del temp['targets']
+                if len(temp['targets']) > 1:
+                    temp['target'] = temp['targets'][0]
+                    temp['targets'] = temp['target'][1:]
+                else:
+                    temp['target'] = temp['targets']
+                    del temp['targets']
             bld(rule = cmd, source = item[i][1], shell = item[i][2], **temp)
             count += 1
     del modifications[path]
@@ -247,9 +273,10 @@ def add_sort_tasks(base) :
                     if icntmap[id(a)] == 0 :
                         roots.append(a)
         for t in tasks :
-            if icntmap.get(id(t), 0) :
-                print "Circular dependency: " + str(t)
-                print "   comes after: " + str(t.run_after)
+            if icntmap.get(id(t), 0):
+                if any(icntmap.get(id(x), 0) for x in t.run_after):
+                    print("Circular dependency: " + str(t))
+                    print("   comes after: " + str(t.run_after))
                 res.append(t)
         Logs.debug("order: " + "\n".join(map(repr,res)))
         for r in res :
@@ -294,10 +321,10 @@ def add_sort_tasks(base) :
     def wrap_biter(self) :
         for b in old_biter(self) :
             inject_modifiers(b)
-#            print self.group_names[self.cur - 1]
-#            tlist = top_sort(b)
-#            yield tlist
-            yield b
+#            print(b)
+            tlist = top_sort(b)
+            yield tlist
+#            yield b
 
     base.get_build_iterator = wrap_biter
     Task.TaskBase.runs_after = runs_after
@@ -355,7 +382,7 @@ def add_unicode_exec() :
         if isinstance(cmd, str) :
             cmd = cmd.decode('utf_8')
         elif isinstance(cmd, list) :
-            cmd = map (operator.methodcaller('decode', 'utf_8'), cmd)
+            cmd = list(map (operator.methodcaller('decode', 'utf_8'), cmd))
         old_exec(self, cmd, **kw)
 
     Context.Context.exec_command = unicode_exec_command
@@ -373,6 +400,7 @@ def add_options() :
         gr.add_option('--dot', action = 'store_true', help = 'create wscript.dot of build tasks for this command')
         gr.add_option('--debug', action = 'store_true', help = 'break out into the debugger')
         gr.add_option('-r','--release', action = 'store_true', help = 'Build for release, no special version numbers')
+        gr.add_option('--standards', help = 'Alternative source of base files for testing')
 
     Options.opt_parser.__init__ = init
 
@@ -381,17 +409,17 @@ def patch_waf() :
             Node.find_resource
             Utils.h_file
     """
-    def find_resource(self, lst) :
-		if isinstance(lst, str):
-			lst = [x for x in Node.split_path(lst) if x and x != '.']
+    def find_resource(self, lst):
+        if isinstance(lst, str):
+            lst = [x for x in Node.split_path(lst) if x and x != '.']
 
-		node = self.get_bld().search(lst)
-		if not node:
-			self = self.get_src()
-			node = self.search(lst)
-			if not node:
-				node = self.find_node(lst)
-		return node
+        node = self.get_bld().search(lst)
+        if not node:
+            self = self.get_src()
+            node = self.search(lst)
+            if not node:
+                node = self.find_node(lst)
+        return node
     Node.Node.find_resource = find_resource
 
     def h_file(filename) :
@@ -399,9 +427,9 @@ def patch_waf() :
         if os.path.isdir(filename) :
             for (dp, ds, fs) in os.walk(filename) :
                 st = os.stat(dp)
-                m.update(str(st.st_mtime))
-                m.update(str(st.st_size))
-                m.update(dp)
+                m.update(str(st.st_mtime).encode("utf-8"))
+                m.update(str(st.st_size).encode("utf-8"))
+                m.update(dp.encode("utf-8"))
         else :
             f = open(filename, 'rb')
             try :
@@ -469,6 +497,8 @@ def make_dot(self):
 
     self.compile()
 
+def nulltask(task):
+    return 0
 
 def load_module(file_path) :
     """ Add global pushing to WSCRIPT when it loads """

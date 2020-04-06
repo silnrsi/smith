@@ -1,4 +1,5 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
+from __future__ import absolute_import, print_function
 ''' package module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -6,16 +7,21 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from wsiwaf import isList, formatvars
-import wafplus, font_tests
-import font, templater 
-import os, sys, shutil, time, ConfigParser, fnmatch, subprocess, re
+from smithlib.wsiwaf import isList, formatvars, create
+from smithlib import wafplus, font_tests, font, templater
+import os, sys, shutil, time, fnmatch, subprocess, re
 from xml.etree import ElementTree as et
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
-            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat')
+            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
+            'package_files', 'buildversion', 'sile_path', 'sile_scale')
 
 def formatdesc(s) :
     res = []
@@ -44,7 +50,7 @@ class Package(object) :
     packagestore = []
     packdict = {}
     globalpackage = None
-    default_bintypes = ["*.doc*", "*.jp*", "*.mp*", "*.od*", "*.pdf", "*.png", "*.pp*", "*.ttf", "*.woff"]
+    default_bintypes = ["*.doc*", "*.idml", "*.indd", "*.jp*", "*.mp*", "*.od*", "*.pdf", "*.png", "*.pp*", "*.ttf", "*.woff", "*.xls*"]
 
     @classmethod
     def initPackages(cls, ps = None, g = None) :
@@ -84,11 +90,13 @@ class Package(object) :
                 bv = kw['buildlabel'] + " " + bv
             kw['buildversion'] = bv
         bv = kw['buildversion'].replace(" ", "-")
+        if 'sile_path' not in kw:
+            kw['sile_path'] = os.path.dirname(__file__)
+        for k in keyfields :
+            if k not in kw: kw[k] = ""
 
         for k, v in kw.items() :
             setattr(self, k, v)
-        for k in keyfields :
-            if not hasattr(self, k) : setattr(self, k, '')
         self.packagestore.append(self)
         self.fonts = []
         self.keyboards = []
@@ -96,7 +104,7 @@ class Package(object) :
         self.reldir = ''
         self.order = []
         self.package = self
-        self.fontTests = font_tests.FontTests(getattr(self, 'testfiles', None))
+        self.fontTests = font_tests.FontTests(**kw)
 
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
@@ -290,6 +298,11 @@ class Package(object) :
         for f in self.fonts :
             f.build_sign(bld)
 
+    def build_buildinfo(self, bld) :
+        self.subrun(bld, lambda p, b: p.build_buildinfo(b))
+        for f in self.fonts :
+            f.build_buildinfo(bld)
+
     def build_exe(self, bld) :
         if 'MAKENSIS' not in bld.env :
             Logs.error("makensis not installed. Can't complete. See http://nsis.sourceforge.net and nsis package")
@@ -432,10 +445,10 @@ class Package(object) :
         self.subrun(bld, lambda p, c: res.extend(p.get_built_files(c)), onlyfn = True)
         for f in self.fonts :
             if not hasattr(f, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), f.get_targets(bld)))
+                res.extend((bld.out_dir, x) for x in f.get_targets(bld))
         for k in self.keyboards :
             if not hasattr(k, 'dontship') :
-                res.extend(map(lambda x: (bld.out_dir, x), k.get_targets(bld)))
+                res.extend((bld.out_dir, x) for x in k.get_targets(bld))
         return res
 
     def get_files(self, bld) :
@@ -449,25 +462,56 @@ class Package(object) :
         res = set()
         self.subrun(bld, lambda p, c: res.update(p.get_files(c)), onlyfn = True)
 
-        res.update(map(lambda x: (bld.out_dir, x), self.best_practise_files(self.fonts, self.keyboards)))
+        res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
 
-        def docwalker(top, dname, fname) :
-            i = 0
-            if dname[i].startswith(".") :
-                del dname[i]
-            else :
-                i += 1
-            res.update([(top, os.path.relpath(os.path.join(dname, x), top)) for x in fname if not x.startswith(".") and os.path.isfile(os.path.join(dname, x))])
+        def docwalker(top, dpath, dname, fname) :
+            if len(dname):
+                while dname[0].startswith("."):
+                    dname.pop(0)
+            res.update([(top, os.path.relpath(os.path.join(dpath, x), top)) for x in fname
+                        if not x.startswith(".") and os.path.isfile(os.path.join(dpath, x))])
         if self.docdir :
             for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
                 y = bld.bldnode.search(docdir)
                 if y is not None :
-                    os.path.walk(y.abspath(), docwalker, bld.bldnode.abspath())
+                    for x in os.walk(y.abspath(), topdown=True):
+                        docwalker(bld.bldnode.abspath(), *x)
                 y = bld.srcnode.find_node(docdir)
                 if y is not None :
-                    os.path.walk(y.abspath(), docwalker, bld.srcnode.abspath())
+                    for x in os.walk(y.abspath(), topdown=True):
+                        docwalker(bld.srcnode.abspath(), *x)
+        if hasattr(self, 'package_files'):
+            extras = []
+            for k, v in self.package_files.items():
+                files = [(bld.srcnode.abspath(), os.path.relpath(x.abspath(), bld.srcnode.abspath())) for x in bld.srcnode.ant_glob(k)]
+                files.extend((bld.bldnode.abspath(), os.path.relpath(x.abspath(), bld.bldnode.abspath())) for x in bld.bldnode.ant_glob(k))
+                pathbits = k.split("/")
+                for i, p in enumerate(pathbits):
+                    if '*' in p:
+                        break
+                else:
+                    i = len(pathbits) - 1
+                numpath = i
+                for p, f in files:
+                    if v is None:
+                        r = f
+                    elif '*.' in v:
+                        r = v.replace('*.', os.path.splitext(os.path.basename(f))[0])
+                    elif '*' in v:
+                        r = v.replace('*', os.path.basename(f))
+                    elif v[-1] == '/':
+                        bits = f.split("/")[numpath:]
+                        r = os.path.join(v[:-1], *bits)
+                    else:
+                        r = v
+                    for t in res:
+                        if t[1] == f:
+                            res.remove(t)
+                            break
+                    extras.append((p, f, r))
+            res.update(extras)
         return res
 
     def isTextFile(self, f) :
@@ -476,6 +520,37 @@ class Package(object) :
                 return False
         return True
 
+class _DSSource(object):
+    def __init__(self, **kw):
+        for k,v in kw.items():
+            setattr(self, k, v)
+        self.locations = {}
+
+    def addLocation(self, name, values):
+        self.locations[name] = values
+
+    def same(self, other):
+        if len(self.locations) != len(other.locations):
+            return False
+        if self.name != other.name:
+            return False
+        if self.familyname != other.familyname:
+            return False
+        if self.stylename != other.stylename:
+            return False
+        for k, v in self.locations.items():
+            if other.locations[k] != v:
+                return False
+        return True
+
+def read_plist(fname):
+    res = {}
+    doc = et.parse(fname)
+    plist = doc.getroot()[0]
+    for i in range(len(plist), 0, 2):
+        res[plist[i].text] = plist[i+1]
+    return res
+
 class DesignSpace(object):
     _modifiermap = {'DASH': lambda x: x.replace(' ', '-'),
                     'BASE': lambda x: os.path.splitext(os.path.basename(x))[0]}
@@ -483,28 +558,70 @@ class DesignSpace(object):
     def __init__(self, dspace, *k, **kw):
         self.dspace = dspace
         self.kw = kw
+        self.fonts = []
         self.makefonts()
+        self.isbuilt = False
 
     def makefonts(self):
         self.doc = et.parse(self.dspace)
-        for inst in self.doc.getroot().find('instances'):
-            self._makefont(inst, True)
+        self.srcs = {}
+        for src in self.doc.getroot().findall('.//sources/source'):
+            sfont = _DSSource(**src.attrib)
+            for d in src.findall('./location/dimension'):
+                sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
+            self.srcs[sfont.name] = sfont
+        for inst in self.doc.getroot().findall('instances/instance'):
+            if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
+                self._makefont(inst, True)
 
     def _makefont(self, inst, isInstance):
         base = os.path.dirname(self.dspace)
         specialvars = dict(("DS:"+k.upper(), v) for k,v in inst.attrib.items())
-        specialvars.update((k+"_"+mk, mv(v)) for k,v in specialvars.items() for mk, mv in self._modifiermap.items())
+        copyvars = specialvars.copy()
+        specialvars.update((k+"_"+mk, mv(v)) for k,v in copyvars.items() for mk, mv in self._modifiermap.items())
         specialvars.update(("DS:AXIS_"+e.get("name", "").upper(), e.get("xvalue", "")) for e in inst.findall('location/dimension'))
         specialvars['DS:FILE'] = os.path.join(base, specialvars['DS:FILENAME'])
-        newkw = dict((k, formatvars(v, specialvars)) for k,v in self.kw.items())
+        newkw = dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items()))
         # we can insert all kinds of useful defaults in here
         if 'source' not in newkw:
             if isInstance:
-                newkw['source'] = font.DesignInstance(specialvars['DS:FILE'], specialvars['DS:NAME'],\
-                        self.dspace, params=newkw.get('params', ''))
+                if newkw.get('shortcircuit', True) and 'name' in inst.attrib:
+                    srcinst = self.srcs.get(inst.get('name'), None)
+                    if srcinst is not None:
+                        masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
+                        fsrc = _DSSource(**inst.attrib)
+                        for d in inst.findall("./location/dimension"):
+                            fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
+                        mightbeSame = srcinst.same(fsrc)
+                        for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
+                            if inst.find(sub) is not None and len(inst.find(sub)) > 0:
+                                mightbeSame = False
+                                break
+                        if mightbeSame:
+                            fplist = read_plist(os.path.join(masterFName, 'fontinfo.plist'))
+                            for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
+                                att = inst.get(sub.lower(), "")
+                                if not len(att):
+                                    continue
+                                v = fplist.get(sub, None)
+                                if v is not None and v.text != att:
+                                    mightbeSame = False
+                                    break
+                        if mightbeSame:
+                            parmvar = newkw.get('instanceparams', '')
+                            if '-W' in parmvar or '--fixweight' in parmvar:
+                                wt = int(fplist.get('openTypeOS2WeightClass', "0"))
+                                st = fplist.get('styleMapStyleName', fplist.get('styleName', '')).lower()
+                                if (st.startswith('bold') and wt != 700) or wt != 400:
+                                    mightbeSame = False
+                        if mightbeSame:
+                            newkw['source'] = masterFName
+                if 'source' not in newkw:
+                    newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
+                                                          self.dspace, params=newkw.get('instanceparams', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
-        font.Font(**newkw)
+        self.fonts.append(font.Font(**newkw))
 
 def make_srcdist(self) :
     res = set(['wscript'])
@@ -658,6 +775,17 @@ class signContext(Build.BuildContext) :
                     Utils.subprocess.call(cmd)
         Logs.warn('Detached signature .asc files (PGP/GPG) generated for all available artifacts.')
 
+class buildinfoContext(Build.BuildContext) :
+    """Provide BUILDINFO.txt for toolchain component versions"""
+    cmd = 'buildinfo'
+
+    def execute(self) :
+        checkpath = os.path.join(self.out_dir + '/')
+        os.chdir(checkpath)
+        subprocess.call(["dpkg-query -W -f '${binary:Package}:\t${Version}\t(${Architecture})\tdependencies: ${Depends}\t${binary:Summary}\t${Homepage}\n\n'"], shell = 1, stdout=open("BUILDINFO.txt","w"))
+        Logs.warn('Toolchain component versions file BUILDINFO.txt generated.')
+
+
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
     cmd = 'exe' # must have a cmd otherwise this class overrides Build.BuildContext
@@ -716,30 +844,30 @@ class versionContext(Context.Context) :
     cmd = 'version'
     def execute(self) :
         Logs.warn('Version of smith currently installed (as a package):')
-        Utils.subprocess.Popen("apt-cache show smith", shell = 1).wait()
+        Utils.subprocess.Popen("apt-cache policy smith-font | grep Installed", shell = 1).wait()
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
-class startContext(Context.Context) : 
+class startContext(Context.Context): 
     """start: create project template folder structure"""
     cmd = 'start'
-    def execute(self) :
+    def execute(self):
         thisdir = os.path.join(os.path.dirname(__file__), 'templates')
-        folders =  ('documentation', 'tools', 'tests', 'web')
-        for f in folders :
+        folders = ('documentation', 'tools', 'tests', 'web')
+        for f in folders:
             if not os.path.exists(f):
                 os.mkdir(f)
-                print "Updating missing template folder: %s" % (f)
+                print("Updating missing template folder: {}".format(f))
         files = dict([(x, x) for x in ('wscript', 'OFL.txt', 'OFL-FAQ.txt', 'FONTLOG.txt', 'README.md', 'README.txt')])
         files.update([('dot.gitattributes', '.gitattributes'), ('dot.gitignore', '.gitignore')])
-        for f,o in files.items() :
+        for f,o in list(files.items()) :
             if not os.path.exists(o):
                 try:
                     shutil.copy(os.path.join(thisdir, f), o)
                 except EnvironmentError:
-                    print "Error, could not copy/update %s %s" % (f, o)
+                    print("Error, could not copy/update %s %s" % (f, o))
                 else:
-                    print "Updating missing template file: %s"  % (f)
+                    print("Updating missing template file: %s"  % (f))
         Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
 
@@ -777,7 +905,7 @@ class srcdistcheckContext(Build.BuildContext) :
             Logs.error("Tarball not found. Run smith srcdist first.")
         # tarbase is directory to configure and build
         ret = Utils.subprocess.Popen([sys.argv[0], 'configure', 'build'], cwd=tarbase).wait()
-	if ret:
+        if ret:
             raise Errors.WafError('srcdistcheck failed with code %i' % ret)
 
         shutil.rmtree(tarbase)
@@ -988,7 +1116,7 @@ override_dh_builddeb:
         for k, v in fileinfo.items() :
             f = file(os.path.join('debian', k), 'w')
             f.write(v + "\n")
-            if k == 'rules' : os.fchmod(f.fileno(), 0775)
+            if k == 'rules' : os.fchmod(f.fileno(), 0o775)
             f.close()
 
         # docs file  (probably needs a conditional on web/ and sources/ too)
@@ -1042,7 +1170,7 @@ class graideContext(Build.BuildContext) :
                     makegdl = ''
                 master = os.path.join('..', f.graphite.master) if hasattr(f.graphite, 'master') else ''
                 fname = os.path.join(graide, '{}.cfg'.format(base))
-                cfg = ConfigParser.RawConfigParser()
+                cfg = configparser.RawConfigParser()
                 if os.path.exists(fname) :
                     cfg.read(fname)
                 changed = False
@@ -1096,6 +1224,11 @@ def testCommand(_cmd, **kw) :
     gpackage = Package.global_package()
     gpackage.fontTests.addTestCmd(_cmd, **kw)
 
+def testFile(tgt, *cmds, **kws):
+    c = create(tgt, *cmds, **kws)
+    gpackage = Package.global_package()
+    gpackage.fontTests.addTestFile(c)
+
 def _findvcs(cwd) :
     if cwd == os.path.sep or cwd == '' : return None
     if os.path.exists(os.path.join(cwd, '.git')) :
@@ -1119,16 +1252,16 @@ def getversion(buildformat="dev-{vcssha:.6}{vcsmodified}") :
         results['vcstype'] = 'svn' if os.path.exists(os.path.join(curdir, '.svn')) else _findvcs(curdir)
 
         if results['vcstype'] == 'git' :
-            vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+            vcssha = Utils.subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode("ascii")
             results['vcsmodified'] = 'M' if Utils.subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) else ""
         elif results['vcstype'] == 'hg' :
-            vcssha = Utils.subprocess.check_output(['hg', 'identify', '--id']).strip()
+            vcssha = Utils.subprocess.check_output(['hg', 'identify', '--id']).decode("ascii").strip()
             if vcssha.endswith('+') :
                 vcssha = vcssha[:-1]
                 results['vcsmodified'] = 'M'
         elif results['vcstype'] == 'svn' :
             # (only in svn 1.9 and above) vcssha = Utils.subprocess.check_output(['svn', 'info', '--show-item=revision'])
-            vcssha = Utils.re.search(ur'Revision: (\d+)', Utils.subprocess.check_output(['svn', 'info'])).group(1)
+            vcssha = Utils.re.search(r'Revision: (\d+)', Utils.subprocess.check_output(['svn', 'info'])).group(1).decode("ascii")
             results['vcsmodified'] = "M" if Utils.subprocess.check_output(['svn', 'status', '-q']) else ""
     results['vcssha'] = vcssha.strip()
     results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
@@ -1141,12 +1274,12 @@ def getufoinfo(ufosrc):
     majver = 0
     minver = 0
     extra = ""
-    m = re.match(ur'^version (\d+)\.(\d{3});?\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
+    m = re.match(r'^version (\d+)\.(\d{3});?\s*(.*)$', info.get('openTypeNameVersion', ''), flags=re.I)
     if m is not None:
         majver = int(m.group(1))
         minver = int(m.group(2))
         if m.group(3) is not None:
-            extra = re.sub(ur'\s*dev-.*?\s*', '', m.group(3), flags=re.I)
+            extra = re.sub(r'\s*dev-.*?\s*', '', m.group(3), flags=re.I)
     if 'versionMajor' in info:
         majver = int(info['versionMajor'])
     if 'versionMinor' in info:
@@ -1173,7 +1306,7 @@ def add_configure() :
         currpackages = Package.packages()
         gm = Context.g_module
         rdir = Context.run_dir
-        for k, v in Package.packdict.items() :
+        for k, v in list(Package.packdict.items()) :
             Package.initPackages(v, None)
             c = ctx.__class__()
             c.top_dir = os.path.join(ctx.srcnode.abspath(), k)
@@ -1218,7 +1351,7 @@ def onload(ctx) :
     varmap = { 'package': Package, 'subdir': subdir,
         'ftmlTest': ftmlTest, 'testCommand': testCommand,
         'getversion': getversion, 'getufoinfo': getufoinfo,
-        'designspace': DesignSpace }
+        'designspace': DesignSpace, 'testFile' : testFile }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v

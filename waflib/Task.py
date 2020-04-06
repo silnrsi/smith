@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
@@ -1015,7 +1015,7 @@ def compile_fun_shell(line):
 	dvars = []
 	app = parm.append
 	for (var, meth) in extr:
-		if re.match(ur'\[\d+\]$', meth) :
+		if re.match(r'\[\d+\]$', meth) :
 			meth = meth + ".bldpath()"
 		if var == 'SRC':
 			if meth: app('tsk.inputs%s' % meth)
@@ -1071,7 +1071,7 @@ def compile_fun_noshell(line):
 		if params[x]:
 			app("lst.extend(%r)" % params[x].split())
 		(var, meth) = extr[x]
-		if re.match(ur'\[\d+\]$', meth) :
+		if re.match(r'\[\d+\]$', meth) :
 			meth = meth + ".bldpath()"
 		if var == 'SRC':
 			if meth: app('lst.append(tsk.inputs%s)' % meth)

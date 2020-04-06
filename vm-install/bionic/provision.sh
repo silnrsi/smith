@@ -17,37 +17,60 @@ echo " "
 
 
 # the official smith PPA
-add-apt-repository -s -y ppa:silnrsi/smith
+add-apt-repository -s -y ppa:silnrsi/smith-py3
 
-# the TexLive 2018 backports PPA
-add-apt-repository -s -y ppa:jonathonf/texlive-2018
+# the TexLive 2019 backports PPA
+add-apt-repository -s -y ppa:jonathonf/texlive-2019
 
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
+
+# the official SILE PPA
+add-apt-repository -s -y ppa:sile-typesetter/sile
+
 
 apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
 # toolchain components currently built from source
-# these are now commented out as the corresponding items are available as packages or on the CI
+# most of these are now commented out as the corresponding items are available as packages or on the CI
 # if you need certain features you can uncomment them and reprovision. 
 
 
+# install pip3 
+apt-get install python3-pip -y 
+
+# generic toolchain
+apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -q
+
+# install python components (tracking master) and their dependencies directly via pip3  
+
+pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
+
+pip3 install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
+
+pip3 install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
+
+pip3 install --upgrade opentype-sanitizer
+
+
 # checking if we already have local checkouts 
-# if [ -d /usr/local/builds/ ]
-# then
-#     echo " "
-#     echo "You already have previous builds, it's easier to delete them and start afresh. "
-#     echo " "
-#     echo "Deleting /usr/local/builds... "
-#     echo " "
-#     rm -rf /usr/local/builds
-# fi
-# 
-# mkdir -p /usr/local/builds
-# 
-# chmod -R 766 /usr/local/builds 
-# 
+ if [ -d /usr/local/builds/ ]
+then
+    echo " "
+    echo "You already have previous builds, it's easier to delete them and start afresh. "
+    echo " "
+    echo "Deleting /usr/local/builds... "
+    echo " "
+    rm -rf /usr/local/builds
+fi
+
+mkdir -p /usr/local/builds
+
+chmod -R 766 /usr/local/builds 
+ 
+
+
 # # graphite
 # echo " "
 # echo " "
@@ -80,64 +103,48 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 # make
 # make install
 # ldconfig 
-# 
-# 
-# # ots
-# echo " "
-# echo " "
-# echo "Installing ots from source"
-# echo " "
-# echo " "
-# apt-get install build-essential autoconf automake pkg-config zlib1g-dev -y -q
-# cd /usr/local/builds
-# git clone --depth 1 --recursive https://github.com/khaledhosny/ots.git
-# cd ots
-# ./autogen.sh
-# ./configure --enable-debug --enable-graphite
-# make
-# make install 
-# 
-# # fontvalidator
-# echo " "
-# echo " "
-# echo "Installing fontvalidator from source"
-# echo " "
-# echo " "
-# apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
-# cd /usr/local/builds
-# git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
-# cd fontval
-# make
-# make gendoc
-# cp bin/*.exe /usr/local/bin/
-# cp bin/*.dll* /usr/local/bin/
-# cp bin/*.xsl /usr/local/bin/
-# 
-# FontValidator shell script
-# echo " "
-# echo " "
-# echo "Installing fontval script"
-# echo " "
-# echo " "
-# cat > /usr/local/bin/fontval <<'EOF'
-# #!/bin/bash
-# 
-# # running the validator from the usr/local/bin directory  
-# mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
-# 
-# exit 0 
-# 
-# EOF
-# 
-# chmod 755 /usr/local/bin/fontval 
 
-# python-odf for ftml2odt
-apt-get install python-odf python-odf-tools -y -q
+
+# fontvalidator
+echo " "
+echo " "
+echo "Installing fontvalidator from source"
+echo " "
+echo " "
+apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
+cd /usr/local/builds
+git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
+cd fontval
+make
+make gendoc
+cp bin/*.exe /usr/local/bin/
+cp bin/*.dll* /usr/local/bin/
+cp bin/*.xsl /usr/local/bin/
+
+# FontValidator shell script
+echo " "
+echo " "
+echo "Installing fontval script"
+echo " "
+echo " "
+cat > /usr/local/bin/fontval <<'EOF'
+#!/bin/bash
+
+# running the validator from the usr/local/bin directory  
+mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1" 
+
+exit 0 
+
+EOF
+
+chmod 755 /usr/local/bin/fontval 
+
+
 
 # toolchain components installed from packages (both main repositories and PPAs)
-apt-get install libharfbuzz-bin
+apt-get install libharfbuzz-bin -y -q
 
-# smith itself  (only the font side of things)
+# smith itself (only the font side of things)
 echo " "
 echo " "
 echo "Installing smith (downloading/updating the dependencies might take a few minutes)"
@@ -147,11 +154,18 @@ echo " "
 apt-get install smith-font --no-install-recommends -y -q
 
 # smith options
-# target specific version for (or downgrade) glyphsLib
-apt-get install python-glyphslib=2.2.1-1ubuntu1
+# none for now
 
-# target specific version for (or downgrade) defcon
-apt-get install python-defcon=0.3.4-1+git-snapshot-0~201806292301~ubuntu18.04.1
+# extra packages needed for fontproof
+apt-get install wamerican wbritish -y 
+
+
+# install sile extensions: fontproof
+
+echo "removing older versions of the fontproof SILE extension if any" 
+rm -rf /usr/share/sile/packagemanager/fontproof/
+sile -e 'installPackage("fontproof");os.exit()'
+
 
 echo " "
 echo " "
@@ -178,7 +192,7 @@ echo "smith zip"
 echo "smith tarball"
 echo "smith release"
 echo "for more details type: man smith"
-echo "or refer to the smith manual in /usr/share/doc/python-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
+echo "or refer to the smith manual in /usr/share/doc/python3-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
 echo " "
 
 

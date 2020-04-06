@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 'Setuptools installation file'
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2017 SIL International (http://www.sil.org)'
@@ -24,11 +24,13 @@ setup(
     and maintaining WSI (Writing Systems Implementation) components such as
     fonts and keyboards. ''',
     py_modules=['smith'],
-    packages=["waflib", "waflib.Tools", "waflib.extras", "smithlib"],
+    packages=["waflib", "waflib.Tools", "waflib", "smithlib"],
     include_package_data=True,
     package_data={
         'smithlib': [
-            'smithlib/*.*', 'smithlib/templates/'
+            'smithlib/*.*',
+            'smithlib/templates/*.*',
+            'smithlib/classes/*.*'
         ]
     },
     entry_points={
@@ -39,7 +41,7 @@ setup(
     platforms=["Any"],
     classifiers=[
         "Environment :: Console",
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Topic :: Text Processing :: Fonts"

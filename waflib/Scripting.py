@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # encoding: utf-8
 # Thomas Nagy, 2005-2010 (ita)
 
@@ -105,7 +105,7 @@ def waf_entry_point(current_directory, version, wafdir):
 		if not Context.run_dir:
 			if wscript in lst:
 				Context.run_dir = cur
-                break       # found it so quit searching
+				break       # found it so quit searching
 
 		next = os.path.dirname(cur)
 		if next == cur:

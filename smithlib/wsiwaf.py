@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 ''' wsiwaf module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -7,19 +7,22 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Context, Task
-from wafplus import *
+from .wafplus import *
 import os, shlex, re
 
 def formatvars(s, kw=None):
     if isinstance(s, deferred_class):
         return s(kw)
-    elif kw is None or not s:
+    elif not s:
         return s
 
     def cvt(m):
         return kw.get(m.group(1), '${' + m.group(1) + '}')
-    if isinstance(s, basestring):
-        return re.sub(ur'\${([a-zA-Z:_/]*)}', cvt, s)
+    if isinstance(s, str):
+        if kw is None:
+            return s
+        else:
+            return re.sub(r'\${([a-zA-Z:_/]*)}', cvt, s)
     if hasattr(s, 'items'):
         return dict((k, formatvars(v, kw)) for k,v in s.items())
     elif hasattr(s, '__len__'):
@@ -44,7 +47,7 @@ def defer(c):
 
 def undeffered(c):
     def undeffer(*a, **kw):
-        newa = map(formatvars, a)
+        newa = list(map(formatvars, a))
         newkw = dict((k, formatvars(v)) for k,v in kw.items())
         return c(*newa, **newkw)
     return undeffer
@@ -68,7 +71,7 @@ class _create(str) :
 
     def __init__(self, tgt, *cmds, **kw) :
         tgt = initval(tgt)
-        self.cmds = map(initval, cmds)
+        self.cmds = list(map(initval, cmds))
         if len(cmds) > 0 :
             res = cmds[0]()(tgt) if isdeferred(cmds[0]) else cmds[0](tgt)
             res[2].update(kw)
@@ -101,7 +104,7 @@ class _process(_create) :
             tgt = os.path.join("tmp", os.path.basename(tgt))
             super(_process, self).__init__(tgt, *cmds, **kw)
         else :
-            self.cmds = map(initval, cmds)
+            self.cmds = list(map(initval, cmds))
             for c in cmds :
                 res = c(tgt)
                 if 'late' not in res[2]:
@@ -125,7 +128,7 @@ class _cmd(object) :
         self.c = initval(c)
         if not isinstance(inputs, list):
             inputs = [inputs]
-        self.inputs = map(initval, inputs)
+        self.inputs = list(map(initval, inputs))
         self.opts = dict((k, initval(v)) for k, v in kw.items())
 
     def __call__(self, tgt) :
@@ -154,7 +157,7 @@ class _cmd(object) :
         return Task.reg_act.sub(repl, self.c)
 
     def build(self, ctx, inputs, tgt, **kw) :
-        return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt)
+        return ctx(rule = self.parse(ctx, kw), source = inputs, target = tgt, **kw)
 
 cmd = defer(_cmd)
 
@@ -169,13 +172,13 @@ def _get_source(self, ctx, a) :
         if not n :
             return []
         elif os.path.isdir(n.abspath()) :
-            return map(lambda x: x.path_from(ctx.path), n.find_nodes())
+            return [x.path_from(ctx.path) for x in n.find_nodes()]
         else :
             return [n.path_from(ctx.path)]
     elif not n :
         return []
     elif os.path.isdir(n.abspath()) :
-        return map(lambda x: x.srcpath(), n.find_nodes())
+        return [x.srcpath() for x in n.find_nodes()]
     else :
         return [n.srcpath()]
 
@@ -211,7 +214,7 @@ def onload(ctx) :
         else :
             setattr(Context.g_module, k, v)
 
-import font, package, keyboard
+from . import font, package, keyboard
 
 for m in (font, package, keyboard) :
     if hasattr(m, 'onload') :

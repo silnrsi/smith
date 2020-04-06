@@ -1,0 +1,13 @@
+#!/bin/bash
+
+CACHE_ID=$(md5sum <<< "$PWD" | cut -d ' ' -f1)
+CDIR="/dev/shm/rrun/$CACHE_ID"
+if [ ! -e "$CDIR" ]; then
+    mkdir -p $CDIR;
+fi
+rsync -am --del ./ "$CDIR/"
+unshare -rm /bin/sh << EOT
+mount --bind "$CDIR" .
+$@
+EOT
+rsync -amu --del "$CDIR/" ./

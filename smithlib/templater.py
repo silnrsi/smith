@@ -21,7 +21,7 @@ class Copier(Task.Task):
             # uncomment for debug: print '!!! replacing',match.group(1)
             # expr = self.preproc(match.group(1), 'eval')
             try: return str(eval(match.group(1), self.globals, self.locals))
-            except Exception, e :
+            except Exception as e :
                 e.lineno = i
                 e.filename = match.group(1)
                 raise e
@@ -53,7 +53,7 @@ class Copier(Task.Task):
                 # stat = self.preproc(stat, 'exec')
                 stat = '%s _cb(%s,%s)' % (stat,i+1,j)
                 # print "-> Executing: {"+stat+"}"
-                exec stat in self.globals,self.locals
+                exec(stat, self.globals,self.locals)
                 i=j+1
             else:       # normal line, just copy with substitution
                 self.outf.write(self.regex.sub(repl,line))

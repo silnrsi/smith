@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # encoding: utf-8
 # Thomas Nagy, 2010 (ita)
 
@@ -169,9 +169,9 @@ class Context(ctx):
 		# binds the context to the nodes in use to avoid a context singleton
 		class node_class(waflib.Node.Node):
 			pass
-		self.node_class = node_class
+		self.node_class = type('Nod3', (waflib.Node.Node,), {})
 		self.node_class.__module__ = "waflib.Node"
-		self.node_class.__name__ = "Nod3"
+		# self.node_class.__name__ = "Nod3"
 		self.node_class.ctx = self
 
 		self.root = self.node_class('', None)
