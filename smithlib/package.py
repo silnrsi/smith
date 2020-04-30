@@ -826,7 +826,7 @@ class ttfcheckContext(Context.Context) :
     cmd = 'ttfcheck'
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
-        Utils.subprocess.Popen("psfrunfbprofile " + outputpath + "/*.ttf --html " + outputpath + "/ttfcheck-report.html", shell = 1).wait()
+        Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/ttfcheck-report.html", shell = 1).wait()
         Logs.warn('You can adjust your testsuite via a project-specific fbttfchecks.py.')
 
 class ufocheckContext(Context.Context) :
@@ -835,7 +835,7 @@ class ufocheckContext(Context.Context) :
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
         ufopath = getattr(Context.g_module, 'top', '.' + "/" + "source")
-        Utils.subprocess.Popen("psfrunfbprofile " + ufopath + "/*.ufo --html " + outputpath + "/ufocheck-report.html", shell = 1).wait()
+        Utils.subprocess.Popen("psfrunfbchecks " + ufopath + "/*.ufo --html " + outputpath + "/ufocheck-report.html", shell = 1).wait()
         Logs.warn('You can adjust your testsuite via a project-specific ufottfchecks.py.')
 
 class crashContext(Context.Context) :
