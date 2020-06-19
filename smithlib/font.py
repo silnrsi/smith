@@ -121,9 +121,9 @@ class Font(object) :
 
         if hasattr(self, 'version') :
             if isinstance(self.version, (list, tuple)) :
-                ttfsetverparms = "-d '" + self.version[1] + "' " + self.version[0]
+                ttfsetverparms = "-n -d '" + self.version[1] + "' " + self.version[0]
             elif self.package.buildversion != '' :
-                ttfsetverparms = "-d '{1}' {0}".format(str(self.version), self.package.buildversion)
+                ttfsetverparms = "-n -d '{1}' {0}".format(str(self.version), self.package.buildversion)
             else :
                 ttfsetverparms = str(self.version)
             modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = basepath, late = 1)
