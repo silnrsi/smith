@@ -545,7 +545,8 @@ def read_plist(fname):
 
 class DesignSpace(object):
     _modifiermap = {'DASH': lambda x: x.replace(' ', '-'),
-                    'BASE': lambda x: os.path.splitext(os.path.basename(x))[0]}
+                    'BASE': lambda x: os.path.splitext(os.path.basename(x))[0],
+                    'NOSPC': lambda x: x.replace(' ', '')}
 
     def __init__(self, dspace, *k, **kw):
         self.dspace = dspace
