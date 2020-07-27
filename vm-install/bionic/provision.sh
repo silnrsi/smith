@@ -124,7 +124,7 @@ cp bin/*.xsl /usr/local/bin/
 # FontValidator shell script
 echo " "
 echo " "
-echo "Installing fontval script"
+echo "Installing fontval scripts"
 echo " "
 echo " "
 cat > /usr/local/bin/fontval <<'EOF'
@@ -139,6 +139,17 @@ EOF
 
 chmod 755 /usr/local/bin/fontval 
 
+cat > /usr/local/bin/FontValidator <<'EOF'
+#!/bin/bash
+
+# running the validator from the usr/local/bin directory  
+mono /usr/local/bin/FontValidator.exe "$@" 
+
+exit 0 
+
+EOF
+
+chmod 755 /usr/local/bin/FontValidator 
 
 
 # toolchain components installed from packages (both main repositories and PPAs)
