@@ -25,6 +25,15 @@ add-apt-repository -s -y ppa:jonathonf/texlive-2019
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
 
+# set git params
+cat > /etc/gitconfig <<'EOF'
+
+[pull]
+    rebase = false
+
+EOF
+
+
 # the official SILE PPA
 add-apt-repository -s -y ppa:sile-typesetter/sile
 
@@ -32,27 +41,22 @@ add-apt-repository -s -y ppa:sile-typesetter/sile
 apt-get update -y -q
 apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
-# toolchain components currently built from source
+# toolchain components currently built from source or retrieved via pypi
 # most of these are now commented out as the corresponding items are available as packages or on the CI
 # if you need certain features you can uncomment them and reprovision. 
 
 
 # install pip3 
 apt-get install python3-pip -y 
+python3 -m pip install --upgrade pip
 
 # generic toolchain
 apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -q
 
 # install python components (tracking master) and their dependencies directly via pip3  
-
-pip3 install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
-
-pip3 install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
-
-pip3 install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
-
-pip3 install --upgrade opentype-sanitizer
-
+python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
+python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
+python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
 
 # checking if we already have local checkouts 
  if [ -d /usr/local/builds/ ]
@@ -104,6 +108,32 @@ chmod -R 766 /usr/local/builds
 # make install
 # ldconfig 
 
+# ots 
+python3 -m pip install opentype-sanitizer 
+
+# entry script to find the wheel binary placed in
+# /usr/local/lib/python3.6/dist-packages/ots/
+
+cat > /usr/local/bin/ots-sanitize <<'EOF'
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+from __future__ import absolute_import
+import sys
+import ots
+
+
+def main(args=None):
+    if args is None:
+        args = sys.argv[1:]
+    return ots.sanitize(*args).returncode
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+EOF
+
+chmod 755 /usr/local/bin/ots-sanitize
 
 # fontvalidator
 echo " "
