@@ -25,13 +25,8 @@ add-apt-repository -s -y ppa:jonathonf/texlive-2019
 # the current git PPA
 add-apt-repository -s -y ppa:git-core/ppa
 
-# set git params
-cat > /etc/gitconfig <<'EOF'
-
-[pull]
-    rebase = false
-
-EOF
+# set git params in ~/.gitconfig
+git config --global pull.rebase false
 
 
 # the official SILE PPA
