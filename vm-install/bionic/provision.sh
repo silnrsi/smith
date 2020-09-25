@@ -48,10 +48,6 @@ python3 -m pip install --upgrade pip
 # generic toolchain
 apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -q
 
-# install python components (tracking master) and their dependencies directly via pip3  
-python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
-python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
-python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
 
 # checking if we already have local checkouts 
  if [ -d /usr/local/builds/ ]
@@ -189,15 +185,19 @@ echo " "
 
 apt-get install smith-font --no-install-recommends -y -q
 
+
+# install python components (tracking master) and their dependencies directly via pip3  
+python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
+python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
+python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
+
 # smith options
 # none for now
 
 # extra packages needed for fontproof
 apt-get install wamerican wbritish -y 
 
-
 # install sile extensions: fontproof
-
 echo "removing older versions of the fontproof SILE extension if any" 
 rm -rf /usr/share/sile/packagemanager/fontproof/
 sile -e 'installPackage("fontproof");os.exit()'
