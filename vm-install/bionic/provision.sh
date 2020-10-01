@@ -192,7 +192,11 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.gi
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
 
 # smith options
-# none for now
+
+# target specific version for (or downgrade) fonttools
+apt-mark hold python3-fonttools
+python3 -m pip uninstall fontTools --yes 
+python3 -m pip install --upgrade fontTools==4.14.0
 
 # extra packages needed for fontproof
 apt-get install wamerican wbritish -y 
