@@ -104,6 +104,16 @@ chmod -R 766 /usr/local/builds
 # python3 -m pip install opentype-sanitizer (release version)
 python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
 
+python3 -m pip install --upgrade meson ninja
+apt-get install libfreetype6-dev -y -q
+cd /usr/local/builds
+git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
+cd ots
+meson build
+ninja -C build
+cp -f build/ots-sanitize /usr/local/lib/python3.6/dist-packages/ots/
+
+
 # entry script to find the wheel binary placed in
 # /usr/local/lib/python3.6/dist-packages/ots/
 
