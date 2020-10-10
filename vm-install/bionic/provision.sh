@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # A provisioning script for Vagrant to make it easier to get the latest smith and its dependencies from the PPAs and/or source.
 # This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
 
@@ -100,7 +101,8 @@ chmod -R 766 /usr/local/builds
 # ldconfig 
 
 # ots 
-python3 -m pip install opentype-sanitizer 
+# python3 -m pip install opentype-sanitizer (release version)
+python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
 
 # entry script to find the wheel binary placed in
 # /usr/local/lib/python3.6/dist-packages/ots/
