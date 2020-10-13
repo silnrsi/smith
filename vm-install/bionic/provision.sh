@@ -101,9 +101,10 @@ chmod -R 766 /usr/local/builds
 # ldconfig 
 
 # ots 
-# python3 -m pip install opentype-sanitizer (release version)
+# python3 -m pip install --upgrade opentype-sanitizer (release version)
 python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
 
+# ots from main repo (debugging and graphite support on by default)
 python3 -m pip install --upgrade meson ninja
 apt-get install libfreetype6-dev -y -q
 cd /usr/local/builds
