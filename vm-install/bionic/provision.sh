@@ -189,6 +189,12 @@ chmod 755 /usr/local/bin/FontValidator
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin -y -q
 
+# smith options
+# target specific version for (or downgrade) fonttools
+apt-mark unhold python3-fonttools
+python3 -m pip uninstall fontTools --yes 
+apt-get install python3-fonttools -y 
+
 # smith itself (only the font side of things)
 echo " "
 echo " "
@@ -204,12 +210,7 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.g
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
 
-# smith options
 
-# target specific version for (or downgrade) fonttools
-apt-mark hold python3-fonttools
-python3 -m pip uninstall fontTools --yes 
-python3 -m pip install --upgrade fontTools==4.14.0
 
 # extra packages needed for fontproof
 apt-get install wamerican wbritish -y 
