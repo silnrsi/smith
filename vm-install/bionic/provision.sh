@@ -16,6 +16,28 @@ echo "Installing smith and its dependencies"
 echo " "
 echo " "
 
+#
+# Configuration options:
+#
+
+# set to True to compile Graphite and harfbuzz from source (including tracing):
+ graphiteFromSource=True
+#graphiteFromSource=False
+
+# set to True to compile opentype-sanitiser/ots from source
+ otsFromSource=True
+#otsFromSource=False
+
+# set to True to include the sklearn module (for Harmattan)
+ includeSklearn=True
+#includeSklearn=False
+
+# to pin particular version of fontTools, set that verion number here, else set to empty
+ fontToolsHoldVersion=4.17.1
+#fontToolsHoldVersion=
+
+# End of configuration options
+
 
 # the official smith PPA
 add-apt-repository -s -y ppa:silnrsi/smith-py3
@@ -51,7 +73,7 @@ apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-de
 
 
 # checking if we already have local checkouts 
- if [ -d /usr/local/builds/ ]
+if [ -d /usr/local/builds/ ]
 then
     echo " "
     echo "You already have previous builds, it's easier to delete them and start afresh. "
@@ -67,53 +89,59 @@ chmod -R 766 /usr/local/builds
  
 
 
-# # graphite
-# echo " "
-# echo " "
-# echo "Installing graphite from source"
-# echo " "
-# echo " "
-# 
-# 
-# apt-get install build-essential cmake gcc g++ automake libtool pkg-config -y -q
-# cd /usr/local/builds
-# git clone --depth 1 https://github.com/silnrsi/graphite.git
-# cd graphite
-# mkdir build
-# cd build
-# cmake -G "Unix Makefiles" --build .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF
-# make
-# make install
-# ldconfig 
-# 
-# 
-# echo " "
-# echo " "
-# echo "Installing Graphite-enabled HarfBuzz from source"
-# echo " "
-# apt-get install build-essential cmake gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev automake libtool pkg-config ragel gtk-doc-tools -y -q
-# cd /usr/local/builds
-# git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
-# cd harfbuzz
-# ./autogen.sh --with-graphite2 
-# make
-# make install
-# ldconfig 
+# graphite
+
+if [ "$graphiteFromSource" == "True" ]; then
+	echo " "
+	echo " "
+	echo "Installing graphite from source"
+	echo " "
+	echo " "
+
+
+	apt-get install build-essential cmake gcc g++ automake libtool pkg-config -y -q
+	cd /usr/local/builds
+	git clone --depth 1 https://github.com/silnrsi/graphite.git
+	cd graphite
+	mkdir build
+	cd build
+	cmake -G "Unix Makefiles" --build .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF -DGRAPHITE2_NTRACING:BOOL=OFF
+	make
+	make install
+	ldconfig 
+
+	echo " "
+	echo " "
+	echo "Installing Graphite-enabled HarfBuzz from source"
+	echo " "
+	apt-get install build-essential cmake gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev automake libtool pkg-config ragel gtk-doc-tools -y -q
+	cd /usr/local/builds
+	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
+	cd harfbuzz
+	./autogen.sh --with-graphite2 
+	make
+	make install
+	ldconfig 
+fi
 
 # ots 
-# python3 -m pip install --upgrade opentype-sanitizer (release version)
-python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
+if [ "$otsFromSource" == "True" ];
+then
+	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
 
-# ots from main repo (debugging and graphite support on by default)
-python3 -m pip install --upgrade meson ninja
-apt-get install libfreetype6-dev -y -q
-cd /usr/local/builds
-git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
-cd ots
-meson build
-ninja -C build
-cp -f build/ots-sanitize /usr/local/lib/python3.6/dist-packages/ots/
+	# ots from main repo (debugging and graphite support on by default)
+	python3 -m pip install --upgrade meson ninja
+	apt-get install libfreetype6-dev -y -q
+	cd /usr/local/builds
+	git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
+	cd ots
+	meson build
+	ninja -C build
+	cp -f build/ots-sanitize /usr/local/lib/python3.6/dist-packages/ots/
 
+else
+	python3 -m pip install --upgrade opentype-sanitizer 
+fi
 
 # entry script to find the wheel binary placed in
 # /usr/local/lib/python3.6/dist-packages/ots/
@@ -189,11 +217,26 @@ chmod 755 /usr/local/bin/FontValidator
 # toolchain components installed from packages (both main repositories and PPAs)
 apt-get install libharfbuzz-bin -y -q
 
+if [ "$IncludeSklearn" == "True" ]
+then
+	# clustering tool needed for Harmattan collision-avoidance-based kerning:
+	apt-get install python3-sklearn -y
+fi
+
+
 # smith options
-# target specific version for (or downgrade) fonttools
-apt-mark unhold python3-fonttools
-python3 -m pip uninstall fontTools --yes 
-apt-get install python3-fonttools -y 
+if [ "$fontToolsHoldVersion" == "" ]
+then
+	# current fonttools
+	apt-mark unhold python3-fonttools
+	python3 -m pip uninstall fontTools --yes 
+	apt-get install python3-fonttools -y 
+else
+	# target specific version for (or downgrade) fonttools
+	apt-mark hold python3-fonttools
+	python3 -m pip uninstall fontTools --yes 
+	python3 -m pip install --upgrade fontTools==$fontToolsHoldVersion
+fi
 
 # smith itself (only the font side of things)
 echo " "
@@ -209,7 +252,6 @@ apt-get install smith-font --no-install-recommends -y -q
 python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
-
 
 
 # extra packages needed for fontproof
