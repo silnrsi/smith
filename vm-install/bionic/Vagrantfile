@@ -23,7 +23,13 @@ Vagrant.configure(2) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
   # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -54,7 +60,8 @@ Vagrant.configure(2) do |config|
   # Example for VirtualBox:
   #
   config.vm.provider "virtualbox" do |vb|
-    vb.customize [ "modifyvm", :id, "--uartmode1", "disconnected" ]
+    vb.customize [ "modifyvm", :id, "--uartmode1", "file", "File::NULL" ]
+    vb.customize [ "modifyvm", :id, "--uart1", "0x3F8", "4" ]
 
     # Do not display the VirtualBox GUI when booting the machine
     vb.gui = false 
@@ -81,7 +88,7 @@ Vagrant.configure(2) do |config|
     systemctl stop apt-daily.timer   # disable timer run 
     systemctl disable apt-daily.timer   # disable timer run 
 
-    sleep 5 
+    sleep 3 
 
     lsb_release -d
 
@@ -91,13 +98,20 @@ Vagrant.configure(2) do |config|
 
     apt-get update -q -y
 
-    apt-get install --no-install-recommends -q -y less vim-nox htop tree git wget curl bash-completion python3-software-properties
+    apt-get install --no-install-recommends -q -y less vim-nox htop tree git wget curl bash-completion python3-software-properties virtualbox-guest-dkms
+
+    add-apt-repository "deb http://archive.canonical.com/ubuntu $(lsb_release -sc) partner"
 
     touch "/home/vagrant/.hushlogin"
 
     SHELL
 
     config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+
+    config.ssh.keys_only = true
+	
+    config.vm.boot_timeout = 300
+
 
   # install and configure the smith-specific components
     config.vm.provision :shell, :path => "provision.sh"

@@ -9,6 +9,9 @@
 ex +"%s@DPkg@//DPkg" -cwq /etc/apt/apt.conf.d/70debconf
 dpkg-reconfigure debconf -f noninteractive -p critical
 
+# debugging 
+# set -x	
+
 
 echo " "
 echo " "
@@ -32,9 +35,9 @@ echo " "
  includeSklearn=True
 #includeSklearn=False
 
-# to pin particular version of fontTools, set that verion number here, else set to empty
- fontToolsHoldVersion=4.17.1
-#fontToolsHoldVersion=
+# to pin particular version of fontTools, set that version number here, else set to empty
+#fontToolsHoldVersion=4.17.1
+ fontToolsHoldVersion=
 
 # End of configuration options
 
@@ -61,7 +64,7 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 
 # toolchain components currently built from source or retrieved via pypi
 # most of these are now commented out as the corresponding items are available as packages or on the CI
-# if you need certain features you can uncomment them and reprovision. 
+# according to the features you need you can fill in the variables above or comment/uncomment accordingly before reprovisionning
 
 
 # install pip3 
@@ -73,34 +76,33 @@ apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-de
 
 
 # checking if we already have local checkouts 
-if [ -d /usr/local/builds/ ]
+ if [ -d /home/vagrant/srcbuilds ]
 then
     echo " "
     echo "You already have previous builds, it's easier to delete them and start afresh. "
     echo " "
-    echo "Deleting /usr/local/builds... "
+    echo "Deleting srcbuilds folder... "
     echo " "
-    rm -rf /usr/local/builds
+    rm -rf /home/vagrant/srcbuilds
 fi
 
-mkdir -p /usr/local/builds
-
-chmod -R 766 /usr/local/builds 
- 
+mkdir -p /home/vagrant/srcbuilds
 
 
-# graphite
+
+
+# Graphite and Harfbuzz
 
 if [ "$graphiteFromSource" == "True" ]; then
 	echo " "
 	echo " "
-	echo "Installing graphite from source"
+	echo "Installing Graphite from source"
 	echo " "
 	echo " "
 
 
 	apt-get install build-essential cmake gcc g++ automake libtool pkg-config -y -q
-	cd /usr/local/builds
+	cd /home/vagrant/srcbuilds
 	git clone --depth 1 https://github.com/silnrsi/graphite.git
 	cd graphite
 	mkdir build
@@ -114,13 +116,15 @@ if [ "$graphiteFromSource" == "True" ]; then
 	echo " "
 	echo "Installing Graphite-enabled HarfBuzz from source"
 	echo " "
-	apt-get install build-essential cmake gcc g++ libfreetype6-dev libglib2.0-dev libcairo2-dev automake libtool pkg-config ragel gtk-doc-tools -y -q
-	cd /usr/local/builds
+	apt-get install pkg-config gcc ragel gcovr gtk-doc-tools libfreetype6-dev libglib2.0-dev libcairo2-dev libicu-dev libgraphite2-dev python3-setuptools ninja-build gobject-introspection libgirepository1.0-de -y -q
+	cd /home/vagrant/srcbuilds
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
-	./autogen.sh --with-graphite2 
-	make
-	make install
+
+	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson ninja
+	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true
+	ninja -C build
+	ninja install -C build
 	ldconfig 
 fi
 
@@ -132,12 +136,12 @@ then
 	# ots from main repo (debugging and graphite support on by default)
 	python3 -m pip install --upgrade meson ninja
 	apt-get install libfreetype6-dev -y -q
-	cd /usr/local/builds
+	cd /home/vagrant/srcbuilds
 	git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
 	cd ots
 	meson build
 	ninja -C build
-	cp -f build/ots-sanitize /usr/local/lib/python3.6/dist-packages/ots/
+	ninja install -C build
 
 else
 	python3 -m pip install --upgrade opentype-sanitizer 
@@ -174,7 +178,7 @@ echo "Installing fontvalidator from source"
 echo " "
 echo " "
 apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -q 
-cd /usr/local/builds
+cd /home/vagrant/srcbuilds
 git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
 cd fontval
 make
@@ -215,11 +219,15 @@ chmod 755 /usr/local/bin/FontValidator
 
 
 # toolchain components installed from packages (both main repositories and PPAs)
-apt-get install libharfbuzz-bin -y -q
 
-if [ "$IncludeSklearn" == "True" ]
+if [ "$graphiteFromSource" == "False" ]
 then
-	# clustering tool needed for Harmattan collision-avoidance-based kerning:
+	 apt-get install libharfbuzz-bin -y -q
+fi
+
+if [ "$includeSklearn" == "True" ]
+then
+	# clustering tool needed for collision-avoidance-based kerning:
 	apt-get install python3-sklearn -y
 fi
 
@@ -230,13 +238,19 @@ then
 	# current fonttools
 	apt-mark unhold python3-fonttools
 	python3 -m pip uninstall fontTools --yes 
-	apt-get install python3-fonttools -y 
+	apt-get install --reinstall python3-fonttools -y 
 else
 	# target specific version for (or downgrade) fonttools
+	dpkg --remove --force-depends python3-fonttools
 	apt-mark hold python3-fonttools
 	python3 -m pip uninstall fontTools --yes 
 	python3 -m pip install --upgrade fontTools==$fontToolsHoldVersion
 fi
+
+# crude chown because Harfbuzz wants write-access to optimize runs of its utilities
+chmod -R 776 /home/vagrant/srcbuilds
+chown -R vagrant:vagrant /home/vagrant/srcbuilds
+
 
 # smith itself (only the font side of things)
 echo " "
@@ -290,5 +304,6 @@ echo "smith release"
 echo "for more details type: man smith"
 echo "or refer to the smith manual in /usr/share/doc/python3-smith/ or https://github.com/silnrsi/smith/tree/master/docs/smith"
 echo " "
+
 
 
