@@ -231,7 +231,7 @@ SU.debug("ftml", "width: " .. l)
        typesetter.frame:advanceWritingDirection(self.width - self.textwidth)
       end
       local X = typesetter.frame.state.cursorX
-      SILE.outputter.moveTo(typesetter.frame.state.cursorX, typesetter.frame.state.cursorY)
+      SILE.outputter:setCursor(typesetter.frame.state.cursorX, typesetter.frame.state.cursorY)
       for i = 1, #(self.value) do local node = self.value[i]
         node:outputYourself(typesetter, line)
       end
@@ -241,7 +241,7 @@ SU.debug("ftml", "width: " .. l)
       else
         typesetter.frame:advanceWritingDirection(self.textwidth)
       end
-      if SU.debugging("hboxes") then SILE.outputter.debugHbox(self, self:scaledWidth(line)) end
+      if SU.debugging("hboxes") then SILE.outputter:debugHbox(self, self:scaledWidth(line)) end
     end
   })
   -- table.insert(SILE.typesetter.state.nodes, hbox)
@@ -529,7 +529,7 @@ SILE.registerCommand("testgroup", function (options, content)
   SILE.call("ftml:testgrouplabel", {}, {testgroup_label})
   if testgroup_comment then
 SU.debug("ftml", testgroup_comment)
-    SILE.call("ftml:testgroupcomment", {}, testgroup_comment)
+    SILE.call("ftml:testgroupcomment", {}, {testgroup_comment})
   end
   SILE.process(content)
   SILE.call("skip", {height="2pt plus 0pt minus 0pt"})
