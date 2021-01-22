@@ -128,7 +128,7 @@ class FontTests(object) :
         silescale = str(kw.get('sile_scale', ""))
         if silescale != "":
             silescale = '-s %s' % (silescale)
-        self.addTestCmd('sile', cmd='SILE_PATH=\"%s\" ${SILE} -o "${TGT}" -e \'SILE.scratch.ftmlfontlist={"${SRC[1]}"}\' -I ftml.sil "${SRC[0].abspath()}" %s #; test -e "${TGT}"' % (kw['sile_path'], silescale), extracmds=['sile'], shapers=0, supports=['.ftml'], ext='.pdf', shell=1)
+        self.addTestCmd('sileftml', cmd='SILE_PATH=\"%s\" ${SILE} -o "${TGT}" -e \'SILE.scratch.ftmlfontlist={"${SRC[1]}"}\' -I ftml.sil "${SRC[0].abspath()}" %s #; test -e "${TGT}"' % (kw['sile_path'], silescale), extracmds=['sile'], shapers=0, supports=['.ftml'], ext='.pdf', shell=1)
         type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
@@ -228,7 +228,7 @@ class TestFile(object) :
 
 
 class Test(object) :
-    
+
     def __init__(self, font, label, **kw) :
         self._font = font
         self._srcs = []
