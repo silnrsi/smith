@@ -129,6 +129,9 @@ class FontTests(object) :
         if silescale != "":
             silescale = '-s %s' % (silescale)
         self.addTestCmd('sileftml', cmd='SILE_PATH=\"%s\" ${SILE} -o "${TGT}" -e \'SILE.scratch.ftmlfontlist={"${SRC[1]}"}\' -I ftml.sil "${SRC[0].abspath()}" %s #; test -e "${TGT}"' % (kw['sile_path'], silescale), extracmds=['sile'], shapers=0, supports=['.ftml'], ext='.pdf', shell=1)
+        if 'noalltests' in kw:
+            for k in kw['noalltests']:
+                self._allTests.pop(k, None)
         type('alltests_Context', (package.cmdContext,), {'cmd' : 'alltests', '__doc__' : "User defined test: alltests"})
 
     def addTestCmd(self, _cmd, **kw) :
@@ -139,12 +142,13 @@ class FontTests(object) :
             kw['label'] = _cmd + (" " + str(i) if i else "")
         builder = self.testMap.get(testtype, TestCommand)
         test = builder(_cmd, self, **kw)
-        if kw.pop('replace', False) :
-            self._allTests[_cmd] = [test]
-        else :
-            if _cmd not in self._allTests : self._allTests[_cmd] = []
-            c = type(_cmd + '_Context', (package.cmdContext,), {'cmd' : _cmd, '__doc__' : "User defined test: " + _cmd})
-            self._allTests[_cmd].append(test)
+        if kw.pop('alltests', True):
+            if kw.pop('replace', False) :
+                self._allTests[_cmd] = [test]
+            else :
+                if _cmd not in self._allTests : self._allTests[_cmd] = []
+                c = type(_cmd + '_Context', (package.cmdContext,), {'cmd' : _cmd, '__doc__' : "User defined test: " + _cmd})
+                self._allTests[_cmd].append(test)
 
     def addTestFile(self, f):
         self.extraFiles.append(f)

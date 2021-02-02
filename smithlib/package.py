@@ -21,7 +21,7 @@ keyfields = ('copyright', 'version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir', 'debpkg')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
             'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
-            'package_files', 'buildversion', 'sile_path', 'sile_scale')
+            'package_files', 'buildversion', 'sile_path', 'sile_scale', 'noalltests')
 
 def formatdesc(s) :
     res = []
