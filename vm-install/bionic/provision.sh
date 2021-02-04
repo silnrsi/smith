@@ -24,16 +24,16 @@ echo " "
 #
 
 # set to True to compile Graphite and harfbuzz from source (including tracing):
- graphiteFromSource=True
-#graphiteFromSource=False
+# graphiteFromSource=True
+graphiteFromSource=False
 
 # set to True to compile opentype-sanitiser/ots from source
  otsFromSource=True
 #otsFromSource=False
 
 # set to True to include the sklearn module (for Harmattan)
- includeSklearn=True
-#includeSklearn=False
+#includeSklearn=True
+includeSklearn=False
 
 # to pin particular version of fontTools, set that version number here, else set to empty
 #fontToolsHoldVersion=4.17.1
