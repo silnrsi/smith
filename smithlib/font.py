@@ -584,7 +584,8 @@ class _Woff(object) :
         else :
             output = self.target
         args = getattr(self, 'params', '')
-        bld(rule = "${TTF2WOFF} " + args + " ${SRC} ${TGT}", target = output, name = font.target+"_woff", source = [tgt])
+        cmd = getattr(self, 'cmd', "${TTF2WOFF} " + args + " ${SRC} ${TGT}")
+        bld(rule = cmd, target = output, name = font.target+"_woff", source = [tgt])
         return font.target+"_woff"
 
 Woff = defer(_Woff)
