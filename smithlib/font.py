@@ -587,11 +587,11 @@ class _Woff(object) :
         srcs = []
         cmd = "${TTF2WOFF} "
         if hasattr(self, 'metadata') :
-            srcs.append(bld.path.find_or_declare(font.ap))
+            srcs.append(bld.path.find_or_declare(self.metadata))
             cmd += "-m '${SRC[" + str(ind) + "].bldpath()}' "
             ind += 1
         if hasattr(self, 'privdata') :
-            srcs.append(bld.path.find_or_declare(font.ap))
+            srcs.append(bld.path.find_or_declare(self.privdata))
             cmd += "-p '${SRC[" + str(ind) + "].bldpath()}' "
             ind += 1
         args = getattr(self, 'params', '')
