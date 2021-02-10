@@ -583,9 +583,21 @@ class _Woff(object) :
             output = tgt.replace(".ttf", ".woff")
         else :
             output = self.target
+        ind = 1
+        srcs = []
+        cmd = "${TTF2WOFF} "
+        if hasattr(self, 'metadata') :
+            srcs.append(bld.path.find_or_declare(font.ap))
+            cmd += "-m '${SRC[" + str(ind) + "].bldpath()}' "
+            ind += 1
+        if hasattr(self, 'privdata') :
+            srcs.append(bld.path.find_or_declare(font.ap))
+            cmd += "-p '${SRC[" + str(ind) + "].bldpath()}' "
+            ind += 1
         args = getattr(self, 'params', '')
-        cmd = getattr(self, 'cmd', "${TTF2WOFF} " + args + " ${SRC} ${TGT}")
-        bld(rule = cmd, target = output, name = font.target+"_woff", source = [tgt])
+        cmd += args + " ${SRC[0].bldpath()} ${TGT}"
+        cmd = getattr(self, 'cmd', cmd)
+        bld(rule = cmd, target = output, name = font.target+"_woff", source = [tgt] + srcs)
         return font.target+"_woff"
 
 Woff = defer(_Woff)
