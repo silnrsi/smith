@@ -259,10 +259,10 @@ echo " "
 apt-get install smith-font --no-install-recommends -y -q
 
 
-# install python components (tracking master) and their dependencies directly via pip3  
-python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@master#egg=fontbakery
-python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@master#egg=glyphsLib 
-python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@master#egg=fontaine 
+# install python components (tracking main) and their dependencies directly via pip3  
+python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@main#egg=fontbakery
+python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@main#egg=glyphsLib 
+python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@main#egg=fontaine 
 
 
 # extra packages needed for fontproof
