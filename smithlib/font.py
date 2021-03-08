@@ -84,10 +84,7 @@ class Font(object) :
     def get_targets(self, ctx) :
         res = [self.target]
         if hasattr(self, 'woff') :
-            woff = self.woff.target
-            if woff is None :
-                woff = str(self.target).replace('.ttf', '.woff')
-            res.append(woff)
+            res.extend(self.woff.get_targets())
         return res
 
     def build(self, bld, ap=None) :
@@ -572,32 +569,48 @@ Fret = defer(_Fret)
 
 class _Woff(object) :
     def __init__(self, tgt = None, **kw) :
-        self.target = initval(tgt)
+        self.target = os.path.splitext(initval(tgt))[0]
+        if 'type' not in kw:
+            kw['type'] = ("woff", "woff2")
         initobj(self, kw)
 
     def get_build_tools(self, ctx) :
-        return ['ttf2woff']
+        return ['psfwoffit']
+
+    def get_targets(self):
+        res = []
+        for a in ('woff', 'woff2'):
+            if a in self.type:
+                res.append(self.target + "." + a)
+        return res
 
     def build(self, bld, tgt, tgen, font) :
         if self.target is None :
-            output = tgt.replace(".ttf", ".woff")
+            output = os.path.splitext(tgt)[0]
         else :
             output = self.target
         ind = 1
         srcs = []
-        cmd = "${TTF2WOFF} "
+        cmd = "${PSFWOFFIT} "
         if hasattr(self, 'metadata') :
             srcs.append(bld.path.find_or_declare(self.metadata))
             cmd += "-m '${SRC[" + str(ind) + "].bldpath()}' "
             ind += 1
         if hasattr(self, 'privdata') :
             srcs.append(bld.path.find_or_declare(self.privdata))
-            cmd += "-p '${SRC[" + str(ind) + "].bldpath()}' "
+            cmd += "--privatedata='${SRC[" + str(ind) + "].bldpath()}' "
             ind += 1
+        tind = 0
+        tgts = []
+        for a in ('woff', 'woff2'):
+            if a in self.type:
+                cmd += "--{} ${{TGT[{}]}} ".format(a, tind)
+                tgts.append(output + "." + a)
+                tind += 1
         args = getattr(self, 'params', '')
-        cmd += args + " ${SRC[0].bldpath()} ${TGT}"
+        cmd += args + " ${SRC[0].bldpath()}"
         cmd = getattr(self, 'cmd', cmd)
-        bld(rule = cmd, target = output, name = font.target+"_woff", source = [tgt] + srcs)
+        bld(rule = cmd, target = tgts, name = font.target+"_woff", source = [tgt] + srcs)
         return font.target+"_woff"
 
 Woff = defer(_Woff)
