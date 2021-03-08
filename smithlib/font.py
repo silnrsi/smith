@@ -591,25 +591,26 @@ class _Woff(object) :
             output = self.target
         ind = 1
         srcs = []
-        cmd = "${PSFWOFFIT} "
+        cmd = ["${PSFWOFFIT}"]
         if hasattr(self, 'metadata') :
             srcs.append(bld.path.find_or_declare(self.metadata))
-            cmd += "-m '${SRC[" + str(ind) + "].bldpath()}' "
+            cmd.append("-m '${SRC[" + str(ind) + "].bldpath()}'")
             ind += 1
         if hasattr(self, 'privdata') :
             srcs.append(bld.path.find_or_declare(self.privdata))
-            cmd += "--privatedata='${SRC[" + str(ind) + "].bldpath()}' "
+            cmd.append("--privatedata '${SRC[" + str(ind) + "].bldpath()}'")
             ind += 1
         tind = 0
         tgts = []
         for a in ('woff', 'woff2'):
             if a in self.type:
-                cmd += "--{} ${{TGT[{}]}} ".format(a, tind)
+                cmd.append("--{} '${{TGT[{}]}}'".format(a, tind))
                 tgts.append(output + "." + a)
                 tind += 1
         args = getattr(self, 'params', '')
-        cmd += args + " ${SRC[0].bldpath()}"
-        cmd = getattr(self, 'cmd', cmd)
+        cmd += [args, "${SRC[0].bldpath()}"]
+        cmd = getattr(self, 'cmd', " ".join(cmd))
+        print(cmd)
         bld(rule = cmd, target = tgts, name = font.target+"_woff", source = [tgt] + srcs)
         return font.target+"_woff"
 
