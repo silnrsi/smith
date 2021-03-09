@@ -569,9 +569,12 @@ Fret = defer(_Fret)
 
 class _Woff(object) :
     def __init__(self, tgt = None, **kw) :
-        self.target = os.path.splitext(initval(tgt))[0]
+        itgt = initval(tgt)
+        self.target = os.path.splitext(itgt)[0] if itgt is not None else None
         if 'type' not in kw:
             kw['type'] = ("woff", "woff2")
+        elif not isinstance(kw['type'], (tuple, list)):
+            kw['type'] = (kw['type'],)
         initobj(self, kw)
 
     def get_build_tools(self, ctx) :
