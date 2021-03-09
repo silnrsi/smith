@@ -609,9 +609,10 @@ class _Woff(object) :
                 tind += 1
         args = getattr(self, 'params', '')
         cmd += [args, "${SRC[0].bldpath()}"]
-        cmd = getattr(self, 'cmd', " ".join(cmd))
         if hasattr(self, 'cmd'):
             cmd = self.cmd.replace("${TGT}", "${TGT[0]}")
+        else:
+            cmd = " ".join(cmd)
         bld(rule = cmd, target = tgts, name = font.target+"_woff", source = [tgt] + srcs)
         return font.target+"_woff"
 
