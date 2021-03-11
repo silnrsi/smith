@@ -84,7 +84,7 @@ class Font(object) :
     def get_targets(self, ctx) :
         res = [self.target]
         if hasattr(self, 'woff') :
-            res.extend(self.woff.get_targets())
+            res.extend(self.woff.get_targets(self.target))
         return res
 
     def build(self, bld, ap=None) :
@@ -580,11 +580,14 @@ class _Woff(object) :
     def get_build_tools(self, ctx) :
         return ['psfwoffit']
 
-    def get_targets(self):
+    def get_targets(self, tgt):
         res = []
-        for a in ('woff', 'woff2'):
-            if a in self.type:
-                res.append(self.target + "." + a)
+        itgt = initval(tgt)
+        t = self.target or (os.path.splitext(itgt)[0] if itgt is not None else None)
+        if t is not None:
+            for a in ('woff', 'woff2'):
+                if a in self.type:
+                    res.append(t + "." + a)
         return res
 
     def build(self, bld, tgt, tgen, font) :
