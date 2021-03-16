@@ -128,7 +128,7 @@ fi
 # ots 
 if [ "$otsFromSource" == "True" ];
 then
-	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@master#egg=opentype-sanitizer
+	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@main#egg=opentype-sanitizer
 
 	# ots from main repo (debugging and graphite support on by default)
 	python3 -m pip install --upgrade meson ninja
@@ -248,6 +248,8 @@ fi
 chmod -R 776 /home/vagrant/srcbuilds
 chown -R vagrant:vagrant /home/vagrant/srcbuilds
 
+# pandoc
+apt-get install pandoc pandoc-data -y -q 
 
 # smith itself (only the font side of things)
 echo " "
