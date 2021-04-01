@@ -23,6 +23,10 @@ class Font(object) :
         from smithlib import package
         if not 'id' in kw :
             kw['id'] = kw['test_suffix'] if 'test_suffix' in kw else kw['target'].lower().replace('.ttf','')
+        if 'opentype' not in kw:
+            kw['opentype'] = Internal()
+        if 'script' not in kw:
+            kw['script'] = ['DFLT']
         self.volt_params = ""
         self.gdl_params = ""
 
