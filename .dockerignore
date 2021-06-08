@@ -1,0 +1,9 @@
+*
+!bash_completion_smith
+!docker
+!MANIFEST.in
+!setup.py
+!smith.py
+!smithlib
+!waflib
+

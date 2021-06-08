@@ -1,0 +1,2 @@
+#!/bin/sh
+mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "$1"
