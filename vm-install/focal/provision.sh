@@ -248,8 +248,12 @@ fi
 chmod -R 776 /home/vagrant/srcbuilds
 chown -R vagrant:vagrant /home/vagrant/srcbuilds
 
-# pandoc
+# pandoc, weasyprint, etc for generating documentation 
 apt-get install pandoc pandoc-data -y -q 
+python3 -m pip install --upgrade weasyprint 
+apt-get install fonts-roboto -y -q
+# still need a solution for installing Roboto-Mono which is not included in this package
+
 
 # smith itself (only the font side of things)
 echo " "
