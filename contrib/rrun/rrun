@@ -8,6 +8,7 @@ fi
 rsync -am --del ./ "$CDIR/"
 unshare -rm /bin/sh << EOT
 mount --bind "$CDIR" .
+cd "PWD"
 $@
 EOT
 rsync -amu --del "$CDIR/" ./
