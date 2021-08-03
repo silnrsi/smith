@@ -53,6 +53,8 @@ Vagrant.configure(2) do |config|
   # If you want you can also map the parent folder of all your local font working copies:
   # for macOS users:
   # config.vm.synced_folder "/Users/username/work/fonts/", "/smith", type: "virtualbox"
+  # for Windows users:
+  # config.vm.synced_folder "C:\\Users\\username\\work\\fonts\\", "/smith", type: "virtualbox"
   # for Ubuntu users:
   # config.vm.synced_folder "/home/username/work/fonts/", "/smith", type: "virtualbox"
 
