@@ -248,12 +248,12 @@ fi
 chmod -R 776 /home/vagrant/srcbuilds
 chown -R vagrant:vagrant /home/vagrant/srcbuilds
 
-# pandoc, weasyprint, etc for generating documentation 
+# pandoc, weasyprint + deps, Roboto fonts, for generating documentation 
 apt-get install pandoc pandoc-data -y -q 
 python3 -m pip install --upgrade weasyprint 
 apt-get install fonts-roboto -y -q
-# still need a solution for installing Roboto-Mono which is not included in this package
-
+mkdir -p /usr/local/share/fonts/robotomono/
+wget --quiet --no-directories --no-parent --continue https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf/RobotoMono-{Regular,Bold,Italic,BoldItalic,Light,LightItalic,Medium,MediumItalic,Thin,ThinItalic}.ttf -P /usr/local/share/fonts/robotomono/
 
 # smith itself (only the font side of things)
 echo " "
