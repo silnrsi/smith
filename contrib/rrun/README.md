@@ -53,7 +53,7 @@ Any options supplied are passed on to both calls to rsync, and can be any of:
   -f RULE     add a file-filtering RULE
   -F          same as -f 'dir-merge /.rsync-filter'
               repeated: -f '- .rsync-filter'
-  -i          output a change-summary for all updates```
+  -i          output a change-summary for all updates
 
 See rsync manpage for more information about these options.
 ```
@@ -90,6 +90,10 @@ rrun some-prog "argument with spaces"
 but will, instead, act as if it had been written:
 ```
 rrun some-prog argument with spaces
+```
+A workaround is to escape the spaces within quoted arguments:
+```
+rrun some-prog "argument\ with\ spaces"
 ```
 
 ## Authors
