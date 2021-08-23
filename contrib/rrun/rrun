@@ -2,12 +2,23 @@
 
 CACHE_ID=$(md5sum <<< "$PWD" | cut -d ' ' -f1)
 CDIR="/dev/shm/rrun/$CACHE_ID"
-if [ ! -e "$CDIR" ]; then
-    mkdir -p $CDIR;
-fi
+mkdir -p $CDIR;
+
+# Sync src into the cache dir.
 rsync -am --del ./ "$CDIR/"
-unshare -rm /bin/sh << EOT
+
+
+# Process the command string for forwading to bash inside the here doc by
+# printing each parameter in quoted form and stripping of the escaping for
+# common shell meta-characters.
+quoted=$(printf "%q " "${@}" | sed -r 's/\\([;()|&])/\1/g')
+# Run the command inside a user and mount namespaces, so we can bind-mount
+# the cachedir over the target dir.
+unshare -rm /bin/bash << EOT
 mount --bind "$CDIR" .
-$@
+cd "$PWD"
+${quoted}
 EOT
+
+# Sync results back
 rsync -amu --del "$CDIR/" ./
