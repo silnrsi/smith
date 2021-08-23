@@ -118,7 +118,7 @@ if [ "$graphiteFromSource" == "True" ]; then
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
 
-	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson ninja
+	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
 	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true
 	ninja -C build
 	ninja install -C build
