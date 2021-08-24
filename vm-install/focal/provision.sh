@@ -251,6 +251,7 @@ chown -R vagrant:vagrant /home/vagrant/srcbuilds
 # pandoc, weasyprint + deps, Roboto fonts, for generating documentation 
 apt-get install pandoc pandoc-data -y -q 
 python3 -m pip install --upgrade weasyprint 
+python3 -m pip install --upgrade pillow
 apt-get install fonts-roboto -y -q
 mkdir -p /usr/local/share/fonts/robotomono/
 wget --quiet --no-directories --no-parent --continue https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf/RobotoMono-{Regular,Bold,Italic,BoldItalic,Light,LightItalic,Medium,MediumItalic,Thin,ThinItalic}.ttf -P /usr/local/share/fonts/robotomono/
