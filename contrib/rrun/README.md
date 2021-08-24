@@ -6,7 +6,7 @@ When using a virtual machine (VM) to run smith, it can be convenient to keep the
 
 However, keeping the project in shared folders costs in performance: on a Windows host, building the project directly in the shared folders is two to five times slower than if the project folder were in the VM's emulated drive (or, better yet, a ramdrive).
 
-`rrun` provides a way to have both the convenience of shared folders and the performance of a ramdrive. `rrun` will rsync the project files from the shared drive to a ramdrive within the VM, run smith (or any arbitrary command) on that copy, and then rsync everything back. Even with the overhead of the rsync commands, you come out ahead.
+`rrun` provides a way to have both the convenience of shared folders and the performance of a ramdrive. `rrun` will rsync the project files from the shared drive to a ramdrive within the VM, run smith (or any arbitrary command) on that copy, and then rsync everything back. Even with the overhead of the rsync commands, it usually comes out ahead.
 
 ## Installation
 
@@ -51,7 +51,7 @@ Any options supplied are passed on to both calls to rsync, and can be any of:
   -n          perform a trial run with no changes made
   -C          auto-ignore files in the same way CVS does
   -f RULE     add a file-filtering RULE
-  -F          same as -f 'dir-merge /.rsync-filter'
+  -F          same as: -f 'dir-merge /.rsync-filter'
               repeated: -f '- .rsync-filter'
   -i          output a change-summary for all updates
 
@@ -77,24 +77,18 @@ where the `filter.rsync` file might contain:
 
 ## Caveats
 
+When using any of the shell control operators `(`, `)`, `;`, `|`, or `&` (or combinations of such) within the command string, they must be isolated from other parameters by whitespace. For example:
+```
+rrun smith clean \; smith build
+```
+The following will not work a expected:
+```
+rrun smith clean\; smith build
+```
+
 It is not advisable to make modifications to the shared folder, for example from your host, while `rrun` is executing since there is a risk that such changes may be lost when the rsync copies the results back.
 
 By their nature, ramdrive contents do not survive a VM reboot. So if the VM is halted and restarted, the initial `rrun` will again need to copy everything.
-
-## Known bugs
-
-Neither the command name nor its arguments can be such that require quoting. For example, the following  will not work as expected:
-```
-rrun some-prog "argument with spaces"
-```
-but will, instead, act as if it had been written:
-```
-rrun some-prog argument with spaces
-```
-A workaround is to escape the spaces within quoted arguments:
-```
-rrun some-prog "argument\ with\ spaces"
-```
 
 ## Authors
 Martin Hosken, Tim Eves, Bob Hallissy
