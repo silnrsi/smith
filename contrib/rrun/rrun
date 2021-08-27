@@ -13,7 +13,7 @@ Any options supplied are passed on to both calls to rsync, and can be any of:
         -n          perform a trial run with no changes made
         -C          auto-ignore files in the same way CVS does
         -f RULE     add a file-filtering RULE
-        -F          same as -f 'dir-merge /.rsync-filter'
+        -F          same as: -f 'dir-merge /.rsync-filter'
                     repeated: -f '- .rsync-filter'
         -i          output a change-summary for all updates
 
@@ -46,7 +46,7 @@ while getopts "f:vcnCFi" flag; do
   esac
 done
 
-# Everything else is the command and its args to be run:
+# Remaining parameters constitute the command string to be executed:
 shift $((OPTIND-1))
 
 # Issue usage message if nothing to do:
@@ -55,11 +55,26 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# Process the command string for forwading to bash inside the here doc by
+# printing each parameter in quoted form and stripping of the escaping for
+# isolated common shell meta-characters:
+quoted=$(echo "${@@Q}" | sed -r "s/ '([;()|&]+)' / \1 /g")
+
+# for debugging parameter parsing:
+# echo ${rsyncOpts[@]@Q} ${quoted}
+
+# Sync current directory into the cache dir:
 mkdir -p $CDIR;
 rsync -am "${rsyncOpts[@]}" --del ./ "$CDIR/"
-unshare -rm /bin/sh << EOT
+
+# Run the command inside a user and mount namespaces, so we can bind-mount
+# the cachedir over the target dir:
+unshare -rm /bin/bash << EOT
 mount --bind "$CDIR" .
 cd "$PWD"
-$@
+# The following is used instead of "$@" which acts like "$*" in this context
+${quoted}
 EOT
+
+# Sync results back
 rsync -amu "${rsyncOpts[@]}" --del "$CDIR/" ./
