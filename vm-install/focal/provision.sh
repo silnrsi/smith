@@ -113,13 +113,13 @@ if [ "$graphiteFromSource" == "True" ]; then
 	echo " "
 	echo "Installing Graphite-enabled HarfBuzz from source"
 	echo " "
-	apt-get install pkg-config gcc ragel gcovr gtk-doc-tools libfreetype6-dev libglib2.0-dev libcairo2-dev libicu-dev libgraphite2-dev python3-setuptools ninja-build gobject-introspection libgirepository1.0-de -y -q
+	apt-get install pkg-config gcc ragel gcovr gtk-doc-tools libfreetype6-dev libglib2.0-dev libcairo2-dev libicu-dev libgraphite2-dev python3-setuptools gobject-introspection libgirepository1.0-dev -y -q
 	cd /home/vagrant/srcbuilds
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
 
 	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
-	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true
+	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled 
 	ninja -C build
 	ninja install -C build
 	ldconfig 
