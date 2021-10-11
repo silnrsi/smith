@@ -401,6 +401,7 @@ def add_options() :
         gr.add_option('--debug', action = 'store_true', help = 'break out into the debugger')
         gr.add_option('-r','--release', action = 'store_true', help = 'Build for release, no special version numbers')
         gr.add_option('--standards', help = 'Alternative source of base files for testing')
+        gr.add_option('--extratestdir', help = 'Set the EXTRATESTDIR from a ; separated list of paths')
 
     Options.opt_parser.__init__ = init
 

@@ -339,13 +339,24 @@ class TestCommand(object) :
         t = Test(font, label, **kw)
         self._tests.append(t)
 
-    def _setFiles(self, ctx, testfiles) :
+    def _setFiles(self, ctx, testfiles):
         if self._filesLoaded : return
         self._filesLoaded = True
         if self.kw.get('notestfiles', False) : return
         testsdir = self.kw.get('testdir', ctx.env['TESTDIR'] or 'tests')
+        if isinstance(testsdir, str):
+            testsdir = [testsdir]
+        extratestdir = Options.options.extratestdir or os.getenv('SMITH_EXTRATESTDIR')
+        if extratestdir is None:
+            extratestdir = ctx.env['EXTRATESTDIR'] or ""
+            if isinstance(extratestdir, str):
+                extratestdir = [extratestdir] if extratestdir else []
+        else:
+            extratestdir = extratestdir.split(';')
+        testsdir += extratestdir
         if self.files is None :
-            somefiles = [x for x in antlist(ctx, testsdir, '**/*') if os.path.splitext(str(x))[1] in self.supports]
+            somefiles = sum(([x for x in antlist(ctx, y, '**/*')
+                    if os.path.splitext(str(x))[1] in self.supports] for y in testsdir), [])
             if len(self._fontTests.extraFiles):
                 somefiles.extend(ctx.bldnode.find_or_declare(x) for x in self.fontTest.extraFiles)
             if somefiles is not None:
