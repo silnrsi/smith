@@ -169,6 +169,7 @@ class FontTests(object) :
     def build_tests(self, ctx, _cmd) :
         if _cmd == 'alltests' :
             cmds = sorted(self._allTests.keys())
+            cmds.remove('sileftml')
             optional = True
         else :
             cmds = [_cmd]
