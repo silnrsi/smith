@@ -184,6 +184,12 @@ class Font(object) :
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
 
+    def make_manifest(self, bld):
+        res = {}
+        if len(getattr(self, 'axes', {})):
+            res[os.path.basename(self.target)] = self.axes
+        return res
+
 class DesignInstance(object):
 
     noap = True

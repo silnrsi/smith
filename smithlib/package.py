@@ -7,9 +7,9 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from smithlib.wsiwaf import isList, formatvars, create
+from smithlib.wsiwaf import isList, formatvars, create, defer
 from smithlib import wafplus, font_tests, font, templater
-import os, sys, shutil, time, fnmatch, subprocess, re
+import os, sys, shutil, time, fnmatch, subprocess, re, json
 from xml.etree import ElementTree as et
 
 try:
@@ -368,6 +368,17 @@ class Package(object) :
         bld.add_to_group(task)
         bld(rule='${MAKENSIS} -V4 -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
+    def build_manifest(self, bld):
+        self.subrun(bld, lambda p, b: p.build_manifest(b))
+        manifest = {'files': {}, 'version': str(self.version)}
+        for f in self.fonts:
+            manifest['files'].update(f.make_manifest(bld))
+            if getattr(f, 'default', False):
+                manifest['default'] = os.path.basename(f.target)
+        mnode = bld.path.find_or_declare('manifest.json')
+        with open(mnode.abspath(), "w", encoding="utf-8") as outf:
+            json.dump(manifest, outf)
+
     def get_basearc(self, extras="") :
         if self.buildversion != '' :
             return "{0.appname}{1}-{0.version}-{2}".format(self, extras, self.buildversion.replace(" ", "-"))
@@ -402,6 +413,7 @@ class Package(object) :
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
         basearc = self.get_basearc()
+        self.build_manifest(bld)
 
         for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
             d, x = t[0], t[1]
@@ -457,6 +469,7 @@ class Package(object) :
         res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
+        res.add((bld.out_dir, 'manifest.json'))
 
         def docwalker(top, dpath, dname, fname) :
             if len(dname):
@@ -512,14 +525,21 @@ class Package(object) :
                 return False
         return True
 
+def simplestr(txt):
+    return re.sub(r"\.0*$", r"", str(txt))
+
+DSAxesMappings = {
+    "weight": "wght"
+}
+
 class _DSSource(object):
     def __init__(self, **kw):
         for k,v in kw.items():
             setattr(self, k, v)
         self.locations = {}
 
-    def addLocation(self, name, values):
-        self.locations[name] = values
+    def addFloatLocation(self, name, values):
+        self.locations[name] = [float(x) if x is not None else None for x in values]
 
     def same(self, other):
         if len(self.locations) != len(other.locations):
@@ -535,6 +555,20 @@ class _DSSource(object):
                 return False
         return True
 
+    def asDict(self):
+        res = {}
+        for k, v in self.locations.items():
+            k = DSAxesMappings.get(k, k)
+            if isinstance(v, list):
+                v = [x for x in v if x is not None]
+                if len(v) == 1:
+                    v = v[0]
+                elif len(v) == 0:
+                    v = None
+            if v is not None:
+                res[k] = v
+        return res
+
 def read_plist(fname):
     res = {}
     doc = et.parse(fname)
@@ -542,6 +576,11 @@ def read_plist(fname):
     for i in range(len(plist), 0, 2):
         res[plist[i].text] = plist[i+1]
     return res
+
+
+def _let(ex, **kw):
+    return eval(ex, globals(), kw)
+let = defer(_let)
 
 class DesignSpace(object):
     _modifiermap = {'DASH': lambda x: x.replace(' ', '-'),
@@ -561,7 +600,7 @@ class DesignSpace(object):
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
-                sfont.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
+                sfont.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
             self.srcs[sfont.name] = sfont
         for inst in self.doc.getroot().findall('instances/instance'):
             if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
@@ -580,16 +619,18 @@ class DesignSpace(object):
             if isInstance:
                 if newkw.get('shortcircuit', True) and 'name' in inst.attrib:
                     srcinst = self.srcs.get(inst.get('name'), None)
+                    fsrc = _DSSource(**inst.attrib)
+                    for d in inst.findall("./location/dimension"):
+                        fsrc.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
+                    newkw.setdefault('axes', {}).update(fsrc.asDict())
+                    newkw['axes']['family'] = inst.get('stylemapfamilyname', "")
                     if srcinst is not None:
                         masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
-                        fsrc = _DSSource(**inst.attrib)
-                        for d in inst.findall("./location/dimension"):
-                            fsrc.addLocation(d.get('name'), [float(d.get('xvalue',"0")), float(d.get("yvalue","0"))])
-                        mightbeSame = srcinst.same(fsrc)
                         for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
                             if inst.find(sub) is not None and len(inst.find(sub)) > 0:
                                 mightbeSame = False
                                 break
+                        mightbeSame = srcinst.same(fsrc)
                         if mightbeSame:
                             fplist = read_plist(os.path.join(masterFName, 'fontinfo.plist'))
                             for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
@@ -1340,7 +1381,8 @@ def onload(ctx) :
     varmap = { 'package': Package, 'subdir': subdir,
         'ftmlTest': ftmlTest, 'testCommand': testCommand,
         'getversion': getversion, 'getufoinfo': getufoinfo,
-        'designspace': DesignSpace, 'testFile' : testFile }
+        'designspace': DesignSpace, 'testFile' : testFile,
+        'let': let }
     for k, v in varmap.items() :
         if hasattr(ctx, 'wscript_vars') :
             ctx.wscript_vars[k] = v
