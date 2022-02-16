@@ -374,7 +374,7 @@ class Package(object) :
         for f in self.fonts:
             manifest['files'].update(f.make_manifest(bld))
             if getattr(f, 'default', False):
-                manifest['default'] = os.path.basename(f.target)
+                manifest['default'] = str(f.target)
         mnode = bld.path.find_or_declare('manifest.json')
         with open(mnode.abspath(), "w", encoding="utf-8") as outf:
             json.dump(manifest, outf)
