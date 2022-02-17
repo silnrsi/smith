@@ -529,7 +529,11 @@ def simplestr(txt):
     return re.sub(r"\.0*$", r"", str(txt))
 
 DSAxesMappings = {
-    "weight": "wght"
+    "weight": "wght",
+    "width": "wdth",
+    "optical": "opsz",
+    "slant": "slnt",
+    "italic": "ital"
 }
 
 class _DSSource(object):
@@ -558,7 +562,6 @@ class _DSSource(object):
     def asDict(self):
         res = {}
         for k, v in self.locations.items():
-            k = DSAxesMappings.get(k, k)
             if isinstance(v, list):
                 v = [x for x in v if x is not None]
                 if len(v) == 1:
@@ -591,12 +594,18 @@ class DesignSpace(object):
         self.dspace = dspace
         self.kw = kw
         self.fonts = []
+        self.axesmap = {}
         self.makefonts()
         self.isbuilt = False
 
     def makefonts(self):
         self.doc = et.parse(self.dspace)
         self.srcs = {}
+        for axis in self.doc.getroot().findall('axes/axis'):
+            k = axis.get('name', None)
+            v = axis.get('tag', None)
+            if k is not None and v is not None:
+                self.axesmap[k] = v
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
@@ -622,7 +631,8 @@ class DesignSpace(object):
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
                         fsrc.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
-                    newkw.setdefault('axes', {}).update(fsrc.asDict())
+                    newkw.setdefault('axes', {}).update(
+                            {self.axesmap.get(k, DSAxesMappings.get(k, k)): v for k, v in fsrc.asDict().items()})
                     newkw['axes']['family'] = inst.get('stylemapfamilyname', "")
                     if srcinst is not None:
                         masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
