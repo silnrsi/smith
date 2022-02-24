@@ -205,6 +205,7 @@ class FontTests(object) :
         ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
         ctx.find_program('mono', var="MONO", mandatory=False)
         ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
+        ctx.find_program('fontbakery', var="FONTBAKERY", mandatory=False)
         res = set()
         for ts in list(self._allTests.values()) :
             for t in ts :

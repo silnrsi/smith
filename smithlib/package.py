@@ -274,6 +274,14 @@ class Package(object) :
         for f in self.fonts :
             f.build_start(bld)
 
+    def build_fontbakery(self, bld) :
+        if 'FONTBAKERY' not in bld.env :
+            Logs.warn("fontbakery not installed. Can't complete. See http://github.com/googlefonts/fontbakery")
+            return
+        self.subrun(bld, lambda p, b: p.build_fontbakery(b))
+        for f in self.fonts :
+            f.build_fontbakery(bld)
+
     def build_checksums(self, bld) :
         if 'CHECKSUMS' not in bld.env :
             Logs.warn("sha512sum not installed. Can't complete.")
@@ -900,6 +908,13 @@ class startContext(Context.Context):
                     print("Updating missing template file: %s"  % (f))
         Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
+class ttfcheckContext(Context.Context) :
+    """Run fontbakery checks (TTF) using psfrunfbchecks with default SIL profile."""
+    cmd = 'ttfchecks'
+    def execute(self) :
+        outputpath = getattr(Context.g_module, 'out', 'results')
+        # need to account for special multiple fontnames and multiple package()
+        Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
 
 class srcdistContext(Build.BuildContext) :
     """Create source release tarball of project (.tar.xz)"""
