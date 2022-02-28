@@ -3,7 +3,10 @@
 # A provisioning script for Vagrant to make it easier to get the latest smith and its dependencies from the PPAs and/or source.
 # This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
 
-# This is for Ubuntu focal/20.04 LTS
+# debug
+set +xv
+
+# This is for Ubuntu jammy/22.04 LTS
 
 # configure things for non-interactive and sdtin
 sudo ex +"%s@DPkg@//DPkg" -cwq /etc/apt/apt.conf.d/70debconf
@@ -26,42 +29,45 @@ echo " "
 #
 
 # set to True to compile Graphite and harfbuzz from source (including tracing):
-# graphiteFromSource=True
-graphiteFromSource=False
+graphiteFromSource=True
+# graphiteFromSource=False
 
 # set to True to compile opentype-sanitiser/ots from source
-# otsFromSource=True
-otsFromSource=False
+otsFromSource=True
+# otsFromSource=False
 
-# set to True to include the sklearn module (for Harmattan)
-# includeSklearn=True
-includeSklearn=False
+# set to True to compile FontValidator from source
+FontValFromSource=True
+# FontValFromSource=False
+
+# set to True to include the sklearn module
+includeSklearn=True
+#includeSklearn=False
 
 # to pin particular version of fontTools, set that version number here, else set to empty
 #fontToolsHoldVersion=4.17.1
- fontToolsHoldVersion=
+fontToolsHoldVersion=
 
 # End of configuration options
 
 
 # the official smith PPA
-sudo add-apt-repository -s -y ppa:silnrsi/smith-py3  2>&1 > /dev/null
+sudo add-apt-repository -s -y ppa:silnrsi/smith-py3 
 
 # the current git PPA
-sudo add-apt-repository -s -y ppa:git-core/ppa 2>&1 > /dev/null
+sudo add-apt-repository -s -y ppa:git-core/ppa 
 
 # set git params in ~/.gitconfig
 git config --global pull.rebase false
 
 
 # the official SILE PPA
-sudo add-apt-repository -s -y ppa:sile-typesetter/sile 2>&1 > /dev/null
+sudo add-apt-repository -s -y ppa:sile-typesetter/sile 
 
 sudo apt-get update -y -qq
 sudo apt-get upgrade -y -qq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
 
 # toolchain components currently built from source or retrieved via pypi
-# most of these are now commented out as the corresponding items are available as packages or on the CI
 # according to the features you need you can fill in the variables above or comment/uncomment accordingly before reprovisionning
 
 
@@ -77,6 +83,7 @@ pip config set global.disable-pip-version-check true
 # generic toolchain
 sudo apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -qq
 
+python3 -m pip install --upgrade setuptools-git-ls-files setuptools-scm
 
 # checking if we already have local checkouts 
  if [ -d $HOME/srcbuilds ]
@@ -86,7 +93,7 @@ then
     echo " "
     echo "Deleting srcbuilds folder... "
     echo " "
-    rm -rf $HOME/srcbuilds
+    sudo rm -rf $HOME/srcbuilds
 fi
 
 mkdir -p $HOME/srcbuilds
@@ -110,10 +117,10 @@ if [ "$graphiteFromSource" == "True" ]; then
 	cd graphite
 	mkdir build
 	cd build
-	cmake -G "Unix Makefiles" --build .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF -DGRAPHITE2_NTRACING:BOOL=OFF
+	cmake -G "Unix Makefiles" .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF -DGRAPHITE2_NTRACING:BOOL=OFF
 	make
-	make install
-	ldconfig 
+	sudo make install
+	sudo ldconfig 
 
 	echo " "
 	echo " "
@@ -124,26 +131,27 @@ if [ "$graphiteFromSource" == "True" ]; then
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
 
-	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja --user
+	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
 	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
 	ninja -C build
 	sudo ninja install -C build
-	ldconfig 
+	sudo ldconfig 
 fi
 
 # ots 
 if [ "$otsFromSource" == "True" ];
 then
+	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
 	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@main#egg=opentype-sanitizer --user
 
 	# ots from main repo (debugging and graphite support on by default)
-	python3 -m pip install --upgrade meson ninja --user
+	sudo python3 -m pip install --upgrade meson ninja
 	sudo apt-get install libfreetype6-dev -y -qq
 	cd $HOME/srcbuilds
 	git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
 	cd ots
 	meson build
-	ninja -C build --quiet
+	ninja -C build
 	sudo ninja install -C build
 
 else
@@ -151,21 +159,35 @@ else
 fi
 
 # fontvalidator
-echo " "
-echo " "
-echo "Installing fontvalidator from source"
-echo " "
-echo " "
-sudo apt-get install mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils -y -qq 
-cd $HOME/srcbuilds
+if [ "$FontValFromSource" == "True" ];
+then
+	sudo apt-get install  --no-install-recommends mono-mcs libmono-corlib4.5-cil libmono-system-windows-forms4.0-cil libmono-system-web4.0-cil xsltproc xdg-utils binfmt-support -y -qq 
+	cd $HOME/srcbuilds
 git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
-cd fontval
-make -s --quiet 2>&1 > /dev/null
-make gendoc --quiet  2>&1 > /dev/null
-sudo cp bin/*.exe /usr/local/bin/
-sudo cp bin/*.dll* /usr/local/bin/
-sudo cp bin/*.xsl /usr/local/bin/
-sudo cp /usr/local/bin/FontValidator.exe /usr/local/bin/FontValidator
+	cd fontval
+	make -s --quiet 2>&1 > /dev/null
+	make gendoc --quiet  2>&1 > /dev/null
+    mkdir -p ~/bin
+	sudo cp bin/*.exe ~/bin/
+	sudo cp bin/*.dll* ~/bin/
+	sudo cp bin/*.xsl ~/bin/
+	sudo cp bin/FontValidator.exe ~/bin/FontValidator
+fi
+
+# FontValidator shell script
+cat > ~/bin/fontval <<'EOF'
+#!/bin/bash
+   
+# running the validator from the usr/local/bin directory  
+mono ~/bin/FontValidator.exe -quiet -all-tables -no-raster-tests -report-in-font-dir -file "$1" 
+    
+exit 0 
+  
+EOF
+    
+sudo chmod 755 ~/bin/fontval 
+
+
 
 # toolchain components installed from packages (both main repositories and PPAs)
 
@@ -184,15 +206,10 @@ fi
 # smith options
 if [ "$fontToolsHoldVersion" == "" ]
 then
-	# current fonttools
-	sudo apt-mark unhold python3-fonttools
-	sudo python3 -m pip uninstall fontTools --yes 
-	sudo apt-get install --reinstall python3-fonttools -y -qq
+	# show current version of fonttools installed
+	python3 -m pip show fontTools
 else
 	# target specific version for (or downgrade) fonttools
-	sudo dpkg --remove --force-depends python3-fonttools
-	sudo apt-mark hold python3-fonttools
-	sudo python3 -m pip uninstall fontTools --yes 
 	python3 -m pip install --upgrade fontTools==$fontToolsHoldVersion --user
 fi
 
@@ -208,16 +225,34 @@ sudo apt-get install fonts-roboto -y -qq
 sudo mkdir -p /usr/local/share/fonts/robotomono/
 sudo wget --quiet --no-directories --no-parent --continue https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf/RobotoMono-{Regular,Bold,Italic,BoldItalic,Light,LightItalic,Medium,MediumItalic,Thin,ThinItalic}.ttf -P /usr/local/share/fonts/robotomono/
 
-# smith itself (only the font side of things)
+# smith and manual dependencies
 echo " "
 echo " "
 echo "Installing smith (downloading/updating the dependencies might take a few minutes)"
 echo " "
 echo " "
 
-sudo apt-get install smith-font --no-install-recommends -y -qq
+# smith and manual dependencies
+python3 -m pip install --upgrade git+https://github.com/silnrsi/smith.git@master#egg=smith --user
 
-# pip approach for fontmake deps 
+# completion file
+wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/bash_completion_smith -O ~/.bash_completion
+
+# man page 
+wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/docs/smith/smith.1 -P -O ~/.local/share/man/man1
+
+# other deps 
+python3 -m pip install --upgrade git+https://github.com/silnrsi/pysilfont.git@master#egg=pysilfont --user
+
+sudo apt-get install ipython3 python3-gi -y  -qq
+
+sudo apt-get install texlive-xetex --no-install-recommends -y -qq
+
+sudo apt-get install perl-doc libaa-bin xz-utils git libtext-unicode-equivalents-perl libtext-pdf-perl libio-string-perl libfont-ttf-scripts-perl libfont-ttf-perl libalgorithm-diff-perl libxml-parser-perl ttfautohint grcompiler libjson-perl libtext-csv-perl  -y -qq
+
+sudo apt-get install python3-graphite2 -y -qq
+
+# fontmake deps 
 python3 -m pip install --upgrade git+https://github.com/fonttools/fonttools.git@main --user
 python3 -m pip install --upgrade git+https://github.com/python-lz4/python-lz4.git@master --user
 python3 -m pip install --upgrade git+https://github.com/googlefonts/ufo2ft.git@main --user
@@ -229,17 +264,20 @@ python3 -m pip install --upgrade git+https://github.com/LettError/MutatorMath.gi
 python3 -m pip install --upgrade git+https://github.com/eea/odfpy.git@master --user
 python3 -m pip install --upgrade git+https://github.com/robotools/fontParts.git@master --user
 
-# install python components (tracking main) and their dependencies directly via pip3  
+# other python components and their dependencies 
 python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@main#egg=fontbakery --user
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@main#egg=glyphsLib --user
+python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@main#egg=fontaine --user
 
-
-
-# extra packages needed for fontproof
-sudo apt-get install wamerican wbritish -y -qq
+# Palaso + deps 
+python3 -m pip install --upgrade git+https://github.com/silnrsi/palaso-python.git@master#egg=palaso --user
+python3 -m pip install --upgrade tabulate freetype-py --user
 
 # install sile 
 sudo apt-get install sile -y -qq
+
+# extra packages needed for fontproof
+sudo apt-get install wamerican wbritish -y -qq
 
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
@@ -252,11 +290,7 @@ echo " "
 echo "Done!"
 echo " "
 echo " "
-echo "smith is now ready to use:"
-echo " "
-echo "Smith version: "
-apt-cache show smith | grep Version: | grep snapshot
-echo " "
+echo "smith is now ready to use"
 echo " "
 
 echo "To go to the shared folder to run smith commands on your project(s), type:" 
