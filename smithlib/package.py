@@ -796,15 +796,15 @@ class signContext(Build.BuildContext) :
         Logs.warn('Detached signature .asc files (PGP/GPG) generated for all available artifacts.')
 
 class buildinfoContext(Build.BuildContext) :
-    """Provide BUILDINFO.txt for toolchain component versions"""
+    """Provide requirements.txt and BUILDINFO.txt for toolchain component versions"""
     cmd = 'buildinfo'
 
     def execute(self) :
         checkpath = os.path.join(self.out_dir + '/')
         os.chdir(checkpath)
         subprocess.call(["dpkg-query -W -f '${binary:Package}:\t${Version}\t(${Architecture})\tdependencies: ${Depends}\t${binary:Summary}\t${Homepage}\n\n'"], shell = 1, stdout=open("BUILDINFO.txt","w"))
-        Logs.warn('Toolchain component versions file BUILDINFO.txt generated.')
-
+        subprocess.call(["pip3 freeze"], shell = 1, stdout=open("requirements.txt","w"))
+        Logs.warn('Toolchain component versions BUILDINFO.txt and requirements.txt generated.')
 
 class cmdContext(Build.BuildContext) :
     """Build Windows installer"""
