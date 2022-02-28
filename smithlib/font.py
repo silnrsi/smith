@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from __future__ import absolute_import, print_function
 ''' font module '''
 __url__ = 'http://github.com/silnrsi/smith'
@@ -57,8 +57,9 @@ class Font(object) :
         if getattr(self, 'source', "").lower().endswith(".ufo") and not hasattr(self, "buildusingfontforge") :
             res.add('psfufo2ttf')
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
-            res.add('fontforge')
-            res.add('sfdmeld')
+            if hasattr(self, 'buildusingfontforge') :
+                res.add('fontforge')
+                res.add('sfdmeld')
             if hasattr(self, 'ap') :
                 if self.source.endswith('.sfd'):
                     res.add('sfd2ap')
