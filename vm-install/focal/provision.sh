@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # A provisioning script for Vagrant to make it easier to get the latest smith and its dependencies from the PPAs and/or source.
-# This is designed to be called by the Vagrantfile wich expects this file to be in the same directory by default.
+# This is designed to be called by the Vagrantfile which expects this file to be in the same directory by default.
 
 # This is for Ubuntu focal/20.04 LTS
 

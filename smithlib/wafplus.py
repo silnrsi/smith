@@ -285,7 +285,7 @@ def add_sort_tasks(base) :
 
     def inject_modifiers(tasks) :
         """ Sort out run_after dependency tree taking modifiers into account.
-            Works out where in a chain of modifications a particular dependant task
+            Works out where in a chain of modifications a particular dependent task
             should have its direct run_after dependency set. Such tasks are set as
             late in the chain as possible. """
         tmap = {}

@@ -66,7 +66,7 @@ rrun -f '- backups' smith build
 To exclude multiple folders, supply multiple `-f` options or use a external merge file, e.g.:
 
 ```
-rrun -f '. filter.rsync' smith buld
+rrun -f '. filter.rsync' smith build
 ```
 where the `filter.rsync` file might contain:
 ```

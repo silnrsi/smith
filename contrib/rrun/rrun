@@ -55,7 +55,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-# Process the command string for forwading to bash inside the here doc by
+# Process the command string for forwarding to bash inside the here doc by
 # printing each parameter in quoted form and stripping of the escaping for
 # isolated common shell meta-characters:
 quoted=$(echo "${@@Q}" | sed -r "s/ '([;()|&]+)' / \1 /g")
