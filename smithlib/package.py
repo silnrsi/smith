@@ -263,7 +263,7 @@ class Package(object) :
 
     def build_pyfontaine(self, bld) :
         if 'PYFONTAINE' not in bld.env :
-            Logs.warn("pyfontaine not installed. Can't complete. See http://github.com/davelab6/pyfontaine")
+            Logs.warn("pyfontaine not installed. Can't complete. See http://github.com/googlefonts/pyfontaine")
             return
         self.subrun(bld, lambda p, b: p.build_pyfontaine(b))
         for f in self.fonts :
