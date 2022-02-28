@@ -894,46 +894,6 @@ class ttfcheckContext(Context.Context) :
         # need to account for special multiple fontnames and multiple package()
         Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
 
-class srcdistContext(Build.BuildContext) :
-    """Create source release tarball of project (.tar.xz)"""
-    cmd = 'srcdist'
-
-    def post_build(self) :
-        self.recurse([self.run_dir], 'srcdist', mandatory = False)
-        make_srcdist(self)
-
-class srcdistcheckContext(Build.BuildContext) :
-    """checks if the project compiles (tarball from 'srcdist')"""
-    cmd = 'srcdistcheck'
-
-    def execute_build(self) :
-        import tarfile
-        tarname = getattr(Context.g_module, 'SRCDIST', None)
-        if not tarname :
-            tarbase = Package.global_package().get_basearc(extras="-src")
-            tarname = tarbase
-        else :
-            tarbase = tarname
-        tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
-        xzfilename = tarfilename + '.xz'
-        tnode = self.path.find_or_declare(tarfilename)
-        xznode = self.path.find_or_declare(xzfilename)
-        cmd = ["unxz", "--keep", xznode.abspath()]
-        Utils.subprocess.call(cmd)
-        try :
-            tar = tarfile.open(tnode.abspath(), 'r')
-            tar.extractall()
-            tar.close()
-        except :
-            Logs.error("Tarball not found. Run smith srcdist first.")
-        # tarbase is directory to configure and build
-        ret = Utils.subprocess.Popen([sys.argv[0], 'configure', 'build'], cwd=tarbase).wait()
-        if ret:
-            raise Errors.WafError('srcdistcheck failed with code %i' % ret)
-
-        shutil.rmtree(tarbase)
-        os.remove(tnode.abspath())
-
 
 class graideContext(Build.BuildContext) :
     """Create graide .cfg files, one per font in graide/"""
