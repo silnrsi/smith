@@ -75,14 +75,14 @@ class Font(object) :
             res.add('ttfautohint')
         if hasattr(self, 'buildusingfontforge') :
             res.add('fontforge')
-        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'license', 'pdf', 'fret', 'woff', 'typetuner')) :
+        for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'legacy', 'pdf', 'fret', 'woff', 'typetuner')) :
             if x and not isinstance(x, str) :
                 res.update(x.get_build_tools(ctx))
         res.update(progset)
         return res
 
     def get_sources(self, ctx) :
-        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'license', 'opentype', 'graphite', 'typetuner')
+        res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'opentype', 'graphite', 'typetuner')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
         
@@ -129,12 +129,6 @@ class Font(object) :
             else :
                 ttfsetverparms = str(self.version)
             modify("${TTFSETVER} " + ttfsetverparms + " ${DEP} ${TGT}", self.target, path = basepath, late = 1)
-        if hasattr(self, 'copyright') :
-            modify("${TTFNAME} -t 0 -n '%s' ${DEP} ${TGT}" % (self.copyright), self.target, path = basepath, late = 1)
-        if hasattr(self, 'license') :
-            if hasattr(self.license, 'reserve') :
-                self.package.add_reservedofls(*self.license.reserve)
-            self.license.build(bld, self)
 
         # add smarts
         if hasattr(self, 'ap') :
@@ -480,85 +474,6 @@ class _TypeTuner(Internal):
 
 TypeTuner = defer(_TypeTuner)
 
-
-class _Ofl(object) :
-
-    def __init__(self, *reserved, **kw) :
-        if not 'version' in kw : kw['version'] = 1.1
-        #if not 'copyright' in kw : kw['copyright'] = getattr(Context.g_module, 'COPYRIGHT', '')
-        self.reserve = reserved
-        initobj(self, kw)
-
-    def get_build_tools(self, ctx) :
-        return ["ttfname"]
-
-    def get_sources(self, ctx) :
-        return []
-
-    def build(self, bld, font) :
-        if not hasattr(self, 'copyright') :
-            self.copyright = getattr(font, 'copyright', getattr(font.package, 'copyright', ''))
-        modify(self.insert_ofl, font.target, path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ofl", late = 1)
-        return font.target + "_ofl"
-        
-    def globalofl(self, task) :
-        bld = task.generator.bld
-        if bld.srcnode.find_node(self.file) is None :
-            make_ofl(self.file, self.all_reserveds, self.version, copyright = self.copyright, template = getattr(self, 'template', None))
-        return True
-
-    def build_global(self, bld) :
-        if not hasattr(self, 'file') : self.file = 'OFL.txt'
-        bld(rule = self.globalofl)
-
-    def insert_ofl(self, task) :
-        bld = task.generator.bld
-        tempfn = make_tempnode(bld)
-
-        def dottfname(*opts) :
-            cmd = [task.env.get_flat("TTFNAME")] + list(opts) + [task.dep.path_from(bld.bldnode), tempfn]
-            task.exec_command(cmd, cwd = getattr(task, 'cwd', None), env = task.env.env or None)
-
-        if hasattr(self, 'file') :
-            f = bld.srcnode.find_node(self.file)
-        else :
-            f = None
-        if f is not None :
-            dottfname("-t", "13", "-s", f.abspath())
-        elif hasattr(self, 'short') :
-            licensetxt = "This Font Software is licensed under the SIL Open Font License, Version 1.1"
-            if len(self.reserve) :
-                licensetxt += " with Reserved Font Names " + " and ".join(['"%s"' % x for x in self.reserve])
-            dottfname("-t", "13", "-n", licensetxt)
-        else :
-            fname = make_tempnode(bld)
-            make_ofl(fname, self.reserve, self.version, copyright = self.copyright)
-            dottfname("-t", "13", "-s", fname)
-            os.unlink(fname)
-
-        res = task.exec_command([task.env.get_flat("TTFNAME"), "-t", "14", "-n", "http://scripts.sil.org/OFL", tempfn, task.tgt.path_from(bld.bldnode)], cwd = getattr(task, 'cwd', None), env = task.env.env or None)
-        os.unlink(tempfn)
-        return res
-
-Ofl = defer(_Ofl)
-
-def make_ofl(fname, names, version, copyright = None, template = None) :
-    oflh = open(fname, "w+")
-    # if copyright : oflh.write(copyright + "  (" + os.getenv('DEBEMAIL') + "), \n")
-    # if copyright : oflh.write(copyright +"  (<URL|email>), \n")
-    if copyright : oflh.write(copyright + "\n") # URL/email is not required and often doesn't exist. Find a better way to handle it if given.
-    if names :
-        oflh.write("with Reserved Font Name " + " and ".join(['"%s"' % x for x in names]) + ".\n")
-    if not template :
-        oflbasefn = "OFL_" + str(version).replace('.', '_') + '.txt'
-        thisdir = os.path.dirname(__file__)
-        template = os.path.join(thisdir, oflbasefn)
-    oflbaseh = open(template, "r")
-    for l in oflbaseh.readlines() : oflh.write(l)
-    oflbaseh.close()
-    oflh.close()
-    return fname
-
 class _Fret(object) :
     def __init__(self, tgt = None, **kw) :
         self.target = initval(tgt)
@@ -691,7 +606,7 @@ def name(n, **kw) :
 
 def onload(ctx) :
     varmap = { 'font' : undeffered(Font), 'legacy' : Legacy, 'volt' : Volt, 'fea' : Fea,
-            'gdl' : Gdl, 'name' : name, 'ofl' : Ofl, 'fret' : Fret, 'typetuner' : TypeTuner,
+            'gdl' : Gdl, 'name' : name, 'fret' : Fret, 'typetuner' : TypeTuner,
             'woff' : Woff, 'internal' : Internal
              }
     for k, v in varmap.items() :

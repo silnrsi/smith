@@ -17,10 +17,10 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
-keyfields = ('copyright', 'version', 'appname', 'desc_short',
+keyfields = ('version', 'appname', 'desc_short',
             'desc_long', 'outdir', 'desc_name', 'docdir')
 optkeyfields = ('company', 'instdir', 'zipfile', 'zipdir', 'readme',
-            'license', 'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
+            'contact', 'url', 'testfiles', 'buildlabel', 'buildformat',
             'package_files', 'buildversion', 'sile_path', 'sile_scale', 'noalltests')
 
 def formatdesc(s) :
@@ -176,19 +176,6 @@ class Package(object) :
     def add_kbd(self, kbd) :
         self.keyboards.append(kbd)
 
-    def add_reservedofls(self, *reserved) :
-        if hasattr(self, 'reservedofl') :
-            self.reservedofl.update(reserved)
-        else :
-            self.reservedofl = set(reserved)
-
-    def make_ofl_license(self, task, base) :
-        bld = task.generator.bld
-        font.make_ofl(task.outputs[0].path_from(base.path if base else bld.path), self.reservedofl,
-                getattr(self, 'ofl_version', '1.1'),
-                copyright = getattr(self, 'copyright', ''),
-                template = getattr(self, 'ofltemplate', None))
-        return 0
     
     def subrun(self, bld, fn, onlyfn = False) :
         for k in self.order :
@@ -221,15 +208,6 @@ class Package(object) :
             f.build(bld)
         for k in self.keyboards :
             k.build(bld)
-
-        self.subrun(bld, lambda p, b: self.add_reservedofls(*p.reservedofl) if hasattr(p, 'reservedofl') else None, onlyfn = True)
-        def methodwrapofl(tsk) :
-            return self.make_ofl_license(tsk, base)
-
-        if hasattr(self, 'reservedofl') :
-            if not hasattr(self, 'license') : self.license = 'OFL.txt'
-            if not os.path.exists(self.license) :
-                bld(name = 'Package OFL', rule = methodwrapofl, target = bld.bldnode.find_or_declare(self.license))
 
     def build_test(self, bld, test='test') :
         self.subrun(bld, lambda p, b: p.build_test(b, test=test))
