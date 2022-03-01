@@ -189,11 +189,11 @@ class Font(object) :
         if len(getattr(self, 'axes', {})):
             res[str(self.target)] = {'format': "ttf"}
             res[str(self.target)].update(self.axes)
-        if hasattr(self, 'woff'):
-            for a in self.woff.type:
-                t = str(self.woff.target) + "." + a
-                res[t] = {'format': a}
-                res[t].update(self.axes)
+            if hasattr(self, 'woff'):
+                for a in self.woff.type:
+                    t = str(self.woff.target) + "." + a
+                    res[t] = {'format': a}
+                    res[t].update(self.axes)
         return res
 
 class DesignInstance(object):
