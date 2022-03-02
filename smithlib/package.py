@@ -1032,7 +1032,7 @@ def getversion(buildformat="dev-{vcssha:.6}{vcsmodified}") :
     results['buildnumber'] = os.environ.get('BUILD_NUMBER', '')
     return buildformat.format(**results)
 
-def getufoinfo(ufosrc):
+def getufoinfo(ufosrc, package=None):
     root = et.parse(os.path.join(ufosrc, "fontinfo.plist"))
     d = root.getroot()[0]
     info = dict((x[0].text, x[1].text) for x in zip(d[::2], d[1::2]))
@@ -1049,10 +1049,14 @@ def getufoinfo(ufosrc):
         majver = int(info['versionMajor'])
     if 'versionMinor' in info:
         minver = int(info['versionMinor'])
-    import inspect
-    caller = inspect.stack()[1]
-    caller[0].f_locals.update({'VERSION': "{:d}.{:03d}".format(majver, minver),
-                               'BUILDLABEL': extra})
+    if package is None:
+        import inspect
+        caller = inspect.stack()[1]
+        caller[0].f_locals.update({'VERSION': "{:d}.{:03d}".format(majver, minver),
+                                   'BUILDLABEL': extra})
+    else:
+        package.version = "{:d}.{:03d}".format(majver, minver)
+        package.buildlabel = extra
 
 def add_configure() :
     old_config = getattr(Context.g_module, "configure", None)
