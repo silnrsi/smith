@@ -38,9 +38,8 @@ two ready made options below, depending on interactive or CI use cases:
 #### Vagrant support VM images
 The current VM (Virtual Machine) installation files (using vagrant) are in
 [vm-install](vm-install).  These files make it easier to use smith (and its
-various components) on macOS,
-Windows or Ubuntu.  Simply copy the files to the root of your project and
-run ``vagrant up``.
+various components) on macOS, Windows or Ubuntu. 
+Simply copy the files to the root of your project and run ``vagrant up``.
 
 #### Docker image
 
@@ -74,5 +73,5 @@ Our TeamCity build agent is built like so:
 ```
 $> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" .
 ```
-We recommend using BuildKit, as it halves the build time with this Dockerfile
+We recommend using BuildKit, as it halves the build time with this Dockerfile.
 
