@@ -45,8 +45,13 @@ includeSklearn=True
 #includeSklearn=False
 
 # to pin particular version of fontTools, set that version number here, else set to empty
-#fontToolsHoldVersion=4.17.1
+# fontToolsHoldVersion=4.17.1
 fontToolsHoldVersion=
+
+# set to True to compile ttfautohint source:
+# ttfautohintFromSource=True
+ttfautohintFromSource=False
+
 
 # End of configuration options
 
@@ -117,10 +122,12 @@ if [ "$graphiteFromSource" == "True" ]; then
 	cd graphite
 	mkdir build
 	cd build
-	cmake -G "Unix Makefiles" .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF -DGRAPHITE2_NTRACING:BOOL=OFF
+	cmake -G "Unix Makefiles" .. -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF -DGRAPHITE2_NTRACING:BOOL=OFF  -DPYTHON_EXECUTABLE=python3
 	make
 	sudo make install
-	sudo ldconfig 
+	cd ..
+	python3 setup.py -v install --user
+	sudo ldconfig  
 
 	echo " "
 	echo " "
@@ -136,6 +143,10 @@ if [ "$graphiteFromSource" == "True" ]; then
 	ninja -C build
 	sudo ninja install -C build
 	sudo ldconfig 
+
+	# crude chown because Harfbuzz wants write-access to optimize runs of its utilities
+	sudo chmod -R 776 $HOME/srcbuilds
+	sudo chown -R vagrant:vagrant $HOME/srcbuilds
 fi
 
 # ots 
@@ -193,17 +204,17 @@ sudo chmod 755 ~/bin/fontval
 
 if [ "$graphiteFromSource" == "False" ]
 then
+	 # still provide the hb utilities even if you don't get the freshest hb from source
 	 sudo apt-get install libharfbuzz-bin -y -qq
 fi
 
 if [ "$includeSklearn" == "True" ]
 then
 	# clustering tool needed for collision-avoidance-based kerning:
-	sudo apt-get install python3-sklearn -y -qq
+	python3 -m pip install --upgrade git+https://github.com/scikit-learn/scikit-learn.git@main#egg=scikit-learn --user 
 fi
 
 
-# smith options
 if [ "$fontToolsHoldVersion" == "" ]
 then
 	# show current version of fonttools installed
@@ -213,11 +224,25 @@ else
 	python3 -m pip install --upgrade fontTools==$fontToolsHoldVersion --user
 fi
 
-# crude chown because Harfbuzz wants write-access to optimize runs of its utilities
-sudo chmod -R 776 $HOME/srcbuilds
-sudo chown -R vagrant:vagrant $HOME/srcbuilds
 
-# pandoc, weasyprint + deps, Roboto fonts, for generating documentation 
+# ttfautohint 
+if [ "$ttfautohintFromSource" == "True" ];
+then
+	sudo apt-get install build-essential pkg-config bison flex libfreetype6-dev libharfbuzz-dev libtool autoconf automake qtchooser -y -qq  
+	cd $HOME/srcbuilds
+	git clone --depth 1 https://repo.or.cz/ttfautohint.git
+	cd ttfautohint
+	./bootstrap
+	./configure --with-qt=no --with-doc=no
+	make 
+
+else
+	sudo apt-get install ttfautohint -y
+fi
+
+
+
+# pandoc, weasyprint + deps, Roboto fonts, for generating documentation (makedocs)
 sudo apt-get install pandoc pandoc-data -y -qq
 python3 -m pip install --upgrade weasyprint --user
 python3 -m pip install --upgrade pillow --user
@@ -248,13 +273,13 @@ sudo apt-get install ipython3 python3-gi -y  -qq
 
 sudo apt-get install texlive-xetex --no-install-recommends -y -qq
 
-sudo apt-get install perl-doc libaa-bin xz-utils git libtext-unicode-equivalents-perl libtext-pdf-perl libio-string-perl libfont-ttf-scripts-perl libfont-ttf-perl libalgorithm-diff-perl libxml-parser-perl ttfautohint grcompiler libjson-perl libtext-csv-perl  -y -qq
+sudo apt-get install perl-doc libaa-bin xz-utils libtext-unicode-equivalents-perl libtext-pdf-perl libio-string-perl libfont-ttf-scripts-perl libfont-ttf-perl libalgorithm-diff-perl libxml-parser-perl grcompiler libjson-perl libtext-csv-perl  -y -qq
 
-sudo apt-get install python3-graphite2 -y -qq
 
 # fontmake deps 
 python3 -m pip install --upgrade git+https://github.com/fonttools/fonttools.git@main --user
 python3 -m pip install --upgrade git+https://github.com/python-lz4/python-lz4.git@master --user
+python3 -m pip install --upgrade git+https://github.com/googlefonts/cu2qu.git@main --user
 python3 -m pip install --upgrade git+https://github.com/googlefonts/ufo2ft.git@main --user
 python3 -m pip install --upgrade git+https://github.com/robotools/defcon.git@master --user
 python3 -m pip install --upgrade git+https://github.com/googlefonts/compreffor.git@main --user
@@ -269,8 +294,13 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.g
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@main#egg=glyphsLib --user
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@main#egg=fontaine --user
 
+# other deps from source repo directly?
+# brotli ufoLib2 zopfli unicodedata2 beziers
+
 # Palaso + deps 
 python3 -m pip install --upgrade git+https://github.com/silnrsi/palaso-python.git@master#egg=palaso --user
+python3 -m pip install --upgrade git+@https://github.com/ovalhub/pyicu#master#egg=pyicu --user
+# https://gitlab.pyicu.org/main/pyicu
 python3 -m pip install --upgrade tabulate freetype-py --user
 
 # install sile 
