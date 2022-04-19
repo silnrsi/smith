@@ -138,7 +138,8 @@ if [ "$graphiteFromSource" == "True" ]; then
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
 
-	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
+	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson --user
+	sudo python3 -m pip install --upgrade ninja
 	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
 	ninja -C build
 	sudo ninja install -C build
@@ -152,7 +153,8 @@ fi
 # ots 
 if [ "$otsFromSource" == "True" ];
 then
-	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
+	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson --user
+	sudo python3 -m pip install --upgrade ninja
 	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@main#egg=opentype-sanitizer --user
 
 	# ots from main repo (debugging and graphite support on by default)
@@ -299,7 +301,7 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.g
 
 # Palaso + deps 
 python3 -m pip install --upgrade git+https://github.com/silnrsi/palaso-python.git@master#egg=palaso --user
-python3 -m pip install --upgrade git+@https://github.com/ovalhub/pyicu#master#egg=pyicu --user
+python3 -m pip install --upgrade git+https://github.com/ovalhub/pyicu#master#egg=pyicu --user
 # https://gitlab.pyicu.org/main/pyicu
 python3 -m pip install --upgrade tabulate freetype-py --user
 
