@@ -300,8 +300,7 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.g
 
 # Palaso + deps 
 python3 -m pip install --upgrade git+https://github.com/silnrsi/palaso-python.git@master#egg=palaso --user
-python3 -m pip install --upgrade git+https://github.com/ovalhub/pyicu#master#egg=pyicu --user
-# https://gitlab.pyicu.org/main/pyicu
+python3 -m pip install --upgrade git+https://gitlab.pyicu.org/main/pyicu@main#egg=pyicu  --user
 python3 -m pip install --upgrade tabulate freetype-py --user
 
 # install sile 
