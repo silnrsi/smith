@@ -158,7 +158,6 @@ then
 	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@main#egg=opentype-sanitizer --user
 
 	# ots from main repo (debugging and graphite support on by default)
-	sudo python3 -m pip install --upgrade meson ninja
 	sudo apt-get install libfreetype6-dev -y -qq
 	cd $HOME/srcbuilds
 	git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git
