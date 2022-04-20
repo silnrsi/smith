@@ -32,7 +32,7 @@ The manual (including a step-by-step tutorial) is in
 
 The standard `pip install .` will install just the smith packages and commands,
 but will not install all the other font tooling which smith will search for
-when `smith configure` is run.  For complete font build envrionments there are
+when `smith configure` is run.  For complete font build environments there are
 two ready made options below, depending on interactive or CI use cases:
 
 #### Vagrant support VM images
@@ -47,17 +47,17 @@ The primary purpose of the Docker image is to provide a base for CI systems to
 have a complete smith build environment. However you can also use it locally as
 is, simply by running:
   `docker run --rm -it -v $WORKSPACE:/build smith:latest`
-This will fetch and use the latest smith docker image from docker hub and run
-it with the absoulte path (or docker volume) `$WORKSPACE` mapped to `/build`
+This will fetch and use the latest smith docker image from docker hub (no image available yet) and run
+it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/build`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
 the container ephemeral.
 
 If you wish to build your own image you will need to run `docker build .` in
 the top-level source dir and this will download and build the latest
-dependencies for the smith font build enviroment and install the smith python
+dependencies for the smith font build environment and install the smith python
 packages from the source dir.
 The Dockerfile can take the following build args:
-  `ubuntuImage`: (default: "ubuntu:20.04")
+  `ubuntuImage`: (default: "ubuntu:22.04")
      The base image to build on.  This does not need to be an official Ubuntu
      image, but can be an image built on Ubuntu. e.g. This is how the TeamCity
      build agent image is generated.
