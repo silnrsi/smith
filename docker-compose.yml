@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  smith-jammy:
+    restart: always
+    container_name: smith-jammy
+    hostname: smith-jammy
+    build: . 
+    stdin_open: true
+    tty: true
+    volumes:
+      - /home/nico/repos/wstechfonts:/smith
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8gb
