@@ -1,6 +1,8 @@
 
-steps to test the Docker images:
+Steps to test the Docker images for Desktop usage:
+---------------------------------------------------
 
+docker-compose config  (to validate file)
 
 docker-compose build --no-cache --build-arg=type="interactive
 
@@ -11,5 +13,17 @@ docker-compose exec -u ubuntu smith-jammy bash
 docker-compose down 
 
 
---
-docker-compose config  (to validate file)
+local one-time usage - non-fonctional as the image/container is not on the hub/prebuilt yet:
+  `docker run --rm -it -v $WORKSPACE:/build smith:latest`
+
+
+Steps to test the Docker image for CI usage (TeamCity):
+-------------------------------------------------------
+
+$> docker build --build-arg=type=build-agent .
+```
+Our TeamCity build agent is built like so:
+```
+$> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" .
+```
+We recommend using BuildKit, as it halves the build time with this Dockerfile.
