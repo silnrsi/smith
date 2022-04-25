@@ -360,10 +360,11 @@ class Package(object) :
         for f in self.fonts:
             manifest['files'].update(f.make_manifest(bld))
             if getattr(f, 'default', False):
-                manifest['default'] = os.path.basename(f.target)
+                manifest['default'] = str(f.target)
         mnode = bld.path.find_or_declare('manifest.json')
-        with open(mnode.abspath(), "w", encoding="utf-8") as outf:
-            json.dump(manifest, outf)
+        if len(manifest['files']):
+            with open(mnode.abspath(), "w", encoding="utf-8") as outf:
+                json.dump(manifest, outf)
 
     def get_basearc(self, extras="") :
         if self.buildversion != '' :
@@ -515,7 +516,11 @@ def simplestr(txt):
     return re.sub(r"\.0*$", r"", str(txt))
 
 DSAxesMappings = {
-    "weight": "wght"
+    "weight": "wght",
+    "width": "wdth",
+    "optical": "opsz",
+    "slant": "slnt",
+    "italic": "ital"
 }
 
 class _DSSource(object):
@@ -544,7 +549,6 @@ class _DSSource(object):
     def asDict(self):
         res = {}
         for k, v in self.locations.items():
-            k = DSAxesMappings.get(k, k)
             if isinstance(v, list):
                 v = [x for x in v if x is not None]
                 if len(v) == 1:
@@ -577,12 +581,18 @@ class DesignSpace(object):
         self.dspace = dspace
         self.kw = kw
         self.fonts = []
+        self.axesmap = {}
         self.makefonts()
         self.isbuilt = False
 
     def makefonts(self):
         self.doc = et.parse(self.dspace)
         self.srcs = {}
+        for axis in self.doc.getroot().findall('axes/axis'):
+            k = axis.get('name', None)
+            v = axis.get('tag', None)
+            if k is not None and v is not None:
+                self.axesmap[k] = v
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
@@ -599,19 +609,21 @@ class DesignSpace(object):
         specialvars.update((k+"_"+mk, mv(v)) for k,v in copyvars.items() for mk, mv in self._modifiermap.items())
         specialvars.update(("DS:AXIS_"+e.get("name", "").upper(), e.get("xvalue", "")) for e in inst.findall('location/dimension'))
         specialvars['DS:FILE'] = os.path.join(base, specialvars['DS:FILENAME'])
-        newkw = dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items()))
         # we can insert all kinds of useful defaults in here
-        if 'source' not in newkw:
+        newkw = {}
+        if 'source' not in self.kw:
             if isInstance:
                 if newkw.get('shortcircuit', True) and 'name' in inst.attrib:
                     srcinst = self.srcs.get(inst.get('name'), None)
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
                         fsrc.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
-                    newkw.setdefault('axes', {}).update(fsrc.asDict())
+                    newkw.setdefault('axes', {}).update(
+                            {self.axesmap.get(k, DSAxesMappings.get(k, k)): v for k, v in fsrc.asDict().items()})
                     newkw['axes']['family'] = inst.get('stylemapfamilyname', "")
                     if srcinst is not None:
-                        masterFName = os.path.join(base, self.srcs[inst.get('name')].filename)
+                        mfont = self.srcs[inst.get('name')]
+                        masterFName = os.path.join(base, mfont.filename)
                         for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
                             if inst.find(sub) is not None and len(inst.find(sub)) > 0:
                                 mightbeSame = False
@@ -641,6 +653,8 @@ class DesignSpace(object):
                                                           self.dspace, params=newkw.get('instanceparams', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
+        specialvars['source'] = formatvars(getattr(newkw['source'], 'target', newkw['source']), specialvars)
+        newkw.update(dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items())))
         self.fonts.append(font.Font(**newkw))
 
 def make_srcdist(self) :
