@@ -268,6 +268,10 @@ apt-get install smith-font --no-install-recommends -y -q
 
 # install python components (tracking main) and their dependencies directly via pip3  
 python3 -m pip install --upgrade git+https://github.com/googlefonts/fontbakery.git@main#egg=fontbakery
+# fontbakery extra deps 
+python3 -m pip install --upgrade freetype-py
+
+
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@main#egg=glyphsLib 
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@main#egg=fontaine 
 
