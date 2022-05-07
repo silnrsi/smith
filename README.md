@@ -32,15 +32,15 @@ The manual (including a step-by-step tutorial) is in
 
 The standard `pip install .` will install just the smith packages and commands,
 but will not install all the other font tooling which smith will search for
-when `smith configure` is run.  For complete font build environments there are
-two ready made options below, depending on interactive or CI use cases:
+when `smith configure` is run.
 
-#### Vagrant support VM images
-The current VM (Virtual Machine) installation files (using vagrant) are in
+To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/)
+
+#### VM profiles (vagrant)
+The current VM (Virtual Machine) installation files (using Vagrant) are in
 [vm-install](vm-install).  These files make it easier to use smith (and its
-various components) on macOS, Windows or Ubuntu. 
+various components) on macOS, Windows or Ubuntu.
 Simply copy the files to the root of your project and run ``vagrant up``.
 
-#### Docker image/container 
-Details of the Docker approach that is still in development is now moved to [Docker](docker-steps.txt)
-
+#### Docker image/container
+Details of the Docker approach that is still in development are in [Docker steps](docker-steps.txt).
