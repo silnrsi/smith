@@ -2,15 +2,30 @@
 Steps to test the Docker images for Desktop usage:
 ---------------------------------------------------
 
+(This assumes you have installed Docker and Docker compose)
+
+
 docker-compose config  (to validate file)
 
-docker-compose build --no-cache --build-arg=type="interactive
+docker-compose build --no-cache --build-arg=type="interactive"
 
 docker-compose up -d 
 
 docker-compose exec -u ubuntu smith-jammy bash 
 
-docker-compose down 
+cd /smith
+
+cd font-project
+
+smith configure
+smith build
+smith alltests
+smith ttfchecks
+smith zip
+smith tarball
+smith release
+
+docker-compose down (to halt the container)
 
 
 local one-time usage - non-fonctional as the image/container is not on the hub/prebuilt yet:
