@@ -35,10 +35,9 @@ local one-time usage - non-fonctional as the image/container is not on the hub/p
 Steps to test the Docker image for CI usage (TeamCity):
 -------------------------------------------------------
 
-$> docker build --build-arg=type=build-agent .
+$> DOCKER_BUILDKIT=1 docker build --build-arg=type=build-agent .
 ```
 Our TeamCity build agent is built like so:
 ```
-$> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" .
+$> DOCKER_BUILDKIT=1 docker build --build-arg=ubuntuImage="jetbrains/teamcity-agent" .
 ```
-We recommend using BuildKit, as it halves the build time with this Dockerfile.
