@@ -125,7 +125,7 @@ RUN pip install 'git+https://github.com/silnrsi/pysilfont'
 FROM base AS build-agent
 ARG codename=jammy
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
-      org.opencontainers.image.title="smith" \
+      org.opencontainers.image.title="smith-jammy" \
       org.opencontainers.image.documentation="https://github.com/silnrsi/smith/blob/master/docs/smith/manual.asc" \
       org.opencontainers.image.description="Smith font development toolchain" \
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
@@ -177,7 +177,7 @@ COPY --from=python3-dependencies /usr/local /usr/local
 FROM ${type} AS final
 ARG codename=jammy
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
-      org.opencontainers.image.title="smith" \
+      org.opencontainers.image.title="smith-jammy" \
       org.opencontainers.image.documentation="https://github.com/silnrsi/smith/blob/master/docs/smith/manual.asc" \
       org.opencontainers.image.description="Smith font development environment" \
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
