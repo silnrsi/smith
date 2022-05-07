@@ -163,7 +163,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y bash-completion l
     useradd -md /home/ubuntu ubuntu &&\
     echo 'builder ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers &&\ 
     echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
-RUN wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/bash_completion_smith -O ~/.bash_completion
+RUN wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/bash_completion_smith -O /etc/bash_completion.d/smith
 VOLUME /build
 USER ubuntu
 CMD ["/bin/bash"]
