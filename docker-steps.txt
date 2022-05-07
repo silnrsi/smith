@@ -4,14 +4,17 @@ Steps to test the Docker images for Desktop usage:
 
 (This assumes you have installed Docker and Docker compose)
 
+to validate the file:
+docker-compose config 
 
-docker-compose config  (to validate file)
+to build the image:
+docker-compose build
 
-docker-compose build --no-cache --build-arg=type="interactive"
+to spin up the container:
+docker-compose up -d
 
-docker-compose up -d 
-
-docker-compose exec -u ubuntu smith-jammy bash 
+to log into the container and run smith targets:
+docker-compose exec -u ubuntu smith-jammy bash
 
 cd /smith
 
@@ -25,7 +28,8 @@ smith zip
 smith tarball
 smith release
 
-docker-compose down (to halt the container)
+to halt the container:
+docker-compose down
 
 
 local one-time usage - non-fonctional as the image/container is not on the hub/prebuilt yet:
