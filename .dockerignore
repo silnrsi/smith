@@ -6,4 +6,5 @@
 !smith.py
 !smithlib
 !waflib
+*.vagrant
 

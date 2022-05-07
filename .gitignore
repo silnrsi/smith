@@ -14,3 +14,4 @@ smith.egg-info
 *.epub
 dev/
 *.code-workspace
+*.vagrant/*
