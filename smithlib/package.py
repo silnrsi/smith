@@ -613,7 +613,7 @@ class DesignSpace(object):
         newkw = {}
         if 'source' not in self.kw:
             if isInstance:
-                if newkw.get('shortcircuit', True) and 'name' in inst.attrib:
+                if self.kw.get('shortcircuit', True) and 'name' in inst.attrib:
                     srcinst = self.srcs.get(inst.get('name'), None)
                     fsrc = _DSSource(**inst.attrib)
                     for d in inst.findall("./location/dimension"):
