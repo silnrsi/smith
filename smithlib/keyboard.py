@@ -38,7 +38,10 @@ class Keyboard(object) :
         if hasattr(self, 'mskbd') : self.mskbd.setup_vars(bld, self)
 
     def get_build_tools(self, ctx) :
-        res = set(['kmn2xml', 'kmnxml2svg', 'inkscape', 'ttfeval', 'cp'])
+        if not getattr(self, 'nopdf', False):
+            res = set(['kmn2xml', 'kmnxml2svg', 'inkscape', 'ttfeval', 'cp'])
+        else:
+            res = set()
         if hasattr(self, 'mskbd') : res.update(self.mskbd.get_build_tools(ctx))
         if hasattr(self, 'modifiers') : res.update(['pdftk'])
         try: ctx.find_program('kmcomp', var = 'KMCOMP')
@@ -90,7 +93,7 @@ class Keyboard(object) :
         bld(rule = "${CP} ${SRC} ${TGT}", source = self.source, target = self.target)
         if bld.env['KMFLCOMP'] and not hasattr(self, 'nokmfl') :
             bld(rule = '${KMFLCOMP} ${SRC}', source = self.target, target = self.kmfl)
-        if hasattr(self, 'kbdfont') : self.build_pdf(bld)
+        if hasattr(self, 'kbdfont') and not getattr(self, 'nopdf', False): self.build_pdf(bld)
         if hasattr(self, 'mskbd') : self.mskbd.build(bld, self)
 
     def build_pdf(self, bld) :
