@@ -279,8 +279,12 @@ python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.g
 # extra packages needed for fontproof
 apt-get install wamerican wbritish -y 
 
-# install sile 
-apt-get install sile -y -q
+# install sile (we temporarly pin to a particular version of SILE because the newest version of both fontproof and SILE still need testing) 
+wget -nv https://launchpad.net/~sile-typesetter/+archive/ubuntu/sile/+files/sile_0.12.5-0ppa2~ubuntu20.04_amd64.deb -O /tmp/sile_0.12.5-0ppa2~ubuntu20.04_amd64.deb && dpkg -i /tmp/sile_0.12.5-0ppa2~ubuntu20.04_amd64.deb && rm -fv /tmp/sile_0.12.5-0ppa2~ubuntu20.04_amd64.deb && apt-mark hold sile
+
+# uncomment the following when you know that SILE and fontproof are stable again
+# apt-mark unhold sile 
+# apt-get install sile -y -q  
 
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
