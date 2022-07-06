@@ -68,6 +68,9 @@ apt-get upgrade -y -q -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="-
 apt-get install python3-pip -y 
 python3 -m pip install --upgrade pip
 
+# config
+python3 -m pip config set global.disable-pip-version-check true
+
 # generic toolchain
 apt-get install build-essential cmake gcc g++ automake libtool pkg-config icu-devtools libicu-dev  -y -q
 
@@ -286,7 +289,14 @@ apt-get install sile -y -q
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
 rm -rf /usr/share/sile/packagemanager/fontproof/
-sile -e 'installPackage("fontproof");os.exit()'
+# sile -e 'installPackage("fontproof");os.exit()'
+cd /home/vagrant/srcbuilds
+git clone https://github.com/sile-typesetter/fontproof.git
+cd fontproof 
+# if you need to target a specific tag or branch, adjust and uncomment the following line:
+# git checkout v1.6.0
+install -m 644 classes/* /usr/share/sile/classes/
+install -m 644 packages/* /usr/share/sile/packages/
 
 
 echo " "
