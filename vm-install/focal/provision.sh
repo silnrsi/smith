@@ -278,6 +278,8 @@ python3 -m pip install --upgrade freetype-py
 python3 -m pip install --upgrade git+https://github.com/googlefonts/GlyphsLib.git@main#egg=glyphsLib 
 python3 -m pip install --upgrade git+https://github.com/googlefonts/pyfontaine.git@main#egg=fontaine 
 
+# install other python components
+python3 -m pip install --upgrade uharfbuzz
 
 # extra packages needed for fontproof
 apt-get install wamerican wbritish -y 
