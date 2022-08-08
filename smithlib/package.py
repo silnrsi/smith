@@ -379,8 +379,8 @@ class Package(object) :
     def execute_tar(self, bld) :
         import tarfile
         self.set_zip()
-        tnode = bld.path.find_or_declare(self.zipfile.replace(".zip", ".tar"))
-        tar = tarfile.open(tnode.abspath(), "w")
+        tnode = bld.path.find_or_declare(self.zipfile.replace(".zip", ".tar.xz"))
+        tar = tarfile.open(tnode.abspath(), "w:xz")
         basearc = self.get_basearc()
         for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
             d, x = t[0], t[1]
@@ -391,8 +391,6 @@ class Package(object) :
             if not archive_name.startswith('..') :
                 tar.add(y.abspath(), arcname = archive_name)
         tar.close()
-        cmd = ["xz", "-f", tnode.abspath()]
-        Utils.subprocess.call(cmd)
 
     def execute_zip(self, bld) :
         import zipfile
@@ -707,9 +705,9 @@ def make_srcdist(self) :
         tarname = tarbase
     else :
         tarbase = tarname
-    tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar'
+    tarfilename = os.path.join(getattr(Context.g_module, 'ZIPDIR', 'releases'), tarname) + '.tar.xz'
     tnode = self.path.find_or_declare(tarfilename)
-    tar = tarfile.open(tnode.abspath(), 'w')
+    tar = tarfile.open(tnode.abspath(), 'w:xz')
     incomplete = False
 
     for f in sorted(files.keys()) :
@@ -720,10 +718,6 @@ def make_srcdist(self) :
         if files[f] :
             tar.add(files[f].abspath(), arcname = os.path.join(tarbase, f))
     tar.close()
-    xzfilename = tarfilename + '.xz'
-    xznode = self.path.find_or_declare(xzfilename)
-    cmd = ["xz", "-f", tnode.abspath()]
-    Utils.subprocess.call(cmd)
     Logs.warn('Tarball .tar.xz (-src- source release) generated.')
     if incomplete :
         Logs.error("Not all the sources for the project have been included in the tarball(s) so the wscript in it will not build.")
