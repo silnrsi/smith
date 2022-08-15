@@ -361,7 +361,7 @@ class Package(object) :
             manifest['files'].update(f.make_manifest(bld))
             if getattr(f, 'default', False):
                 manifest['default'] = str(f.target)
-        mnode = bld.path.find_or_declare('manifest.json')
+        mnode = bld.path.find_or_declare('{}_fontmanifest.json'.format(self.appname))
         if len(manifest['files']):
             with open(mnode.abspath(), "w", encoding="utf-8") as outf:
                 json.dump(manifest, outf)
@@ -454,7 +454,7 @@ class Package(object) :
         res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
-        res.add((bld.out_dir, 'manifest.json'))
+        res.add((bld.out_dir, "{}_fontmanifest.json".format(self.appname), 'fontmanifest.json'))
 
         def docwalker(top, dpath, dname, fname) :
             if len(dname):
