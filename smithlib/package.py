@@ -86,8 +86,9 @@ class Package(object) :
                 bv = getversion()
             else :
                 bv = getversion(buildformat=kw['buildformat'])
-            if 'buildlabel' in kw and bv != '':
-                bv = kw['buildlabel'] + " " + bv
+            l = kw.get('buildlabel', '')
+            if len(l) and bv != '':
+                bv = l + " " + bv
             kw['buildversion'] = bv
         bv = kw['buildversion'].replace(" ", "-")
         if 'sile_path' not in kw:
