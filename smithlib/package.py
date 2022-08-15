@@ -365,6 +365,9 @@ class Package(object) :
         if len(manifest['files']):
             with open(mnode.abspath(), "w", encoding="utf-8") as outf:
                 json.dump(manifest, outf)
+            self.nomanifest = False
+        else:
+            self.nomanifest = True
 
     def get_basearc(self, extras="") :
         if self.buildversion != '' :
@@ -454,7 +457,8 @@ class Package(object) :
         res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
-        res.add((bld.out_dir, "{}_fontmanifest.json".format(self.appname), 'fontmanifest.json'))
+        if not self.nomanifest:
+            res.add((bld.out_dir, "{}_fontmanifest.json".format(self.appname), 'fontmanifest.json'))
 
         def docwalker(top, dpath, dname, fname) :
             if len(dname):
