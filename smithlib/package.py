@@ -458,7 +458,7 @@ class Package(object) :
         res.update([(bld.out_dir, x) for x in self.best_practise_files(self.fonts, self.keyboards)])
         res.discard((bld.out_dir, 'README.md'))
         res.update(self.get_built_files(bld))
-        if not self.nomanifest:
+        if not getattr(self, 'nomanifest', True):
             res.add((bld.out_dir, "{}_fontmanifest.json".format(self.appname), 'fontmanifest.json'))
 
         def docwalker(top, dpath, dname, fname) :
