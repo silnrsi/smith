@@ -618,12 +618,15 @@ class DesignSpace(object):
                 self.axesmap[k] = a
                 for m in axis.findall('map'):
                     a.addmapping(m.get("input", 0), m.get("output", 0))
+        allaxes = {}
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
-                sfont.addFloatLocation(d.get('name'), None, #self.axesmap.get(d.get('name'), None),
-                                       [d.get('xvalue', None), d.get("yvalue", None)])
+                val = (d.get('xvalue', None), d.get("yvalue", None))
+                sfont.addFloatLocation(d.get('name'), None, val)
+                allaxes.setdefault(d.get('name'), set()).add(val)
             self.srcs[sfont.name] = sfont
+        self.delaxis = set([k for k, v in allaxes.items() if len(v) < 2])
         for inst in self.doc.getroot().findall('instances/instance'):
             if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
                 self._makefont(inst, True)
@@ -645,10 +648,11 @@ class DesignSpace(object):
                     fsrc.addFloatLocation(d.get('name'), self.axesmap.get(d.get('name'), None),
                                           [d.get('xvalue', None), d.get("yvalue", None)])
                 newkw.setdefault('axes', self.kw.get('axes', {}).copy()).update(
-                        {str(self.axesmap.get(k, DSAxesMappings.get(k, k))): v for k, v in fsrc.asDict().items()})
+                        {str(self.axesmap.get(k, DSAxesMappings.get(k, k))): v for k, v in fsrc.asDict().items() if k not in self.delaxis})
                 familyname = inst.get('familyname')
                 smfn = inst.get('stylemapfamilyname', familyname)
                 newkw['axes']['family'] = familyname
+                newkw['axes']['ital'] = 1 if 'italic' in inst.get('stylename', '').lower() else 0
                 if familyname != smfn:
                     newkw['axes']['altfamily'] = smfn
                 if self.kw.get('shortcircuit', True) and 'name' in inst.attrib and srcinst is not None:
