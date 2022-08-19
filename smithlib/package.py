@@ -526,14 +526,33 @@ DSAxesMappings = {
     "italic": "ital"
 }
 
+class _Axis(dict):
+    def __init__(self, name, tag):
+        super().__init__()
+        self.name = name
+        self.tag = tag
+
+    def __str__(self):
+        return self.tag
+
+    def __hash__(self):
+        return hash((self.name, self.tag))
+
+    def addmapping(self, inp, outp):
+        # Invert the mapping because that's how it really works
+        self[float(outp)] = float(inp)
+
 class _DSSource(object):
     def __init__(self, **kw):
         for k,v in kw.items():
             setattr(self, k, v)
         self.locations = {}
 
-    def addFloatLocation(self, name, values):
-        self.locations[name] = [float(x) if x is not None else None for x in values]
+    def addFloatLocation(self, name, axis, values):
+        if axis is None:
+            self.locations[name] = [float(x) if x is not None else None for x in values]
+        else:
+            self.locations[name] = [axis.get(float(x), float(x)) if x is not None else None for x in values]
 
     def same(self, other):
         if len(self.locations) != len(other.locations):
@@ -594,12 +613,16 @@ class DesignSpace(object):
         for axis in self.doc.getroot().findall('axes/axis'):
             k = axis.get('name', None)
             v = axis.get('tag', None)
+            a = _Axis(k, v)
             if k is not None and v is not None:
-                self.axesmap[k] = v
+                self.axesmap[k] = a
+                for m in axis.findall('map'):
+                    a.addmapping(m.get("input", 0), m.get("output", 0))
         for src in self.doc.getroot().findall('.//sources/source'):
             sfont = _DSSource(**src.attrib)
             for d in src.findall('./location/dimension'):
-                sfont.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
+                sfont.addFloatLocation(d.get('name'), None, #self.axesmap.get(d.get('name'), None),
+                                       [d.get('xvalue', None), d.get("yvalue", None)])
             self.srcs[sfont.name] = sfont
         for inst in self.doc.getroot().findall('instances/instance'):
             if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
@@ -616,48 +639,52 @@ class DesignSpace(object):
         newkw = {}
         if 'source' not in self.kw:
             if isInstance:
-                if self.kw.get('shortcircuit', True) and 'name' in inst.attrib:
-                    srcinst = self.srcs.get(inst.get('name'), None)
-                    fsrc = _DSSource(**inst.attrib)
-                    for d in inst.findall("./location/dimension"):
-                        fsrc.addFloatLocation(d.get('name'), [d.get('xvalue', None), d.get("yvalue", None)])
-                    newkw.setdefault('axes', {}).update(
-                            {self.axesmap.get(k, DSAxesMappings.get(k, k)): v for k, v in fsrc.asDict().items()})
-                    newkw['axes']['family'] = inst.get('stylemapfamilyname', "")
-                    if srcinst is not None:
-                        mfont = self.srcs[inst.get('name')]
-                        masterFName = os.path.join(base, mfont.filename)
-                        for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
-                            if inst.find(sub) is not None and len(inst.find(sub)) > 0:
+                srcinst = self.srcs.get(inst.get('name'), None)
+                fsrc = _DSSource(**inst.attrib)
+                for d in inst.findall("./location/dimension"):
+                    fsrc.addFloatLocation(d.get('name'), self.axesmap.get(d.get('name'), None),
+                                          [d.get('xvalue', None), d.get("yvalue", None)])
+                newkw.setdefault('axes', self.kw.get('axes', {}).copy()).update(
+                        {str(self.axesmap.get(k, DSAxesMappings.get(k, k))): v for k, v in fsrc.asDict().items()})
+                familyname = inst.get('familyname')
+                smfn = inst.get('stylemapfamilyname', familyname)
+                newkw['axes']['family'] = familyname
+                if familyname != smfn:
+                    newkw['axes']['altfamily'] = smfn
+                if self.kw.get('shortcircuit', True) and 'name' in inst.attrib and srcinst is not None:
+                    mfont = self.srcs[inst.get('name')]
+                    masterFName = os.path.join(base, mfont.filename)
+                    for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
+                        if inst.find(sub) is not None and len(inst.find(sub)) > 0:
+                            mightbeSame = False
+                            break
+                    mightbeSame = srcinst.same(fsrc)
+                    if mightbeSame:
+                        fplist = read_plist(os.path.join(masterFName, 'fontinfo.plist'))
+                        for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
+                            att = inst.get(sub.lower(), "")
+                            if not len(att):
+                                continue
+                            v = fplist.get(sub, None)
+                            if v is not None and v.text != att:
                                 mightbeSame = False
                                 break
-                        mightbeSame = srcinst.same(fsrc)
-                        if mightbeSame:
-                            fplist = read_plist(os.path.join(masterFName, 'fontinfo.plist'))
-                            for sub in ('styleMapStyleName', 'styleMapFamilyName', 'postscriptFontName'):
-                                att = inst.get(sub.lower(), "")
-                                if not len(att):
-                                    continue
-                                v = fplist.get(sub, None)
-                                if v is not None and v.text != att:
-                                    mightbeSame = False
-                                    break
-                        if mightbeSame:
-                            parmvar = newkw.get('instanceparams', '')
-                            if '-W' in parmvar or '--fixweight' in parmvar:
-                                wt = int(fplist.get('openTypeOS2WeightClass', "0"))
-                                st = fplist.get('styleMapStyleName', fplist.get('styleName', '')).lower()
-                                if (st.startswith('bold') and wt != 700) or wt != 400:
-                                    mightbeSame = False
-                        if mightbeSame:
-                            newkw['source'] = masterFName
+                    if mightbeSame:
+                        parmvar = self.kw.get('instanceparams', '')
+                        if '-W' in parmvar or '--fixweight' in parmvar:
+                            wt = int(fplist.get('openTypeOS2WeightClass', "0"))
+                            st = fplist.get('styleMapStyleName', fplist.get('styleName', '')).lower()
+                            if (st.startswith('bold') and wt != 700) or wt != 400:
+                                mightbeSame = False
+                    if mightbeSame:
+                        newkw['source'] = masterFName
                 if 'source' not in newkw:
                     newkw['source'] = font.DesignInstance(self, specialvars['DS:FILE'], specialvars['DS:NAME'],\
-                                                          self.dspace, params=newkw.get('instanceparams', ''))
+                                                          self.dspace, params=self.kw.get('instanceparams', ''))
             else:
                 newkw['source'] = specialvars['DS:FILENAME']
         specialvars['source'] = formatvars(getattr(newkw['source'], 'target', newkw['source']), specialvars)
-        newkw.update(dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items())))
+        newkw.update(dict((k, formatvars(v, specialvars)) for k,v in list(self.kw.items()) if k != 'axes'))
         self.fonts.append(font.Font(**newkw))
 
 def make_srcdist(self) :
