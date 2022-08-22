@@ -184,7 +184,6 @@ git clone --depth 1 https://github.com/HinTak/Font-Validator.git fontval
 	sudo cp bin/*.dll* ~/bin/
 	sudo cp bin/*.xsl ~/bin/
 	sudo cp bin/FontValidator.exe ~/bin/FontValidator
-fi
 
 # FontValidator shell script
 cat > ~/bin/fontval <<'EOF'
@@ -199,6 +198,7 @@ EOF
     
 sudo chmod 755 ~/bin/fontval 
 
+fi
 
 
 # toolchain components installed from packages (both main repositories and PPAs)
@@ -247,6 +247,7 @@ fi
 sudo apt-get install pandoc pandoc-data -y -qq
 python3 -m pip install --upgrade weasyprint --user
 python3 -m pip install --upgrade pillow --user
+sudo apt install libpango-1.0-0 libpangoft2-1.0-0
 sudo apt-get install fonts-roboto -y -qq
 sudo mkdir -p /usr/local/share/fonts/robotomono/
 sudo wget --quiet --no-directories --no-parent --continue https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf/RobotoMono-{Regular,Bold,Italic,BoldItalic,Light,LightItalic,Medium,MediumItalic,Thin,ThinItalic}.ttf -P /usr/local/share/fonts/robotomono/
@@ -265,7 +266,7 @@ python3 -m pip install --upgrade git+https://github.com/silnrsi/smith.git@master
 wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/bash_completion_smith -O ~/.bash_completion
 
 # man page 
-wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/docs/smith/smith.1 -P -O ~/.local/share/man/man1
+wget --quiet --no-directories --no-parent --continue  https://raw.githubusercontent.com/silnrsi/smith/master/docs/smith/smith.1 -x -O ~/.local/share/man/man1
 
 # other deps 
 python3 -m pip install --upgrade git+https://github.com/silnrsi/pysilfont.git@master#egg=pysilfont --user
@@ -311,8 +312,15 @@ sudo apt-get install wamerican wbritish -y -qq
 
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
-sudo rm -rf /usr/share/sile/packagemanager/fontproof/
-sudo sile -e 'installPackage("fontproof");os.exit()'
+rm -rf /usr/share/sile/packagemanager/fontproof/
+# sile -e 'installPackage("fontproof");os.exit()'
+cd /home/vagrant/srcbuilds
+git clone https://github.com/sile-typesetter/fontproof.git
+cd fontproof 
+# if you need to target a specific tag or branch, adjust and uncomment the following line:
+# git checkout v1.6.0
+sudo install -m 644 classes/* /usr/share/sile/classes/
+sudo install -m 644 packages/* /usr/share/sile/packages/
 
 
 echo " "
