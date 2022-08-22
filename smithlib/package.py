@@ -401,6 +401,7 @@ class Package(object) :
         self.set_zip()
         znode = bld.path.find_or_declare(self.zipfile)      # create dirs
         zip = zipfile.ZipFile(znode.abspath(), 'w', compression=zipfile.ZIP_DEFLATED)
+        zipfiles  = set()
         basearc = self.get_basearc()
         self.build_manifest(bld)
 
@@ -411,9 +412,15 @@ class Package(object) :
             y = bld.path.find_or_declare(r)
             archive_name = os.path.join(basearc, t[2] if len(t) > 2 else x)
             if os.path.isfile(y.abspath()) :
+                if archive_name in zipfiles:
+                    continue
                 if self.isTextFile(r) :
-                    s = ascrlf(y.abspath())
-                    zip.writestr(archive_name, s, zipfile.ZIP_DEFLATED)
+                    try:
+                        s = ascrlf(y.abspath())
+                        zip.writestr(archive_name, s, zipfile.ZIP_DEFLATED)
+                    except UnicodeDecodeError as e:
+                        print("Badly encoded file {}, {}. Storing as binary".format(r, str(e)))
+                        zip.write(y.abspath(), archive_name, zipfile.ZIP_DEFLATED)
                     inf = zip.getinfo(archive_name)
                     inf.internal_attr = 1
                 else :
@@ -421,6 +428,7 @@ class Package(object) :
                     inf = zip.getinfo(archive_name)
                 inf.external_attr = 0
                 inf.create_system = 0   # pretend we are windows
+                zipfiles.add(archive_name)
         zip.close()
 
     def _get_arcfile(self, bld, path) :
