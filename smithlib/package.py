@@ -357,13 +357,24 @@ class Package(object) :
 
     def build_manifest(self, bld):
         self.subrun(bld, lambda p, b: p.build_manifest(b))
-        manifest = {'files': {}, 'version': str(self.version)}
+        manifest = {}   #'files': {}, 'version': str(self.version)}
         for f in self.fonts:
-            manifest['files'].update(f.make_manifest(bld))
+            files = f.make_manifest(bld)
+            family = None
+            for v in files.values():
+                if 'family' in v:
+                    family = v['family']
+                    del v['family']
+            if family is None:
+                continue
+            famstr = family.lower().replace(" ", "")
+            if famstr not in manifest:
+                manifest[famstr] = {'files': {}, 'version': str(self.version), 'family': family, 'fontfamilyID': famstr}
+            manifest[famstr]['files'].update(files)
             if getattr(f, 'default', False):
-                manifest['default'] = str(f.target)
+                manifest[famstr]['default'] = str(f.target)
         mnode = bld.path.find_or_declare('{}_fontmanifest.json'.format(self.appname))
-        if len(manifest['files']):
+        if len(manifest):
             with open(mnode.abspath(), "w", encoding="utf-8") as outf:
                 json.dump(manifest, outf)
             self.nomanifest = False
