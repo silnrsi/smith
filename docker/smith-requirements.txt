@@ -1,0 +1,15 @@
+git+https://github.com/googlefonts/ots-python@main#opentype-sanitizer
+git+https://github.com/fonttools/fonttools@main#fontTools
+weasyprint
+pillow==7.0.0
+packaging==21.3
+protobuf<=3.20
+git+https://github.com/googlefonts/fontbakery@main#fontbakery
+freetype-py==2.3.0
+git+https://github.com/googlefonts/GlyphsLib@main#glyphsLib==6.0.4
+git+https://github.com/googlefonts/pyfontaine@main#fontaine
+git+https://github.com/silnrsi/palaso-python#python-palaso
+git+https://github.com/googlei18n/compreffor#compreffor==0.5.2.dev0
+git+https://github.com/LettError/MutatorMath#MutatorMath==3.0.2.dev0
+git+https://github.com/silnrsi/pysilfont#silfont==1.5.1.dev0
+git+https://github.com/googlei18n/ufo2ft#ufo2ft==2.25.2

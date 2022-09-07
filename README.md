@@ -46,8 +46,8 @@ run ``vagrant up``.
 
 The primary purpose of the Docker image is to provide a base for CI systems to
 have a complete smith build environment. However you can also use it locally as
-is, simply by running:
-  `docker run --rm -it -v $WORKSPACE:/build smith:latest`
+is, simply by running:  
+  `docker run --rm -it -v $WORKSPACE:/build smith:latest`  
 This will fetch and use the latest smith docker image from docker hub and run
 it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/build`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
@@ -57,22 +57,34 @@ If you wish to build your own image you will need to run `docker build .` in
 the top-level source dir and this will download and build the latest
 dependencies for the smith font build environment and install the smith python
 packages from the source dir.
-The Dockerfile can take the following build args:
-  `ubuntuImage`: (default: "ubuntu:20.04")
+The Dockerfile can take the following build arg:  
+  `ubuntuImage`: (default: "ubuntu:20.04")  
      The base image to build on.  This does not need to be an official Ubuntu
      image, but can be an image built on Ubuntu. e.g. This is how the TeamCity
      build agent image is generated.
-  `type`: (default: "build-agent")
-     This can be either `interactive` or `build-agent`. If `interactive` is 
-     chosen it will install a `builder` user who has pasword-less sudo, and the
-     `less`, `bash_completion`, and `nano` packages. 
+
+The Docker file has the following terminal targets which can be selected with
+the `--target` option:  
+  `build-agent`:  
+    Stops the dockerfile just before it addes packages to support 
+    interactive use, suitable for non-interactive environments such as CI.  
+  `interactive`: (default)  
+     This will install a `builder` user who has pasword-less sudo, and the
+     `less`, `bash_completion`, and `nano` packages. Suitable for development
+     testing and as a clean room local build environment.
+
 Thus to build the interactive image run:
 ```
-$> docker build --build-arg=type=build-agent .
+$> docker build .
+```
+Or equivalently:
+```
+$> docker build --target=interactive .
 ```
 Our TeamCity build agent is built like so:
 ```
-$> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" .
+$> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=build-agent .
 ```
-We recommend using BuildKit, as it halves the build time with this Dockerfile
-
+We recommend using BuildKit, as it halves the build time with this Dockerfile.
+You can activate this by setting the Enviroment variable `DOCKER_BUILDKIT=1`,
+see Docker documentation for how to make that permananent.
