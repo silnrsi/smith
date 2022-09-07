@@ -48,7 +48,7 @@ The primary purpose of the Docker image is to provide a base for CI systems to
 have a complete smith build environment. However you can also use it locally as
 is, simply by running:  
   `docker run --rm -it -v $WORKSPACE:/build smith:latest`  
-This will fetch and use the latest smith docker image from docker hub and run
+This will run the latest version of smith in your local image store and run
 it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/build`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
 the container ephemeral.
@@ -73,13 +73,13 @@ the `--target` option:
      `less`, `bash_completion`, and `nano` packages. Suitable for development
      testing and as a clean room local build environment.
 
-Thus to build the interactive image run:
+Thus to build the interactive image (and tag it `smith:latest`) run:
 ```
-$> docker build .
+$> docker build . -t smith:latest
 ```
 Or equivalently:
 ```
-$> docker build --target=interactive .
+$> docker build --target=interactive . -t smith:latest
 ```
 Our TeamCity build agent is built like so:
 ```
