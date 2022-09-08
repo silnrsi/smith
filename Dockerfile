@@ -112,7 +112,7 @@ WORKDIR /src/harffbuzz
 RUN <<EOT
     git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git .
     meson build \
-        --buildtype=debugoptimized \
+        --buildtype=release \
         --auto-features=enabled \
         --wrap-mode=nodownload \
         -Dchafa=disabled \
@@ -163,7 +163,7 @@ FROM build AS smith-tooling
 WORKDIR /src/smith
 ADD . ./
 RUN pip install --compile -r docker/smith-requirements.txt
-RUN pip install . 
+RUN pip install --compile . 
 
 
 FROM base AS runtime
