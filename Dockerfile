@@ -114,10 +114,9 @@ RUN <<EOT
         --buildtype=debugoptimized \
         --auto-features=enabled \
         --wrap-mode=nodownload \
-        -Db_coverage=true \
         -Dchafa=disabled \
-        -Dexperimental_api=true\
-        -Dgraphite=enabled
+        -Dexperimental_api=true \
+        -Dgraphite2=enabled
     ninja -C build && ninja -C build install
 EOT
 
