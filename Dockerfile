@@ -7,7 +7,12 @@ ARG ubuntuImage='ubuntu:20.04'
 FROM ${ubuntuImage} AS common
 USER root
 ENV DEBIAN_FRONTEND='noninteractive' TZ='UTC'
-COPY docker/no-cache  /etc/apt/apt.conf.d/00_no-cache
+COPY --link <<-EOT /etc/apt/apt.conf.d/00_no-cache
+APT::Install-Recommends "0";
+APT::Install-Suggests "0";
+Dir::Cache::pkgcache "";
+Dir::Cache::srcpkgcache "";
+EOT
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
@@ -138,7 +143,14 @@ EOT
 # Build Font validator
 FROM build AS fontval-src
 WORKDIR /src/fontval
-ADD docker/validator-shims /usr/local/bin/
+COPY --link --chmod=755 <<-EOT /usr/local/bin/fontval
+#!/bin/sh
+mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "\$1"
+EOT
+COPY --link --chmod=755 <<-EOT /usr/local/bin/FontValidator
+#!/bin/sh
+mono /usr/local/bin/FontValidator.exe "\$@"
+EOT
 RUN <<EOT
     git clone --depth 1 https://github.com/HinTak/Font-Validator.git .
     make && make gendoc
@@ -212,7 +224,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 <<EOT
     apt-get install -y bash-completion less nano ncdu sudo
     useradd -m builder
-    echo 'builder ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
+EOT
+COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
+    builder ALL=(ALL) NOPASSWD:ALL
 EOT
 WORKDIR /build
 VOLUME /build
