@@ -1,16 +1,25 @@
 # syntax=docker/dockerfile:1
 ARG ubuntuImage='ubuntu:20.04'
 
+# Download the apt lists once at the start. The RUN --mount options ensure
+# the lists are shared readonly but the lockable parts aren't to permit 
+# maximum oppourtunity for parallel stages.
 FROM ${ubuntuImage} AS common
 USER root
 ENV DEBIAN_FRONTEND='noninteractive' TZ='UTC'
 COPY docker/no-cache  /etc/apt/apt.conf.d/00_no-cache
-RUN apt-get update
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get update
 
 # Grab the PPA keys for later use.
 FROM common AS ppa-keys
 USER root
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,readonly \
+<<EOT
     apt-get install -y dirmngr gnupg
     apt-key --keyring /ppa-archives-keyring.gpg \
       adv --keyserver keyserver.ubuntu.com \
@@ -20,9 +29,10 @@ EOT
 
 FROM common AS base
 USER root
-ENV DEBIAN_FRONTEND='noninteractive' TZ='UTC'
-COPY docker/no-cache  /etc/apt/apt.conf.d/00_no-cache
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,readonly \
+<<EOT
     apt-get install -y \
       ca-certificates \
       git \
@@ -61,7 +71,10 @@ ENV LANG='en_US.UTF-8'
 # Set up basic build tooling environment
 FROM base AS build
 ENV PATH=$PATH:/root/.local/bin
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,readonly \
+<<EOT
     apt-get install -y \
       build-essential \
       cmake \
@@ -95,7 +108,7 @@ RUN <<EOT
     cmake --build build && cmake --install build
 EOT
 WORKDIR /src/harffbuzz
-RUN <<EOT 
+RUN <<EOT
     git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git .
     meson build \
         --buildtype=debugoptimized \
@@ -126,6 +139,7 @@ RUN <<EOT
     meson build && ninja -C build && ninja -C build install
 EOT
 
+
 # Build Font validator
 FROM build AS fontval-src
 WORKDIR /src/fontval
@@ -135,6 +149,7 @@ RUN <<EOT
     make && make gendoc
     cp bin/*.exe bin/*.dll* bin/*.xsl /usr/local/bin
 EOT
+
 
 # Python components
 FROM build AS smith-tooling
@@ -152,9 +167,12 @@ LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spaligner@sil.
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
       org.opencontainers.image.vendor="SIL International"
 ARG codename=focal
-ADD docker/sources.list.d/*-${codename}.list /etc/apt/sources.list.d/
-COPY --from=ppa-keys /ppa-archives-keyring.gpg /etc/apt/trusted.gpg.d/
-RUN <<EOT
+ADD --link docker/sources.list.d/*-${codename}.list /etc/apt/sources.list.d/
+COPY --link --from=ppa-keys /ppa-archives-keyring.gpg /etc/apt/trusted.gpg.d/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+<<EOT
     apt-get update && apt-get install -y \
       fontforge-nox \
       libaa-bin \
@@ -172,36 +190,34 @@ RUN <<EOT
       xsltproc \
       xz-utils
 EOT
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,readonly \
+<<EOT
     apt-get install -y sile
     sile -e 'installPackage("fontproof");os.exit()'
 EOT
-COPY --from=fontval-src /usr/local /usr/local
-COPY --from=ots-src /usr/local /usr/local
-COPY --from=grcompiler-src /usr/local /usr/local
-COPY --from=engines-src /usr/local /usr/local
-COPY --from=smith-tooling /usr/local /usr/local
+COPY --link --from=fontval-src /usr/local /usr/local
+COPY --link --from=ots-src /usr/local /usr/local
+COPY --link --from=grcompiler-src /usr/local /usr/local
+COPY --link --from=engines-src /usr/local /usr/local
+COPY --link --from=smith-tooling /usr/local /usr/local
 
 
 # Final minimal smith font build system runtime CI systems
 FROM runtime AS build-agent
-RUN <<EOT
-    apt-get autoremove --purge
-    rm /var/lib/apt/lists/* /var/lib/apt/lists/partial/*
-    true
-EOT
 
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
 ADD bash_completion_smith /etc/bash_completion.d/smith
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt/lists,readonly \
+<<EOT
     apt-get install -y bash-completion less nano ncdu sudo
     useradd -m builder
     echo 'builder ALL=(ALL) NOPASSWD:ALL' >>/etc/sudoers
-    apt-get autoremove --purge
-    rm /var/lib/apt/lists/* /var/lib/apt/lists/partial/*
-    true
 EOT
 WORKDIR /build
 VOLUME /build
