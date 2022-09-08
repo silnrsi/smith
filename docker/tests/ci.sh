@@ -49,6 +49,7 @@ release() {
 }
 
 cd "$1"
+git clean -f
 configure
 build
 tests 
