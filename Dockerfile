@@ -39,10 +39,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       gpg \
       locales \
       libcairo2 \
-      libfreetype6 \
-      libglib2.0-0 \
-      libgirepository-1.0-1 \
-      libicu66 \
       libmono-system-web4.0-cil \
       libmono-system-windows-forms4.0-cil \
       mono-runtime \
@@ -61,8 +57,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-pyclipper \
       python3-yaml \
       python3-reportlab \
-      python3-requests \
-      python3-scipy
+      python3-requests
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
@@ -86,6 +81,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libglib2.0-dev \
       libgirepository1.0-dev \
       libicu-dev \
+      libjpeg-dev \
       libpython3-dev \
       libtool \
       mono-mcs \
