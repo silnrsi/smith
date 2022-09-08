@@ -8,13 +8,13 @@ runs the command (with its args) by first rsyncing the current directory
 to a ramdisk (/dev/shm), running the cmd, and then rsyncing everything back.
 
 Any options supplied are passed on to both calls to rsync, and can be any of:
-        -v          increase verbosity; also displays ramdisk location
+        -v          increase verbosity; first occurance just displays ramdisk location
         -c          skip based on checksum, not mod-time & size
         -n          perform a trial run with no changes made
         -C          auto-ignore files in the same way CVS does
         -f RULE     add a file-filtering RULE
         -F          same as: -f 'dir-merge /.rsync-filter'
-                    repeated: -f '- .rsync-filter'
+                    repeated: -f '- .rsync-filter' (CAUTION: not recommended with rrun)
         -i          output a change-summary for all updates
 
 See rsync manpage for more information about these options.
@@ -24,6 +24,7 @@ EOT
 
 CACHE_ID=$(md5sum <<< "$PWD" | cut -d ' ' -f1)
 CDIR="/dev/shm/rrun/$CACHE_ID"
+verbosity=0
 
 # Accumulate specific options from command line to pass to rsync:
 declare -a rsyncOpts
@@ -36,8 +37,12 @@ while getopts "f:vcnCFi" flag; do
        rsyncOpts+=("-$flag")
        ;;
     v)
-       rsyncOpts+=("-$flag")
-       echo "ramdisk location: ${CDIR}"
+       ((verbosity=verbosity+1))
+       if [ $verbosity -eq 1 ]; then 
+           echo "ramdisk location: ${CDIR}"
+       else
+           rsyncOpts+=("-$flag")
+       fi
        ;;
     *)
        usage
@@ -51,8 +56,13 @@ shift $((OPTIND-1))
 
 # Issue usage message if nothing to do:
 if [ $# -eq 0 ]; then
-    usage
-    exit 1
+    if [ $verbosity -eq 1 -a ${#rsyncOpts[@]} -eq 0 ]; then
+        # special case -- user specified only -v so we're done
+        exit 0
+    else
+        usage
+        exit 1
+    fi
 fi
 
 # Process the command string for forwarding to bash inside the here doc by
@@ -65,7 +75,7 @@ quoted=$(echo "${@@Q}" | sed -r "s/ '([;()|&]+)' / \1 /g")
 
 # Sync current directory into the cache dir:
 mkdir -p $CDIR;
-rsync -am "${rsyncOpts[@]}" --del ./ "$CDIR/"
+rsync -am "${rsyncOpts[@]}" --del --delete-excluded ./ "$CDIR/"
 
 # Run the command inside a user and mount namespaces, so we can bind-mount
 # the cachedir over the target dir:
