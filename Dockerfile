@@ -140,6 +140,16 @@ RUN <<EOT
 EOT
 
 
+# "Build" fontprooof
+FROM build AS fontproof-src
+WORKDIR /src/fontproof
+RUN <<EOT
+    git clone --depth 1 https://github.com/sile-typesetter/fontproof.git .
+    install -D -m 644 classes/* -t /usr/share/sile/classes/
+    install -D -m 644 packages/* -t /usr/share/sile/packages/
+EOT
+
+
 # Build Font validator
 FROM build AS fontval-src
 WORKDIR /src/fontval
@@ -190,6 +200,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       nsis \
       pandoc \
       python3-fontforge \
+      sile \
       texlive-xetex \
       ttfautohint \
       wamerican \
@@ -197,13 +208,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       xsltproc \
       xz-utils
 EOT
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,readonly \
-<<EOT
-    apt-get install -y sile
-    sile -e 'installPackage("fontproof");os.exit()'
-EOT
+COPY --link --from=fontproof-src /usr/share/sile /usr/share/sile
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
