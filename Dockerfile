@@ -57,12 +57,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-icu \
       python3-idna \
       python3-lz4 \
+      python3-pip \
       python3-odf \
       python3-pkg-resources \
       python3-pyclipper \
       python3-yaml \
       python3-reportlab \
       python3-requests
+    pip config set global.disable-pip-version-check true
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
@@ -91,7 +93,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libtool \
       mono-mcs \
       ninja-build \
-      python3-pip \
       pkg-config \
       ragel
     pip install --user --compile meson
