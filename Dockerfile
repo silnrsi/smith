@@ -104,7 +104,7 @@ FROM build AS engines-src
 WORKDIR /src/graphite
 RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/graphite.git .
-    cmake -G Ninja -B build \
+    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
       -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF \
       -DGRAPHITE2_NTRACING:BOOL=OFF
     cmake --build build
@@ -130,7 +130,7 @@ FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/grcompiler.git .
-    cmake -G Ninja -B build
+    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
     cmake --build build
     cmake --install build
 EOT
@@ -141,7 +141,7 @@ FROM build AS ots-src
 WORKDIR /src/ots
 RUN <<EOT
     git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
-    meson build
+    meson build --buildtype=release 
     ninja -C build
     ninja -C build install
 EOT
