@@ -107,7 +107,8 @@ RUN <<EOT
     cmake -G Ninja -B build \
       -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF \
       -DGRAPHITE2_NTRACING:BOOL=OFF
-    cmake --build build && cmake --install build
+    cmake --build build
+    cmake --install build
 EOT
 WORKDIR /src/harffbuzz
 RUN <<EOT
@@ -119,7 +120,8 @@ RUN <<EOT
         -Dchafa=disabled \
         -Dexperimental_api=true \
         -Dgraphite2=enabled
-    ninja -C build && ninja -C build install
+    ninja -C build
+    ninja -C build install
 EOT
 
 
@@ -128,7 +130,9 @@ FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/grcompiler.git .
-    cmake -G Ninja -B build && cmake --build build && cmake --install build
+    cmake -G Ninja -B build
+    cmake --build build
+    cmake --install build
 EOT
 
 
@@ -137,7 +141,9 @@ FROM build AS ots-src
 WORKDIR /src/ots
 RUN <<EOT
     git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
-    meson build && ninja -C build && ninja -C build install
+    meson build
+    ninja -C build
+    ninja -C build install
 EOT
 
 
@@ -191,11 +197,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
 <<EOT
-    apt-get update && apt-get install -y \
+    apt-get update 
+    apt-get install -y \
       fontforge-nox \
       libaa-bin \
       libfont-ttf-scripts-perl \
-      libqt5gui5-gles \
       libjson-perl \
       libtext-csv-perl \
       nsis \
@@ -203,7 +209,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-fontforge \
       sile \
       texlive-xetex \
-      ttfautohint \
+      ttfautohint libqt5gui5-gles \
       wamerican \
       wbritish \
       xsltproc \
