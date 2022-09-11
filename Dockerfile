@@ -200,7 +200,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update 
     apt-get install -y \
       fontforge-nox \
-      libaa-bin \
       libfont-ttf-scripts-perl \
       libjson-perl \
       libtext-csv-perl \
@@ -234,7 +233,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt/lists,readonly \
 <<EOT
-    apt-get install -y bash-completion less nano ncdu sudo
+    apt-get install -y bash-completion less nano ncdu sudo libaa-bin
     useradd -m builder
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
