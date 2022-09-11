@@ -160,18 +160,21 @@ EOT
 # Build Font validator
 FROM build AS fontval-src
 WORKDIR /src/fontval
+RUN <<EOT
+    git clone --depth 1 https://github.com/HinTak/Font-Validator.git .
+    make
+    make gendoc
+    install -m 755 bin/*.exe -D -t /usr/local/libexec/FontValidator
+    install -m 644 bin/*.dll -D -t /usr/local/libexec/FontValidator
+    install -m 644 bin/*.xsl -D -t /usr/local/libexec/FontValidator
+EOT
 COPY --link --chmod=755 <<-EOT /usr/local/bin/fontval
 #!/bin/sh
-mono /usr/local/bin/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "\$1"
+mono /usr/local/libexec/FontValidator/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "\$1"
 EOT
 COPY --link --chmod=755 <<-EOT /usr/local/bin/FontValidator
 #!/bin/sh
-mono /usr/local/bin/FontValidator.exe "\$@"
-EOT
-RUN <<EOT
-    git clone --depth 1 https://github.com/HinTak/Font-Validator.git .
-    make && make gendoc
-    cp bin/*.exe bin/*.dll* bin/*.xsl /usr/local/bin
+mono /usr/local/libexec/FontValidator/FontValidator.exe "\$@"
 EOT
 
 
