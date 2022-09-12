@@ -51,7 +51,13 @@ is, simply by running:
 This will run the latest version of smith in your local image store and run
 it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/build`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
-the container ephemeral.
+the container ephemeral. The image accepts an environment variable for 
+customisation of the container at runtime:  
+  `BUILDER`: (default: 1000)  
+    Used to control the UID of the `builder` user created in the container for
+    interactive use.  This is useful when your UID on the host isn't 1000
+    already, and ensures that files created in the /build volume are owned and
+    accessible by the user who started the container.
 
 If you wish to build your own image you will need to run `docker build .` in
 the top-level source dir and this will download and build the latest
@@ -59,9 +65,9 @@ dependencies for the smith font build environment and install the smith python
 packages from the source dir.
 The Dockerfile can take the following build arg:  
   `ubuntuImage`: (default: "ubuntu:20.04")  
-     The base image to build on.  This does not need to be an official Ubuntu
-     image, but can be an image built on Ubuntu. e.g. This is how the TeamCity
-     build agent image is generated.
+    The base image to build on.  This does not need to be an official Ubuntu
+    image, but can be an image built on Ubuntu. e.g. This is how the TeamCity
+    build agent image is generated.
 
 The Docker file has the following terminal targets which can be selected with
 the `--target` option:  
@@ -86,5 +92,5 @@ Our TeamCity build agent is built like so:
 $> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=build-agent .
 ```
 We recommend using BuildKit, as it halves the build time with this Dockerfile.
-You can activate this by setting the Enviroment variable `DOCKER_BUILDKIT=1`,
-see Docker documentation for how to make that permananent.
+You can activate this by setting the Enviroment variable `DOCKER_BUILDKIT=1`, or
+see the Docker documentation for how to make that permananent.
