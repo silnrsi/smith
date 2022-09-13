@@ -255,10 +255,10 @@ ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main
 ADD --link \
     ${robotomono_src}/RobotoMono-Regular.ttf \
     ${robotomono_src}/RobotoMono-Italic.ttf \
-    ${robotomono_src}/RobotoMono-Bold.ttf ${robotomono_src}/RobotoMono-BoldItalic.ttf \
-    ${robotomono_src}/RobotoMono-Light.ttf ${robotomono_src}/RobotoMono-LightItalic.ttf \
+    ${robotomono_src}/RobotoMono-Bold.ttf   ${robotomono_src}/RobotoMono-BoldItalic.ttf \
+    ${robotomono_src}/RobotoMono-Light.ttf  ${robotomono_src}/RobotoMono-LightItalic.ttf \
     ${robotomono_src}/RobotoMono-Medium.ttf ${robotomono_src}/RobotoMono-MediumItalic.ttf \
-    ${robotomono_src}/RobotoMono-Thin.ttf ${robotomono_src}/RobotoMono-ThinItalic.ttf\
+    ${robotomono_src}/RobotoMono-Thin.ttf   ${robotomono_src}/RobotoMono-ThinItalic.ttf \
     /usr/local/share/fonts/robotomono/
 COPY --link --from=fontproof-src /usr/share/sile /usr/share/sile
 COPY --link --from=fontval-src /usr/local /usr/local

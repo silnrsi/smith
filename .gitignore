@@ -7,7 +7,7 @@ build
 c4che
 config.log
 dist
-smith.egg-info
+*.egg-info
 .*.sw?
 **/results/*
 *.pdf
@@ -15,3 +15,5 @@ smith.egg-info
 dev/
 *.code-workspace
 .vscode/
+docs/sphinx
+docker/tests
