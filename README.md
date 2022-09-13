@@ -35,34 +35,23 @@ but will not install all the other font tooling which smith will search for
 when `smith configure` is run.  For complete font build environments there are
 two ready made options below, depending on interactive or CI use cases:
 
+To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/)
+
 #### Vagrant support VM images
-The current VM (Virtual Machine) installation files (using vagrant) are in
+The current VM (Virtual Machine) installation files (using Vagrant) are in
 [vm-install](vm-install).  These files make it easier to use smith (and its
-various components) on macOS,
-Windows or Ubuntu.  Simply copy the files to the root of your project and
-run ``vagrant up``.
+various components) on macOS, Windows or Ubuntu.
+Simply copy the files to the root of your project and run ``vagrant up``.
 
 #### Docker image
-
 The primary purpose of the Docker image is to provide a base for CI systems to
-have a complete smith build environment. However you can also use it locally as
-is, simply by running:  
-  `docker run --rm -it -v $WORKSPACE:/build smith:latest`  
-This will run the latest version of smith in your local image store and run
-it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/build`
-inside, and an interactive bash session (the `-it` options).  The `--rm` makes
-the container ephemeral. The image accepts an environment variable for 
-customisation of the container at runtime:  
-  `BUILDER`: (default: 1000)  
-    Used to control the UID of the `builder` user created in the container for
-    interactive use.  This is useful when your UID on the host isn't 1000
-    already, and ensures that files created in the /build volume are owned and
-    accessible by the user who started the container.
+have a complete smith build environment.
 
-If you wish to build your own image you will need to run `docker build .` in
-the top-level source dir and this will download and build the latest
-dependencies for the smith font build environment and install the smith python
-packages from the source dir.
+We will provide a publically available image soon but in the meantime you need to build your own. 
+You will need to run `docker build .` in the top-level source dir and this will
+download and build the latest dependencies for the smith font build environment
+and install the smith python packages from the source dir.
+
 The Dockerfile can take the following build arg:  
   `ubuntuImage`: (default: "ubuntu:20.04")  
     The base image to build on.  This does not need to be an official Ubuntu
@@ -72,7 +61,7 @@ The Dockerfile can take the following build arg:
 The Docker file has the following terminal targets which can be selected with
 the `--target` option:  
   `build-agent`:  
-    Stops the dockerfile just before it addes packages to support 
+    Stops the dockerfile just before it adds packages to support 
     interactive use, suitable for non-interactive environments such as CI.  
   `interactive`: (default)  
      This will install a `builder` user who has pasword-less sudo, and the
@@ -87,10 +76,33 @@ Or equivalently:
 ```
 $> docker build --target=interactive . -t smith:latest
 ```
+You can also tag it with a datestamp: 
+
+```
+$> docker build . -t smith:20.04-$(date +%Y%W%w%H%M)
+```
+
+To get into the container while mapping volumes: 
+
+```
+$> docker run --rm -it -h smith-focal -v $HOME/work/fonts:/smith smith:latest
+
+This will run the latest version of smith in your local image store and run
+it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/smith`
+inside, and an interactive bash session (the `-it` options).  The `--rm` makes
+the container ephemeral. The image accepts an environment variable for 
+customisation of the container at runtime:  
+  `BUILDER`: (default: 1000)  
+    Used to control the UID of the `builder` user created in the container for
+    interactive use.  This is useful when your UID on the host isn't 1000
+    already, and ensures that files created in the /smith volume are owned and
+    accessible by the user who started the container.
+
+
 Our TeamCity build agent is built like so:
 ```
-$> docker --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=build-agent .
+$> docker build --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=build-agent .
 ```
 We recommend using BuildKit, as it halves the build time with this Dockerfile.
-You can activate this by setting the Enviroment variable `DOCKER_BUILDKIT=1`, or
-see the Docker documentation for how to make that permananent.
+You can activate this by setting the Environment variable `DOCKER_BUILDKIT=1`,
+add it to .bashrc or .zshrc as an exported variable to make it permanent (see Docker documentation for extra details).
