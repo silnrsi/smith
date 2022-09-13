@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.4
 ARG ubuntuImage='ubuntu:20.04'
 
 # Download the apt lists once at the start. The RUN --mount options ensure
@@ -23,8 +23,8 @@ FROM common AS ppa-keys
 USER root
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,readonly \
 <<EOT
+    apt-get update
     apt-get install -y dirmngr gnupg
     apt-key --keyring /ppa-archives-keyring.gpg \
       adv --keyserver keyserver.ubuntu.com \
@@ -36,16 +36,12 @@ FROM common AS base
 USER root
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,readonly \
 <<EOT
+    apt-get update
     apt-get install -y \
-      apt-utils \
-      libterm-readline-gnu-perl \
-      dialog \
       ca-certificates \
       git \
       gpg \
-      gpg-agent \
       locales \
       libcairo2 \
       libmono-system-web4.0-cil \
@@ -54,27 +50,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-appdirs \
       python3-certifi \
       python3-chardet \
+      python3-brotli \
       python3-cffi \
       python3-fs \
       python3-gi \
-      ipython3 \
+      python3-icu \
       python3-idna \
+      python3-lz4 \
       python3-pip \
       python3-odf \
       python3-pkg-resources \
       python3-yaml \
-      python3-reportlab \
-      python3-requests \
-      python3-software-properties \
-      software-properties-common \
-      libfreetype6 \
-      libglib2.0-0 \
-      libgirepository-1.0-1 \
-      libicu66 \
-      libpango-1.0-0 \
-      libpangoft2-1.0-0 \
-      perl-doc \
-      xdg-utils 
+      python3-requests
     pip config set global.disable-pip-version-check true
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
@@ -86,8 +73,8 @@ FROM base AS build
 ENV PATH=$PATH:/root/.local/bin
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,readonly \
 <<EOT
+    apt-get update
     apt-get install -y \
       build-essential \
       cmake \
@@ -95,25 +82,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       gobject-introspection \
       gtk-doc-tools \
       libcairo2-dev \
-      libfreetype6-dev \
+      libfreetype-dev \
       libglib2.0-dev \
       libgirepository1.0-dev \
       libicu-dev \
       libjpeg-dev \
       libpython3-dev \
-      libfl-dev \
       libtool \
-      icu-devtools \
-      libicu-dev \
       mono-mcs \
       ninja-build \
-      python3-pip \
       pkg-config \
-      bison \
-      flex \
-      automake \
-      autoconf \
-      binfmt-support \
       ragel
     pip install --user --compile meson
 EOT
@@ -127,11 +105,9 @@ RUN <<EOT
     cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
       -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF \
       -DGRAPHITE2_NTRACING:BOOL=OFF \
-      -DPYTHON_EXECUTABLE=python3
     cmake --build build
     cmake --install build
-    python3 setup.py -v install
-    ldconfig
+    pip install .
 EOT
 WORKDIR /src/harffbuzz
 RUN <<EOT
@@ -200,23 +176,14 @@ COPY --link --chmod=755 <<-EOT /usr/local/bin/FontValidator
 mono /usr/local/libexec/FontValidator/FontValidator.exe "\$@"
 EOT
 
-# Build ttfautohint (broken)
-FROM build as ttfautohint-src
-WORKDIR /src/ttfautohint
-#RUN <<EOT
-#     git clone --depth 1 https://repo.or.cz/ttfautohint.git .
-#    ./bootstrap
-#    ./configure --with-qt=no --with-doc=no
-#    make 
-#    make install
-#    ldconfig
-#EOT
-
 # Python components
 FROM build AS smith-tooling
 WORKDIR /src/smith
 ADD . ./
-RUN pip install --compile -r docker/smith-requirements.txt
+RUN <<EOT 
+    pip install --compile -r docker/smith-requirements.txt
+    ln -s $(pip show opentype_sanitizer | grep ^Location: | cut -d' ' -f2)/ots/ots-sanitize /usr/local/bin/
+EOT
 RUN pip install --compile . 
 
 
@@ -228,29 +195,26 @@ LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
       org.opencontainers.image.vendor="SIL International"
 ARG codename=focal
-RUN add-apt-repository -y ppa:silnrsi/smith-py3 
-RUN add-apt-repository -y ppa:sile-typesetter/sile
-RUN apt-get update && apt-get install -y \
+ADD --link docker/sources.list.d/*-${codename}.list /etc/apt/sources.list.d/
+COPY --link --from=ppa-keys /ppa-archives-keyring.gpg /etc/apt/trusted.gpg.d/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+    apt-get update 
+    apt-get install -y \
       fonts-roboto \
+      libfont-ttf-scripts-perl \
+      libjson-perl \
+      nsis \
+      pandoc \
       sile \
       texlive-xetex \
-      ttfautohint \
-      nsis \
+      ttfautohint libqt5gui5-gles \
       wamerican \
       wbritish \
       xsltproc \
-      xz-utils \
-      pandoc \
-      pandoc-data \
-      libfont-ttf-perl \ 
-      libfont-ttf-scripts-perl \
-      libtext-unicode-equivalents-perl \
-      libtext-pdf-perl \ 
-      libio-string-perl \ 
-      libalgorithm-diff-perl \
-      libxml-parser-perl \
-      libtext-csv-perl \
-      libjson-perl 
+      xz-utils
+EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
 ADD --link \
     ${robotomono_src}/RobotoMono-Regular.ttf \
@@ -263,7 +227,6 @@ ADD --link \
 COPY --link --from=fontproof-src /usr/share/sile /usr/share/sile
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
-COPY --link --from=ttfautohint-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
@@ -275,19 +238,26 @@ FROM runtime AS build-agent
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
+USER root
+ENV BUILDER=1000
+COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,readonly \
 <<EOT
-    apt-get install -y bash-completion less vim nano ncdu sudo htop python3-pip python3-software-properties software-properties-common unzip tree wget curl ntpdate
-    useradd -m builder -u 1001
+    apt-get update
+    apt-get install -y bash-completion less vim nano ncdu sudo htop unzip tree wget curl ntpdate \
+    #       apt-utils \
+    #   libterm-readline-gnu-perl \
+    #   dialog \
+    #         gpg-agent \
+      perl-doc
+    git config --global pull.rebase false
 EOT
-RUN git config --global pull.rebase false
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
 EOT
 WORKDIR /smith
 VOLUME /smith
-USER builder
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["/bin/bash"]

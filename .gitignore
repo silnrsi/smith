@@ -16,4 +16,5 @@ dev/
 *.code-workspace
 .vscode/
 docs/sphinx
+tc
 docker/tests

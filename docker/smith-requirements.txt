@@ -1,13 +1,8 @@
 weasyprint
 pillow
-packaging==21.3
+packaging == 21.3
 protobuf<=3.20
 freetype-py
-lxml
-brotli
-opentype-sanitizer
-pyclipper
-tabulate
 git+https://github.com/googlefonts/ots-python@main#opentype-sanitizer
 git+https://github.com/fonttools/fonttools@main#fontTools
 git+https://github.com/googlefonts/fontbakery@main#fontbakery
