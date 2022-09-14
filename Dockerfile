@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.4
+# syntax=docker/dockerfile:1
 ARG ubuntuImage='ubuntu:20.04'
 
 # Download the apt lists once at the start. The RUN --mount options ensure
@@ -13,14 +13,10 @@ APT::Install-Suggests "0";
 Dir::Cache::pkgcache "";
 Dir::Cache::srcpkgcache "";
 EOT
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update
+
 
 # Grab the PPA keys for later use.
 FROM common AS ppa-keys
-USER root
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
@@ -33,7 +29,6 @@ EOT
 
 
 FROM common AS base
-USER root
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
@@ -104,7 +99,7 @@ RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/graphite.git .
     cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release \
       -DGRAPHITE2_COMPARE_RENDERER:BOOL=OFF \
-      -DGRAPHITE2_NTRACING:BOOL=OFF \
+      -DGRAPHITE2_NTRACING:BOOL=OFF
     cmake --build build
     cmake --install build
     pip install .
@@ -238,7 +233,6 @@ FROM runtime AS build-agent
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
-USER root
 ENV BUILDER=1000
 COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
