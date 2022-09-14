@@ -41,6 +41,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libcairo2 \
       libmono-system-web4.0-cil \
       libmono-system-windows-forms4.0-cil \
+      libwoff1 \
       mono-runtime \
       python3-appdirs \
       python3-certifi \
@@ -77,13 +78,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       gobject-introspection \
       gtk-doc-tools \
       libcairo2-dev \
+      libbrotli-dev \
       libfreetype-dev \
       libglib2.0-dev \
       libgirepository1.0-dev \
+      libgtest-dev \
       libicu-dev \
       libjpeg-dev \
+      liblz4-dev \
       libpython3-dev \
       libtool \
+      libwoff-dev \
       mono-mcs \
       ninja-build \
       pkg-config \
