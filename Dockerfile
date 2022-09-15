@@ -170,6 +170,7 @@ RUN <<EOT
     make gendoc
     install -m 755 bin/*.exe -D -t /usr/local/libexec/FontValidator
     install -m 644 bin/*.dll -D -t /usr/local/libexec/FontValidator
+    install -m 644 bin/*.dll.config -D -t /usr/local/libexec/FontValidator
     install -m 644 bin/*.xsl -D -t /usr/local/libexec/FontValidator
 EOT
 COPY --link --chmod=755 <<-EOT /usr/local/bin/fontval
