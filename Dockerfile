@@ -47,7 +47,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-certifi \
       python3-chardet \
       python3-brotli \
-      python3-cffi \
       python3-fs \
       python3-freetype \
       python3-gi \
@@ -79,7 +78,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       cmake \
       gcovr \
       gobject-introspection \
-      gtk-doc-tools \
       libcairo2-dev \
       libbrotli-dev \
       libfreetype-dev \
@@ -113,7 +111,11 @@ RUN <<EOT
     pip install .
 EOT
 WORKDIR /src/harffbuzz
-RUN <<EOT
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+    apt-get update
+    apt-get install -y gtk-doc-tools
     git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git .
     meson build \
         --buildtype=release \
