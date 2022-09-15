@@ -250,12 +250,23 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
     apt-get update
-    apt-get install -y bash-completion less vim nano ncdu sudo htop unzip tree wget curl ntpdate \
-    #       apt-utils \
-    #   libterm-readline-gnu-perl \
-    #   dialog \
-    #         gpg-agent \
-      perl-doc
+    apt-get install -y \
+      bash-completion \
+      curl \
+      htop \
+      less \
+      nano \
+      ncdu \
+      perl-doc \
+      sudo \
+      tree \
+      unzip \
+      vim \
+      wget
+    # apt-utils
+    # libterm-readline-gnu-perl
+    # dialog
+    # gpg-agent
     git config --global pull.rebase false
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
