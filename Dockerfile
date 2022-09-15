@@ -49,10 +49,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-brotli \
       python3-cffi \
       python3-fs \
+      python3-freetype \
       python3-gi \
       python3-icu \
       python3-idna \
       python3-lz4 \
+      python3-numpy \
       python3-pip \
       python3-pkg-resources \
       python3-setuptools-scm \
