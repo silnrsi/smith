@@ -54,8 +54,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-idna \
       python3-lz4 \
       python3-pip \
-      python3-odf \
       python3-pkg-resources \
+      python3-setuptools-scm \
       python3-yaml \
       python3-requests
     pip config set global.disable-pip-version-check true
@@ -180,9 +180,9 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 ADD . ./
-RUN <<EOT 
+RUN <<EOT
     pip install --compile -r docker/smith-requirements.txt
-    ln -s $(pip show opentype_sanitizer | grep ^Location: | cut -d' ' -f2)/ots/ots-sanitize /usr/local/bin/
+#    ln -s $(pip show opentype_sanitizer | grep ^Location: | cut -d' ' -f2)/ots/ots-sanitize /usr/local/bin/
 EOT
 RUN pip install --compile . 
 

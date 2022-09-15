@@ -1,33 +1,21 @@
-weasyprint
-pillow
-packaging == 21.3
-protobuf<=3.20
-freetype-py
-git+https://github.com/googlefonts/ots-python@main#opentype-sanitizer
-git+https://github.com/fonttools/fonttools@main#fontTools
-git+https://github.com/googlefonts/fontbakery@main#fontbakery
-git+https://github.com/googlefonts/GlyphsLib@main#glyphsLib
-git+https://github.com/googlefonts/pyfontaine@main#fontaine
-git+https://github.com/silnrsi/palaso-python@master#python-palaso
-git+https://github.com/googlei18n/compreffor@main#compreffor
-git+https://github.com/LettError/MutatorMath@master#MutatorMath
-git+https://github.com/silnrsi/pysilfont@master#silfont
-git+https://github.com/googlei18n/ufo2ft@main#ufo2ft
-#git+https://github.com/scikit-learn/scikit-learn@main#egg=scikit-learn
-git+https://gitlab.pyicu.org/main/pyicu@main#pyicu 
-git+https://github.com/python-lz4/python-lz4.git@master#lz4
-git+https://github.com/robotools/fontParts.git@master#fontParts
-git+https://github.com/eea/odfpy.git@master#odfpy
-git+https://github.com/robotools/fontMath.git@master#fontMath
-git+https://github.com/typemytype/booleanOperations.git@master#booleanOperations
-git+https://github.com/robotools/defcon.git@master#defcon
-git+https://github.com/googlefonts/cu2qu.git@main#cu2qu
-git+https://github.com/fonttools/ufoLib2.git@master#ufoLib2
-git+https://github.com/typemytype/glyphConstruction.git@master#glyphConstruction
-setuptools
+-c smith-constraints.txt
+
+# Top-level requirements
+compreffor @ git+https://github.com/googlei18n/compreffor
+fontaine @ git+https://github.com/googlefonts/pyfontaine
+fontbakery @ git+https://github.com/googlefonts/fontbakery
+glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
+MutatorMath @ git+https://github.com/LettError/MutatorMath
+odfpy @ git+https://github.com/eea/odfpy
+opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
+palaso @ git+https://github.com/silnrsi/palaso-python
+pysilfont @ git+https://github.com/silnrsi/pysilfont
 setuptools-git-ls-files
-setuptools-scm
-beziers
-unicodedata2
-zopfli
-ufoLib2
+weasyprint
+
+-r palaso-requirements.txt
+# Dependencies of above packages or their dependencies
+# We need to specify all the extras we, or our dependencies, will require to
+# be included during setup.py being run when their wheels are built.
+defcon [pens,lxml] @ git+https://github.com/robotools/defcon
+fonttools [graphite,lxml,ufo,unicode,woff] @ git+https://github.com/fonttools/fonttools

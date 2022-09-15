@@ -1,0 +1,7 @@
+beziers
+fontTools
+freetype-py
+funcparserlib
+pyicu
+numpy
+sldr @ git+https://github.com/silnrsi/sldrtools
