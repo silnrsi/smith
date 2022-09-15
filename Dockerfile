@@ -58,7 +58,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-setuptools-scm \
       python3-yaml \
       python3-requests
-    pip config set global.disable-pip-version-check true
+    pip config --global set global.disable-pip-version-check true
+    pip config --global set global.use-deprecated legacy-resolver
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
