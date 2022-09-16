@@ -83,7 +83,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libfreetype-dev \
       libglib2.0-dev \
       libgirepository1.0-dev \
-      libgtest-dev \
       libicu-dev \
       libjpeg-dev \
       liblz4-dev \
@@ -111,11 +110,7 @@ RUN <<EOT
     pip install .
 EOT
 WORKDIR /src/harffbuzz
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt,sharing=private \
-<<EOT
-    apt-get update
-    apt-get install -y gtk-doc-tools
+RUN <<EOT
     git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git .
     meson build \
         --buildtype=release \
@@ -123,7 +118,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
         --wrap-mode=nodownload \
         -Dchafa=disabled \
         -Dexperimental_api=true \
-        -Dgraphite2=enabled
+        -Dgraphite2=enabled \
+        -Dtests=disabled \
+        -Ddocs=disabled
     ninja -C build
     ninja -C build install
 EOT
