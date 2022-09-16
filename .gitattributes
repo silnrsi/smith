@@ -1,0 +1,5 @@
+# Ensure Dockerfile and shell script uses LF for Windows users. 
+* text=auto
+Dockerfile  eol=lf
+*.sh        eol=lf
+
