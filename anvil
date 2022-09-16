@@ -1,0 +1,33 @@
+#!/bin/bash
+# a simple script to ease the transition from vagrant to Docker
+# to run with docker compose and docker-compose.yml and Dockerfile in the root of the project folder
+
+[ ! -f docker-compose.yml ] && [ ! -f Dockerfile ] && echo "docker-compose.yml and Dockerfile missing, make sure you are in the root of the smith project."
+
+case $1 in
+        "validate" | "check")
+		echo "Validating configuration"
+                docker compose config
+                ;;
+        "debug" | "logs")
+                echo "Launching build without parallel mode and with logs"
+                docker build . -t no-cache --progress=plain 2>&1 | tee build.log 
+                ;;
+        "up" | "provision")
+                echo "Building image, spinning up the container and provisionning"
+                docker compose build
+                docker compose up -d --remove-orphans
+                ;;
+        "ssh" | "enter" | "exec")
+		echo "Entering the container in interactive mode (type exit to get back)"
+                docker compose exec -u builder smith bash
+                ;;
+        "halt" | "destroy" | "down" )
+                echo "Removing the container"
+                docker compose down
+                ;;
+        *)
+                echo "Anvil: 🦾 🏗  helper for running a dockerized smith"
+                echo "Usage: expected a parameter (alias) like: up (provision) ssh (enter) (exec) halt (destroy) (down) validate (check) debug (logs)"
+                ;;
+esac

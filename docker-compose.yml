@@ -1,0 +1,21 @@
+---
+version: "3.9"
+services:
+  smith:
+    restart: always
+    container_name: focal
+    hostname: smith-focal
+    build:
+      # uncomment we get an image published online
+      #image: wstech/smith:latest
+      context: . 
+    stdin_open: true
+    tty: true
+    volumes:
+      # adjust to your own local font project folder structure
+      - $HOME/repos/wstechfonts:/smith
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8gb
