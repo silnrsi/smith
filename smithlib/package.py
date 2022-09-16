@@ -359,7 +359,7 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_manifest(b))
         manifest = {}   #'files': {}, 'version': str(self.version)}
         for f in self.fonts:
-            files = f.make_manifest(bld)
+            files, defaults = f.make_manifest(bld, getattr(f, 'defaultsinaxes', False))
             family = None
             for v in files.values():
                 if 'family' in v:
@@ -369,10 +369,10 @@ class Package(object) :
                 continue
             famstr = family.lower().replace(" ", "")
             if famstr not in manifest:
-                manifest[famstr] = {'files': {}, 'version': str(self.version), 'family': family, 'fontfamilyID': famstr}
+                manifest[famstr] = {'files': {}, 'version': str(self.version), 'family': family}
             manifest[famstr]['files'].update(files)
-            if getattr(f, 'default', False):
-                manifest[famstr]['default'] = str(f.target)
+            if len(defaults):
+                manifest[famstr].setdefault('defaults', {}).update(defaults)
         mnode = bld.path.find_or_declare('{}_fontmanifest.json'.format(self.appname))
         if len(manifest):
             with open(mnode.abspath(), "w", encoding="utf-8") as outf:
@@ -546,10 +546,14 @@ DSAxesMappings = {
 }
 
 class _Axis(dict):
-    def __init__(self, name, tag):
+    def __init__(self, name, tag, default):
         super().__init__()
         self.name = name
         self.tag = tag
+        try:
+            self.default = float(default)
+        except ValueError:
+            self.default = 0.
 
     def __str__(self):
         return self.tag
@@ -561,17 +565,23 @@ class _Axis(dict):
         # Invert the mapping because that's how it really works
         self[float(outp)] = float(inp)
 
+    def isDefault(self, vals):
+        return vals[0] == self.default
+
 class _DSSource(object):
     def __init__(self, **kw):
         for k,v in kw.items():
             setattr(self, k, v)
         self.locations = {}
+        self.defaults = {}
 
     def addFloatLocation(self, name, axis, values):
         if axis is None:
             self.locations[name] = [float(x) if x is not None else None for x in values]
         else:
-            self.locations[name] = [axis.get(float(x), float(x)) if x is not None else None for x in values]
+            val = [axis.get(float(x), float(x)) if x is not None else None for x in values]
+            self.locations[name] = val
+            self.defaults[name] = axis.isDefault(val)
 
     def same(self, other):
         if len(self.locations) != len(other.locations):
@@ -599,6 +609,9 @@ class _DSSource(object):
             if v is not None:
                 res[k] = v
         return res
+
+    def isDefault(self):
+        return all(self.defaults.values())
 
 def read_plist(fname):
     res = {}
@@ -632,7 +645,8 @@ class DesignSpace(object):
         for axis in self.doc.getroot().findall('axes/axis'):
             k = axis.get('name', None)
             v = axis.get('tag', None)
-            a = _Axis(k, v)
+            d = axis.get('default', None)
+            a = _Axis(k, v, d)
             if k is not None and v is not None:
                 self.axesmap[k] = a
                 for m in axis.findall('map'):
@@ -666,12 +680,13 @@ class DesignSpace(object):
                 for d in inst.findall("./location/dimension"):
                     fsrc.addFloatLocation(d.get('name'), self.axesmap.get(d.get('name'), None),
                                           [d.get('xvalue', None), d.get("yvalue", None)])
-                newkw.setdefault('axes', self.kw.get('axes', {}).copy()).update(
+                newkw.setdefault('axes', {}).setdefault('axes', self.kw.get('axes', {}).copy()).update(
                         {str(self.axesmap.get(k, DSAxesMappings.get(k, k))): v for k, v in fsrc.asDict().items() if k not in self.delaxis})
                 familyname = inst.get('familyname')
                 smfn = inst.get('stylemapfamilyname', familyname)
                 newkw['axes']['family'] = familyname
-                newkw['axes']['ital'] = 1 if 'italic' in inst.get('stylename', '').lower() else 0
+                newkw['axes'].setdefault('axes', {})['ital'] = 1 if 'italic' in inst.get('stylename', '').lower() else 0
+                newkw['defaultsinaxes'] = fsrc.isDefault() and not newkw['axes']['axes']['ital']
                 if familyname != smfn:
                     newkw['axes']['altfamily'] = smfn
                 if self.kw.get('shortcircuit', True) and 'name' in inst.attrib and srcinst is not None:
