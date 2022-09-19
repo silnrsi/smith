@@ -52,8 +52,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-gi \
       python3-icu \
       python3-idna \
+      python3-lxml \
       python3-lz4 \
       python3-numpy \
+      python3-packaging \
       python3-pip \
       python3-pkg-resources \
       python3-setuptools-scm \
@@ -64,7 +66,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
-    
+
 
 # Set up basic build tooling environment
 FROM base AS build
@@ -261,10 +263,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       unzip \
       vim \
       wget
-    # apt-utils
-    # libterm-readline-gnu-perl
-    # dialog
-    # gpg-agent
     git config --global pull.rebase false
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
