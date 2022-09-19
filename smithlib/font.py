@@ -44,8 +44,6 @@ class Font(object) :
                 self.package.add_font(self)
         if not hasattr(self, 'ots_target') :
             self.ots_target = self.target[:-4] + "-ots.log"
-        if not hasattr(self, 'fontlint_target') :
-            self.fontlint_target = self.target[:-4] + "-fontlint.log"
         if not hasattr(self, 'pyfontaine_target') :
             self.pyfontaine_target = self.target[:-4] + "-pyfontaine.log"
         self._isbuilt = False
@@ -168,9 +166,6 @@ class Font(object) :
 
     def build_ots(self, bld) :
         bld(rule="${OTS} ${SRC} > ${TGT}", target=self.ots_target, source=[self.target], shell=1)
-
-    def build_fontlint(self, bld) :
-        bld(rule="${FONTLINT} ${SRC} > ${TGT} 2>&1; exit 0", target=self.fontlint_target, source=[self.target], shell=1)
 
     def build_fontvalidator(self, bld) :
         target = str(self.target) + ".report.xml"

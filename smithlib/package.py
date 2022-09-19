@@ -224,14 +224,6 @@ class Package(object) :
         for f in self.fonts :
             f.build_ots(bld)
 
-    def build_fontlint(self, bld) :
-        if 'FONTLINT' not in bld.env :
-            Logs.warn("fontlint not installed. Can't complete. See http://fontforge.github.io and fontforge package")
-            return
-        self.subrun(bld, lambda p, b: p.build_fontlint(b))
-        for f in self.fonts :
-            f.build_fontlint(bld)
-
     def build_validate(self, bld) :
         if 'FONTVALIDATOR' not in bld.env :
             Logs.warn("FontValidator (via fontval script) not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
@@ -914,10 +906,6 @@ class testContext(cmdContext) :
 class otsContext(cmdContext) :
     """Test fonts using OpenType Sanitizer. Check <font.target>_ots.log"""
     cmd = 'ots'
-
-class fontlintContext(cmdContext) :
-    """Test fonts using fontlint. Check <font.target>_fontlint.log"""
-    cmd = 'fontlint'
 
 class fontvalidatorContext(cmdContext) :
     """Test fonts using FontValidator. Check html (and xml) reports."""
