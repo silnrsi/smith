@@ -4,30 +4,43 @@
 
 [ ! -f docker-compose.yml ] && [ ! -f Dockerfile ] && echo "docker-compose.yml and Dockerfile missing, make sure you are in the root of the smith project."
 
+BUILDER=$(id -u)
+echo "(Your user id is $BUILDER, make sure you set BUILDER=$BUILDER in the Dockerfile)"
+
 case $1 in
         "validate" | "check")
-		echo "Validating configuration"
+                echo "Validating configuration"
                 docker compose config
                 ;;
         "debug" | "logs")
                 echo "Launching build without parallel mode and with logs"
-                docker build . -t no-cache --progress=plain 2>&1 | tee build.log 
+                docker build . -t smith:latest --no-cache --progress=plain 2>&1 | tee build.log
                 ;;
         "up" | "provision")
                 echo "Building image, spinning up the container and provisionning"
-                docker compose build
-                docker compose up -d --remove-orphans
+                docker compose build 
+                #docker compose build --build-arg BUILDER="$BUILDER"
+                docker compose up -d --remove-orphans 
+                ;;
+        "status" | "ps")
+                echo "Showing container status"
+                docker compose ps
                 ;;
         "ssh" | "enter" | "exec")
-		echo "Entering the container in interactive mode (type exit to get back)"
+                echo "Entering the container in interactive mode (type exit to get back)"
                 docker compose exec -u builder smith bash
+                #docker compose exec -u "$BUILDER" smith bash
                 ;;
         "halt" | "destroy" | "down" )
-                echo "Removing the container"
+                echo "Stopping and removing the container"
                 docker compose down
                 ;;
         *)
                 echo "Anvil: 🦾 🏗  helper for running a dockerized smith"
-                echo "Usage: expected a parameter (alias) like: up (provision) ssh (enter) (exec) halt (destroy) (down) validate (check) debug (logs)"
+                echo "Usage: expected a parameter (alias) like:"
+                echo "  ./anvil up (provision)" 
+                echo "  ./anvil ssh (enter) (exec)" 
+                echo "  ./anvil status (ps)" 
+                echo "  ./anvil halt (destroy) (down)"
                 ;;
 esac
