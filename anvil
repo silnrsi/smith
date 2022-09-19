@@ -7,6 +7,8 @@
 BUILDER=$(id -u)
 echo "(Your user id is $BUILDER, make sure you set BUILDER=$BUILDER in the Dockerfile)"
 
+OS=$(uname -s)
+
 case $1 in
         "validate" | "check")
                 echo "Validating configuration"
@@ -28,10 +30,11 @@ case $1 in
                 ;;
         "ssh" | "enter" | "exec")
                 echo "Entering the container in interactive mode (type exit to get back)"
-                docker compose exec -u builder smith bash
                 #docker compose exec -u "$BUILDER" smith bash
-                # conditional for Windows 10 users, detecting via uname -s output
-                # winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith:latest
+                if [[ "$OS" == *"MSYS_NT-10"* ]]; 
+                        then winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith
+                        else docker compose exec -u builder smith bash
+                fi
                 ;;
         "halt" | "destroy" | "down" )
                 echo "Stopping and removing the container"
