@@ -30,6 +30,8 @@ case $1 in
                 echo "Entering the container in interactive mode (type exit to get back)"
                 docker compose exec -u builder smith bash
                 #docker compose exec -u "$BUILDER" smith bash
+                # conditional for Windows 10 users, detecting via uname -s output
+                # winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith:latest
                 ;;
         "halt" | "destroy" | "down" )
                 echo "Stopping and removing the container"
