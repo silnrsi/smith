@@ -14,20 +14,6 @@ Dir::Cache::pkgcache "";
 Dir::Cache::srcpkgcache "";
 EOT
 
-
-# Grab the PPA keys for later use.
-FROM common AS ppa-keys
-RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
-    --mount=type=cache,target=/var/lib/apt,sharing=private \
-<<EOT
-    apt-get update
-    apt-get install -y dirmngr gnupg
-    apt-key --keyring /ppa-archives-keyring.gpg \
-      adv --keyserver keyserver.ubuntu.com \
-          --recv-keys 904F67626F1CF535 5DF1CE288B1A27EA
-EOT
-
-
 # Some python packages are required here (such as lxml) because they are
 # required during build and force pip to use the system versions, some libs
 # such as libpangoft2 are runtime dependecies of weasyprint.
@@ -70,6 +56,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
+
+
+# Grab the PPAs
+FROM base AS ppa
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+    apt-get update
+    apt-get install -y gpg-agent software-properties-common
+    apt-add-repository -ny ppa:sile-typesetter/sile
+    apt-add-repository -ny ppa:silnrsi/smith-py3
+EOT
 
 
 # Set up basic build tooling environment
@@ -203,9 +201,7 @@ LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.
       org.opencontainers.image.description="Smith font development toolchain" \
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
       org.opencontainers.image.vendor="SIL International"
-ARG codename=focal
-ADD --link docker/sources.list.d/*-${codename}.list /etc/apt/sources.list.d/
-COPY --link --from=ppa-keys /ppa-archives-keyring.gpg /etc/apt/trusted.gpg.d/
+COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
