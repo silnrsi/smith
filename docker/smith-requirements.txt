@@ -16,6 +16,6 @@ weasyprint
 -r palaso-requirements.txt
 # Dependencies of above packages or their dependencies
 # We need to specify all the extras we, or our dependencies, will require to
-# be included during setup.py being run when their wheels are built.
-defcon [pens,lxml] @ git+https://github.com/robotools/defcon
-fonttools [graphite,lxml,ufo,unicode,woff] @ git+https://github.com/fonttools/fonttools
+# be included during setup.py being run when their wheels are built. 
+defcon [pens,lxml]
+fonttools [graphite,lxml,ufo,unicode,woff]
