@@ -98,6 +98,23 @@ customisation of the container at runtime:
     already, and ensures that files created in the /smith volume are owned and
     accessible by the user who started the container.
 
+NOTE: there is now a script helper called anvil:
+for macOS and Ubuntu users:
+./anvil up
+./anvil ssh
+cd font (to go to a font project folder you have checked out in the shared folder)
+smith distclean
+smith configure
+smith build
+./anvil down
+
+Windows 10 users have to do things slightly differently:
+launch Windows Terminal (not git-bash)
+sh anvil up
+winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith:latest
+(script integration TBD)
+
+
 
 Our TeamCity build agent is built like so:
 ```
