@@ -32,7 +32,7 @@ case $1 in
                 echo "Entering the container in interactive mode (type exit to get back)"
                 #docker compose exec -u "$BUILDER" smith bash
                 if [[ "$OS" == *"MSYS_NT-10"* ]]; 
-                        then winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith
+                        then winpty docker run -e BUILDER=$BUILDER --rm -it -h smith-focal -v //c/Users/test/repos/wstechfonts:/smith smith
                         else docker compose exec -u builder smith bash
                 fi
                 ;;
