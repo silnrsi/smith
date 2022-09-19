@@ -28,6 +28,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 EOT
 
 
+# Some python packages are required here (such as lxml) because they are
+# required during build and force pip to use the system versions, some libs
+# such as libpangoft2 are runtime dependecies of weasyprint.
 FROM common AS base
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
@@ -39,6 +42,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       gpg \
       locales \
       libcairo2 \
+      libpangoft2-1.0-0 \
       libmono-system-web4.0-cil \
       libmono-system-windows-forms4.0-cil \
       libwoff1 \
