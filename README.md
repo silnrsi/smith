@@ -43,4 +43,4 @@ various components) on macOS, Windows or Ubuntu.
 Simply copy the files to the root of your project and run ``vagrant up``.
 
 #### Docker image/container
-Details of the Docker approach that is still in development are in [Docker steps](docker-steps.txt).
+Still in development in other branches like docker-focal. 
