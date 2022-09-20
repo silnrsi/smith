@@ -57,17 +57,17 @@ ttfautohintFromSource=False
 
 
 # the official smith PPA
-sudo add-apt-repository -s -y ppa:silnrsi/smith-py3 
+sudo add-apt-repository -s -y ppa:silnrsi/smith-py3
 
 # the current git PPA
-sudo add-apt-repository -s -y ppa:git-core/ppa 
+sudo add-apt-repository -s -y ppa:git-core/ppa
 
 # set git params in ~/.gitconfig
 git config --global pull.rebase false
 
 
 # the official SILE PPA
-sudo add-apt-repository -s -y ppa:sile-typesetter/sile 
+sudo add-apt-repository -s -y ppa:sile-typesetter/sile
 
 sudo apt-get update -y -qq
 sudo apt-get upgrade -y -qq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" -o Dpkg::Options::="--force-overwrite" -u -V --with-new-pkgs
@@ -140,14 +140,9 @@ if [ "$graphiteFromSource" == "True" ]; then
 
 	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson --user
 	sudo python3 -m pip install --upgrade ninja
-	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
+	meson build --auto-features=enabled -Dgraphite=enabled  --buildtype=release --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
 	ninja -C build
 	sudo ninja install -C build
-	sudo ldconfig 
-
-	# crude chown because Harfbuzz wants write-access to optimize runs of its utilities
-	sudo chmod -R 776 $HOME/srcbuilds
-	sudo chown -R vagrant:vagrant $HOME/srcbuilds
 fi
 
 # ots 
@@ -247,7 +242,7 @@ fi
 sudo apt-get install pandoc pandoc-data -y -qq
 python3 -m pip install --upgrade weasyprint --user
 python3 -m pip install --upgrade pillow --user
-sudo apt install libpango-1.0-0 libpangoft2-1.0-0
+sudo apt-get install libpango-1.0-0 libpangoft2-1.0-0
 sudo apt-get install fonts-roboto -y -qq
 sudo mkdir -p /usr/local/share/fonts/robotomono/
 sudo wget --quiet --no-directories --no-parent --continue https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf/RobotoMono-{Regular,Bold,Italic,BoldItalic,Light,LightItalic,Medium,MediumItalic,Thin,ThinItalic}.ttf -P /usr/local/share/fonts/robotomono/
@@ -313,7 +308,6 @@ sudo apt-get install wamerican wbritish -y -qq
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
 rm -rf /usr/share/sile/packagemanager/fontproof/
-# sile -e 'installPackage("fontproof");os.exit()'
 cd /home/vagrant/srcbuilds
 git clone https://github.com/sile-typesetter/fontproof.git
 cd fontproof 
