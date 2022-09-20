@@ -52,6 +52,9 @@ You will need to run `docker build .` in the top-level source dir and this will
 download and build the latest dependencies for the smith font build environment
 and install the smith python packages from the source dir.
 
+You need to install Docker: https://docs.docker.com/get-docker/
+Windows users should also install Git4Windows and WSL2.
+
 The Dockerfile can take the following build arg:  
   `ubuntuImage`: (default: "ubuntu:20.04")  
     The base image to build on.  This does not need to be an official Ubuntu
@@ -98,11 +101,13 @@ customisation of the container at runtime:
     already, and ensures that files created in the /smith volume are owned and
     accessible by the user who started the container.
 
-NOTE: there is now a script helper called anvil:
+NOTE: there is now a script helper called anvil. 
+This is a shell script which drive the compose feature. 
+Take a look at the script and the docker-compose.yml file to adjust the volume mapping to your local folder structure. 
 for macOS and Ubuntu users:
 ./anvil up
 ./anvil ssh
-cd font (to go to a font project folder you have checked out in the shared folder)
+cd font-example (to go to a font project folder you have checked out in the shared folder)
 smith distclean
 smith configure
 smith build
@@ -111,9 +116,12 @@ smith build
 Windows 10 users have to do things slightly differently:
 launch Windows Terminal (not git-bash)
 sh anvil up
-winpty docker run --rm -it -u root -v //c/Users/test/repos/wstechfonts:/smith smith:latest
-(script integration TBD)
-
+sh anvil ssh
+cd font-example (to go to a font project folder you have checked out in the shared folder)
+smith distclean
+smith configure
+smith build
+sh anvil down
 
 
 Our TeamCity build agent is built like so:
