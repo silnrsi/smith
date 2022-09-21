@@ -53,7 +53,7 @@ download and build the latest dependencies for the smith font build environment
 and install the smith python packages from the source dir.
 
 You need to install Docker: https://docs.docker.com/get-docker/.
-Windows users should also install [Git4Windows](https://git-scm.com/download/win) and [WSL2]((https://learn.microsoft.com/en-us/windows/wsl/install).
+Windows users should also install [Git4Windows](https://git-scm.com/download/win) and [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
 The Dockerfile can take the following build arg:  
   `ubuntuImage`: (default: "ubuntu:20.04")  
