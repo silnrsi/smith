@@ -47,7 +47,7 @@ Simply copy the files to the root of your project and run ``vagrant up``.
 The primary purpose of the Docker image is to provide a base for CI systems to
 have a complete smith build environment.
 
-We will provide a publically available image soon but in the meantime you need to build your own. 
+We will provide a publicly available image soon but in the meantime you need to build your own.
 You will need to run `docker build .` in the top-level source dir and this will
 download and build the latest dependencies for the smith font build environment
 and install the smith python packages from the source dir.
@@ -64,7 +64,7 @@ The Dockerfile can take the following build arg:
 The Docker file has the following terminal targets which can be selected with
 the `--target` option:  
   `build-agent`:  
-    Stops the dockerfile just before it adds packages to support 
+    Stops the dockerfile just before it adds packages to support
     interactive use, suitable for non-interactive environments such as CI.  
   `interactive`: (default)  
      This will install a `builder` user who has pasword-less sudo, and the
@@ -79,21 +79,22 @@ Or equivalently:
 ```
 $> docker build --target=interactive . -t smith:latest
 ```
-You can also tag it with a datestamp: 
+You can also tag it with a datestamp:
 
 ```
 $> docker build . -t smith:20.04-$(date +%Y%W%w%H%M)
 ```
 
-To get into the container while mapping volumes: 
+To get into the container while mapping volumes:
 
 ```
 $> docker run --rm -it -h smith-focal -v $HOME/work/fonts:/smith smith:latest
+```
 
 This will run the latest version of smith in your local image store and run
 it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/smith`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
-the container ephemeral. The image accepts an environment variable for 
+the container ephemeral. The image accepts an environment variable for
 customisation of the container at runtime:  
   `BUILDER`: (default: 1000)  
     Used to control the UID of the `builder` user created in the container for
@@ -101,28 +102,45 @@ customisation of the container at runtime:
     already, and ensures that files created in the /smith volume are owned and
     accessible by the user who started the container.
 
-NOTE: there is now a script helper called anvil. 
-This is a shell script which drive the compose feature. 
-Take a look at the script and the docker-compose.yml file to adjust the volume mapping to your local folder structure. 
+NOTE: there is now a script helper called anvil.
+This is a shell script which drive the compose feature.
+Take a look at the script and the docker-compose.yml file to adjust the volume mapping to your local folder structure.
+
 for macOS and Ubuntu users:
+```
 ./anvil up
+
 ./anvil ssh
+
 cd font-example (to go to a font project folder you have checked out in the shared folder)
+
 smith distclean
+
 smith configure
+
 smith build
+
 ./anvil down
+```
 
 Windows 10 users have to do things slightly differently:
 launch Windows Terminal (not git-bash)
-sh anvil up
-sh anvil ssh
-cd font-example (to go to a font project folder you have checked out in the shared folder)
-smith distclean
-smith configure
-smith build
-sh anvil down
 
+```
+sh anvil up
+
+sh anvil ssh
+
+cd font-example (to go to a font project folder you have checked out in the shared folder)
+
+smith distclean
+
+smith configure
+
+smith build
+
+sh anvil down
+```
 
 Our TeamCity build agent is built like so:
 ```
