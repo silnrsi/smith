@@ -186,9 +186,16 @@ EOT
 # Python components
 FROM build AS smith-tooling
 WORKDIR /src/smith
-ADD . ./
+COPY --link docker/*requirements.txt \
+            docker/*constraints.txt \
+            MANIFEST.in \
+            setup.py \
+            smith.py \
+            ./
+COPY --link smithlib smithlib
+COPY --link waflib waflib
 RUN <<EOT
-    pip install --compile -r docker/smith-requirements.txt
+    pip install --compile -r smith-requirements.txt
 #    ln -s $(pip show opentype_sanitizer | grep ^Location: | cut -d' ' -f2)/ots/ots-sanitize /usr/local/bin/
 EOT
 RUN pip install --compile . 
