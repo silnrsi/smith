@@ -243,7 +243,8 @@ FROM runtime AS build-agent
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
-ENV BUILDER=1000
+ENV BUILDER_UID=
+ENV BUILDER_GID=
 COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
@@ -264,11 +265,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       vim \
       wget
     git config --global pull.rebase false
+    install --owner=1000 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
 EOT
-WORKDIR /smith
 VOLUME /smith
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["/bin/bash"]
