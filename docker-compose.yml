@@ -7,8 +7,6 @@ services:
       # uncomment we get an image published online
       #image: wstech/smith:latest
       context: . 
-    environment:
-      - BUILDER
     stdin_open: true
     tty: true
     volumes:
