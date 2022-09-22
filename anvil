@@ -4,11 +4,7 @@
 
 [ ! -f docker-compose.yml ] && [ ! -f Dockerfile ] && echo "docker-compose.yml and Dockerfile missing, make sure you are in the root of the smith project."
 
-BUILDER=$(id -u)
-OS=$(uname -som)
-echo "(Your user id is $BUILDER - on $OS)"
-
-
+OS=$(uname -sm)
 
 case $1 in
         "validate" | "check" | "config")
@@ -21,7 +17,7 @@ case $1 in
                 ;;
         "up" | "start")
                 echo "Building image, spinning up the container and provisionning"
-                docker compose build --build-arg BUILDER=\{BUILDER\}
+                docker compose build
                 docker compose up -d --remove-orphans 
                 ;;
         "provision")
@@ -34,8 +30,8 @@ case $1 in
         "ssh" | "enter" | "exec" | "run")
                 echo "Entering the container in interactive mode (type exit to get back)"
                 if [[ "$OS" == *"MSYS_NT-10"* ]]; 
-                        then winpty docker compose run -e BUILDER="$BUILDER" --rm -it smith bash
-                        else docker compose run -e BUILDER="$BUILDER" --rm -it smith bash
+                        then winpty docker compose run --rm smith
+                        else docker compose run --rm smith
                 fi
                 ;;
         "when" | "time")
