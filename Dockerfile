@@ -243,9 +243,7 @@ FROM runtime AS build-agent
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
-RUN export BUILDER=$(id -u)
-ARG BUILDER=$BUILDER
-ENV BUILDER=$BUILDER
+ENV BUILDER=1000
 COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
