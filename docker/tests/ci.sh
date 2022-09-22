@@ -6,29 +6,29 @@ configure() {
 }
 
 build() { 
-  smith build 
+  smith build $CI_MODE
 }
 
 tests() {
-  smith pdfs      
-  smith test      
-  smith xtest     
-  smith waterfall 
-  smith xfont     
-  smith ftml      
+  smith pdfs $CI_MODE
+  smith test $CI_MODE
+  smith xtest $CI_MODE
+  smith waterfall $CI_MODE
+  smith xfont $CI_MODE
+  smith ftml
   smith ots
-  smith ttfchecks       
-  smith sile
+  smith ttfchecks
+  smith -j1 sile
 }
 
 sileftml_tests() {
-  smith sileftml;
+  smith -j1 sileftml
 }
 
 lint() {
   smith validate  
-  smith ots       
-  smith fontlint
+  #smith ots       
+  #smith fontlint
 }
   
 coverage() { 
@@ -54,8 +54,7 @@ configure
 build
 tests 
 #sileftml_tests
-
-#lint
+lint
 #coverage
 bundle
 buildinfo
