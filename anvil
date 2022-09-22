@@ -6,7 +6,8 @@
 
 BUILDER=$(id -u)
 OS=$(uname -som)
-echo Your user id is "$BUILDER (on $OS)"
+echo "(Your user id is $BUILDER - on $OS)"
+
 
 
 case $1 in
@@ -33,9 +34,13 @@ case $1 in
         "ssh" | "enter" | "exec" | "run")
                 echo "Entering the container in interactive mode (type exit to get back)"
                 if [[ "$OS" == *"MSYS_NT-10"* ]]; 
-                        then winpty docker compose run -e BUILDER="$BUILDER" --rm -it -v //c/Users/test/repos/wstechfonts:/smith smith-smith
+                        then winpty docker compose run -e BUILDER="$BUILDER" --rm -it smith bash
                         else docker compose run -e BUILDER="$BUILDER" --rm -it smith bash
                 fi
+                ;;
+        "when" | "time")
+                echo -e "ID              Creation date                   Status"
+                docker container ls --format '{{.ID}}\t{{.CreatedAt}}\t{{.State}}\t{{.Status}}'
                 ;;
         "stop" | "halt" | "destroy" | "down")
                 echo "Stopping and removing the container"
