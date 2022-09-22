@@ -16,7 +16,7 @@ EOT
 
 # Some python packages are required here (such as lxml) because they are
 # required during build and force pip to use the system versions, some libs
-# such as libpangoft2 are runtime dependecies of weasyprint.
+# such as libpangoft2 are runtime dependencies of weasyprint.
 FROM common AS base
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
@@ -243,7 +243,9 @@ FROM runtime AS build-agent
 
 # Add in some user facing tools for interactive use.
 FROM runtime AS interactive
-ENV BUILDER=1000
+RUN export BUILDER=$(id -u)
+ARG BUILDER=$BUILDER
+ENV BUILDER=$BUILDER
 COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
