@@ -1,51 +1,56 @@
 #!/bin/bash
 # a simple script to ease the transition from vagrant to Docker
-# to run with docker compose and docker-compose.yml and Dockerfile in the root of the project folder
+# to run with docker compose with docker-compose.yml and Dockerfile in the root of the project folder
 
 [ ! -f docker-compose.yml ] && [ ! -f Dockerfile ] && echo "docker-compose.yml and Dockerfile missing, make sure you are in the root of the smith project."
 
 BUILDER=$(id -u)
-echo "(Your user id is $BUILDER, make sure you set BUILDER=$BUILDER in the Dockerfile)"
+OS=$(uname -som)
+echo Your user id is "$BUILDER (on $OS)"
 
-OS=$(uname -s)
 
 case $1 in
-        "validate" | "check")
+        "validate" | "check" | "config")
                 echo "Validating configuration"
                 docker compose config
                 ;;
         "debug" | "logs")
-                echo "Launching build without parallel mode and with logs"
+                echo "Launching build without parallel mode, without cache and with logs"
                 docker build . -t smith:latest --no-cache --progress=plain 2>&1 | tee build.log
                 ;;
-        "up" | "provision")
+        "up" | "start")
                 echo "Building image, spinning up the container and provisionning"
-                docker compose build 
-                #docker compose build --build-arg BUILDER="$BUILDER"
+                docker compose build --build-arg BUILDER=\{BUILDER\}
                 docker compose up -d --remove-orphans 
+                ;;
+        "provision")
+                echo "No need to use provision any longer, use up instead"
                 ;;
         "status" | "ps")
                 echo "Showing container status"
                 docker compose ps
                 ;;
-        "ssh" | "enter" | "exec")
+        "ssh" | "enter" | "exec" | "run")
                 echo "Entering the container in interactive mode (type exit to get back)"
-                #docker compose exec -u "$BUILDER" smith bash
                 if [[ "$OS" == *"MSYS_NT-10"* ]]; 
-                        then winpty docker run -e BUILDER=$BUILDER --rm -it -h smith-focal -v //c/Users/test/repos/wstechfonts:/smith smith-smith
-                        else docker compose exec -u builder smith bash
+                        then winpty docker compose run -e BUILDER="$BUILDER" --rm -it -v //c/Users/test/repos/wstechfonts:/smith smith-smith
+                        else docker compose run -e BUILDER="$BUILDER" --rm -it smith bash
                 fi
                 ;;
-        "halt" | "destroy" | "down" )
+        "stop" | "halt" | "destroy" | "down")
                 echo "Stopping and removing the container"
                 docker compose down
+                ;;
+        "clean" | "prune" | "purge")
+                echo "Purging stale images / containers and the whole build cache"
+                docker system prune
                 ;;
         *)
                 echo "Anvil: 🦾 🏗  helper for running a dockerized smith"
                 echo "Usage: expected a parameter (alias) like:"
-                echo "  ./anvil up (provision)" 
-                echo "  ./anvil ssh (enter) (exec)" 
+                echo "  ./anvil up (start)"
+                echo "  ./anvil ssh (enter) (exec) (run)"
                 echo "  ./anvil status (ps)" 
-                echo "  ./anvil halt (destroy) (down)"
+                echo "  ./anvil stop (halt) (destroy) (down)"
                 ;;
 esac
