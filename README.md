@@ -94,16 +94,10 @@ $> docker run --rm -it -h smith-focal -v $HOME/work/fonts:/smith smith:latest
 This will run the latest version of smith in your local image store and run
 it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/smith`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
-the container ephemeral. The image accepts an environment variable for
-customisation of the container at runtime:  
-  `BUILDER`: (default: 1000)  
-    Used to control the UID of the `builder` user created in the container for
-    interactive use.  This is useful when your UID on the host isn't 1000
-    already, and ensures that files created in the /smith volume are owned and
-    accessible by the user who started the container.
+the container ephemeral. 
 
 NOTE: there is now a script helper called anvil.
-This is a shell script which drive the compose feature.
+This is a shell script to drive the compose feature more easily.
 Take a look at the script and the docker-compose.yml file to adjust the volume mapping to your local folder structure.
 
 for macOS and Ubuntu users:
