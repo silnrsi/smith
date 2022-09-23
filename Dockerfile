@@ -278,6 +278,5 @@ COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
 EOT
 VOLUME /smith
-WORKDIR /smith
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["/bin/bash"]
