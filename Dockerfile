@@ -188,7 +188,6 @@ FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt \
             docker/*constraints.txt \
-            MANIFEST.in \
             setup.py \
             smith.py \
             ./
