@@ -183,20 +183,13 @@ COPY --link --chmod=755 <<-EOT /usr/local/bin/FontValidator
 mono /usr/local/libexec/FontValidator/FontValidator.exe "\$@"
 EOT
 
+
 # Python components
 FROM build AS smith-tooling
 WORKDIR /src/smith
-COPY --link docker/*requirements.txt \
-            docker/*constraints.txt \
-            setup.py \
-            smith.py \
-            ./
-COPY --link smithlib smithlib
-COPY --link waflib waflib
-RUN <<EOT
-    pip install --compile -r smith-requirements.txt
-#    ln -s $(pip show opentype_sanitizer | grep ^Location: | cut -d' ' -f2)/ots/ots-sanitize /usr/local/bin/
-EOT
+COPY --link docker/*requirements.txt docker/*constraints.txt docker/
+RUN pip install --compile -r docker/smith-requirements.txt
+COPY --link . ./
 RUN pip install --compile . 
 
 
@@ -218,13 +211,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libjson-perl \
       nsis \
       pandoc \
-      sile \
       texlive-xetex \
       ttfautohint libqt5gui5-gles \
       wamerican \
       wbritish \
       xsltproc \
       xz-utils
+    ln -s /usr/bin/true /usr/bin/sile
 EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
 ADD --link \
