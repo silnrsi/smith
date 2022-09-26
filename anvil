@@ -17,7 +17,7 @@ case $1 in
                 ;;
         "up" | "start")
                 echo "Building image, spinning up the container and provisionning"
-                docker compose build
+                docker compose -p smith build --pull
                 docker compose up -d --remove-orphans 
                 ;;
         "provision")
@@ -44,7 +44,10 @@ case $1 in
                 ;;
         "clean" | "prune" | "purge")
                 echo "Purging stale images / containers and the whole build cache"
-                docker system prune
+                docker stop "$(docker ps -aq)"
+                docker rm "$(docker ps -aq)"
+                docker rmi -f smith
+                docker system prune -a
                 ;;
         *)
                 echo "Anvil: 🦾 🏗  helper for running a dockerized smith"
