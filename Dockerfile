@@ -220,6 +220,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       xz-utils
     #divert sile for now for arm64 testing
     #ln -s /usr/bin/true /usr/bin/sile
+   apt-get upgrade 
 EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
 ADD --link \
