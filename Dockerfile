@@ -211,13 +211,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libjson-perl \
       nsis \
       pandoc \
+      sile \
       texlive-xetex \
       ttfautohint libqt5gui5-gles \
       wamerican \
       wbritish \
       xsltproc \
       xz-utils
-    ln -s /usr/bin/true /usr/bin/sile
+    #divert sile for now for arm64 testing
+    #ln -s /usr/bin/true /usr/bin/sile
 EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
 ADD --link \
