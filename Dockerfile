@@ -51,8 +51,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-setuptools-scm \
       python3-yaml \
       python3-requests
-    pip config --global set global.disable-pip-version-check true
-    pip config --global set global.use-deprecated legacy-resolver
+    python3 -m pip config --global set global.disable-pip-version-check true
+    python3 -m pip config --global set global.use-deprecated legacy-resolver
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8' DEB_PYTHON_INSTALL_LAYOUT='deb_system'
@@ -97,7 +97,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       ninja-build \
       pkg-config \
       ragel
-    pip install --user --compile meson
+    python3 -m pip install --user --compile meson
 EOT
 
 
@@ -111,7 +111,7 @@ RUN <<EOT
       -DGRAPHITE2_NTRACING:BOOL=OFF
     cmake --build build
     cmake --install build
-    pip install .
+    python3 -m pip install .
 EOT
 WORKDIR /src/harffbuzz
 RUN <<EOT
@@ -188,9 +188,9 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN pip install --compile -r docker/smith-requirements.txt
+RUN python3 -m pip install --compile -r docker/smith-requirements.txt
 COPY --link . ./
-RUN pip install --compile . 
+RUN python3 -m pip install --compile . 
 
 
 FROM base AS runtime
