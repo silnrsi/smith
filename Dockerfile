@@ -241,6 +241,9 @@ COPY --link --from=smith-tooling /usr/local /usr/local
 
 # Final minimal smith font build system runtime CI systems
 FROM runtime AS build-agent
+# Set this back to the buildagent user when we build from a teamcity-agent as
+# this will be root by this point.
+USER buildagent
 
 
 # Add in some user facing tools for interactive use.
