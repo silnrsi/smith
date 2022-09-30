@@ -174,17 +174,24 @@ class Font(object) :
     def build_pyfontaine(self, bld) :
         bld(rule="${PYFONTAINE} --missing --text  ${SRC} > ${TGT} ", target=self.pyfontaine_target, source=[self.target], shell=1)
 
-    def make_manifest(self, bld):
+    def make_manifest(self, bld, defaults=False):
         res = {}
-        if len(getattr(self, 'axes', {})):
-            res[str(self.target)] = {'format': "ttf"}
-            res[str(self.target)].update(self.axes)
+        defaultres = {}
+        targ = str(self.target)
+        if len(getattr(self, 'axes', {})['axes']):
+            res[targ] = self.axes.copy()
+            if defaults:
+                defaultres['ttf'] = targ
             if hasattr(self, 'woff'):
                 for a in self.woff.type:
-                    t = str(self.woff.target) + "." + a
-                    res[t] = {'format': a}
-                    res[t].update(self.axes)
-        return res
+                    if self.woff.target is None:
+                        t = os.path.splitext(targ)[0] + "." + a
+                    else:
+                        t = str(self.woff.target) + "." + a
+                    res.setdefault(t, {}).update(self.axes)
+                    if defaults:
+                        defaultres[a] = t
+        return res, defaultres
 
 class DesignInstance(object):
 

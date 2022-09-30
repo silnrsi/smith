@@ -1,0 +1,10 @@
+# Ignore these directories anywhere in the tree:
+- instances/
+- backups/
+- .git/
+
+# Ignore .zip files at the root:
+- /*.zip
+
+# Ignore any "saved" results folder (e.g. "results-orig") at the root:
+- /results?*/
