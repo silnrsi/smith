@@ -69,6 +69,7 @@ apt-get install python3-pip -y
 python3 -m pip install --upgrade pip
 
 # config
+python3 -m pip config set install.no-warn-script-location false
 python3 -m pip config set global.disable-pip-version-check true
 
 # generic toolchain
@@ -122,7 +123,7 @@ if [ "$graphiteFromSource" == "True" ]; then
 	cd harfbuzz
 
 	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson ninja
-	meson build -Db_coverage=true --auto-features=enabled -Dgraphite=enabled  --buildtype=debugoptimized --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled 
+	meson build --auto-features=enabled -Dgraphite=enabled  --buildtype=release --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
 	ninja -C build
 	ninja install -C build
 	ldconfig 
@@ -247,9 +248,6 @@ else
 	python3 -m pip install --upgrade fontTools==$fontToolsHoldVersion
 fi
 
-# crude chown because Harfbuzz wants write-access to optimize runs of its utilities
-chmod -R 776 /home/vagrant/srcbuilds
-chown -R vagrant:vagrant /home/vagrant/srcbuilds
 
 # pandoc, weasyprint + deps, Roboto fonts, for generating documentation 
 apt-get install pandoc pandoc-data -y -q 
@@ -291,7 +289,6 @@ apt-get install sile -y -q
 # install sile extensions: fontproof
 echo "removing older versions of the fontproof SILE extension if any" 
 rm -rf /usr/share/sile/packagemanager/fontproof/
-# sile -e 'installPackage("fontproof");os.exit()'
 cd /home/vagrant/srcbuilds
 git clone https://github.com/sile-typesetter/fontproof.git
 cd fontproof 
