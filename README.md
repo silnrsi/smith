@@ -53,6 +53,7 @@ download and build the latest dependencies for the smith font build environment
 and install the smith python packages from the source dir.
 
 You need to install Docker: https://docs.docker.com/get-docker/.
+
 Windows users should also install [Git4Windows](https://git-scm.com/download/win) and [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install).
 
 The Dockerfile can take the following build arg:  
@@ -68,7 +69,7 @@ the `--target` option:
     interactive use, suitable for non-interactive environments such as CI.  
   `interactive`: (default)  
      This will install a `builder` user who has pasword-less sudo, and the
-     `less`, `bash_completion`, and `nano` packages. Suitable for development
+     `less`, `bash_completion`, `vim` and `nano` packages. Suitable for development
      testing and as a clean room local build environment.
 
 Thus to build the interactive image (and tag it `smith:latest`) run:
@@ -96,46 +97,6 @@ it with the absolute path (or docker volume) `$WORKSPACE` mapped to `/smith`
 inside, and an interactive bash session (the `-it` options).  The `--rm` makes
 the container ephemeral. 
 
-NOTE: there is now a script helper called anvil.
-This is a shell script to drive the compose feature more easily.
-Take a look at the script and the docker-compose.yml file to adjust the volume mapping to your local folder structure.
-
-for macOS and Ubuntu users:
-```
-./anvil up
-
-./anvil ssh
-
-cd font-example (to go to a font project folder you have checked out in the shared folder)
-
-smith distclean
-
-smith configure
-
-smith build
-
-./anvil down
-```
-
-Windows 10 users have to do things slightly differently:
-launch Windows Terminal (not git-bash)
-
-```
-sh anvil up
-
-sh anvil ssh
-
-cd font-example (to go to a font project folder you have checked out in the shared folder)
-
-smith distclean
-
-smith configure
-
-smith build
-
-sh anvil down
-```
-
 Our TeamCity build agent is built like so:
 ```
 $> docker build --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=build-agent .
@@ -143,3 +104,8 @@ $> docker build --build-arg=ubuntuImage="jetbrains/teamcity-agent" --target=buil
 We recommend using BuildKit, as it halves the build time with this Dockerfile.
 You can activate this by setting the Environment variable `DOCKER_BUILDKIT=1`,
 add it to .bashrc or .zshrc as an exported variable to make it permanent (see Docker documentation for extra details).
+
+
+
+NOTE: there is a helper script called [anvil](https://github.com/silnrsi/anvil/).
+
