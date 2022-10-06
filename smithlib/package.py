@@ -45,6 +45,22 @@ def ascrlf(fname) :
         res = "\r\n".join([x.rstrip("\n") for x in f.readlines()]) + "\r\n"
     return res
 
+def prettydict(data, indent, ink, oneline=False, oneliners=None):
+    res = ["{"]
+    thisoneline = oneline and (oneliners is None or ink not in oneliners)
+    for k, v in sorted(data.items()):
+        line = ("" if thisoneline else indent) + '"{}": '.format(k)
+        if isinstance(v, dict):
+            val = prettydict(v, indent + "    ", k,
+                             oneline=(oneline if oneliners is None or k not in oneliners else True),
+                             oneliners=oneliners)
+        else:
+            val = json.dumps(v, ensure_ascii=False)
+        res.append(line + val + ",")
+    res[-1] = res[-1][:-1]
+    res.append(("" if thisoneline else indent[:-4]) + "}")
+    return (" " if thisoneline else "\n").join(res)
+
 class Package(object) :
 
     packagestore = []
@@ -348,6 +364,7 @@ class Package(object) :
         bld(rule='${MAKENSIS} -V4 -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def build_manifest(self, bld):
+
         self.subrun(bld, lambda p, b: p.build_manifest(b))
         manifest = {}   #'files': {}, 'version': str(self.version)}
         for f in self.fonts:
@@ -368,7 +385,7 @@ class Package(object) :
         mnode = bld.path.find_or_declare('{}_fontmanifest.json'.format(self.appname))
         if len(manifest):
             with open(mnode.abspath(), "w", encoding="utf-8") as outf:
-                json.dump(manifest, outf)
+                outf.write(prettydict(manifest, "", None, oneliners=["files"]))
             self.nomanifest = False
         else:
             self.nomanifest = True
