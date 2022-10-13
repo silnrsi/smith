@@ -138,7 +138,7 @@ if [ "$graphiteFromSource" == "True" ]; then
 	git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git
 	cd harfbuzz
 
-	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson --user
+	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson
 	sudo python3 -m pip install --upgrade ninja
 	meson build --auto-features=enabled -Dgraphite=enabled  --buildtype=release --wrap-mode=nodownload -Dexperimental_api=true -Dchafa=disabled
 	ninja -C build
@@ -148,7 +148,7 @@ fi
 # ots 
 if [ "$otsFromSource" == "True" ];
 then
-	python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson --user
+	sudo python3 -m pip install --upgrade git+https://github.com/mesonbuild/meson.git@master#egg=meson
 	sudo python3 -m pip install --upgrade ninja
 	python3 -m pip install --upgrade git+https://github.com/googlefonts/ots-python.git@main#egg=opentype-sanitizer --user
 
