@@ -178,7 +178,7 @@ class Font(object) :
         res = {}
         defaultres = {}
         targ = str(self.target)
-        if len(getattr(self, 'axes', {})['axes']):
+        if len(getattr(self, 'axes', {'axes':[]})['axes']):
             res[targ] = self.axes.copy()
             if defaults:
                 defaultres['ttf'] = targ
