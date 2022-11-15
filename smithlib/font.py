@@ -180,15 +180,19 @@ class Font(object) :
         targ = str(self.target)
         if len(getattr(self, 'axes', {'axes':[]})['axes']):
             res[targ] = self.axes.copy()
+            res[targ]['packagepath'] = targ
             if defaults:
                 defaultres['ttf'] = targ
             if hasattr(self, 'woff'):
                 for a in self.woff.type:
                     if self.woff.target is None:
+                        p = ""
                         t = os.path.splitext(targ)[0] + "." + a
                     else:
-                        t = str(self.woff.target) + "." + a
+                        (p,t) = os.path.split(str(self.woff.target) + "." + a)
+                    p = os.path.join(p,t)
                     res.setdefault(t, {}).update(self.axes)
+                    res[t]['packagepath'] = p
                     if defaults:
                         defaultres[a] = t
         return res, defaultres
