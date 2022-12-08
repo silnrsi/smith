@@ -53,6 +53,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-requests
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
+    python3 -m pip install --upgrade pip wheel setuptools
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8' DEB_PYTHON_INSTALL_LAYOUT='deb_system'
@@ -111,7 +112,7 @@ RUN <<EOT
       -DGRAPHITE2_NTRACING:BOOL=OFF
     cmake --build build
     cmake --install build
-    python3 -m pip install .
+    python3 -m pip install --compile .
 EOT
 WORKDIR /src/harffbuzz
 RUN <<EOT
@@ -217,7 +218,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       wamerican \
       wbritish \
       xsltproc \
-      xz-utils
+      xz-utils \
+      libaa-bin
     paperconfig --paper a4
 EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
