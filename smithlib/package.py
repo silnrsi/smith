@@ -668,7 +668,7 @@ class DesignSpace(object):
                 sfont.addFloatLocation(d.get('name'), None, val)
                 allaxes.setdefault(d.get('name'), set()).add(val)
             self.srcs[sfont.name] = sfont
-        self.delaxis = set([k for k, v in allaxes.items() if len(v) < 2])
+        self.delaxis = set([k for k, v in allaxes.items() if len(v) < 2 and k != "weight"])
         for inst in self.doc.getroot().findall('instances/instance'):
             if self.kw.get('instances', None) is None or inst.get('name') in self.kw['instances']:
                 self._makefont(inst, True)
