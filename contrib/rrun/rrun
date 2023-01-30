@@ -8,7 +8,7 @@ runs the command (with its args) by first rsyncing the current directory
 to a ramdisk (/dev/shm), running the cmd, and then rsyncing everything back.
 
 Any options supplied are passed on to both calls to rsync, and can be any of:
-        -v          increase verbosity; first occurance just displays ramdisk location
+        -v          increase verbosity; first occurrence just displays ramdisk location
         -c          skip based on checksum, not mod-time & size
         -n          perform a trial run with no changes made
         -C          auto-ignore files in the same way CVS does

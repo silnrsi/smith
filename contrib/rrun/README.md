@@ -49,7 +49,7 @@ to a ramdisk (/dev/shm), running the cmd, and then rsyncing everything back.
 
 Any options supplied are passed on to both calls to rsync, and can be any of:
 
-  -v          increase verbosity; first occurance just displays ramdisk location
+  -v          increase verbosity; first occurrence just displays ramdisk location
   -c          skip based on checksum, not mod-time & size
   -n          perform a trial run with no changes made
   -C          auto-ignore files in the same way CVS does
@@ -130,7 +130,7 @@ rrun smith clean\; smith build   # must have spaces before and after escaped sem
 
 It is not advisable to make modifications to the shared folder, for example from your host, while `rrun` is executing since there is a risk that such changes may be lost when the rsync copies the results back.
 
-### rsync paramters and filter rules are used both ways
+### rsync parameters and filter rules are used both ways
 
 `rrun` does _two_ rsync commands:
 - before executing the command, rsync _from_ current folder _to_ the ramdrive
