@@ -189,7 +189,7 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN python3 -m pip install --compile -r docker/smith-requirements.txt
+RUN python3 -m pip install --upgrade --compile -r docker/smith-requirements.txt
 COPY --link . ./
 RUN python3 -m pip install --compile . 
 
