@@ -12,7 +12,6 @@ palaso @ git+https://github.com/silnrsi/palaso-python
 pysilfont @ git+https://github.com/silnrsi/pysilfont
 setuptools-git-ls-files
 weasyprint
-scikit-learn
 
 -r palaso-requirements.txt
 # Dependencies of above packages or their dependencies
