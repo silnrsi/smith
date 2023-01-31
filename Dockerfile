@@ -44,7 +44,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-idna \
       python3-lxml \
       python3-lz4 \
-      python3-numpy \
       python3-packaging \
       python3-pip \
       python3-pkg-resources \
@@ -189,7 +188,7 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN python3 -m pip install --upgrade --compile -r docker/smith-requirements.txt
+RUN python3 -m pip install --compile -r docker/smith-requirements.txt
 COPY --link . ./
 RUN python3 -m pip install --compile . 
 
