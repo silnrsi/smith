@@ -13,7 +13,6 @@ pysilfont @ git+https://github.com/silnrsi/pysilfont
 setuptools-git-ls-files
 weasyprint
 scikit-learn
-numpy
 
 -r palaso-requirements.txt
 # Dependencies of above packages or their dependencies
