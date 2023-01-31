@@ -219,6 +219,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       wbritish \
       xsltproc \
       xz-utils \
+      dialog \
       libaa-bin
     paperconfig --paper a4
 EOT
