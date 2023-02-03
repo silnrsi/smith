@@ -243,6 +243,7 @@ COPY --link --from=smith-tooling /usr/local /usr/local
 FROM runtime AS build-agent
 # Set this back to the buildagent user when we build from a teamcity-agent as
 # this will be root by this point.
+RUN ldconfig
 USER buildagent
 
 
