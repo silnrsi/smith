@@ -254,6 +254,7 @@ ENV BUILDER_GID=
 COPY --link --chmod=750 docker/interactive-entrypoint.sh /entrypoint.sh
 COPY --link bash_completion_smith /etc/bash_completion.d/smith
 COPY --link docker/profile-extra-utilities-smith.sh /etc/profile.d/profile-extra-utilities-smith.sh
+COPY --link docker/fix-git-execute-bits-scripts /usr/local/bin/fix-git-execute-bits-scripts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT

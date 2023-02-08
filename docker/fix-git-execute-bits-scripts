@@ -1,0 +1,6 @@
+#!/bin/bash
+# a simple script to fix WSL's executable bit limitations
+
+echo "Fixing the execute bit in the current git local copy"
+
+chmod -c u+x "$(git ls-files --stage | grep -e "^100755" | cut -f2)"
