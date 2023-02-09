@@ -2,6 +2,22 @@
 # shellcheck shell=sh disable=SC2046
 # a simple script to fix WSL's executable bit limitations
 
-echo "Fixing the execute bit in the current git local copy"
+IFS=$'\n' files=( $(git ls-files --stage | grep 100755 | cut -f2) )
 
-chmod -c u+x $(git ls-files --stage | grep -e "^100755" | cut -f2)
+# If cwd is not within a git repo, an error will have been printed and
+# the files array variable will be empty
+
+if [ ${#files[*]} -eq 0 ]
+then
+  echo "No files were found that need execute permission"
+else
+  echo "Fixing the execute bits in the current git repository"
+  chmod -c u+x ${files[@]}
+  ls -l --color=auto ${files[@]}
+
+fi
+
+echo "Done."
+
+
+
