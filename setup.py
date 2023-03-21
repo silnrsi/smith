@@ -4,7 +4,7 @@ __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2017 SIL International (http://www.sil.org)'
 __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
-__version__ = '0.3.5'
+__version__ = '0.3.7'
 
 try:
     import sys
@@ -41,7 +41,7 @@ setup(
     platforms=["Any"],
     classifiers=[
         "Environment :: Console",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.8",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Topic :: Text Processing :: Fonts"
