@@ -10,6 +10,7 @@ odfpy @ git+https://github.com/eea/odfpy
 opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
 palaso @ git+https://github.com/silnrsi/palaso-python
 pysilfont @ git+https://github.com/silnrsi/pysilfont
+uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
 fontmake @ git+https://github.com/googlei18n/fontmake
 gftools @ git+https://github.com/googlefonts/gftools
 setuptools-git-ls-files
