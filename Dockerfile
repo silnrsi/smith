@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG ubuntuImage='ubuntu:20.04'
+ARG ubuntuImage='ubuntu:22.04'
 
 # Download the apt lists once at the start. The RUN --mount options ensure
 # the lists are shared readonly but the lockable parts aren't to permit 
@@ -50,6 +50,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-setuptools-scm \
       python3-yaml \
       python3-requests \
+      python3-distutils\
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
@@ -57,7 +58,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     python3 -m sysconfig | head -n 4
 EOT
-ENV LANG='en_US.UTF-8' DEB_PYTHON_INSTALL_LAYOUT='deb_system'
+ENV LANG='en_US.UTF-8' 
 
 
 # Grab the PPAs
@@ -157,17 +158,6 @@ RUN <<EOT
 EOT
 
 
-# "Build" fontprooof
-FROM build AS fontproof-src
-WORKDIR /src/fontproof
-RUN <<EOT
-    git clone https://github.com/sile-typesetter/fontproof.git .
-    git checkout v1.6.2
-    install -D -m 644 classes/* -t /usr/share/sile/classes/
-    install -D -m 644 packages/* -t /usr/share/sile/packages/
-EOT
-
-
 # Build Font validator
 FROM build AS fontval-src
 WORKDIR /src/fontval
@@ -199,6 +189,17 @@ RUN python3 -m pip install --compile -r docker/smith-requirements.txt
 COPY --link . ./
 RUN python3 -m pip install --compile . 
 
+# Install sile and fontprooof as a "rock"
+FROM build AS fontproof-src
+WORKDIR /src/fontproof
+COPY --from=ppa /etc/apt/ /etc/apt/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+apt-get update 
+apt-get install sile lua5.2 liblua5.2-dev luarocks -y
+EOT
+RUN luarocks --verbose install fontproof
 
 FROM base AS runtime
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
@@ -218,9 +219,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libjson-perl \
       nsis \
       pandoc \
-      sile \
       texlive-xetex \
       ttfautohint libqt5gui5-gles \
+      lua5.2 \
+      liblua5.2-dev \
+      sile \
+      luarocks \
       wamerican \
       wbritish \
       xsltproc \
@@ -238,7 +242,7 @@ ADD --link \
     ${robotomono_src}/RobotoMono-Medium.ttf ${robotomono_src}/RobotoMono-MediumItalic.ttf \
     ${robotomono_src}/RobotoMono-Thin.ttf   ${robotomono_src}/RobotoMono-ThinItalic.ttf \
     /usr/local/share/fonts/robotomono/
-COPY --link --from=fontproof-src /usr/share/sile /usr/share/sile
+COPY --link --from=fontproof-src /usr/ /usr/
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
