@@ -18,3 +18,7 @@ dev/
 docs/sphinx
 tc
 docker/tests
+
+src/smithlib/_version.py 
+
+venv
