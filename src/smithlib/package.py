@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from __future__ import absolute_import, print_function
 ''' package module '''
 __url__ = 'http://github.com/silnrsi/smith'
@@ -126,7 +126,7 @@ class Package(object) :
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
-        for p in ('makensis', ) :
+        for p in ('fontmake', ) :
             try :
                 ctx.find_program(p)
             except ctx.errors.ConfigurationError :
@@ -218,7 +218,7 @@ class Package(object) :
             b.execute()
             setattr(Context.g_module, bld.fun, oexe)
             Context.g_module = gm
-        
+
     def build(self, bld, base = None) :
         self.subrun(bld, lambda p, b: p.build(b, bld))
         for f in self.fonts :
@@ -943,11 +943,11 @@ class versionContext(Context.Context) :
     cmd = 'version'
     def execute(self) :
         Logs.warn('Version of smith currently installed (as a package):')
-        Utils.subprocess.Popen("apt-cache policy smith-font | grep Installed", shell = 1).wait()
+        Utils.subprocess.Popen("pip3 show smith", shell = 1).wait()
         Logs.warn('Version of waf currently installed:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
-class startContext(Context.Context): 
+class startContext(Context.Context):
     """start: create project template folder structure"""
     cmd = 'start'
     def execute(self):

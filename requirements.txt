@@ -1,0 +1,40 @@
+cu2qu @ git+https://github.com/googlefonts/cu2qu
+defcon @ git+https://github.com/robotools/defcon
+fontMath @ git+https://github.com/robotools/fontMath
+fontParts @ git+https://github.com/robotools/fontParts
+fonttools @ git+https://github.com/fonttools/fonttools
+glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
+protobuf <= 3.19.4
+ufo2ft @ git+https://github.com/googlei18n/ufo2ft
+ufoLib2 @ git+https://github.com/fonttools/ufoLib2
+diffenator2 @ git+https://github.com/googlefonts/diffenator2
+
+
+
+# Top-level requirements
+compreffor @ git+https://github.com/googlei18n/compreffor
+fontaine @ git+https://github.com/googlefonts/pyfontaine
+fontbakery @ git+https://github.com/googlefonts/fontbakery
+glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
+MutatorMath @ git+https://github.com/LettError/MutatorMath
+odfpy @ git+https://github.com/eea/odfpy
+opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
+palaso @ git+https://github.com/silnrsi/palaso-python
+pysilfont @ git+https://github.com/silnrsi/pysilfont
+uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
+fontmake @ git+https://github.com/googlei18n/fontmake
+gftools @ git+https://github.com/googlefonts/gftools
+setuptools-git-ls-files
+weasyprint
+
+beziers
+freetype-py
+funcparserlib
+pyicu
+scikit-learn
+sldr @ git+https://github.com/silnrsi/sldrtools
+
+lxml
+lz4
+tabulate
+

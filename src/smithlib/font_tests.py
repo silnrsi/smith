@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 ''' font test module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -815,4 +815,3 @@ class CrossFont(Waterfall) :
         ftest.write(texdat)
         ftest.close()
         return 0
-

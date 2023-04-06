@@ -1,7 +1,7 @@
 "Yet Another Python Templating Utility, Version 1.2"
 
 import sys, re, os
-from waflib import Task 
+from waflib import Task
 
 # utility stuff to avoid tests in the mainline code
 def identity(string, why):

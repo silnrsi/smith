@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from __future__ import absolute_import, print_function
 ''' font module '''
 __url__ = 'http://github.com/silnrsi/smith'
@@ -83,7 +83,7 @@ class Font(object) :
         res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'opentype', 'graphite', 'typetuner')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
-        
+
     def get_targets(self, ctx) :
         res = [self.target]
         if hasattr(self, 'woff') :
@@ -110,7 +110,7 @@ class Font(object) :
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
@@ -137,14 +137,14 @@ class Font(object) :
                     bld(rule = "${SFD2AP} " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif self.source.endswith(".ufo") and not os.path.exists(apnode.get_src().abspath()):
                     apopts = getattr(self, 'ap_params', "")
-                    bld(rule = "${PSFEXPORTANCHORS} -q -l '${TGT[0].bld_dir()}' " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
+                    bld(rule = "${PSFEXPORTANCHORS} -l '${TGT[0].bld_dir()}' " + apopts + " '${SRC}' '${TGT}'", source = tarname or self.source, target = apnode)
                 elif not hasattr(self.ap, 'isGenerated') and (hasattr(self, 'classes') or ismodified(self.ap, path = basepath)) :
                     origap = self.ap
                     self.ap = self.ap + ".smith"
                     bld(rule="${COPY} '${SRC}' '${TGT}'", source = origap, target = self.ap, shell=True)
-            # if hasattr(self, 'classes') :
-            #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
-        
+             # if hasattr(self, 'classes') :
+             #   modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
+
         tgens = [self.target+"_ttf"]
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'fret', 'typetuner')) :
@@ -217,7 +217,7 @@ class DesignInstance(object):
 
     def build(self, bld, targetap):
         # -o .tmp is a dummy so that the ../source in the base path to the designspace file removes the ..
-        bld(rule="psfcreateinstances -q -l '{0}_createinstance.log' -o .tmp -i '{0}' {1} ${{SRC}}".format(self.name, self.params), source=self.dspace, target=self.target) 
+        bld(rule="psfcreateinstances -l '{0}_createinstance.log' -o .tmp -i '{0}' {1} ${{SRC}}".format(self.name, self.params), source=self.dspace, target=self.target)
 
 class _Legacy(object) :
 
@@ -309,7 +309,7 @@ class _Volt(Internal) :
         else :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
         return font.target + "_ot"
-            
+
 Volt = defer(_Volt)
 
 class _Fea(Internal) :
@@ -319,7 +319,7 @@ class _Fea(Internal) :
         self.params = ''
         self.mapfile = None
         super(_Fea, self).__init__(source, *k, **kw)
-    
+
     def get_build_tools(self, ctx) :
         res = ["ttftable", "fonttools", "psfbuildfea"]
         if hasattr(self, 'old_make_fea'):
@@ -340,14 +340,14 @@ class _Fea(Internal) :
             if hasattr(font, 'buildusingfontforge') :
                 modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot", shell = 1)
             elif not getattr(self, 'buildusingsilfont', 'True'):
-                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_ot", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
+                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_ot", path = bld.srcnode.find_node('wscript').abspath(), shell = 1)
             else :
                 mapparams = ""
                 targets = [target]
                 if self.mapfile is not None:
                     mapparams = " -m ${TGT[1]}"
                     targets.append(self.mapfile)
-                modify("${PSFBUILDFEA} -q " + self.params + mapparams + " -o '${TGT[0]}' '${SRC}' '${DEP}'", targets, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_ot"], shell = 1)
+                modify("${PSFBUILDFEA} " + self.params + mapparams + " -o '${TGT[0]}' '${SRC}' '${DEP}'", targets, [src], name = font.target + "_fea", path=bld.srcnode.find_node('wscript').abspath(), taskgens=[font.target+"_ttf", font.target+"_ot"], shell = 1)
 
         srcs = [font.source]
         if self.master : srcs.append(self.master)
@@ -398,7 +398,7 @@ class _Fea(Internal) :
                 if use_legacy:
                     bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends, name = font.target + "_fea")
                 else:
-                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_fea")
+                    bld(rule = "${PSFMAKEFEA} -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_fea")
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
@@ -414,7 +414,7 @@ class _Gdl(Internal) :
         self.master = ''
         self.params = ''
         super(_Gdl, self).__init__(source, *k, **kw)
-    
+
     def get_build_tools(self, ctx) :
         return ("make_gdl", "grcompiler", "ttftable")
 
@@ -451,9 +451,9 @@ class _Gdl(Internal) :
                     cmd += '-i ' + loc + ' '
                     ind += 1
                 bld(rule = "${MAKE_GDL} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, name = font.target + "_gdl")
-            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
+            modify(prevars + "${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
         elif self.master :
-            modify(prevars + "${GRCOMPILER} -q " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
+            modify(prevars + "${GRCOMPILER} " + self.params + " ${SRC} ${DEP} ${TGT}", target, [self.master], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_gr", deps = depends, taskgens = [font.target+"_gdl"], shell = 1)
         return font.target + "_gr"
 
 Gdl = defer(_Gdl)
@@ -476,7 +476,7 @@ class _TypeTuner(Internal):
         if hasattr(font, 'opentype'):
             suffindex = self.source.rindex(".")
             tgt = getattr(self, "target", self.source[:suffindex] + "_aliased_" + font.target + self.source[suffindex:])
-            modify("${PSFTUNERALIASES} -q -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
+            modify("${PSFTUNERALIASES} -m ${SRC[1]} -f ${TGT[0]} ${SRC[0]} ${TGT[1]}",
                 [target, tgt], [self.source, font.opentype.mapfile], name=font.target + "_typetuner", nochange=True, taskgens=[font.target + "_fea", font.target + "_gr"])
             src = tgt
         else:
@@ -588,7 +588,7 @@ Subset = defer(_Subset)
 
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
-    
+
 def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
@@ -626,4 +626,3 @@ def onload(ctx) :
             ctx.wscript_vars[k] = v
         else :
             setattr(ctx.g_module, k, v)
-
