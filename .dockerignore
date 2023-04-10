@@ -1,9 +1,12 @@
 *
 !bash_completion_smith
 !docker
+!docs
+!smith-playground
 !MANIFEST.in
+!LICENSE.txt
+!README.md
 !setup.py
-!smith.py
-!smithlib
-!waflib
+!pyproject.toml
+!src
 docker/tests/*
