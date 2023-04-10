@@ -50,7 +50,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-setuptools-scm \
       python3-yaml \
       python3-requests \
-      python3-distutils\
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
@@ -58,7 +57,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     python3 -m sysconfig | head -n 4
 EOT
-ENV LANG='en_US.UTF-8' 
+ENV LANG='en_US.UTF-8'
 
 
 # Grab the PPAs
@@ -184,10 +183,12 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN python3 -m pip install --upgrade pip setuptools wheel setuptools_scm
+RUN python3 -m pip install --upgrade pip setuptools wheel setuptools_scm build 
 RUN python3 -m pip install --compile -r docker/smith-requirements.txt
-COPY --link . ./
-RUN python3 -m pip install --compile . 
+# COPY --link . ./
+ADD --keep-git-dir=true . ./
+RUN python3 -m pip install --compile .
+#RUN python3 -m pip install git+https://github.com/silnrsi/smith@docker-jammy 
 
 # Install sile and fontprooof as a "rock"
 FROM build AS fontproof-src
@@ -200,6 +201,8 @@ apt-get update
 apt-get install sile lua5.2 liblua5.2-dev luarocks -y
 EOT
 RUN luarocks --verbose install fontproof
+#RUN luarocks install --server=https://luarocks.org/dev fontproof
+
 
 FROM base AS runtime
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
