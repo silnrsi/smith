@@ -9,4 +9,5 @@
 !setup.py
 !pyproject.toml
 !src
+!.git
 docker/tests/*
