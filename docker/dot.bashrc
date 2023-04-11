@@ -135,6 +135,8 @@ alias chmod='chmod -c'			# show only effective changes
 # "Find Text": Find a string of text (each match will show "filename":"line number" ; binaries are also looked up)
  ft()  { egrep -insr "$1" * | grep -v .git ;   } 
 
+# Adjust the path
+export PATH=$HOME/bin:$HOME/.local/bin:$HOME/.cargo/bin:$PATH
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
