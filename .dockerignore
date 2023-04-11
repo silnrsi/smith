@@ -2,8 +2,11 @@
 !bash_completion_smith
 !docker
 !MANIFEST.in
+!LICENSE.txt
+!README.md
 !setup.py
 !smith.py
 !smithlib
 !waflib
+!.git
 docker/tests/*
