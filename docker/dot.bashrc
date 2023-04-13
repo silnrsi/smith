@@ -60,10 +60,18 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+parse_git_branch () {
+  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ ( \1)/'
+}
+
+parse_git_tag_rev () {
+   git describe --always --long --tags --abbrev=7 --dirty='*' 2> /dev/null
+}
+
 if [ "$color_prompt" = yes ]; then
-    PS1=' 🐳  ${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\H\[\033[00m\]:\[\033[01;34m\]\ w\ [\033[00m\]\$ '
+	PS1='\n🐳  \[\033[01;32m\]\w $(parse_git_branch) $(parse_git_tag_rev)  \n(\d \t) ❯ \[\033[00m\]'
 else
-    PS1=' 🐳  ${debian_chroot:+($debian_chroot)}\u@\H: \w \$ '
+	PS1='🐳  \w $(parse_git_branch) $(parse_git_tag_rev) \n(\d \t) ❯'
 fi
 unset color_prompt force_color_prompt
 
@@ -148,8 +156,5 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-export STARSHIP_CONFIG='/etc/starship.toml'
-eval "$(starship init bash)"
 
 

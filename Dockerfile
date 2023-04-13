@@ -263,7 +263,6 @@ COPY --link bash_completion_smith /etc/bash_completion.d/smith
 COPY --link docker/profile-extra-utilities-smith.sh /etc/profile.d/profile-extra-utilities-smith.sh
 COPY --link docker/fix-git-execute-bits-scripts /usr/local/bin/fix-git-execute-bits-scripts
 COPY --link docker/dot.bashrc  /etc/skel/.bashrc
-COPY --link docker/starship.toml  /etc/starship.toml
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
@@ -280,12 +279,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       tree \
       unzip \
       vim \
-      cargo \
       wget
     git config --global pull.rebase false
     install --owner=1000 --group=users -d /smith
 EOT
-RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
 EOT
