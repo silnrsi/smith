@@ -60,18 +60,10 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-parse_git_branch () {
-  git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
-}
-
-parse_git_tag_rev () {
-   git describe --always --long --tags --abbrev=7 --dirty='*' 2> /dev/null
-}
-
 if [ "$color_prompt" = yes ]; then
-	 PS1='\n 🐳  \[\033[01;34m\]\w \[\033[00m\] \[\033[01;35m\] $(parse_git_branch) $(parse_git_tag_rev)       \[\033[00m\] \[\033[01;34m\]  \n(\d \t) ❯ \[\033[00m\]'
+	 PS1='\n 🐳  \[\033[01;34m\]\w \n(\d \t) ❯ \[\033[00m\]'
 else
-	PS1=' 🐳  \w $(parse_git_branch) $(parse_git_tag_rev) \n(\d \t) ❯'
+	PS1=' 🐳  \w \n(\d \t) ❯'
 fi
 unset color_prompt force_color_prompt
 
