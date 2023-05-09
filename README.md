@@ -28,12 +28,14 @@ The standard `pip install .` will install just the smith packages and commands,
 but will not all the other font tooling which smith will search for
 when `smith configure` is run. 
 
-To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/)
+To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/) (still to be updated)
 
 #### Docker image and helper script 
 A Docker image containing the whole toolchain is available both to provide a base for CI systems and for local interactive use.
 
 You need to install [Docker](https://docs.docker.com/get-docker/) along with the helper script called [anvil](https://github.com/silnrsi/anvil/).
+
+All the low-level details on building the Docker image yourself (not using anvil, the recommended approach) are described in [Docker-steps.md](Docker-steps.md)
 
 ### Documentation
 
