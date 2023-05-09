@@ -1,8 +1,7 @@
 ## Smith
 
 smith is a Python-based framework for building, testing and maintaining WSI
-(Writing Systems Implementation) components such as fonts. It is
-based on waf.
+(Writing Systems Implementation) components such as fonts. It is based on waf.
 Smith orchestrates and integrates various tools and utilities to make a
 standards-based open font design and production workflow easier to manage.
 
