@@ -185,7 +185,7 @@ WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
 RUN python3 -m pip install --upgrade pip setuptools wheel setuptools_scm
 RUN python3 -m pip install --compile -r docker/smith-requirements.txt
-COPY --link . ./
+ADD --keep-git-dir=true . ./
 RUN python3 -m pip install --compile . 
 
 # Install sile and fontprooof as a "rock"
