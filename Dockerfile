@@ -246,12 +246,38 @@ COPY --link --from=engines-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
 
 
-# Final minimal smith font build system runtime CI systems
-FROM runtime AS build-agent
-# Set this back to the buildagent user when we build from a teamcity-agent as
-# this will be root by this point.
-RUN ldconfig
+# Install TeamCity build Agent, by extracting it from the official cloud image
+FROM runtime AS build-agent-teamcity
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+    apt-get update
+    apt-get install -y \
+        openjdk-11-jre-headless
+    useradd -m buildagent
+EOT
 USER buildagent
+COPY --link --chown=buildagent:buildagent --from=jetbrains/teamcity-minimal-agent /opt/buildagent/ /opt/buildagent/
+COPY --link --chown=buildagent:buildagent --from=jetbrains/teamcity-minimal-agent /run-*.sh /
+VOLUME "/data/teamcity_agent/conf"
+VOLUME "/opt/buildagent/work"
+VOLUME "/opt/buildagent/system"
+VOLUME "/opt/buildagent/temp"
+VOLUME "/opt/buildagent/logs"
+VOLUME "/opt/buildagent/tools"
+VOLUME "/opt/buildagent/plugins"
+#COPY --link --from=jetbrains/teamcity-minimal-agent /services/ /services/
+ENV CONFIG_FILE=/data/teamcity_agent/conf/buildAgent.properties \
+    LANG=C.UTF-8 \
+    DOTNET_CLI_TELEMETRY_OPTOUT=true \
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true \
+    ASPNETCORE_URLS=http://+:80 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_USE_POLLING_FILE_WATCHER=true \
+    NUGET_XMLDOC_MODE=skip \
+    GIT_SSH_VARIANT=ssh \
+    DOTNET_SDK_VERSION=
+CMD ["/run-services.sh"]
 
 
 # Add in some user facing tools for interactive use.
