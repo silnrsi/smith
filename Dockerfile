@@ -1,10 +1,9 @@
 # syntax=docker/dockerfile:1
-ARG ubuntuImage='ubuntu:20.04'
 
 # Download the apt lists once at the start. The RUN --mount options ensure
 # the lists are shared readonly but the lockable parts aren't to permit 
 # maximum opportunity for parallel stages.
-FROM ${ubuntuImage} AS common
+FROM ubuntu:22.04 AS common
 USER root
 ENV DEBIAN_FRONTEND='noninteractive' TZ='UTC'
 COPY --link <<-EOT /etc/apt/apt.conf.d/00_no-cache
@@ -57,7 +56,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     python3 -m sysconfig | head -n 4
 EOT
-ENV LANG='en_US.UTF-8' DEB_PYTHON_INSTALL_LAYOUT='deb_system'
+ENV LANG='en_US.UTF-8'
 
 
 # Grab the PPAs
@@ -157,16 +156,17 @@ RUN <<EOT
 EOT
 
 
-# "Build" fontprooof
+# Install sile and fontprooof as a "rock"
 FROM build AS fontproof-src
 WORKDIR /src/fontproof
-RUN <<EOT
-    git clone https://github.com/sile-typesetter/fontproof.git .
-    git checkout v1.6.2
-    install -D -m 644 classes/* -t /usr/share/sile/classes/
-    install -D -m 644 packages/* -t /usr/share/sile/packages/
+COPY --from=ppa /etc/apt/ /etc/apt/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+apt-get update 
+apt-get install lua5.2 liblua5.2-dev luarocks -y
+luarocks install fontproof
 EOT
-
 
 # Build Font validator
 FROM build AS fontval-src
@@ -238,7 +238,7 @@ ADD --link \
     ${robotomono_src}/RobotoMono-Medium.ttf ${robotomono_src}/RobotoMono-MediumItalic.ttf \
     ${robotomono_src}/RobotoMono-Thin.ttf   ${robotomono_src}/RobotoMono-ThinItalic.ttf \
     /usr/local/share/fonts/robotomono/
-COPY --link --from=fontproof-src /usr/share/sile /usr/share/sile
+COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
@@ -263,7 +263,6 @@ COPY --link bash_completion_smith /etc/bash_completion.d/smith
 COPY --link docker/profile-extra-utilities-smith.sh /etc/profile.d/profile-extra-utilities-smith.sh
 COPY --link docker/fix-git-execute-bits-scripts /usr/local/bin/fix-git-execute-bits-scripts
 COPY --link docker/dot.bashrc  /etc/skel/.bashrc
-COPY --link docker/starship.toml  /etc/starship.toml
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
@@ -280,12 +279,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       tree \
       unzip \
       vim \
-      cargo \
       wget
     git config --global pull.rebase false
     install --owner=1000 --group=users -d /smith
 EOT
-RUN curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
 EOT
