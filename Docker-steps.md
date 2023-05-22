@@ -32,6 +32,6 @@ the container ephemeral.
 
 Our TeamCity build agent is built like so:
 ```
-$> docker build --target=build-agent .
+$> docker build --target=build-agent-teamcity .
 ```
 
