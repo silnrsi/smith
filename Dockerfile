@@ -97,10 +97,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libpython3-dev \
       libtool \
       libwoff-dev \
+      libssl-dev \
       mono-mcs \
       ninja-build \
       pkg-config \
-      ragel
+      ragel \
+      cargo
     python3 -m pip install --upgrade --user --compile meson
 EOT
 
