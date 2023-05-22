@@ -19,7 +19,7 @@ source software and developed with open and collaborative methodologies.
 
 Smith is _Copyright (c) 2011-2023 SIL International (www.sil.org)_
 and is released under _the BSD license_.
-(based on waf _Copyright (c) 2005-2010 Thomas Nagy_)
+(based on waf Copyright (c) 2005-2011 Thomas Nagy)
 
 ### Installation
 
@@ -34,9 +34,9 @@ A Docker image containing the whole toolchain is available both to provide a bas
 
 You need to install [Docker](https://docs.docker.com/get-docker/) along with the helper script called [anvil](https://github.com/silnrsi/anvil/).
 
+All the low-level details on building the Docker image yourself (not using anvil, the recommended approach) are described in [Docker-steps.md](Docker-steps.md)
+
 ### Documentation
 
 The manual (including a step-by-step tutorial) is in
 [docs/smith](docs/smith/manual.asc).
-
-See the anvil documentation for details of configuring and running anvil. 

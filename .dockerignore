@@ -1,6 +1,8 @@
 *
 !bash_completion_smith
 !docker
+!LICENSE.txt
+!README.md
 !MANIFEST.in
 !LICENSE.txt
 !README.md

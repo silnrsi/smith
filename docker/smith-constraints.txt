@@ -1,12 +1,14 @@
 booleanOperations @ git+https://github.com/typemytype/booleanOperations
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
+diffenator2 @ git+https://github.com/googlefonts/diffenator2
+fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
 fonttools @ git+https://github.com/fonttools/fonttools
+gftools @ git+https://github.com/googlefonts/gftools
 glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
 protobuf <= 3.19.4
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
-diffenator2 @ git+https://github.com/googlefonts/diffenator2
-
+uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
