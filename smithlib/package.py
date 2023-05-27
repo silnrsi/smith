@@ -939,12 +939,12 @@ class crashContext(Context.Context) :
         Utils.subprocess.Popen("timeout 20 aafire -driver slang ; reset", shell = 1).wait()
 
 class versionContext(Context.Context) :
-    """Find out which version of smith you have. (including waf version)"""
+    """Find out which version of smith (waf) is installed"""
     cmd = 'version'
     def execute(self) :
-        Logs.warn('Version of smith currently installed (as a package):')
-        Utils.subprocess.Popen("apt-cache policy smith-font | grep Installed", shell = 1).wait()
-        Logs.warn('Version of waf currently installed:')
+        Logs.warn('Version of smith (via pip):')
+        Utils.subprocess.Popen("python3 -m pip show smith | grep --colour=never Version ", shell = 1).wait()
+        Logs.warn('Version of waf:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
 class startContext(Context.Context): 
