@@ -289,6 +289,7 @@ COPY --link bash_completion_smith /etc/bash_completion.d/smith
 COPY --link docker/profile-extra-utilities-smith.sh /etc/profile.d/profile-extra-utilities-smith.sh
 COPY --link docker/fix-git-execute-bits-scripts /usr/local/bin/fix-git-execute-bits-scripts
 COPY --link docker/dot.bashrc  /etc/skel/.bashrc
+COPY --link docker/dot.gitconfig  /etc/skel/.gitconfig
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
@@ -306,7 +307,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       unzip \
       vim \
       wget
-    git config --global pull.rebase false
     install --owner=1000 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
