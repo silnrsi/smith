@@ -54,7 +54,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip install --upgrade pip setuptools setuptools_scm wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-    python3 -m sysconfig | head -n 4
 EOT
 ENV LANG='en_US.UTF-8'
 
