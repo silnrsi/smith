@@ -23,3 +23,4 @@ weasyprint
 defcon [pens,lxml]
 fonttools [graphite,lxml,ufo,unicode,woff]
 regex
+bs4
