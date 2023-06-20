@@ -1,0 +1,21 @@
+name: Prune images
+on:
+  workflow_run:
+    workflows: [Staging]
+    types: [completed]
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+    - name: prune interactive images
+      uses: vlaurin/action-ghcr-prune@v0.5.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        organization: silnrsi
+        container: smith
+        dry-run: true
+        keep-younger-than: 7
+        keep-last: 6
+        prune-tags-regexes: ^.*$
+        prune-untagged: true
