@@ -1,7 +1,7 @@
 name: Prune images
 on:
   workflow_run:
-    workflows: [Staging]
+    workflows: [Interactive commandline]
     types: [completed]
 
 jobs:
