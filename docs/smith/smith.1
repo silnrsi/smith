@@ -1,6 +1,6 @@
 .TH SMITH 1 
 .SH NAME
-smith \- a Python\-based build system for WSI (Writing Systems Implementation) components 
+smith \- a Python\-based build system for font development
 
 http://scripts.sil.org/smith 
 
@@ -10,7 +10,7 @@ http://github.com/silnrsi/smith
 .B smith
 .RI [ options ]
 .SH DESCRIPTION
-This manual page documents briefly the
+This manual page documents the
 .B smith
 commands.
 
@@ -20,9 +20,10 @@ commands.
 
 
 .PP
-\fBSmith\fP is a Python\-based framework for building, testing and maintaining WSI (Writing Systems Implementation) components such as fonts and keyboards.
+\fBSmith\fP is a Python\-based framework for building, testing and maintaining fonts.
 It is based on waf. A smith project contains a wscript file (a python script) with the various parameters at the root of the folder containing the font sources.
-.SH OPTIONS
+.SH TARGET OPTIONS
+.SH The following targets are available
 .TP
 start \- populate your new project folder with templates.
 .TP
@@ -56,8 +57,6 @@ graide \- generate a graide (GRAphite Integrated Development Environment) projec
 .TP
 ots \- run the OpenType Sanitiser 
 .PP
-fontlint \- run fontlint checker 
-.PP
 version \- find out which version of smith your have 
 .PP
 validate \- run FontValidator
@@ -67,6 +66,11 @@ pyfontaine \- run pyfontaine font coverage tool
 checksums \- generate checksums (SHA512SUMS.txt) for available artefacts in the release folder
 .PP
 sign \- generate .asc detached signatures for available artefacts in the release folder (needs a GPG key)
+.PP
+.SH The following options are available
+.PP
+-vvv increase verbosity
+-r --release change to release mode
 .PP
 For details of the available options see the complete smith manual.
 
