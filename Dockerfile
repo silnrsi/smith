@@ -49,6 +49,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-setuptools-scm \
       python3-yaml \
       python3-requests \
+      python3-jinja2 \
+      python3-poetry \
+      libgl1 \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
@@ -96,11 +99,12 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libpython3-dev \
       libtool \
       libwoff-dev \
+      libssl-dev \
       mono-mcs \
       ninja-build \
       pkg-config \
       ragel
-    python3 -m pip install --user --compile meson
+    python3 -m pip install --upgrade --user --compile meson
 EOT
 
 
@@ -116,16 +120,26 @@ RUN <<EOT
     cmake --install build
     python3 -m pip install --compile .
 EOT
-WORKDIR /src/harffbuzz
+WORKDIR /src/wasm-micro-runtime
 RUN <<EOT
-    git clone --depth 1 https://github.com/harfbuzz/harfbuzz.git .
-    meson build \
+    git clone --depth 1 https://github.com/bytecodealliance/wasm-micro-runtime.git .
+    mkdir build
+    cd build
+    cmake .. -DWAMR_BUILD_REF_TYPES=1 -DWAMR_BUILD_FAST_JIT=1
+    make
+    make install
+EOT
+WORKDIR /src/harfbuzz
+RUN <<EOT
+    git clone https://github.com/harfbuzz/harfbuzz.git .
+    meson setup build \
         --buildtype=release \
         --auto-features=enabled \
         --wrap-mode=nodownload \
         -Dchafa=disabled \
         -Dexperimental_api=true \
         -Dgraphite2=enabled \
+        -Dwasm=enabled \
         -Dtests=disabled \
         -Ddocs=disabled
     ninja -C build
