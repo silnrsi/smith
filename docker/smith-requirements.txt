@@ -1,7 +1,7 @@
 -c smith-constraints.txt
 
 # Top-level requirements
-compreffor @ git+https://github.com/googlei18n/compreffor
+compreffor
 fontaine @ git+https://github.com/googlefonts/pyfontaine
 fontbakery @ git+https://github.com/googlefonts/fontbakery
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction

@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
-    python3 -m pip install --upgrade pip setuptools setuptools_scm wheel
+    python3 -m pip install --upgrade pip==23.1.2 packaging==23.0 setuptools wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
@@ -101,10 +101,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libwoff-dev \
       libssl-dev \
       mono-mcs \
-      ninja-build \
       pkg-config \
       ragel
-    python3 -m pip install --upgrade --user --compile meson
+    python3 -m pip install --upgrade ninja
+    python3 -m pip install --upgrade meson
 EOT
 
 
@@ -163,6 +163,8 @@ FROM build AS ots-src
 WORKDIR /src/ots
 RUN <<EOT
     git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
+    python3 -m pip install --upgrade ninja
+    python3 -m pip install --upgrade meson
     meson build --buildtype=release 
     ninja -C build
     ninja -C build install
@@ -207,7 +209,6 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN python3 -m pip install --upgrade pip setuptools wheel setuptools_scm
 RUN python3 -m pip install --compile -r docker/smith-requirements.txt
 COPY --link . ./
 RUN python3 -m pip install --compile . 
