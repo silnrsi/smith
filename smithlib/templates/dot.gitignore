@@ -10,7 +10,17 @@ results/**
 buildlinux2/**
 bin/**
 source/temp/*
+source/masters/temp/*
 source/backups/*
+
+# temporary fontdocs files
+documentation/source/pdftemp/
+documentation/source/productsite/
+
+# diffenator2
+.ninja_log
+build.ninja
+
 
 # general backup files
 *~
@@ -53,7 +63,7 @@ current.fpr
 *.vfbak
 *.~tt
 +.idea/*
-
+.vscode/settings.json
 
 # Shares
 .AppleDB
