@@ -82,6 +82,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update
     apt-get install -y \
       build-essential \
+      cargo \
       gcc \
       g++ \
       python3-dev \

@@ -1,14 +1,25 @@
 booleanOperations @ git+https://github.com/typemytype/booleanOperations
+compreffor @ git+https://github.com/googlei18n/compreffor
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2 @ git+https://github.com/googlefonts/diffenator2
+fontaine @ git+https://github.com/googlefonts/pyfontaine
+fontbakery @ git+https://github.com/googlefonts/fontbakery
 fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
 fonttools @ git+https://github.com/fonttools/fonttools
 gftools @ git+https://github.com/googlefonts/gftools
+glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
 glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
+langtag @ git+https://github.com/silnrsi/langtags
+MutatorMath @ git+https://github.com/LettError/MutatorMath
+odfpy @ git+https://github.com/eea/odfpy
+opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
+palaso @ git+https://github.com/silnrsi/palaso-python
 protobuf <= 3.19.4
+pysilfont @ git+https://github.com/silnrsi/pysilfont
+sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz

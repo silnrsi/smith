@@ -4,5 +4,5 @@ freetype-py
 funcparserlib
 pyicu
 scikit-learn
-sldr @ git+https://github.com/silnrsi/sldrtools
-langtag @ git+https://github.com/silnrsi/langtags
+sldr
+langtag
