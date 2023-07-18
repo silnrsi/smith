@@ -1,5 +1,5 @@
 booleanOperations @ git+https://github.com/typemytype/booleanOperations
-compreffor @ git+https://github.com/googlei18n/compreffor
+compreffor
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2 @ git+https://github.com/googlefonts/diffenator2
