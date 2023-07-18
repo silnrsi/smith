@@ -121,15 +121,6 @@ RUN <<EOT
     cmake --install build
     python3 -m pip install --compile .
 EOT
-WORKDIR /src/wasm-micro-runtime
-RUN <<EOT
-    git clone --depth 1 https://github.com/bytecodealliance/wasm-micro-runtime.git .
-    mkdir build
-    cd build
-    cmake .. -DWAMR_BUILD_REF_TYPES=1 -DWAMR_BUILD_FAST_JIT=1
-    make
-    make install
-EOT
 WORKDIR /src/harfbuzz
 RUN <<EOT
     git clone https://github.com/harfbuzz/harfbuzz.git .
@@ -140,7 +131,6 @@ RUN <<EOT
         -Dchafa=disabled \
         -Dexperimental_api=true \
         -Dgraphite2=enabled \
-        -Dwasm=enabled \
         -Dtests=disabled \
         -Ddocs=disabled
     ninja -C build
