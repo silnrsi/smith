@@ -2,7 +2,7 @@ booleanOperations @ git+https://github.com/typemytype/booleanOperations
 compreffor
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
-diffenator2 @ git+https://github.com/googlefonts/diffenator2
+diffenator2
 fontaine @ git+https://github.com/googlefonts/pyfontaine
 fontbakery @ git+https://github.com/googlefonts/fontbakery
 fontmake @ git+https://github.com/googlei18n/fontmake
@@ -22,4 +22,4 @@ pysilfont @ git+https://github.com/silnrsi/pysilfont
 sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
-uharfbuzz
+uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
