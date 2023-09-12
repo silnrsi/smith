@@ -33,7 +33,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libwoff1 \
       mono-runtime \
       python3-appdirs \
-      python3-certifi \
       python3-chardet \
       python3-brotli \
       python3-fs \
@@ -55,7 +54,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
-    python3 -m pip install --upgrade pip==23.1.2 packaging==23.0 setuptools wheel
+    python3 -m pip install --upgrade pip packaging setuptools wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 ENV LANG='en_US.UTF-8'
@@ -80,6 +79,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
     apt-get update
+    apt-get upgrade
     apt-get install -y \
       build-essential \
       cargo \
