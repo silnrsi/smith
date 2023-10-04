@@ -6,13 +6,12 @@ diffenator2
 fontaine
 fontbakery
 fontmake
-glyphConstruction
 gftools
 MutatorMath
 odfpy
 opentype-sanitizer
 palaso
-pysilfont
+silfont
 setuptools-git-ls-files
 weasyprint
 

@@ -3,7 +3,6 @@ fontbakery
 fontMath
 fontParts
 fontools
-glyphConstruction
 glyphsLib
 lxml
 lz4
