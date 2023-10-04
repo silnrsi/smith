@@ -51,6 +51,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-jinja2 \
       python3-poetry \
       libgl1 \
+      ipython3 \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
