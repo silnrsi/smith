@@ -312,7 +312,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       tree \
       unzip \
       vim \
-      wget
+      wget \
+      command-not-found
+    apt update
     install --owner=1000 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
