@@ -17,7 +17,7 @@ better yet - it can be included in a CI (Continuous Integration) system. This
 allows for fonts (and their various source formats) to truly be libre/open
 source software and developed with open and collaborative methodologies.
 
-Smith is _Copyright (c) 2011-2023 SIL International (www.sil.org)_
+Smith is _Copyright (c) 2011-2024 SIL International (www.sil.org)_
 and is released under _the BSD license_.
 (based on waf Copyright (c) 2005-2011 Thomas Nagy)
 
