@@ -88,6 +88,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       g++ \
       python3-dev \
       cmake \
+      make \
+      automake \
       gcovr \
       gobject-introspection \
       libcairo2-dev \
