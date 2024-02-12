@@ -3,7 +3,7 @@
 # Download the apt lists once at the start. The RUN --mount options ensure
 # the lists are shared readonly but the lockable parts aren't to permit 
 # maximum opportunity for parallel stages.
-FROM ubuntu:22.04 AS common
+FROM ubuntu:24.04 AS common
 USER root
 ENV DEBIAN_FRONTEND='noninteractive' TZ='UTC'
 COPY --link <<-EOT /etc/apt/apt.conf.d/00_no-cache
@@ -55,8 +55,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
+    python3 -m pip config --global set global.break-system-packages true
     python3 -m pip install --upgrade pip packaging setuptools wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+    apt remove python3-typing-extensions -y
 EOT
 ENV LANG='en_US.UTF-8'
 
@@ -146,9 +148,9 @@ FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/grcompiler.git .
-    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
-    cmake --build build
-    cmake --install build
+#    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+#   cmake --build build
+#    cmake --install build
 EOT
 
 
@@ -249,7 +251,6 @@ ADD --link \
 COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
-COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
 
