@@ -510,7 +510,7 @@ def load_module(file_path) :
 
     module = imp.new_module(Context.WSCRIPT_FILE)
     try:
-        code = Utils.readf(file_path, m='rU')
+        code = Utils.readf(file_path, m='r')
     except (IOError, OSError) :
         raise Errors.WafError('Could not read the file %r' % file_path)
 
