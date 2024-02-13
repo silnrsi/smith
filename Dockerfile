@@ -143,14 +143,16 @@ RUN <<EOT
 EOT
 
 
-# Build graphite compiler
+# Build graphite compiler (src build issue to sort out, pkg install in the meantime)
 FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
     git clone --depth 1 https://github.com/silnrsi/grcompiler.git .
 #    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
-#   cmake --build build
+#    cmake --build build
 #    cmake --install build
+	apt-get update
+    apt-get install -y grcompiler
 EOT
 
 
