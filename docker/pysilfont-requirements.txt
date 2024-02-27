@@ -12,3 +12,4 @@ palaso
 tabulate
 ufo2ft
 ufoLib2
+shaperglot
