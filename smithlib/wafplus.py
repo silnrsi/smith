@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from waflib import Task, Build, Logs, Context, Utils, Configure, Options, Errors, Node
-import os, imp, operator, optparse, sys, re, shlex
+import os, importlib, types, operator, optparse, sys, re, shlex
 from waflib.TaskGen import feature, after
 
 def _parsearg(a, o, res):
@@ -508,7 +508,7 @@ def load_module(file_path) :
     except KeyError:
         pass
 
-    module = imp.new_module(Context.WSCRIPT_FILE)
+    module = types.ModuleType(Context.WSCRIPT_FILE)
     try:
         code = Utils.readf(file_path, m='r')
     except (IOError, OSError) :

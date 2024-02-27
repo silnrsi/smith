@@ -6,7 +6,7 @@
 Classes and functions required for waf commands
 """
 
-import os, imp, sys
+import os, importlib, types, sys
 from waflib import Utils, Errors, Logs
 import waflib.Node
 
@@ -540,9 +540,9 @@ def load_module(path):
 	except KeyError:
 		pass
 
-	module = imp.new_module(WSCRIPT_FILE)
+	module = types.ModuleType(Context.WSCRIPT_FILE)
 	try:
-		code = Utils.readf(path, m='rU')
+		code = Utils.readf(path, m='r')
 	except (IOError, OSError):
 		raise Errors.WafError('Could not read the file %r' % path)
 
