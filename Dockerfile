@@ -52,13 +52,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-poetry \
       libgl1 \
       ipython3 \
+      apt-utils \
       python3-venv
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
     python3 -m pip install --upgrade pip packaging setuptools wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-    apt remove python3-typing-extensions -y
 EOT
 ENV LANG='en_US.UTF-8'
 
@@ -70,8 +70,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 <<EOT
     apt-get update
     apt-get install -y gpg-agent software-properties-common ca-certificates
-    apt-add-repository -ny ppa:sile-typesetter/sile
-    apt-add-repository -ny ppa:silnrsi/smith-py3
+    add-apt-repository -y ppa:sile-typesetter/sile
+    add-apt-repository -y ppa:silnrsi/smith-py3
 EOT
 
 
@@ -82,7 +82,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
     apt-get update
-    apt-get upgrade
+    apt-get upgrade -y
     apt-get install -y \
       build-essential \
       cargo \
@@ -108,9 +108,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libssl-dev \
       mono-mcs \
       pkg-config \
-      ragel
-    python3 -m pip install --upgrade ninja
-    python3 -m pip install --upgrade meson
+      ragel \
+	  meson \
+      ninja-build
 EOT
 
 
@@ -138,6 +138,7 @@ RUN <<EOT
         -Dgraphite2=enabled \
         -Dtests=disabled \
         -Ddocs=disabled
+    meson compile -Cbuild
     ninja -C build
     ninja -C build install
 EOT
@@ -147,10 +148,11 @@ EOT
 FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
-    git clone --depth 1 https://github.com/silnrsi/grcompiler.git .
-#    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
-#    cmake --build build
-#    cmake --install build
+    git clone https://github.com/silnrsi/grcompiler.git .
+    git checkout noble-build-testing
+    cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+    cmake --build build
+    cmake --install build
 	apt-get update
     apt-get install -y grcompiler
 EOT
@@ -176,9 +178,9 @@ COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
-apt-get update 
-apt-get install lua5.2 liblua5.2-dev luarocks -y
-luarocks install fontproof
+    apt-get update 
+    apt-get install lua5.2 liblua5.2-dev luarocks -y
+    luarocks install fontproof
 EOT
 
 # Build Font validator
@@ -254,6 +256,7 @@ COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local
+COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
 
 
@@ -319,7 +322,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       vim \
       wget \
       command-not-found
-    apt update
+    apt-get update
+    apt-get upgrade -y
     install --owner=1000 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
