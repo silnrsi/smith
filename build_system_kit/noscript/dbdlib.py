@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, sys, imp
+import os, sys, importlib, types
 from waflib import Context, Options, Configure, Utils, Logs, TaskGen, Task
 import waflib.Tools.c
 
@@ -16,115 +16,115 @@ rescanning/rebuilding the files all the time
 """
 
 def options(opt):
-	opt.add_option('--type', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
-	opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='source')
-	opt.add_option('--app', action='store', default='app', help='name of the binary file to create', dest='app')
-	opt.load('compiler_c')
+    opt.add_option('--type', action='store', default='program', help='type: program, shlib, stlib, objects', dest='progtype')
+    opt.add_option('--source', action='store', default='main.c', help='space-separated list of source files', dest='source')
+    opt.add_option('--app', action='store', default='app', help='name of the binary file to create', dest='app')
+    opt.load('compiler_c')
 
 def configure(conf):
-	conf.options = Options.options
-	conf.load('compiler_c')
+    conf.options = Options.options
+    conf.load('compiler_c')
 
 def build(bld):
-	tp = Options.options.progtype
-	features = 'c cprogram'
-	if tp == 'shlib':
-		features = 'c cshlib'
-	elif tp == 'stlib':
-		features = 'c cstlib'
-	elif tp == 'objects':
-		features = 'c'
+    tp = Options.options.progtype
+    features = 'c cprogram'
+    if tp == 'shlib':
+        features = 'c cshlib'
+    elif tp == 'stlib':
+        features = 'c cstlib'
+    elif tp == 'objects':
+        features = 'c'
 
-	source = Options.options.source
-	app = Options.options.app
-	bld(features=features, source=source, target=app)
+    source = Options.options.source
+    app = Options.options.app
+    bld(features=features, source=source, target=app)
 
 def recurse_rep(x, y):
-	f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
-	return f(x)
+    f = getattr(Context.g_module, x.cmd or x.fun, Utils.nada)
+    return f(x)
 
 def start(cwd, version, wafdir):
-	# this is the entry point of our small build system
-	# no script file here
-	Logs.init_log()
-	Context.waf_dir = wafdir
-	Context.out_dir = Context.top_dir = Context.run_dir = cwd
-	Context.g_module = imp.new_module('wscript')
-	Context.g_module.root_path = cwd
-	Context.Context.recurse = recurse_rep
+    # this is the entry point of our small build system
+    # no script file here
+    Logs.init_log()
+    Context.waf_dir = wafdir
+    Context.out_dir = Context.top_dir = Context.run_dir = cwd
+    Context.g_module = types.ModuleType('wscript')
+    Context.g_module.root_path = cwd
+    Context.Context.recurse = recurse_rep
 
-	Context.g_module.configure = configure
-	Context.g_module.build = build
-	Context.g_module.options = options
-	Context.g_module.top = Context.g_module.out = '.'
+    Context.g_module.configure = configure
+    Context.g_module.build = build
+    Context.g_module.options = options
+    Context.g_module.top = Context.g_module.out = '.'
 
-	Options.OptionsContext().execute()
+    Options.OptionsContext().execute()
 
-	do_config = 'configure' in sys.argv
-	try:
-		os.stat(cwd + os.sep + 'c4che')
-	except:
-		do_config = True
-	if do_config:
-		Context.create_context('configure').execute()
+    do_config = 'configure' in sys.argv
+    try:
+        os.stat(cwd + os.sep + 'c4che')
+    except:
+        do_config = True
+    if do_config:
+        Context.create_context('configure').execute()
 
-	if 'clean' in sys.argv:
-		Context.create_context('clean').execute()
+    if 'clean' in sys.argv:
+        Context.create_context('clean').execute()
 
-	if 'build' in sys.argv:
-		Context.create_context('build').execute()
+    if 'build' in sys.argv:
+        Context.create_context('build').execute()
 
 
 class c2(waflib.Tools.c.c):
-	# Make a subclass of the default c task, and bind the .c extension to it
+    # Make a subclass of the default c task, and bind the .c extension to it
 
-	def runnable_status(self):
-		ret = super(waflib.Tools.c.c, self).runnable_status()
-		self.more_tasks = []
+    def runnable_status(self):
+        ret = super(waflib.Tools.c.c, self).runnable_status()
+        self.more_tasks = []
 
-		# use a cache to avoid creating the same tasks
-		# for example, truc.cpp might be compiled twice
-		try:
-			shared = self.generator.bld.shared_tasks
-		except AttributeError:
-			shared = self.generator.bld.shared_tasks = {}
+        # use a cache to avoid creating the same tasks
+        # for example, truc.cpp might be compiled twice
+        try:
+            shared = self.generator.bld.shared_tasks
+        except AttributeError:
+            shared = self.generator.bld.shared_tasks = {}
 
-		if ret != Task.ASK_LATER:
-			for x in self.generator.bld.node_deps[self.uid()]:
-				node = x.parent.get_src().find_resource(x.name.replace('.h', '.c'))
-				if node:
-					try:
-						tsk = shared[node]
-					except:
-						tsk = shared[node] = self.generator.c_hook(node)
+        if ret != Task.ASK_LATER:
+            for x in self.generator.bld.node_deps[self.uid()]:
+                node = x.parent.get_src().find_resource(x.name.replace('.h', '.c'))
+                if node:
+                    try:
+                        tsk = shared[node]
+                    except:
+                        tsk = shared[node] = self.generator.c_hook(node)
 
-						self.more_tasks.append(tsk)
+                        self.more_tasks.append(tsk)
 
-					# add the node created to the link task outputs
-					try:
-						link = self.generator.link_task
-					except AttributeError:
-						pass
-					else:
-						if not tsk.outputs[0] in link.inputs:
-							link.inputs.append(tsk.outputs[0])
-							link.set_run_after(tsk)
+                    # add the node created to the link task outputs
+                    try:
+                        link = self.generator.link_task
+                    except AttributeError:
+                        pass
+                    else:
+                        if not tsk.outputs[0] in link.inputs:
+                            link.inputs.append(tsk.outputs[0])
+                            link.set_run_after(tsk)
 
-							# any change in the order of the input nodes may cause a recompilation
-							link.inputs.sort(key=lambda x: x.abspath())
+                            # any change in the order of the input nodes may cause a recompilation
+                            link.inputs.sort(key=lambda x: x.abspath())
 
-			# if you want to modify some flags
-			# you *must* have the task recompute the signature
-			self.env.append_value('CXXFLAGS', '-O2')
-			delattr(self, 'cache_sig')
-			return super(waflib.Tools.c.c, self).runnable_status()
+            # if you want to modify some flags
+            # you *must* have the task recompute the signature
+            self.env.append_value('CXXFLAGS', '-O2')
+            delattr(self, 'cache_sig')
+            return super(waflib.Tools.c.c, self).runnable_status()
 
-		return ret
+        return ret
 
 @TaskGen.extension('.c')
 def c_hook(self, node):
-	# re-bind the extension to this new class
-	return self.create_compiled_task('c2', node)
+    # re-bind the extension to this new class
+    return self.create_compiled_task('c2', node)
 
 # modify the existing class to output the targets in the same directory as the original files
 Task.update_outputs(c2)
