@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from __future__ import absolute_import, print_function
 ''' font module '''
 __url__ = 'http://github.com/silnrsi/smith'
@@ -83,7 +83,7 @@ class Font(object) :
         res = get_all_sources(self, ctx, 'source', 'legacy', 'sfd_master', 'classes', 'ap', 'opentype', 'graphite', 'typetuner')
         res.extend(getattr(self, 'extra_srcs', []))
         return res
-        
+
     def get_targets(self, ctx) :
         res = [self.target]
         if hasattr(self, 'woff') :
@@ -110,7 +110,7 @@ class Font(object) :
         if self.source.endswith(".ttf") :
             bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
-            bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True) 
+            bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
@@ -144,7 +144,7 @@ class Font(object) :
                     bld(rule="${COPY} '${SRC}' '${TGT}'", source = origap, target = self.ap, shell=True)
             # if hasattr(self, 'classes') :
             #     modify("${ADD_CLASSES} -c ${SRC} ${DEP} > ${TGT}", self.ap, [self.classes], shell = 1, path = basepath)
-        
+
         tgens = [self.target+"_ttf"]
         # add smarts
         for x in (getattr(self, y, None) for y in ('opentype', 'graphite', 'pdf', 'fret', 'typetuner')) :
@@ -309,7 +309,7 @@ class _Volt(Internal) :
         else :
             modify("${VOLT2TTF} " + self.params + " -t ${SRC} ${DEP} ${TGT}", target, [self.source], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot")
         return font.target + "_ot"
-            
+
 Volt = defer(_Volt)
 
 class _Fea(Internal) :
@@ -319,7 +319,7 @@ class _Fea(Internal) :
         self.params = ''
         self.mapfile = None
         super(_Fea, self).__init__(source, *k, **kw)
-    
+
     def get_build_tools(self, ctx) :
         res = ["ttftable", "fonttools", "psfbuildfea"]
         if hasattr(self, 'old_make_fea'):
@@ -340,7 +340,7 @@ class _Fea(Internal) :
             if hasattr(font, 'buildusingfontforge') :
                 modify("${FONTFORGE} -nosplash -quiet -lang=py -c 'f=open(\"${DEP}\",32); f.encoding=\"Original\"; list(f.removeLookup(x) for x in f.gsub_lookups+f.gpos_lookups if not len(f.getLookupInfo(x)[2]) or f.getLookupInfo(x)[2][0][0] not in ["+keeps+"]); f.mergeFeature(\"${SRC}\"); f.generate(\"${TGT}\")'", target, [src], path = bld.srcnode.find_node('wscript').abspath(), name = font.target + "_ot", shell = 1)
             elif not getattr(self, 'buildusingsilfont', 'True'):
-                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_ot", path = bld.srcnode.find_node('wscript').abspath(), shell = 1) 
+                modify("${FONTTOOLS} feaLib -o '${TGT}' '${SRC}' '${DEP}'", target, [src], name = font.target + "_ot", path = bld.srcnode.find_node('wscript').abspath(), shell = 1)
             else :
                 mapparams = ""
                 targets = [target]
@@ -414,7 +414,7 @@ class _Gdl(Internal) :
         self.master = ''
         self.params = ''
         super(_Gdl, self).__init__(source, *k, **kw)
-    
+
     def get_build_tools(self, ctx) :
         return ("make_gdl", "grcompiler", "ttftable")
 
@@ -588,7 +588,7 @@ Subset = defer(_Subset)
 
 def make_tempnode(bld) :
     return os.path.join(bld.bldnode.abspath(), ".tmp", "tmp" + str(randint(0, 100000)))
-    
+
 def name(n, **kw) :
     progset.add('ttfname')
     kw['shell'] = 1
@@ -626,4 +626,3 @@ def onload(ctx) :
             ctx.wscript_vars[k] = v
         else :
             setattr(ctx.g_module, k, v)
-

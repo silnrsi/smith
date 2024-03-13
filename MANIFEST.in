@@ -1,8 +1,1 @@
-recursive-include smithlib *.md
-recursive-include smithlib *.txt
-recursive-include smithlib *.nsi
-recursive-include smithlib wscript
-recursive-include smithlib dot.*
-recursive-include smithlib *.html
-recursive-include smithlib templates/*.* 
-recursive-include smithlib classes/*.* 
+graft src/

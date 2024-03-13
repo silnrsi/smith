@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from __future__ import absolute_import, print_function
 ''' package module '''
 __url__ = 'http://github.com/silnrsi/smith'
@@ -268,6 +268,14 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_fontbakery(b))
         for f in self.fonts :
             f.build_fontbakery(bld)
+
+    def build_diffenator2(self, bld) :
+        if 'DIFFENATOR2' not in bld.env :
+            Logs.warn("diffenator2 not installed. Can't complete.")
+            return
+        self.subrun(bld, lambda p, b: p.build_diffenator2(b))
+        for f in self.fonts :
+            f.build_diffenator2(bld)
 
     def build_checksums(self, bld) :
         if 'CHECKSUMS' not in bld.env :
@@ -947,7 +955,7 @@ class versionContext(Context.Context) :
         Logs.warn('Version of waf:')
         Utils.subprocess.Popen("smith --version", shell = 1).wait()
 
-class startContext(Context.Context): 
+class startContext(Context.Context):
     """start: create project template folder structure"""
     cmd = 'start'
     def execute(self):
@@ -977,6 +985,16 @@ class ttfcheckContext(Context.Context) :
         # need to account for special multiple fontnames and multiple package()
         Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
 
+class differContext(Context.Context) :
+    """Run diffenator2 for regression testing."""
+    cmd = 'differ'
+    def execute(self) :
+        outputpath = getattr(Context.g_module, 'out', 'results')
+        refpath = getattr(Context.g_module, 'STANDARDS', 'references')
+        testspath = getattr(Context.g_module, 'TESTDIR', 'tests')
+        # need to find a way to get new wordlists from tests/ as param 
+        Utils.subprocess.Popen("diffenator2 diff --fonts-before " + outputpath + "/*.ttf " + "--fonts-after " + refpath + "/*.ttf " + "--out " + outputpath + "/diffenator2/", shell = 1).wait()
+        Utils.subprocess.Popen("rm -fv build.ninja .ninja_log", shell = 1).wait()
 
 class graideContext(Build.BuildContext) :
     """Create graide .cfg files, one per font in graide/"""

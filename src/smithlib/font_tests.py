@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 ''' font test module '''
 __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2011-2018 SIL International (http://www.sil.org)'
@@ -204,6 +204,7 @@ class FontTests(object) :
         ctx.find_program('mono', var="MONO", mandatory=False)
         ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
         ctx.find_program('fontbakery', var="FONTBAKERY", mandatory=False)
+        ctx.find_program('diffenator2', var="DIFFENATOR2", mandatory=False)
         res = set()
         for ts in list(self._allTests.values()) :
             for t in ts :
@@ -815,4 +816,3 @@ class CrossFont(Waterfall) :
         ftest.write(texdat)
         ftest.close()
         return 0
-

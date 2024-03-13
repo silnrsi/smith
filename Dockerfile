@@ -153,8 +153,6 @@ RUN <<EOT
     cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
     cmake --build build
     cmake --install build
-	apt-get update
-    apt-get install -y grcompiler
 EOT
 
 
