@@ -1,1 +1,1 @@
-__all = ['font', 'font_tests', 'package', 'templater', 'wafplus', 'wsiwaf']
+__all = ['font', 'font_tests', 'package', 'templater', 'wafplus', 'smith']

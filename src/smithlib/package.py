@@ -7,7 +7,7 @@ __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (https://opensource.org/licenses/BSD-3-Clause)'
 
 from waflib import Context, Build, Errors, Node, Options, Logs, Utils
-from smithlib.wsiwaf import isList, formatvars, create, defer
+from smithlib.smith import isList, formatvars, create, defer
 from smithlib import wafplus, font_tests, font, templater
 import os, sys, shutil, time, fnmatch, subprocess, re, json
 from xml.etree import ElementTree as et

@@ -262,7 +262,7 @@ class TestCommand(object) :
     _defaults = {}
 
     def __init__(self, _cmd, fontTests, **kw) :
-        from smithlib import wsiwaf
+        from smithlib import smith
         self._subcmd = _cmd
         if not hasattr(self, 'shapers') : self.shapers = 1
         self.ext = '.html'
@@ -277,7 +277,7 @@ class TestCommand(object) :
         if 'label' not in kw : kw['label'] = _cmd
         if 'cmd' in kw :
             if isinstance(kw['cmd'], str):
-                kw['cmd'] = wsiwaf.undeffered(wsiwaf.cmd)(kw['cmd'])()
+                kw['cmd'] = smith.undeffered(smith.cmd)(kw['cmd'])()
             else:
                 kw['cmd'] = kw['cmd']()
         self.files = None

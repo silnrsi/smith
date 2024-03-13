@@ -205,7 +205,7 @@ def get_all_sources(self, ctx, *attrs) :
     return res
 
 def init(ctx) :
-    for m in (font, package) :
+    for m in (font, package, keyboard) :
         if hasattr(m, 'init') :
             m.init(ctx)
 
@@ -223,9 +223,9 @@ def onload(ctx) :
         else :
             setattr(Context.g_module, k, v)
 
-from . import font, package
+from . import font, package, keyboard
 
-for m in (font, package) :
+for m in (font, package, keyboard) :
     if hasattr(m, 'onload') :
         m.onload(Context)
 onload(Context)

@@ -8,7 +8,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 
 from subprocess import Popen, PIPE
-from .wsiwaf import get_all_sources
+from .smith import get_all_sources
 from waflib import Errors
 import os, uuid, re
 from . import package

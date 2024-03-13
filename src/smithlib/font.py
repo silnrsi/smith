@@ -9,7 +9,7 @@ __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/li
 
 from waflib import Context, Logs
 from smithlib.wafplus import modify, ismodified, nulltask
-from smithlib.wsiwaf import get_all_sources, initobj, initval, defer, undeffered
+from smithlib.smith import get_all_sources, initobj, initval, defer, undeffered
 import smithlib.font_tests as font_tests
 import sys, os, re
 from random import randint
