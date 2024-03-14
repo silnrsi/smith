@@ -149,7 +149,6 @@ FROM build AS grcompiler-src
 WORKDIR /src/grcompiler
 RUN <<EOT
     git clone https://github.com/silnrsi/grcompiler.git .
-    git checkout noble-build-testing
     cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
     cmake --build build
     cmake --install build
