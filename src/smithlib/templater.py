@@ -63,9 +63,9 @@ class Copier(Task.Task):
         "Initialize self's attributes"
         Task.Task.__init__(self, *k, **kw)
         self.vars = kw
-        self.regex   = re.compile(kw.get('regex', '(?<!@)@([^@]+)@'))
+        self.regex   = re.compile(kw.get('regex', r'(?<!@)@([^@]+)@'))
         self.locals  = { '_cb':self.copyblock }
-        self.restat  = re.compile(kw.get('restat', '\+'))
+        self.restat  = re.compile(kw.get('restat', r'\+'))
         self.restend = re.compile(kw.get('restend', '-'))
         self.recont  = re.compile(kw.get('recont', '= '))
 
