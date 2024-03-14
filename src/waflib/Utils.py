@@ -116,7 +116,7 @@ indicator = '\x1b[K%s%s%s\r'
 if is_win32 and 'NOCOLOR' in os.environ:
 	indicator = '%s%s%s\r'
 
-def readf(fname, m='r'):
+def readf(fname, m='r', encoding='utf-8'):
 	"""
 	Read an entire file into a string, in practice the wrapper
 	node.read(..) should be used instead of this method::
@@ -140,7 +140,7 @@ def readf(fname, m='r'):
 		f.close()
 	return txt
 
-def writef(fname, data, m='w', encoding='latin-1'):
+def writef(fname, data, m='w', encoding='utf-8'):
 	"""
 	Writes an entire file from a string.
 	See also :py:meth:`waflib.Node.Node.writef`::
