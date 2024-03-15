@@ -126,6 +126,7 @@ class Package(object) :
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
+        ctx.find_program('makefea', var="MAKEFEA", mandatory=False)
         for p in ('makensis', ) :
             try :
                 ctx.find_program(p)

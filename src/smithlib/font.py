@@ -325,7 +325,7 @@ class _Fea(Internal) :
         if hasattr(self, 'old_make_fea'):
             res.append("make_fea")
         else:
-            res.append("psfmakefea")
+            res.append("makefea")
         return res
 
     def get_sources(self, ctx) :
@@ -398,7 +398,7 @@ class _Fea(Internal) :
                 if use_legacy:
                     bld(rule = "${MAKE_FEA} " + cmd + bld.path.find_or_declare(target).bldpath() + " ${TGT}", shell = 1, source = srcs + [target], target = self.source, deps = depends, name = font.target + "_fea")
                 else:
-                    bld(rule = "${PSFMAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_fea")
+                    bld(rule = "${MAKEFEA} -q -o ${TGT} " + cmd + " ${SRC[" + str(ind) + "]}", shell = 1, source = srcs + [srctarget], target = self.source, deps = depends, name=font.target+"_fea")
                 if getattr(self, 'to_ufo', False) and font.source.lower().endswith('.ufo'):
                     bld(rule = "${CP} ${SRC} ${TGT}", target = os.path.join(bld.path.find_or_declare(font.source).bldpath(), "features.fea"), source = self.source)
             doit(self.source, keeps)
