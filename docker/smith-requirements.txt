@@ -12,6 +12,7 @@ odfpy
 opentype-sanitizer
 palaso
 silfont
+feaxlib
 setuptools-git-ls-files
 weasyprint
 
