@@ -20,7 +20,7 @@ CRASHED = 2
 """The task execution returned a non-zero exit status"""
 
 EXCEPTION = 3
-"""An exception occured in the task execution"""
+"""An exception occurred in the task execution"""
 
 SKIPPED = 8
 """The task did not have to be executed"""
@@ -771,7 +771,7 @@ class Task(TaskBase):
 		For each node returned by the scanner, see if there is a task behind it, and force the build order
 
 		The performance impact on null builds is nearly invisible (1.66s->1.86s), but this is due to
-		agressive caching (1.86s->28s)
+		aggressive caching (1.86s->28s)
 		"""
 		bld = self.generator.bld
 		try:
@@ -1176,7 +1176,7 @@ def always_run(cls):
 	Task class decorator
 
 	Set all task instances of this class to be executed whenever a build is started
-	The task signature is calculated, but the result of the comparation between
+	The task signature is calculated, but the result of the comparison between
 	task signatures is bypassed
 	"""
 	old = cls.runnable_status

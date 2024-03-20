@@ -149,7 +149,7 @@ class link_task(Task.Task):
 			if self.__class__.__name__.find('shlib') > 0:
 				if self.env.DEST_BINFMT == 'pe' and getattr(self.generator, 'vnum', None):
 					# include the version in the dll file name,
-					# the import lib file name stays unversionned.
+					# the import lib file name stays unversioned.
 					name = name + '-' + self.generator.vnum.split('.')[0]
 
 			tmp = folder + os.sep + pattern % name

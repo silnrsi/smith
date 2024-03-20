@@ -275,7 +275,7 @@ def distclean_dir(dirname):
 				except:
 					Logs.warn('could not remove %r' % fname)
 
-	for x in [Context.DBFILE, 'config.log']:
+	for x in [Context.DBFILE, 'smith-config.log']:
 		try:
 			os.unlink(x)
 		except:

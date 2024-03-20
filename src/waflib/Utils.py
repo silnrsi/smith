@@ -272,7 +272,7 @@ def ex_stack():
 	"""
 	Extract the stack to display exceptions
 
-	:return: a string represening the last exception
+	:return: a string representing the last exception
 	"""
 	exc_type, exc_value, tb = sys.exc_info()
 	exc_lines = traceback.format_exception(exc_type, exc_value, tb)

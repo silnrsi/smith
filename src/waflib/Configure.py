@@ -28,7 +28,7 @@ BREAK    = 'break'
 CONTINUE = 'continue'
 """In case of a configuration error, continue"""
 
-WAF_CONFIG_LOG = 'config.log'
+WAF_CONFIG_LOG = 'smith-config.log'
 """Name of the configuration log file"""
 
 autoconfig = False
