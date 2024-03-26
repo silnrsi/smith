@@ -20,6 +20,7 @@ opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
 palaso @ git+https://github.com/silnrsi/palaso-python
 protobuf <= 3.19.4
 git+https://github.com/silnrsi/pysilfont.git@master#egg=silfont[git]
+feaxlib @ git+https://github.com/silnrsi/feax
 sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
