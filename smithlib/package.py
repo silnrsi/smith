@@ -977,7 +977,7 @@ class startContext(Context.Context):
                     print("Updating missing template file: %s"  % (f))
         Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
-class ttfcheckContext(Context.Context) :
+class fbcheckContext(Context.Context) :
     """Run fontbakery checks using the profile in pysilfont."""
     cmd = 'fbchecks'
     def execute(self) :
