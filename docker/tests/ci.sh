@@ -17,7 +17,7 @@ tests() {
   smith xfont $CI_MODE
   smith ftml
   smith ots
-  smith ttfchecks
+  smith fbchecks
   smith -j1 sile
 }
 
