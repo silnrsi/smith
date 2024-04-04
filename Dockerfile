@@ -80,7 +80,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
     apt-get update
-    apt-get upgrade
+    apt-get upgrade -y
     apt-get install -y \
       build-essential \
       cargo \
@@ -172,9 +172,9 @@ COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
-apt-get update 
-apt-get install lua5.2 liblua5.2-dev luarocks -y
-luarocks install fontproof
+    apt-get update 
+    apt-get install lua5.2 liblua5.2-dev luarocks -y
+    luarocks install fontproof
 EOT
 
 # Build Font validator
@@ -316,7 +316,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       vim \
       wget \
       command-not-found
-    apt update
+    apt-get update
+    apt-get upgrade -y
     install --owner=1000 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
