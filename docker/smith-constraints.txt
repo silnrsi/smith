@@ -4,8 +4,8 @@ cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2
 fontaine @ git+https://github.com/googlefonts/pyfontaine
-# git+https://github.com/fonttools/fontbakery.git@main#egg=fontbakery[all]
-fontbakery==0.11.2
+git+https://github.com/fonttools/fontbakery.git@main#egg=fontbakery[all]
+#fontbakery==0.11.2
 fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
@@ -25,4 +25,3 @@ sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
-feaxlib @ git+https://github.com/silnrsi/feax

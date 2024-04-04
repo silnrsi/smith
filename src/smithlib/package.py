@@ -978,13 +978,14 @@ class startContext(Context.Context):
                     print("Updating missing template file: %s"  % (f))
         Logs.warn('This project has been smith-ified: any missing standard folders and template files have been added.\nPersonalize the templates and run "smith configure".')
 
-class ttfcheckContext(Context.Context) :
-    """Run fontbakery checks (TTF) using psfrunfbchecks with default SIL profile."""
-    cmd = 'ttfchecks'
+class fbcheckContext(Context.Context) :
+    """Run fontbakery checks using the profile in pysilfont."""
+    cmd = 'fbchecks'
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
         # need to account for special multiple fontnames and multiple package()
-        Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
+        # Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
+        Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/*.ttf" + " --html " + outputpath + "/fontbakery-report.html" + " -F --succinct -S -C", shell = 1).wait()
 
 class differContext(Context.Context) :
     """Run diffenator2 for regression testing."""
