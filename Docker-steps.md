@@ -22,7 +22,7 @@ $> docker build --target=interactive . -t smith:latest
 The container exports a volume at `/smith`:
 
 ```
-$> docker run --rm -it -h smith-focal -v $HOME/work/fonts:/smith smith:latest
+$> docker run --rm -it -h smith -v $HOME/repos/wstechfonts:/smith smith:latest
 ```
 
 This will run the latest version of smith in your local image store and run
