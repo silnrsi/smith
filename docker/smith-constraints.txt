@@ -4,8 +4,8 @@ cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2
 fontaine @ git+https://github.com/googlefonts/pyfontaine
-git+https://github.com/fonttools/fontbakery.git@v0.12.0a6
-#fontbakery==0.11.2 
+fontbakery @ git+https://github.com/fonttools/fontbakery
+# fontbakery==0.11.1 
 fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
