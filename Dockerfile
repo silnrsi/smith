@@ -227,7 +227,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       fonts-roboto \
       libfont-ttf-scripts-perl \
       libjson-perl \
-      nsis \
+      nsis-common \
+      nsis-pluginapi \
       pandoc \
       sile \
       texlive-xetex \
