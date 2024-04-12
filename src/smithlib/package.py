@@ -983,9 +983,11 @@ class fbcheckContext(Context.Context) :
     cmd = 'fbchecks'
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
-        # need to account for special multiple fontnames and multiple package()
         # Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
         Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/*.ttf" + " --html " + outputpath + "/fontbakery-report.html" + " -F --succinct -S -C", shell = 1).wait()
+        for files in os.listdir(outputpath):
+            if files.endswith('.ttf'):
+                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + files + " --html " + outputpath + "/fontbakery-report-" + files + ".html" + " -F --succinct -S -C", shell = 1).wait()
 
 class differContext(Context.Context) :
     """Run diffenator2 for regression testing."""
