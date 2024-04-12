@@ -126,11 +126,7 @@ class Package(object) :
     def get_build_tools(self, ctx) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
-        for p in ('makensis', ) :
-            try :
-                ctx.find_program(p)
-            except ctx.errors.ConfigurationError :
-                pass
+        ctx.find_program('nsis', var="MAKENSIS", mandatory=False)
         res = set()
         for f in self.fonts :
             res.update(f.get_build_tools(ctx))
