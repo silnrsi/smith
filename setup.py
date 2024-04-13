@@ -4,7 +4,7 @@ __url__ = 'http://github.com/silnrsi/smith'
 __copyright__ = 'Copyright (c) 2017 SIL International (http://www.sil.org)'
 __author__ = 'Martin Hosken'
 __license__ = 'Released under the 3-Clause BSD License (http://opensource.org/licenses/BSD-3-Clause)'
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 
 try:
     import sys
