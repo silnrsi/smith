@@ -980,11 +980,11 @@ class fbcheckContext(Context.Context) :
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
         # Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
-        Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/*.ttf" + " --html " + outputpath + "/fontbakery-report.html" + " -F --succinct -S -C", shell = 1).wait()
-        Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
         for files in os.listdir(outputpath):
-            if files.endswith('.ttf'):
-                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + files + " --html " + outputpath + "/fontbakery-report-" + files + ".html" + " -F --succinct -S -C", shell = 1).wait()
+            if files.endswith('-Regular.ttf'):
+                familynames = files.split("-")
+                fullfamilynames = familynames[0]
+                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "*" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
                 Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
 
 class differContext(Context.Context) :
