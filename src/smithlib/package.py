@@ -984,7 +984,7 @@ class fbcheckContext(Context.Context) :
             if files.endswith('-Regular.ttf'):
                 familynames = files.split("-")
                 fullfamilynames = familynames[0]
-                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "*" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
+                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
                 Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
 
 class differContext(Context.Context) :
