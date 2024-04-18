@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Download the apt lists once at the start. The RUN --mount options ensure
-# the lists are shared readonly but the lockable parts aren't to permit 
+# the lists are shared readonly but the lockable parts aren't to permit
 # maximum opportunity for parallel stages.
 FROM ubuntu:24.04 AS common
 USER root
@@ -60,8 +60,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     python3 -m pip install --upgrade pip packaging setuptools setuptools_scm wheel
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
-ENV LANG='en_US.UTF-8'
-
 
 # Grab the PPAs
 FROM base AS ppa
@@ -109,7 +107,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       mono-mcs \
       pkg-config \
       ragel \
-	  meson \
+      meson \
       ninja-build
 EOT
 
@@ -162,7 +160,7 @@ RUN <<EOT
     git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
     python3 -m pip install --upgrade ninja
     python3 -m pip install --upgrade meson
-    meson build --buildtype=release 
+    meson build --buildtype=release
     ninja -C build
     ninja -C build install
 EOT
@@ -175,7 +173,7 @@ COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
-    apt-get update 
+    apt-get update
     apt-get install lua5.2 liblua5.2-dev luarocks -y
     luarocks install fontproof
 EOT
@@ -208,7 +206,7 @@ WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
 RUN python3 -m pip install --compile -r docker/smith-requirements.txt
 COPY --link . ./
-RUN python3 -m pip install --compile . 
+RUN python3 -m pip install --compile .
 
 
 FROM base AS runtime
@@ -222,12 +220,13 @@ COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
-    apt-get update 
+    apt-get update
     apt-get install -y \
       fonts-roboto \
       libfont-ttf-scripts-perl \
       libjson-perl \
-      nsis \ 
+      nsis \
+      nsis-common \
       pandoc \
       sile \
       texlive-xetex \
