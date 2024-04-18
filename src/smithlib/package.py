@@ -127,7 +127,7 @@ class Package(object) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
         ctx.find_program('makefea', var="MAKEFEA", mandatory=False)
-        ctx.find_program('nsis', var="MAKENSIS", mandatory=False)
+        ctx.find_program('makensis', var="MAKENSIS", mandatory=False)
         res = set()
         for f in self.fonts :
             res.update(f.get_build_tools(ctx))
