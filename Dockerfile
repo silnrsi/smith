@@ -320,7 +320,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       command-not-found
     apt-get update
     apt-get upgrade -y
-    install --owner=1000 --group=users -d /smith
+    install --owner=1001 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
     builder ALL=(ALL) NOPASSWD:ALL
