@@ -979,13 +979,19 @@ class fbcheckContext(Context.Context) :
     cmd = 'fbchecks'
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
-        # Utils.subprocess.Popen("psfrunfbchecks " + outputpath + "/*.ttf --html " + outputpath + "/fontbakery-ttfchecks-report.html --full-lists", shell = 1).wait()
+        toppath = getattr(Context.g_module, 'top', '.')
         for files in os.listdir(outputpath):
             if files.endswith('-Regular.ttf'):
                 familynames = files.split("-")
                 fullfamilynames = familynames[0]
-                Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
-                Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
+                if os.path.exists(toppath + "/fontbakery.yaml"):
+                    print("Using local fontbakery.yaml file as well as pysilfont profile...")
+                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --config " + toppath + "/fontbakery.yaml" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
+                    Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
+                else:
+                    print("Using pysilfont profile...")
+                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
+                    Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
 
 class differContext(Context.Context) :
     """Run diffenator2 for regression testing."""
