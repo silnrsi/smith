@@ -357,9 +357,9 @@ class Package(object) :
         task = templater.Copier(prj=self, fonts=fonts, kbds=kbds, basedir=thisdir, env=bld.env, bld=blddir,
                                 isList=isList, isTextFile=self.isTextFile)
         task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
-        for d, x in self.get_files(bld) :
-            if not x : continue
-            r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
+        for t in self.get_files(bld) :
+            if not t[1] : continue
+            r = os.path.relpath(os.path.join(t[0], t[1]), bld.bldnode.abspath())
             y = bld.bldnode.find_or_declare(r)
             if os.path.isfile(y and y.abspath()) : task.set_inputs(y)
 
@@ -429,7 +429,7 @@ class Package(object) :
         basearc = self.get_basearc()
         self.build_manifest(bld)
 
-        for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
+        for t in sorted(self.get_files(bld), key=lambda x:x[2] if len(x) > 2 else x[1]) :
             d, x = t[0], t[1]
             if not x : continue
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
@@ -481,7 +481,7 @@ class Package(object) :
             Each entry in the list is (x, y, z) where:
                 x is the base path from which the path to y is relative
                 y is the path to the file to include
-                z is optional and is the path to use in the archive
+                z is optional and is the full file path to use in the archive
         """
         # This should be refactored to minimise boilerplate in callers
         res = set()
@@ -493,22 +493,34 @@ class Package(object) :
         if not getattr(self, 'nomanifest', True):
             res.add((bld.out_dir, "{}_fontmanifest.json".format(self.appname), 'fontmanifest.json'))
 
-        def docwalker(top, dpath, dname, fname) :
+        def docwalker(base, topout, topin, dpath, dname, fname) :
             if len(dname):
                 while dname[0].startswith("."):
                     dname.pop(0)
-            res.update([(top, os.path.relpath(os.path.join(dpath, x), top)) for x in fname
-                        if not x.startswith(".") and os.path.isfile(os.path.join(dpath, x))])
+            prefout = os.path.relpath(topout, base)
+            for x in fname:
+                if x.startswith(".") or not os.path.isfile(os.path.join(dpath, x)):
+                    continue
+                lpath = os.path.relpath(os.path.join(dpath, x), topin)
+                res.add((topin, lpath, os.path.join(prefout, lpath)))
         if self.docdir :
-            for docdir in self.docdir if isList(self.docdir) else [self.docdir]:
-                y = bld.bldnode.search(docdir)
-                if y is not None :
-                    for x in os.walk(y.abspath(), topdown=True):
-                        docwalker(bld.bldnode.abspath(), *x)
-                y = bld.srcnode.find_node(docdir)
-                if y is not None :
-                    for x in os.walk(y.abspath(), topdown=True):
-                        docwalker(bld.srcnode.abspath(), *x)
+            if isList(self.docdir):
+                docdirs = {x:x for x in self.docdir}
+            elif hasattr(self.docdir, 'keys'):
+                docdirs = self.docdir
+            else:
+                docdirs = {self.docdir: self.docdir}
+            for din, dout in docdirs.items():
+                yout = bld.bldnode.search(dout)
+                yin = bld.bldnode.search(din)
+                if yin is not None :
+                    for x in os.walk(yin.abspath(), topdown=True):
+                        docwalker(bld.bldnode.abspath(), yout.abspath(), yin.abspath(), *x)
+                yin = bld.srcnode.find_node(din)
+                yout = bld.srcnode.search(dout)
+                if yin is not None :
+                    for x in os.walk(yin.abspath(), topdown=True):
+                        docwalker(bld.srcnode.abspath(), yout.abspath(), yin.abspath(), *x)
         if hasattr(self, 'package_files'):
             extras = []
             for k, v in self.package_files.items():

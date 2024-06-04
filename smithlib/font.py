@@ -520,6 +520,8 @@ class _Woff(object) :
 
     def get_targets(self, tgt):
         res = []
+        if getattr(self, 'dontship', False):
+            return res
         itgt = initval(tgt)
         t = self.target or (os.path.splitext(itgt)[0] if itgt is not None else None)
         if t is not None:

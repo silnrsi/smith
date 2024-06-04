@@ -162,7 +162,9 @@ class _cmd(object) :
 cmd = defer(_cmd)
 
 def isList(l) :
-    return (not hasattr(l, 'strip') and
+    return (isinstance(l, (list, tuple)) or
+            not hasattr(l, 'strip') and
+            not hasattr(l, 'keys') and
                 hasattr(l, '__getitem__') and
                 hasattr(l, '__iter__'))
 
