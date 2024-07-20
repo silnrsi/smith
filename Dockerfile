@@ -45,7 +45,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-packaging \
       python3-pip \
       python3-pkg-resources \
-      python3-setuptools-scm \
       python3-yaml \
       python3-requests \
       python3-jinja2 \
@@ -57,7 +56,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
-    python3 -m pip install --upgrade pip packaging setuptools setuptools_scm wheel
+    python3 -m pip install --upgrade pip packaging setuptools setuptools_scm wheel typing_extensions
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 
