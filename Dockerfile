@@ -107,7 +107,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       pkg-config \
       ragel \
       meson \
-      ninja-build
+      ninja-build \
+      jq
 EOT
 
 
