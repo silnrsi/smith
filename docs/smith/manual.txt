@@ -1,24 +1,21 @@
-= Smith Manual v0.3-1 {revdate} =
+= Smith Manual: building, testing and maintaining fonts and keyboards
+Martin Hosken - WSTech
+:homepage: https://github.com/silnrsi/smith
 :author: Martin Hosken (contributions by Nicolas Spalinger)
-:subject: Smith manual 
 :keywords: fonts, keyboards, building, writing systems
+:description: This is the smith manual
 
-:numbered:
 
 include::intro.asc[]
 
 include::tutorial.asc[]
 
-include::directory.asc[]
-
 include::font.asc[]
 
 include::test.asc[]
-
-include::keyboard.asc[]
 
 include::package.asc[]
 
 include::global.asc[]
 
-include::tool.asc[]
+include::dependencies.asc[]
