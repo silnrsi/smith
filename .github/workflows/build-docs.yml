@@ -1,0 +1,32 @@
+name: build docs
+description: 'Build the smith manual via asciidoctor'
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  doc_build:
+    runs-on: ubuntu-latest
+    name: building
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Get build container
+      id: adocbuild
+      uses: tonynv/asciidoctor-action@master
+      with:
+          program: "asciidoctor -D docs/smith --backend=xhtml5 -n -a toc=left -a source-hightlighter-pygments -o index.html docs/smith/manual.adoc"
+    - name: Print execution time
+      run: echo "Time ${{ steps.adocbuild.outputs.time }}"
+    - name: Deploy docs to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_branch: gh-pages
+        publish_dir: ./
+
