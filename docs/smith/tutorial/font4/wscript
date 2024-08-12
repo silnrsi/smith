@@ -1,0 +1,9 @@
+APPNAME = 'Example'
+VERSION = '0.0.1'
+
+ufobackgroundclean = '../tools/' + 'ufobackgroundclean'
+
+for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
+    font(target = 'Example' + weight + '.ttf',
+        source = process('source/Example' + weight + '.ufo', cmd(ufobackgroundclean + ' ${DEP} ${TGT}')))
+

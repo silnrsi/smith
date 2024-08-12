@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=62.0", "setuptools_scm[toml]>=6.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smith"
+version = "0.3.8"
+authors = [{name = "SIL International", email = "fonts@sil.org"}]
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+description = "(Writing Systems Implementation) components such as fonts. It is based on waf. Smith orchestrates and integrates various tools and utilities to make a standards-based open font design and production workflow easier" 
+classifiers = [
+   "Environment :: Console",
+   "Programming Language :: Python :: 3.8",
+   "Intended Audience :: Developers",
+   "License :: OSI Approved :: BSD 3 Clause License",
+   "Topic :: Text Processing :: Fonts"
+   ]
+requires-python = ">=3.8"
+dynamic = ["dependencies"]
+
+#[tool.setuptools.dynamic]
+#dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+Home-Page = "https://github.com/silnrsi/smith"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.bdist_wheel]
+universal = true
+
+[project.scripts]
+smith = "smithlib.smith:main"
+

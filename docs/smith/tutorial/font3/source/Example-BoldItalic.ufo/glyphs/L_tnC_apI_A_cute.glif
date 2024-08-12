@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="LtnCapIAcute" format="2">
+  <advance width="1025"/>
+  <unicode hex="00CD"/>
+  <anchor x="460" y="0" name="H"/>
+  <anchor x="431" y="-100" name="L"/>
+  <anchor x="652" y="0" name="O"/>
+  <anchor x="1254" y="1200" name="R"/>
+  <anchor x="916" y="2065" name="U"/>
+  <outline>
+    <component base="LtnCapI"/>
+    <component base="CombAcute" xOffset="1167" yOffset="430"/>
+  </outline>
+</glyph>

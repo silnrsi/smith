@@ -1,0 +1,28 @@
+#!/bin/env python3
+'''
+A simple script to clear out background layers in a UFO
+'''
+
+import sys
+import defcon
+
+
+def main():
+    '''
+    delete all glyphs in the background layer when present
+    '''
+    for ufo in sys.argv[1:]:
+        font = defcon.Font(ufo)
+        try:
+            font.layers["public.background"]
+            glyphCount = len('public.background')
+            print("There are %s glyphs in the background layer" % (glyphCount))
+            del font.layers["public.background"]
+            print("Deleting the whole background layer...")
+            font.save()
+        except KeyError:
+            print("No background layer")
+
+
+if __name__ == '__main__':
+    main()

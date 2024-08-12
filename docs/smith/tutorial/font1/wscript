@@ -1,0 +1,2 @@
+font(target = 'Example-Regular.ttf',
+     source = 'source/Example-Regular.ufo')

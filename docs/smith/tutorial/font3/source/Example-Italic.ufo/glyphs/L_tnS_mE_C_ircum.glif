@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="LtnSmECircum" format="2">
+  <advance width="1042"/>
+  <unicode hex="00EA"/>
+  <anchor x="485" y="0" name="H"/>
+  <anchor x="484" y="-100" name="L"/>
+  <anchor x="840" y="0" name="O"/>
+  <anchor x="1285" y="1000" name="R"/>
+  <anchor x="883" y="1635" name="U"/>
+  <outline>
+    <component base="LtnSmE"/>
+    <component base="CombCircum" xOffset="1104"/>
+  </outline>
+</glyph>

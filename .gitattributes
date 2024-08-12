@@ -1,0 +1,4 @@
+# Ensure Dockerfile and shell script uses LF for Windows users. 
+Dockerfile  eol=lf
+*.sh        eol=lf
+bash_completion*   eol=lf

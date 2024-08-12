@@ -1,0 +1,124 @@
+# .gitignore template for an open font design workflow
+# Designed to tell git to ignore some intermediary and generated files and to keep your public git repository clean
+# To tweak to your particular needs, see http://git-scm.com/docs/gitignore and http://help.github.com/articles/ignoring-files
+
+# smith
+.waf-*
+.smithpickle-*
+.lock-*
+results/**
+buildlinux2/**
+bin/**
+source/temp/*
+source/masters/temp/*
+source/backups/*
+.tmp/*
+
+# temporary fontdocs files
+documentation/source/pdftemp/
+# documentation/source/productsite/
+web/*.woff*
+
+# graphite
+$_temp.gdl
+gdlerr.txt
+graide_dbg_output.json
+graide_image*.png
+dbg_*.txt
+
+# diffenator2
+.ninja_log
+build.ninja
+
+# general backup files
+*~
+*.swp
+*.autosave
+*(Autosaved)*
+
+# OS X
+*.DS_STORE
+*__MACOSX
+.Spotlight-V100
+._.Trashes
+.Trashes
+.fseventsd
+.VolumeIcon.icns
+.AppleDouble
+.LSOverride
+Icon?
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+Thumbs.db
+ehthumbs.db
+*.lnk
+
+# AFDKO
+current.fpr
+
+# Editors
+*.bak
+*.vfbak
+*.~tt
+.idea/*
+.vscode/*
+
+# Shares
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+$RECYCLE.BIN/
+.Spotlight-V100
+.Trashes
+
+# Fontforge temporary backups
+*.sfd-*
+
+# Opaque formats to keep out of git
+*.fog
+*.vfc
+
+# generated releases
+*.zip
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tgz
+*.tgx
+
+# installers
+*.exe
+*.deb
+*.pkg
+*.cab
+*.msi
+*.msm
+*.msp
+
+# VM helpers
+.vagrant/
+.docker/
+*.log
+
+# Other
+.sass-cache/
+.jekyll-metadata
+tmp/
+
+# Byte-compiled / optimized files
+*.py[co]
+*$py.class
+__pycache__/
+
+# Glyphs.App
+*.glyphs

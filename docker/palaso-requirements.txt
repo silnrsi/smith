@@ -1,0 +1,8 @@
+beziers
+fontTools
+freetype-py
+funcparserlib
+pyicu
+scikit-learn
+sldr
+langtag

@@ -1,0 +1,82 @@
+.TH SMITH 1 
+.SH NAME
+smith \- a Python\-based build system for font development
+
+http://github.com/silnrsi/smith
+
+.SH SYNOPSIS
+.B smith
+.RI [ options ]
+.SH DESCRIPTION
+This manual page documents the
+.B smith
+commands.
+
+.B  For more details please refer to the complete smith manual.
+
+
+.PP
+\fBSmith\fP is a Python\-based framework for building, testing and maintaining fonts.
+It is based on waf. A smith project contains a wscript file (a python script) with the various parameters at the root of the folder containing the font sources.
+.SH TARGET OPTIONS
+.SH The following targets are available
+.TP
+start \- populate your new project folder with templates.
+.TP
+configure \- configure your project and check all the needed dependencies are available
+.TP
+build  \- launch the build
+.TP
+pdfs  \- generate pdfs (proofs for review including test of the smart features)
+.TP
+clean \- delete generated files
+.TP
+distclean \- delete generated folders
+.TP
+zip  \- create a versioned release zip (with Windows line-endings)
+.TP
+tarball  \- create a versioned release tarball (with Linux line-endings)
+.TP
+release  \- create a versioned release zip and tarball
+.TP
+test  \- run the project\-specific test suite 
+.TP
+xtest  \- run the project\-specific rendering test suite 
+.TP
+alltests  \- run all the project\-specific tests 
+.TP
+fbchecks  \- run fontbakery QA tests via SIL profile 
+.PP
+differ  \- run diffenator2 QA by comparing built fonts against references (STANDARDS) 
+.PP
+graide \- generate a graide (GRAphite Integrated Development Environment) project file 
+.TP
+ots \- run the OpenType Sanitiser 
+.PP
+version \- find out which version of smith your have 
+.PP
+validate \- run FontValidator
+.PP
+pyfontaine \- run pyfontaine font coverage tool
+.PP
+checksums \- generate checksums (SHA512SUMS.txt) for available artefacts in the release folder
+.PP
+sign \- generate .asc detached signatures for available artefacts in the release folder (needs a GPG key)
+.PP
+.SH The following options are available
+.PP
+-vvv increase verbosity
+-r --release change to release mode
+.PP
+For details of the available options see the complete smith manual.
+
+
+.SH AUTHOR
+.PP
+smith was written by Martin Hosken <martin_hosken@sil.org>.
+.TP
+with contributions from Nicolas Spalinger <nicolas_spalinger@sil.org> and others.
+.TP
+SIL WSTech \- http://software.sil.org/wstech
+SIL International \- http://www.sil.org 
+.PP

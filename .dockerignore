@@ -1,0 +1,15 @@
+*
+!bash_completion_smith
+!docker
+!docs
+!smith-playground
+!LICENSE.txt
+!README.md
+!MANIFEST.in
+!LICENSE.txt
+!README.md
+!setup.py
+!pyproject.toml
+!src
+!.git
+docker/tests/*

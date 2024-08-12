@@ -1,0 +1,19 @@
+== Dependencies ==
+
+Smith makes use of a fair amount of dependencies. And then there are secondary dependencies for these dependencies. 
+
+There are two ways to install the smith toolchain and its many dependencies: 
+
+* rely on freshly built binaries from the upstream git repositories and the integrated smith Docker image to do all the installation and the configuration for you
+* build the various components yourself directly from source 
+
+As you can imagine, we highly recommend the first option. We are using https://ubuntu.com[Ubuntu] as the base layer for the entire smith toolchain. It is only cross-platform in the sense that Windows or macOS users can make use of the Docker container to use smith. It has not been natively ported to other platforms besides Ubuntu. 
+
+The installation steps are described in more details in the SIL Font Development Guide on https://silnrsi.github.io/silfontdev/
+We are using the https://www.docker.com[Docker container technology]. The Smith Docker image is built from the Dockerfile at the root of the https://github.com/silnrsi/smith[smith project repository] which in turn uses various files in `docker/`.
+
+The various manual steps previously described in this section of the manual have been removed because they got out of date too quickly and were hard to maintain accurately. If you'd still like to do the whole process manually, then we recommend you study the steps in the Dockerfile as well as the dependency definitions in the `docker/` folder of the https://github.com/silnrsi/smith[smith project repository].
+
+Let us know of any issues and please report bugs. 
+
+Enjoy!

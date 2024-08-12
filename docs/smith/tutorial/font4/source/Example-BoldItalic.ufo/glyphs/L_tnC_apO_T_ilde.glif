@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="LtnCapOTilde" format="2">
+  <advance width="1480"/>
+  <unicode hex="00D5"/>
+  <anchor x="680" y="0" name="H"/>
+  <anchor x="655" y="-100" name="L"/>
+  <anchor x="916" y="0" name="O"/>
+  <anchor x="1720" y="1200" name="R"/>
+  <anchor x="1097" y="1920" name="U"/>
+  <outline>
+    <component base="LtnCapO"/>
+    <component base="CombTilde" xOffset="1452" yOffset="430"/>
+  </outline>
+</glyph>

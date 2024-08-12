@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="SupOne" format="2">
+  <advance width="820"/>
+  <unicode hex="00B9"/>
+  <anchor x="512" y="615" name="L"/>
+  <anchor x="777" y="1675" name="U"/>
+  <outline>
+    <contour>
+      <point x="803" y="775" type="line"/>
+      <point x="582" y="775" type="line"/>
+      <point x="806" y="1608" type="line"/>
+      <point x="687" y="1608" type="line"/>
+      <point x="409" y="1474" type="line"/>
+      <point x="396" y="1359" type="line"/>
+      <point x="635" y="1469" type="line"/>
+      <point x="449" y="775" type="line"/>
+      <point x="229" y="775" type="line"/>
+      <point x="200" y="666" type="line"/>
+      <point x="774" y="666" type="line"/>
+    </contour>
+  </outline>
+</glyph>

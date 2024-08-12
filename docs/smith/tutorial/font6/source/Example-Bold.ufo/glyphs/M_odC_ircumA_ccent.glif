@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="ModCircumAccent" format="2">
+  <advance width="880"/>
+  <unicode hex="02C6"/>
+  <outline>
+    <contour>
+      <point x="880" y="1200" type="line"/>
+      <point x="590" y="1600" type="line"/>
+      <point x="290" y="1600" type="line"/>
+      <point x="0" y="1200" type="line"/>
+      <point x="240" y="1200" type="line"/>
+      <point x="440" y="1430" type="line"/>
+      <point x="640" y="1200" type="line"/>
+    </contour>
+  </outline>
+</glyph>

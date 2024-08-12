@@ -1,0 +1,22 @@
+# bash completion script for smith 
+# to make the various targets more easily accessible
+#
+# copy this file into /etc/bash_completion.d/smith (or into ~/.bash_completion) : 
+# sudo cp bash_completion_smith /etc/bash_completion.d/smith
+# make sure your ~/.bashrc or /etc/bash.bashrc files have the following snippet uncommented:
+# if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+#    . /etc/bash_completion
+# fi
+
+_smith()
+{
+    local cur prev 
+
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+        COMPREPLY=($( compgen -W 'start configure build pdfs sile sileftml test xtest ftml exe zip tarball release clean differ distclean ots graide validate woff version fret alltests fbchecks waterfall xfont checksums sign' -- $cur ) )
+}
+complete -F _smith $default smith 
+

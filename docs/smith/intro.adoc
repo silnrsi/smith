@@ -1,0 +1,113 @@
+== Introduction ==
+_(Last updated in August 2024)_
+
+Smith is a Python-based framework for building, testing and releasing fonts. It is based on https://waf.io/[waf].
+Smith orchestrates and integrates various utilities to make a standards-based open font design and production workflow much easier to manage.
+
+Building a font involves numerous steps and various programs, which, if done by hand, would be prohibitively slow. Even working out what those steps are can take a lot of work. Smith uses a dedicated file at the root of the project (the file is python-based) to allow the user to describe how to build the font. By chaining the different build steps intelligently, smith reduces build times to seconds rather than minutes or hours, and makes build, test, fix, repeat cycles very manageable. By making these processes repeatable, including for a number of fonts at the same time, your project can be shared with others simply, or - better yet - it can be included in a CI (Continuous Integration) system. This allows for fonts (and their various source formats) to truly be libre/open source software and developed with open and collaborative methodologies.
+
+Smith is _Copyright (c) 2011-2024 SIL International (www.sil.org)_ and is released under _the BSD license_.
+
+waf is _Copyright (c) 2005-2011 Thomas Nagy._
+
+
+=== Installation ===
+
+A file called `wscript` needs to be created to control the build process. The convention is that this file is placed at the root of your font project source tree. This file is in fact a small python program, but the way it is run is designed to hide that as much as possible from the unsuspecting user.
+
+Smith is really a larger toolchain with many dependencies that you install from a Docker registry which means you don't have to install any of its fairly large number of components manually. In this manual, we assume you are using that approach as described at https://silnrsi.github.io/silfontdev[SIL Font Development Guide]. Remember that smith is only the director and a wide range of utilities do the actual work. Installing just smith by itself (the python program) will not get you very far. 
+
+
+=== Moving your project to smith ===
+
+Besides taking inspiration from the way smith is used in public projects, like the ones available on https://github.com/silnrsi[github.com/silnrsi] for example, you can use the following command to populate a brand new project with basic templates and standard folders:
+
+----
+smith start
+----
+
+Then you can start adjusting the various files to the specifics of your font project.
+
+
+=== Running builds ===
+
+The heart of the build system is the `wscript` file that controls the build
+process. This is done by the python program creating a set of component
+objects. It then takes these objects and allows the user to run various
+build commands on them.
+
+Waf, on which smith is built, works by creating a build directory
+into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up. The build directory is created using
+the command:
+
+----
+smith configure
+----
+
+This process creates the new `results` directory, checks that all the tools that smith
+needs to achieve the build as described in `wscript` are available, and sets
+up various internal environment variables. Thus, if any changes are made to the
+`wscript` that indicate what extra tools are needed, then the `configure` command needs
+to be rerun.
+
+After configuration you can now launch a build. This is done using:
+
+----
+smith build
+----
+
+This creates development artifacts of the various components configured to be built. But it does not create any publishable releases - or packages that you can share with someone else - these need another command:
+
+----
+smith zip
+----
+
+This creates a zip of all the generated files and the corresponding documentation. Since this zip is
+targeted at Windows, text files have their line endings changed to CR LF. This is tagged with development version numbers.
+
+----
+smith tarball
+----
+
+This does the same work as the zip command except it uses LF Linux/macOS line endings and
+creates a .tar.xz, a compressed tarball. This is tagged with development version numbers.
+
+----
+smith release
+----
+
+This command does two things. First, it builds the various components, but marks
+the build for release. So things like font version strings no longer contain any
+development information in the form of git revision numbers, etc. Secondly, it builds the various release packages (zip and tarball). It also provides checksums, cryptographic signatures to allow comparison against the zip and tarball. This separate checksum file will allow to verify that what is distributed is really what has been produced. 
+
+----
+smith graide
+----
+
+This creates a subdirectory called graide/ that contains one .cfg file per font. This config file will be read by https://github.com/silnrsi/graide[Graide], the Graphite IDE to allow easier testing and development of smart font behaviours. If the font has no graphite smarts, no configuration file is created.
+
+----
+smith alltests
+----
+
+This creates font tests output by chaining all the available tests. The Tests section will go into more details. 
+
+----
+smith clean
+----
+
+This removes the various files created by `smith build` in the build directory.
+
+----
+smith distclean
+----
+
+This removes the build directory completely, including any temporary files at the root of the project folder.
+
+
+=== Writing your wscript ===
+
+The `wscript` file is a Python program, but the internal environment is set up to minimise the amount of actual programming that needs to be done. There is no setup needed in the file, and object registration is automatic. It is possible to add waf specific extensions to the file, see details in the https://waf.io/[waf manual].
+
+The basic steps needed to describe an entire build process is to create writing system component objects. These objects are `font()` or `designspace` and `package()`. Specific details on what information each of these objects requires is given in the corresponding sections of this document. Likewise examples are given in the sections.
+

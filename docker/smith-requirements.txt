@@ -1,0 +1,28 @@
+-c smith-constraints.txt
+
+# Top-level requirements
+compreffor
+diffenator2
+fontaine
+fontbakery
+fontmake
+gftools
+MutatorMath
+odfpy
+opentype-sanitizer
+palaso
+silfont
+feaxlib
+setuptools-git-ls-files
+weasyprint
+
+-r palaso-requirements.txt
+-r pysilfont-requirements.txt
+# Dependencies of above packages or their dependencies
+# We need to specify all the extras we, or our dependencies, will require to
+# be included during setup.py being run when their wheels are built. 
+defcon [pens,lxml]
+fonttools [graphite,lxml,ufo,unicode,woff]
+regex
+bs4
+dehinter
