@@ -39,4 +39,4 @@ All the low-level details on building the Docker image yourself (not using anvil
 ### Documentation
 
 The manual (including a step-by-step tutorial) is in
-[docs/smith](docs/smith/manual.asc).
+[docs/smith](docs/smith/manual.adoc).
