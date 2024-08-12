@@ -1,5 +1,0 @@
-[pull]
-        rebase = false
-[safe]
-        directory = *
-
