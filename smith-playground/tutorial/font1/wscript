@@ -1,3 +1,0 @@
-fontbase = '../../script-test/fonts/thai/'
-font(target = 'Loma.ttf',
-     source = fontbase + 'font-source/Loma.sfd')  

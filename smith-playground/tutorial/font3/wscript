@@ -1,7 +1,0 @@
-APPNAME = 'loma'
-VERSION = '0.0.1'
-fontbase = '../../script-test/fonts/thai/'
-
-for ext in ('', '-Bold') :
-    font(target = 'Loma' + ext + '.ttf',
-         source = fontbase + 'font-source/Loma' + ext + '.sfd')
