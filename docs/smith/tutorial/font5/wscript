@@ -1,0 +1,18 @@
+APPNAME = 'Example'
+VERSION = '0.0.1'
+
+TESTDIR = 'tests'
+TESTRESULTSDIR = 'tests'
+DESC_SHORT = "Derivative Foobar"
+
+for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
+    font(target = "Example" + weight + '.ttf',
+        source = process('source/Example' + weight + '.ufo', 
+            cmd('../tools/ufobackgroundclean' + ' ${DEP} ${TGT}')),
+        opentype = internal(),
+        graphite = gdl('source/' + APPNAME + '.gdl', 
+            master = 'source/graphite/master.gdl'),
+        ap = 'source/' + APPNAME + '.xml',
+        script = 'latn',
+        fret = fret(params = "-r")
+        )

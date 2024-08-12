@@ -1,0 +1,25 @@
+APPNAME = 'Example'
+VERSION = '0.0.3'
+
+TESTDIR = 'tests'
+TESTRESULTSDIR = 'tests'
+DESC_SHORT = "Derivative"
+
+# Get VERSION and BUILDLABEL from Regular UFO; must be first function call:
+getufoinfo('source/masters/' + familyname + '-Regular' + '.ufo')
+
+
+designspace('source/' +  process('source/Example' + weight + '.ufo'),
+        target = process('${DS:FILENAME_BASE}.ttf', *cmds),
+                instances = ['Example Regular']
+         version = VERSION,
+         woff = woff(),
+         opentype = internal(),
+         graphite = gdl('source/' + APPNAME + '.gdl', master = 'source/graphite/master.gdl'),
+         ap = 'source/' + APPNAME + '.xml',
+         script = 'latn',
+         fret = fret(params = "-r")
+        )
+
+def configure(ctx) :
+    ctx.find_program('../tools/uforeport')

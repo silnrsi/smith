@@ -1,0 +1,21 @@
+APPNAME = 'Example'
+VERSION = '0.0.3'
+
+TESTDIR = 'tests'
+TESTRESULTSDIR = 'tests'
+DESC_SHORT = "Foobar is a derivative for learning"
+
+for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
+    font(target = process(APPNAME + weight + '.ttf', name("Foobar")),
+         source = process('source/Example' + weight + '.ufo'),
+         version = VERSION,
+         woff = woff(),
+         opentype = internal(),
+         graphite = gdl('source/' + APPNAME + '.gdl', master = 'source/graphite/master.gdl'),
+         ap = 'source/' + APPNAME + '.xml',
+         script = 'latn',
+         fret = fret(params = "-r")
+        )
+
+def configure(ctx) :
+    ctx.find_program('../tools/uforeport')

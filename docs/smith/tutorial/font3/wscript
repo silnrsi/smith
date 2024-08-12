@@ -1,0 +1,6 @@
+APPNAME = 'Example'
+VERSION = '0.0.1'
+
+for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
+    font(target = 'Example' + weight + '.ttf',
+        source = 'source/Example' + weight + '.ufo')

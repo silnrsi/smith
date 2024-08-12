@@ -1,0 +1,21 @@
+= Smith manual: building, testing and releasing fonts
+:homepage: https://silnrsi.github.io/smith
+:author: By Martin Hosken, SIL's WSTech (with contributions by Nicolas Spalinger and other WSTech team members)
+:keywords: fonts, building, testing, releasing, writing systems
+
+:toc: left
+
+include::intro.adoc[]
+
+include::tutorial.adoc[]
+
+include::font.adoc[]
+
+include::test.adoc[]
+
+include::package.adoc[]
+
+include::global.adoc[]
+
+include::dependencies.adoc[]
+

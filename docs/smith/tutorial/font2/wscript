@@ -1,0 +1,3 @@
+for weight in ('-Regular', '-Bold'):
+    font(target = 'Example' + weight + '.ttf',
+        source = 'source/Example' + weight + '.ufo')

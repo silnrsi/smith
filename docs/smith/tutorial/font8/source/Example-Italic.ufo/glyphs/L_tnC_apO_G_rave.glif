@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="LtnCapOGrave" format="2">
+  <advance width="1447"/>
+  <unicode hex="00D2"/>
+  <anchor x="657" y="0" name="H"/>
+  <anchor x="632" y="-100" name="L"/>
+  <anchor x="896" y="0" name="O"/>
+  <anchor x="1700" y="1200" name="R"/>
+  <anchor x="1173" y="2065" name="U"/>
+  <outline>
+    <component base="LtnCapO"/>
+    <component base="CombGrave" xOffset="1374" yOffset="430"/>
+  </outline>
+</glyph>

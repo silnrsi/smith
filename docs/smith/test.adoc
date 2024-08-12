@@ -1,0 +1,316 @@
+== Tests ==
+
+Testing is an important part of development, particularly for fonts. Smith
+provides a number of testing mechanisms. The majority of this section is concerned with font testing.
+
+=== File Types ===
+
+There are various source file types that can be used as the basis of many
+tests. These are:
+
+txt::
+    A `.txt` file is considered to be simple text, one paragraph, phrase or word
+    per line. Typically the test results display the text file using the font
+    as simple text.
+
+htxt::
+    Sometimes, creating a simple text file in a complex script is hard work
+    just because entering the characters and checking that they are right
+    is problematic. A `.htxt` file is a simple text file with the added processing
+    that any string of the form `\u`xxxx or `\U`xxxx where xxxx is a sequence of
+    hex digits (and all such digits are used) is converted to the corresponding
+    Unicode character.
+
+htex::
+    These are TeX files that contain all the information to run the test. They are
+    converted to per font tests by adding the line `\buildfont{"[fontfile]parameters"}`
+    as per a XeTeX font definition, to the start of the file. Everything else is
+    simply `\input` into the file.
+
+ftml::
+    `.xml` files are treated the same as `.ftml` files.
+
+=== Standard commands (targets) ===
+
+Test source files are stored in a standard place in the tree. The global variable
+`TESTDIR` can be used to specify where that place is, but the default is `tests/`.
+There are a number of test targets already defined in smith that can make use
+of these and other test information. The `TESTDIR` may also be a list of paths.
+The list of test directories can be extended with those specified in
+`EXTRATESTDIR` which may also be a string or list. These extra directories may
+be overridden using a ;-separated list specified in the `SMITH_EXTRATESTDIR` environment
+variable. This may, in its turn, be overridden by a ;-separated list specified in the
+command line option `--extratestdir`. If any of the directories in the list of
+test directories does not exist, it is quietly ignored.
+
+Each test target, whether standard or user defined, creates a `.html` file in
+the results/tests directory (or as specified by the `TESTRESULTSDIR` variable).
+The file name is `target\index.html` from which links to the actual test
+results can be found.
+
+==== pdfs ====
+
+This target creates a pdf report for each font and its smart font technology and
+the script (if relevant) for each test file. XeTeX is used to render a .tex file,
+that is automatically created by smith for each test result, to a .pdf file.
+
+Currently only .txt, .htxt and .htex file types are supported with this target.
+
+It is possible to have a particular test file specify which language specialisation
+for the rendering of the file. If a test filename contains an underscore, the characters before the underscore are interpreted as a language tag and that language
+is passed to the font for rendering the text in that file only.
+
+Text, by default, is rendered at 12pt. But this can be overridden using the
+`TEXTSIZE` global variable which is set to the size of text in points.
+
+==== test ====
+
+This test creates an html report describing the shaping (glyphs and positions)
+differences between the font created and a reference font found in `references/`
+(or as specified in the `STANDARDS` variable). This allows a font developer
+to commit a known base reference version of the font to their git repository and then to
+see what has changed as a result of their work. In effect, this is a form of regression testing.
+
+The standards directory is, in priority order: as specified in the test with a `standards` attribute, or via the command line `--standards` parameter, or from the `STANDARDS` global (or context) variable or `references`.
+
+A regression report is generated for each .txt and .htxt test file, for each
+font, technology and script.
+
+==== xtest ====
+
+This tests creates a similar html report to that for regression testing, but
+it is concerned with the differences between the different smart font technologies
+and scripts. Thus a report is generated for each font and technology and script
+pair for each .txt and .htxt test file.
+
+==== waterfall ====
+
+This test does not use test files, instead it takes a single string and produces
+one file per font and technology and script of a single test string rendered
+at a number of font sizes. There are various variables that control the generated
+waterfalls:
+
+TESTSTRING::
+    This is the string to be rendered. Without it, the waterfall target does nothing.
+
+WATERFALLSIZES::
+    This is a python list (or tuple) of sizes to render the waterfall text at, in points. It
+    defaults to `[6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 22, 24, 28, 32, 36, 42, 48, 56, 72]`.
+
+TESTLINESPACINGFACTOR::
+    This is a multiplier specifying what the interline space (space between baselines) should
+    be based on the font size currently used. The default is 1.2.
+
+==== xfont ====
+
+This test is similar to the waterfall in that it uses a single test string, but it uses
+the test string to create a single report of the test string being rendered in all the fonts at a given point size. There are various variables that control the test.
+
+TESTSTRING:
+    This is the string to be rendered. Notice that it is the same string as for the waterfall.
+    Lack of it means the test outputs nothing.
+
+TESTFONTSIZE:
+    The point size, in points, to render each font at. Defaults to 12.
+
+==== ftml ====
+
+FTML tests don't generate any files (well perhaps some), instead all the interest is in
+the generated `ftml_index.html` file that creates complex links that run a particular
+xsl file against a particular ftml file giving the font and technology and script. The xsl file then generates an html report for the .ftml file given the font and that is then displayed in the browser.
+
+In order to make the browser be able to load the various fonts and files, these and the
+necessary supporting files are copied into the results tests tree for this target. The test also supports .txt and .htxt test file types, converting them into .ftml as they are copied.
+
+By default, smith does not come with any .ftml .xsl report generators already built in. Currently a wscript author has to specify where such an .xsl file may be found. They can do this using the `ftmlTest()` function that takes one parameter (a local path to an .xsl file) and various named parameters:
+
+cmd::
+    This specifies the particular test command to associate this xsl file with. The default is the default ftml target: `ftml`.
+
+name::
+    This is the name used to identify this xsl in the report. By default it is the xsl filename without the extension.
+
+fonts::
+    An optional list of fonts that will be passed along with the font under test to the xsl. This allows more than one font to be displayed in the same report.
+
+addfontindex::
+    This specifies where in the list of fonts specified in the fonts parameter, the test font     should be inserted. Usually this is either 0 (the default) or len(fonts), the number of fonts in the fonts parameter list.
+
+fontmode::
+    This is the same as the fontmode parameter used in test creation. It can take 3 values, described later, with the following effects:
+
+    all;;
+        One link is created per font.
+
+    none;;
+        A single link is made passing all the fonts in the fonts list to the report.
+
+    collect;;
+        A single link is made passing all the fonts generated and any fonts in the fonts parameter list, to the report generator. The particular fontgroup used is called `_allFonts`.
+
+shapers::
+    This controls how many tests are produced per font. This is the same as the general
+    shapers parameter found in tests, see that description for more details.
+    There are 3 values this parameter may take, but ftml testing only supports 2:
+
+    0;;
+        Just produce one test per font, regardless of what smart font technologies are created.
+
+    1;;
+        Create one test per font and smart font technology and script.
+
+==== sile ====
+
+Smith can run sile (https://sile-typesetter.org/[the SILE typesetter]) for font testing. It processes .sil files.
+
+sil::
+	The file is assumed to be a fontproof based sile file. This means that sile will be called with the lua variable `fontfile` set to the fontfile the report is for.
+
+
+==== alltests ====
+
+There is one very simple test target: `smith alltests`. This runs all the test targets that smith can find, whether internal or user defined. If a test produces no output, it is skipped and no test_index.html file is created.
+
+It may be that there are tests that a user wants to remove from the list of
+alltests. This can be achieved through listing the test commands to remove, as strings in a list under the `NOALLTESTS` global variable in the wscript file.
+
+==== fbchecks ====
+
+Another useful testing target is `smith fbchecks`. This runs all the generated fonts through the https://fontbakery.readthedocs.io/[Font Bakery] QA suite.
+It does so using the fontbakery profile in pysilfont which explicitly list certains checks, excludes others and provides new ones. Local project-specific checks can also be added in the form of a fontbakery.yaml file at the root of the project.
+A html report is generated with the results for each font family along with a summary at the command-line.
+
+==== ots ====
+
+This test target runs the fonts against the OTS the opentype sanitizer which is built-in various browser to reduce overflow risks. If the font does not pass the sanitizer it will be rejected by various browsers. 
+
+==== validate ====
+
+This test target runs the fonts against https://github.com/HinTak/Font-Validator[FontValidator].
+
+==== pyfontaine ====
+
+This test target runs the fonts against https://github.com/googlefonts/pyfontaine[pyfontaine] for coverage reporting. It uses various character sets like fontconfig, glyphlists, hyperglot, subsets, uniblocks, unencoded, cldr, extensis.
+
+
+==== differ ====
+
+`smith differ` allows fonts recently built to be compared against the corresponding fonts in `references` (or whichever folder is defined by the STANDARDS variable) using diffenator2.  HTML reports are generated in `results/diffenator2`.
+
+=== Adding test files ===
+
+Sometimes you want to create test files as part of the build. This can be done using `testFile()`. It takes the same parameters as for a `create()` and it does create the file, but it also adds it to the list of source test files as if it was stored in the `tests/` directory (or wherever you have specified that test files are stored).
+
+=== User-defined Tests ===
+
+It is possible to add your own tests to the smith test system. One can create a variant of one of the standard tests listed above, and associate it with a new target. Or one can run a separate command to execute the test. The test is specified using a `testCommand()` function that takes a single fixed parameter of the target the command is to be associated with and a list of named parameters. It is possible to specify more than one testCommand be associated with the same target, in which case all the testCommands will be run when that target is specified.
+
+type::
+    This specifies the type of the test. It may take various values:
+
+    test;;
+        A general type test with a given command. This is the default.
+
+    FTML;;
+        An ftml test that can take multiple xsl report generators.
+
+    TeX;;
+        A TeX based test
+
+    Waterfall;;
+        A Waterfull based test. It is possible to set various per test values that would
+        otherwise come from global variables:
+
+        text:::
+            The text to output, defaults to that specified in TESTSTRING.
+
+        sizes:::
+            A list of sizes to override those in WATERFALLSIZES or the defaults.
+
+        sizefactor:::
+            Overrides the TESTLINESPACEFACTOR or its default.
+
+    CrossFont;;
+        A CrossFont based test. It is possible to set various per test values that would
+        otherwise come from global variables:
+
+        text:::
+            The text to output, overriding the TESTSTRING value.
+
+        size:::
+            The font size, overriding the TESTFONTSIZE value or its default.
+
+cmd::
+    This is a string that contains the command to execute to run the test. There are various substitution values that can be used. The value is between `${` and `}`. The default is that the corresponding parameter passed to the test is looked up. Other more specific values are:
+
+    SRC[0];;
+        The test source file (text or otherwise). The test is considered dependent on the test file.
+
+    SRC[1];;
+        The first font in the list of fonts passed to the test. Usually there is only one such font. You can pass more fonts via the fonts test parameter. Referencing a font this way introduces a dependency between the test and the font such that if the font changes the test will be rerun.
+
+    SRC[2];;
+        If usestandards is true there will be a second font that can be referenced and this
+        is the standard base font.
+
+    TGT;;
+        The generated output filename.
+
+    shaper;;
+        The shaper used for the first font: `ot` or `gr`.
+
+    script;;
+        The script for the first font. May be the empty string if the shaper is `gr`.
+
+    altshaper;;
+        The shaper used for the second font when shapers=2: `ot` or `gr`.
+
+    altscript;;
+        The script used for the second font when shapers=2.
+
+    CMDNAME;;
+        This is a command name that has been looked up during `smith configure` and is referenced here.
+
+shapers::
+    This specifies how many tests will be produced per font based on the value of this parameter:
+
+    0;;
+        Produce one test per font regardless of how many shapers or scripts are specified.
+
+    1;;
+        Produce one test per font per shaper per script. Although the script is only relevant to the 'ot' shaper. [Default]
+
+    2;;
+        Produce one test per shaper script pair for a font.
+
+fontmode::
+    This specifies how fonts are handled in relation to the test:
+
+    all;;
+        One test (or more) is generated for each font the project creates. [Default]
+
+    none;;
+        Only one test is produced. There is no font, although you may
+        pass fonts as a list via the fonts parameter.
+
+    collect;;
+        Only one test is produced, but all the fonts are passed to that one test.
+
+fonts::
+    A list of fonts to pass to the command.
+
+ext::
+    What is the extension of the target filename from the report. The filename is autogenerated
+    with the given extension. The default is `.html`.
+
+supports::
+    Some test commands only support certain types of test data. The extensions supported
+    are given in this list. Specifying `.txt` implies `.htxt` support as well (via conversion to `.txt`).
+    The default is `['.txt', '.ftml', '.xml']`.
+    If you want to support ftml you should specify both `.ftml` and `.xml`.
+
+usestandards::
+    If True, this says that the test expects that there is a corresponding reference font for
+    each font and that the command in some way compares the test font with the corresponding
+    reference font to produce its results.
+

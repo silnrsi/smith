@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="LtnSmZ" format="2">
+  <advance width="967"/>
+  <unicode hex="007A"/>
+  <anchor x="465" y="0" name="H"/>
+  <anchor x="440" y="-100" name="L"/>
+  <anchor x="715" y="1100" name="U"/>
+  <outline>
+    <contour>
+      <point x="272" y="1000" type="line"/>
+      <point x="231" y="828" type="line"/>
+      <point x="272" y="843"/>
+      <point x="351" y="853"/>
+      <point x="410" y="853" type="curve" smooth="yes"/>
+      <point x="800" y="853" type="line"/>
+      <point x="25" y="47" type="line"/>
+      <point x="84" y="-25" type="line"/>
+      <point x="154" y="45"/>
+      <point x="233" y="75"/>
+      <point x="302" y="75" type="curve" smooth="yes"/>
+      <point x="440" y="75"/>
+      <point x="598" y="-25"/>
+      <point x="739" y="-25" type="curve" smooth="yes"/>
+      <point x="797" y="-25"/>
+      <point x="855" y="-15"/>
+      <point x="893" y="0" type="curve"/>
+      <point x="934" y="172" type="line"/>
+      <point x="897" y="153"/>
+      <point x="840" y="142"/>
+      <point x="782" y="142" type="curve" smooth="yes"/>
+      <point x="673" y="142"/>
+      <point x="537" y="214"/>
+      <point x="433" y="214" type="curve" smooth="yes"/>
+      <point x="408" y="214"/>
+      <point x="385" y="211"/>
+      <point x="362" y="203" type="curve"/>
+      <point x="1044" y="907" type="line"/>
+      <point x="1067" y="1000" type="line"/>
+    </contour>
+  </outline>
+</glyph>

@@ -1,0 +1,31 @@
+#!/bin/env python3
+'''
+A simple metadata query script for UFOs using defcon
+'''
+
+import sys
+import defcon
+
+
+def main():
+    '''
+    get some name table fields from the defcon data structures
+    '''
+    for ufo in sys.argv[1:]:
+        font = defcon.Font(ufo)
+        glyphCount = len(ufo)
+        print("Family name: " + font.info.familyName)
+        print("Version: " + font.info.openTypeNameVersion)
+        print("Copyright: " + font.info.copyright)
+        print("License URL: " + font.info.openTypeNameLicenseURL)
+        print("Designer: " + font.info.openTypeNameDesigner)
+        print("Designer URL: " + font.info.openTypeNameDesignerURL)
+        print("Manufacturer: " + font.info.openTypeNameManufacturer)
+        print("Manufacturer URL: " + font.info.openTypeNameManufacturerURL)
+        print("Description: " + font.info.openTypeNameDescription)
+        print("Glyph count: ")
+        print(glyphCount)
+
+
+if __name__ == '__main__':
+    main()

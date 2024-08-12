@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="MiddleDot" format="2">
+  <advance width="750"/>
+  <unicode hex="00B7"/>
+  <outline>
+    <contour>
+      <point x="200" y="710" type="curve" smooth="yes"/>
+      <point x="200" y="606"/>
+      <point x="274" y="535"/>
+      <point x="375" y="535" type="curve" smooth="yes"/>
+      <point x="477" y="535"/>
+      <point x="550" y="606"/>
+      <point x="550" y="710" type="curve" smooth="yes"/>
+      <point x="550" y="812"/>
+      <point x="477" y="885"/>
+      <point x="375" y="885" type="curve" smooth="yes"/>
+      <point x="274" y="885"/>
+      <point x="200" y="812"/>
+    </contour>
+  </outline>
+</glyph>

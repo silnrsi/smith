@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="EmDash" format="2">
+  <advance width="1765"/>
+  <unicode hex="2014"/>
+  <outline>
+    <contour>
+      <point x="174" y="520" type="line"/>
+      <point x="1749" y="520" type="line"/>
+      <point x="1801" y="728" type="line"/>
+      <point x="226" y="728" type="line"/>
+    </contour>
+  </outline>
+</glyph>

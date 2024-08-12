@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<glyph name="NArySummation" format="2">
+  <advance width="1230"/>
+  <unicode hex="2211"/>
+  <anchor x="505" y="-100" name="L"/>
+  <anchor x="912" y="1530" name="U"/>
+  <outline>
+    <component base="LtnCapEsh"/>
+  </outline>
+</glyph>

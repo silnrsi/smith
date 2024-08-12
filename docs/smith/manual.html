@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="generator" content="Asciidoctor 2.0.20"/>
+<meta name="keywords" content="fonts, building, testing, releasing, writing systems"/>
+<meta name="author" content="By Martin Hosken, SIL&#8217;s WSTech (with contributions by Nicolas Spalinger and other WSTech team members)"/>
+<title>Smith manual: building, testing and releasing fonts</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"/>
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<style>
+pre.pygments .hll { background-color: #ffffcc }
+pre.pygments { background: #f8f8f8; }
+pre.pygments .tok-c { color: #3D7B7B; font-style: italic } /* Comment */
+pre.pygments .tok-err { border: 1px solid #FF0000 } /* Error */
+pre.pygments .tok-k { color: #008000; font-weight: bold } /* Keyword */
+pre.pygments .tok-o { color: #666666 } /* Operator */
+pre.pygments .tok-ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #9C6500 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
+pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
+pre.pygments .tok-ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+pre.pygments .tok-gr { color: #E40000 } /* Generic.Error */
+pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
+pre.pygments .tok-gi { color: #008400 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #717171 } /* Generic.Output */
+pre.pygments .tok-gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
+pre.pygments .tok-gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+pre.pygments .tok-gt { color: #0044DD } /* Generic.Traceback */
+pre.pygments .tok-kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+pre.pygments .tok-kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+pre.pygments .tok-kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+pre.pygments .tok-kp { color: #008000 } /* Keyword.Pseudo */
+pre.pygments .tok-kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+pre.pygments .tok-kt { color: #B00040 } /* Keyword.Type */
+pre.pygments .tok-m { color: #666666 } /* Literal.Number */
+pre.pygments .tok-s { color: #BA2121 } /* Literal.String */
+pre.pygments .tok-na { color: #687822 } /* Name.Attribute */
+pre.pygments .tok-nb { color: #008000 } /* Name.Builtin */
+pre.pygments .tok-nc { color: #0000FF; font-weight: bold } /* Name.Class */
+pre.pygments .tok-no { color: #880000 } /* Name.Constant */
+pre.pygments .tok-nd { color: #AA22FF } /* Name.Decorator */
+pre.pygments .tok-ni { color: #717171; font-weight: bold } /* Name.Entity */
+pre.pygments .tok-ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+pre.pygments .tok-nf { color: #0000FF } /* Name.Function */
+pre.pygments .tok-nl { color: #767600 } /* Name.Label */
+pre.pygments .tok-nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+pre.pygments .tok-nt { color: #008000; font-weight: bold } /* Name.Tag */
+pre.pygments .tok-nv { color: #19177C } /* Name.Variable */
+pre.pygments .tok-ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+pre.pygments .tok-w { color: #bbbbbb } /* Text.Whitespace */
+pre.pygments .tok-mb { color: #666666 } /* Literal.Number.Bin */
+pre.pygments .tok-mf { color: #666666 } /* Literal.Number.Float */
+pre.pygments .tok-mh { color: #666666 } /* Literal.Number.Hex */
+pre.pygments .tok-mi { color: #666666 } /* Literal.Number.Integer */
+pre.pygments .tok-mo { color: #666666 } /* Literal.Number.Oct */
+pre.pygments .tok-sa { color: #BA2121 } /* Literal.String.Affix */
+pre.pygments .tok-sb { color: #BA2121 } /* Literal.String.Backtick */
+pre.pygments .tok-sc { color: #BA2121 } /* Literal.String.Char */
+pre.pygments .tok-dl { color: #BA2121 } /* Literal.String.Delimiter */
+pre.pygments .tok-sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+pre.pygments .tok-s2 { color: #BA2121 } /* Literal.String.Double */
+pre.pygments .tok-se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+pre.pygments .tok-sh { color: #BA2121 } /* Literal.String.Heredoc */
+pre.pygments .tok-si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+pre.pygments .tok-sx { color: #008000 } /* Literal.String.Other */
+pre.pygments .tok-sr { color: #A45A77 } /* Literal.String.Regex */
+pre.pygments .tok-s1 { color: #BA2121 } /* Literal.String.Single */
+pre.pygments .tok-ss { color: #19177C } /* Literal.String.Symbol */
+pre.pygments .tok-bp { color: #008000 } /* Name.Builtin.Pseudo */
+pre.pygments .tok-fm { color: #0000FF } /* Name.Function.Magic */
+pre.pygments .tok-vc { color: #19177C } /* Name.Variable.Class */
+pre.pygments .tok-vg { color: #19177C } /* Name.Variable.Global */
+pre.pygments .tok-vi { color: #19177C } /* Name.Variable.Instance */
+pre.pygments .tok-vm { color: #19177C } /* Name.Variable.Magic */
+pre.pygments .tok-il { color: #666666 } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Smith manual: building, testing and releasing fonts</h1>
+<div class="details">
+<span id="author" class="author">By Martin Hosken, SIL&#8217;s WSTech (with contributions by Nicolas Spalinger and other WSTech team members)</span><br/>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">1. Introduction</a>
+<ul class="sectlevel2">
+<li><a href="#_installation">1.1. Installation</a></li>
+<li><a href="#_moving_your_project_to_smith">1.2. Moving your project to smith</a></li>
+<li><a href="#_running_builds">1.3. Running builds</a></li>
+<li><a href="#_writing_your_wscript">1.4. Writing your wscript</a></li>
+</ul>
+</li>
+<li><a href="#_tutorial">2. Tutorial</a>
+<ul class="sectlevel2">
+<li><a href="#_font1_simplicity">2.1. font1 - Simplicity</a></li>
+<li><a href="#_font2_multiple_fonts">2.2. font2 - Multiple fonts</a></li>
+<li><a href="#_font3_packaged">2.3. font3 - Packaged</a></li>
+<li><a href="#_font4_internal_processing">2.4. font4 - Internal processing</a></li>
+<li><a href="#_font5_smarts_and_basic_tests">2.5. font5 - Smarts and Basic Tests</a></li>
+<li><a href="#_font6_metadata">2.6. font6 - Metadata</a></li>
+<li><a href="#_font7_more_tests">2.7. font7 - More Tests</a></li>
+<li><a href="#_font8_designspace">2.8. font8 - Designspace</a></li>
+</ul>
+</li>
+<li><a href="#_font_parameters_and_smarts">3. Font parameters and smarts</a>
+<ul class="sectlevel2">
+<li><a href="#_opentype">3.1. OpenType</a></li>
+<li><a href="#_feax">3.2. FEAX</a></li>
+<li><a href="#_graphite">3.3. Graphite</a></li>
+<li><a href="#_legacy_fonts">3.4. Legacy Fonts</a></li>
+<li><a href="#_woff">3.5. WOFF</a></li>
+<li><a href="#_fret">3.6. Fret</a></li>
+<li><a href="#_designspace">3.7. DesignSpace</a></li>
+</ul>
+</li>
+<li><a href="#_tests">4. Tests</a>
+<ul class="sectlevel2">
+<li><a href="#_file_types">4.1. File Types</a></li>
+<li><a href="#_standard_commands_targets">4.2. Standard commands (targets)</a></li>
+<li><a href="#_adding_test_files">4.3. Adding test files</a></li>
+<li><a href="#_user_defined_tests">4.4. User-defined Tests</a></li>
+</ul>
+</li>
+<li><a href="#_packages">5. Packages</a>
+<ul class="sectlevel2">
+<li><a href="#_functions">5.1. Functions</a></li>
+</ul>
+</li>
+<li><a href="#_global_functions">6. Global Functions</a></li>
+<li><a href="#_environment_variables">7. Environment Variables</a></li>
+<li><a href="#_dependencies">8. Dependencies</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction">1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><em>(Last updated in August 2024)</em></p>
+</div>
+<div class="paragraph">
+<p>Smith is a Python-based framework for building, testing and releasing fonts. It is based on <a href="https://waf.io/">waf</a>.
+Smith orchestrates and integrates various utilities to make a standards-based open font design and production workflow much easier to manage.</p>
+</div>
+<div class="paragraph">
+<p>Building a font involves numerous steps and various programs, which, if done by hand, would be prohibitively slow. Even working out what those steps are can take a lot of work. Smith uses a dedicated file at the root of the project (the file is python-based) to allow the user to describe how to build the font. By chaining the different build steps intelligently, smith reduces build times to seconds rather than minutes or hours, and makes build, test, fix, repeat cycles very manageable. By making these processes repeatable, including for a number of fonts at the same time, your project can be shared with others simply, or - better yet - it can be included in a CI (Continuous Integration) system. This allows for fonts (and their various source formats) to truly be libre/open source software and developed with open and collaborative methodologies.</p>
+</div>
+<div class="paragraph">
+<p>Smith is <em>Copyright (c) 2011-2024 SIL International (www.sil.org)</em> and is released under <em>the BSD license</em>.</p>
+</div>
+<div class="paragraph">
+<p>waf is <em>Copyright (c) 2005-2011 Thomas Nagy.</em></p>
+</div>
+<div class="sect2">
+<h3 id="_installation">1.1. Installation</h3>
+<div class="paragraph">
+<p>A file called <code>wscript</code> needs to be created to control the build process. The convention is that this file is placed at the root of your font project source tree. This file is in fact a small python program, but the way it is run is designed to hide that as much as possible from the unsuspecting user.</p>
+</div>
+<div class="paragraph">
+<p>Smith is really a larger toolchain with many dependencies that you install from a Docker registry which means you don&#8217;t have to install any of its fairly large number of components manually. In this manual, we assume you are using that approach as described at <a href="https://silnrsi.github.io/silfontdev">SIL Font Development Guide</a>. Remember that smith is only the director and a wide range of utilities do the actual work. Installing just smith by itself (the python program) will not get you very far.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_moving_your_project_to_smith">1.2. Moving your project to smith</h3>
+<div class="paragraph">
+<p>Besides taking inspiration from the way smith is used in public projects, like the ones available on <a href="https://github.com/silnrsi">github.com/silnrsi</a> for example, you can use the following command to populate a brand new project with basic templates and standard folders:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith start</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you can start adjusting the various files to the specifics of your font project.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_running_builds">1.3. Running builds</h3>
+<div class="paragraph">
+<p>The heart of the build system is the <code>wscript</code> file that controls the build
+process. This is done by the python program creating a set of component
+objects. It then takes these objects and allows the user to run various
+build commands on them.</p>
+</div>
+<div class="paragraph">
+<p>Waf, on which smith is built, works by creating a build directory
+into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up. The build directory is created using
+the command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith configure</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This process creates the new <code>results</code> directory, checks that all the tools that smith
+needs to achieve the build as described in <code>wscript</code> are available, and sets
+up various internal environment variables. Thus, if any changes are made to the
+<code>wscript</code> that indicate what extra tools are needed, then the <code>configure</code> command needs
+to be rerun.</p>
+</div>
+<div class="paragraph">
+<p>After configuration you can now launch a build. This is done using:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith build</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates development artifacts of the various components configured to be built. But it does not create any publishable releases - or packages that you can share with someone else - these need another command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith zip</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates a zip of all the generated files and the corresponding documentation. Since this zip is
+targeted at Windows, text files have their line endings changed to CR LF. This is tagged with development version numbers.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith tarball</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This does the same work as the zip command except it uses LF Linux/macOS line endings and
+creates a .tar.xz, a compressed tarball. This is tagged with development version numbers.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith release</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command does two things. First, it builds the various components, but marks
+the build for release. So things like font version strings no longer contain any
+development information in the form of git revision numbers, etc. Secondly, it builds the various release packages (zip and tarball). It also provides checksums, cryptographic signatures to allow comparison against the zip and tarball. This separate checksum file will allow to verify that what is distributed is really what has been produced.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith graide</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates a subdirectory called graide/ that contains one .cfg file per font. This config file will be read by <a href="https://github.com/silnrsi/graide">Graide</a>, the Graphite IDE to allow easier testing and development of smart font behaviours. If the font has no graphite smarts, no configuration file is created.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith alltests</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This creates font tests output by chaining all the available tests. The Tests section will go into more details.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith clean</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This removes the various files created by <code>smith build</code> in the build directory.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith distclean</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This removes the build directory completely, including any temporary files at the root of the project folder.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_writing_your_wscript">1.4. Writing your wscript</h3>
+<div class="paragraph">
+<p>The <code>wscript</code> file is a Python program, but the internal environment is set up to minimise the amount of actual programming that needs to be done. There is no setup needed in the file, and object registration is automatic. It is possible to add waf specific extensions to the file, see details in the <a href="https://waf.io/">waf manual</a>.</p>
+</div>
+<div class="paragraph">
+<p>The basic steps needed to describe an entire build process is to create writing system component objects. These objects are <code>font()</code> or <code>designspace</code> and <code>package()</code>. Specific details on what information each of these objects requires is given in the corresponding sections of this document. Likewise examples are given in the sections.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tutorial">2. Tutorial</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this tutorial we will examine a number of wscript files. The first section is
+the largest and builds up a complex font creation scenario from humble
+beginnings. We will use the UFO sources from the Andika-Mtihani project, and call our local copy "Example".</p>
+</div>
+<div class="sect2">
+<h3 id="_font1_simplicity">2.1. font1 - Simplicity</h3>
+<div class="paragraph">
+<p>We start with a simple, single font.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/Example-Regular.ufo&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In line 1, we create a new font object that we want the system to build. We
+specify the target filename. This file will be created in the build tree
+(<code>results</code> or what is set in the <code>out</code> variable). Line 2 specifies where to find the source file. Notice that the target file is a <code>.ttf</code> file while the source is a <code>.ufo</code> file. Smith
+will use the necessary commands to build from one format to the other.</p>
+</div>
+<div class="paragraph">
+<p>With this as our <code>wscript</code> file, we can build our font:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith configure</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This is the first step in building any project. This command tells smith to set
+up the build environment and search out all the programs that it may need for
+the various tasks we may ask of smith. If a necessary program is missing smith
+will stop at that point and indicate an error. Some programs are not strictly
+necessary and smith can run with reduced functionality without them. Such missing
+programs are listed in orange. All other programs that smith searches for and
+finds are listed, along with their locations, in green. So you can see exactly
+which program smith will use for any particular task. This is hepful especially in
+cases where you may have a locally self-compiled version: you can more easily
+see if smith has found the version in /usr/local/ instead of the stock packaged
+version.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith build</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This command tells smith to go and build all the objects the <code>wscript</code> says to
+be built. In this case just the simple <code>Example-Regular.ttf</code> which will appear in
+<code>results</code>. Not very exciting, but a good start.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font2_multiple_fonts">2.2. font2 - Multiple fonts</h3>
+<div class="paragraph">
+<p>Most font packages consist of more than one font file and this project is no
+exception. Can we scale our project to handle more than one file?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This example shows the power of integrating a description with a full
+programming language. <code>wscript</code> files are python programs, albeit very
+enhanced ones. So we can use any python-type constructs we might need. Usually
+the need is slight, and we show a typical example here.</p>
+</div>
+<div class="paragraph">
+<p>Line 1 is the start of a loop. The lines below that are indented within the loop
+will be repeated for each value in the list. The first value is <code>-Regular</code> and the second is <code>-Bold</code>.
+Each time around the loop, the variable <code>weight</code> is set to the appropriate string.
+We will then use that variable to help set the appropriate values in the two font objects we are creating.</p>
+</div>
+<div class="paragraph">
+<p>Each time around the loop, we create a new font object. In line 2 we create a
+new font object whose target font filename is dependent on the <code>weight</code> variable
+which is set to the various strings from the list at the start of the loop. So
+we will end up creating two fonts. One called <code>Example-Regular.ttf</code> as before, and one
+called <code>Example-Bold.ttf</code>. Line 3 gives the source files for each of these fonts.</p>
+</div>
+<div class="paragraph">
+<p>It may seem easier just to expand out the loop and have two <code>font()</code> object
+commands but, as the complexity of this <code>font()</code> grows, we will see the value of
+using a loop. The advantage of adding the loop early is that we can make
+appropriate use of <code>weight</code>.</p>
+</div>
+<div class="paragraph">
+<p>Now when we come to build this project, we will get two fonts:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith configure
+smith build</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font3_packaged">2.3. font3 - Packaged</h3>
+<div class="paragraph">
+<p>It&#8217;s good that we can create multiple fonts, but what do we do with them then?
+There are two typical products that people want from a font project: a <code>.zip</code>
+file containing the fonts and corresponding files (with Windows line-endings CR LF) and a tarball (with Linux/macOS line-endings LF). Smith can create these two products from a wscript, but it needs just a little more information to do so:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.1&#39;</span>
+
+<span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Italic&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-BoldItalic&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Line 1 gives the base name of the products that will be created and line 2 gives
+the version of that product. Notice that the version variable is a string and
+does not have to be numeric. Case is important here, these are, in effect, magic
+variables we are setting that smith looks up.</p>
+</div>
+<div class="paragraph">
+<p>To build this project, we do the same as before, but we can also use two extra
+commands:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith configure
+smith build
+smith zip
+smith tarball</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>smith zip</code> will create <code>Example-0.0.1-dev-(git-commit-id).zip</code> in the <code>releases</code> folder inside the <code>results</code> folder.
+<em>(The git-commit-id part, e.g. 66d16eM, will be the first 7 characters taken from the git revision id. We assume you are working from within a git repository.)</em></p>
+</div>
+<div class="paragraph">
+<p><code>smith tarball</code> will create <code>Example-0.0.1-dev-(git-commit-id).tar.xz</code> in the <code>releases</code> folder inside the <code>results</code> folder.
+<em>(The git-commit-id part, e.g. 66d16eM, will be the first 7 characters taken from the git revision id. We assume you are working from within a git repository.)</em></p>
+</div>
+<div class="paragraph">
+<p>This zip, or tarball file, contains the four target fonts the build created, since we have now added Bold and Bold-Italic as extra weights in the loop.</p>
+</div>
+<div class="paragraph">
+<p>We also added extra text files at the root of the project folder: README.txt, README.md, FONTLOG.txt, OFL-FAQ.txt. These are just text files and more documentation than font sources, but they are nice to have and will help users and other developers of your font. We will go into more detail on packaging in the dedicated section.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font4_internal_processing">2.4. font4 - Internal processing</h3>
+<div class="paragraph">
+<p>Before our example gains smart font support and grows in complexity, there is
+one area of control that is worth examining. For the most part, when creating a
+<code>wscript</code> one fills in the various 'forms' that create the objects, and smith
+knows what needs to happen to make things turn out right. But while this makes
+for pretty tutorials, real world projects have unique quirks that require the
+ability to add commands into the processing or to create things dynamically. In
+this exercise we will add a process to the source font:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.1&#39;</span>
+
+<span class="tok-n">ufobackgroundclean</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;../tools/&#39;</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;ufobackgroundclean&#39;</span>
+
+<span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Italic&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-BoldItalic&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">,</span> <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-n">ufobackgroundclean</span> <span class="tok-o">+</span> <span class="tok-s1">&#39; $</span><span class="tok-si">{DEP}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">)))</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The interest lies in line 8. Here we use a <code>process()</code> function to tell smith
+that we want it to run a command over the source font before converting it to a
+<code>.ttf</code>. A <code>process()</code> function takes a file which already exists (either in the
+source tree or one that is generated by another process) and then runs the list
+of <code>cmd()</code> function results over it in order. In this case, the command is to run
+a simple script that removes glyphs from the background layer in a UFO. The command
+string takes some study. The program takes two command line parameters, an input
+font file and an output font file. We represent these in the command string by
+<code>${DEP}</code> (the dependent file) as the input and <code>${TGT}</code> as the output file.
+smith will fill these in appropriately when it comes to run the command. In
+addition, note the initial <code>'../'</code> at the start of the command string. This is
+because all commands in smith are run from the <code>results</code> directory and so we
+have to go up one level to get back to the project root where the <code>wscript</code> file
+is and then from there we can navigate to the actual script.</p>
+</div>
+<div class="paragraph">
+<p>The rest of the new lines in this exercise are simply extra variables being used
+to make the file easier to read, otherwise some of the lines would become
+excessively long and confusing. Notice that all the magic variables in a
+<code>wscript</code> that smith considers are all caps. That is if you use a variable name
+with a lowercase letter in it, you are sure to be safe from smith assuming some
+special meaning to that variable.</p>
+</div>
+<div class="paragraph">
+<p>For the most part, we are not very interested in precisely what smith is doing to
+get the results we want, but sometimes it helps to know, and all that cryptic
+output streaming by isn&#8217;t much help. But there is a way to get something more
+helpful. First we need to get back to a completely pristine source tree:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith distclean</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we can configure and run in a way that has smith tell us what it is doing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith configure
+smith build -j1 -v</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Thankfully, on a modern terminal, the colourising helps makes more sense of the
+voluminous information. But it is helpful once you learn to read it. The
+timestamped <code>runner</code> lines give the precise command-lines that are run at each
+stage of the build.</p>
+</div>
+<div class="paragraph">
+<p>Clearly, the key to getting this output is in the command-line options to <code>smith build</code>.
+The <code>-v</code> says to output the extra information, (v stands for verbosity). But since smith tries to use multiple processors if you have them, to speed up the build (for example without the
+<code>-j1</code>, my build runs in 0.479s), it means the output can get interleaved. It is
+therefore wise to restrict smith to a single process (j stands for job) while outputting this
+information, and this is done using <code>-j1</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font5_smarts_and_basic_tests">2.5. font5 - Smarts and Basic Tests</h3>
+<div class="paragraph">
+<p>In this exercise we grow our description to add OpenType and Graphite tables and
+also add some tests.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.1&#39;</span>
+
+<span class="tok-n">TESTDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">TESTRESULTSDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">DESC_SHORT</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;Derivative Foobar&quot;</span>
+
+<span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Italic&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-BoldItalic&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;Example&quot;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">,</span> 
+            <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-s1">&#39;../tools/ufobackgroundclean&#39;</span> <span class="tok-o">+</span> <span class="tok-s1">&#39; $</span><span class="tok-si">{DEP}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">)),</span>
+        <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">internal</span><span class="tok-p">(),</span>
+        <span class="tok-n">graphite</span> <span class="tok-o">=</span> <span class="tok-n">gdl</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.gdl&#39;</span><span class="tok-p">,</span> 
+            <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/graphite/master.gdl&#39;</span><span class="tok-p">),</span>
+        <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.xml&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">script</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;latn&#39;</span><span class="tok-p">,</span>
+        <span class="tok-n">fret</span> <span class="tok-o">=</span> <span class="tok-n">fret</span><span class="tok-p">(</span><span class="tok-n">params</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;-r&quot;</span><span class="tok-p">)</span>
+        <span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Line 12 tells smith how the OpenType tables will be generated for this font. It
+is possible to compile in VOLT tables, or, as here to use the internal
+description already in the font. The <code>internal()</code> does very little, but it does
+indicate to smith that the font has OpenType tables and that they should be
+tested.</p>
+</div>
+<div class="paragraph">
+<p>Line 13 tells smith how the Graphite tables are to be added. There is currently
+only one form for Graphite source, and that is GDL. The <code>gdl()</code> object tells
+smith how to generate and bring together the various files that typically make
+up a Graphite description. A typical Graphite project has an autogenerated
+component (which is the first parameter to the gdl() (<code>variable.gdl</code>) and a
+common core <code>.gdl</code> file that is hand authored (the <code>master</code> parameter). Smith then
+does the work to generate the files and compile them into the font.</p>
+</div>
+<div class="paragraph">
+<p>Line 15 talks about an attachment point database. This file holds information
+about glyphs in the font that cannot be held by TTF. Most importantly this file
+holds the positions of anchor points on the glyphs, and these positions are used
+when autogenerating smart code, either for <code>volt()</code> or <code>gdl()</code> or whatever.
+Depending on the source file format, the file may be autogenerated or be
+required as part of the source files.</p>
+</div>
+<div class="paragraph">
+<p>These three lines are all it takes to add a sophisticated smart font build
+system to the font creation step. The rest of this section will look at basic font
+testing.</p>
+</div>
+<div class="paragraph">
+<p>The basic principle of font testing in smith is that there is a directory
+containing test data, by default <code>tests</code>. This data is then applied to the various fonts and results
+are generated in the build tree. Test data can be of various formats, but the
+easiest to work with is simple <code>.txt</code> files that are treated as one paragraph
+per line files.</p>
+</div>
+<div class="paragraph">
+<p>Line 4 gives the directory where the test files may be found. Since it is
+outside the project tree rooted in the directory containing the wscript, we have
+to specify where in the buildtree we want the test results to be put. Line 8
+specifies that subdirectory.</p>
+</div>
+<div class="paragraph">
+<p>Smith allows for user defined tests, but there are some defaults built-in, which
+we will examine here.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith pdfs</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This tells smith to generate pdfs of each test file for each font for each smart
+font technology. That&#8217;s quite a few for each, but it means that you can look
+at any particular font and its smart rendering technology for each test. The
+files end up in <code>results/tests</code> based on the value of <code>TESTRESULTSDIR</code>.</p>
+</div>
+<div class="paragraph">
+<p>So for example, the test file <code>Short.txt</code> will generate 4 pdf files:
+for the regular font: Short_Example_ot.pdf, Short_Example_gr.pdf and
+for the bold font: Short_Example-bold_ot.pdf and
+Short_Example-bold_gr.pdf. The <code>_ot</code> extension is used for OpenType
+rendered texts and <code>_gr</code> for the Graphite rendered texts. The texts are rendered
+using XeTeX.</p>
+</div>
+<div class="paragraph">
+<p>The other file in the tests directory is <code>tests.htxt</code>. The <code>h</code> in htxt
+tells smith to preprocess the file to convert strings of the form \uxxxx into
+the corresponding Unicode character before rendering. This makes it easier to
+create test files.</p>
+</div>
+<div class="paragraph">
+<p>Line 16 is an important line for OpenType testing since it specifies which
+script to use when running the OpenType shaping engine.</p>
+</div>
+<div class="paragraph">
+<p>Another aspect of testing is regression testing. Can we find out what has
+changed between this font and a known good version? The way this works is that
+we store known good versions of the fonts and then have smith run tests against
+both fonts and compare the results. The default directory to keep the font files
+in is <code>references/</code>.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith test</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The results end up in the <code>TESTRESULTSDIR/tests</code> directory as <code>.html</code> files. If
+there are no differences, the files are 0 length.</p>
+</div>
+<div class="paragraph">
+<p>A further target that is useful is the ability to create font reports that show
+all the glyphs in a font. We set this as a font product rather than a kind of
+test, in line 17. The default target filename is the same as the <code>target</code> .ttf
+file but with a .pdf extension instead. The file is built as part of <code>smith
+build</code>.</p>
+</div>
+<div class="paragraph">
+<p>There are two other targets that this wscript enables:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith waterfall
+smith xfont</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Line 9 specifies a string that will be used in creating the waterfall files and also the cross font
+summary files. <code>smith waterfall</code> creates one file per font and technology and stores it in
+the <code>waterfall</code> sub directory of the <code>TESTRESULTSDIR</code>, prefixing each font and technology with
+<code>waterfall</code>. <code>smith xfont</code> creates one file per technology in the <code>TESTRESULTSDIR</code> called <code>Crossfont_ot.pdf</code>
+or <code>Crossfont_gr.pdf</code> that contains the test string output with the font name, one per line.</p>
+</div>
+<div class="paragraph">
+<p>Another feature of smith is its ability to integrate with <code>graide</code>. Graide is a
+graphically based IDE for developing GDL Graphite source code. It also
+incorporates a Graphite debugger to help font developers see how their code
+executes.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>smith graide
+graide -p graide/Example.cfg</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Running <code>smith graide</code> causes smith to create graide configuration files in a
+<code>graide/</code> subdirectory. This is one of the few commands that creates files
+outside of the results/ tree. The user can then run graide referencing one
+of these configuration files. One file is made per font.</p>
+</div>
+<div class="paragraph">
+<p>A word of advice. Since, most often, smith does not generate .gdx files when it
+runs grcompiler (.gdx files are grcompiler debug files), it is best to recompile
+the font on loading into graide.</p>
+</div>
+<div class="paragraph">
+<p>The configuration is designed to restrict graide to just editing GDL. If you
+want to use graide to adjust attachment points or add them, then you will need
+to enable writing to the AP.xml, in the graide configuration, and you are then
+responsible for propagating those changes back from the AP.xml to your source
+font.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font6_metadata">2.6. font6 - Metadata</h3>
+<div class="paragraph">
+<p>So far we have concerned ourselves with the mechanics of font creation. But in
+order to release a font package we also need to concern ourselves with the
+metadata that is involved in producing a font release.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.2&#39;</span>
+
+<span class="tok-n">TESTDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">TESTRESULTSDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">DESC_SHORT</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;Foobar is a derivative for learning&quot;</span>
+
+<span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Italic&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-BoldItalic&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span> <span class="tok-n">name</span><span class="tok-p">(</span><span class="tok-s1">&#39;Foobar&#39;</span><span class="tok-p">)),</span>
+         <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">,</span> <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-s1">&#39;../tools/ufobackgroundclean $</span><span class="tok-si">{DEP}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">)),</span>
+         <span class="tok-n">version</span> <span class="tok-o">=</span> <span class="tok-n">VERSION</span><span class="tok-p">,</span>
+         <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(),</span>
+         <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">internal</span><span class="tok-p">(),</span>
+         <span class="tok-n">graphite</span> <span class="tok-o">=</span> <span class="tok-n">gdl</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.gdl&#39;</span><span class="tok-p">,</span> <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/graphite/master.gdl&#39;</span><span class="tok-p">),</span>
+         <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.xml&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">script</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;latn&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">fret</span> <span class="tok-o">=</span> <span class="tok-n">fret</span><span class="tok-p">(</span><span class="tok-n">params</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;-r&quot;</span><span class="tok-p">)</span>
+        <span class="tok-p">)</span>
+
+<span class="tok-k">def</span> <span class="tok-nf">configure</span><span class="tok-p">(</span><span class="tok-n">conf</span><span class="tok-p">)</span> <span class="tok-p">:</span>
+    <span class="tok-n">conf</span><span class="tok-o">.</span><span class="tok-n">find_program</span><span class="tok-p">(</span><span class="tok-s1">&#39;../tools/uforeport&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We have used an existing font: Andika Mtihani as our base font. The
+font has been released under the <a href="https://openfontlicense.org">OFL (Open Font License)</a> and so we are free to modify and develop our own derivative under that license. To avoid any confusion it is better to change the name to something different for our derivative, for example: <code>Foobar</code>. We do this in a number of places in the wscript: Line 19 changes both the
+name of the font file generated (and all derived products), but it also
+processes that font file to change the internal name to "Foobar", using a
+<code>process()</code> and a <code>name()</code> function that acts like a <code>cmd()</code> that is suited to font
+renaming.</p>
+</div>
+<div class="paragraph">
+<p>We also set the internal version of the font using a <code>version</code> parameter.</p>
+</div>
+<div class="paragraph">
+<p>The Web Open Font Format (WOFF) is designed particularly for distribution of webfonts
+and smith can generate such files from the target .ttf font file. The default
+parameters for this object, take the font target filename as the basis of the
+woff filename, which is sufficient for our needs. Both in v1 and v2 of the format.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font7_more_tests">2.7. font7 - More Tests</h3>
+<div class="paragraph">
+<p>This section is for those interested in doing more advanced types of testing.
+For most projects there is no need to go to this level of complexity and many
+users never need to use these capabilities. So this exercise has been placed
+after the exercise that pretty much completes font creation. We also try to
+introduce as many advanced techniques as we can, even if the results end up
+being a little contrived.</p>
+</div>
+<div class="paragraph">
+<p>Font testing is not limited to just the inbuilt test types. Smith supports the
+integration of other test programs as you the user desires, so long as they are
+command line based, non-interactive and report generators.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.3&#39;</span>
+
+<span class="tok-n">TESTDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">TESTRESULTSDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">DESC_SHORT</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;Foobar is a derivative for learning&quot;</span>
+
+<span class="tok-k">for</span> <span class="tok-n">weight</span> <span class="tok-ow">in</span> <span class="tok-p">(</span><span class="tok-s1">&#39;-Regular&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Bold&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-Italic&#39;</span><span class="tok-p">,</span> <span class="tok-s1">&#39;-BoldItalic&#39;</span><span class="tok-p">):</span>
+    <span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ttf&#39;</span><span class="tok-p">,</span> <span class="tok-n">name</span><span class="tok-p">(</span><span class="tok-s2">&quot;Foobar&quot;</span><span class="tok-p">)),</span>
+         <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">),</span>
+         <span class="tok-n">version</span> <span class="tok-o">=</span> <span class="tok-n">VERSION</span><span class="tok-p">,</span>
+         <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(),</span>
+         <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">internal</span><span class="tok-p">(),</span>
+         <span class="tok-n">graphite</span> <span class="tok-o">=</span> <span class="tok-n">gdl</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.gdl&#39;</span><span class="tok-p">,</span> <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/graphite/master.gdl&#39;</span><span class="tok-p">),</span>
+         <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.xml&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">script</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;latn&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">fret</span> <span class="tok-o">=</span> <span class="tok-n">fret</span><span class="tok-p">(</span><span class="tok-n">params</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;-r&quot;</span><span class="tok-p">)</span>
+        <span class="tok-p">)</span>
+
+<span class="tok-k">def</span> <span class="tok-nf">configure</span><span class="tok-p">(</span><span class="tok-n">ctx</span><span class="tok-p">)</span> <span class="tok-p">:</span>
+    <span class="tok-n">ctx</span><span class="tok-o">.</span><span class="tok-n">find_program</span><span class="tok-p">(</span><span class="tok-s1">&#39;../tools/uforeport&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The interesting section is in lines 17-21. These lines create a fonttest object
+that is then referenced within the font at line 34. A fonttest object adds new
+smith commands. This example adds the three smith commands: pdfs, test and
+report. Notice that the <code>smith pdfs</code> command is actually implemented using a
+fonttest() object. The <code>targets</code> parameter to fonttest uses a python data
+structure called a dictionary. This is indicated by the <code>{</code> at the start (and
+<code>}</code> at the end). Dictionary elements consist of a string before a <code>:</code> and a
+value after it. The value before the <code>:</code> is known as the key and the value after
+as the value. So a dictionary is set of key, value pairs. In our case, the keys
+here indicate smith commands and the values are the test objects that get
+executed for the command.</p>
+</div>
+<div class="paragraph">
+<p>The first two commands use default test objects appropriate to the type of
+command. The <code>pdfs</code> command executes a <code>tex()</code> object that does all the xetex
+processing of test files. Likewise the <code>test</code> command executes a default
+<code>tests()</code> object which implements the regression testing.</p>
+</div>
+<div class="paragraph">
+<p>Our new command <code>report</code> also uses a <code>tests()</code> object. But in this, we give
+another dictionary of key, value pairs. The key is a subdirectory under the
+TESTRESULTSDIR and the value is a <code>cmd()</code> object that gives the command to
+execute. In this case, we are running the uforeport script. The reference to
+'${SRC[0]}` says to use the first element from the inputs. The inputs has 3
+elements: the font, the text file to test and the corresponding <code>references/</code>
+font file. We only need the first of these and list indices all start from 0 in
+python. In addition, we use the parameter <code>coverage</code> to say that we only want to
+run tests one per font, and not one per test file per shaper per font. The <code>&gt;
+${TGT}</code> says that the output that the program produces, which would normally be
+printed on the screen is to be sent to the target log file instead.</p>
+</div>
+<div class="paragraph">
+<p>Another thing we have changed is that rather than hardwiring various of the
+specialist programs into our wscript, we now will get smith to go and search for
+them. We introduce another new Python concept: the function. Each
+smith command will search for a function in your wscript with the same name as
+the command and will execute it. For more information of what to do then you
+should read the manual for the underlying framework that smith is built on,
+which is waf. The variable passed to us is a waf context that can be used to do
+various things like add commands to the build process, etc. In our case we want
+to have smith search for various programs. <code>find_program()</code> is the key that
+tells smith to search for the programs. In the case of <code>ufobackgroundclean</code>, that is
+necessary for the build, so if it is missing we want the configuration to fail.
+But in the case of the test script, we only lose the ability of that one test
+type if the script is missing, so we don&#8217;t want to fail the configuration. This
+is a marginal call, but we do at least get to see the pattern for achieving
+this. In each case <code>find_program()</code> takes a list of paths to search,
+and it only searches those directories, not directories below those, unless
+explicitly listed.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_font8_designspace">2.8. font8 - Designspace</h3>
+<div class="paragraph">
+<p>This final example shows how to use the designspace() object.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">APPNAME</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example&#39;</span>
+<span class="tok-n">VERSION</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;0.0.3&#39;</span>
+
+<span class="tok-n">TESTDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">TESTRESULTSDIR</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;tests&#39;</span>
+<span class="tok-n">DESC_SHORT</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;Derivative&quot;</span>
+
+<span class="tok-c1"># Get VERSION and BUILDLABEL from Regular UFO; must be first function call:</span>
+<span class="tok-n">getufoinfo</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/masters/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">familyname</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;-Regular&#39;</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">)</span>
+
+
+<span class="tok-n">designspace</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span>  <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example&#39;</span> <span class="tok-o">+</span> <span class="tok-n">weight</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.ufo&#39;</span><span class="tok-p">),</span>
+        <span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;${DS:FILENAME_BASE}.ttf&#39;</span><span class="tok-p">,</span> <span class="tok-o">*</span><span class="tok-n">cmds</span><span class="tok-p">),</span>
+                <span class="tok-n">instances</span> <span class="tok-o">=</span> <span class="tok-p">[</span><span class="tok-s1">&#39;Example Regular&#39;</span><span class="tok-p">]</span>
+         <span class="tok-n">version</span> <span class="tok-o">=</span> <span class="tok-n">VERSION</span><span class="tok-p">,</span>
+         <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(),</span>
+         <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">internal</span><span class="tok-p">(),</span>
+         <span class="tok-n">graphite</span> <span class="tok-o">=</span> <span class="tok-n">gdl</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.gdl&#39;</span><span class="tok-p">,</span> <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/graphite/master.gdl&#39;</span><span class="tok-p">),</span>
+         <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/&#39;</span> <span class="tok-o">+</span> <span class="tok-n">APPNAME</span> <span class="tok-o">+</span> <span class="tok-s1">&#39;.xml&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">script</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;latn&#39;</span><span class="tok-p">,</span>
+         <span class="tok-n">fret</span> <span class="tok-o">=</span> <span class="tok-n">fret</span><span class="tok-p">(</span><span class="tok-n">params</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;-r&quot;</span><span class="tok-p">)</span>
+        <span class="tok-p">)</span>
+
+<span class="tok-k">def</span> <span class="tok-nf">configure</span><span class="tok-p">(</span><span class="tok-n">ctx</span><span class="tok-p">)</span> <span class="tok-p">:</span>
+    <span class="tok-n">ctx</span><span class="tok-o">.</span><span class="tok-n">find_program</span><span class="tok-p">(</span><span class="tok-s1">&#39;../tools/uforeport&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_font_parameters_and_smarts">3. Font parameters and smarts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The minimum attributes a font object needs are <code>target</code> and <code>source</code>. For example, the following <code>wscript</code> file is about as simple as one can get:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This short file does more than might be expected. First of all it copies the input file <code>Example-Regular.ttf</code> to an output file <code>results/Example-Regular.ttf</code> (We will use Unix style <code>/</code> for path separators). This copy may seem redundant, but it is necessary for the rest of the system to work, and not all source fonts are unmodified <code>.ttf</code> files. If there are tests <code>.txt</code> files in a directory called <code>tests</code> then these can be run against this font.</p>
+</div>
+<div class="paragraph">
+<p>Notice that an input and an output file may not have the same name. Even if the output file ends up in <code>results/</code> it still corresponds to a real input file that may or may not be in <code>results/</code>. So file paths must also be unique if the files are unique.</p>
+</div>
+<div class="paragraph">
+<p>What if the source isn&#8217;t a <code>.ttf</code> file? Then, we can simply change the above example to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ufo&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>and the system will automatically convert the UFO source font to TrueType as it is copied into the <code>results</code> directory tree. Here we wouldn&#8217;t actually need the <code>results/</code> prefix to the target because the filename isn&#8217;t the same as the <code>source</code> attribute.</p>
+</div>
+<div class="paragraph">
+<p>The complete list of core attributes to a font are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">target</dt>
+<dd>
+<p>Output file for the generated font within <code>results</code>.</p>
+</dd>
+<dt class="hdlist1">source</dt>
+<dd>
+<p>Basic design file used to generate the initial form of the output font.</p>
+</dd>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>Command-line parameters passed to the program that converts the source font into the target font. This program changes depending on the source file format. For UFO it is psfufo2ttf.</p>
+</dd>
+<dt class="hdlist1">version</dt>
+<dd>
+<p>This takes a version number in the form 'x'.'y' (a floating point number) and sets the output font to have that version. It may also be a tuple of the form (x.y, "text") where the text will be appended to the version string inside the font.
+If the tuple form is not used, then "text" is set to the package <code>buildversion</code>. If this is not wanted then use (x.y, "").</p>
+</dd>
+<dt class="hdlist1">sfd_master</dt>
+<dd>
+<p>    This attribute specifies a FontForge file that should be merged with the source FontForge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.
+Fontforge is deprecated in most font projects therefore it is not part of the smith toolchain by default, but you can always install it from source if needed.</p>
+</dd>
+<dt class="hdlist1">ap</dt>
+<dd>
+<p>Attachment point database associated with the source font.</p>
+</dd>
+<dt class="hdlist1">ap_params</dt>
+<dd>
+<p>Parameters passed to the program that creates the ap database from the source font.</p>
+</dd>
+<dt class="hdlist1">classes</dt>
+<dd>
+<p>Classes .xml file that adds class information to the attachment point database before conversion into smart font source code.</p>
+</dd>
+<dt class="hdlist1">no_test</dt>
+<dd>
+<p>If set to True will not include the font in the font tests. This can be set after the font object is created.</p>
+</dd>
+<dt class="hdlist1">package</dt>
+<dd>
+<p>Package object to insert this font into. If not specified the global package is used.</p>
+</dd>
+<dt class="hdlist1">typetuner</dt>
+<dd>
+<p>Specifies that typetuner should be run on the target and to use the given file as the typetuner configuration xml file.</p>
+</dd>
+</dl>
+</div>
+<div class="sect2">
+<h3 id="_opentype">3.1. OpenType</h3>
+<div class="paragraph">
+<p>There are multiple ways of adding OpenType information to a font. One is to already have it in the source font. In this case, we need to indicate that we are working with an OpenType font, even if everything is internal to the font. The font builder needs to know for font testing purposes or if the font is generated from a legacy font.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;source/Example-Regular.ufo&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">internal</span><span class="tok-p">())</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This will generate tests pertinent to OpenType testing. See the section on font tests.</p>
+</div>
+<div class="paragraph">
+<p>One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a <code>sfd_master</code> attribute and the font builder will use <code>sfdmeld</code> to integrate the lookups in the master into each font as it is built.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.sfd&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">sfd_master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;mymaster.sfd&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Obviously, if the <code>sfd_master</code> attribute is the same as the <code>source</code> file then no merge occurs. This is an alternative way of specifying that the font is OpenType.</p>
+</div>
+<div class="paragraph">
+<p>Another approach to adding OpenType tables to a font is to use an external tool or text file to create the lookups and then to have smith compile them into the font. Two formats for source files are supported: Microsoft&#8217;s VOLT (Visual OpenType Layout Tool) and Adobe&#8217;s Feature File.</p>
+</div>
+<div class="sect3">
+<h4 id="_volt">3.1.1. VOLT</h4>
+<div class="paragraph">
+<p>This approach uses a command-line VOLT compiler to integrate the <code>.vtp</code> source into the font. In addition, the <code>.vtp</code> source is autogenerated from a source and any other elements that go to make the final integrated source. For example, we show a maximal <code>volt()</code> integration to show all the components and then discuss them.</p>
+</div>
+<div class="paragraph">
+<p>Notice that while the initial parameter to such objects as <code>volt</code> is required, all named parameters are optional.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">volt</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example.vtp&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example.vtp&#39;</span><span class="tok-p">),</span>
+     <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example.xml&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">classes</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;project_classes.xml&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We define the <code>.vtp</code> file to create for this font which will then be compiled into the font using <code>volt2ttf</code> as <code>Example.vtp</code>. We also declare a shared master volt project that is shared between all the fonts (well, at least this one!). In building a largely automated volt project, a program <code>make_volt</code> is used that can take attachment point information from an xml database <code>Example.xml</code>. This may be augmented with class information using <code>project_classes.xml</code>. These two file references are within the font rather than the volt details because they are shared with other smart font technologies particularly Graphite.</p>
+</div>
+<div class="paragraph">
+<p>The complete list of attributes to Volt() are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">master</dt>
+<dd>
+<p>The volt source that is processed against the font to generate the font specific volt to be compiled into the font.</p>
+</dd>
+<dt class="hdlist1">make_params</dt>
+<dd>
+<p>These parameters are passed to the make_volt process. The value is a string of parameters.</p>
+</dd>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>These parameters are passed to volt2ttf to modify the compiling of the volt source into OpenType tables.</p>
+</dd>
+<dt class="hdlist1">no_make</dt>
+<dd>
+<p>If this attribute is present, make_volt isn&#8217;t run and the first parameter is assumed to be the specific .vtp for this font.</p>
+</dd>
+<dt class="hdlist1">no_typetuner</dt>
+<dd>
+<p>The VOLT2TTF program used to compile the volt into opentype, also has the capability to emit an XML control file for typetuner. By default, if the font requests typetuner be run, the volt2ttf options will be set to generate this file. Setting this attribute stops this generation from happening and you will need to create the file some other way.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_fea">3.1.2. FEA</h4>
+<div class="paragraph">
+<p>The Adobe Font Development Kit for OpenType (AFDKO) has defined a textual syntax for OpenType tables, called a feature file. smith handles .fea files by merging font-specific classes (built from the AP and classes files) with a provided master fea file, and the resulting font-specific fea file is then compiled into the font.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">opentype</span> <span class="tok-o">=</span> <span class="tok-n">fea</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example.fea&#39;</span><span class="tok-p">,</span>
+                    <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example.fea&#39;</span><span class="tok-p">),</span>
+     <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example.xml&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">classes</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;project_classes.xml&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The complete list of attributes to fea() follow those of other classes:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">master</dt>
+<dd>
+<p>The fea source that will be merged with autogenerated classes to create the font-specific .fea file.</p>
+</dd>
+<dt class="hdlist1">make_params</dt>
+<dd>
+<p>Extra parameters to pass to <code>makefea</code>, the tool that is used to generate the font-specific .fea file.</p>
+</dd>
+<dt class="hdlist1">no_make</dt>
+<dd>
+<p>If this attribute is present, then <code>makefea</code> isn&#8217;t run and the first parameter references a file that already exists rather than one that will be created by fea().</p>
+</dd>
+<dt class="hdlist1">to_ufo</dt>
+<dd>
+<p>If this attribute is present and not false and also if the source file for the font ends in <code>.ufo</code>, the generated fea will be copied into the source .ufo as the features.fea file.</p>
+</dd>
+<dt class="hdlist1">depends</dt>
+<dd>
+<p>A python list of additional source files on which the OpenType depends. Typically these are files mentioned via <code>include()</code> in the master fea file.</p>
+</dd>
+<dt class="hdlist1">buildusingfontforge</dt>
+<dd>
+<p>If this attribute is present and not false, the FEA file will be compiled using FontForge instead of fonttools. <em>(You will have to install FontForge yourself as it is no longer part of the smith&#8217;s dependencies)</em></p>
+</dd>
+<dt class="hdlist1">keep_feats</dt>
+<dd>
+<p>This boolean, used only when buildusingfontforge is true, tells FontForge to keep all the lookups associated with a given feature that are already in the font, and not wipe them when merging the feature file. For example, keeping the kern feature lookups, which are often best handled in a font design application rather than in fea files.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_feax">3.2. FEAX</h3>
+<div class="paragraph">
+<p>Feax is a set of extensions to provide easier and more powerful ways to write fea code. It is a fea preprocessor. For the specification of the feax language see <a href="https://github.com/silnrsi/feax/blob/main/docs/feaextensions.md">feaextensions.md</a>.</p>
+</div>
+<div class="paragraph">
+<p><code>makefea</code> is the script to generate fea from a feax source file.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_graphite">3.3. Graphite</h3>
+<div class="paragraph">
+<p>Adding Graphite tables to a font is much like adding VOLT information. The relevant files are declared either to the font or a <code>gdl()</code> object. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">graphite</span> <span class="tok-o">=</span> <span class="tok-n">gdl</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example.gdl&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">master</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;mymaster.gdl&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">make_params</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;-o &quot;R C&quot;&#39;</span><span class="tok-p">),</span>
+     <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example.xml&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">classes</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;project_classes.xml&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Notice that the <code>ap</code> and <code>classes</code> attributes have the same values and meaning as for OpenType tables. This is because the information is used in the creation of both sets of tables. The <code>Example.gdl</code> is created by the <code>make_gdl</code> process and it pulls in <code>mymaster.gdl</code> during compilation.</p>
+</div>
+<div class="paragraph">
+<p>The complete list of attributes to a gdl() object are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">master</dt>
+<dd>
+<p>Non-font specific GDL that is #included into the font specific GDL.</p>
+</dd>
+<dt class="hdlist1">make_params</dt>
+<dd>
+<p>Parameters passed to <code>make_gdl</code>.</p>
+</dd>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>Parameters to pass to <code>grcompiler</code> to control the compilation of Graphite source to Graphite tables in the font.</p>
+</dd>
+<dt class="hdlist1">no_make</dt>
+<dd>
+<p>If this attribute is present, <code>make_gdl</code> is not run and the first parameter is assumed to be the gdl for the specific font.</p>
+</dd>
+<dt class="hdlist1">depends</dt>
+<dd>
+<p>A python list of additional source files on which the GDL depends. Typically these are files mentioned via <code>#include</code> in the master GDL file.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_legacy_fonts">3.4. Legacy Fonts</h3>
+<div class="paragraph">
+<p>Fonts can also be built from another font, either legacy-encoded or generated from a source font or fonts. This can be achieved by giving a <code>legacy()</code> object as the <code>source</code> attribute for the font. For example, for a font generated from a legacy font using <code>ttfbuilder</code> we might do:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">legacy</span><span class="tok-p">(</span><span class="tok-s1">&#39;myfont_src.ttf&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;my_legacyfont.ttf&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">xml</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;legacy_encoding.xml&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">params</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;-f ../roman_font.ttf&#39;</span><span class="tok-p">,</span>
+                     <span class="tok-n">ap</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;my_legacyfont.xml&#39;</span><span class="tok-p">))</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The legacy object creates the source font that is then copied to the output and perhaps smarts are added too.</p>
+</div>
+<div class="paragraph">
+<p>The complete set of attributes to a <code>legacy()</code> object is:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">source</dt>
+<dd>
+<p>The legacy source font (<code>.ttf</code>) to use to convert to the Unicode source font.</p>
+</dd>
+<dt class="hdlist1">xml</dt>
+<dd>
+<p>ttfbuilder configuration xml file to use for the conversion</p>
+</dd>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>Command line arguments to ttfbuilder. Note that files specified here need <code>../</code> prepended to them.</p>
+</dd>
+<dt class="hdlist1">ap</dt>
+<dd>
+<p>Attachment point database of the legacy font that will be converted to the font.ap attribute file.</p>
+</dd>
+<dt class="hdlist1">noap</dt>
+<dd>
+<p>Instructs the legacy converter not to create the ap database specified in the font. This would
+get used when another process, after legacy conversion, modifies the font and then you want the
+build system to autogenerate the ap database from that modified font rather than from the
+legacy font conversion process.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_woff">3.5. WOFF</h3>
+<div class="paragraph">
+<p><a href="https://www.w3.org/TR/WOFF/">WOFF</a> and <a href="https://www.w3.org/TR/WOFF2/">WOFF2</a> files are TTF files in special compressed formats used for webfont delivery. Smith can generate both WOFF and WOFF2 files. For example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example&#39;</span><span class="tok-p">,</span> <span class="tok-n">metadata</span><span class="tok-o">=</span><span class="tok-s1">&#39;metadata.xml&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The first parameter to <code>woff()</code> is the name of the woff file(s) to be generated. Filename extension, if present, is ignored.</p>
+</div>
+<div class="paragraph">
+<p>The <code>woff</code> object takes these optional attributes:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>This string is passed as additional command line options to the <code>psfwoffit</code> command.</p>
+</dd>
+<dt class="hdlist1">metadata</dt>
+<dd>
+<p>Name of the xml file containing <a href="https://www.w3.org/TR/WOFF/#Metadata">woff extended metadata</a></p>
+</dd>
+<dt class="hdlist1">privdata</dt>
+<dd>
+<p>Name of the file containing <a href="https://www.w3.org/TR/WOFF/#Private">woff private data</a></p>
+</dd>
+<dt class="hdlist1">type</dt>
+<dd>
+<p>Indicates which type(s) of woff to generate; value can be <code>'woff'</code> or <code>'woff2'</code>. If not supplied or set to <code>('woff', 'woff2')</code> then both woff and woff2 are generated.</p>
+</dd>
+<dt class="hdlist1">cmd</dt>
+<dd>
+<p>A command string that should be used instead of <code>psfwoffit</code> to build woff file(s). Within the command string:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>${TGT}</code> identifies the woff file to be built.</p>
+</li>
+<li>
+<p><code>${SRC[0]}</code> identifies the TTF file to be used for input.</p>
+</li>
+<li>
+<p>If the <code>metadata</code> attribute was provided, <code>${SRC[1]}</code> will identify it.</p>
+</li>
+<li>
+<p>If the <code>privdata</code> attribute was provided, the last item in the <code>${SRC}</code> list will identify it.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>By default, the font version is extracted from the input ttf and used as the version for the woff font. To override with a specific version use the <code>params</code> attribute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example&#39;</span><span class="tok-p">,</span> <span class="tok-n">params</span><span class="tok-o">=</span><span class="tok-s1">&#39;-v 3.2&#39;</span><span class="tok-p">,</span> <span class="tok-n">metadata</span><span class="tok-o">=</span><span class="tok-s1">&#39;metadata.xml&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To use a command other than <code>psfwoffit</code> to create woff files, the <code>cmd</code> attribute can provide the desired command and its options. For example, to use <code>ttf2woff</code> to create woff file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(</span><span class="tok-s1">&#39;Example&#39;</span><span class="tok-p">,</span> <span class="tok-nb">type</span><span class="tok-o">=</span><span class="tok-s1">&#39;woff&#39;</span><span class="tok-p">,</span> <span class="tok-n">metadata</span><span class="tok-o">=</span><span class="tok-s1">&#39;metadata.xml&#39;</span><span class="tok-p">,</span>
+                <span class="tok-n">cmd</span><span class="tok-o">=</span><span class="tok-s1">&#39;ttf2woff -m $</span><span class="tok-si">{SRC[1]}</span><span class="tok-s1"> -v 3.2 $</span><span class="tok-si">{SRC[0]}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_fret">3.6. Fret</h3>
+<div class="paragraph">
+<p>Fret is a font reporting tool that generates a PDF report from a font file, giving information about all the glyphs in the font.</p>
+</div>
+<div class="paragraph">
+<p>The <code>fret</code> object takes these attributes:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">params</dt>
+<dd>
+<p>A parameter list to pass to fret. If not specified, then fret is run with the <code>-r</code> command line argument.</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">font</span><span class="tok-p">(</span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;results/Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;Example-Regular.ttf&#39;</span><span class="tok-p">,</span>
+     <span class="tok-n">fret</span> <span class="tok-o">=</span> <span class="tok-n">fret</span><span class="tok-p">(</span><span class="tok-s1">&#39;results/Example.pdf&#39;</span><span class="tok-p">,</span> <span class="tok-n">params</span><span class="tok-o">=</span><span class="tok-s1">&#39;-r -o i&#39;</span><span class="tok-p">))</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_designspace">3.7. DesignSpace</h3>
+<div class="paragraph">
+<p>An alternative to the <code>font</code> object is the <code>designspace</code> object. A designspace specification normally defines a family of related fonts, and therefore the designspace object typically results in a number of fonts being generated&#8201;&#8212;&#8201;in essence the designspace object creates multiple font objects. Most of the attributes of a font object also apply to a designspace object, the differences are described below.</p>
+</div>
+<div class="paragraph">
+<p>Instead of a <code>source</code> attribute, the designspace object uses a
+<a href="https://github.com/fonttools/fonttools/tree/main/Doc/source/designspaceLib#document-xml-structure">designspace</a> file. Each instance described in the designspace file is treated as a source, and the designspace object iterates over all these instances and builds output from each.</p>
+</div>
+<div class="paragraph">
+<p>Thus the minimum needed for the designspace object is a designspace file and <code>target</code> attribute:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">designspace</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example.designspace&#39;</span><span class="tok-p">,</span>
+    <span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-s1">&#39;${DS:FILENAME_BASE}.ttf&#39;</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Except for <code>source</code> and <code>sfd_master</code>, all other attributes of the font object can be used with the designspace object. Additionally the following attribute can be used:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">instanceparams</dt>
+<dd>
+<p>Command line arguments to <code>psfcreateinstances</code>. A common usage is to supply the <code>-W</code> option to force weight-fixing for RIBBI font families.</p>
+</dd>
+<dt class="hdlist1">instances</dt>
+<dd>
+<p>Sometimes it is not desirable to build all the instances in a designspace file. This attribute if not None is a list of instance names to build. If None, all instances will be built. This allows for such patterns as follows which limits a build to just one font in a set for quicker building:</p>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">opts</span> <span class="tok-o">=</span> <span class="tok-n">preprocess_args</span><span class="tok-p">({</span><span class="tok-s1">&#39;opt&#39;</span><span class="tok-p">:</span> <span class="tok-s1">&#39;--quick&#39;</span><span class="tok-p">})</span>
+<span class="tok-n">designspace</span><span class="tok-p">(</span><span class="tok-s1">&#39;source/Example.designspace&#39;</span><span class="tok-p">,</span> <span class="tok-c1"># ...</span>
+    <span class="tok-n">instances</span> <span class="tok-o">=</span> <span class="tok-p">[</span><span class="tok-s1">&#39;Example Regular&#39;</span><span class="tok-p">]</span> <span class="tok-k">if</span> <span class="tok-s1">&#39;--quick&#39;</span> <span class="tok-ow">in</span> <span class="tok-n">opts</span> <span class="tok-k">else</span> <span class="tok-kc">None</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">shortcircuit</dt>
+<dd>
+<p>If this is set to True then if a design space instance has the same configuration parameters as a master, smith will not
+generate an instance, but use the master file directly. If False then a new instance is always created. Defaults to True.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>Note, however, that in contrast to the simplest font object, the <code>target</code> attribute cannot be as simple as <code>Example-Regular.ttf</code> but must be an expression that yields an appropriate filename for each instance. This will also be true for some other attributes as well, for example the attachment point information specified by the <code>ap</code> attribute will need to be different for each instance.</p>
+</div>
+<div class="paragraph">
+<p>To facilitate this, the designspace object provides a number of variables whose value is based on the particular instance being processed. To prevent possible name conflicts, the designspace object uses a <code>DS:</code> prefix for each of the variables it provides.</p>
+</div>
+<div class="paragraph">
+<p>For a given instance, each attribute and each location introduce one or more variables. Consider the following instance definition:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="xml"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-nt">&lt;instance</span>
+<span class="tok-w">    </span><span class="tok-na">familyname=</span><span class="tok-s">&quot;Example&quot;</span>
+<span class="tok-w">    </span><span class="tok-na">stylename=</span><span class="tok-s">&quot;Bold&quot;</span>
+<span class="tok-w">    </span><span class="tok-na">name=</span><span class="tok-s">&quot;Example Bold&quot;</span>
+<span class="tok-w">    </span><span class="tok-na">filename=</span><span class="tok-s">&quot;instances/Example-Bold.ufo&quot;</span>
+<span class="tok-w">    </span><span class="tok-nt">&gt;</span>
+<span class="tok-w">    </span><span class="tok-nt">&lt;location&gt;</span>
+<span class="tok-w">        </span><span class="tok-nt">&lt;dimension</span><span class="tok-w"> </span><span class="tok-na">name=</span><span class="tok-s">&quot;weight&quot;</span><span class="tok-w"> </span><span class="tok-na">xvalue=</span><span class="tok-s">&quot;700&quot;</span><span class="tok-w"> </span><span class="tok-nt">/&gt;</span>
+<span class="tok-w">        </span><span class="tok-nt">&lt;dimension</span><span class="tok-w"> </span><span class="tok-na">name=</span><span class="tok-s">&quot;width&quot;</span><span class="tok-w">  </span><span class="tok-na">xvalue=</span><span class="tok-s">&quot;100&quot;</span><span class="tok-w"> </span><span class="tok-nt">/&gt;</span>
+<span class="tok-w">        </span><span class="tok-nt">&lt;dimension</span><span class="tok-w"> </span><span class="tok-na">name=</span><span class="tok-s">&quot;custom&quot;</span><span class="tok-w"> </span><span class="tok-na">xvalue=</span><span class="tok-s">&quot;0&quot;</span><span class="tok-w"> </span><span class="tok-nt">/&gt;</span>
+<span class="tok-w">    </span><span class="tok-nt">&lt;/location&gt;</span>
+<span class="tok-w">    </span><span class="tok-nt">&lt;info</span><span class="tok-w"> </span><span class="tok-nt">/&gt;</span>
+<span class="tok-w">    </span><span class="tok-nt">&lt;kerning</span><span class="tok-w"> </span><span class="tok-nt">/&gt;</span>
+<span class="tok-nt">&lt;/instance&gt;</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Based on the corresponding instance attributes, the following variables will be defined:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 80%;">
+<colgroup>
+<col style="width: 33.3333%;"/>
+<col style="width: 66.6667%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">variable</th>
+<th class="tableblock halign-left valign-top">string value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:FAMILYNAME}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Example</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:STYLENAME}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Bold</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:NAME}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Example Bold</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:FILENAME}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>instances/Example-Bold.ufo</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Additionally, for each variable above, three additional variables are defined. Adding <em>&#95;DASH</em> to the variable name results in a value where all spaces are replaced with a hyphen. Adding <em>&#95;NOSPC</em> produces a value where all spaces are removed. Finally, adding <em>&#95;BASE</em> provides a value which is the basename (without the extension) of the original value. For example:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 80%;">
+<colgroup>
+<col style="width: 33.3333%;"/>
+<col style="width: 66.6667%;"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:NAME_DASH}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Example-Bold</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:NAME_NOSPC}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>ExampleBold</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:FILENAME_BASE}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Example-Bold</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Based on the location specified for the instance, the following variables are defined:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 80%;">
+<colgroup>
+<col style="width: 33.3333%;"/>
+<col style="width: 66.6667%;"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:AXIS_WEIGHT}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>700</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:AXIS_WIDTH}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>100</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:AXIS_CUSTOM}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>0</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>One additional variable provides the path from the build directory to the instance UFO, which for our example would be:</p>
+</div>
+<table class="tableblock frame-all grid-all" style="width: 80%;">
+<colgroup>
+<col style="width: 33.3333%;"/>
+<col style="width: 66.6667%;"/>
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>${DS:FILE}</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source/instances/Example-Bold.ufo</code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_tests">4. Tests</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Testing is an important part of development, particularly for fonts. Smith
+provides a number of testing mechanisms. The majority of this section is concerned with font testing.</p>
+</div>
+<div class="sect2">
+<h3 id="_file_types">4.1. File Types</h3>
+<div class="paragraph">
+<p>There are various source file types that can be used as the basis of many
+tests. These are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">txt</dt>
+<dd>
+<p>A <code>.txt</code> file is considered to be simple text, one paragraph, phrase or word
+per line. Typically the test results display the text file using the font
+as simple text.</p>
+</dd>
+<dt class="hdlist1">htxt</dt>
+<dd>
+<p>Sometimes, creating a simple text file in a complex script is hard work
+just because entering the characters and checking that they are right
+is problematic. A <code>.htxt</code> file is a simple text file with the added processing
+that any string of the form `\u`xxxx or `\U`xxxx where xxxx is a sequence of
+hex digits (and all such digits are used) is converted to the corresponding
+Unicode character.</p>
+</dd>
+<dt class="hdlist1">htex</dt>
+<dd>
+<p>These are TeX files that contain all the information to run the test. They are
+converted to per font tests by adding the line <code>\buildfont{"[fontfile]parameters"}</code>
+as per a XeTeX font definition, to the start of the file. Everything else is
+simply <code>\input</code> into the file.</p>
+</dd>
+<dt class="hdlist1">ftml</dt>
+<dd>
+<p><code>.xml</code> files are treated the same as <code>.ftml</code> files.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_standard_commands_targets">4.2. Standard commands (targets)</h3>
+<div class="paragraph">
+<p>Test source files are stored in a standard place in the tree. The global variable
+<code>TESTDIR</code> can be used to specify where that place is, but the default is <code>tests/</code>.
+There are a number of test targets already defined in smith that can make use
+of these and other test information. The <code>TESTDIR</code> may also be a list of paths.
+The list of test directories can be extended with those specified in
+<code>EXTRATESTDIR</code> which may also be a string or list. These extra directories may
+be overridden using a ;-separated list specified in the <code>SMITH_EXTRATESTDIR</code> environment
+variable. This may, in its turn, be overridden by a ;-separated list specified in the
+command line option <code>--extratestdir</code>. If any of the directories in the list of
+test directories does not exist, it is quietly ignored.</p>
+</div>
+<div class="paragraph">
+<p>Each test target, whether standard or user defined, creates a <code>.html</code> file in
+the results/tests directory (or as specified by the <code>TESTRESULTSDIR</code> variable).
+The file name is <code>target\index.html</code> from which links to the actual test
+results can be found.</p>
+</div>
+<div class="sect3">
+<h4 id="_pdfs">4.2.1. pdfs</h4>
+<div class="paragraph">
+<p>This target creates a pdf report for each font and its smart font technology and
+the script (if relevant) for each test file. XeTeX is used to render a .tex file,
+that is automatically created by smith for each test result, to a .pdf file.</p>
+</div>
+<div class="paragraph">
+<p>Currently only .txt, .htxt and .htex file types are supported with this target.</p>
+</div>
+<div class="paragraph">
+<p>It is possible to have a particular test file specify which language specialisation
+for the rendering of the file. If a test filename contains an underscore, the characters before the underscore are interpreted as a language tag and that language
+is passed to the font for rendering the text in that file only.</p>
+</div>
+<div class="paragraph">
+<p>Text, by default, is rendered at 12pt. But this can be overridden using the
+<code>TEXTSIZE</code> global variable which is set to the size of text in points.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_test">4.2.2. test</h4>
+<div class="paragraph">
+<p>This test creates an html report describing the shaping (glyphs and positions)
+differences between the font created and a reference font found in <code>references/</code>
+(or as specified in the <code>STANDARDS</code> variable). This allows a font developer
+to commit a known base reference version of the font to their git repository and then to
+see what has changed as a result of their work. In effect, this is a form of regression testing.</p>
+</div>
+<div class="paragraph">
+<p>The standards directory is, in priority order: as specified in the test with a <code>standards</code> attribute, or via the command line <code>--standards</code> parameter, or from the <code>STANDARDS</code> global (or context) variable or <code>references</code>.</p>
+</div>
+<div class="paragraph">
+<p>A regression report is generated for each .txt and .htxt test file, for each
+font, technology and script.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_xtest">4.2.3. xtest</h4>
+<div class="paragraph">
+<p>This tests creates a similar html report to that for regression testing, but
+it is concerned with the differences between the different smart font technologies
+and scripts. Thus a report is generated for each font and technology and script
+pair for each .txt and .htxt test file.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_waterfall">4.2.4. waterfall</h4>
+<div class="paragraph">
+<p>This test does not use test files, instead it takes a single string and produces
+one file per font and technology and script of a single test string rendered
+at a number of font sizes. There are various variables that control the generated
+waterfalls:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">TESTSTRING</dt>
+<dd>
+<p>This is the string to be rendered. Without it, the waterfall target does nothing.</p>
+</dd>
+<dt class="hdlist1">WATERFALLSIZES</dt>
+<dd>
+<p>This is a python list (or tuple) of sizes to render the waterfall text at, in points. It
+defaults to <code>[6, 8, 9, 10, 11, 12, 13, 14, 16, 18, 22, 24, 28, 32, 36, 42, 48, 56, 72]</code>.</p>
+</dd>
+<dt class="hdlist1">TESTLINESPACINGFACTOR</dt>
+<dd>
+<p>This is a multiplier specifying what the interline space (space between baselines) should
+be based on the font size currently used. The default is 1.2.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_xfont">4.2.5. xfont</h4>
+<div class="paragraph">
+<p>This test is similar to the waterfall in that it uses a single test string, but it uses
+the test string to create a single report of the test string being rendered in all the fonts at a given point size. There are various variables that control the test.</p>
+</div>
+<div class="paragraph">
+<p>TESTSTRING:
+    This is the string to be rendered. Notice that it is the same string as for the waterfall.
+    Lack of it means the test outputs nothing.</p>
+</div>
+<div class="paragraph">
+<p>TESTFONTSIZE:
+    The point size, in points, to render each font at. Defaults to 12.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ftml">4.2.6. ftml</h4>
+<div class="paragraph">
+<p>FTML tests don&#8217;t generate any files (well perhaps some), instead all the interest is in
+the generated <code>ftml_index.html</code> file that creates complex links that run a particular
+xsl file against a particular ftml file giving the font and technology and script. The xsl file then generates an html report for the .ftml file given the font and that is then displayed in the browser.</p>
+</div>
+<div class="paragraph">
+<p>In order to make the browser be able to load the various fonts and files, these and the
+necessary supporting files are copied into the results tests tree for this target. The test also supports .txt and .htxt test file types, converting them into .ftml as they are copied.</p>
+</div>
+<div class="paragraph">
+<p>By default, smith does not come with any .ftml .xsl report generators already built in. Currently a wscript author has to specify where such an .xsl file may be found. They can do this using the <code>ftmlTest()</code> function that takes one parameter (a local path to an .xsl file) and various named parameters:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">cmd</dt>
+<dd>
+<p>This specifies the particular test command to associate this xsl file with. The default is the default ftml target: <code>ftml</code>.</p>
+</dd>
+<dt class="hdlist1">name</dt>
+<dd>
+<p>This is the name used to identify this xsl in the report. By default it is the xsl filename without the extension.</p>
+</dd>
+<dt class="hdlist1">fonts</dt>
+<dd>
+<p>An optional list of fonts that will be passed along with the font under test to the xsl. This allows more than one font to be displayed in the same report.</p>
+</dd>
+<dt class="hdlist1">addfontindex</dt>
+<dd>
+<p>This specifies where in the list of fonts specified in the fonts parameter, the test font     should be inserted. Usually this is either 0 (the default) or len(fonts), the number of fonts in the fonts parameter list.</p>
+</dd>
+<dt class="hdlist1">fontmode</dt>
+<dd>
+<p>This is the same as the fontmode parameter used in test creation. It can take 3 values, described later, with the following effects:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">all</dt>
+<dd>
+<p>One link is created per font.</p>
+</dd>
+<dt class="hdlist1">none</dt>
+<dd>
+<p>A single link is made passing all the fonts in the fonts list to the report.</p>
+</dd>
+<dt class="hdlist1">collect</dt>
+<dd>
+<p>A single link is made passing all the fonts generated and any fonts in the fonts parameter list, to the report generator. The particular fontgroup used is called <code>_allFonts</code>.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">shapers</dt>
+<dd>
+<p>This controls how many tests are produced per font. This is the same as the general
+shapers parameter found in tests, see that description for more details.
+There are 3 values this parameter may take, but ftml testing only supports 2:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">0</dt>
+<dd>
+<p>Just produce one test per font, regardless of what smart font technologies are created.</p>
+</dd>
+<dt class="hdlist1">1</dt>
+<dd>
+<p>Create one test per font and smart font technology and script.</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sile">4.2.7. sile</h4>
+<div class="paragraph">
+<p>Smith can run sile (<a href="https://sile-typesetter.org/">the SILE typesetter</a>) for font testing. It processes .sil files.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">sil</dt>
+<dd>
+<p>The file is assumed to be a fontproof based sile file. This means that sile will be called with the lua variable <code>fontfile</code> set to the fontfile the report is for.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_alltests">4.2.8. alltests</h4>
+<div class="paragraph">
+<p>There is one very simple test target: <code>smith alltests</code>. This runs all the test targets that smith can find, whether internal or user defined. If a test produces no output, it is skipped and no test_index.html file is created.</p>
+</div>
+<div class="paragraph">
+<p>It may be that there are tests that a user wants to remove from the list of
+alltests. This can be achieved through listing the test commands to remove, as strings in a list under the <code>NOALLTESTS</code> global variable in the wscript file.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_fbchecks">4.2.9. fbchecks</h4>
+<div class="paragraph">
+<p>Another useful testing target is <code>smith fbchecks</code>. This runs all the generated fonts through the <a href="https://fontbakery.readthedocs.io/">Font Bakery</a> QA suite.
+It does so using the fontbakery profile in pysilfont which explicitly list certains checks, excludes others and provides new ones. Local project-specific checks can also be added in the form of a fontbakery.yaml file at the root of the project.
+A html report is generated with the results for each font family along with a summary at the command-line.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_ots">4.2.10. ots</h4>
+<div class="paragraph">
+<p>This test target runs the fonts against the OTS the opentype sanitizer which is built-in various browser to reduce overflow risks. If the font does not pass the sanitizer it will be rejected by various browsers.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_validate">4.2.11. validate</h4>
+<div class="paragraph">
+<p>This test target runs the fonts against <a href="https://github.com/HinTak/Font-Validator">FontValidator</a>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_pyfontaine">4.2.12. pyfontaine</h4>
+<div class="paragraph">
+<p>This test target runs the fonts against <a href="https://github.com/googlefonts/pyfontaine">pyfontaine</a> for coverage reporting. It uses various character sets like fontconfig, glyphlists, hyperglot, subsets, uniblocks, unencoded, cldr, extensis.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_differ">4.2.13. differ</h4>
+<div class="paragraph">
+<p><code>smith differ</code> allows fonts recently built to be compared against the corresponding fonts in <code>references</code> (or whichever folder is defined by the STANDARDS variable) using diffenator2.  HTML reports are generated in <code>results/diffenator2</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_adding_test_files">4.3. Adding test files</h3>
+<div class="paragraph">
+<p>Sometimes you want to create test files as part of the build. This can be done using <code>testFile()</code>. It takes the same parameters as for a <code>create()</code> and it does create the file, but it also adds it to the list of source test files as if it was stored in the <code>tests/</code> directory (or wherever you have specified that test files are stored).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_defined_tests">4.4. User-defined Tests</h3>
+<div class="paragraph">
+<p>It is possible to add your own tests to the smith test system. One can create a variant of one of the standard tests listed above, and associate it with a new target. Or one can run a separate command to execute the test. The test is specified using a <code>testCommand()</code> function that takes a single fixed parameter of the target the command is to be associated with and a list of named parameters. It is possible to specify more than one testCommand be associated with the same target, in which case all the testCommands will be run when that target is specified.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">type</dt>
+<dd>
+<p>This specifies the type of the test. It may take various values:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">test</dt>
+<dd>
+<p>A general type test with a given command. This is the default.</p>
+</dd>
+<dt class="hdlist1">FTML</dt>
+<dd>
+<p>An ftml test that can take multiple xsl report generators.</p>
+</dd>
+<dt class="hdlist1">TeX</dt>
+<dd>
+<p>A TeX based test</p>
+</dd>
+<dt class="hdlist1">Waterfall</dt>
+<dd>
+<p>A Waterfull based test. It is possible to set various per test values that would
+otherwise come from global variables:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">text</dt>
+<dd>
+<p>The text to output, defaults to that specified in TESTSTRING.</p>
+</dd>
+<dt class="hdlist1">sizes</dt>
+<dd>
+<p>A list of sizes to override those in WATERFALLSIZES or the defaults.</p>
+</dd>
+<dt class="hdlist1">sizefactor</dt>
+<dd>
+<p>Overrides the TESTLINESPACEFACTOR or its default.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">CrossFont</dt>
+<dd>
+<p>A CrossFont based test. It is possible to set various per test values that would
+otherwise come from global variables:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">text</dt>
+<dd>
+<p>The text to output, overriding the TESTSTRING value.</p>
+</dd>
+<dt class="hdlist1">size</dt>
+<dd>
+<p>The font size, overriding the TESTFONTSIZE value or its default.</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">cmd</dt>
+<dd>
+<p>This is a string that contains the command to execute to run the test. There are various substitution values that can be used. The value is between <code>${</code> and <code>}</code>. The default is that the corresponding parameter passed to the test is looked up. Other more specific values are:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">SRC[0]</dt>
+<dd>
+<p>The test source file (text or otherwise). The test is considered dependent on the test file.</p>
+</dd>
+<dt class="hdlist1">SRC[1]</dt>
+<dd>
+<p>The first font in the list of fonts passed to the test. Usually there is only one such font. You can pass more fonts via the fonts test parameter. Referencing a font this way introduces a dependency between the test and the font such that if the font changes the test will be rerun.</p>
+</dd>
+<dt class="hdlist1">SRC[2]</dt>
+<dd>
+<p>If usestandards is true there will be a second font that can be referenced and this
+is the standard base font.</p>
+</dd>
+<dt class="hdlist1">TGT</dt>
+<dd>
+<p>The generated output filename.</p>
+</dd>
+<dt class="hdlist1">shaper</dt>
+<dd>
+<p>The shaper used for the first font: <code>ot</code> or <code>gr</code>.</p>
+</dd>
+<dt class="hdlist1">script</dt>
+<dd>
+<p>The script for the first font. May be the empty string if the shaper is <code>gr</code>.</p>
+</dd>
+<dt class="hdlist1">altshaper</dt>
+<dd>
+<p>The shaper used for the second font when shapers=2: <code>ot</code> or <code>gr</code>.</p>
+</dd>
+<dt class="hdlist1">altscript</dt>
+<dd>
+<p>The script used for the second font when shapers=2.</p>
+</dd>
+<dt class="hdlist1">CMDNAME</dt>
+<dd>
+<p>This is a command name that has been looked up during <code>smith configure</code> and is referenced here.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">shapers</dt>
+<dd>
+<p>This specifies how many tests will be produced per font based on the value of this parameter:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">0</dt>
+<dd>
+<p>Produce one test per font regardless of how many shapers or scripts are specified.</p>
+</dd>
+<dt class="hdlist1">1</dt>
+<dd>
+<p>Produce one test per font per shaper per script. Although the script is only relevant to the 'ot' shaper. [Default]</p>
+</dd>
+<dt class="hdlist1">2</dt>
+<dd>
+<p>Produce one test per shaper script pair for a font.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">fontmode</dt>
+<dd>
+<p>This specifies how fonts are handled in relation to the test:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">all</dt>
+<dd>
+<p>One test (or more) is generated for each font the project creates. [Default]</p>
+</dd>
+<dt class="hdlist1">none</dt>
+<dd>
+<p>Only one test is produced. There is no font, although you may
+pass fonts as a list via the fonts parameter.</p>
+</dd>
+<dt class="hdlist1">collect</dt>
+<dd>
+<p>Only one test is produced, but all the fonts are passed to that one test.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">fonts</dt>
+<dd>
+<p>A list of fonts to pass to the command.</p>
+</dd>
+<dt class="hdlist1">ext</dt>
+<dd>
+<p>What is the extension of the target filename from the report. The filename is autogenerated
+with the given extension. The default is <code>.html</code>.</p>
+</dd>
+<dt class="hdlist1">supports</dt>
+<dd>
+<p>Some test commands only support certain types of test data. The extensions supported
+are given in this list. Specifying <code>.txt</code> implies <code>.htxt</code> support as well (via conversion to <code>.txt</code>).
+The default is <code>['.txt', '.ftml', '.xml']</code>.
+If you want to support ftml you should specify both <code>.ftml</code> and <code>.xml</code>.</p>
+</dd>
+<dt class="hdlist1">usestandards</dt>
+<dd>
+<p>If True, this says that the test expects that there is a corresponding reference font for
+each font and that the command in some way compares the test font with the corresponding
+reference font to produce its results.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_packages">5. Packages</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Once a set of writing system components have been created, we need to package them for distribution. Smith works to make that as simple but as powerful as appropriate. There is an optional <code>package</code> attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition, a global package object is created into which go all the components for which no <code>package</code> attribute has been set.</p>
+</div>
+<div class="paragraph">
+<p>The global package can take its parameters from the wscript file as global variables with the same name as the attribute, but with the name uppercased.</p>
+</div>
+<div class="paragraph">
+<p>The attributes to package are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">appname</dt>
+<dd>
+<p>Base application name to use for the installer in lower case. This is required.</p>
+</dd>
+<dt class="hdlist1">version</dt>
+<dd>
+<p>Version number of the installer. This is required.</p>
+</dd>
+<dt class="hdlist1">desc_short</dt>
+<dd>
+<p>One line description of the package.</p>
+</dd>
+<dt class="hdlist1">docdir</dt>
+<dd>
+<p>Directory tree to walk pulling in all the files as source files. Used for identifying documentation files that you want to include in a zip/tarball/release. It can also be used to add documentation files to supplementary fonts built from the same repository. If your wscript produces multiple packages with WOFF files, you need to use a special technique to get the WOFF files to appear in the appropriate web folders in each package. Otherwise you may end up with all the WOFFs from both font families appearing in both packages. There are two steps to setting this up:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Adjust the woff() command in the wscript supplemental package designspace routine to place the WOFFs in a temporary folder when built. You also need to add <code>dontship=True</code> so that the contents of the temporary folder don’t get duplicated.</p>
+</li>
+</ul>
+</div>
+</dd>
+</dl>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span>    <span class="tok-n">woff</span> <span class="tok-o">=</span> <span class="tok-n">woff</span><span class="tok-p">(</span><span class="tok-s1">&#39;web_book/${DS:FILENAME_BASE}.woff&#39;</span><span class="tok-p">,</span>
+    <span class="tok-n">metadata</span><span class="tok-o">=</span><span class="tok-sa">f</span><span class="tok-s1">&#39;../source/familybook-WOFF-metadata.xml&#39;</span><span class="tok-p">,</span> <span class="tok-n">dontship</span><span class="tok-o">=</span><span class="tok-kc">True</span><span class="tok-p">)</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Set the docdir in the package definition to map the temporary folder to the normal web folder. Example:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span>    <span class="tok-n">bookpackage</span> <span class="tok-o">=</span> <span class="tok-n">package</span><span class="tok-p">(</span><span class="tok-n">appname</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;FamilyBook&quot;</span><span class="tok-p">,</span>
+        <span class="tok-n">docdir</span> <span class="tok-o">=</span> <span class="tok-p">{</span><span class="tok-s2">&quot;documentation&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;documentation&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;web_book&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;web&quot;</span><span class="tok-p">})</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Those steps will place the appropriate WOFF fonts in the package web folders.</p>
+</div>
+<div class="paragraph">
+<p>However if you want the CSS and HTML docs from the repo <code>web</code> folder to appear you need to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a permanent <code>web_book</code> folder in the project root</p>
+</li>
+<li>
+<p>Copy the CSS and HTML docs from web into <code>web_book</code></p>
+</li>
+<li>
+<p>Modify those files to use the supplemental family names</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can also use docdir to use an alternative folder in the project as the source for the “documentation” folder in the supplemental package. For example, if you want your “Book” family to instead include documentation from a separate <code>documentation_book</code>, you could do this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span>    <span class="tok-n">bookpackage</span> <span class="tok-o">=</span> <span class="tok-n">package</span><span class="tok-p">(</span><span class="tok-n">appname</span> <span class="tok-o">=</span> <span class="tok-s2">&quot;FamilyBook&quot;</span><span class="tok-p">,</span>
+        <span class="tok-n">docdir</span> <span class="tok-o">=</span> <span class="tok-p">{</span><span class="tok-s2">&quot;documentation_book&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;documentation&quot;</span><span class="tok-p">,</span> <span class="tok-s2">&quot;web_book&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;web&quot;</span><span class="tok-p">})</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">package_files</dt>
+<dd>
+<p>This is a dictionary of filename globs as keys, including the use of ** for recursion. The values are replacement paths. If the value path ends in \/ the path from the key, up to the first *, is replaced with this value.</p>
+</dd>
+<dt class="hdlist1">zipfile</dt>
+<dd>
+<p>Name of zip file to use when creating smith zip. Is auto-generated if not set, based on appname and version.</p>
+</dd>
+<dt class="hdlist1">zipdir</dt>
+<dd>
+<p>Directory to store generated zip file in, relative to build directory.</p>
+</dd>
+<dt class="hdlist1">readme</dt>
+<dd>
+<p>Name of readme file to include in the package (default <code>README.txt</code>)</p>
+</dd>
+<dt class="hdlist1">buildversion</dt>
+<dd>
+<p>This is often defaulted. For a release build (-r or smith release) it is set to empty. For a non-release build, the core of buildversion is based on the current VCS commit identifier. For git this is the sha. The specification of its format is in <code>buildformat</code>. <code>buildversion</code> is a combination of <code>buildlabel</code> plus the generated identifier based on <code>buildformat</code>. The buildversion is included in the generated names of the zip and tarball targets and the font version (if the font version attribute is not a tuple).</p>
+</dd>
+<dt class="hdlist1">buildlabel</dt>
+<dd>
+<p>The development version label, for example alpha2.</p>
+</dd>
+<dt class="hdlist1">buildformat</dt>
+<dd>
+<p>Formats the vcs commit identifier or whatever in the development buildversion. This is a str.format type string and the following named parameters are available. The default for this variable is <code>dev-{vcssha:6}{vcsmodified}</code></p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">vcssha</dt>
+<dd>
+<p>Unique commit identifier</p>
+</dd>
+<dt class="hdlist1">vcsmodifier</dt>
+<dd>
+<p>Returns M if the sources we are building from are not the same as the commit.</p>
+</dd>
+<dt class="hdlist1">vcstype</dt>
+<dd>
+<p>Specifies the VCS system being used: git, hg, svn.</p>
+</dd>
+<dt class="hdlist1">buildnumber</dt>
+<dd>
+<p>Continuous integration build build number</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+<div class="sect2">
+<h3 id="_functions">5.1. Functions</h3>
+<div class="sect3">
+<h4 id="_getufoinfo">5.1.1. getufoinfo</h4>
+<div class="paragraph">
+<p>This function takes a path to a UFO font. It extracts information from the font and sets the corresponding variables in the wscript as if they had been entered directly. Thus those variables are usable elsewhere in the wscript. Important note: <code>getufoinfo()</code> must be the first function called in the wscript.</p>
+</div>
+<div class="paragraph">
+<p>The variables set are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">version</dt>
+<dd>
+<p>Taken from the VersionMajor and VersionMinor</p>
+</dd>
+<dt class="hdlist1">buildlabel</dt>
+<dd>
+<p>Taken from the openTypeNameVersion parsed to remove the initial Version d.ddd and any dev-ident.</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_global_functions">6. Global Functions</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the <code>wscript</code> writer to take more control over the build process. The functions described here should be considered advanced, and the beginning authors should not need to concern themselves with them initially.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">cmd(cmd, [input files], **options)</dt>
+<dd>
+<p>The <code>cmd()</code> function specifies a command to be executed in the build directory and then a list of one or more dependent input files.</p>
+<div class="paragraph">
+<p>The first parameter to the function is the command string to execute, which is executed from the build directory. Placeholders within the string are replaced with filenames:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>${TGT}</code> will be replaced by the name of the target file (which is given by the context of the <code>cmd()</code> function)</p>
+</li>
+<li>
+<p><code>${SRC}</code> will be replace by the list of dependent input files</p>
+</li>
+<li>
+<p><code>${SRC[n]}</code> will be replaced by the nth dependent input file (0 indexed)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There are various options that can be added to a <code>cmd()</code>:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">late</dt>
+<dd>
+<p>If set to non zero, this says that the command should be executed as late in the sequence of commands to be run on a file as possible.</p>
+</dd>
+<dt class="hdlist1">targets</dt>
+<dd>
+<p>This is a list of extra targets that this command generates. So a single command can create more than one file.</p>
+</dd>
+<dt class="hdlist1">shell</dt>
+<dd>
+<p>If set, says that the command should not be broken on spaces into elements to pass to an exec call, but to be passed through the shell for shell processing. Use this if you use file redirection, for example.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">create()</dt>
+<dd>
+<p>The <code>create()</code> function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a <code>cmd()</code> function. For example, consider a processing path on an input font:</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">source</span> <span class="tok-o">=</span> <span class="tok-n">create</span><span class="tok-p">(</span><span class="tok-s1">&#39;xyz.ufo&#39;</span><span class="tok-p">,</span> <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-s1">&#39;myfirstprocess $</span><span class="tok-si">{SRC}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">,</span> <span class="tok-p">[</span><span class="tok-s1">&#39;infile.ufo&#39;</span><span class="tok-p">]),</span>
+                           <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-s1">&#39;mysecondprocess $</span><span class="tok-si">{DEP}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">))</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">process()</dt>
+<dd>
+<p>This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a <code>cmd()</code> function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use <code>${DEP}</code></p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="python"><div class="lineno"><table class="linenotable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><span class="tok-n">target</span> <span class="tok-o">=</span> <span class="tok-n">process</span><span class="tok-p">(</span><span class="tok-s1">&#39;outfile.ttf&#39;</span><span class="tok-p">,</span> <span class="tok-n">cmd</span><span class="tok-p">(</span><span class="tok-s1">&#39;ttfautohint $</span><span class="tok-si">{DEP}</span><span class="tok-s1"> $</span><span class="tok-si">{TGT}</span><span class="tok-s1">&#39;</span><span class="tok-p">))</span>
+</pre></div></td></tr></table></div></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When <code>process()</code> is used on a source file, smith has to think a little harder.
+smith works to a strict rule that no files are created or changed in the main
+source tree. This means that smith cannot change a source file in its original
+position. For similar reasons (which file should one read?), smith does not allow
+there to be an identically named file with the same path in the source tree and
+in the build tree. So we can&#8217;t simply copy the source file into the build tree
+and work on it there. Instead, smith creates a copy of the source file in the
+buildtree by stripping its path component and storing it in the <code>tmp/</code>
+directory. It then processes that in place. For the most part authors do not
+have to consider this, and using <code>process()</code> on a source file will 'just work'.
+But there are rare situations where knowledge of the underlying actions are
+necessary.</p>
+</div>
+<div class="paragraph">
+<p>Parameters for this function are:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">nochange</dt>
+<dd>
+<p>If set, tells the system that there is no need to copy the dependency
+file before running the task. This is an internal parameter that users
+are very unlikely to need to use.</p>
+</dd>
+</dl>
+</div>
+</dd>
+<dt class="hdlist1">test()</dt>
+<dd>
+<p>This function applies a process to its output file with no expected output, so any <code>cmd()</code> would only have a <code>${TGT}</code> in the string. Of course other dependent inputs may be used. This is used for running files through checking processes that can fail, and give reports.</p>
+</dd>
+<dt class="hdlist1">getversion(format)</dt>
+<dd>
+<p>This function is designed to help generate a version string of your choosing. It gives access to various values
+that can be formatted using a format string. The default format string is: <code>dev-{vcssha:.6}{vcsmodified}</code>. This function
+supports git, mercurial and svn. If the command line option <code>--release</code> or <code>-r</code> is given, then this function will return
+different values. The keys for which there is access are:</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">vcssha</dt>
+<dd>
+<p>A unique identifier, depending on version control system for this commit. Blank if <code>--release</code>.</p>
+</dd>
+<dt class="hdlist1">vcsmodified</dt>
+<dd>
+<p>If the current code is different from that committed at this version, this value is <code>M</code>. Blank if <code>--release</code>.</p>
+</dd>
+<dt class="hdlist1">buildnumber</dt>
+<dd>
+<p>If being auto built, this is the build number</p>
+</dd>
+</dl>
+</div>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_environment_variables">7. Environment Variables</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following environment variables are supported by smith:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">SMITHARGS</dt>
+<dd>
+<p>append this string to the end of each command line, e.g. -r</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_dependencies">8. Dependencies</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Smith makes use of a fair amount of dependencies. And then there are secondary dependencies for these dependencies.</p>
+</div>
+<div class="paragraph">
+<p>There are two ways to install the smith toolchain and its many dependencies:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>rely on freshly built binaries from the upstream git repositories and the integrated smith Docker image to do all the installation and the configuration for you</p>
+</li>
+<li>
+<p>build the various components yourself directly from source</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>As you can imagine, we highly recommend the first option. We are using <a href="https://ubuntu.com">Ubuntu</a> as the base layer for the entire smith toolchain. It is only cross-platform in the sense that Windows or macOS users can make use of the Docker container to use smith. It has not been natively ported to other platforms besides Ubuntu.</p>
+</div>
+<div class="paragraph">
+<p>The installation steps are described in more details in the SIL Font Development Guide on <a href="https://silnrsi.github.io/silfontdev/" class="bare">https://silnrsi.github.io/silfontdev/</a>
+We are using the <a href="https://www.docker.com">Docker container technology</a>. The Smith Docker image is built from the Dockerfile at the root of the <a href="https://github.com/silnrsi/smith">smith project repository</a> which in turn uses various files in <code>docker/</code>.</p>
+</div>
+<div class="paragraph">
+<p>The various manual steps previously described in this section of the manual have been removed because they got out of date too quickly and were hard to maintain accurately. If you&#8217;d still like to do the whole process manually, then we recommend you study the steps in the Dockerfile as well as the dependency definitions in the <code>docker/</code> folder of the <a href="https://github.com/silnrsi/smith">smith project repository</a>.</p>
+</div>
+<div class="paragraph">
+<p>Let us know of any issues and please report bugs.</p>
+</div>
+<div class="paragraph">
+<p>Enjoy!</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2024-08-12 10:53:23 -0500
+</div>
+</div>
+</body>
+</html>
