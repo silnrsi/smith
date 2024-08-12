@@ -1,5 +1,4 @@
 name: build docs
-description: 'Build the smith manual via asciidoctor'
 
 on:
   push:
