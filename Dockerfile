@@ -52,7 +52,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       libgl1 \
       ipython3 \
       apt-utils \
-      python3-venv
+      python3-venv \
+      jq \
+      asciidoctor \
+      ruby-pygments.rb
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
@@ -107,8 +110,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       pkg-config \
       ragel \
       meson \
-      ninja-build \
-      jq
+      ninja-build 
 EOT
 
 
