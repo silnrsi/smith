@@ -2,13 +2,12 @@
 :homepage: https://silnrsi.github.io/smith
 :author: By Martin Hosken, SIL's WSTech (with contributions by Nicolas Spalinger and other WSTech team members)
 :keywords: fonts, building, testing, releasing, writing systems
-
+:source-highlighter: rouge
 :toc: left
 :toclevels: 2
 :sectanchors:
 :sectlinks:
 :sectnums:
-:source-highlighter: pygments
 
 include::intro.adoc[]
 

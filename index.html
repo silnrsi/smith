@@ -438,6 +438,221 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
+<style>
+pre.rouge table td { padding: 5px; }
+pre.rouge table pre { margin: 0; }
+pre.rouge .cm {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cp {
+  color: #999999;
+  font-weight: bold;
+}
+pre.rouge .c1 {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .cs {
+  color: #999999;
+  font-weight: bold;
+  font-style: italic;
+}
+pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cpf {
+  color: #999988;
+  font-style: italic;
+}
+pre.rouge .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+pre.rouge .gd {
+  color: #000000;
+  background-color: #ffdddd;
+}
+pre.rouge .ge {
+  color: #000000;
+  font-style: italic;
+}
+pre.rouge .gr {
+  color: #aa0000;
+}
+pre.rouge .gh {
+  color: #999999;
+}
+pre.rouge .gi {
+  color: #000000;
+  background-color: #ddffdd;
+}
+pre.rouge .go {
+  color: #888888;
+}
+pre.rouge .gp {
+  color: #555555;
+}
+pre.rouge .gs {
+  font-weight: bold;
+}
+pre.rouge .gu {
+  color: #aaaaaa;
+}
+pre.rouge .gt {
+  color: #aa0000;
+}
+pre.rouge .kc {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kd {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kn {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kp {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kr {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .kt {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .k, pre.rouge .kv {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .mf {
+  color: #009999;
+}
+pre.rouge .mh {
+  color: #009999;
+}
+pre.rouge .il {
+  color: #009999;
+}
+pre.rouge .mi {
+  color: #009999;
+}
+pre.rouge .mo {
+  color: #009999;
+}
+pre.rouge .m, pre.rouge .mb, pre.rouge .mx {
+  color: #009999;
+}
+pre.rouge .sa {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .sb {
+  color: #d14;
+}
+pre.rouge .sc {
+  color: #d14;
+}
+pre.rouge .sd {
+  color: #d14;
+}
+pre.rouge .s2 {
+  color: #d14;
+}
+pre.rouge .se {
+  color: #d14;
+}
+pre.rouge .sh {
+  color: #d14;
+}
+pre.rouge .si {
+  color: #d14;
+}
+pre.rouge .sx {
+  color: #d14;
+}
+pre.rouge .sr {
+  color: #009926;
+}
+pre.rouge .s1 {
+  color: #d14;
+}
+pre.rouge .ss {
+  color: #990073;
+}
+pre.rouge .s, pre.rouge .dl {
+  color: #d14;
+}
+pre.rouge .na {
+  color: #008080;
+}
+pre.rouge .bp {
+  color: #999999;
+}
+pre.rouge .nb {
+  color: #0086B3;
+}
+pre.rouge .nc {
+  color: #445588;
+  font-weight: bold;
+}
+pre.rouge .no {
+  color: #008080;
+}
+pre.rouge .nd {
+  color: #3c5d5d;
+  font-weight: bold;
+}
+pre.rouge .ni {
+  color: #800080;
+}
+pre.rouge .ne {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nf, pre.rouge .fm {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nl {
+  color: #990000;
+  font-weight: bold;
+}
+pre.rouge .nn {
+  color: #555555;
+}
+pre.rouge .nt {
+  color: #000080;
+}
+pre.rouge .vc {
+  color: #008080;
+}
+pre.rouge .vg {
+  color: #008080;
+}
+pre.rouge .vi {
+  color: #008080;
+}
+pre.rouge .nv, pre.rouge .vm {
+  color: #008080;
+}
+pre.rouge .ow {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .o {
+  color: #000000;
+  font-weight: bold;
+}
+pre.rouge .w {
+  color: #bbbbbb;
+}
+pre.rouge {
+  background-color: #f8f8f8;
+}
+</style>
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
@@ -664,8 +879,11 @@ beginnings. We will use the UFO sources from the Andika-Mtihani project, and cal
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'Example-Regular.ttf',
-     source = 'source/Example-Regular.ufo')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'source/Example-Regular.ufo'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -714,9 +932,13 @@ exception. Can we scale our project to handle more than one file?</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">for weight in ('-Regular', '-Bold'):
-    font(target = 'Example' + weight + '.ttf',
-        source = 'source/Example' + weight + '.ufo')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -763,12 +985,19 @@ file containing the fonts and corresponding files (with Windows line-endings CR 
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.1'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.1'</span>
 
-for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
-    font(target = 'Example' + weight + '.ttf',
-        source = 'source/Example' + weight + '.ufo')</code></pre>
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">,</span> <span class="s">'-Italic'</span><span class="p">,</span> <span class="s">'-BoldItalic'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -817,14 +1046,23 @@ this exercise we will add a process to the source font:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.1'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.1'</span>
 
-ufobackgroundclean = '../tools/' + 'ufobackgroundclean'
+<span class="n">ufobackgroundclean</span> <span class="o">=</span> <span class="s">'../tools/'</span> <span class="o">+</span> <span class="s">'ufobackgroundclean'</span>
 
-for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
-    font(target = 'Example' + weight + '.ttf',
-        source = process('source/Example' + weight + '.ufo', cmd(ufobackgroundclean + ' ${DEP} ${TGT}')))</code></pre>
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">,</span> <span class="s">'-Italic'</span><span class="p">,</span> <span class="s">'-BoldItalic'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">,</span> <span class="n">cmd</span><span class="p">(</span><span class="n">ufobackgroundclean</span> <span class="o">+</span> <span class="s">' ${DEP} ${TGT}'</span><span class="p">)))</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -893,24 +1131,43 @@ also add some tests.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.1'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.1'</span>
 
-TESTDIR = 'tests'
-TESTRESULTSDIR = 'tests'
-DESC_SHORT = "Derivative Foobar"
+<span class="n">TESTDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">TESTRESULTSDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">DESC_SHORT</span> <span class="o">=</span> <span class="s">"Derivative Foobar"</span>
 
-for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
-    font(target = "Example" + weight + '.ttf',
-        source = process('source/Example' + weight + '.ufo', 
-            cmd('../tools/ufobackgroundclean' + ' ${DEP} ${TGT}')),
-        opentype = internal(),
-        graphite = gdl('source/' + APPNAME + '.gdl', 
-            master = 'source/graphite/master.gdl'),
-        ap = 'source/' + APPNAME + '.xml',
-        script = 'latn',
-        fret = fret(params = "-r")
-        )</code></pre>
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">,</span> <span class="s">'-Italic'</span><span class="p">,</span> <span class="s">'-BoldItalic'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">"Example"</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">,</span> 
+            <span class="n">cmd</span><span class="p">(</span><span class="s">'../tools/ufobackgroundclean'</span> <span class="o">+</span> <span class="s">' ${DEP} ${TGT}'</span><span class="p">)),</span>
+        <span class="n">opentype</span> <span class="o">=</span> <span class="n">internal</span><span class="p">(),</span>
+        <span class="n">graphite</span> <span class="o">=</span> <span class="n">gdl</span><span class="p">(</span><span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.gdl'</span><span class="p">,</span> 
+            <span class="n">master</span> <span class="o">=</span> <span class="s">'source/graphite/master.gdl'</span><span class="p">),</span>
+        <span class="n">ap</span> <span class="o">=</span> <span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.xml'</span><span class="p">,</span>
+        <span class="n">script</span> <span class="o">=</span> <span class="s">'latn'</span><span class="p">,</span>
+        <span class="n">fret</span> <span class="o">=</span> <span class="n">fret</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">"-r"</span><span class="p">)</span>
+        <span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1067,27 +1324,49 @@ metadata that is involved in producing a font release.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.2'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.2'</span>
 
-TESTDIR = 'tests'
-TESTRESULTSDIR = 'tests'
-DESC_SHORT = "Foobar is a derivative for learning"
+<span class="n">TESTDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">TESTRESULTSDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">DESC_SHORT</span> <span class="o">=</span> <span class="s">"Foobar is a derivative for learning"</span>
 
-for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
-    font(target = process(APPNAME + weight + '.ttf', name('Foobar')),
-         source = process('source/Example' + weight + '.ufo', cmd('../tools/ufobackgroundclean ${DEP} ${TGT}')),
-         version = VERSION,
-         woff = woff(),
-         opentype = internal(),
-         graphite = gdl('source/' + APPNAME + '.gdl', master = 'source/graphite/master.gdl'),
-         ap = 'source/' + APPNAME + '.xml',
-         script = 'latn',
-         fret = fret(params = "-r")
-        )
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">,</span> <span class="s">'-Italic'</span><span class="p">,</span> <span class="s">'-BoldItalic'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="n">APPNAME</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span> <span class="n">name</span><span class="p">(</span><span class="s">'Foobar'</span><span class="p">)),</span>
+         <span class="n">source</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">,</span> <span class="n">cmd</span><span class="p">(</span><span class="s">'../tools/ufobackgroundclean ${DEP} ${TGT}'</span><span class="p">)),</span>
+         <span class="n">version</span> <span class="o">=</span> <span class="n">VERSION</span><span class="p">,</span>
+         <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(),</span>
+         <span class="n">opentype</span> <span class="o">=</span> <span class="n">internal</span><span class="p">(),</span>
+         <span class="n">graphite</span> <span class="o">=</span> <span class="n">gdl</span><span class="p">(</span><span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.gdl'</span><span class="p">,</span> <span class="n">master</span> <span class="o">=</span> <span class="s">'source/graphite/master.gdl'</span><span class="p">),</span>
+         <span class="n">ap</span> <span class="o">=</span> <span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.xml'</span><span class="p">,</span>
+         <span class="n">script</span> <span class="o">=</span> <span class="s">'latn'</span><span class="p">,</span>
+         <span class="n">fret</span> <span class="o">=</span> <span class="n">fret</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">"-r"</span><span class="p">)</span>
+        <span class="p">)</span>
 
-def configure(conf) :
-    conf.find_program('../tools/uforeport')</code></pre>
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">conf</span><span class="p">.</span><span class="n">find_program</span><span class="p">(</span><span class="s">'../tools/uforeport'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1125,27 +1404,49 @@ command line based, non-interactive and report generators.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.3'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.3'</span>
 
-TESTDIR = 'tests'
-TESTRESULTSDIR = 'tests'
-DESC_SHORT = "Foobar is a derivative for learning"
+<span class="n">TESTDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">TESTRESULTSDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">DESC_SHORT</span> <span class="o">=</span> <span class="s">"Foobar is a derivative for learning"</span>
 
-for weight in ('-Regular', '-Bold', '-Italic', '-BoldItalic'):
-    font(target = process(APPNAME + weight + '.ttf', name("Foobar")),
-         source = process('source/Example' + weight + '.ufo'),
-         version = VERSION,
-         woff = woff(),
-         opentype = internal(),
-         graphite = gdl('source/' + APPNAME + '.gdl', master = 'source/graphite/master.gdl'),
-         ap = 'source/' + APPNAME + '.xml',
-         script = 'latn',
-         fret = fret(params = "-r")
-        )
+<span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'-Regular'</span><span class="p">,</span> <span class="s">'-Bold'</span><span class="p">,</span> <span class="s">'-Italic'</span><span class="p">,</span> <span class="s">'-BoldItalic'</span><span class="p">):</span>
+    <span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="n">APPNAME</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ttf'</span><span class="p">,</span> <span class="n">name</span><span class="p">(</span><span class="s">"Foobar"</span><span class="p">)),</span>
+         <span class="n">source</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">),</span>
+         <span class="n">version</span> <span class="o">=</span> <span class="n">VERSION</span><span class="p">,</span>
+         <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(),</span>
+         <span class="n">opentype</span> <span class="o">=</span> <span class="n">internal</span><span class="p">(),</span>
+         <span class="n">graphite</span> <span class="o">=</span> <span class="n">gdl</span><span class="p">(</span><span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.gdl'</span><span class="p">,</span> <span class="n">master</span> <span class="o">=</span> <span class="s">'source/graphite/master.gdl'</span><span class="p">),</span>
+         <span class="n">ap</span> <span class="o">=</span> <span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.xml'</span><span class="p">,</span>
+         <span class="n">script</span> <span class="o">=</span> <span class="s">'latn'</span><span class="p">,</span>
+         <span class="n">fret</span> <span class="o">=</span> <span class="n">fret</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">"-r"</span><span class="p">)</span>
+        <span class="p">)</span>
 
-def configure(ctx) :
-    ctx.find_program('../tools/uforeport')</code></pre>
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">ctx</span><span class="p">.</span><span class="n">find_program</span><span class="p">(</span><span class="s">'../tools/uforeport'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1207,31 +1508,57 @@ explicitly listed.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">APPNAME = 'Example'
-VERSION = '0.0.3'
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre></td><td class="code"><pre><span class="n">APPNAME</span> <span class="o">=</span> <span class="s">'Example'</span>
+<span class="n">VERSION</span> <span class="o">=</span> <span class="s">'0.0.3'</span>
 
-TESTDIR = 'tests'
-TESTRESULTSDIR = 'tests'
-DESC_SHORT = "Derivative"
+<span class="n">TESTDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">TESTRESULTSDIR</span> <span class="o">=</span> <span class="s">'tests'</span>
+<span class="n">DESC_SHORT</span> <span class="o">=</span> <span class="s">"Derivative"</span>
 
-# Get VERSION and BUILDLABEL from Regular UFO; must be first function call:
-getufoinfo('source/masters/' + familyname + '-Regular' + '.ufo')
+<span class="c1"># Get VERSION and BUILDLABEL from Regular UFO; must be first function call:
+</span><span class="n">getufoinfo</span><span class="p">(</span><span class="s">'source/masters/'</span> <span class="o">+</span> <span class="n">familyname</span> <span class="o">+</span> <span class="s">'-Regular'</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">)</span>
 
 
-designspace('source/' +  process('source/Example' + weight + '.ufo'),
-        target = process('${DS:FILENAME_BASE}.ttf', *cmds),
-                instances = ['Example Regular']
-         version = VERSION,
-         woff = woff(),
-         opentype = internal(),
-         graphite = gdl('source/' + APPNAME + '.gdl', master = 'source/graphite/master.gdl'),
-         ap = 'source/' + APPNAME + '.xml',
-         script = 'latn',
-         fret = fret(params = "-r")
-        )
+<span class="n">designspace</span><span class="p">(</span><span class="s">'source/'</span> <span class="o">+</span>  <span class="n">process</span><span class="p">(</span><span class="s">'source/Example'</span> <span class="o">+</span> <span class="n">weight</span> <span class="o">+</span> <span class="s">'.ufo'</span><span class="p">),</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'${DS:FILENAME_BASE}.ttf'</span><span class="p">,</span> <span class="o">*</span><span class="n">cmds</span><span class="p">),</span>
+                <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Example Regular'</span><span class="p">]</span>
+         <span class="n">version</span> <span class="o">=</span> <span class="n">VERSION</span><span class="p">,</span>
+         <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(),</span>
+         <span class="n">opentype</span> <span class="o">=</span> <span class="n">internal</span><span class="p">(),</span>
+         <span class="n">graphite</span> <span class="o">=</span> <span class="n">gdl</span><span class="p">(</span><span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.gdl'</span><span class="p">,</span> <span class="n">master</span> <span class="o">=</span> <span class="s">'source/graphite/master.gdl'</span><span class="p">),</span>
+         <span class="n">ap</span> <span class="o">=</span> <span class="s">'source/'</span> <span class="o">+</span> <span class="n">APPNAME</span> <span class="o">+</span> <span class="s">'.xml'</span><span class="p">,</span>
+         <span class="n">script</span> <span class="o">=</span> <span class="s">'latn'</span><span class="p">,</span>
+         <span class="n">fret</span> <span class="o">=</span> <span class="n">fret</span><span class="p">(</span><span class="n">params</span> <span class="o">=</span> <span class="s">"-r"</span><span class="p">)</span>
+        <span class="p">)</span>
 
-def configure(ctx) :
-    ctx.find_program('../tools/uforeport')</code></pre>
+<span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span> <span class="p">:</span>
+    <span class="n">ctx</span><span class="p">.</span><span class="n">find_program</span><span class="p">(</span><span class="s">'../tools/uforeport'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 </div>
@@ -1245,8 +1572,11 @@ def configure(ctx) :
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1260,8 +1590,11 @@ def configure(ctx) :
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ufo')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ufo'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1327,9 +1660,13 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'source/Example-Regular.ufo',
-     opentype = internal())</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'source/Example-Regular.ufo'</span><span class="p">,</span>
+     <span class="n">opentype</span> <span class="o">=</span> <span class="n">internal</span><span class="p">())</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1340,9 +1677,13 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.sfd',
-     sfd_master = 'mymaster.sfd')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.sfd'</span><span class="p">,</span>
+     <span class="n">sfd_master</span> <span class="o">=</span> <span class="s">'mymaster.sfd'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1361,12 +1702,19 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     opentype = volt('Example.vtp',
-                     master = 'Example.vtp'),
-     ap = 'Example.xml',
-     classes = 'project_classes.xml')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">opentype</span> <span class="o">=</span> <span class="n">volt</span><span class="p">(</span><span class="s">'Example.vtp'</span><span class="p">,</span>
+                     <span class="n">master</span> <span class="o">=</span> <span class="s">'Example.vtp'</span><span class="p">),</span>
+     <span class="n">ap</span> <span class="o">=</span> <span class="s">'Example.xml'</span><span class="p">,</span>
+     <span class="n">classes</span> <span class="o">=</span> <span class="s">'project_classes.xml'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1407,12 +1755,19 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     opentype = fea('Example.fea',
-                    master = 'Example.fea'),
-     ap = 'Example.xml',
-     classes = 'project_classes.xml')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">opentype</span> <span class="o">=</span> <span class="n">fea</span><span class="p">(</span><span class="s">'Example.fea'</span><span class="p">,</span>
+                    <span class="n">master</span> <span class="o">=</span> <span class="s">'Example.fea'</span><span class="p">),</span>
+     <span class="n">ap</span> <span class="o">=</span> <span class="s">'Example.xml'</span><span class="p">,</span>
+     <span class="n">classes</span> <span class="o">=</span> <span class="s">'project_classes.xml'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1468,13 +1823,21 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     graphite = gdl('Example.gdl',
-                     master = 'mymaster.gdl',
-                     make_params = '-o "R C"'),
-     ap = 'Example.xml',
-     classes = 'project_classes.xml')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">graphite</span> <span class="o">=</span> <span class="n">gdl</span><span class="p">(</span><span class="s">'Example.gdl'</span><span class="p">,</span>
+                     <span class="n">master</span> <span class="o">=</span> <span class="s">'mymaster.gdl'</span><span class="p">,</span>
+                     <span class="n">make_params</span> <span class="o">=</span> <span class="s">'-o "R C"'</span><span class="p">),</span>
+     <span class="n">ap</span> <span class="o">=</span> <span class="s">'Example.xml'</span><span class="p">,</span>
+     <span class="n">classes</span> <span class="o">=</span> <span class="s">'project_classes.xml'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1515,12 +1878,19 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = legacy('myfont_src.ttf',
-                     source = 'my_legacyfont.ttf',
-                     xml = 'legacy_encoding.xml',
-                     params = '-f ../roman_font.ttf',
-                     ap = 'my_legacyfont.xml'))</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="n">legacy</span><span class="p">(</span><span class="s">'myfont_src.ttf'</span><span class="p">,</span>
+                     <span class="n">source</span> <span class="o">=</span> <span class="s">'my_legacyfont.ttf'</span><span class="p">,</span>
+                     <span class="n">xml</span> <span class="o">=</span> <span class="s">'legacy_encoding.xml'</span><span class="p">,</span>
+                     <span class="n">params</span> <span class="o">=</span> <span class="s">'-f ../roman_font.ttf'</span><span class="p">,</span>
+                     <span class="n">ap</span> <span class="o">=</span> <span class="s">'my_legacyfont.xml'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1564,9 +1934,13 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     woff = woff('Example', metadata='metadata.xml')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(</span><span class="s">'Example'</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="s">'metadata.xml'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1620,9 +1994,13 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     woff = woff('Example', params='-v 3.2', metadata='metadata.xml')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(</span><span class="s">'Example'</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="s">'-v 3.2'</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="s">'metadata.xml'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1630,10 +2008,15 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     woff = woff('Example', type='woff', metadata='metadata.xml',
-                cmd='ttf2woff -m ${SRC[1]} -v 3.2 ${SRC[0]} ${TGT}')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(</span><span class="s">'Example'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">'woff'</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="s">'metadata.xml'</span><span class="p">,</span>
+                <span class="n">cmd</span><span class="o">=</span><span class="s">'ttf2woff -m ${SRC[1]} -v 3.2 ${SRC[0]} ${TGT}'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 </div>
@@ -1655,9 +2038,13 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">font(target = 'results/Example-Regular.ttf',
-     source = 'Example-Regular.ttf',
-     fret = fret('results/Example.pdf', params='-r -o i'))</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">font</span><span class="p">(</span><span class="n">target</span> <span class="o">=</span> <span class="s">'results/Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">source</span> <span class="o">=</span> <span class="s">'Example-Regular.ttf'</span><span class="p">,</span>
+     <span class="n">fret</span> <span class="o">=</span> <span class="n">fret</span><span class="p">(</span><span class="s">'results/Example.pdf'</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="s">'-r -o i'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 </div>
@@ -1675,8 +2062,11 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">designspace('source/Example.designspace',
-    target = '${DS:FILENAME_BASE}.ttf')</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="n">designspace</span><span class="p">(</span><span class="s">'source/Example.designspace'</span><span class="p">,</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="s">'${DS:FILENAME_BASE}.ttf'</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1696,9 +2086,13 @@ legacy font conversion process.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">opts = preprocess_args({'opt': '--quick'})
-designspace('source/Example.designspace', # ...
-    instances = ['Example Regular'] if '--quick' in opts else None)</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="code"><pre><span class="n">opts</span> <span class="o">=</span> <span class="n">preprocess_args</span><span class="p">({</span><span class="s">'opt'</span><span class="p">:</span> <span class="s">'--quick'</span><span class="p">})</span>
+<span class="n">designspace</span><span class="p">(</span><span class="s">'source/Example.designspace'</span><span class="p">,</span> <span class="c1"># ...
+</span>    <span class="n">instances</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Example Regular'</span><span class="p">]</span> <span class="k">if</span> <span class="s">'--quick'</span> <span class="ow">in</span> <span class="n">opts</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="dlist">
@@ -1721,20 +2115,35 @@ generate an instance, but use the master file directly. If False then a new inst
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-xml" data-lang="xml">&lt;instance
-    familyname="Example"
-    stylename="Bold"
-    name="Example Bold"
-    filename="instances/Example-Bold.ufo"
-    &gt;
-    &lt;location&gt;
-        &lt;dimension name="weight" xvalue="700" /&gt;
-        &lt;dimension name="width"  xvalue="100" /&gt;
-        &lt;dimension name="custom" xvalue="0" /&gt;
-    &lt;/location&gt;
-    &lt;info /&gt;
-    &lt;kerning /&gt;
-&lt;/instance&gt;</code></pre>
+<pre class="rouge highlight"><code data-lang="xml"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+</pre></td><td class="code"><pre><span class="nt">&lt;instance</span>
+    <span class="na">familyname=</span><span class="s">"Example"</span>
+    <span class="na">stylename=</span><span class="s">"Bold"</span>
+    <span class="na">name=</span><span class="s">"Example Bold"</span>
+    <span class="na">filename=</span><span class="s">"instances/Example-Bold.ufo"</span>
+    <span class="nt">&gt;</span>
+    <span class="nt">&lt;location&gt;</span>
+        <span class="nt">&lt;dimension</span> <span class="na">name=</span><span class="s">"weight"</span> <span class="na">xvalue=</span><span class="s">"700"</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;dimension</span> <span class="na">name=</span><span class="s">"width"</span>  <span class="na">xvalue=</span><span class="s">"100"</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;dimension</span> <span class="na">name=</span><span class="s">"custom"</span> <span class="na">xvalue=</span><span class="s">"0"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/location&gt;</span>
+    <span class="nt">&lt;info</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;kerning</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/instance&gt;</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2342,8 +2751,11 @@ reference font to produce its results.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">    woff = woff('web_book/${DS:FILENAME_BASE}.woff',
-    metadata=f'../source/familybook-WOFF-metadata.xml', dontship=True)</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre>    <span class="n">woff</span> <span class="o">=</span> <span class="n">woff</span><span class="p">(</span><span class="s">'web_book/${DS:FILENAME_BASE}.woff'</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="sa">f</span><span class="s">'../source/familybook-WOFF-metadata.xml'</span><span class="p">,</span> <span class="n">dontship</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="ulist">
@@ -2355,8 +2767,11 @@ reference font to produce its results.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">    bookpackage = package(appname = "FamilyBook",
-        docdir = {"documentation": "documentation", "web_book": "web"})</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre>    <span class="n">bookpackage</span> <span class="o">=</span> <span class="n">package</span><span class="p">(</span><span class="n">appname</span> <span class="o">=</span> <span class="s">"FamilyBook"</span><span class="p">,</span>
+        <span class="n">docdir</span> <span class="o">=</span> <span class="p">{</span><span class="s">"documentation"</span><span class="p">:</span> <span class="s">"documentation"</span><span class="p">,</span> <span class="s">"web_book"</span><span class="p">:</span> <span class="s">"web"</span><span class="p">})</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2383,8 +2798,11 @@ reference font to produce its results.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">    bookpackage = package(appname = "FamilyBook",
-        docdir = {"documentation_book": "documentation", "web_book": "web"})</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre>    <span class="n">bookpackage</span> <span class="o">=</span> <span class="n">package</span><span class="p">(</span><span class="n">appname</span> <span class="o">=</span> <span class="s">"FamilyBook"</span><span class="p">,</span>
+        <span class="n">docdir</span> <span class="o">=</span> <span class="p">{</span><span class="s">"documentation_book"</span><span class="p">:</span> <span class="s">"documentation"</span><span class="p">,</span> <span class="s">"web_book"</span><span class="p">:</span> <span class="s">"web"</span><span class="p">})</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="dlist">
@@ -2517,8 +2935,11 @@ reference font to produce its results.</p>
 <p>The <code>create()</code> function takes an initial parameter of the filename of the file to be created. The next parameter is a command to create the specified file. Usually this is a <code>cmd()</code> function. For example, consider a processing path on an input font:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">source = create('xyz.ufo', cmd('myfirstprocess ${SRC} ${TGT}', ['infile.ufo']),
-                           cmd('mysecondprocess ${DEP} ${TGT}'))</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+2
+</pre></td><td class="code"><pre><span class="n">source</span> <span class="o">=</span> <span class="n">create</span><span class="p">(</span><span class="s">'xyz.ufo'</span><span class="p">,</span> <span class="n">cmd</span><span class="p">(</span><span class="s">'myfirstprocess ${SRC} ${TGT}'</span><span class="p">,</span> <span class="p">[</span><span class="s">'infile.ufo'</span><span class="p">]),</span>
+                           <span class="n">cmd</span><span class="p">(</span><span class="s">'mysecondprocess ${DEP} ${TGT}'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 </dd>
@@ -2527,7 +2948,9 @@ reference font to produce its results.</p>
 <p>This function does an in place modification of the first parameter file that is assumed to already exist. The remaining functions are used to process the file in place. Often this is a <code>cmd()</code> function, but some other file type specific functions do exist. For details of them, see the relevant component type section. To reference the temporary input file referenced, use <code>${DEP}</code></p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">target = process('outfile.ttf', cmd('ttfautohint ${DEP} ${TGT}'))</code></pre>
+<pre class="rouge highlight"><code data-lang="python"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno">1
+</pre></td><td class="code"><pre><span class="n">target</span> <span class="o">=</span> <span class="n">process</span><span class="p">(</span><span class="s">'outfile.ttf'</span><span class="p">,</span> <span class="n">cmd</span><span class="p">(</span><span class="s">'ttfautohint ${DEP} ${TGT}'</span><span class="p">))</span>
+</pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -2628,7 +3051,7 @@ different values. The keys for which there is access are:</p>
 <p>As you can imagine, we highly recommend the first option. We are using <a href="https://ubuntu.com">Ubuntu</a> as the base layer for the entire smith toolchain. It is only cross-platform in the sense that Windows or macOS users can make use of the Docker container to use smith. It has not been natively ported to other platforms besides Ubuntu.</p>
 </div>
 <div class="paragraph">
-<p>The installation steps are described in more details in the SIL Font Development Guide on <a href="https://silnrsi.github.io/silfontdev/" class="bare">https://silnrsi.github.io/silfontdev/</a>
+<p>The installation steps are described in more details in the <a href="https://silnrsi.github.io/silfontdev">SIL Font Development Guide</a>.
 We are using the <a href="https://www.docker.com">Docker container technology</a>. The Smith Docker image is built from the Dockerfile at the root of the <a href="https://github.com/silnrsi/smith">smith project repository</a> which in turn uses various files in <code>docker/</code>.</p>
 </div>
 <div class="paragraph">
@@ -2645,7 +3068,7 @@ We are using the <a href="https://www.docker.com">Docker container technology</a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-08-13 00:59:10 UTC
+Last updated 2024-08-13 01:49:49 UTC
 </div>
 </div>
 </body>
