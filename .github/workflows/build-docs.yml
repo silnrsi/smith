@@ -15,7 +15,7 @@ jobs:
     - name: Get env set up
       run: |
           sudo apt-get update
-          sudo apt-get install ruby-pygments.rb
+          sudo apt-get install asciidoctor ruby-pygments.rb
           asciidoctor -t -v -D docs/smith --backend=xhtml5 -n -a toc=left -a source-hightlighter-pygments -o index.html docs/smith/manual.adoc
     - name: Deploy docs to gh-pages
       uses: peaceiris/actions-gh-pages@v4
