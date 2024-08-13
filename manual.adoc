@@ -4,11 +4,11 @@
 :keywords: fonts, building, testing, releasing, writing systems
 
 :toc: left
-
 :toclevels: 2
 :sectanchors:
 :sectlinks:
 :sectnums:
+:source-highlighter: pygments
 
 include::intro.adoc[]
 
