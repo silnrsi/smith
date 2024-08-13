@@ -500,7 +500,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_introduction">1. Introduction</h2>
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a><a class="link" href="#_introduction">1. Introduction</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><em>(Last updated in August 2024)</em></p>
@@ -519,7 +519,7 @@ Smith orchestrates and integrates various utilities to make a standards-based op
 <p>waf is <em>Copyright (c) 2005-2011 Thomas Nagy.</em></p>
 </div>
 <div class="sect2">
-<h3 id="_installation">1.1. Installation</h3>
+<h3 id="_installation"><a class="anchor" href="#_installation"></a><a class="link" href="#_installation">1.1. Installation</a></h3>
 <div class="paragraph">
 <p>A file called <code>wscript</code> needs to be created to control the build process. The convention is that this file is placed at the root of your font project source tree. This file is in fact a small python program, but the way it is run is designed to hide that as much as possible from the unsuspecting user.</p>
 </div>
@@ -528,7 +528,7 @@ Smith orchestrates and integrates various utilities to make a standards-based op
 </div>
 </div>
 <div class="sect2">
-<h3 id="_moving_your_project_to_smith">1.2. Moving your project to smith</h3>
+<h3 id="_moving_your_project_to_smith"><a class="anchor" href="#_moving_your_project_to_smith"></a><a class="link" href="#_moving_your_project_to_smith">1.2. Moving your project to smith</a></h3>
 <div class="paragraph">
 <p>Besides taking inspiration from the way smith is used in public projects, like the ones available on <a href="https://github.com/silnrsi">github.com/silnrsi</a> for example, you can use the following command to populate a brand new project with basic templates and standard folders:</p>
 </div>
@@ -542,7 +542,7 @@ Smith orchestrates and integrates various utilities to make a standards-based op
 </div>
 </div>
 <div class="sect2">
-<h3 id="_running_builds">1.3. Running builds</h3>
+<h3 id="_running_builds"><a class="anchor" href="#_running_builds"></a><a class="link" href="#_running_builds">1.3. Running builds</a></h3>
 <div class="paragraph">
 <p>The heart of the build system is the <code>wscript</code> file that controls the build
 process. This is done by the python program creating a set of component
@@ -639,7 +639,7 @@ development information in the form of git revision numbers, etc. Secondly, it b
 </div>
 </div>
 <div class="sect2">
-<h3 id="_writing_your_wscript">1.4. Writing your wscript</h3>
+<h3 id="_writing_your_wscript"><a class="anchor" href="#_writing_your_wscript"></a><a class="link" href="#_writing_your_wscript">1.4. Writing your wscript</a></h3>
 <div class="paragraph">
 <p>The <code>wscript</code> file is a Python program, but the internal environment is set up to minimise the amount of actual programming that needs to be done. There is no setup needed in the file, and object registration is automatic. It is possible to add waf specific extensions to the file, see details in the <a href="https://waf.io/">waf manual</a>.</p>
 </div>
@@ -650,7 +650,7 @@ development information in the form of git revision numbers, etc. Secondly, it b
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tutorial">2. Tutorial</h2>
+<h2 id="_tutorial"><a class="anchor" href="#_tutorial"></a><a class="link" href="#_tutorial">2. Tutorial</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>In this tutorial we will examine a number of wscript files. The first section is
@@ -658,7 +658,7 @@ the largest and builds up a complex font creation scenario from humble
 beginnings. We will use the UFO sources from the Andika-Mtihani project, and call our local copy "Example".</p>
 </div>
 <div class="sect2">
-<h3 id="_font1_simplicity">2.1. font1 - Simplicity</h3>
+<h3 id="_font1_simplicity"><a class="anchor" href="#_font1_simplicity"></a><a class="link" href="#_font1_simplicity">2.1. font1 - Simplicity</a></h3>
 <div class="paragraph">
 <p>We start with a simple, single font.</p>
 </div>
@@ -707,7 +707,7 @@ be built. In this case just the simple <code>Example-Regular.ttf</code> which wi
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font2_multiple_fonts">2.2. font2 - Multiple fonts</h3>
+<h3 id="_font2_multiple_fonts"><a class="anchor" href="#_font2_multiple_fonts"></a><a class="link" href="#_font2_multiple_fonts">2.2. font2 - Multiple fonts</a></h3>
 <div class="paragraph">
 <p>Most font packages consist of more than one font file and this project is no
 exception. Can we scale our project to handle more than one file?</p>
@@ -755,7 +755,7 @@ smith build</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font3_packaged">2.3. font3 - Packaged</h3>
+<h3 id="_font3_packaged"><a class="anchor" href="#_font3_packaged"></a><a class="link" href="#_font3_packaged">2.3. font3 - Packaged</a></h3>
 <div class="paragraph">
 <p>It&#8217;s good that we can create multiple fonts, but what do we do with them then?
 There are two typical products that people want from a font project: a <code>.zip</code>
@@ -805,7 +805,7 @@ smith tarball</pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font4_internal_processing">2.4. font4 - Internal processing</h3>
+<h3 id="_font4_internal_processing"><a class="anchor" href="#_font4_internal_processing"></a><a class="link" href="#_font4_internal_processing">2.4. font4 - Internal processing</a></h3>
 <div class="paragraph">
 <p>Before our example gains smart font support and grows in complexity, there is
 one area of control that is worth examining. For the most part, when creating a
@@ -886,7 +886,7 @@ information, and this is done using <code>-j1</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font5_smarts_and_basic_tests">2.5. font5 - Smarts and Basic Tests</h3>
+<h3 id="_font5_smarts_and_basic_tests"><a class="anchor" href="#_font5_smarts_and_basic_tests"></a><a class="link" href="#_font5_smarts_and_basic_tests">2.5. font5 - Smarts and Basic Tests</a></h3>
 <div class="paragraph">
 <p>In this exercise we grow our description to add OpenType and Graphite tables and
 also add some tests.</p>
@@ -1059,7 +1059,7 @@ font.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font6_metadata">2.6. font6 - Metadata</h3>
+<h3 id="_font6_metadata"><a class="anchor" href="#_font6_metadata"></a><a class="link" href="#_font6_metadata">2.6. font6 - Metadata</a></h3>
 <div class="paragraph">
 <p>So far we have concerned ourselves with the mechanics of font creation. But in
 order to release a font package we also need to concern ourselves with the
@@ -1109,7 +1109,7 @@ woff filename, which is sufficient for our needs. Both in v1 and v2 of the forma
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font7_more_tests">2.7. font7 - More Tests</h3>
+<h3 id="_font7_more_tests"><a class="anchor" href="#_font7_more_tests"></a><a class="link" href="#_font7_more_tests">2.7. font7 - More Tests</a></h3>
 <div class="paragraph">
 <p>This section is for those interested in doing more advanced types of testing.
 For most projects there is no need to go to this level of complexity and many
@@ -1201,7 +1201,7 @@ explicitly listed.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_font8_designspace">2.8. font8 - Designspace</h3>
+<h3 id="_font8_designspace"><a class="anchor" href="#_font8_designspace"></a><a class="link" href="#_font8_designspace">2.8. font8 - Designspace</a></h3>
 <div class="paragraph">
 <p>This final example shows how to use the designspace() object.</p>
 </div>
@@ -1238,7 +1238,7 @@ def configure(ctx) :
 </div>
 </div>
 <div class="sect1">
-<h2 id="_font_parameters_and_smarts">3. Font parameters and smarts</h2>
+<h2 id="_font_parameters_and_smarts"><a class="anchor" href="#_font_parameters_and_smarts"></a><a class="link" href="#_font_parameters_and_smarts">3. Font parameters and smarts</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The minimum attributes a font object needs are <code>target</code> and <code>source</code>. For example, the following <code>wscript</code> file is about as simple as one can get:</p>
@@ -1321,7 +1321,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </dl>
 </div>
 <div class="sect2">
-<h3 id="_opentype">3.1. OpenType</h3>
+<h3 id="_opentype"><a class="anchor" href="#_opentype"></a><a class="link" href="#_opentype">3.1. OpenType</a></h3>
 <div class="paragraph">
 <p>There are multiple ways of adding OpenType information to a font. One is to already have it in the source font. In this case, we need to indicate that we are working with an OpenType font, even if everything is internal to the font. The font builder needs to know for font testing purposes or if the font is generated from a legacy font.</p>
 </div>
@@ -1352,7 +1352,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 <p>Another approach to adding OpenType tables to a font is to use an external tool or text file to create the lookups and then to have smith compile them into the font. Two formats for source files are supported: Microsoft&#8217;s VOLT (Visual OpenType Layout Tool) and Adobe&#8217;s Feature File.</p>
 </div>
 <div class="sect3">
-<h4 id="_volt">3.1.1. VOLT</h4>
+<h4 id="_volt"><a class="anchor" href="#_volt"></a><a class="link" href="#_volt">3.1.1. VOLT</a></h4>
 <div class="paragraph">
 <p>This approach uses a command-line VOLT compiler to integrate the <code>.vtp</code> source into the font. In addition, the <code>.vtp</code> source is autogenerated from a source and any other elements that go to make the final integrated source. For example, we show a maximal <code>volt()</code> integration to show all the components and then discuss them.</p>
 </div>
@@ -1401,7 +1401,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 </div>
 <div class="sect3">
-<h4 id="_fea">3.1.2. FEA</h4>
+<h4 id="_fea"><a class="anchor" href="#_fea"></a><a class="link" href="#_fea">3.1.2. FEA</a></h4>
 <div class="paragraph">
 <p>The Adobe Font Development Kit for OpenType (AFDKO) has defined a textual syntax for OpenType tables, called a feature file. smith handles .fea files by merging font-specific classes (built from the AP and classes files) with a provided master fea file, and the resulting font-specific fea file is then compiled into the font.</p>
 </div>
@@ -1453,7 +1453,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 </div>
 <div class="sect2">
-<h3 id="_feax">3.2. FEAX</h3>
+<h3 id="_feax"><a class="anchor" href="#_feax"></a><a class="link" href="#_feax">3.2. FEAX</a></h3>
 <div class="paragraph">
 <p>Feax is a set of extensions to provide easier and more powerful ways to write fea code. It is a fea preprocessor. For the specification of the feax language see <a href="https://github.com/silnrsi/feax/blob/main/docs/feaextensions.md">feaextensions.md</a>.</p>
 </div>
@@ -1462,7 +1462,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 </div>
 <div class="sect2">
-<h3 id="_graphite">3.3. Graphite</h3>
+<h3 id="_graphite"><a class="anchor" href="#_graphite"></a><a class="link" href="#_graphite">3.3. Graphite</a></h3>
 <div class="paragraph">
 <p>Adding Graphite tables to a font is much like adding VOLT information. The relevant files are declared either to the font or a <code>gdl()</code> object. For example:</p>
 </div>
@@ -1509,7 +1509,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </div>
 </div>
 <div class="sect2">
-<h3 id="_legacy_fonts">3.4. Legacy Fonts</h3>
+<h3 id="_legacy_fonts"><a class="anchor" href="#_legacy_fonts"></a><a class="link" href="#_legacy_fonts">3.4. Legacy Fonts</a></h3>
 <div class="paragraph">
 <p>Fonts can also be built from another font, either legacy-encoded or generated from a source font or fonts. This can be achieved by giving a <code>legacy()</code> object as the <code>source</code> attribute for the font. For example, for a font generated from a legacy font using <code>ttfbuilder</code> we might do:</p>
 </div>
@@ -1558,7 +1558,7 @@ legacy font conversion process.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_woff">3.5. WOFF</h3>
+<h3 id="_woff"><a class="anchor" href="#_woff"></a><a class="link" href="#_woff">3.5. WOFF</a></h3>
 <div class="paragraph">
 <p><a href="https://www.w3.org/TR/WOFF/">WOFF</a> and <a href="https://www.w3.org/TR/WOFF2/">WOFF2</a> files are TTF files in special compressed formats used for webfont delivery. Smith can generate both WOFF and WOFF2 files. For example:</p>
 </div>
@@ -1638,7 +1638,7 @@ legacy font conversion process.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_fret">3.6. Fret</h3>
+<h3 id="_fret"><a class="anchor" href="#_fret"></a><a class="link" href="#_fret">3.6. Fret</a></h3>
 <div class="paragraph">
 <p>Fret is a font reporting tool that generates a PDF report from a font file, giving information about all the glyphs in the font.</p>
 </div>
@@ -1662,7 +1662,7 @@ legacy font conversion process.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_designspace">3.7. DesignSpace</h3>
+<h3 id="_designspace"><a class="anchor" href="#_designspace"></a><a class="link" href="#_designspace">3.7. DesignSpace</a></h3>
 <div class="paragraph">
 <p>An alternative to the <code>font</code> object is the <code>designspace</code> object. A designspace specification normally defines a family of related fonts, and therefore the designspace object typically results in a number of fonts being generated&#8201;&#8212;&#8201;in essence the designspace object creates multiple font objects. Most of the attributes of a font object also apply to a designspace object, the differences are described below.</p>
 </div>
@@ -1835,14 +1835,14 @@ generate an instance, but use the master file directly. If False then a new inst
 </div>
 </div>
 <div class="sect1">
-<h2 id="_tests">4. Tests</h2>
+<h2 id="_tests"><a class="anchor" href="#_tests"></a><a class="link" href="#_tests">4. Tests</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Testing is an important part of development, particularly for fonts. Smith
 provides a number of testing mechanisms. The majority of this section is concerned with font testing.</p>
 </div>
 <div class="sect2">
-<h3 id="_file_types">4.1. File Types</h3>
+<h3 id="_file_types"><a class="anchor" href="#_file_types"></a><a class="link" href="#_file_types">4.1. File Types</a></h3>
 <div class="paragraph">
 <p>There are various source file types that can be used as the basis of many
 tests. These are:</p>
@@ -1879,7 +1879,7 @@ simply <code>\input</code> into the file.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_standard_commands_targets">4.2. Standard commands (targets)</h3>
+<h3 id="_standard_commands_targets"><a class="anchor" href="#_standard_commands_targets"></a><a class="link" href="#_standard_commands_targets">4.2. Standard commands (targets)</a></h3>
 <div class="paragraph">
 <p>Test source files are stored in a standard place in the tree. The global variable
 <code>TESTDIR</code> can be used to specify where that place is, but the default is <code>tests/</code>.
@@ -1899,7 +1899,7 @@ The file name is <code>target\index.html</code> from which links to the actual t
 results can be found.</p>
 </div>
 <div class="sect3">
-<h4 id="_pdfs">4.2.1. pdfs</h4>
+<h4 id="_pdfs"><a class="anchor" href="#_pdfs"></a><a class="link" href="#_pdfs">4.2.1. pdfs</a></h4>
 <div class="paragraph">
 <p>This target creates a pdf report for each font and its smart font technology and
 the script (if relevant) for each test file. XeTeX is used to render a .tex file,
@@ -1919,7 +1919,7 @@ is passed to the font for rendering the text in that file only.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_test">4.2.2. test</h4>
+<h4 id="_test"><a class="anchor" href="#_test"></a><a class="link" href="#_test">4.2.2. test</a></h4>
 <div class="paragraph">
 <p>This test creates an html report describing the shaping (glyphs and positions)
 differences between the font created and a reference font found in <code>references/</code>
@@ -1936,7 +1936,7 @@ font, technology and script.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_xtest">4.2.3. xtest</h4>
+<h4 id="_xtest"><a class="anchor" href="#_xtest"></a><a class="link" href="#_xtest">4.2.3. xtest</a></h4>
 <div class="paragraph">
 <p>This tests creates a similar html report to that for regression testing, but
 it is concerned with the differences between the different smart font technologies
@@ -1945,7 +1945,7 @@ pair for each .txt and .htxt test file.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_waterfall">4.2.4. waterfall</h4>
+<h4 id="_waterfall"><a class="anchor" href="#_waterfall"></a><a class="link" href="#_waterfall">4.2.4. waterfall</a></h4>
 <div class="paragraph">
 <p>This test does not use test files, instead it takes a single string and produces
 one file per font and technology and script of a single test string rendered
@@ -1972,7 +1972,7 @@ be based on the font size currently used. The default is 1.2.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_xfont">4.2.5. xfont</h4>
+<h4 id="_xfont"><a class="anchor" href="#_xfont"></a><a class="link" href="#_xfont">4.2.5. xfont</a></h4>
 <div class="paragraph">
 <p>This test is similar to the waterfall in that it uses a single test string, but it uses
 the test string to create a single report of the test string being rendered in all the fonts at a given point size. There are various variables that control the test.</p>
@@ -1988,7 +1988,7 @@ the test string to create a single report of the test string being rendered in a
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ftml">4.2.6. ftml</h4>
+<h4 id="_ftml"><a class="anchor" href="#_ftml"></a><a class="link" href="#_ftml">4.2.6. ftml</a></h4>
 <div class="paragraph">
 <p>FTML tests don&#8217;t generate any files (well perhaps some), instead all the interest is in
 the generated <code>ftml_index.html</code> file that creates complex links that run a particular
@@ -2061,7 +2061,7 @@ There are 3 values this parameter may take, but ftml testing only supports 2:</p
 </div>
 </div>
 <div class="sect3">
-<h4 id="_sile">4.2.7. sile</h4>
+<h4 id="_sile"><a class="anchor" href="#_sile"></a><a class="link" href="#_sile">4.2.7. sile</a></h4>
 <div class="paragraph">
 <p>Smith can run sile (<a href="https://sile-typesetter.org/">the SILE typesetter</a>) for font testing. It processes .sil files.</p>
 </div>
@@ -2075,7 +2075,7 @@ There are 3 values this parameter may take, but ftml testing only supports 2:</p
 </div>
 </div>
 <div class="sect3">
-<h4 id="_alltests">4.2.8. alltests</h4>
+<h4 id="_alltests"><a class="anchor" href="#_alltests"></a><a class="link" href="#_alltests">4.2.8. alltests</a></h4>
 <div class="paragraph">
 <p>There is one very simple test target: <code>smith alltests</code>. This runs all the test targets that smith can find, whether internal or user defined. If a test produces no output, it is skipped and no test_index.html file is created.</p>
 </div>
@@ -2085,7 +2085,7 @@ alltests. This can be achieved through listing the test commands to remove, as s
 </div>
 </div>
 <div class="sect3">
-<h4 id="_fbchecks">4.2.9. fbchecks</h4>
+<h4 id="_fbchecks"><a class="anchor" href="#_fbchecks"></a><a class="link" href="#_fbchecks">4.2.9. fbchecks</a></h4>
 <div class="paragraph">
 <p>Another useful testing target is <code>smith fbchecks</code>. This runs all the generated fonts through the <a href="https://fontbakery.readthedocs.io/">Font Bakery</a> QA suite.
 It does so using the fontbakery profile in pysilfont which explicitly list certains checks, excludes others and provides new ones. Local project-specific checks can also be added in the form of a fontbakery.yaml file at the root of the project.
@@ -2093,38 +2093,38 @@ A html report is generated with the results for each font family along with a su
 </div>
 </div>
 <div class="sect3">
-<h4 id="_ots">4.2.10. ots</h4>
+<h4 id="_ots"><a class="anchor" href="#_ots"></a><a class="link" href="#_ots">4.2.10. ots</a></h4>
 <div class="paragraph">
 <p>This test target runs the fonts against the OTS the opentype sanitizer which is built-in various browser to reduce overflow risks. If the font does not pass the sanitizer it will be rejected by various browsers.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_validate">4.2.11. validate</h4>
+<h4 id="_validate"><a class="anchor" href="#_validate"></a><a class="link" href="#_validate">4.2.11. validate</a></h4>
 <div class="paragraph">
 <p>This test target runs the fonts against <a href="https://github.com/HinTak/Font-Validator">FontValidator</a>.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_pyfontaine">4.2.12. pyfontaine</h4>
+<h4 id="_pyfontaine"><a class="anchor" href="#_pyfontaine"></a><a class="link" href="#_pyfontaine">4.2.12. pyfontaine</a></h4>
 <div class="paragraph">
 <p>This test target runs the fonts against <a href="https://github.com/googlefonts/pyfontaine">pyfontaine</a> for coverage reporting. It uses various character sets like fontconfig, glyphlists, hyperglot, subsets, uniblocks, unencoded, cldr, extensis.</p>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_differ">4.2.13. differ</h4>
+<h4 id="_differ"><a class="anchor" href="#_differ"></a><a class="link" href="#_differ">4.2.13. differ</a></h4>
 <div class="paragraph">
 <p><code>smith differ</code> allows fonts recently built to be compared against the corresponding fonts in <code>references</code> (or whichever folder is defined by the STANDARDS variable) using diffenator2.  HTML reports are generated in <code>results/diffenator2</code>.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_adding_test_files">4.3. Adding test files</h3>
+<h3 id="_adding_test_files"><a class="anchor" href="#_adding_test_files"></a><a class="link" href="#_adding_test_files">4.3. Adding test files</a></h3>
 <div class="paragraph">
 <p>Sometimes you want to create test files as part of the build. This can be done using <code>testFile()</code>. It takes the same parameters as for a <code>create()</code> and it does create the file, but it also adds it to the list of source test files as if it was stored in the <code>tests/</code> directory (or wherever you have specified that test files are stored).</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_defined_tests">4.4. User-defined Tests</h3>
+<h3 id="_user_defined_tests"><a class="anchor" href="#_user_defined_tests"></a><a class="link" href="#_user_defined_tests">4.4. User-defined Tests</a></h3>
 <div class="paragraph">
 <p>It is possible to add your own tests to the smith test system. One can create a variant of one of the standard tests listed above, and associate it with a new target. Or one can run a separate command to execute the test. The test is specified using a <code>testCommand()</code> function that takes a single fixed parameter of the target the command is to be associated with and a list of named parameters. It is possible to specify more than one testCommand be associated with the same target, in which case all the testCommands will be run when that target is specified.</p>
 </div>
@@ -2302,7 +2302,7 @@ reference font to produce its results.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_packages">5. Packages</h2>
+<h2 id="_packages"><a class="anchor" href="#_packages"></a><a class="link" href="#_packages">5. Packages</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Once a set of writing system components have been created, we need to package them for distribution. Smith works to make that as simple but as powerful as appropriate. There is an optional <code>package</code> attribute. If this attribute is set, it is set to a package object corresponding to which package the component should be added to. In addition, a global package object is created into which go all the components for which no <code>package</code> attribute has been set.</p>
@@ -2440,9 +2440,9 @@ reference font to produce its results.</p>
 </dl>
 </div>
 <div class="sect2">
-<h3 id="_functions">5.1. Functions</h3>
+<h3 id="_functions"><a class="anchor" href="#_functions"></a><a class="link" href="#_functions">5.1. Functions</a></h3>
 <div class="sect3">
-<h4 id="_getufoinfo">5.1.1. getufoinfo</h4>
+<h4 id="_getufoinfo"><a class="anchor" href="#_getufoinfo"></a><a class="link" href="#_getufoinfo">5.1.1. getufoinfo</a></h4>
 <div class="paragraph">
 <p>This function takes a path to a UFO font. It extracts information from the font and sets the corresponding variables in the wscript as if they had been entered directly. Thus those variables are usable elsewhere in the wscript. Important note: <code>getufoinfo()</code> must be the first function called in the wscript.</p>
 </div>
@@ -2466,7 +2466,7 @@ reference font to produce its results.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_global_functions">6. Global Functions</h2>
+<h2 id="_global_functions"><a class="anchor" href="#_global_functions"></a><a class="link" href="#_global_functions">6. Global Functions</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The build process is about creating files from other files. Most of these processes are internal to the object, but it is possible to do some advanced configuration allowing the <code>wscript</code> writer to take more control over the build process. The functions described here should be considered advanced, and the beginning authors should not need to concern themselves with them initially.</p>
@@ -2590,7 +2590,7 @@ different values. The keys for which there is access are:</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_environment_variables">7. Environment Variables</h2>
+<h2 id="_environment_variables"><a class="anchor" href="#_environment_variables"></a><a class="link" href="#_environment_variables">7. Environment Variables</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The following environment variables are supported by smith:</p>
@@ -2606,7 +2606,7 @@ different values. The keys for which there is access are:</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_dependencies">8. Dependencies</h2>
+<h2 id="_dependencies"><a class="anchor" href="#_dependencies"></a><a class="link" href="#_dependencies">8. Dependencies</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Smith makes use of a fair amount of dependencies. And then there are secondary dependencies for these dependencies.</p>
@@ -2645,7 +2645,7 @@ We are using the <a href="https://www.docker.com">Docker container technology</a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-08-13 00:36:43 UTC
+Last updated 2024-08-13 00:39:58 UTC
 </div>
 </div>
 </body>
