@@ -15,11 +15,9 @@ jobs:
     - name: Get build container
       id: adocbuild
       uses: tonynv/asciidoctor-action@master
-    - name: Get extra for code snippets
-      run: |
-          sudo apt-get update
-          sudo apt-get -y ruby-pygments.rb
       with:
+          program: "sudo apt update"
+          program: "sudo apt install ruby-pygments.rb"
           program: "asciidoctor -t -v -D docs/smith --backend=xhtml5 -n -a toc=left -a source-hightlighter-pygments -o index.html docs/smith/manual.adoc"
     - name: Print execution time
       run: echo "Time ${{ steps.adocbuild.outputs.time }}"
