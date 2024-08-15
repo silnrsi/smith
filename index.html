@@ -909,8 +909,8 @@ necessary and smith can run with reduced functionality without them. Such missin
 programs are listed in orange. All other programs that smith searches for and
 finds are listed, along with their locations, in green. So you can see exactly
 which program smith will use for any particular task. This is hepful especially in
-cases where you may have a locally self-compiled version: you can more easily
-see if smith has found the version in /usr/local/ instead of the stock packaged
+cases where you may have a locally installed self-compiled version: you can more easily
+see if smith has found the version in /usr/local/ (or other local paths) instead of the stock packaged
 version.</p>
 </div>
 <div class="listingblock">
@@ -1027,10 +1027,13 @@ smith tarball</pre>
 <em>(The git-commit-id part, e.g. 66d16eM, will be the first 7 characters taken from the git revision id. We assume you are working from within a git repository.)</em></p>
 </div>
 <div class="paragraph">
+<p>Notice the <code>-dev-</code> suffix to indicate that these are development versions, which means they have not been tagged as a stable and tested release.</p>
+</div>
+<div class="paragraph">
 <p>This zip, or tarball file, contains the four target fonts the build created, since we have now added Bold and Bold-Italic as extra weights in the loop.</p>
 </div>
 <div class="paragraph">
-<p>We also added extra text files at the root of the project folder: README.txt, README.md, FONTLOG.txt, OFL-FAQ.txt. These are just text files and more documentation than font sources, but they are nice to have and will help users and other developers of your font. We will go into more detail on packaging in the dedicated section.</p>
+<p>We also added extra text files at the root of the project folder: <code>README.txt, README.md, FONTLOG.txt, OFL-FAQ.txt</code>. These are just text files and more documentation than font sources, but they are nice to have and will help users and other developers of your font. We will go into more detail on packaging in the dedicated section.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1625,7 +1628,7 @@ If the tuple form is not used, then "text" is set to the package <code>buildvers
 <dt class="hdlist1">sfd_master</dt>
 <dd>
 <p>    This attribute specifies a FontForge file that should be merged with the source FontForge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.
-Fontforge is deprecated in most font projects therefore it is not part of the smith toolchain by default, but you can always install it from source if needed.</p>
+<em>(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)</em></p>
 </dd>
 <dt class="hdlist1">ap</dt>
 <dd>
@@ -1673,7 +1676,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 <p>This will generate tests pertinent to OpenType testing. See the section on font tests.</p>
 </div>
 <div class="paragraph">
-<p>One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a <code>sfd_master</code> attribute and the font builder will use <code>sfdmeld</code> to integrate the lookups in the master into each font as it is built.</p>
+<p>One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a <code>sfd_master</code> attribute and the font builder will use <code>sfdmeld</code> to integrate the lookups in the master into each font as it is built. <em>(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)</em></p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1797,7 +1800,7 @@ Fontforge is deprecated in most font projects therefore it is not part of the sm
 </dd>
 <dt class="hdlist1">buildusingfontforge</dt>
 <dd>
-<p>If this attribute is present and not false, the FEA file will be compiled using FontForge instead of fonttools. <em>(You will have to install FontForge yourself as it is no longer part of the smith&#8217;s dependencies)</em></p>
+<p>If this attribute is present and not false, the FEA file will be compiled using FontForge instead of fonttools. <em>(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)</em></p>
 </dd>
 <dt class="hdlist1">keep_feats</dt>
 <dd>
@@ -3068,7 +3071,7 @@ We are using the <a href="https://www.docker.com">Docker container technology</a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-08-13 01:49:49 UTC
+Last updated 2024-08-15 04:18:39 UTC
 </div>
 </div>
 </body>
