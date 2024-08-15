@@ -39,7 +39,8 @@ version::
 
 sfd_master::
     This attribute specifies a FontForge file that should be merged with the source FontForge file when creating the target. If the sfd_master file is the same as the source, then sfdmeld is not run.
-Fontforge is deprecated in most font projects therefore it is not part of the smith toolchain by default, but you can always install it from source if needed. 
+_(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)_
+
 
 ap::
     Attachment point database associated with the source font.
@@ -73,7 +74,8 @@ font(target = 'results/Example-Regular.ttf',
 
 This will generate tests pertinent to OpenType testing. See the section on font tests.
 
-One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a `sfd_master` attribute and the font builder will use `sfdmeld` to integrate the lookups in the master into each font as it is built.
+One approach sometimes used for FontForge based projects is to keep all the lookups in one font and then to share these lookups across all the fonts in a project. For this we simply specify a `sfd_master` attribute and the font builder will use `sfdmeld` to integrate the lookups in the master into each font as it is built. _(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)_
+
 
 [source,python,linenums]
 ----
@@ -153,7 +155,7 @@ depends::
     A python list of additional source files on which the OpenType depends. Typically these are files mentioned via `include()` in the master fea file.
 
 buildusingfontforge::
-    If this attribute is present and not false, the FEA file will be compiled using FontForge instead of fonttools. _(You will have to install FontForge yourself as it is no longer part of the smith's dependencies)_
+    If this attribute is present and not false, the FEA file will be compiled using FontForge instead of fonttools. _(You will have to install FontForge yourself as it is no longer part of the smith toolchain default dependencies)_
 
 keep_feats::
     This boolean, used only when buildusingfontforge is true, tells FontForge to keep all the lookups associated with a given feature that are already in the font, and not wipe them when merging the feature file. For example, keeping the kern feature lookups, which are often best handled in a font design application rather than in fea files.
