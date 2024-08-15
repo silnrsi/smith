@@ -31,8 +31,8 @@ necessary and smith can run with reduced functionality without them. Such missin
 programs are listed in orange. All other programs that smith searches for and
 finds are listed, along with their locations, in green. So you can see exactly
 which program smith will use for any particular task. This is hepful especially in
-cases where you may have a locally self-compiled version: you can more easily
-see if smith has found the version in /usr/local/ instead of the stock packaged 
+cases where you may have a locally installed self-compiled version: you can more easily
+see if smith has found the version in /usr/local/ (or other local paths) instead of the stock packaged 
 version.
 
 ----
@@ -113,9 +113,11 @@ _(The git-commit-id part, e.g. 66d16eM, will be the first 7 characters taken fro
 `smith tarball` will create `Example-0.0.1-dev-(git-commit-id).tar.xz` in the `releases` folder inside the `results` folder.
 _(The git-commit-id part, e.g. 66d16eM, will be the first 7 characters taken from the git revision id. We assume you are working from within a git repository.)_
 
+Notice the `-dev-` suffix to indicate that these are development versions, which means they have not been tagged as a stable and tested release. 
+
 This zip, or tarball file, contains the four target fonts the build created, since we have now added Bold and Bold-Italic as extra weights in the loop. 
 
-We also added extra text files at the root of the project folder: README.txt, README.md, FONTLOG.txt, OFL-FAQ.txt. These are just text files and more documentation than font sources, but they are nice to have and will help users and other developers of your font. We will go into more detail on packaging in the dedicated section.
+We also added extra text files at the root of the project folder: `README.txt, README.md, FONTLOG.txt, OFL-FAQ.txt`. These are just text files and more documentation than font sources, but they are nice to have and will help users and other developers of your font. We will go into more detail on packaging in the dedicated section.
 
 === font4 - Internal processing ===
 
