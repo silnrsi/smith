@@ -17,6 +17,7 @@ A file called `wscript` needs to be created to control the build process. The co
 
 Smith is really a larger toolchain with many dependencies that you install from a Docker registry which means you don't have to install any of its fairly large number of components manually. In this manual, we assume you are using that approach as described at https://silnrsi.github.io/silfontdev[SIL Font Development Guide]. Remember that smith is only the director and a wide range of utilities do the actual work. Installing just smith by itself (the python program) will not get you very far. 
 
+Smith is a command-line program, there is no graphical interface with menus. But to make things easier for you, there is a completion file installed to suggest all the smith subcommands (or targets), use the Tab key and it will autocomplete the remaining letters, for example: `smith co`, `Tab` and it will complete to `configure`. Similarly `smith b`, `Tab` and it will complete to `build`. (Currently this is only available to bash users).
 
 === Moving your project to smith ===
 
@@ -103,6 +104,7 @@ smith distclean
 ----
 
 This removes the build directory completely, including any temporary files at the root of the project folder.
+
 
 
 === Writing your wscript ===
