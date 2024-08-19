@@ -302,6 +302,7 @@ COPY --link docker/profile-extra-utilities-smith.sh /etc/profile.d/profile-extra
 COPY --link docker/fix-git-execute-bits-scripts /usr/local/bin/fix-git-execute-bits-scripts
 COPY --link docker/dot.bashrc  /etc/skel/.bashrc
 COPY --link docker/dot.gitconfig  /etc/skel/.gitconfig
+COPY --link docker/fontbakery  /etc/bash_completion.d/fontbakery
 RUN touch /etc/skel/.sudo_as_admin_successful
 RUN touch /etc/skel/.hushlogin
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \

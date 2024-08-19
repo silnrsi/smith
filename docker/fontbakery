@@ -1,0 +1,12 @@
+# bash completion for fontbakery
+_fontbakery()
+{
+    local  cur prev 
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+    prev=${COMP_WORDS[COMP_CWORD-1]}
+
+        COMPREPLY=($( compgen -W 'check-profile check-adobefonts check-fontbureau check-fontval check-fontwerk check-googlefonts check-iso15008 check-notofonts check-opentype check-shaping check-typenetwork check-universal' -- $cur ) )
+}
+complete -F _fontbakery $default fontbakery
+
