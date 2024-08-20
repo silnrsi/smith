@@ -997,13 +997,13 @@ class fbcheckContext(Context.Context) :
                 familynames = files.split("-")
                 fullfamilynames = familynames[0]
                 if os.path.exists(toppath + "/fontbakery.yaml"):
-                    print("Using local fontbakery.yaml file as well as pysilfont profile...")
-                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --config " + toppath + "/fontbakery.yaml" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
-                    Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
+                    print("Running Font Bakery using the local fontbakery.yaml file as well as the pysilfont profile for " + fullfamilynames + "...")
+                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --config " + toppath + "/fontbakery.yaml" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -q --skip-network -S -F -C -j -l PASS -m PASS", shell = 1).wait()
+                    print("Done, see the generated HTML report for all the details.")
                 else:
-                    print("Using pysilfont profile...")
-                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -F --succinct -S -C", shell = 1).wait()
-                    Utils.subprocess.Popen("echo '  ' ", shell = 1).wait()
+                    print("Running Font Bakery using the pysilfont profile for " + fullfamilynames + "...")
+                    Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -q --skip-network -S -F -C -j -l PASS -m PASS", shell = 1).wait()
+                    print("Done, see the generated HTML report for all the details.")
 
 class differContext(Context.Context) :
     """Run diffenator2 for regression testing."""
