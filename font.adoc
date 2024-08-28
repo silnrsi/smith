@@ -49,7 +49,7 @@ ap_params::
     Parameters passed to the program that creates the ap database from the source font.
 
 classes::
-    Classes .xml file that adds class information to the attachment point database before conversion into smart font source code.
+	An XML-structured file that allows glyph classes to be defined and then used by both Graphite and OpenType build processes.
 
 no_test::
     If set to True will not include the font in the font tests. This can be set after the font object is created.
