@@ -8,9 +8,8 @@ DESC_SHORT = "Derivative"
 # Get VERSION and BUILDLABEL from Regular UFO; must be first function call:
 getufoinfo('source/masters/' + familyname + '-Regular' + '.ufo')
 
-
 designspace('source/' +  process('source/Example' + weight + '.ufo'),
-        target = process('${DS:FILENAME_BASE}.ttf', *cmds),
+        target = process('${DS:FILENAME_BASE}.ttf', 
                 instances = ['Example Regular']
          version = VERSION,
          woff = woff(),
@@ -20,6 +19,3 @@ designspace('source/' +  process('source/Example' + weight + '.ufo'),
          script = 'latn',
          fret = fret(params = "-r")
         )
-
-def configure(ctx) :
-    ctx.find_program('../tools/uforeport')
