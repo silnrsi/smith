@@ -55,7 +55,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-venv \
       jq \
       asciidoctor \
-      ruby-rouge
+      ruby-rouge \
+      flake8 \
+      black \
+      python3-pytest
     python3 -m pip config --global set global.disable-pip-version-check true
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
