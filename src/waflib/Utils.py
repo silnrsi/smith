@@ -494,7 +494,7 @@ def unversioned_sys_platform():
 			return 'sunos'
 		else: s = s.lower()
 	if s == 'win32' or s.endswith('os2') and s != 'sunos2': return s
-	return re.split('\d+$', s)[0]
+	return re.split(r'\d+$', s)[0]
 
 def nada(*k, **kw):
 	"""
