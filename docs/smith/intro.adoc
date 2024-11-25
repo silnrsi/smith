@@ -38,8 +38,11 @@ objects. It then takes these objects and allows the user to run various
 build commands on them.
 
 Waf, on which smith is built, works by creating a build directory
-into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up. The build directory is created using
-the command:
+into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up. 
+
+WARNING: Make sure that you don't store past artifacts like .ttf files at the root of the project as various build targets will likely get confused and produce unexpected results. Use the `references/` or the `sources/archives/` folders instead. 
+
+The build directory is created using the command:
 
 ----
 smith configure
