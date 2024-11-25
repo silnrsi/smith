@@ -769,8 +769,22 @@ build commands on them.</p>
 </div>
 <div class="paragraph">
 <p>Waf, on which smith is built, works by creating a build directory
-into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up. The build directory is created using
-the command:</p>
+into which all the results are stored. This is by design and a useful feature as it leaves the source directories pristine and makes for easy clearing up.</p>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+Make sure that you don&#8217;t store past artifacts like .ttf files at the root of the project as various build targets will likely get confused and produce unexpected results. Use the <code>references/</code> or the <code>sources/archives/</code> folders instead.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The build directory is created using the command:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2634,7 +2648,7 @@ We are using the <a href="https://www.docker.com">Docker container technology</a
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-11-11 23:19:34 UTC
+Last updated 2024-11-25 16:38:21 UTC
 </div>
 </div>
 </body>
