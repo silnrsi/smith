@@ -6,7 +6,7 @@ diffenator2
 #fontaine @ git+https://github.com/googlefonts/pyfontaine
 fontaine
 #fontbakery @ git+https://github.com/fonttools/fontbakery
-fontbakery==v0.13.0a6
+fontbakery==v0.13.0a7
 fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
