@@ -144,6 +144,7 @@ RUN <<EOT
     meson compile -Cbuild
     ninja -C build
     ninja -C build install
+    ldconfig
 EOT
 
 
@@ -179,7 +180,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \
 <<EOT
     apt-get update
-    apt-get install lua5.2 liblua5.2-dev luarocks -y
+    apt-get install lua5.1 liblua5.1-dev -y
+    apt-get install luajit -y
+    apt-get install luarocks -y
+    luarocks config lua_version 5.1
+    luarocks config lua_interpreter luajit 
     luarocks install fontproof
 EOT
 
