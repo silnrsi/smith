@@ -13,8 +13,7 @@ fontParts @ git+https://github.com/robotools/fontParts
 fonttools @ git+https://github.com/fonttools/fonttools
 gftools @ git+https://github.com/googlefonts/gftools
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
-#glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
-glyphsLib==6.9.4
+glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
 langtag @ git+https://github.com/silnrsi/langtags
 MutatorMath @ git+https://github.com/LettError/MutatorMath
 odfpy @ git+https://github.com/eea/odfpy
