@@ -1,5 +1,5 @@
 -- ftml - enable SILE to process FTML (font test markup language)
--- copyright 2016-2019 SIL International and released under the MIT/X11 license
+-- copyright 2016-2019 SIL Global and released under the MIT/X11 license
 -- NB: some commands referenced here are defined in ftml.sil
 
 local ftml = SILE.baseClass { id = "ftml" }

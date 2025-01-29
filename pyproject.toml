@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smith"
-version = "0.3.8"
-authors = [{name = "SIL International", email = "fonts@sil.org"}]
+version = "0.3.9"
+authors = [{name = "SIL Global"}]
 readme = "README.md"
 license = {text = "BSD-3-Clause"}
-description = "(Writing Systems Implementation) components such as fonts. It is based on waf. Smith orchestrates and integrates various tools and utilities to make a standards-based open font design and production workflow easier" 
+description = "Smith orchestrates and integrates various tools and utilities to make a standards-based open font design and production workflow easier" 
 classifiers = [
    "Environment :: Console",
    "Programming Language :: Python :: 3.8",

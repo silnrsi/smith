@@ -488,7 +488,7 @@ ${Index}:
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${PACKNAME}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
-  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "@getattr(prj,'company','SIL International')@"
+  VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "@getattr(prj,'company','SIL Global')@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "Comments" "@prj.desc_short or ""@"
   VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${PACKNAME} @"Font" if len(fonts) else "Keyboard"@ installer"
   @'VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "' + prj.copyright + '"' if prj.copyright else ""@

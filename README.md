@@ -17,7 +17,7 @@ better yet - it can be included in a CI (Continuous Integration) system. This
 allows for fonts (and their various source formats) to truly be libre/open
 source software and developed with open and collaborative methodologies.
 
-Smith is _Copyright (c) 2011-2024 SIL International (www.sil.org)_
+Smith is _Copyright (c) 2011-2025 SIL Global (https://www.sil.org)_
 and is released under _the BSD license_.
 (based on waf Copyright (c) 2005-2011 Thomas Nagy)
 
@@ -29,7 +29,8 @@ when `smith configure` is run.
 
 To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/).
 
-#### Docker image and helper script 
+#### Docker image and helper script
+
 A Docker image containing the whole toolchain is available both to provide a base for CI systems and for local interactive use.
 
 You need to install [Docker](https://docs.docker.com/get-docker/) along with the helper script called [anvil](https://github.com/silnrsi/anvil/).
