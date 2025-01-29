@@ -19,7 +19,6 @@ MutatorMath @ git+https://github.com/LettError/MutatorMath
 odfpy @ git+https://github.com/eea/odfpy
 opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
 palaso @ git+https://github.com/silnrsi/palaso-python
-git+https://github.com/silnrsi/pysilfont.git@master#egg=silfont[git]
 feaxlib @ git+https://github.com/silnrsi/feax
 sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft

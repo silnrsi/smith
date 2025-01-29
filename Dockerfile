@@ -42,8 +42,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-idna \
       python3-lxml \
       python3-lz4 \
-      python3-packaging \
-      python3-pip \
       python3-pkg-resources \
       python3-yaml \
       python3-requests \
@@ -58,11 +56,18 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       ruby-rouge \
       flake8 \
       black \
-      python3-pytest
-    python3 -m pip config --global set global.disable-pip-version-check true
+      python3-pytest \
+      wget
+
+    apt-get remove python3-packaging python3-pip python3-setuptools python3-wheel python3-setuptools-scm -y
+    wget https://bootstrap.pypa.io/get-pip.py
+    python3 get-pip.py --break-system-packages
     python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
-    python3 -m pip install --upgrade pip packaging setuptools setuptools_scm wheel typing_extensions
+    python3 -m pip config --global set global.root-user-action ignore
+    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore pip 
+    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore packaging setuptools setuptools_scm wheel typing_extensions
+    python3 -m pip --version
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
 
@@ -139,9 +144,11 @@ RUN <<EOT
         -Dchafa=disabled \
         -Dexperimental_api=true \
         -Dgraphite2=enabled \
+        -Dgobject=disabled \
+        -Dintrospection=disabled \
         -Dtests=disabled \
         -Ddocs=disabled
-    meson compile -Cbuild
+    meson compile -C build
     ninja -C build
     ninja -C build install
     ldconfig
@@ -222,10 +229,10 @@ RUN python3 -m pip install --compile .
 FROM base AS runtime
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
       org.opencontainers.image.title="smith" \
-      org.opencontainers.image.documentation="https://github.com/silnrsi/smith/blob/master/docs/smith/manual.asc" \
+      org.opencontainers.image.documentation="https://silnrsi.github.io/smith/" \
       org.opencontainers.image.description="Smith font development toolchain" \
       org.opencontainers.image.source="https://github.com/silnrsi/smith" \
-      org.opencontainers.image.vendor="SIL International"
+      org.opencontainers.image.vendor="SIL Global"
 COPY --from=ppa /etc/apt/ /etc/apt/
 RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     --mount=type=cache,target=/var/lib/apt,sharing=private \

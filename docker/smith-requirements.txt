@@ -1,3 +1,5 @@
+silfont[git] @ git+https://github.com/silnrsi/pysilfont.git@master
+
 -c smith-constraints.txt
 
 # Top-level requirements
