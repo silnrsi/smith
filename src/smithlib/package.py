@@ -1016,7 +1016,7 @@ class differContext(Context.Context) :
             print("Stopping, no reference font files to diff against. Please add the font files from your last release to the {} folder.".format(refpath))
         else:
             # need to find a way to get new wordlists from tests/ as param using testpath 
-            Utils.subprocess.Popen("diffenator2 diff --fonts-before " + outputpath + "/*.ttf " + "--fonts-after " + refpath + "/*.ttf " + "--out " + outputpath + "/diffenator2/", shell = 1).wait()
+            Utils.subprocess.Popen("diffenator2 diff --fonts-before " + refpath + "/*.ttf " + "--fonts-after " + outputpath + "/*.ttf " + "--out " + outputpath + "/diffenator2/", shell = 1).wait()
             Utils.subprocess.Popen("rm -fv build.ninja .ninja_log", shell = 1).wait()
 
 class graideContext(Build.BuildContext) :
