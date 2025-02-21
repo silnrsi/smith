@@ -6,6 +6,7 @@ stat_uid=$(stat --printf '%u' /smith)
 groupadd -f -g ${BUILDER_GID:=${stat_gid/#0/1005}} builder
 useradd -m builder -o -u ${BUILDER_UID:=${stat_uid/#0/1005}} -g $BUILDER_GID -s /bin/bash
 usermod -aG sudo builder
+ldconfig
 CMND="$@"
 release=$(grep "RELEASE" /etc/lsb-release | cut -d "=" -f2 )
 codename=$(grep "CODENAME" /etc/lsb-release | cut -d "=" -f2)
