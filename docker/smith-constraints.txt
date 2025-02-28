@@ -5,8 +5,9 @@ defcon @ git+https://github.com/robotools/defcon
 diffenator2
 #fontaine @ git+https://github.com/googlefonts/pyfontaine
 fontaine
-#fontbakery @ git+https://github.com/fonttools/fontbakery
-fontbakery==v0.13.1
+fontbakery @ git+https://github.com/fonttools/fontbakery.git@eab6d90695ed9cf6f0be5fdd0dbc8743e57cc315
+#fontbakery==v0.13.1
+shaperglot==1.0.0a1
 fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
