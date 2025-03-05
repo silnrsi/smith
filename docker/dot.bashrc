@@ -149,4 +149,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# add local variables
+if [ -f "/smith/env.txt" ]; then 
+        . "/smith/env.txt"
+        echo "Adding local variables as defined in env.txt"
+fi
+
 
