@@ -1,30 +1,40 @@
-silfont[git] @ git+https://github.com/silnrsi/pysilfont.git@master
+silfont @ git+https://github.com/silnrsi/pysilfont.git@master
 
 -c smith-constraints.txt
 
 # Top-level requirements
 compreffor
-diffenator2
-fontaine
-fontbakery [all,googlefonts]
-fontmake
-gftools
 MutatorMath
 odfpy
 opentype-sanitizer
-palaso
-silfont
-feaxlib
 setuptools-git-ls-files
 weasyprint
+diffenator2
+fontaine
+ufo2ft 
+numpy
+fontTools [all] 
+defcon [pens,lxml]
+fontbakery [all]
+fontmake
+
+# WStech-maintained libraries
+palaso
+feaxlib
+sldr
+langtags
 
 -r palaso-requirements.txt
--r pysilfont-requirements.txt
+
 # Dependencies of above packages or their dependencies
 # We need to specify all the extras we, or our dependencies, will require to
-# be included during setup.py being run when their wheels are built. 
-defcon [pens,lxml]
-fonttools [graphite,lxml,ufo,unicode,woff]
+# be included when their wheels are built. 
 regex
 bs4
 dehinter
+gftools
+toml
+shaperglot
+pygments
+axisregistry
+filelock
