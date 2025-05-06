@@ -997,7 +997,7 @@ class fbcheckContext(Context.Context) :
                 familynames = files.split("-")
                 fullfamilynames = familynames[0]
                 if os.path.exists(toppath + "/fontbakery.yaml"):
-                    print("Running Font Bakery using the local fontbakery.yaml file as well as the pysilfont profile on family: " + fullfamilynames + "...")
+                    print("Running Font Bakery using the local fontbakery.yaml profile on family: " + fullfamilynames + "...")
                     Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --config " + toppath + "/fontbakery.yaml" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -q -S -F -C -j", shell = 1).wait()
                     print("Done, see the generated HTML report for all the details.")
                 else:
