@@ -1,27 +1,25 @@
 booleanOperations @ git+https://github.com/typemytype/booleanOperations
-compreffor
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2
 #fontaine @ git+https://github.com/googlefonts/pyfontaine
-fontaine
 fontbakery @ git+https://github.com/fonttools/fontbakery.git@5e5b8f6cbf749e34bbf854f60613e7d19a42ae4e
 #fontbakery==v0.13.1
-shaperglot==1.0.0
-fontmake @ git+https://github.com/googlei18n/fontmake
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
-fonttools @ git+https://github.com/fonttools/fonttools
 gftools @ git+https://github.com/googlefonts/gftools
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
-glyphsLib @ git+https://github.com/googlefonts/GlyphsLib
-langtag @ git+https://github.com/silnrsi/langtags
+glyphsLib @ git+https://github.com/googlefonts/glyphsLib
 MutatorMath @ git+https://github.com/LettError/MutatorMath
 odfpy @ git+https://github.com/eea/odfpy
 opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
-palaso @ git+https://github.com/silnrsi/palaso-python
-feaxlib @ git+https://github.com/silnrsi/feax
-sldr @ git+https://github.com/silnrsi/sldrtools
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
+fonttools @ git+https://github.com/fonttools/fonttools
+
+# team-maintained libraries
+langtag @ git+https://github.com/silnrsi/langtags
+palaso @ git+https://github.com/silnrsi/palaso-python
+feaxlib @ git+https://github.com/silnrsi/feax
+sldr @ git+https://github.com/silnrsi/sldrtools
