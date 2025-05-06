@@ -47,6 +47,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-requests \
       python3-jinja2 \
       python3-poetry \
+      python3-full \
       libgl1 \
       ipython3 \
       apt-utils \
@@ -62,11 +63,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get remove python3-packaging python3-pip python3-setuptools python3-wheel python3-setuptools-scm -y
     wget https://bootstrap.pypa.io/get-pip.py
     python3 get-pip.py --break-system-packages
-    python3 -m pip config --global set global.use-deprecated legacy-resolver
+    #python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
     python3 -m pip config --global set global.root-user-action ignore
     python3 -m pip install --upgrade --break-system-packages --root-user-action ignore pip 
-    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore packaging setuptools setuptools_scm wheel typing_extensions
+    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore packaging setuptools setuptools_scm wheel typing_extensions build
     python3 -m pip --version
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 EOT
@@ -118,7 +119,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       pkg-config \
       ragel \
       meson \
-      ninja-build 
+      ninja-build
 EOT
 
 
@@ -221,9 +222,12 @@ EOT
 FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
-RUN python3 -m pip install --compile -r docker/smith-requirements.txt
+#RUN python3 -m pip install --use-pep517 -r docker/smith-requirements.txt
+RUN pip install uv pipx
+RUN uv pip install --system --break-system-packages -U -r docker/smith-requirements.txt
 COPY --link . ./
-RUN python3 -m pip install --compile .
+#RUN python3 -m pip install .
+RUN uv pip install --system --break-system-packages .
 
 
 FROM base AS runtime
@@ -340,6 +344,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       command-not-found
     apt-get update
     apt-get upgrade -y
+    apt-get autoremove -y
     install --owner=1005 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
