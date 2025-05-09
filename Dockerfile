@@ -28,10 +28,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       locales \
       libcairo2 \
       libpangoft2-1.0-0 \
-      libmono-system-web4.0-cil \
-      libmono-system-windows-forms4.0-cil \
       libwoff1 \
-      mono-runtime \
       python3-appdirs \
       python3-chardet \
       python3-brotli \
@@ -196,28 +193,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     luarocks install fontproof
 EOT
 
-# Build Font validator
-FROM build AS fontval-src
-WORKDIR /src/fontval
-RUN <<EOT
-    git clone --depth 1 https://github.com/HinTak/Font-Validator.git .
-    make
-    make gendoc
-    install -m 755 bin/*.exe -D -t /usr/local/libexec/FontValidator
-    install -m 644 bin/*.dll -D -t /usr/local/libexec/FontValidator
-    install -m 644 bin/*.dll.config -D -t /usr/local/libexec/FontValidator
-    install -m 644 bin/*.xsl -D -t /usr/local/libexec/FontValidator
-EOT
-COPY --link --chmod=755 <<-EOT /usr/local/bin/fontval
-#!/bin/sh
-mono /usr/local/libexec/FontValidator/FontValidator.exe -quiet -all-tables -report-in-font-dir -file "\$1"
-EOT
-COPY --link --chmod=755 <<-EOT /usr/local/bin/FontValidator
-#!/bin/sh
-mono /usr/local/libexec/FontValidator/FontValidator.exe "\$@"
-EOT
-
-
 # Python components
 FROM build AS smith-tooling
 WORKDIR /src/smith
@@ -246,8 +221,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       fonts-roboto \
       libfont-ttf-scripts-perl \
       libjson-perl \
-      nsis \
-      nsis-common \
       pandoc \
       sile \
       texlive-xetex \
@@ -270,7 +243,6 @@ ADD --link \
     ${robotomono_src}/RobotoMono-Thin.ttf   ${robotomono_src}/RobotoMono-ThinItalic.ttf \
     /usr/local/share/fonts/robotomono/
 COPY --link --from=fontproof-src /usr/local /usr/local
-COPY --link --from=fontval-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local

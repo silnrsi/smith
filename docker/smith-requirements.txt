@@ -10,7 +10,6 @@ opentype-sanitizer
 setuptools-git-ls-files
 weasyprint
 diffenator2
-fontaine
 ufo2ft 
 numpy
 fontTools [all] 

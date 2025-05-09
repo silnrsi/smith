@@ -187,15 +187,6 @@ A html report is generated with the results for each font family along with a su
 
 This test target runs the fonts against the OTS the opentype sanitizer which is built-in various browser to reduce overflow risks. If the font does not pass the sanitizer it will be rejected by various browsers. 
 
-==== validate ====
-
-This test target runs the fonts against https://github.com/HinTak/Font-Validator[FontValidator].
-
-==== pyfontaine ====
-
-This test target runs the fonts against https://github.com/googlefonts/pyfontaine[pyfontaine] for coverage reporting. It uses various character sets like fontconfig, glyphlists, hyperglot, subsets, uniblocks, unencoded, cldr, extensis.
-
-
 ==== differ ====
 
 `smith differ` allows fonts recently built to be compared against the corresponding fonts in `references` (or whichever folder is defined by the STANDARDS variable) using diffenator2.  HTML reports are generated in `results/diffenator2`.

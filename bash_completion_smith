@@ -16,7 +16,7 @@ _smith()
     cur=${COMP_WORDS[COMP_CWORD]}
     prev=${COMP_WORDS[COMP_CWORD-1]}
 
-        COMPREPLY=($( compgen -W 'start configure build pdfs sile sileftml test xtest ftml exe zip tarball release clean differ distclean ots graide validate woff version fret alltests fbchecks waterfall xfont checksums sign' -- $cur ) )
+        COMPREPLY=($( compgen -W 'start configure build pdfs sile sileftml test xtest ftml zip tarball release clean differ distclean ots graide woff version fret alltests fbchecks waterfall xfont checksums sign' -- $cur ) )
 }
 complete -F _smith $default smith 
 

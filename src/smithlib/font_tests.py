@@ -200,9 +200,6 @@ class FontTests(object) :
     def get_build_tools(self, ctx) :
         ctx.find_program('xetex', var="XETEX", mandatory=False)
         ctx.find_program('ots-sanitize', var="OTS", mandatory=False)
-        ctx.find_program('fontval', var="FONTVALIDATOR", mandatory=False)
-        ctx.find_program('mono', var="MONO", mandatory=False)
-        ctx.find_program('pyfontaine', var="PYFONTAINE", mandatory=False)
         ctx.find_program('fontbakery', var="FONTBAKERY", mandatory=False)
         ctx.find_program('diffenator2', var="DIFFENATOR2", mandatory=False)
         res = set()

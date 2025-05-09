@@ -127,7 +127,6 @@ class Package(object) :
         ctx.find_program('sha512sum', var="CHECKSUMS", mandatory=False)
         ctx.find_program('gpg', var="GPG", mandatory=False)
         ctx.find_program('makefea', var="MAKEFEA", mandatory=False)
-        ctx.find_program('makensis', var="MAKENSIS", mandatory=False)
         res = set()
         for f in self.fonts :
             res.update(f.get_build_tools(ctx))
@@ -237,22 +236,6 @@ class Package(object) :
         for f in self.fonts :
             f.build_ots(bld)
 
-    def build_validate(self, bld) :
-        if 'FONTVALIDATOR' not in bld.env :
-            Logs.warn("FontValidator (via fontval script) not installed. Can't complete. See http://github.com/HinTak/Font-Validator")
-            return
-        self.subrun(bld, lambda p, b: p.build_fontvalidator(b))
-        for f in self.fonts :
-            f.build_fontvalidator(bld)
-
-    def build_pyfontaine(self, bld) :
-        if 'PYFONTAINE' not in bld.env :
-            Logs.warn("pyfontaine not installed. Can't complete. See http://github.com/googlefonts/pyfontaine")
-            return
-        self.subrun(bld, lambda p, b: p.build_pyfontaine(b))
-        for f in self.fonts :
-            f.build_pyfontaine(bld)
-
     def build_start(self, bld) :
         self.subrun(bld, lambda p, b: p.build_start(b))
         for f in self.fonts :
@@ -294,79 +277,6 @@ class Package(object) :
         self.subrun(bld, lambda p, b: p.build_buildinfo(b))
         for f in self.fonts :
             f.build_buildinfo(bld)
-
-    def build_exe(self, bld) :
-        if 'MAKENSIS' not in bld.env :
-            Logs.error("makensis not installed. Can't complete. See http://nsis.sourceforge.net and nsis package")
-            return
-        for t in ('appname', 'version') :
-            if not hasattr(self, t) :
-                raise Errors.WafError("Package '%r' needs '%s' attribute" % (self, t))
-        thisdir = os.path.dirname(__file__)
-        fonts = [x for x in self.fonts if not hasattr(x, 'dontship')]
-        for f in fonts: f.path = f.target
-        kbds = [x for x in self.keyboards if not hasattr(x, 'dontship')]
-        if not hasattr(self, 'license') :
-            if fonts and kbds :
-                # make new file and copy OFL.txt and MIT.txt into it
-                self.license = 'LICENSE'
-                font_license = bld.bldnode.find_resource('OFL.txt')
-                if not font_license :
-                    raise Errors.WafError("The font license file OFL.txt doesn't exist so cannot build exe")
-                kb_license = bld.bldnode.find_resource('MIT.txt')
-                if not kb_license :
-                    raise Errors.WafError("The keyboard license file MIT.txt doesn't exist so cannot build exe")
-                f = open("LICENSE", "w")
-                for tempfile in kb_license, font_license:
-                    f.write(tempfile.read())
-                    f.write("\n")
-                f.close()
-            elif kbds :
-                self.license = 'MIT.txt'
-            else :
-                self.license = 'OFL.txt'
-        if self.license is not None and not bld.bldnode.find_resource(self.license):
-            raise Errors.WafError("The license file " + self.license + " does not exist so cannot build exe.")
-   
-        env =   {
-            'project' : self,
-            'basedir' : thisdir,
-            'fonts' : fonts,
-            'kbds' : kbds,
-            'env' : bld.env,
-                }
-        def blddir(base, val) :
-            x = bld.bldnode.find_resource(val)
-            base = os.path.join(bld.srcnode.abspath(), base.package.reldir, bld.bldnode.srcpath())
-            return os.path.join(base, x.bldpath())
-
-        # create a taskgen to expand the installer.nsi
-        bname = 'installer_' + self.appname
-        def procpkg(p, c) :
-            for k in p.keyboards :
-                k.setup_vars(c)
-            kbds.extend(p.keyboards)
-            fonts.extend(p.fonts)
-            for f in p.fonts :
-                f.path = c.bldnode.find_or_declare(f.target).path_from(bld.bldnode)
-        if Options.options.debug:
-            import pdb; pdb.set_trace()
-
-        self.subrun(bld, procpkg, onlyfn = True)
-        if Options.options.debug:
-            import pdb; pdb.set_trace()
-        task = templater.Copier(prj=self, fonts=fonts, kbds=kbds, basedir=thisdir, env=bld.env, bld=blddir,
-                                isList=isList, isTextFile=self.isTextFile)
-        task.set_inputs(bld.root.find_resource(self.exetemplate if hasattr(self, 'exetemplate') else os.path.join(thisdir, 'installer.nsi')))
-        for t in self.get_files(bld) :
-            if not t[1] : continue
-            r = os.path.relpath(os.path.join(t[0], t[1]), bld.bldnode.abspath())
-            y = bld.bldnode.find_or_declare(r)
-            if os.path.isfile(y and y.abspath()) : task.set_inputs(y)
-
-        task.set_outputs(bld.bldnode.find_or_declare(bname + '.nsi'))
-        bld.add_to_group(task)
-        bld(rule='${MAKENSIS} -V4 -O' + bname + '.log ${SRC}', source = bname + '.nsi', target = '%s/%s-%s.exe' % ((self.outdir or '.'), (self.desc_name or self.appname.title()), self.version))
 
     def build_manifest(self, bld):
 
@@ -940,14 +850,6 @@ class testContext(cmdContext) :
 class otsContext(cmdContext) :
     """Test fonts using OpenType Sanitizer. Check <font.target>_ots.log"""
     cmd = 'ots'
-
-class fontvalidatorContext(cmdContext) :
-    """Test fonts using FontValidator. Check html (and xml) reports."""
-    cmd = 'validate'
-
-class pyfontaineContext(cmdContext) :
-    """Report coverage using pyfontaine. Check the test reports."""
-    cmd = 'pyfontaine'
 
 class crashContext(Context.Context) :
     """Crash and burn with fire"""
