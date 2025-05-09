@@ -317,6 +317,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update
     apt-get upgrade -y
     apt-get autoremove -y
+    apt-get clean
     install --owner=1005 --group=users -d /smith
 EOT
 COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
