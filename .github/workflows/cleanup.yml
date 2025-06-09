@@ -1,8 +1,7 @@
 name: Prune images
 on:
-  workflow_run:
-    workflows: [Interactive commandline]
-    types: [completed]
+  registry_package:
+    types: [published]
 
 jobs:
   prune:
@@ -15,7 +14,7 @@ jobs:
         organization: silnrsi
         container: smith
         dry-run: true
-        keep-younger-than: 7
-        keep-last: 6
+        keep-younger-than: 15
+        keep-last: 14
         prune-tags-regexes: ^.*$
         prune-untagged: true
