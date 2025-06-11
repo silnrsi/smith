@@ -120,8 +120,8 @@ class FontTests(object) :
                 cmd='${CMPTXTRENDER} -p -k -e ${shaper} -s "${script}" -l "${lang}" -e ${altshaper} -s "${altscript}" -L ${shaper} -L ${altshaper}'
                     ' -t "${SRC[0]}" -o "${TGT}" --copy=fonts --strip -g ../source/glyph_data.csv "${SRC[1]}" "${SRC[1]}"')
         self.addTestCmd('test', usestandards=True, extracmds=['cmptxtrender'], shapers=1,
-                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L test'
-                    ' -L standard -o "${TGT}" --copy fonts_${shaper} --strip -g ../source/glyph_data.csv "${SRC[1]}" "${SRC[2]}"')
+                cmd='${CMPTXTRENDER} -p -k -e ${shaper} -e ${shaper} -s "${script}" -l "${lang}" -t "${SRC[0]}" -L reference'
+                    ' -L result -o "${TGT}" --copy fonts_${shaper} --strip -g ../source/glyph_data.csv "${SRC[2]}" "${SRC[1]}"')
         self.addTestCmd('ftml', type='FTML')
         self.addTestCmd('sile', cmd='fontproof --filename="${SRC[1]}" --output="${TGT}" "${SRC[0].abspath()}"', extracmds=['sile'], shapers=0, supports=['.sil'], ext='.pdf', shell=1)
         silescale = str(kw.get('sile_scale', ""))
