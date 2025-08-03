@@ -183,6 +183,12 @@ Another useful testing target is `smith fbchecks`. This runs all the generated f
 It does so using the fontbakery profile in pysilfont which explicitly list certains checks, excludes others and provides new ones. Local project-specific checks can also be added in the form of a fontbakery.yaml file at the root of the project.
 A html report is generated with the results for each font family along with a summary at the command-line.
 
+==== fontspector ====
+
+Another useful testing target is `smith fontspector`. This runs all the generated fonts through the https://github.com/fonttools/fontspector/[Fontspector] QA suite (which is the reimplementation of Font Bakery in Rust).
+It does so using the silfonts.toml profile which explicitly list certains checks, excludes others, overrides and provides new ones. 
+A html report is generated with the results for each font family along with a summary at the command-line.
+
 ==== ots ====
 
 This test target runs the fonts against the OTS the opentype sanitizer which is built-in various browser to reduce overflow risks. If the font does not pass the sanitizer it will be rejected by various browsers. 
