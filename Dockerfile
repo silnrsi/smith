@@ -204,6 +204,22 @@ COPY --link . ./
 #RUN python3 -m pip install .
 RUN uv pip install --system --break-system-packages .
 
+# Rust components: fontspector
+FROM build AS fontspector-src
+WORKDIR /src/fontspector
+COPY --from=ppa /etc/apt/ /etc/apt/
+RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
+    --mount=type=cache,target=/var/lib/apt,sharing=private \
+<<EOT
+    apt-get update
+	apt-get install rustup pkgconf libssl-dev protobuf-compiler zlib1g-dev -y
+    rustup install stable
+    git clone --depth 1  https://github.com/fonttools/fontspector .
+    cd fontspector
+    cargo build --release
+    cp -v /src/fontspector/target/release/fontspector /usr/local/bin/fontspector
+EOT
+
 
 FROM base AS runtime
 LABEL org.opencontainers.image.authors="tim_eves@sil.org, nicolas_spalinger@sil.org" \
@@ -242,11 +258,15 @@ ADD --link \
     ${robotomono_src}/RobotoMono-Medium.ttf ${robotomono_src}/RobotoMono-MediumItalic.ttf \
     ${robotomono_src}/RobotoMono-Thin.ttf   ${robotomono_src}/RobotoMono-ThinItalic.ttf \
     /usr/local/share/fonts/robotomono/
+# Copy the fontspector profile
+COPY --link docker/silfonts.toml  /usr/local/share/silfonts/silfonts.toml
 COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
+COPY --link --from=fontspector-src /usr/local /usr/local
+
 
 
 # Install TeamCity build Agent, by extracting it from the official cloud image

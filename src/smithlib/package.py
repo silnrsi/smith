@@ -249,6 +249,14 @@ class Package(object) :
         for f in self.fonts :
             f.build_fontbakery(bld)
 
+    def build_fontspector(self, bld) :
+        if 'FONTSPECTOR' not in bld.env :
+            Logs.warn("fontspector not installed. Can't complete. See http://github.com/fonttools/fontspector")
+            return
+        self.subrun(bld, lambda p, b: p.build_fontspector(b))
+        for f in self.fonts :
+            f.build_fontspector(bld)
+
     def build_diffenator2(self, bld) :
         if 'DIFFENATOR2' not in bld.env :
             Logs.warn("diffenator2 not installed. Can't complete.")
@@ -899,15 +907,34 @@ class fbcheckContext(Context.Context) :
                 familynames = files.split("-")
                 fullfamilynames = familynames[0]
                 if os.path.exists(toppath + "/fontbakery.yaml"):
+                    print("")
                     print("Running Font Bakery using the local fontbakery.yaml profile on family: " + fullfamilynames + "...")
                     Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --config " + toppath + "/fontbakery.yaml" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -q -S -F -C -j", shell = 1).wait()
                     print("Done, see the generated HTML report for all the details.")
                 else:
+                    print("")
                     print("Running Font Bakery using the pysilfont profile on family: " + fullfamilynames + "...")
                     Utils.subprocess.Popen("fontbakery check-profile silfont.fbtests.profile " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontbakery-report-" + fullfamilynames + ".html" + " -q -S -F -C -j", shell = 1).wait()
                     print("Done, see the generated HTML report for all the details.")
+                    print("")
 
+class fontspectorContext(Context.Context) :
+    """Run fontspector checks using the silfonts profile."""
+    cmd = 'fontspector'
+    def execute(self) :
+        outputpath = getattr(Context.g_module, 'out', 'results')
+        toppath = getattr(Context.g_module, 'top', '.')
+        for files in os.listdir(outputpath):
+            if files.endswith('-Regular.ttf'):
+                familynames = files.split("-")
+                fullfamilynames = familynames[0]
+                print("")
+                print("Running Fontspector using the silfonts profile on family: " + fullfamilynames + "...")
+                Utils.subprocess.Popen("fontspector -p /usr/local/share/silfonts/silfonts.toml " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontspector-report-" + fullfamilynames + ".html" + " --succinct --full-lists", shell = 1).wait()
+                print("Done, see the generated HTML report for all the details.")
+                print("")
 class differContext(Context.Context) :
+
     """Run diffenator2 for regression testing."""
     cmd = 'differ'
     def execute(self) :
