@@ -11,7 +11,6 @@ glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
 glyphsLib @ git+https://github.com/googlefonts/glyphsLib
 MutatorMath @ git+https://github.com/LettError/MutatorMath
 odfpy @ git+https://github.com/eea/odfpy
-opentype-sanitizer @ git+https://github.com/googlefonts/ots-python
 ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
