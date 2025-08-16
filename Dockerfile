@@ -164,6 +164,19 @@ RUN <<EOT
 EOT
 
 
+# Build OTS Sanitizer
+FROM build AS ots-src
+WORKDIR /src/ots
+RUN <<EOT
+    git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
+    python3 -m pip install --upgrade ninja
+    python3 -m pip install --upgrade meson
+    meson build --buildtype=release
+    ninja -C build
+    ninja -C build install
+EOT
+
+
 # Install sile and fontprooof as a "rock"
 FROM build AS fontproof-src
 WORKDIR /src/fontproof
@@ -247,6 +260,7 @@ ADD --link \
     /usr/local/share/fonts/robotomono/
 # Copy the fontspector profile
 COPY --link docker/silfonts.toml  /usr/local/share/silfonts/silfonts.toml
+COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local

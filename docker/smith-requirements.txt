@@ -16,6 +16,7 @@ fontTools [all]
 defcon [pens,lxml]
 fontbakery [all]
 fontmake
+opentype-sanitizer
 
 # WStech-maintained libraries
 palaso
