@@ -1,4 +1,4 @@
-# silfonts profile
+# silfonts profile for fontspector
 
 # Included profiles
 include_profiles = [
@@ -7,18 +7,60 @@ include_profiles = [
 "universal"
 ]
 
-# Excludes
+# Excluded checks
 exclude_checks = [
 "googlefonts/font_copyright",
 "googlefonts/metadata/unreachable_subsetting",
-"googlefonts/repo/dirname_matches_nameid_1"
+"googlefonts/repo/dirname_matches_nameid_1",
+"soft_hyphen"
 ]
 
+# Sections
 [sections]
-"Check Selection" = [
+"Opentype Specification Checks" = [
+"opentype/GDEF_mark_chars",
+"opentype/GDEF_mark_chars",
+"opentype/GDEF_non_mark_chars",
+"opentype/GDEF_non_mark_chars",
+"opentype/GDEF_spacing_marks",
+"opentype/GDEF_spacing_marks",
+"opentype/caret_slope",
+"opentype/code_pages",
+"opentype/family/bold_italic_unique_for_nameid1",
+"opentype/family/consistent_family_name",
+"opentype/family/equal_font_versions",
+"opentype/family/max_4_fonts_per_family_name",
+"opentype/family/panose_familytype",
+"opentype/family/underline_thickness",
+"opentype/family_naming_recommendations",
+"opentype/font_version",
+"opentype/fsselection",
+"opentype/glyf_non_transformed_duplicate_components",
+"opentype/glyf_unused_data",
+"opentype/italic_angle",
+"opentype/layout_valid_feature_tags",
+"opentype/layout_valid_language_tags",
+"opentype/layout_valid_script_tags",
+"opentype/loca/maxp_num_glyphs",
+"opentype/mac_style",
+"opentype/maxadvancewidth",
+"opentype/monospace",
+"opentype/name/empty_records",
+"opentype/name/match_familyname_fullfont",
+"opentype/name/postscript_name_consistency",
+"opentype/points_out_of_bounds",
+"opentype/post_table_version",
+"opentype/postscript_name",
+"opentype/unitsperem",
+"opentype/varfont/family_axis_ranges",
+"opentype/vendor_id",
+"opentype/xavgcharwidth",
+]
+"Universal Profile Checks" = [
 "alt_caron",
 "arabic_high_hamza",
 "arabic_spacing_symbols",
+"base_has_width",
 "case_mapping",
 "contour_count",
 "control_chars",
@@ -27,23 +69,6 @@ exclude_checks = [
 "family/vertical_metrics",
 "file_size",
 "freetype_rasterizer",
-"googlefonts/canonical_filename",
-"googlefonts/family/equal_codepoint_coverage",
-"googlefonts/family/italics_have_roman_counterparts",
-"googlefonts/family/tnum_horizontal_metrics",
-"googlefonts/font_names",
-"googlefonts/fstype",
-"googlefonts/gasp",
-"googlefonts/glyphsets/shape_languages",
-"googlefonts/name/description_max_length",
-"googlefonts/name/familyname_first_char",
-"googlefonts/name/mandatory_entries",
-"googlefonts/render_own_name",
-"googlefonts/use_typo_metrics",
-"googlefonts/vendor_id",
-"googlefonts/vertical_metrics",
-"googlefonts/vertical_metrics_regressions",
-"googlefonts/weightclass",
 "gpos7",
 "gpos_kerning_info",
 "hinting_impact",
@@ -59,47 +84,7 @@ exclude_checks = [
 "name/trailing_spaces",
 "nested_components",
 "no_mac_entries",
-"opentype/caret_slope",
-"opentype/code_pages",
-"opentype/family/bold_italic_unique_for_nameid1",
-"opentype/family/consistent_family_name",
-"opentype/family/equal_font_versions",
-"opentype/family/max_4_fonts_per_family_name",
-"opentype/family_naming_recommendations",
-"opentype/family/panose_familytype",
-"opentype/family/underline_thickness",
-"opentype/font_version",
-"opentype/fsselection",
-"opentype/GDEF_mark_chars",
-"opentype/GDEF_non_mark_chars",
-"opentype/GDEF_spacing_marks",
-"opentype/glyf_non_transformed_duplicate_components",
-"opentype/glyf_unused_data",
-"opentype/italic_angle",
-"opentype/layout_valid_feature_tags",
-"opentype/layout_valid_language_tags",
-"opentype/layout_valid_script_tags",
-"opentype/loca/maxp_num_glyphs",
-"opentype/mac_style",
-"opentype/maxadvancewidth",
-"opentype/monospace",
-"opentype/name/empty_records",
-"opentype/name/match_familyname_fullfont",
-"opentype/name/postscript_name_consistency",
-"opentype/points_out_of_bounds",
-"opentype/postscript_name",
-"opentype/post_table_version",
-"opentype/unitsperem",
-"opentype/varfont/family_axis_ranges",
-"opentype/vendor_id",
-"opentype/xavgcharwidth",
 "os2_metrics_match_hhea",
-"outline_alignment_miss",
-"outline_colinear_vectors",
-"outline_direction",
-"outline_jaggy_segments",
-"outline_semi_vertical",
-"outline_short_segments",
 "overlapping_path_segments",
 "required_tables",
 "rupee",
@@ -118,6 +103,39 @@ exclude_checks = [
 "whitespace_glyphs",
 "whitespace_ink",
 "whitespace_widths"
+]
+"Font File Checks" = [
+]
+"Name table Checks" =  [
+]
+"Shaping Checks" =  [
+"googlefonts/glyphsets/shape_languages",
+]
+"Outline Checks" =  [
+"outline_alignment_miss",
+"outline_colinear_vectors",
+"outline_direction",
+"outline_jaggy_segments",
+"outline_semi_vertical",
+"outline_short_segments",
+]
+"Googlefonts Checks" = [
+"googlefonts/canonical_filename",
+"googlefonts/family/equal_codepoint_coverage",
+"googlefonts/family/italics_have_roman_counterparts",
+"googlefonts/family/tnum_horizontal_metrics",
+"googlefonts/fstype",
+"googlefonts/gasp",
+"googlefonts/name/description_max_length",
+"googlefonts/name/family_name_compliance",
+"googlefonts/name/familyname_first_char",
+"googlefonts/name/mandatory_entries",
+"googlefonts/render_own_name",
+"googlefonts/use_typo_metrics",
+"googlefonts/vendor_id",
+"googlefonts/vertical_metrics",
+"googlefonts/vertical_metrics_regressions",
+"googlefonts/weightclass",
 ]
 
 # Overrides
