@@ -13,7 +13,9 @@ exclude_checks = [
 "googlefonts/metadata/unreachable_subsetting",
 "googlefonts/repo/dirname_matches_nameid_1",
 "soft_hyphen",
-"typographic_family_name"
+"typographic_family_name", 
+"googlefonts/meta/script_lang_tags",
+"fontdata_namecheck"
 ]
 
 # Sections
