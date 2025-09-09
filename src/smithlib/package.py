@@ -328,6 +328,7 @@ class Package(object) :
         self.set_zip()
         tnode = bld.path.find_or_declare(self.zipfile.replace(".zip", ".tar.xz"))
         tar = tarfile.open(tnode.abspath(), "w:xz")
+        tarfiles  = set()
         basearc = self.get_basearc()
         for t in sorted(self.get_files(bld), key=lambda x:x[1]) :
             d, x = t[0], t[1]
@@ -335,8 +336,11 @@ class Package(object) :
             r = os.path.relpath(os.path.join(d, x), bld.bldnode.abspath())
             y = bld.path.find_or_declare(r)
             archive_name = os.path.join(basearc, t[2] if len(t) > 2 else x)
+            if archive_name in tarfiles:
+                continue
             if not archive_name.startswith('..') :
                 tar.add(y.abspath(), arcname = archive_name)
+            tarfiles.add(archive_name)
         tar.close()
 
     def execute_zip(self, bld) :
