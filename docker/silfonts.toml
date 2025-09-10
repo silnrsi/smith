@@ -192,6 +192,11 @@ code = "unwanted-tables"
 status = "WARN"
 reason = "It's fine to have a fontTools Debg table in your font when developing since it's very useful for debugging, just make sure it gets removed when making a release"
 
+[[overrides."googlefonts/font_names"]]
+code = "bad-names"
+status = "WARN"
+reason = "Regular is sometimes omitted from the PostScript name"
+
 # Configuration defaults
 [configuration_defaults.file_size]
 WARN_SIZE = 1048576
