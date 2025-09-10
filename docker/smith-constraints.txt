@@ -2,8 +2,8 @@ booleanOperations @ git+https://github.com/typemytype/booleanOperations
 cu2qu @ git+https://github.com/googlefonts/cu2qu
 defcon @ git+https://github.com/robotools/defcon
 diffenator2
-#fontbakery @ git+https://github.com/fonttools/fontbakery.git@5e5b8f6cbf749e34bbf854f60613e7d19a42ae4e
-fontbakery==1.0.0
+fontbakery @ git+https://github.com/fonttools/fontbakery.git@d289f332beb6b272a0aa2c7451bb87aa22da5473
+#fontbakery==1.0.0
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
 gftools @ git+https://github.com/googlefonts/gftools
