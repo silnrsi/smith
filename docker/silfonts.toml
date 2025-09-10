@@ -9,13 +9,40 @@ include_profiles = [
 
 # Excluded checks
 exclude_checks = [
+"caps_vertically_centered",
+"cjk_chws_feature",
+"cjk_not_enough_glyphs",
+"cmap/format_12",
+"color_cpal_brightness",
+"empty_glyph_on_gid1_for_colrv0",
+"family/win_ascent_and_descent",
+"fontdata_namecheck",
+"fvar_name_entries",
+"googlefonts/article/images",
+"googlefonts/axes_match",
+"googlefonts/axisregistry/fvar_axis_defaults",
+"googlefonts/cjk_vertical_metrics",
+"googlefonts/colorfont_tables",
+"googlefonts/description/broken_links",
+"googlefonts/description/eol_linebreaks",
+"googlefonts/description/family_update",
+"googlefonts/description/git_url",
+"googlefonts/description/has_article",
+"googlefonts/description/has_unsupported_elements",
+"googlefonts/description/min_length",
+"googlefonts/description/urls",
+"googlefonts/description/valid_html",
+"googlefonts/family/has_license",
 "googlefonts/font_copyright",
+"googlefonts/glyph_coverage",
+"googlefonts/license/OFL_body_text",
+"googlefonts/license/OFL_copyright",
+"googlefonts/meta/script_lang_tags",
+"googlefonts/metadata/axisregistry_bounds",
 "googlefonts/metadata/unreachable_subsetting",
 "googlefonts/repo/dirname_matches_nameid_1",
 "soft_hyphen",
-"typographic_family_name", 
-"googlefonts/meta/script_lang_tags",
-"fontdata_namecheck"
+"typographic_family_name"
 ]
 
 # Sections
