@@ -215,7 +215,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 	apt-get install rustup pkgconf libssl-dev protobuf-compiler zlib1g-dev -y
     rustup install stable
     git clone --depth 1  https://github.com/fonttools/fontspector .
-    cd fontspector
     cargo build --release
     cp -v /src/fontspector/target/release/fontspector /usr/local/bin/fontspector
 EOT
