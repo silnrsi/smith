@@ -24,10 +24,10 @@ and is released under _the BSD license_.
 ### Installation
 
 The standard `pip install .` will install just the smith packages and commands,
-but will not all the other font tooling which smith will search for
+but without all the other font utilities which smith will search for
 when `smith configure` is run. 
 
-To get the complete toolchain, follow the more descriptive step-by-step guide on [https://silnrsi.github.io/silfontdev/](http://silnrnsi.github.io/silfontdev/).
+To get and use the complete toolchain, follow the more descriptive step-by-step guide [Building and Modifying SIL fonts](https://writingsystems.info/topics/fonts/building-and-modifying-sil-fonts/).
 
 #### Docker image and helper script
 
