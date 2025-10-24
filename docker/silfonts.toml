@@ -4,11 +4,15 @@
 include_profiles = [
 "googlefonts",
 "opentype",
-"universal"
+"universal",
+"microsoft",
+"adobefonts"
 ]
 
 # Excluded checks
 exclude_checks = [
+"adobefonts/STAT_strings",
+"adobefonts/unsupported_tables",
 "caps_vertically_centered",
 "cjk_chws_feature",
 "cjk_not_enough_glyphs",
@@ -111,6 +115,18 @@ exclude_checks = [
 "iso15008/stem_width",
 "mandatory_avar_table",
 "math_signs_width", 
+"microsoft/copyright",
+"microsoft/fstype",
+"microsoft/fvar_STAT_axis_ranges",
+"microsoft/license_description",
+"microsoft/manufacturer",
+"microsoft/office_ribz_req",
+"microsoft/STAT_axis_values",
+"microsoft/STAT_table_axis_order",
+"microsoft/STAT_table_eliding_bit",
+"microsoft/trademark",
+"microsoft/vendor_url",
+"microsoft/version",
 "opentype/cff2_call_depth",
 "opentype/cff_ascii_strings",
 "opentype/cff_call_depth",
@@ -160,6 +176,10 @@ exclude_checks = [
 "Outline Checks" =  [
 ]
 "Googlefonts Checks" = [
+]
+"Adobefonts Checks" = [
+]
+"Microsoft Checks" = [
 ]
 
 # Overrides
