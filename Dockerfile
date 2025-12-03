@@ -260,6 +260,7 @@ ADD --link \
     /usr/local/share/fonts/robotomono/
 # Copy the fontspector profile
 COPY --link docker/silfonts.toml  /usr/local/share/silfonts/silfonts.toml
+# Copy the layers back in
 COPY --link --from=ots-src /usr/local /usr/local
 COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
