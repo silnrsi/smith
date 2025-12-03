@@ -67,6 +67,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     python3 -m pip install --upgrade --break-system-packages --root-user-action ignore packaging setuptools wheel typing_extensions build
     python3 -m pip --version
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+    pip uninstall fs -y
 EOT
 
 # Grab the PPAs
