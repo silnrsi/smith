@@ -343,7 +343,7 @@ designspace('source/Example.designspace', # ...
 
 shortcircuit::
     If this is set to True then if a design space instance has the same configuration parameters as a master, smith will not
-    generate an instance, but use the master file directly. If False then a new instance is always created. Defaults to True.
+    generate an instance, but use the master file directly. If False then a new instance is always created. Defaults to False.
 
 Note, however, that in contrast to the simplest font object, the `target` attribute cannot be as simple as `Example-Regular.ttf` but must be an expression that yields an appropriate filename for each instance. This will also be true for some other attributes as well, for example the attachment point information specified by the `ap` attribute will need to be different for each instance.
 
