@@ -637,7 +637,7 @@ class DesignSpace(object):
                 newkw['defaultsinaxes'] = fsrc.isDefault() and not newkw['axes']['axes']['ital']
                 if familyname != smfn:
                     newkw['axes']['altfamily'] = smfn
-                if self.kw.get('shortcircuit', True) and 'name' in inst.attrib and srcinst is not None:
+                if self.kw.get('shortcircuit', False) and 'name' in inst.attrib and srcinst is not None:
                     mfont = self.srcs[inst.get('name')]
                     masterFName = os.path.join(base, mfont.filename)
                     for sub in ('kern', 'glyphs', 'info', 'lib', 'familyname', 'stylename', 'stylemapstylename', 'stylemapfamilyname'):
