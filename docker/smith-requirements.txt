@@ -12,7 +12,7 @@ weasyprint
 diffenator2
 ufo2ft 
 numpy
-fontTools [all] 
+fontTools 
 defcon [pens,lxml]
 fontbakery [all]
 fontmake
