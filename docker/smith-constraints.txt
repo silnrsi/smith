@@ -15,7 +15,7 @@ ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
 #fonttools @ git+https://github.com/fonttools/fonttools
-fontTools==4.60.1
+fontTools==4.61.1
 weasyprint==66.0
 
 # team-maintained libraries
