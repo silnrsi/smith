@@ -200,7 +200,7 @@ WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
 #RUN python3 -m pip install --use-pep517 -r docker/smith-requirements.txt
 RUN pip install uv pipx
-RUN uv pip install --system --break-system-packages -U -r docker/smith-requirements.txt
+RUN uv pip install --system --break-system-packages --prerelease=allow -U -r docker/smith-requirements.txt
 COPY --link . ./
 #RUN python3 -m pip install .
 RUN uv pip install --system --break-system-packages .

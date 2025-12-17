@@ -1,21 +1,20 @@
 booleanOperations @ git+https://github.com/typemytype/booleanOperations
 cu2qu @ git+https://github.com/googlefonts/cu2qu
-defcon @ git+https://github.com/robotools/defcon
-diffenator2
 fontbakery @ git+https://github.com/fonttools/fontbakery.git@d289f332beb6b272a0aa2c7451bb87aa22da5473
 #fontbakery==1.0.0
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
 gftools @ git+https://github.com/googlefonts/gftools
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
-glyphsLib @ git+https://github.com/googlefonts/glyphsLib
-MutatorMath @ git+https://github.com/LettError/MutatorMath
+#glyphsLib @ git+https://github.com/googlefonts/glyphsLib
+glyphsLib
 odfpy @ git+https://github.com/eea/odfpy
-ufo2ft @ git+https://github.com/googlei18n/ufo2ft
+#ufo2ft @ git+https://github.com/googlei18n/ufo2ft
+ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
 #fonttools @ git+https://github.com/fonttools/fonttools
-fontTools==4.61.1
+fonttools
 weasyprint==66.0
 
 # team-maintained libraries

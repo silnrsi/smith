@@ -4,21 +4,20 @@ silfont @ git+https://github.com/silnrsi/pysilfont.git@master
 
 # Top-level requirements
 compreffor
-MutatorMath
 odfpy
-opentype-sanitizer
 setuptools-git-ls-files
 weasyprint
 diffenator2
 ufo2ft 
 numpy
-fontTools 
-defcon [pens,lxml]
-fontbakery [all]
+fonttools[ufo,lxml,unicode]
+defcon 
+fontbakery[all]
+glyphsLib
 fontmake
 opentype-sanitizer
 
-# WStech-maintained libraries
+# WSTech-maintained libraries
 palaso
 feaxlib
 sldr
