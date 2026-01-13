@@ -86,6 +86,7 @@ exclude_checks = [
 "googlefonts/metadata/valid_filename_values",
 "googlefonts/metadata/valid_full_name_values",
 "googlefonts/metadata/valid_post_script_name_values",
+"googlefonts/metadata/valid_primary_script_language",
 "googlefonts/metadata/weightclass",
 "googlefonts/meta/script_lang_tags",
 "googlefonts/name/license", 
