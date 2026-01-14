@@ -341,8 +341,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get clean
     install --owner=1005 --group=users -d /smith
 EOT
-COPY --link <<-EOT /etc/sudoers.d/builder-nopasswd
+COPY --link <<-EOT /etc/sudoers.d/nopasswd
     builder ALL=(ALL:ALL) NOPASSWD:ALL
+    ubuntu ALL=(ALL:ALL) NOPASSWD:ALL
 EOT
 VOLUME /smith
 ENTRYPOINT [ "/entrypoint.sh" ]
