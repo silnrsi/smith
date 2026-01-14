@@ -204,6 +204,7 @@ RUN uv pip install --system --break-system-packages --prerelease=allow -U -r doc
 COPY --link . ./
 #RUN python3 -m pip install .
 RUN uv pip install --system --break-system-packages .
+RUN uv pip install --system --break-system-packages unzone
 
 # Rust components: fontspector
 FROM build AS fontspector-src
