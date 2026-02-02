@@ -15,7 +15,7 @@ ufoLib2 @ git+https://github.com/fonttools/ufoLib2
 uharfbuzz @ git+https://github.com/harfbuzz/uharfbuzz
 #fonttools @ git+https://github.com/fonttools/fonttools
 fonttools
-weasyprint==66.0
+weasyprint
 
 # team-maintained libraries
 langtag @ git+https://github.com/silnrsi/langtags
