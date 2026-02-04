@@ -45,6 +45,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       python3-jinja2 \
       python3-poetry \
       python3-full \
+      python3-cairo \
       libgl1 \
       ipython3 \
       apt-utils \
