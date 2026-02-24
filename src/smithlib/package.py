@@ -923,7 +923,7 @@ class fbcheckContext(Context.Context) :
                     print("")
 
 class fontspectorContext(Context.Context) :
-    """Run fontspector checks using the silfonts profile."""
+    """Run fontspector checks using the silfonts (for static) and googlefonts (for variable) profiles."""
     cmd = 'fontspector'
     def execute(self) :
         outputpath = getattr(Context.g_module, 'out', 'results')
@@ -935,6 +935,12 @@ class fontspectorContext(Context.Context) :
                 print("")
                 print("Running Fontspector using the silfonts profile on family: " + fullfamilynames + "...")
                 Utils.subprocess.Popen("fontspector -p /usr/local/share/silfonts/silfonts.toml " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontspector-report-" + fullfamilynames + ".html" + " --succinct --full-lists", shell = 1).wait()
+                print("Done, see the generated HTML report for all the details.")
+                print("")
+            if files == 'variable':
+                print("")
+                print("Running Fontspector using the googlefonts profile on the variable font build...")
+                Utils.subprocess.Popen("fontspector -p googlefonts " + outputpath + "/" + files + "/*.ttf" + " --html " + outputpath + "/" + files + "/fontspector-report.html --succinct --full-lists", shell = 1).wait()
                 print("Done, see the generated HTML report for all the details.")
                 print("")
 class differContext(Context.Context) :

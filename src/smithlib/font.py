@@ -52,6 +52,8 @@ class Font(object) :
         res = set()
         if getattr(self, 'source', "").lower().endswith(".ufo") and not hasattr(self, "buildusingfontforge") :
             res.add('psfufo2ttf')
+        if getattr(self, 'source', "").lower().endswith(".designspace") :
+            res.add('fontmake')
         if not getattr(self, 'source', "").lower().endswith(".ttf") :
             if hasattr(self, 'buildusingfontforge') :
                 res.add('fontforge')
@@ -109,6 +111,8 @@ class Font(object) :
             bgen = bld(rule = "${COPY} " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         elif self.source.endswith(".ufo") and not hasattr(self, 'buildusingfontforge') :
             bgen = bld(rule = "${PSFUFO2TTF} -q " + parms + " '${SRC}' '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
+        elif self.source.endswith(".designspace") :
+            bgen = bld(rule = "${FONTMAKE} " + parms + " -o variable -m '${SRC}' --output-path '${TGT}'", source = srcnode, target = targetnode, name=self.target+"_ttf", shell=True)
         else :
             if getattr(self, "sfd_master", None) and self.sfd_master != self.source:
                 tarname = self.source + "_"
