@@ -8,7 +8,7 @@ gftools @ git+https://github.com/googlefonts/gftools
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
 #glyphsLib @ git+https://github.com/googlefonts/glyphsLib
 glyphsLib
-odfpy @ git+https://github.com/eea/odfpy
+#odfpy @ git+https://github.com/eea/odfpy
 #ufo2ft @ git+https://github.com/googlei18n/ufo2ft
 ufo2ft
 ufoLib2 @ git+https://github.com/fonttools/ufoLib2
