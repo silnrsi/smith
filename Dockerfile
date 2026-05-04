@@ -279,7 +279,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
 <<EOT
     apt-get update
     apt-get install -y \
-        openjdk-11-jre-headless
+        openjdk-21-jre-headless
     useradd -m buildagent
 EOT
 USER buildagent
