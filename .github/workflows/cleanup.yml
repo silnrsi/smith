@@ -13,7 +13,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         organization: silnrsi
         container: smith
-        dry-run: true
+        dry-run: false
         keep-younger-than: 15
         keep-last: 14
         prune-tags-regexes: ^.*$
