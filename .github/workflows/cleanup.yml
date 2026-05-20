@@ -14,13 +14,12 @@ jobs:
     permissions:
       packages: write
     steps:
-    - name: prune interactive images
-      uses: vlaurin/action-ghcr-prune@v0.6.0
+    - uses: snok/container-retention-policy@v3.0.0
       with:
+        account: silnrsi
         token: ${{ secrets.GITHUB_TOKEN }}
-        organization: silnrsi
-        container: smith
+        image-names: ${{ github.event.repository.name }}
+        tag-selection: tagged
+        cut-off: 2w
+        keep-n-most-recent: 14
         dry-run: ${{ inputs.dryrun }}
-        keep-younger-than: 15
-        keep-last: 14
-        prune-tags-regexes: ^.*$
