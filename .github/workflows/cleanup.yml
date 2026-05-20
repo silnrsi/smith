@@ -2,19 +2,23 @@ name: Prune images
 on:
   registry_package:
     types: [published]
+  workflow_dispatch: 
+    inputs:
+      dryrun:
+        type: boolean
+        default: false
 
 jobs:
   prune:
     runs-on: ubuntu-latest
     steps:
     - name: prune interactive images
-      uses: vlaurin/action-ghcr-prune@v0.5.0
+      uses: vlaurin/action-ghcr-prune@v0.6.0
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         organization: silnrsi
         container: smith
-        dry-run: false
+        dry-run: ${{ inputs.dryrun }}
         keep-younger-than: 15
         keep-last: 14
-        prune-tags-regexes: ^.*$
         prune-untagged: true
