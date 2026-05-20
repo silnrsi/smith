@@ -11,6 +11,8 @@ on:
 jobs:
   prune:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
     - name: prune interactive images
       uses: vlaurin/action-ghcr-prune@v0.6.0
@@ -21,5 +23,4 @@ jobs:
         dry-run: ${{ inputs.dryrun }}
         keep-younger-than: 15
         keep-last: 14
-        prune-untagged: true
         prune-tags-regexes: ^.*$
