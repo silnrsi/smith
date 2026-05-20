@@ -22,3 +22,4 @@ jobs:
         keep-younger-than: 15
         keep-last: 14
         prune-untagged: true
+        prune-tags-regexes: ^.*$
