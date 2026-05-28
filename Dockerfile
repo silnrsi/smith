@@ -146,6 +146,7 @@ RUN <<EOT
         -Dgraphite2=enabled \
         -Dgobject=disabled \
         -Dintrospection=disabled \
+        -Dgpu=disabled \
         -Dtests=disabled \
         -Ddocs=disabled
     meson compile -C build
