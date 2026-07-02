@@ -4,7 +4,8 @@ fontbakery @ git+https://github.com/fonttools/fontbakery.git@d289f332beb6b272a0a
 #fontbakery==1.0.0
 fontMath @ git+https://github.com/robotools/fontMath
 fontParts @ git+https://github.com/robotools/fontParts
-gftools @ git+https://github.com/googlefonts/gftools
+#gftools @ git+https://github.com/googlefonts/gftools
+gftools @ git+https://github.com/googlefonts/gftools.git@e97cfa87398b04a873ea1ba63850b7e01553572a
 glyphConstruction @ git+https://github.com/typemytype/glyphConstruction
 #glyphsLib @ git+https://github.com/googlefonts/glyphsLib
 glyphsLib
