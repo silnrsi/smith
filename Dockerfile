@@ -64,8 +64,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     #python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
     python3 -m pip config --global set global.root-user-action ignore
-    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore pip 
-    python3 -m pip install --upgrade --break-system-packages --root-user-action ignore packaging setuptools wheel typing_extensions build
+    python3 -m pip install uv
+    uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade pip
+    uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade packaging setuptools wheel typing_extensions build
     python3 -m pip --version
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     pip uninstall fs -y
@@ -132,7 +133,7 @@ RUN <<EOT
       -DGRAPHITE2_NTRACING:BOOL=OFF
     cmake --build build
     cmake --install build
-    python3 -m pip install --compile .
+    uv pip install --exclude-newer "15 days" --system --break-system-packages --compile .
 EOT
 WORKDIR /src/harfbuzz
 RUN <<EOT
@@ -172,8 +173,8 @@ FROM build AS ots-src
 WORKDIR /src/ots
 RUN <<EOT
     git clone --depth 1 --recurse-submodules https://github.com/khaledhosny/ots.git .
-    python3 -m pip install --upgrade ninja
-    python3 -m pip install --upgrade meson
+    uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade ninja
+    uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade meson
     meson build --buildtype=release
     ninja -C build
     ninja -C build install
@@ -201,12 +202,11 @@ FROM build AS smith-tooling
 WORKDIR /src/smith
 COPY --link docker/*requirements.txt docker/*constraints.txt docker/
 #RUN python3 -m pip install --use-pep517 -r docker/smith-requirements.txt
-RUN pip install uv pipx
-RUN uv pip install --system --break-system-packages --prerelease=allow -U -r docker/smith-requirements.txt
+RUN uv pip install --exclude-newer "15 days" --system --break-system-packages --prerelease=allow -U -r docker/smith-requirements.txt
 COPY --link . ./
 #RUN python3 -m pip install .
-RUN uv pip install --system --break-system-packages .
-RUN uv pip install --system --break-system-packages unzone
+RUN uv pip install --exclude-newer "15 days" --system --break-system-packages .
+RUN uv pip install --exclude-newer "15 days" --system --break-system-packages unzone
 
 # Rust components: fontspector
 FROM build AS fontspector-src
