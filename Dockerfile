@@ -64,7 +64,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     #python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
     python3 -m pip config --global set global.root-user-action ignore
-    python3 -m pip install uv
+    python3 -m pip install --uploaded-prior-to P15D uv
     uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade pip
     uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade packaging setuptools wheel typing_extensions build
     python3 -m pip --version
