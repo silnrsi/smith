@@ -23,3 +23,4 @@ langtag @ git+https://github.com/silnrsi/langtags
 palaso @ git+https://github.com/silnrsi/palaso-python
 feaxlib @ git+https://github.com/silnrsi/feax
 sldr @ git+https://github.com/silnrsi/sldrtools
+ucd @ git+https://github.com/silnrsi/python-ucd

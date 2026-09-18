@@ -22,6 +22,7 @@ palaso
 feaxlib
 sldr
 langtags
+ucd
 
 -r palaso-requirements.txt
 
