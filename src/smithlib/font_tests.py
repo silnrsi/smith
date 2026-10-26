@@ -207,7 +207,14 @@ class FontTests(object) :
         for ts in list(self._allTests.values()) :
             for t in ts :
                 res.update(t.get_build_tools(ctx))
-        return res
+        # The built-in test commands are registered whether or not the wscript
+        # uses them, so the tools they name must not be mandatory at configure
+        # time; a test that needs a missing tool reports it when it runs.
+        # Build tools are reported by Package.get_build_tools and stay
+        # mandatory.
+        for prog in res :
+            ctx.find_program(prog, var=prog.upper(), mandatory=False)
+        return set()
 
 
 class TestFile(object) :
