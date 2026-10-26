@@ -61,13 +61,17 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get remove python3-packaging python3-pip python3-setuptools python3-wheel python3-setuptools-scm -y
     wget https://bootstrap.pypa.io/get-pip.py
     python3 get-pip.py --break-system-packages
+    # from https://discuss.python.org/t/information-for-python-users-regarding-emudhra-emsign-ca-certificate-security-incident/109576
+    python3 -m pip install --break-system-packages "pip @ https://files.pythonhosted.org/packages/3f/06/3e4420302363fbb71be3c7f35ce042f54bfca330e3e66b3a2e3c4cca579f/pip-26.2.2-py3-none-any.whl#sha256=fd7f4dfa8190e014013b9f08f3e973f4e4c26ffd179a204895533a7254813a70"
+
     #python3 -m pip config --global set global.use-deprecated legacy-resolver
     python3 -m pip config --global set global.break-system-packages true
     python3 -m pip config --global set global.root-user-action ignore
-    python3 -m pip install --uploaded-prior-to P15D uv
-    uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade pip
+    python3 -m pip install --uploaded-prior-to P3D uv
+    uv pip install --exclude-newer "2 days" --system --break-system-packages --upgrade pip certifi sigstore brotli brotlicffi
     uv pip install --exclude-newer "15 days" --system --break-system-packages --upgrade packaging setuptools wheel typing_extensions build
     python3 -m pip --version
+    uv --version
     localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
     pip uninstall fs -y
 EOT
