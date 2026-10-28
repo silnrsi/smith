@@ -222,9 +222,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get update
 	apt-get install rustup pkgconf libssl-dev protobuf-compiler zlib1g-dev -y
     rustup install stable
-    git clone --depth 1  https://github.com/silnrsi/fontspector .
+    git clone --depth 1  https://github.com/silnrsi/fontspector-silfonts .
+    git checkout deploy
     cargo build --release
-    cp -v /src/fontspector/target/release/fontspector /usr/local/bin/fontspector
+    cargo build --manifest-path profile-adobe/Cargo.toml --release
+    cargo build --manifest-path profile-microsoft/Cargo.toml --release
+    cargo build --manifest-path profile-silfonts/Cargo.toml --release
+    cp -v /src/fontspector/target/release/fontspector /src/fontspector/target/release/*-fontspectorplugin /usr/local/bin
 EOT
 
 

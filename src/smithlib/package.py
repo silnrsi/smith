@@ -934,7 +934,7 @@ class fontspectorContext(Context.Context) :
                 fullfamilynames = familynames[0]
                 print("")
                 print("Running Fontspector using the silfonts profile on family: " + fullfamilynames + "...")
-                Utils.subprocess.Popen("fontspector -p /usr/local/share/silfonts/silfonts.toml " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontspector-report-" + fullfamilynames + ".html" + " --succinct --full-lists", shell = 1).wait()
+                Utils.subprocess.Popen("fontspector -p /usr/local/share/silfonts/silfonts.toml " + outputpath + "/" + fullfamilynames + "-*.ttf" + " --html " + outputpath + "/fontspector-report-" + fullfamilynames + ".html" + " --succinct --full-lists --plugin microsoft-fontspectorplugin,adobe-fontspectorplugin,silfonts-fontspectorplugin", shell = 1).wait()
                 print("Done, see the generated HTML report for all the details.")
                 print("")
             if files == 'variable':
