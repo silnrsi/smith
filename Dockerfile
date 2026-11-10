@@ -227,7 +227,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     cargo build --release
     cargo build --manifest-path profile-adobe/Cargo.toml --release
     cargo build --manifest-path profile-microsoft/Cargo.toml --release
-    cargo build --manifest-path profile-silfonts/Cargo.toml --release
     cp -v /src/fontspector/target/release/fontspector /src/fontspector/target/release/*-fontspectorplugin /usr/local/bin
 EOT
 
