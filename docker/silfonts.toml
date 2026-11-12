@@ -2,6 +2,7 @@
 
 # Included profiles
 include_profiles = [
+"silfonts",
 "googlefonts",
 "opentype",
 "universal",
@@ -162,6 +163,8 @@ exclude_checks = [
 
 # Sections
 [sections]
+"SIL Checks" = [
+]
 "Opentype Specification Checks" = [
 ]
 "Universal Profile Checks" = [
