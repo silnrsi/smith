@@ -246,6 +246,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     apt-get install -y \
       fonts-roboto \
       libfont-ttf-scripts-perl \
+      libfont-ttf-perl \
+      libclass-tiny-perl \
       libjson-perl \
       pandoc \
       sile \
@@ -258,6 +260,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
       dialog \
       libaa-bin
     paperconfig --paper a4
+    apt-get remove -y \
+	  texlive-latex-recommended tipa texlive-latex-base fonts-lmodern  
 EOT
 ARG robotomono_src=https://raw.githubusercontent.com/googlefonts/RobotoMono/main/fonts/ttf
 ADD --link \
@@ -276,7 +280,7 @@ COPY --link --from=fontproof-src /usr/local /usr/local
 COPY --link --from=grcompiler-src /usr/local /usr/local
 COPY --link --from=engines-src /usr/local /usr/local
 COPY --link --from=smith-tooling /usr/local /usr/local
-COPY --link --from=fontspector-src /usr/local /usr/local
+COPY --link --from=fontspector-src /usr/local/bin /usr/local/bin
 
 
 
