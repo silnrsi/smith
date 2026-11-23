@@ -295,8 +295,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=private \
     useradd -m buildagent
 EOT
 USER buildagent
-COPY --link --chown=1000:1000 --from=jetbrains/teamcity-minimal-agent /opt/buildagent/ /opt/buildagent/
-COPY --link --chown=1000:1000 --from=jetbrains/teamcity-minimal-agent /run-*.sh /
+COPY --link --chown=1001:1001 --from=jetbrains/teamcity-minimal-agent /opt/buildagent/ /opt/buildagent/
+COPY --link --chown=1001:1001 --from=jetbrains/teamcity-minimal-agent /run-*.sh /
 VOLUME "/data/teamcity_agent/conf"
 VOLUME "/opt/buildagent/work"
 VOLUME "/opt/buildagent/system"
