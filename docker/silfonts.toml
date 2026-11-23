@@ -126,6 +126,7 @@ exclude_checks = [
 "microsoft/STAT_table_eliding_bit",
 "microsoft/vendor_url",
 "microsoft/version",
+"name/repeating_characters",
 "opentype/cff2_call_depth",
 "opentype/cff_ascii_strings",
 "opentype/cff_call_depth",
